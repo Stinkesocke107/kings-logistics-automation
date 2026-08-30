@@ -1,0 +1,72 @@
+name: Test Driver Leave
+
+on:
+  workflow_dispatch:
+
+jobs:
+  send-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Send Test Leave
+        env:
+          DRIVER_UPDATES_WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
+        run: |
+          node <<'NODE'
+          const webhook =
+            process.env.DRIVER_UPDATES_WEBHOOK_URL;
+
+          if (!webhook) {
+            throw new Error(
+              "DRIVER_UPDATES_WEBHOOK_URL is missing."
+            );
+          }
+
+          const content =
+            "🧪 **TEST — Automatic Driver Update**\n\n" +
+            "<:kings_arrow:1466617263699267694> " +
+            "Please note that **[TestDriver](https://truckersmp.com)** is no longer part of " +
+            "<:KingsLogisticsLogo:1394506239920177243> " +
+            "**Kings Logistics** " +
+            "<:KingsLogisticsLogo:1394506239920177243>.";
+
+          const response =
+            await fetch(
+              webhook,
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body:
+                  JSON.stringify({
+                    content,
+
+                    allowed_mentions: {
+                      parse: []
+                    }
+                  })
+              }
+            );
+
+          if (!response.ok) {
+            const errorText =
+              await response.text();
+
+            throw new Error(
+              `Discord test failed: HTTP ${response.status} - ${errorText}`
+            );
+          }
+
+          console.log(
+            "Test Driver Leave sent successfully."
+          );
+          NODE
