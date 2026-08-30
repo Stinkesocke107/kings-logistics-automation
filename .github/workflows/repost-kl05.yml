@@ -23,180 +23,186 @@ jobs:
           node <<'NODE'
           const fs = require("fs");
 
-          const webhook =
-            process.env.CHANGELOG_DISCORD_WEBHOOK_URL;
+          async function main() {
+            const webhook =
+              process.env.CHANGELOG_DISCORD_WEBHOOK_URL;
 
-          if (!webhook) {
-            throw new Error(
-              "CHANGELOG_DISCORD_WEBHOOK_URL is missing."
-            );
-          }
-
-          const history =
-            JSON.parse(
-              fs.readFileSync(
-                "data/changelog-history.json",
-                "utf8"
-              )
-            );
-
-          const changelog =
-            history.changelogs.find(
-              item =>
-                item.id === "S01-KL05"
-            );
-
-          if (!changelog) {
-            throw new Error(
-              "S01-KL05 was not found in the Changelog history."
-            );
-          }
-
-          const publishedDate =
-            new Date(
-              changelog.publishedAt
-            );
-
-          const day =
-            publishedDate.getUTCDate();
-
-          const month =
-            publishedDate.toLocaleString(
-              "en-GB",
-              {
-                month: "long",
-                timeZone: "UTC"
-              }
-            );
-
-          const year =
-            publishedDate.getUTCFullYear();
-
-          const date =
-            `${day} ${month} ${year}`;
-
-          const number =
-            String(
-              changelog.number
-            ).padStart(
-              2,
-              "0"
-            );
-
-          const title =
-            `**Kings Logistics / Discord & Other Services / ` +
-            `Changelog – ${changelog.season} – KL${number} | ${date}**`;
-
-          const intro =
-            `Hello everyone,\n` +
-            `the following new features and changes have been implemented across ` +
-            `**Kings Logistics**:`;
-
-          const groups =
-            new Map();
-
-          for (
-            const entry
-            of changelog.entries
-          ) {
-            const category =
-              entry.category ||
-              "Other Changes";
-
-            if (
-              !groups.has(
-                category
-              )
-            ) {
-              groups.set(
-                category,
-                []
+            if (!webhook) {
+              throw new Error(
+                "CHANGELOG_DISCORD_WEBHOOK_URL is missing."
               );
             }
 
-            groups
-              .get(
-                category
-              )
-              .push(
-                entry.text
+            const history =
+              JSON.parse(
+                fs.readFileSync(
+                  "data/changelog-history.json",
+                  "utf8"
+                )
               );
-          }
 
-          const sections = [];
+            const changelog =
+              history.changelogs.find(
+                item =>
+                  item.id === "S01-KL05"
+              );
 
-          for (
-            const [
-              category,
-              entries
-            ]
-            of groups
-          ) {
-            sections.push(
-              `**${category}**\n\n` +
-              entries
-                .map(
-                  text =>
-                    `> * ${text}`
+            if (!changelog) {
+              throw new Error(
+                "S01-KL05 was not found in the Changelog history."
+              );
+            }
+
+            const publishedDate =
+              new Date(
+                changelog.publishedAt
+              );
+
+            const day =
+              publishedDate.getUTCDate();
+
+            const month =
+              publishedDate.toLocaleString(
+                "en-GB",
+                {
+                  month: "long",
+                  timeZone: "UTC"
+                }
+              );
+
+            const year =
+              publishedDate.getUTCFullYear();
+
+            const date =
+              `${day} ${month} ${year}`;
+
+            const number =
+              String(
+                changelog.number
+              ).padStart(
+                2,
+                "0"
+              );
+
+            const title =
+              `**Kings Logistics / Discord & Other Services / ` +
+              `Changelog – ${changelog.season} – KL${number} | ${date}**`;
+
+            const intro =
+              `Hello everyone,\n` +
+              `the following new features and changes have been implemented across ` +
+              `**Kings Logistics**:`;
+
+            const groups =
+              new Map();
+
+            for (
+              const entry
+              of changelog.entries
+            ) {
+              const category =
+                entry.category ||
+                "Other Changes";
+
+              if (
+                !groups.has(
+                  category
                 )
-                .join(
-                  "\n"
-                )
-            );
-          }
-
-          const footer =
-            `**Kings Logistics — Connecting the world, creating friendships.** ` +
-            `<:kings_heart:1500949819110326352>`;
-
-          let content =
-            `${title}\n\n` +
-            `${intro}\n\n` +
-            `${sections.join("\n\n")}\n\n` +
-            `${footer}`;
-
-          if (
-            content.length >
-            2000
-          ) {
-            throw new Error(
-              `KL05 is ${content.length} characters long and cannot be reposted as one Discord message.`
-            );
-          }
-
-          const response =
-            await fetch(
-              webhook,
-              {
-                method:
-                  "POST",
-
-                headers: {
-                  "Content-Type":
-                    "application/json"
-                },
-
-                body:
-                  JSON.stringify({
-                    content,
-
-                    allowed_mentions: {
-                      parse: []
-                    }
-                  })
+              ) {
+                groups.set(
+                  category,
+                  []
+                );
               }
-            );
 
-          if (!response.ok) {
-            const errorText =
-              await response.text();
+              groups
+                .get(
+                  category
+                )
+                .push(
+                  entry.text
+                );
+            }
 
-            throw new Error(
-              `Discord repost failed: HTTP ${response.status} - ${errorText}`
+            const sections = [];
+
+            for (
+              const [
+                category,
+                entries
+              ]
+              of groups
+            ) {
+              sections.push(
+                `**${category}**\n\n` +
+                entries
+                  .map(
+                    text =>
+                      `> * ${text}`
+                  )
+                  .join(
+                    "\n"
+                  )
+              );
+            }
+
+            const footer =
+              `**Kings Logistics — Connecting the world, creating friendships.** ` +
+              `<:kings_heart:1500949819110326352>`;
+
+            const content =
+              `${title}\n\n` +
+              `${intro}\n\n` +
+              `${sections.join("\n\n")}\n\n` +
+              `${footer}`;
+
+            if (
+              content.length >
+              2000
+            ) {
+              throw new Error(
+                `KL05 is ${content.length} characters long and cannot be reposted as one Discord message.`
+              );
+            }
+
+            const response =
+              await fetch(
+                webhook,
+                {
+                  method: "POST",
+
+                  headers: {
+                    "Content-Type":
+                      "application/json"
+                  },
+
+                  body:
+                    JSON.stringify({
+                      content,
+
+                      allowed_mentions: {
+                        parse: []
+                      }
+                    })
+                }
+              );
+
+            if (!response.ok) {
+              const errorText =
+                await response.text();
+
+              throw new Error(
+                `Discord repost failed: HTTP ${response.status} - ${errorText}`
+              );
+            }
+
+            console.log(
+              "S01-KL05 reposted successfully."
             );
           }
 
-          console.log(
-            "S01-KL05 reposted successfully."
-          );
+          main().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
           NODE
