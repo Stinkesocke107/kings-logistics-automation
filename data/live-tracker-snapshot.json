@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-30T20:56:12.487Z",
+  "members": 110,
+  "online": 3,
+  "ets2Online": 3,
+  "atsOnline": 0,
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 3,
+      "isEvent": false
+    }
+  ],
+  "players": [
+    {
+      "tmpId": 6343406,
+      "name": "FaJoste",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Odense",
+      "isEvent": false
+    },
+    {
+      "tmpId": 5249588,
+      "name": "IceCubeAlf",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Odense",
+      "isEvent": false
+    },
+    {
+      "tmpId": 4891248,
+      "name": "Stinkesocke107",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Hamburg",
+      "isEvent": false
+    }
+  ]
+}
