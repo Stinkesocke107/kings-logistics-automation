@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-30T22:50:43.111Z",
+  "updatedAt": "2026-08-30T22:57:05.510Z",
   "members": 110,
-  "online": 4,
-  "ets2Online": 4,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 4,
+      "online": 1,
       "isEvent": false
     }
   ],
@@ -19,31 +19,7 @@
       "name": "FaJoste",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Steinkjer",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6220412,
-      "name": "God_FalleN",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Steinkjer",
-      "isEvent": false
-    },
-    {
-      "tmpId": 5249588,
-      "name": "IceCubeAlf",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Steinkjer",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6164282,
-      "name": "Ste clemo",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Veliko Tarnovo",
+      "city": "Turku",
       "isEvent": false
     }
   ]
