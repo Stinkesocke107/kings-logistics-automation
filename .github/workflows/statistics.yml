@@ -34,10 +34,15 @@ jobs:
       - name: Update Kings Statistics Snapshot
         run: node statistics-snapshot.js
 
-      - name: Save Statistics Data
+      - name: Update Kings Central Overview
+        env:
+          CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
+        run: node central-overview.js
+
+      - name: Save Kings Statistics & Overview Data
         run: |
-          if git diff --quiet -- data/statistics.json data/statistics-snapshot.json && [ -z "$(git status --porcelain data/statistics.json data/statistics-snapshot.json)" ]; then
-            echo "No Statistics data changes to save."
+          if git diff --quiet -- data/statistics.json data/statistics-snapshot.json data/central-overview.json && [ -z "$(git status --porcelain data/statistics.json data/statistics-snapshot.json data/central-overview.json)" ]; then
+            echo "No Statistics or Overview data changes to save."
             exit 0
           fi
 
@@ -46,8 +51,9 @@ jobs:
 
           git add data/statistics.json
           git add data/statistics-snapshot.json
+          git add data/central-overview.json
 
-          git commit -m "Update Kings Statistics data"
+          git commit -m "Update Kings Statistics and Overview data"
 
           git pull --rebase origin main
           git push origin main
