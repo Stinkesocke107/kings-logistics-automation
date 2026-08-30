@@ -1,0 +1,52 @@
+{
+  "entries": [
+    {
+      "category": "Kings Milestone System",
+      "text": "A new automatic Kings Logistics Milestone Detector has been introduced.",
+      "source": "milestones",
+      "addedAt": null
+    },
+    {
+      "category": "Kings Milestone System",
+      "text": "The system automatically monitors the official Kings Logistics TruckersMP member count and detects milestones in 50-member steps from 150 up to 1,000 members.",
+      "source": "milestones",
+      "addedAt": null
+    },
+    {
+      "category": "Kings Milestone System",
+      "text": "Every new milestone is automatically announced in Kings News and can notify members with the News Notifications role.",
+      "source": "milestones",
+      "addedAt": null
+    },
+    {
+      "category": "Kings Milestone System",
+      "text": "Reached milestones are permanently remembered to prevent duplicate announcements if the member count later drops and reaches the same milestone again.",
+      "source": "milestones",
+      "addedAt": null
+    },
+    {
+      "category": "Automatic Changelog System",
+      "text": "A new Kings Logistics Changelog automation system has been introduced.",
+      "source": "changelog",
+      "addedAt": null
+    },
+    {
+      "category": "Automatic Changelog System",
+      "text": "Future changelogs can automatically receive their KL number, publication date and Discord formatting.",
+      "source": "changelog",
+      "addedAt": null
+    },
+    {
+      "category": "Automatic Changelog System",
+      "text": "Published changelogs are archived automatically and the system remembers the next KL number for future updates.",
+      "source": "changelog",
+      "addedAt": null
+    },
+    {
+      "category": "Automatic Changelog System",
+      "text": "The system also protects Discord's message limit and can split larger changelogs into multiple messages when required.",
+      "source": "changelog",
+      "addedAt": null
+    }
+  ]
+}
