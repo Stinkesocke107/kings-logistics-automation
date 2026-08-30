@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 // ======================================================
-// KINGS LOGISTICS — AUTOMATIC DRIVER UPDATES
+// KINGS LOGISTICS — DRIVER UPDATES & DRIVER HISTORY
 // ======================================================
 
 const KINGS_VTC_ID = 64284;
@@ -18,6 +18,13 @@ const STATE_FILE =
     __dirname,
     "data",
     "driver-members.json"
+  );
+
+const HISTORY_FILE =
+  path.join(
+    __dirname,
+    "data",
+    "driver-history.json"
   );
 
 // ======================================================
@@ -39,6 +46,84 @@ function getProfileUrl(tmpId) {
   return `https://truckersmp.com/user/${tmpId}`;
 }
 
+function nowISO() {
+  return new Date().toISOString();
+}
+
+function normalizeDate(value) {
+  if (!value) {
+    return null;
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return null;
+  }
+
+  return date.toISOString();
+}
+
+function ensureDataDirectory() {
+  fs.mkdirSync(
+    path.join(
+      __dirname,
+      "data"
+    ),
+    {
+      recursive: true
+    }
+  );
+}
+
+function readJson(
+  file,
+  fallback
+) {
+  if (
+    !fs.existsSync(file)
+  ) {
+    return fallback;
+  }
+
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        file,
+        "utf8"
+      )
+    );
+  } catch (error) {
+    console.error(
+      `Could not read ${path.basename(file)}.`
+    );
+
+    return fallback;
+  }
+}
+
+function writeJson(
+  file,
+  data
+) {
+  ensureDataDirectory();
+
+  fs.writeFileSync(
+    file,
+    JSON.stringify(
+      data,
+      null,
+      2
+    ) + "\n",
+    "utf8"
+  );
+}
+
 // ======================================================
 // LOAD CURRENT KINGS MEMBERS
 // ======================================================
@@ -53,9 +138,11 @@ async function getCurrentMembers() {
       MEMBERS_URL,
       {
         headers: {
-          "Accept": "application/json",
+          "Accept":
+            "application/json",
+
           "User-Agent":
-            "Kings Logistics Driver Updates"
+            "Kings Logistics Driver Automation"
         }
       }
     );
@@ -88,10 +175,20 @@ async function getCurrentMembers() {
             member.user_id
           ),
 
+        vtcMemberId:
+          Number(
+            member.id
+          ),
+
         username:
           String(
             member.username || ""
-          ).trim()
+          ).trim(),
+
+        joinDate:
+          normalizeDate(
+            member.joinDate
+          )
       }))
       .filter(member =>
         Number.isFinite(
@@ -108,89 +205,49 @@ async function getCurrentMembers() {
 }
 
 // ======================================================
-// LOAD PREVIOUS MEMBER STATE
+// CURRENT MEMBER BASELINE
 // ======================================================
 
 function loadState() {
+  const state =
+    readJson(
+      STATE_FILE,
+      null
+    );
+
   if (
-    !fs.existsSync(
-      STATE_FILE
+    !state ||
+    !Array.isArray(
+      state.members
     )
   ) {
     return null;
   }
 
-  try {
-    const raw =
-      fs.readFileSync(
-        STATE_FILE,
-        "utf8"
-      );
-
-    const state =
-      JSON.parse(
-        raw
-      );
-
-    if (
-      !Array.isArray(
-        state.members
-      )
-    ) {
-      return null;
-    }
-
-    return state;
-  } catch (error) {
-    console.error(
-      "Could not read previous Driver Updates state."
-    );
-
-    return null;
-  }
+  return state;
 }
 
-// ======================================================
-// SAVE MEMBER STATE
-// ======================================================
-
-function saveState(members) {
-  const directory =
-    path.dirname(
-      STATE_FILE
-    );
-
-  fs.mkdirSync(
-    directory,
-    {
-      recursive: true
-    }
-  );
-
-  const state = {
-    updatedAt:
-      new Date().toISOString(),
-
-    totalMembers:
-      members.length,
-
-    members:
-      members
-        .slice()
-        .sort(
-          (a, b) =>
-            a.tmpId - b.tmpId
-        )
-  };
-
-  fs.writeFileSync(
+function saveState(
+  members
+) {
+  writeJson(
     STATE_FILE,
-    JSON.stringify(
-      state,
-      null,
-      2
-    ) + "\n",
-    "utf8"
+    {
+      updatedAt:
+        nowISO(),
+
+      totalMembers:
+        members.length,
+
+      members:
+        members
+          .slice()
+          .sort(
+            (a, b) =>
+              a.tmpId -
+              b.tmpId
+          )
+    }
   );
 
   console.log(
@@ -198,11 +255,501 @@ function saveState(members) {
   );
 }
 
+function stateNeedsUpgrade(
+  state
+) {
+  if (!state) {
+    return true;
+  }
+
+  return state.members.some(
+    member =>
+      !Object.prototype.hasOwnProperty.call(
+        member,
+        "joinDate"
+      ) ||
+      !Object.prototype.hasOwnProperty.call(
+        member,
+        "vtcMemberId"
+      )
+  );
+}
+
 // ======================================================
-// JOIN MESSAGE
+// DRIVER HISTORY
 // ======================================================
 
-function buildJoinMessage(member) {
+function loadHistory() {
+  const history =
+    readJson(
+      HISTORY_FILE,
+      null
+    );
+
+  if (
+    !history ||
+    !Array.isArray(
+      history.members
+    ) ||
+    !Array.isArray(
+      history.events
+    )
+  ) {
+    return null;
+  }
+
+  return history;
+}
+
+function createHistoryBaseline(
+  currentMembers
+) {
+  const createdAt =
+    nowISO();
+
+  return {
+    version:
+      1,
+
+    initializedAt:
+      createdAt,
+
+    updatedAt:
+      createdAt,
+
+    members:
+      currentMembers
+        .map(member => ({
+          tmpId:
+            member.tmpId,
+
+          currentVtcMemberId:
+            member.vtcMemberId,
+
+          currentName:
+            member.username,
+
+          status:
+            "active",
+
+          /*
+            firstKnownJoinAt means the earliest
+            Kings join date known to this system.
+
+            We do not claim this is necessarily
+            the member's first-ever Kings
+            membership in their entire history.
+          */
+
+          firstKnownJoinAt:
+            member.joinDate,
+
+          lastJoinedAt:
+            member.joinDate,
+
+          lastLeftAt:
+            null,
+
+          /*
+            Only changes detected AFTER this
+            History system was introduced are
+            counted here.
+          */
+
+          joinCountTracked:
+            0,
+
+          leaveCountTracked:
+            0,
+
+          trackingStartedAt:
+            createdAt,
+
+          nameHistory: [
+            {
+              name:
+                member.username,
+
+              firstSeenAt:
+                createdAt,
+
+              lastSeenAt:
+                null
+            }
+          ]
+        }))
+        .sort(
+          (a, b) =>
+            a.tmpId -
+            b.tmpId
+        ),
+
+    /*
+      Events begin from the introduction
+      of this History system.
+
+      Existing members are NOT added as
+      fake historical Join events.
+    */
+
+    events:
+      []
+  };
+}
+
+function saveHistory(
+  history
+) {
+  history.updatedAt =
+    nowISO();
+
+  history.members.sort(
+    (a, b) =>
+      a.tmpId -
+      b.tmpId
+  );
+
+  writeJson(
+    HISTORY_FILE,
+    history
+  );
+
+  console.log(
+    "Driver History saved."
+  );
+}
+
+function findHistoryMember(
+  history,
+  tmpId
+) {
+  return history.members.find(
+    member =>
+      Number(
+        member.tmpId
+      ) ===
+      Number(
+        tmpId
+      )
+  );
+}
+
+function updateMemberName(
+  historyMember,
+  newName,
+  detectedAt
+) {
+  if (
+    historyMember.currentName ===
+    newName
+  ) {
+    return;
+  }
+
+  const openName =
+    historyMember.nameHistory
+      .slice()
+      .reverse()
+      .find(
+        item =>
+          item.lastSeenAt ===
+          null
+      );
+
+  if (openName) {
+    openName.lastSeenAt =
+      detectedAt;
+  }
+
+  historyMember.nameHistory.push({
+    name:
+      newName,
+
+    firstSeenAt:
+      detectedAt,
+
+    lastSeenAt:
+      null
+  });
+
+  historyMember.currentName =
+    newName;
+}
+
+// ======================================================
+// HISTORY — JOIN
+// ======================================================
+
+function recordJoin(
+  history,
+  member,
+  detectedAt
+) {
+  let historyMember =
+    findHistoryMember(
+      history,
+      member.tmpId
+    );
+
+  if (!historyMember) {
+    historyMember = {
+      tmpId:
+        member.tmpId,
+
+      currentVtcMemberId:
+        member.vtcMemberId,
+
+      currentName:
+        member.username,
+
+      status:
+        "active",
+
+      firstKnownJoinAt:
+        member.joinDate ||
+        detectedAt,
+
+      lastJoinedAt:
+        member.joinDate ||
+        detectedAt,
+
+      lastLeftAt:
+        null,
+
+      joinCountTracked:
+        1,
+
+      leaveCountTracked:
+        0,
+
+      trackingStartedAt:
+        detectedAt,
+
+      nameHistory: [
+        {
+          name:
+            member.username,
+
+          firstSeenAt:
+            detectedAt,
+
+          lastSeenAt:
+            null
+        }
+      ]
+    };
+
+    history.members.push(
+      historyMember
+    );
+  } else {
+    updateMemberName(
+      historyMember,
+      member.username,
+      detectedAt
+    );
+
+    historyMember.status =
+      "active";
+
+    historyMember.currentVtcMemberId =
+      member.vtcMemberId;
+
+    historyMember.lastJoinedAt =
+      member.joinDate ||
+      detectedAt;
+
+    historyMember.joinCountTracked =
+      Number(
+        historyMember.joinCountTracked
+      ) + 1;
+  }
+
+  history.events.push({
+    type:
+      "join",
+
+    tmpId:
+      member.tmpId,
+
+    username:
+      member.username,
+
+    occurredAt:
+      member.joinDate ||
+      detectedAt,
+
+    detectedAt:
+      detectedAt
+  });
+
+  console.log(
+    `History Join recorded: ${member.username}`
+  );
+}
+
+// ======================================================
+// HISTORY — LEAVE
+// ======================================================
+
+function recordLeave(
+  history,
+  member,
+  detectedAt
+) {
+  let historyMember =
+    findHistoryMember(
+      history,
+      member.tmpId
+    );
+
+  if (!historyMember) {
+    historyMember = {
+      tmpId:
+        Number(
+          member.tmpId
+        ),
+
+      currentVtcMemberId:
+        member.vtcMemberId ||
+        null,
+
+      currentName:
+        member.username,
+
+      status:
+        "left",
+
+      firstKnownJoinAt:
+        member.joinDate ||
+        null,
+
+      lastJoinedAt:
+        member.joinDate ||
+        null,
+
+      lastLeftAt:
+        detectedAt,
+
+      joinCountTracked:
+        0,
+
+      leaveCountTracked:
+        1,
+
+      trackingStartedAt:
+        detectedAt,
+
+      nameHistory: [
+        {
+          name:
+            member.username,
+
+          firstSeenAt:
+            detectedAt,
+
+          lastSeenAt:
+            detectedAt
+        }
+      ]
+    };
+
+    history.members.push(
+      historyMember
+    );
+  } else {
+    historyMember.status =
+      "left";
+
+    historyMember.lastLeftAt =
+      detectedAt;
+
+    historyMember.leaveCountTracked =
+      Number(
+        historyMember.leaveCountTracked
+      ) + 1;
+  }
+
+  history.events.push({
+    type:
+      "leave",
+
+    tmpId:
+      Number(
+        member.tmpId
+      ),
+
+    username:
+      member.username,
+
+    occurredAt:
+      detectedAt,
+
+    detectedAt:
+      detectedAt
+  });
+
+  console.log(
+    `History Leave recorded: ${member.username}`
+  );
+}
+
+// ======================================================
+// HISTORY — NAME CHANGE
+// ======================================================
+
+function recordNameChange(
+  history,
+  rename,
+  detectedAt
+) {
+  const historyMember =
+    findHistoryMember(
+      history,
+      rename.tmpId
+    );
+
+  if (historyMember) {
+    updateMemberName(
+      historyMember,
+      rename.newUsername,
+      detectedAt
+    );
+  }
+
+  history.events.push({
+    type:
+      "name_change",
+
+    tmpId:
+      rename.tmpId,
+
+    oldUsername:
+      rename.oldUsername,
+
+    newUsername:
+      rename.newUsername,
+
+    occurredAt:
+      detectedAt,
+
+    detectedAt:
+      detectedAt
+  });
+
+  console.log(
+    `History Name Change recorded: ` +
+    `${rename.oldUsername} -> ${rename.newUsername}`
+  );
+}
+
+// ======================================================
+// DISCORD JOIN MESSAGE
+// ======================================================
+
+function buildJoinMessage(
+  member
+) {
   const name =
     escapeMarkdown(
       member.username
@@ -227,10 +774,12 @@ function buildJoinMessage(member) {
 }
 
 // ======================================================
-// LEAVE MESSAGE
+// DISCORD LEAVE MESSAGE
 // ======================================================
 
-function buildLeaveMessage(member) {
+function buildLeaveMessage(
+  member
+) {
   const name =
     escapeMarkdown(
       member.username
@@ -251,10 +800,12 @@ function buildLeaveMessage(member) {
 }
 
 // ======================================================
-// SEND DISCORD MESSAGE
+// SEND PUBLIC DRIVER UPDATE
 // ======================================================
 
-async function sendDiscordMessage(content) {
+async function sendDiscordMessage(
+  content
+) {
   if (!DISCORD_WEBHOOK_URL) {
     throw new Error(
       "DRIVER_UPDATES_WEBHOOK_URL is missing."
@@ -265,7 +816,8 @@ async function sendDiscordMessage(content) {
     await fetch(
       DISCORD_WEBHOOK_URL,
       {
-        method: "POST",
+        method:
+          "POST",
 
         headers: {
           "Content-Type":
@@ -294,7 +846,7 @@ async function sendDiscordMessage(content) {
 }
 
 // ======================================================
-// COMPARE MEMBER LISTS
+// COMPARE OLD + CURRENT MEMBER LIST
 // ======================================================
 
 function compareMembers(
@@ -328,8 +880,6 @@ function compareMembers(
   const joined = [];
   const left = [];
   const renamed = [];
-
-  // JOINED + NAME CHANGES
 
   for (
     const [
@@ -371,8 +921,6 @@ function compareMembers(
     }
   }
 
-  // LEFT
-
   for (
     const [
       tmpId,
@@ -407,9 +955,9 @@ function validateMemberChange(
   currentMembers
 ) {
   /*
-    If TruckersMP ever returns a broken or
-    incomplete member list, this protection
-    prevents dozens of false Leave messages.
+    Prevent a broken/incomplete TruckersMP
+    response from generating dozens of
+    false Leave messages.
   */
 
   if (
@@ -420,13 +968,13 @@ function validateMemberChange(
     throw new Error(
       `Safety stop: Member count suddenly changed from ` +
       `${oldMembers.length} to ${currentMembers.length}. ` +
-      `No Driver Updates were posted.`
+      `No Driver Updates or History changes were processed.`
     );
   }
 }
 
 // ======================================================
-// MAIN CHECK
+// MAIN DRIVER CHECK
 // ======================================================
 
 async function checkDriverUpdates() {
@@ -436,16 +984,50 @@ async function checkDriverUpdates() {
   const state =
     loadState();
 
+  let history =
+    loadHistory();
+
+  let historyCreated =
+    false;
+
   // ====================================================
-  // FIRST RUN
+  // FIRST DRIVER HISTORY INITIALIZATION
   // ====================================================
 
-  /*
-    First run only creates the baseline.
+  if (!history) {
+    console.log("");
+    console.log(
+      "First Driver History run detected."
+    );
 
-    Existing Kings members are NOT posted
-    as new Drivers.
-  */
+    console.log(
+      "Creating Driver History from current Kings members."
+    );
+
+    history =
+      createHistoryBaseline(
+        currentMembers
+      );
+
+    saveHistory(
+      history
+    );
+
+    historyCreated =
+      true;
+
+    console.log(
+      "Existing Drivers were added as the History baseline."
+    );
+
+    console.log(
+      "No fake historical Join events were created."
+    );
+  }
+
+  // ====================================================
+  // FIRST DRIVER-UPDATES BASELINE
+  // ====================================================
 
   if (
     !state ||
@@ -455,15 +1037,15 @@ async function checkDriverUpdates() {
   ) {
     console.log("");
     console.log(
-      "First Driver Updates run detected."
-    );
-
-    console.log(
-      "Saving current Kings members without posting Discord updates."
+      "First Driver Updates baseline run detected."
     );
 
     saveState(
       currentMembers
+    );
+
+    console.log(
+      "No public Join or Leave messages were posted."
     );
 
     return;
@@ -496,35 +1078,61 @@ async function checkDriverUpdates() {
     `Name changes: ${changes.renamed.length}`
   );
 
+  const hasChanges =
+    changes.joined.length > 0 ||
+    changes.left.length > 0 ||
+    changes.renamed.length > 0;
+
+  const needsStateUpgrade =
+    stateNeedsUpgrade(
+      state
+    );
+
   // ====================================================
   // NO CHANGES
   // ====================================================
 
-  /*
-    VERY IMPORTANT:
-
-    If nothing changed, the state file is
-    NOT rewritten.
-
-    This prevents unnecessary GitHub commits
-    every few minutes.
-  */
-
   if (
-    changes.joined.length === 0 &&
-    changes.left.length === 0 &&
-    changes.renamed.length === 0
+    !hasChanges
   ) {
     console.log("");
     console.log(
       "No Kings Driver changes detected."
     );
 
+    /*
+      Existing driver-members.json was created
+      before Join Dates were stored.
+
+      Upgrade it once so future History data
+      has the additional information.
+    */
+
+    if (
+      needsStateUpgrade
+    ) {
+      console.log(
+        "Upgrading Driver member baseline with TruckersMP Join Dates."
+      );
+
+      saveState(
+        currentMembers
+      );
+    }
+
+    if (
+      historyCreated
+    ) {
+      console.log(
+        "Driver History initialization completed."
+      );
+    }
+
     return;
   }
 
   // ====================================================
-  // NEW DRIVERS
+  // PUBLIC JOIN MESSAGES
   // ====================================================
 
   for (
@@ -543,7 +1151,7 @@ async function checkDriverUpdates() {
   }
 
   // ====================================================
-  // DRIVERS WHO LEFT
+  // PUBLIC LEAVE MESSAGES
   // ====================================================
 
   for (
@@ -561,17 +1169,47 @@ async function checkDriverUpdates() {
     );
   }
 
-  // ====================================================
-  // NAME CHANGES
-  // ====================================================
-
   /*
-    A name change does NOT create a public
-    Join or Leave message because the same
-    TruckersMP ID identifies the same member.
-
-    The new name is still saved for future checks.
+    Only after all required Discord messages
+    succeeded do we update our permanent data.
   */
+
+  const detectedAt =
+    nowISO();
+
+  // ====================================================
+  // HISTORY JOIN EVENTS
+  // ====================================================
+
+  for (
+    const member
+    of changes.joined
+  ) {
+    recordJoin(
+      history,
+      member,
+      detectedAt
+    );
+  }
+
+  // ====================================================
+  // HISTORY LEAVE EVENTS
+  // ====================================================
+
+  for (
+    const member
+    of changes.left
+  ) {
+    recordLeave(
+      history,
+      member,
+      detectedAt
+    );
+  }
+
+  // ====================================================
+  // HISTORY NAME CHANGES
+  // ====================================================
 
   for (
     const rename
@@ -581,16 +1219,21 @@ async function checkDriverUpdates() {
       `Name change: ${rename.oldUsername} -> ${rename.newUsername} ` +
       `(TMP ID ${rename.tmpId})`
     );
+
+    recordNameChange(
+      history,
+      rename,
+      detectedAt
+    );
   }
 
   // ====================================================
-  // SAVE NEW BASELINE
+  // SAVE PERMANENT DATA
   // ====================================================
 
-  /*
-    Only save AFTER required Discord messages
-    were successfully sent.
-  */
+  saveHistory(
+    history
+  );
 
   saveState(
     currentMembers
@@ -607,7 +1250,7 @@ async function start() {
   );
 
   console.log(
-    "Kings Logistics Driver Updates"
+    "Kings Logistics Driver Automation"
   );
 
   console.log(
@@ -620,7 +1263,7 @@ async function start() {
 
   console.log("");
   console.log(
-    "Kings Driver Updates completed successfully."
+    "Kings Driver Automation completed successfully."
   );
 }
 
@@ -628,7 +1271,7 @@ start().catch(error => {
   console.error("");
 
   console.error(
-    "Kings Driver Updates failed:"
+    "Kings Driver Automation failed:"
   );
 
   console.error(
