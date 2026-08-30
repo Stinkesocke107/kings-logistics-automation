@@ -1,10 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 
-// ======================================================
-// KINGS LOGISTICS — STATISTICS
-// ======================================================
-
 const KINGS_VTC_ID = 64284;
 
 const DISCORD_WEBHOOK_URL =
@@ -28,7 +24,7 @@ const KINGS_COLOR =
 
 
 // ======================================================
-// HELPERS
+// DATE HELPERS
 // ======================================================
 
 function getTodayUTC() {
@@ -78,7 +74,7 @@ function getStartOfWeekUTC() {
 
 
 // ======================================================
-// TRUCKERSMP MEMBERS
+// KINGS VTC MEMBERS
 // ======================================================
 
 async function getMemberCount() {
@@ -201,16 +197,16 @@ async function getServers() {
 
 
 // ======================================================
-// LIVE PLAYERS
+// LIVE PLAYER DATA
 // ======================================================
 
 async function getPlayers(server) {
   const url =
-    `https://tracker.ets2map.com/v3/area` +
-    `?x1=-1000000` +
-    `&y1=1000000` +
-    `&x2=1000000` +
-    `&y2=-1000000` +
+    "https://tracker.ets2map.com/v3/area" +
+    "?x1=-1000000" +
+    "&y1=1000000" +
+    "&x2=1000000" +
+    "&y2=-1000000" +
     `&server=${server.mapId}`;
 
 
@@ -222,7 +218,7 @@ async function getPlayers(server) {
 
   if (!response.ok) {
     throw new Error(
-      `${server.name}: HTTP ${response.status}`
+      `${server.game} - ${server.name}: HTTP ${response.status}`
     );
   }
 
@@ -238,7 +234,7 @@ async function getPlayers(server) {
     )
   ) {
     throw new Error(
-      `${server.name}: Invalid live response`
+      `${server.game} - ${server.name}: Invalid live response`
     );
   }
 
@@ -307,9 +303,12 @@ async function getOnlineStatistics() {
         uniquePlayers.set(
           tmpId,
           {
-            tmpId,
+            tmpId:
+              tmpId,
+
             game:
               server.game,
+
             server:
               server.name
           }
@@ -317,7 +316,7 @@ async function getOnlineStatistics() {
       }
     } catch (error) {
       console.error(
-        `Skipped ${server.name}: ${error.message}`
+        `Skipped ${server.game} - ${server.name}: ${error.message}`
       );
     }
   }
@@ -329,14 +328,14 @@ async function getOnlineStatistics() {
     );
 
 
-  const ets2 =
+  const ets2Count =
     players.filter(
       player =>
         player.game === "ETS2"
     ).length;
 
 
-  const ats =
+  const atsCount =
     players.filter(
       player =>
         player.game === "ATS"
@@ -347,8 +346,9 @@ async function getOnlineStatistics() {
     `Currently online: ${players.length}`
   );
 
+
   console.log(
-    `ETS2: ${ets} | ATS: ${ats}`
+    `ETS2: ${ets2Count} | ATS: ${atsCount}`
   );
 
 
@@ -356,14 +356,17 @@ async function getOnlineStatistics() {
     total:
       players.length,
 
-    ets2,
-    ats
+    ets2:
+      ets2Count,
+
+    ats:
+      atsCount
   };
 }
 
 
 // ======================================================
-// LOAD / CREATE STATISTICS STATE
+// LOAD STATISTICS DATA
 // ======================================================
 
 function loadState() {
@@ -401,14 +404,26 @@ function loadState() {
         state.days
       )
     ) {
-      state.days = [];
+      state.days =
+        [];
+    }
+
+
+    if (
+      !(
+        "discordMessageId"
+        in state
+      )
+    ) {
+      state.discordMessageId =
+        null;
     }
 
 
     return state;
   } catch (error) {
     console.error(
-      "Could not read statistics state."
+      "Could not read statistics state. Starting with a new state."
     );
 
 
@@ -423,6 +438,10 @@ function loadState() {
 }
 
 
+// ======================================================
+// SAVE STATISTICS DATA
+// ======================================================
+
 function saveState(state) {
   const directory =
     path.dirname(
@@ -433,7 +452,8 @@ function saveState(state) {
   fs.mkdirSync(
     directory,
     {
-      recursive: true
+      recursive:
+        true
     }
   );
 
@@ -456,7 +476,7 @@ function saveState(state) {
 
 
 // ======================================================
-// UPDATE DAILY HISTORY
+// DAILY HISTORY
 // ======================================================
 
 function updateHistory(
@@ -507,30 +527,39 @@ function updateHistory(
 
     day.peakOnline =
       Math.max(
-        day.peakOnline || 0,
+        Number(
+          day.peakOnline
+        ) || 0,
         online.total
       );
 
 
     day.peakETS2 =
       Math.max(
-        day.peakETS2 || 0,
+        Number(
+          day.peakETS2
+        ) || 0,
         online.ets2
       );
 
 
     day.peakATS =
       Math.max(
-        day.peakATS || 0,
+        Number(
+          day.peakATS
+        ) || 0,
         online.ats
       );
   }
 
 
-  /*
-    Keep approximately two years
-    of daily statistics.
-  */
+  state.days.sort(
+    (a, b) =>
+      a.date.localeCompare(
+        b.date
+      )
+  );
+
 
   if (
     state.days.length >
@@ -548,7 +577,7 @@ function updateHistory(
 
 
 // ======================================================
-// GROWTH
+// MEMBER GROWTH
 // ======================================================
 
 function getGrowth(
@@ -575,7 +604,8 @@ function getGrowth(
   const weekEntry =
     state.days.find(
       item =>
-        item.date >= weekStart
+        item.date >=
+        weekStart
     );
 
 
@@ -623,7 +653,7 @@ function getGrowth(
 
 
 // ======================================================
-// PEAKS
+// ONLINE PEAKS
 // ======================================================
 
 function getPeaks(
@@ -659,7 +689,9 @@ function getPeaks(
       0,
       ...weekDays.map(
         item =>
-          item.peakOnline || 0
+          Number(
+            item.peakOnline
+          ) || 0
       )
     );
 
@@ -669,14 +701,18 @@ function getPeaks(
       0,
       ...monthDays.map(
         item =>
-          item.peakOnline || 0
+          Number(
+            item.peakOnline
+          ) || 0
       )
     );
 
 
   return {
     daily:
-      currentDay.peakOnline || 0,
+      Number(
+        currentDay.peakOnline
+      ) || 0,
 
     weekly:
       weeklyPeak,
@@ -688,15 +724,16 @@ function getPeaks(
 
 
 // ======================================================
-// FORMAT NUMBERS
+// FORMAT GROWTH
 // ======================================================
 
-function formatGrowth(
-  value
-) {
-  if (value > 0) {
+function formatGrowth(value) {
+  if (
+    value > 0
+  ) {
     return `+${value}`;
   }
+
 
   return String(
     value
@@ -705,7 +742,7 @@ function formatGrowth(
 
 
 // ======================================================
-// BUILD DISCORD EMBED
+// DISCORD EMBED
 // ======================================================
 
 function buildEmbed(
@@ -716,7 +753,8 @@ function buildEmbed(
 ) {
   const timestamp =
     Math.floor(
-      Date.now() / 1000
+      Date.now() /
+      1000
     );
 
 
@@ -744,7 +782,8 @@ function buildEmbed(
     title:
       "Kings Logistics Statistics",
 
-    description,
+    description:
+      description,
 
     color:
       KINGS_COLOR,
@@ -758,13 +797,15 @@ function buildEmbed(
 
 
 // ======================================================
-// CREATE FIRST DISCORD MESSAGE
+// CREATE DISCORD MESSAGE
 // ======================================================
 
 async function createDiscordMessage(
   embed
 ) {
-  if (!DISCORD_WEBHOOK_URL) {
+  if (
+    !DISCORD_WEBHOOK_URL
+  ) {
     throw new Error(
       "STATS_DISCORD_WEBHOOK_URL is missing."
     );
@@ -772,7 +813,9 @@ async function createDiscordMessage(
 
 
   const separator =
-    DISCORD_WEBHOOK_URL.includes("?")
+    DISCORD_WEBHOOK_URL.includes(
+      "?"
+    )
       ? "&"
       : "?";
 
@@ -806,7 +849,9 @@ async function createDiscordMessage(
     );
 
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
     const errorText =
       await response.text();
 
@@ -821,7 +866,9 @@ async function createDiscordMessage(
     await response.json();
 
 
-  if (!message.id) {
+  if (
+    !message.id
+  ) {
     throw new Error(
       "Discord did not return a message ID."
     );
@@ -838,22 +885,30 @@ async function createDiscordMessage(
 
 
 // ======================================================
-// UPDATE EXISTING DISCORD MESSAGE
+// UPDATE DISCORD MESSAGE
 // ======================================================
 
 async function updateDiscordMessage(
   messageId,
   embed
 ) {
-  if (!DISCORD_WEBHOOK_URL) {
+  if (
+    !DISCORD_WEBHOOK_URL
+  ) {
     throw new Error(
       "STATS_DISCORD_WEBHOOK_URL is missing."
     );
   }
 
 
+  const baseUrl =
+    DISCORD_WEBHOOK_URL.split(
+      "?"
+    )[0];
+
+
   const url =
-    `${DISCORD_WEBHOOK_URL}/messages/${messageId}`;
+    `${baseUrl}/messages/${messageId}`;
 
 
   const response =
@@ -881,7 +936,9 @@ async function updateDiscordMessage(
     );
 
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
     const errorText =
       await response.text();
 
@@ -995,6 +1052,10 @@ async function start() {
   );
 }
 
+
+// ======================================================
+// RUN
+// ======================================================
 
 start().catch(error => {
   console.error("");
