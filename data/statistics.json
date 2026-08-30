@@ -1,13 +1,28 @@
 {
-  "discordMessageId": "1543540873537658891",
-  "days": [
+  "version": 2,
+  "createdAt": "2026-08-30T19:27:30.105Z",
+  "updatedAt": "2026-08-30T19:27:31.601Z",
+  "messageId": "1543540873537658891",
+  "allTime": {
+    "peakOnline": 4,
+    "peakETS2": 3,
+    "peakATS": 1
+  },
+  "history": [
     {
       "date": "2026-08-30",
       "startMembers": 110,
       "members": 110,
       "peakOnline": 4,
       "peakETS2": 3,
-      "peakATS": 1
+      "peakATS": 1,
+      "activitySamples": 1,
+      "ets2PlayerSamples": 0,
+      "atsPlayerSamples": 0,
+      "serverPlayerSamples": {},
+      "sampledHours": [
+        "2026-08-30T19:00:00.000Z"
+      ]
     }
   ]
 }
