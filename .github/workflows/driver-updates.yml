@@ -26,15 +26,15 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Check Kings Driver Updates
+      - name: Check Kings Driver Automation
         env:
           DRIVER_UPDATES_WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
         run: node driver-updates.js
 
-      - name: Save Driver Member State
+      - name: Save Driver Data
         run: |
-          if git diff --quiet -- data/driver-members.json && [ -z "$(git status --porcelain data/driver-members.json)" ]; then
-            echo "No Driver member state changes to save."
+          if git diff --quiet -- data/driver-members.json data/driver-history.json && [ -z "$(git status --porcelain data/driver-members.json data/driver-history.json)" ]; then
+            echo "No Driver data changes to save."
             exit 0
           fi
 
@@ -42,5 +42,9 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
 
           git add data/driver-members.json
-          git commit -m "Update Kings Driver member state"
-          git push
+          git add data/driver-history.json
+
+          git commit -m "Update Kings Driver data"
+
+          git pull --rebase origin main
+          git push origin main
