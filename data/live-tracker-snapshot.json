@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-30T21:04:14.802Z",
+  "updatedAt": "2026-08-30T21:06:46.100Z",
   "members": 110,
   "online": 3,
   "ets2Online": 3,
@@ -19,7 +19,7 @@
       "name": "FaJoste",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Hirtshals",
+      "city": "Kristiansand",
       "isEvent": false
     },
     {
@@ -27,7 +27,7 @@
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Hirtshals",
+      "city": "Frederikshavn",
       "isEvent": false
     },
     {
