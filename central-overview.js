@@ -3,18 +3,21 @@ const path = require("path");
 
 // ======================================================
 // KINGS LOGISTICS — CENTRAL OVERVIEW
+// Uses the Kings Live Tracker as central live data source.
 // ======================================================
 
 const KINGS_BLUE = 0x182dff;
 
+const MAX_SNAPSHOT_AGE_MINUTES = 20;
+
 const WEBHOOK_URL =
   process.env.CENTRAL_OVERVIEW_WEBHOOK_URL;
 
-const SNAPSHOT_FILE =
+const LIVE_SNAPSHOT_FILE =
   path.join(
     __dirname,
     "data",
-    "statistics-snapshot.json"
+    "live-tracker-snapshot.json"
   );
 
 const STATISTICS_FILE =
@@ -198,19 +201,23 @@ function monthKey(
 }
 
 // ======================================================
-// LOAD STATISTICS SNAPSHOT
+// LOAD CENTRAL LIVE TRACKER SNAPSHOT
 // ======================================================
 
-function loadSnapshot() {
+function loadLiveSnapshot() {
   const snapshot =
     readJson(
-      SNAPSHOT_FILE,
+      LIVE_SNAPSHOT_FILE,
       null
     );
 
-  if (!snapshot) {
+  if (
+    !snapshot ||
+    typeof snapshot !==
+      "object"
+  ) {
     throw new Error(
-      "Statistics Snapshot does not exist."
+      "Kings Live Tracker Snapshot does not exist."
     );
   }
 
@@ -220,14 +227,44 @@ function loadSnapshot() {
     )
   ) {
     throw new Error(
-      "Statistics Snapshot is invalid."
+      "Kings Live Tracker Snapshot is invalid."
+    );
+  }
+
+  const updatedAt =
+    normalizeDate(
+      snapshot.updatedAt
+    );
+
+  if (!updatedAt) {
+    throw new Error(
+      "Kings Live Tracker Snapshot has no valid updatedAt timestamp."
+    );
+  }
+
+  const ageMs =
+    Date.now() -
+    updatedAt.getTime();
+
+  const maximumAge =
+    MAX_SNAPSHOT_AGE_MINUTES *
+    60 *
+    1000;
+
+  if (
+    ageMs >
+    maximumAge
+  ) {
+    throw new Error(
+      `Kings Live Tracker Snapshot is too old (${Math.floor(
+        ageMs / 60000
+      )} minutes).`
     );
   }
 
   return {
     updatedAt:
-      snapshot.updatedAt ||
-      nowISO(),
+      updatedAt.toISOString(),
 
     members:
       number(
@@ -442,6 +479,7 @@ function getMonthlyServerActivity(
       .map(
         ([server, count]) => ({
           server,
+
           count:
             number(count)
         })
@@ -502,7 +540,8 @@ function getNextMilestone(
     milestone += 50
   ) {
     if (
-      members < milestone
+      members <
+      milestone
     ) {
       const completion =
         Math.min(
@@ -699,6 +738,7 @@ function getLatestChangelog() {
   ) {
     ids.push({
       season,
+
       number:
         nextNumber - 1
     });
@@ -749,9 +789,15 @@ function loadOverviewState() {
   ) {
     return {
       version: 1,
-      createdAt: nowISO(),
-      updatedAt: nowISO(),
-      messageId: null
+
+      createdAt:
+        nowISO(),
+
+      updatedAt:
+        nowISO(),
+
+      messageId:
+        null
     };
   }
 
@@ -1173,11 +1219,33 @@ async function start() {
     new Date();
 
   console.log(
-    "Loading Kings Statistics Snapshot..."
+    "Loading central Kings Live Tracker Snapshot..."
   );
 
   const snapshot =
-    loadSnapshot();
+    loadLiveSnapshot();
+
+  const snapshotDate =
+    normalizeDate(
+      snapshot.updatedAt
+    );
+
+  const snapshotAge =
+    snapshotDate
+      ? Math.max(
+          0,
+          Math.floor(
+            (
+              Date.now() -
+              snapshotDate.getTime()
+            ) / 1000
+          )
+        )
+      : 0;
+
+  console.log(
+    `Snapshot age: ${snapshotAge} seconds`
+  );
 
   console.log(
     `Members: ${snapshot.members}`
@@ -1185,6 +1253,14 @@ async function start() {
 
   console.log(
     `Currently Online: ${snapshot.online}`
+  );
+
+  console.log(
+    `ETS2: ${snapshot.ets2Online}`
+  );
+
+  console.log(
+    `ATS: ${snapshot.atsOnline}`
   );
 
   console.log("");
@@ -1237,6 +1313,14 @@ async function start() {
     `Online: ${snapshot.online}`
   );
 
+  console.log(
+    `ETS2: ${snapshot.ets2Online}`
+  );
+
+  console.log(
+    `ATS: ${snapshot.atsOnline}`
+  );
+
   const milestone =
     getNextMilestone(
       snapshot.members
@@ -1256,6 +1340,10 @@ async function start() {
   );
 
   console.log("");
+
+  console.log(
+    "Live data source: Kings Live Tracker Snapshot"
+  );
 
   console.log(
     "Kings Central Overview completed successfully."
