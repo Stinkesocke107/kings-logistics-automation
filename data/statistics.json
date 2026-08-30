@@ -1,7 +1,7 @@
 {
   "version": 2,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-08-30T19:27:31.601Z",
+  "updatedAt": "2026-08-30T20:08:46.019Z",
   "messageId": "1543540873537658891",
   "allTime": {
     "peakOnline": 4,
@@ -16,12 +16,13 @@
       "peakOnline": 4,
       "peakETS2": 3,
       "peakATS": 1,
-      "activitySamples": 1,
+      "activitySamples": 2,
       "ets2PlayerSamples": 0,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {},
       "sampledHours": [
-        "2026-08-30T19:00:00.000Z"
+        "2026-08-30T19:00:00.000Z",
+        "2026-08-30T20:00:00.000Z"
       ]
     }
   ]
