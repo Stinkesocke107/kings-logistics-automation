@@ -3,21 +3,12 @@ const path = require("path");
 
 // ======================================================
 // KINGS LOGISTICS — ADVANCED STATISTICS
+// Uses the Kings Live Tracker as its live data source.
 // ======================================================
 
-const KINGS_VTC_ID = 64284;
 const KINGS_BLUE = 0x182dff;
-
 const HISTORY_RETENTION_DAYS = 730;
-
-const MEMBERS_URL =
-  `https://api.truckersmp.com/v2/vtc/${KINGS_VTC_ID}/members`;
-
-const SERVERS_URL =
-  "https://api.truckersmp.com/v2/servers";
-
-const LIVE_MAP_URL =
-  "https://tracker.ets2map.com/v3/area";
+const MAX_SNAPSHOT_AGE_MINUTES = 20;
 
 const DISCORD_WEBHOOK_URL =
   process.env.STATS_DISCORD_WEBHOOK_URL;
@@ -27,6 +18,13 @@ const STATE_FILE =
     __dirname,
     "data",
     "statistics.json"
+  );
+
+const LIVE_SNAPSHOT_FILE =
+  path.join(
+    __dirname,
+    "data",
+    "live-tracker-snapshot.json"
   );
 
 const DRIVER_HISTORY_FILE =
@@ -231,6 +229,126 @@ function progressBar(value) {
 }
 
 // ======================================================
+// CENTRAL LIVE SNAPSHOT
+// ======================================================
+
+function loadLiveSnapshot() {
+  const snapshot =
+    readJson(
+      LIVE_SNAPSHOT_FILE,
+      null
+    );
+
+  if (
+    !snapshot ||
+    typeof snapshot !== "object"
+  ) {
+    throw new Error(
+      "Kings Live Tracker snapshot does not exist."
+    );
+  }
+
+  const updatedAt =
+    normalizeDate(
+      snapshot.updatedAt
+    );
+
+  if (!updatedAt) {
+    throw new Error(
+      "Kings Live Tracker snapshot has no valid updatedAt timestamp."
+    );
+  }
+
+  const ageMs =
+    Date.now() -
+    updatedAt.getTime();
+
+  const maximumAge =
+    MAX_SNAPSHOT_AGE_MINUTES *
+    60 *
+    1000;
+
+  if (ageMs > maximumAge) {
+    throw new Error(
+      `Kings Live Tracker snapshot is too old (${Math.floor(
+        ageMs / 60000
+      )} minutes).`
+    );
+  }
+
+  const activeServers =
+    Array.isArray(
+      snapshot.activeServers
+    )
+      ? snapshot.activeServers
+      : [];
+
+  const serverCounts =
+    activeServers
+      .map(server => ({
+        key:
+          `${String(
+            server.game || "Unknown"
+          ).toUpperCase()} — ${String(
+            server.name || "Unknown Server"
+          )}`,
+
+        game:
+          String(
+            server.game || ""
+          ).toUpperCase(),
+
+        name:
+          String(
+            server.name ||
+            "Unknown Server"
+          ),
+
+        count:
+          number(
+            server.online
+          ),
+
+        event:
+          Boolean(
+            server.isEvent
+          )
+      }))
+      .filter(
+        server =>
+          server.count > 0
+      );
+
+  return {
+    updatedAt,
+
+    members:
+      number(
+        snapshot.members
+      ),
+
+    activity: {
+      totalOnline:
+        number(
+          snapshot.online
+        ),
+
+      ets2Count:
+        number(
+          snapshot.ets2Online
+        ),
+
+      atsCount:
+        number(
+          snapshot.atsOnline
+        ),
+
+      serverCounts
+    }
+  };
+}
+
+// ======================================================
 // STATISTICS DATA
 // ======================================================
 
@@ -351,9 +469,6 @@ function loadStatistics() {
       migrated =
         true;
     } else {
-      oldHistory =
-        [];
-
       migrated =
         true;
     }
@@ -376,8 +491,7 @@ function loadStatistics() {
         : {};
 
     if (
-      raw.version !==
-      2
+      raw.version !== 2
     ) {
       migrated =
         true;
@@ -474,290 +588,6 @@ function loadStatistics() {
 
       history
     }
-  };
-}
-
-// ======================================================
-// HTTP REQUEST
-// ======================================================
-
-async function fetchJson(
-  url,
-  label
-) {
-  const response =
-    await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(
-      `${label}: HTTP ${response.status}`
-    );
-  }
-
-  return response.json();
-}
-
-// ======================================================
-// MEMBERS
-// ======================================================
-
-async function getMemberCount() {
-  const data =
-    await fetchJson(
-      MEMBERS_URL,
-      "TruckersMP members request failed"
-    );
-
-  if (
-    !data.response ||
-    !Array.isArray(
-      data.response.members
-    )
-  ) {
-    throw new Error(
-      "Invalid TruckersMP VTC members response."
-    );
-  }
-
-  return data.response.members.length;
-}
-
-// ======================================================
-// SERVERS
-// ======================================================
-
-async function getServers() {
-  const data =
-    await fetchJson(
-      SERVERS_URL,
-      "TruckersMP servers request failed"
-    );
-
-  if (
-    !Array.isArray(
-      data.response
-    )
-  ) {
-    throw new Error(
-      "Invalid TruckersMP servers response."
-    );
-  }
-
-  return data.response
-    .filter(server => {
-      if (!server.online) {
-        return false;
-      }
-
-      const mapId =
-        Number(
-          server.mapid
-        );
-
-      return Number.isFinite(
-        mapId
-      );
-    })
-    .map(server => ({
-      name:
-        server.name,
-
-      mapId:
-        Number(
-          server.mapid
-        ),
-
-      game:
-        server.game,
-
-      isEvent:
-        server.event === true ||
-        server.specialEvent === true
-    }));
-}
-
-// ======================================================
-// LIVE MAP
-// ======================================================
-
-async function getPlayers(server) {
-  const url =
-    `${LIVE_MAP_URL}` +
-    `?x1=-1000000` +
-    `&y1=1000000` +
-    `&x2=1000000` +
-    `&y2=-1000000` +
-    `&server=${server.mapId}`;
-
-  const response =
-    await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(
-      `${server.game} - ${server.name}: HTTP ${response.status}`
-    );
-  }
-
-  const data =
-    await response.json();
-
-  /*
-    IMPORTANT:
-
-    The TruckersMP live-map endpoint returns:
-
-    {
-      Success: true,
-      Data: [...]
-    }
-
-    This is the same response handling used
-    by the working Kings Live Tracker.
-  */
-
-  if (
-    !data.Success ||
-    !Array.isArray(
-      data.Data
-    )
-  ) {
-    throw new Error(
-      `${server.game} - ${server.name}: Invalid live response`
-    );
-  }
-
-  return data.Data;
-}
-
-// ======================================================
-// CURRENT KINGS ACTIVITY
-// ======================================================
-
-async function getLiveActivity() {
-  const servers =
-    await getServers();
-
-  console.log(
-    `Online TruckersMP servers checked: ${servers.length}`
-  );
-
-  const uniquePlayers =
-    new Map();
-
-  const serverCounts =
-    [];
-
-  let ets2Count = 0;
-  let atsCount = 0;
-
-  for (
-    const server
-    of servers
-  ) {
-    try {
-      const players =
-        await getPlayers(
-          server
-        );
-
-      const kingsPlayers =
-        players.filter(
-          player =>
-            Number(
-              player.VtcId
-            ) ===
-            KINGS_VTC_ID
-        );
-
-      const game =
-        String(
-          server.game || ""
-        ).toUpperCase();
-
-      if (
-        game === "ETS2"
-      ) {
-        ets2Count +=
-          kingsPlayers.length;
-      }
-
-      if (
-        game === "ATS"
-      ) {
-        atsCount +=
-          kingsPlayers.length;
-      }
-
-      if (
-        kingsPlayers.length > 0
-      ) {
-        serverCounts.push({
-          key:
-            `${game} — ${server.name}`,
-
-          game,
-
-          name:
-            server.name,
-
-          count:
-            kingsPlayers.length,
-
-          event:
-            server.isEvent
-        });
-      }
-
-      for (
-        const player
-        of kingsPlayers
-      ) {
-        const tmpId =
-          Number(
-            player.MpId
-          );
-
-        const key =
-          Number.isFinite(
-            tmpId
-          )
-            ? String(tmpId)
-            : `${server.mapId}:${player.Name}`;
-
-        uniquePlayers.set(
-          key,
-          player
-        );
-      }
-
-      console.log(
-        `${game} - ${server.name}: ${kingsPlayers.length} Kings member(s)`
-      );
-    } catch (error) {
-      console.error(
-        `Skipped server: ${error.message}`
-      );
-    }
-  }
-
-  serverCounts.sort(
-    (a, b) =>
-      b.count -
-        a.count ||
-      a.key.localeCompare(
-        b.key
-      )
-  );
-
-  return {
-    totalOnline:
-      uniquePlayers.size,
-
-    ets2Count,
-
-    atsCount,
-
-    serverCounts
   };
 }
 
@@ -880,8 +710,10 @@ function getMovement(
     complete: true,
     joined,
     left,
+
     net:
-      joined - left
+      joined -
+      left
   };
 }
 
@@ -905,20 +737,22 @@ function movementLine(
 }
 
 // ======================================================
-// UPDATE DAILY DATA
+// UPDATE DAILY STATISTICS
 // ======================================================
 
 function updateState(
   state,
   members,
   activity,
-  now
+  sampleTime
 ) {
   let changed =
     false;
 
   const today =
-    dateKey(now);
+    dateKey(
+      sampleTime
+    );
 
   let entry =
     state.history.find(
@@ -1001,11 +835,13 @@ function updateState(
   }
 
   // ====================================================
-  // HOURLY ACTIVITY SAMPLE
+  // ONE ACTIVITY SAMPLE PER HOUR
   // ====================================================
 
   const hour =
-    currentHourKey(now);
+    currentHourKey(
+      sampleTime
+    );
 
   if (
     !entry.sampledHours.includes(
@@ -1094,7 +930,7 @@ function updateState(
   const cutoff =
     dateKey(
       new Date(
-        now.getTime() -
+        sampleTime.getTime() -
         (
           HISTORY_RETENTION_DAYS *
           DAY_MS
@@ -1204,7 +1040,6 @@ function getMonthlyActivity(
 
   let ets2 = 0;
   let ats = 0;
-  let samples = 0;
 
   const servers = {};
 
@@ -1220,11 +1055,6 @@ function getMonthlyActivity(
     ats +=
       number(
         day.atsPlayerSamples
-      );
-
-    samples +=
-      number(
-        day.activitySamples
       );
 
     for (
@@ -1272,7 +1102,6 @@ function getMonthlyActivity(
     null;
 
   return {
-    samples,
     ets2,
     ats,
     total,
@@ -1350,7 +1179,7 @@ function getNextMilestone(
 }
 
 // ======================================================
-// EMBED
+// BUILD EMBED
 // ======================================================
 
 function buildEmbed(
@@ -1358,20 +1187,26 @@ function buildEmbed(
   members,
   activity,
   driverHistory,
-  now
+  sampleTime
 ) {
   const dayStart =
-    startOfDay(now);
+    startOfDay(
+      sampleTime
+    );
 
   const weekStart =
-    startOfWeek(now);
+    startOfWeek(
+      sampleTime
+    );
 
   const monthStart =
-    startOfMonth(now);
+    startOfMonth(
+      sampleTime
+    );
 
   const updatedUnix =
     Math.floor(
-      now.getTime() /
+      sampleTime.getTime() /
       1000
     );
 
@@ -1421,21 +1256,21 @@ function buildEmbed(
     getMovement(
       driverHistory,
       dayStart,
-      now
+      sampleTime
     );
 
   const weekMovement =
     getMovement(
       driverHistory,
       weekStart,
-      now
+      sampleTime
     );
 
   const monthMovement =
     getMovement(
       driverHistory,
       monthStart,
-      now
+      sampleTime
     );
 
   const monthlyActivity =
@@ -1630,9 +1465,7 @@ async function createDiscordMessage(
 
         body:
           JSON.stringify({
-            embeds: [
-              embed
-            ],
+            embeds: [embed],
 
             allowed_mentions: {
               parse: []
@@ -1693,9 +1526,7 @@ async function updateDiscordMessage(
 
         body:
           JSON.stringify({
-            embeds: [
-              embed
-            ],
+            embeds: [embed],
 
             allowed_mentions: {
               parse: []
@@ -1778,8 +1609,53 @@ async function start() {
 
   console.log("");
 
-  const now =
-    new Date();
+  console.log(
+    "Loading central Kings Live Tracker snapshot..."
+  );
+
+  const live =
+    loadLiveSnapshot();
+
+  const members =
+    live.members;
+
+  const activity =
+    live.activity;
+
+  const sampleTime =
+    live.updatedAt;
+
+  console.log(
+    `Snapshot age: ${Math.max(
+      0,
+      Math.floor(
+        (
+          Date.now() -
+          sampleTime.getTime()
+        ) / 1000
+      )
+    )} seconds`
+  );
+
+  console.log(
+    `Members: ${members}`
+  );
+
+  console.log(
+    `Currently Online: ${activity.totalOnline}`
+  );
+
+  console.log(
+    `ETS2: ${activity.ets2Count}`
+  );
+
+  console.log(
+    `ATS: ${activity.atsCount}`
+  );
+
+  console.log(
+    `Active Servers: ${activity.serverCounts.length}`
+  );
 
   const loaded =
     loadStatistics();
@@ -1790,51 +1666,15 @@ async function start() {
   const driverHistory =
     loadDriverHistory();
 
-  console.log(
-    "Loading TruckersMP member count..."
-  );
-
-  const members =
-    await getMemberCount();
-
-  console.log(
-    `Current members: ${members}`
-  );
-
-  console.log("");
-
-  console.log(
-    "Loading Kings TruckersMP activity..."
-  );
-
-  const activity =
-    await getLiveActivity();
-
-  console.log(
-    `Currently online: ${activity.totalOnline}`
-  );
-
-  console.log(
-    `ETS2: ${activity.ets2Count} • ATS: ${activity.atsCount}`
-  );
-
   let stateChanged =
     loaded.migrated;
-
-  if (loaded.migrated) {
-    console.log("");
-
-    console.log(
-      "Statistics data upgraded to Advanced Statistics format."
-    );
-  }
 
   if (
     updateState(
       state,
       members,
       activity,
-      now
+      sampleTime
     )
   ) {
     stateChanged =
@@ -1847,7 +1687,7 @@ async function start() {
       members,
       activity,
       driverHistory,
-      now
+      sampleTime
     );
 
   const newMessage =
@@ -1914,13 +1754,13 @@ async function start() {
     console.log(
       `Next Milestone: ${members}/${milestone.milestone}`
     );
-  } else {
-    console.log(
-      "Next Milestone: all configured milestones reached"
-    );
   }
 
   console.log("");
+
+  console.log(
+    "Live data source: Kings Live Tracker Snapshot"
+  );
 
   console.log(
     "Kings Advanced Statistics completed successfully."
