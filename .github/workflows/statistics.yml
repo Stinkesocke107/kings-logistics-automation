@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: kings-logistics-statistics
+  group: kings-statistics
   cancel-in-progress: false
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Run Kings Statistics
+      - name: Update Kings Advanced Statistics
         env:
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
         run: node statistics.js
@@ -34,7 +34,7 @@ jobs:
       - name: Save Statistics Data
         run: |
           if git diff --quiet -- data/statistics.json && [ -z "$(git status --porcelain data/statistics.json)" ]; then
-            echo "No statistics changes to save."
+            echo "No Statistics data changes to save."
             exit 0
           fi
 
@@ -42,5 +42,7 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
 
           git add data/statistics.json
-          git commit -m "Update Kings Statistics"
-          git push
+          git commit -m "Update Kings Statistics data"
+
+          git pull --rebase origin main
+          git push origin main
