@@ -10,10 +10,11 @@ Automation systems and tools for Kings Logistics.
 - Automatic Driver Updates
 - Milestone Detection
 - Changelog Automation
+- Monthly Kings Reports
+
 
 ## Planned Systems
 
-- Monthly Kings Reports
 - System Monitoring
 
 Kings Logistics — Connecting the world, creating friendships.
