@@ -1,8 +1,15 @@
 {
-  "updatedAt": "2026-08-30T20:23:44.524Z",
+  "updatedAt": "2026-08-30T20:31:59.755Z",
   "members": 110,
-  "online": 0,
-  "ets2Online": 0,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
-  "activeServers": []
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 2,
+      "isEvent": false
+    }
+  ]
 }
