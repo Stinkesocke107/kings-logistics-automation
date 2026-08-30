@@ -1,0 +1,49 @@
+name: Kings Milestone Detector
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-milestone-detector
+  cancel-in-progress: false
+
+jobs:
+  check-milestones:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Check Kings Milestones
+        env:
+          MILESTONE_DISCORD_WEBHOOK_URL: ${{ secrets.MILESTONE_DISCORD_WEBHOOK_URL }}
+          NEWS_NOTIFICATIONS_ROLE_ID: ${{ secrets.NEWS_NOTIFICATIONS_ROLE_ID }}
+        run: node milestones.js
+
+      - name: Save Milestone State
+        run: |
+          if git diff --quiet -- data/milestones.json && [ -z "$(git status --porcelain data/milestones.json)" ]; then
+            echo "No Milestone state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/milestones.json
+          git commit -m "Update Kings Milestone state"
+
+          git pull --rebase origin main
+          git push origin main
