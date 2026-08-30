@@ -50,43 +50,24 @@ function writeJson(file, data) {
   );
 }
 
-async function fetchJson(
-  url,
-  label
-) {
-  const response =
-    await fetch(
-      url,
-      {
-        headers: {
-          Accept:
-            "application/json",
-
-          "User-Agent":
-            "Kings Logistics Statistics Snapshot"
-        }
-      }
-    );
-
-  if (!response.ok) {
-    throw new Error(
-      `${label} failed: HTTP ${response.status}`
-    );
-  }
-
-  return response.json();
-}
-
 // ======================================================
 // MEMBERS
 // ======================================================
 
 async function getMemberCount() {
-  const data =
-    await fetchJson(
-      MEMBERS_URL,
-      "TruckersMP VTC members request"
+  const response =
+    await fetch(
+      MEMBERS_URL
     );
+
+  if (!response.ok) {
+    throw new Error(
+      `Could not load Kings VTC members: HTTP ${response.status}`
+    );
+  }
+
+  const data =
+    await response.json();
 
   if (
     !data.response ||
@@ -103,15 +84,23 @@ async function getMemberCount() {
 }
 
 // ======================================================
-// SERVERS
+// TRUCKERSMP SERVERS
 // ======================================================
 
 async function getServers() {
-  const data =
-    await fetchJson(
-      SERVERS_URL,
-      "TruckersMP servers request"
+  const response =
+    await fetch(
+      SERVERS_URL
     );
+
+  if (!response.ok) {
+    throw new Error(
+      `Could not load TruckersMP servers: HTTP ${response.status}`
+    );
+  }
+
+  const data =
+    await response.json();
 
   if (
     !Array.isArray(
@@ -119,181 +108,270 @@ async function getServers() {
     )
   ) {
     throw new Error(
-      "Invalid TruckersMP servers response."
+      "Invalid TruckersMP server response."
     );
   }
 
-  return data.response.filter(
-    server =>
-      server.online === true &&
-      Number.isFinite(
-        Number(server.mapid)
-      )
-  );
+  return data.response
+    .filter(server => {
+      if (!server.online) {
+        return false;
+      }
+
+      const mapId =
+        Number(
+          server.mapid
+        );
+
+      return Number.isFinite(
+        mapId
+      );
+    })
+    .map(server => ({
+      name:
+        server.name,
+
+      mapId:
+        Number(
+          server.mapid
+        ),
+
+      game:
+        server.game,
+
+      isEvent:
+        server.event === true ||
+        server.specialEvent === true
+    }))
+    .sort((a, b) => {
+      const gameCompare =
+        String(
+          a.game
+        ).localeCompare(
+          String(
+            b.game
+          )
+        );
+
+      if (
+        gameCompare !== 0
+      ) {
+        return gameCompare;
+      }
+
+      return String(
+        a.name
+      ).localeCompare(
+        String(
+          b.name
+        )
+      );
+    });
 }
 
 // ======================================================
-// LIVE PLAYERS
+// LIVE PLAYER DATA
 // ======================================================
 
-async function getKingsPlayers(
-  server
-) {
-  const params =
-    new URLSearchParams({
-      x1: "-1000000",
-      y1: "1000000",
-      x2: "1000000",
-      y2: "-1000000",
-      server: String(
-        server.mapid
-      )
-    });
+async function getPlayers(server) {
+  const url =
+    `${LIVE_MAP_URL}` +
+    `?x1=-1000000` +
+    `&y1=1000000` +
+    `&x2=1000000` +
+    `&y2=-1000000` +
+    `&server=${server.mapId}`;
+
+  const response =
+    await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(
+      `${server.game} - ${server.name}: HTTP ${response.status}`
+    );
+  }
 
   const data =
-    await fetchJson(
-      `${LIVE_MAP_URL}?${params.toString()}`,
-      `Live map request for ${server.name}`
+    await response.json();
+
+  /*
+    IMPORTANT:
+
+    Same format used by the working
+    Kings Live Tracker:
+
+    {
+      Success: true,
+      Data: [...]
+    }
+  */
+
+  if (
+    !data.Success ||
+    !Array.isArray(
+      data.Data
+    )
+  ) {
+    throw new Error(
+      `${server.game} - ${server.name}: Invalid live response`
     );
-
-  let players = [];
-
-  if (Array.isArray(data)) {
-    players = data;
-  } else if (
-    Array.isArray(
-      data.players
-    )
-  ) {
-    players =
-      data.players;
-  } else if (
-    Array.isArray(
-      data.response
-    )
-  ) {
-    players =
-      data.response;
   }
 
-  return players.filter(
-    player =>
-      Number(
-        player.VtcId
-      ) ===
-      KINGS_VTC_ID
-  );
+  return data.Data;
 }
 
 // ======================================================
-// ACTIVITY
+// CURRENT KINGS ACTIVITY
 // ======================================================
 
 async function getActivity() {
   const servers =
     await getServers();
 
-  const results =
-    await Promise.all(
-      servers.map(
-        async server => ({
-          server,
-          players:
-            await getKingsPlayers(
-              server
-            )
-        })
-      )
-    );
+  console.log(
+    `Online TruckersMP servers: ${servers.length}`
+  );
 
   const uniquePlayers =
     new Map();
 
-  let ets2 =
-    0;
-
-  let ats =
-    0;
-
-  const activeServers = [];
+  const activeServers =
+    [];
 
   for (
-    const result
-    of results
+    const server
+    of servers
   ) {
-    const game =
-      String(
-        result.server.game || ""
-      ).toUpperCase();
+    console.log(
+      `Checking ${server.game} - ${server.name}...`
+    );
 
-    const count =
-      result.players.length;
-
-    if (game === "ETS2") {
-      ets2 +=
-        count;
-    }
-
-    if (game === "ATS") {
-      ats +=
-        count;
-    }
-
-    if (
-      count > 0
-    ) {
-      activeServers.push({
-        game,
-
-        name:
-          String(
-            result.server.name ||
-            result.server.shortname ||
-            "Unknown Server"
-          ),
-
-        online:
-          count
-      });
-    }
-
-    for (
-      const player
-      of result.players
-    ) {
-      const tmpId =
-        Number(
-          player.MpId ||
-          player.mpId ||
-          player.id
+    try {
+      const players =
+        await getPlayers(
+          server
         );
 
-      const key =
-        Number.isFinite(
-          tmpId
-        )
-          ? String(tmpId)
-          : `${result.server.mapid}:${player.Name}`;
+      const kingsPlayers =
+        players.filter(
+          player =>
+            Number(
+              player.VtcId
+            ) ===
+            KINGS_VTC_ID
+        );
 
-      uniquePlayers.set(
-        key,
-        true
+      console.log(
+        `Found ${kingsPlayers.length} Kings member(s).`
+      );
+
+      if (
+        kingsPlayers.length > 0
+      ) {
+        activeServers.push({
+          game:
+            String(
+              server.game
+            ),
+
+          name:
+            String(
+              server.name
+            ),
+
+          online:
+            kingsPlayers.length,
+
+          isEvent:
+            server.isEvent
+        });
+      }
+
+      for (
+        const player
+        of kingsPlayers
+      ) {
+        const tmpId =
+          Number(
+            player.MpId
+          );
+
+        const key =
+          Number.isFinite(
+            tmpId
+          )
+            ? String(
+                tmpId
+              )
+            : `${server.mapId}:${player.Name}`;
+
+        uniquePlayers.set(
+          key,
+          {
+            tmpId:
+              Number.isFinite(
+                tmpId
+              )
+                ? tmpId
+                : null,
+
+            name:
+              player.Name,
+
+            game:
+              String(
+                server.game
+              ).toUpperCase(),
+
+            server:
+              server.name
+          }
+        );
+      }
+    } catch (error) {
+      /*
+        Same safety principle as the Live Tracker:
+        one broken server must not stop the
+        complete Kings snapshot.
+      */
+
+      console.error(
+        `Skipped server: ${error.message}`
       );
     }
   }
+
+  const unique =
+    Array.from(
+      uniquePlayers.values()
+    );
+
+  const ets2 =
+    unique.filter(
+      player =>
+        player.game ===
+        "ETS2"
+    ).length;
+
+  const ats =
+    unique.filter(
+      player =>
+        player.game ===
+        "ATS"
+    ).length;
 
   activeServers.sort(
     (a, b) =>
       b.online -
         a.online ||
-      a.name.localeCompare(
-        b.name
+      `${a.game} ${a.name}`.localeCompare(
+        `${b.game} ${b.name}`
       )
   );
 
   return {
     totalOnline:
-      uniquePlayers.size,
+      unique.length,
 
     ets2,
 
@@ -355,6 +433,19 @@ async function start() {
     snapshot
   );
 
+  console.log("");
+  console.log(
+    "=============================="
+  );
+
+  console.log(
+    "Statistics Snapshot Summary"
+  );
+
+  console.log(
+    "=============================="
+  );
+
   console.log(
     `Members: ${members}`
   );
@@ -375,12 +466,25 @@ async function start() {
     `Active Servers: ${activity.activeServers.length}`
   );
 
+  for (
+    const server
+    of activity.activeServers
+  ) {
+    console.log(
+      `${server.game} - ${server.name}: ${server.online} online`
+    );
+  }
+
   console.log("");
 
   console.log(
     "Statistics snapshot saved successfully."
   );
 }
+
+// ======================================================
+// START
+// ======================================================
 
 start().catch(error => {
   console.error("");
