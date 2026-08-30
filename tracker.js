@@ -3,6 +3,9 @@ const KINGS_VTC_ID = 64284;
 const ETS2_LOCATIONS_URL =
   "https://map.truckersmp.com/locations_ets2.min.json?v=fa63451b";
 
+const ATS_LOCATIONS_URL =
+  "https://map.truckersmp.com/locations_ats.min.json?v=6c59ff2b";
+
 const servers = [
   { name: "ETS2 - Simulation 1", mapId: 2, game: "ETS2" },
   { name: "ETS2 - Simulation 2", mapId: 41, game: "ETS2" },
@@ -60,11 +63,13 @@ function collectCities(items, cities = []) {
   return cities;
 }
 
-async function getETS2Cities() {
-  const response = await fetch(ETS2_LOCATIONS_URL);
+async function getCities(url, game) {
+  const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(`Could not load ETS2 locations: HTTP ${response.status}`);
+    throw new Error(
+      `Could not load ${game} locations: HTTP ${response.status}`
+    );
   }
 
   const data = await response.json();
@@ -92,11 +97,15 @@ function getNearestCity(x, y, cities) {
 }
 
 async function main() {
-  console.log("Loading ETS2 city data...");
+  console.log("Loading city data...");
 
-  const ets2Cities = await getETS2Cities();
+  const [ets2Cities, atsCities] = await Promise.all([
+    getCities(ETS2_LOCATIONS_URL, "ETS2"),
+    getCities(ATS_LOCATIONS_URL, "ATS")
+  ]);
 
   console.log(`Loaded ${ets2Cities.length} ETS2 cities.`);
+  console.log(`Loaded ${atsCities.length} ATS cities.`);
   console.log("");
 
   const kingsOnline = [];
@@ -109,23 +118,27 @@ async function main() {
 
       const kingsPlayers = players
         .filter(player => Number(player.VtcId) === KINGS_VTC_ID)
-        .map(player => ({
-          name: player.Name,
-          tmpId: player.MpId,
-          playerId: player.PlayerId,
-          x: player.X,
-          y: player.Y,
-          server: server.name,
-          game: server.game,
-          city:
-            server.game === "ETS2"
-              ? getNearestCity(player.X, player.Y, ets2Cities)
-              : "Location unavailable"
-        }));
+        .map(player => {
+          const cities =
+            server.game === "ATS" ? atsCities : ets2Cities;
+
+          return {
+            name: player.Name,
+            tmpId: player.MpId,
+            playerId: player.PlayerId,
+            x: player.X,
+            y: player.Y,
+            server: server.name,
+            game: server.game,
+            city: getNearestCity(player.X, player.Y, cities)
+          };
+        });
 
       kingsOnline.push(...kingsPlayers);
 
-      console.log(`Found ${kingsPlayers.length} Kings member(s).`);
+      console.log(
+        `Found ${kingsPlayers.length} Kings member(s).`
+      );
     } catch (error) {
       console.error(error.message);
     }
