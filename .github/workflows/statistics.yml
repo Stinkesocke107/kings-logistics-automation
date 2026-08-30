@@ -1,0 +1,46 @@
+name: Kings Logistics Statistics
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-logistics-statistics
+  cancel-in-progress: false
+
+jobs:
+  update-statistics:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Run Kings Statistics
+        env:
+          STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
+        run: node statistics.js
+
+      - name: Save Statistics Data
+        run: |
+          if git diff --quiet -- data/statistics.json && [ -z "$(git status --porcelain data/statistics.json)" ]; then
+            echo "No statistics changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/statistics.json
+          git commit -m "Update Kings Statistics"
+          git push
