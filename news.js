@@ -6,8 +6,10 @@ const path = require("path");
 // KINGS LOGISTICS — TRUCKERSMP NEWS AUTOMATION
 // ======================================================
 
-const RSS_URL =
-  "https://truckersmp.com/vtc/64284/news/rss";
+const KINGS_VTC_ID = 64284;
+
+const NEWS_API_URL =
+  `https://api.truckersmp.com/v2/vtc/${KINGS_VTC_ID}/news`;
 
 const DISCORD_WEBHOOK_URL =
   process.env.NEWS_DISCORD_WEBHOOK_URL;
@@ -24,70 +26,22 @@ const KINGS_COLOR =
 
 
 // ======================================================
-// SMALL HELPERS
+// HELPERS
 // ======================================================
 
-function decodeXmlEntities(text = "") {
-  return text
+function cleanText(text = "") {
+  return String(text)
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) =>
-      String.fromCodePoint(
-        parseInt(hex, 16)
-      )
-    )
-    .replace(/&#([0-9]+);/g, (_, number) =>
-      String.fromCodePoint(
-        parseInt(number, 10)
-      )
-    );
-}
-
-
-function cleanText(text = "") {
-  return decodeXmlEntities(
-    text
-      .replace(
-        /<!\[CDATA\[([\s\S]*?)\]\]>/g,
-        "$1"
-      )
-      .replace(
-        /<br\s*\/?>/gi,
-        "\n"
-      )
-      .replace(
-        /<\/p>/gi,
-        "\n"
-      )
-      .replace(
-        /<[^>]+>/g,
-        ""
-      )
-  )
     .replace(/\r/g, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-}
-
-
-function extractTag(xml, tag) {
-  const regex =
-    new RegExp(
-      `<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`,
-      "i"
-    );
-
-  const match =
-    xml.match(regex);
-
-  if (!match) {
-    return "";
-  }
-
-  return cleanText(match[1]);
 }
 
 
@@ -110,114 +64,123 @@ function truncate(text, maxLength) {
 
 
 // ======================================================
-// LOAD TRUCKERSMP RSS
+// LOAD TRUCKERSMP VTC NEWS
 // ======================================================
 
 async function getNews() {
   console.log(
-    "Loading Kings Logistics TruckersMP RSS..."
+    "Loading Kings Logistics TruckersMP News API..."
   );
 
   const response =
-    await fetch(RSS_URL, {
-      headers: {
-        "User-Agent":
-          "Kings Logistics News Automation"
+    await fetch(
+      NEWS_API_URL,
+      {
+        headers: {
+          "Accept":
+            "application/json",
+
+          "User-Agent":
+            "Kings Logistics GitHub Automation"
+        }
       }
-    });
+    );
+
 
   if (!response.ok) {
     throw new Error(
-      `TruckersMP RSS request failed: HTTP ${response.status}`
+      `TruckersMP News API request failed: HTTP ${response.status}`
     );
   }
 
-  const xml =
-    await response.text();
 
-  const itemRegex =
-    /<item\b[^>]*>([\s\S]*?)<\/item>/gi;
+  const data =
+    await response.json();
 
-  const items = [];
 
-  let match;
-
-  while (
-    (match = itemRegex.exec(xml)) !== null
+  if (
+    data.error === true ||
+    !data.response ||
+    !Array.isArray(
+      data.response.news
+    )
   ) {
-    const itemXml =
-      match[1];
-
-    const title =
-      extractTag(
-        itemXml,
-        "title"
-      );
-
-    const link =
-      extractTag(
-        itemXml,
-        "link"
-      );
-
-    const description =
-      extractTag(
-        itemXml,
-        "description"
-      );
-
-    const pubDate =
-      extractTag(
-        itemXml,
-        "pubDate"
-      );
-
-    const guid =
-      extractTag(
-        itemXml,
-        "guid"
-      );
-
-    /*
-      GUID is preferred as the unique ID.
-      The link is used as fallback.
-    */
-
-    const id =
-      guid ||
-      link ||
-      title;
-
-    if (
-      title &&
-      link &&
-      id
-    ) {
-      items.push({
-        id,
-        title,
-        link,
-        description,
-        pubDate
-      });
-    }
-  }
-
-  if (items.length === 0) {
     throw new Error(
-      "No TruckersMP news items were found in the RSS feed."
+      "Invalid TruckersMP VTC News API response."
     );
   }
 
+
+  const news =
+    data.response.news
+      .map(item => ({
+        id:
+          Number(item.id),
+
+        title:
+          item.title || "Kings Logistics News",
+
+        description:
+          cleanText(
+            item.content_summary || ""
+          ),
+
+        author:
+          item.author || "Kings Logistics",
+
+        publishedAt:
+          item.published_at || null,
+
+        updatedAt:
+          item.updated_at || null,
+
+        url:
+          `https://truckersmp.com/vtc/${KINGS_VTC_ID}/news/${item.id}`
+      }))
+      .filter(
+        item =>
+          Number.isFinite(item.id)
+      );
+
+
+  /*
+    Sort newest -> oldest.
+  */
+
+  news.sort(
+    (a, b) => {
+      const dateA =
+        new Date(
+          a.publishedAt || 0
+        ).getTime();
+
+      const dateB =
+        new Date(
+          b.publishedAt || 0
+        ).getTime();
+
+      return dateB - dateA;
+    }
+  );
+
+
+  if (news.length === 0) {
+    throw new Error(
+      "No Kings Logistics news posts were returned by TruckersMP."
+    );
+  }
+
+
   console.log(
-    `Loaded ${items.length} TruckersMP news item(s).`
+    `Loaded ${news.length} Kings Logistics news post(s).`
   );
 
   console.log(
-    `Latest news: ${items[0].title}`
+    `Latest news: ${news[0].title}`
   );
 
-  return items;
+
+  return news;
 }
 
 
@@ -234,6 +197,7 @@ function loadState() {
     return null;
   }
 
+
   try {
     const raw =
       fs.readFileSync(
@@ -241,7 +205,9 @@ function loadState() {
         "utf8"
       );
 
-    return JSON.parse(raw);
+    return JSON.parse(
+      raw
+    );
   } catch (error) {
     console.error(
       "Could not read previous news state."
@@ -258,12 +224,14 @@ function saveState(newsItem) {
       STATE_FILE
     );
 
+
   fs.mkdirSync(
     directory,
     {
       recursive: true
     }
   );
+
 
   const state = {
     lastId:
@@ -273,11 +241,12 @@ function saveState(newsItem) {
       newsItem.title,
 
     lastUrl:
-      newsItem.link,
+      newsItem.url,
 
     updatedAt:
       new Date().toISOString()
   };
+
 
   fs.writeFileSync(
     STATE_FILE,
@@ -288,6 +257,7 @@ function saveState(newsItem) {
     ) + "\n",
     "utf8"
   );
+
 
   console.log(
     "News state updated."
@@ -306,13 +276,16 @@ async function sendToDiscord(newsItem) {
     );
   }
 
+
   let description =
     newsItem.description;
+
 
   if (!description) {
     description =
       "A new Kings Logistics news post has been published on TruckersMP.";
   }
+
 
   description =
     truncate(
@@ -334,7 +307,7 @@ async function sendToDiscord(newsItem) {
       ),
 
     url:
-      newsItem.link,
+      newsItem.url,
 
     description:
       description,
@@ -345,17 +318,17 @@ async function sendToDiscord(newsItem) {
 
 
   /*
-    If the RSS feed contains a valid
-    publication date, Discord receives it too.
+    Add original publication time.
   */
 
   if (
-    newsItem.pubDate
+    newsItem.publishedAt
   ) {
     const date =
       new Date(
-        newsItem.pubDate
+        newsItem.publishedAt
       );
+
 
     if (
       !Number.isNaN(
@@ -397,6 +370,7 @@ async function sendToDiscord(newsItem) {
     const errorText =
       await response.text();
 
+
     throw new Error(
       `Discord webhook failed: HTTP ${response.status} - ${errorText}`
     );
@@ -417,23 +391,27 @@ async function checkNews() {
   const news =
     await getNews();
 
+
   const latest =
     news[0];
+
 
   const state =
     loadState();
 
 
+  // ====================================================
+  // FIRST RUN
+  // ====================================================
+
   /*
-    FIRST RUN
+    First GitHub run:
 
-    On the very first GitHub run we only remember
-    the current newest TruckersMP article.
+    Remember the newest current article,
+    but DO NOT post an old article to Discord.
 
-    We DO NOT post an old article to Discord.
-
-    Everything published AFTER this point
-    can then be detected automatically.
+    Only articles published afterwards
+    will be posted automatically.
   */
 
   if (
@@ -449,21 +427,23 @@ async function checkNews() {
       "Saving current latest news without posting it to Discord."
     );
 
+
     saveState(
       latest
     );
+
 
     return;
   }
 
 
-  /*
-    No new article.
-  */
+  // ====================================================
+  // NOTHING NEW
+  // ====================================================
 
   if (
-    latest.id ===
-    state.lastId
+    Number(latest.id) ===
+    Number(state.lastId)
   ) {
     console.log("");
     console.log(
@@ -474,16 +454,15 @@ async function checkNews() {
   }
 
 
-  /*
-    Find the previously posted article
-    inside the current RSS feed.
-  */
+  // ====================================================
+  // FIND ALL NEW ARTICLES
+  // ====================================================
 
   const oldIndex =
     news.findIndex(
       item =>
-        item.id ===
-        state.lastId
+        Number(item.id) ===
+        Number(state.lastId)
     );
 
 
@@ -494,10 +473,15 @@ async function checkNews() {
     oldIndex > 0
   ) {
     /*
-      Several articles could theoretically
-      have been published between checks.
+      Example:
 
-      Send them oldest -> newest.
+      Article 105 <- newest
+      Article 104
+      Article 103 <- previous saved one
+
+      We send:
+      104 first
+      105 second
     */
 
     newItems =
@@ -509,19 +493,20 @@ async function checkNews() {
         .reverse();
   } else {
     /*
-      If the old item is no longer present
-      in the RSS feed, send only the newest
-      article instead of potentially spamming
-      many old posts.
+      If our old article is no longer returned
+      by the API, send only the newest article.
+
+      This prevents old-news spam.
     */
 
     console.log(
-      "Previous news item was not found in the current RSS feed."
+      "Previous saved news was not found in the current API response."
     );
 
     console.log(
       "Only the latest article will be sent."
     );
+
 
     newItems = [
       latest
@@ -531,18 +516,13 @@ async function checkNews() {
 
   console.log("");
   console.log(
-    `${newItems.length} new Kings Logistics news item(s) detected.`
+    `${newItems.length} new Kings Logistics news post(s) detected.`
   );
 
 
-  /*
-    IMPORTANT:
-    State is only updated AFTER every Discord
-    message was sent successfully.
-
-    If Discord fails, GitHub can retry the
-    article during a later workflow run.
-  */
+  // ====================================================
+  // SEND OLDEST -> NEWEST
+  // ====================================================
 
   for (
     const item
@@ -553,6 +533,10 @@ async function checkNews() {
     );
   }
 
+
+  /*
+    Only save state after Discord succeeded.
+  */
 
   saveState(
     latest
@@ -579,7 +563,9 @@ async function start() {
 
   console.log("");
 
+
   await checkNews();
+
 
   console.log("");
   console.log(
@@ -590,6 +576,7 @@ async function start() {
 
 start().catch(error => {
   console.error("");
+
   console.error(
     "Kings News Automation failed:"
   );
