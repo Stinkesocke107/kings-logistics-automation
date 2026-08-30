@@ -1518,6 +1518,12 @@ function buildEmbed(
       now
     );
 
+  const updatedUnix =
+    Math.floor(
+      now.getTime() /
+      1000
+    );
+
   // ====================================================
   // MEMBER GROWTH
   // ====================================================
@@ -1741,7 +1747,8 @@ function buildEmbed(
           "Next Milestone",
 
         value:
-          milestoneText,
+          `${milestoneText}\n\n` +
+          `Last updated <t:${updatedUnix}:R>`,
 
         inline:
           false
@@ -1751,10 +1758,7 @@ function buildEmbed(
     footer: {
       text:
         "Kings Logistics • Advanced Statistics"
-    },
-
-    timestamp:
-      now.toISOString()
+    }
   };
 }
 
