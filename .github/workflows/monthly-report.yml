@@ -1,0 +1,50 @@
+name: Kings Monthly Report
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 10 1 * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-monthly-report
+  cancel-in-progress: false
+
+jobs:
+  create-monthly-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Create Kings Monthly Report
+        env:
+          MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
+          NEWS_NOTIFICATIONS_ROLE_ID: ${{ secrets.NEWS_NOTIFICATIONS_ROLE_ID }}
+        run: node monthly-report.js
+
+      - name: Save Monthly Report Data
+        run: |
+          if git diff --quiet -- data/monthly-report-state.json && [ -z "$(git status --porcelain data/monthly-report-state.json)" ]; then
+            echo "No Monthly Report state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/monthly-report-state.json
+
+          git commit -m "Update Kings Monthly Report state"
+
+          git pull --rebase origin main
+          git push origin main
