@@ -1,5 +1,8 @@
 const KINGS_VTC_ID = 64284;
 
+const ETS2_LOCATIONS_URL =
+  "https://map.truckersmp.com/locations_ets2.min.json?v=fa63451b";
+
 const servers = [
   { name: "ETS2 - Simulation 1", mapId: 2, game: "ETS2" },
   { name: "ETS2 - Simulation 2", mapId: 41, game: "ETS2" },
@@ -21,23 +24,81 @@ async function getPlayers(server) {
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(
-      `${server.name}: HTTP ${response.status}`
-    );
+    throw new Error(`${server.name}: HTTP ${response.status}`);
   }
 
   const data = await response.json();
 
   if (!data.Success || !Array.isArray(data.Data)) {
-    throw new Error(
-      `${server.name}: Invalid live tracker response`
-    );
+    throw new Error(`${server.name}: Invalid live tracker response`);
   }
 
   return data.Data;
 }
 
+function collectCities(items, cities = []) {
+  if (!Array.isArray(items)) return cities;
+
+  for (const item of items) {
+    if (
+      item.type === "city" &&
+      typeof item.x === "number" &&
+      typeof item.y === "number"
+    ) {
+      cities.push({
+        name: item.name,
+        x: item.x,
+        y: item.y
+      });
+    }
+
+    if (Array.isArray(item.pois)) {
+      collectCities(item.pois, cities);
+    }
+  }
+
+  return cities;
+}
+
+async function getETS2Cities() {
+  const response = await fetch(ETS2_LOCATIONS_URL);
+
+  if (!response.ok) {
+    throw new Error(`Could not load ETS2 locations: HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  return collectCities(data);
+}
+
+function getNearestCity(x, y, cities) {
+  if (!cities.length) return "Location unavailable";
+
+  let nearestCity = null;
+  let nearestDistance = Infinity;
+
+  for (const city of cities) {
+    const dx = x - city.x;
+    const dy = y - city.y;
+    const distance = dx * dx + dy * dy;
+
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestCity = city;
+    }
+  }
+
+  return nearestCity ? nearestCity.name : "Location unavailable";
+}
+
 async function main() {
+  console.log("Loading ETS2 city data...");
+
+  const ets2Cities = await getETS2Cities();
+
+  console.log(`Loaded ${ets2Cities.length} ETS2 cities.`);
+  console.log("");
+
   const kingsOnline = [];
 
   for (const server of servers) {
@@ -55,14 +116,16 @@ async function main() {
           x: player.X,
           y: player.Y,
           server: server.name,
-          game: server.game
+          game: server.game,
+          city:
+            server.game === "ETS2"
+              ? getNearestCity(player.X, player.Y, ets2Cities)
+              : "Location unavailable"
         }));
 
       kingsOnline.push(...kingsPlayers);
 
-      console.log(
-        `Found ${kingsPlayers.length} Kings member(s).`
-      );
+      console.log(`Found ${kingsPlayers.length} Kings member(s).`);
     } catch (error) {
       console.error(error.message);
     }
@@ -77,15 +140,16 @@ async function main() {
 
   if (kingsOnline.length === 0) {
     console.log(
-      "No Kings Logistics members are currently online."
+      "No Kings Logistics members are currently online on TruckersMP."
     );
     return;
   }
 
   for (const player of kingsOnline) {
-    console.log(
-      `${player.name} | ${player.game} | ${player.server} | TMP ID: ${player.tmpId}`
-    );
+    console.log("");
+    console.log(player.name);
+    console.log(`${player.server} | ${player.city}`);
+    console.log(`TMP ID: ${player.tmpId}`);
   }
 }
 
