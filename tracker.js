@@ -11,6 +11,21 @@ const ETS2_LOCATIONS_URL =
 const ATS_LOCATIONS_URL =
   "https://map.truckersmp.com/locations_ats.min.json";
 
+/*
+  Load ALL currently online TruckersMP servers.
+
+  Nothing is manually excluded anymore:
+  - Simulation
+  - Arcade
+  - ProMods
+  - Asia / SGP
+  - US
+  - Event Servers
+  - future servers
+
+  As long as TruckersMP reports the server as online
+  and provides a valid mapid, it will be checked.
+*/
 async function getServers() {
   const response = await fetch(SERVERS_URL);
 
@@ -26,41 +41,36 @@ async function getServers() {
     throw new Error("Invalid TruckersMP server response");
   }
 
-  const allowedRegularServers = [
-    "Simulation",
-    "Simulation 1",
-    "Simulation 2",
-    "[US] Simulation",
-    "ProMods"
-  ];
-
   return data.response
     .filter(server => {
       if (!server.online) return false;
 
-      // Event Servers immer automatisch mitnehmen
-      if (server.event === true || server.specialEvent === true) {
-        return true;
-      }
+      const mapId = Number(server.mapid);
 
-      // Arcade ignorieren
-      if (server.name.toLowerCase().includes("arcade")) {
+      if (!Number.isFinite(mapId)) {
         return false;
       }
 
-      // Asia ignorieren
-      if (server.name.toLowerCase().includes("asia")) {
-        return false;
-      }
-
-      return allowedRegularServers.includes(server.name);
+      return true;
     })
     .map(server => ({
       name: server.name,
-      mapId: server.mapid,
+      mapId: Number(server.mapid),
       game: server.game,
-      isEvent: server.event === true || server.specialEvent === true
-    }));
+      isEvent:
+        server.event === true ||
+        server.specialEvent === true
+    }))
+    .sort((a, b) => {
+      const gameCompare =
+        String(a.game).localeCompare(String(b.game));
+
+      if (gameCompare !== 0) {
+        return gameCompare;
+      }
+
+      return a.name.localeCompare(b.name);
+    });
 }
 
 async function getPlayers(server) {
@@ -92,7 +102,9 @@ async function getPlayers(server) {
 }
 
 function collectCities(items, cities = []) {
-  if (!Array.isArray(items)) return cities;
+  if (!Array.isArray(items)) {
+    return cities;
+  }
 
   for (const item of items) {
     if (
@@ -141,7 +153,9 @@ function getNearestCity(x, y, cities) {
     const dx = x - city.x;
     const dy = y - city.y;
 
-    const distance = dx * dx + dy * dy;
+    const distance =
+      dx * dx +
+      dy * dy;
 
     if (distance < nearestDistance) {
       nearestDistance = distance;
@@ -157,19 +171,41 @@ function getNearestCity(x, y, cities) {
 async function getKingsOnline() {
   console.log("Loading city data...");
 
-  const [ets2Cities, atsCities] = await Promise.all([
-    getCities(ETS2_LOCATIONS_URL, "ETS2"),
-    getCities(ATS_LOCATIONS_URL, "ATS")
-  ]);
+  const [ets2Cities, atsCities] =
+    await Promise.all([
+      getCities(
+        ETS2_LOCATIONS_URL,
+        "ETS2"
+      ),
+      getCities(
+        ATS_LOCATIONS_URL,
+        "ATS"
+      )
+    ]);
 
-  console.log(`Loaded ${ets2Cities.length} ETS2 cities.`);
-  console.log(`Loaded ${atsCities.length} ATS cities.`);
+  console.log(
+    `Loaded ${ets2Cities.length} ETS2 cities.`
+  );
+
+  console.log(
+    `Loaded ${atsCities.length} ATS cities.`
+  );
 
   const servers = await getServers();
 
+  console.log("");
   console.log(
-    `Loaded ${servers.length} relevant TruckersMP servers.`
+    `Loaded ${servers.length} online TruckersMP servers.`
   );
+
+  for (const server of servers) {
+    console.log(
+      `Server: ${server.game} - ${server.name}` +
+      `${server.isEvent ? " [EVENT]" : ""}`
+    );
+  }
+
+  console.log("");
 
   const kingsOnline = [];
 
@@ -179,12 +215,14 @@ async function getKingsOnline() {
     );
 
     try {
-      const players = await getPlayers(server);
+      const players =
+        await getPlayers(server);
 
       const kingsPlayers = players
         .filter(
           player =>
-            Number(player.VtcId) === KINGS_VTC_ID
+            Number(player.VtcId) ===
+            KINGS_VTC_ID
         )
         .map(player => {
           const cities =
@@ -194,14 +232,15 @@ async function getKingsOnline() {
 
           return {
             name: player.Name,
-            tmpId: player.MpId,
+            tmpId: Number(player.MpId),
             game: server.game,
             server: server.name,
             city: getNearestCity(
               player.X,
               player.Y,
               cities
-            )
+            ),
+            isEvent: server.isEvent
           };
         });
 
@@ -211,102 +250,194 @@ async function getKingsOnline() {
         `Found ${kingsPlayers.length} Kings member(s).`
       );
     } catch (error) {
-      console.error(error.message);
+      /*
+        One unavailable server should never
+        stop the whole tracker.
+      */
+      console.error(
+        `Skipped server: ${error.message}`
+      );
     }
   }
 
-  return kingsOnline;
+  /*
+    Protection against duplicate live data.
+  */
+  const uniquePlayers = new Map();
+
+  for (const player of kingsOnline) {
+    uniquePlayers.set(
+      player.tmpId,
+      player
+    );
+  }
+
+  return Array.from(
+    uniquePlayers.values()
+  );
 }
 
-function buildDiscordEmbed(players) {
+function buildDiscordEmbeds(players) {
   const ets2Count =
-    players.filter(player => player.game === "ETS2")
-      .length;
+    players.filter(
+      player =>
+        player.game === "ETS2"
+    ).length;
 
   const atsCount =
-    players.filter(player => player.game === "ATS")
-      .length;
+    players.filter(
+      player =>
+        player.game === "ATS"
+    ).length;
 
-  const fields = [];
+  const timestamp =
+    Math.floor(
+      Date.now() / 1000
+    );
+
+  const embeds = [];
+
+  /*
+    EMBED 1
+    Professional overview
+  */
+  let overviewDescription =
+    "See which members of the **Kings Logistics Family** " +
+    "are currently online on TruckersMP.\n\n";
 
   if (players.length === 0) {
-    fields.push({
-      name: "Currently Online",
-      value:
-        "No Kings Logistics members are currently online on TruckersMP.",
-      inline: false
-    });
+    overviewDescription +=
+      "**No Kings Logistics members are currently online on TruckersMP.**";
   } else {
-    const groups = {};
+    overviewDescription +=
+      `**${players.length} Kings member${
+        players.length === 1
+          ? ""
+          : "s"
+      } currently online**`;
+  }
 
-    for (const player of players) {
-      const key = `${player.game}|||${player.server}`;
+  overviewDescription +=
+    `\n\nETS2: **${ets2Count}**` +
+    ` • ATS: **${atsCount}**` +
+    `\nLast updated <t:${timestamp}:R>`;
 
-      if (!groups[key]) {
-        groups[key] = [];
-      }
+  embeds.push({
+    title:
+      "Live TruckersMP VTC Members Online",
 
-      groups[key].push(player);
+    description:
+      overviewDescription,
+
+    color:
+      parseInt("182dff", 16)
+  });
+
+  if (players.length === 0) {
+    return embeds;
+  }
+
+  /*
+    Group drivers by Game + Server.
+  */
+  const groups = {};
+
+  for (const player of players) {
+    const key =
+      `${player.game}|||${player.server}`;
+
+    if (!groups[key]) {
+      groups[key] = [];
     }
 
-    for (const [key, serverPlayers] of Object.entries(groups)) {
-      const [game, server] = key.split("|||");
+    groups[key].push(player);
+  }
 
-      let value = "";
+  const sortedGroups =
+    Object.entries(groups).sort(
+      ([a], [b]) =>
+        a.localeCompare(b)
+    );
 
-      for (const player of serverPlayers) {
+  /*
+    One embed per server that currently
+    has at least one Kings member online.
+  */
+  for (
+    const [key, serverPlayers]
+    of sortedGroups
+  ) {
+    const [game, server] =
+      key.split("|||");
+
+    serverPlayers.sort(
+      (a, b) =>
+        a.name.localeCompare(b.name)
+    );
+
+    const driverBlocks =
+      serverPlayers.map(player => {
         const profile =
           `https://truckersmp.com/user/${player.tmpId}`;
 
         const liveMap =
           `https://map.truckersmp.com/?follow=${player.tmpId}`;
 
-        const playerText =
+        return (
           `**${player.name}**\n` +
           `${player.city}\n` +
-          `[Profile](${profile}) • ` +
-          `[Live Map](${liveMap})\n\n`;
-
-        // Discord Embed Field Limit absichern
-        if ((value + playerText).length > 1000) {
-          value +=
-            "\n*More Kings drivers are online on this server.*";
-          break;
-        }
-
-        value += playerText;
-      }
-
-      fields.push({
-        name:
-          `${game} — ${server} — ` +
-          `${serverPlayers.length} online`,
-        value: value.trim(),
-        inline: false
+          `[Profile](${profile})` +
+          ` • ` +
+          `[Live Map](${liveMap})`
+        );
       });
+
+    const separator =
+      "\n\n━━━━━━━━━━━━━━━━━━━\n\n";
+
+    let description =
+      driverBlocks.join(separator);
+
+    /*
+      Protect Discord's embed
+      description length.
+    */
+    if (description.length > 4000) {
+      description =
+        description.slice(
+          0,
+          3900
+        ) +
+        "\n\n*Additional Kings drivers are currently online.*";
+    }
+
+    const hasEventDriver =
+      serverPlayers.some(
+        player => player.isEvent
+      );
+
+    embeds.push({
+      title:
+        `${game} — ${server}` +
+        `${hasEventDriver ? " — Event Server" : ""}` +
+        ` — ${serverPlayers.length} online`,
+
+      description,
+
+      color:
+        parseInt("182dff", 16)
+    });
+
+    /*
+      Discord allows max 10 embeds
+      in one message.
+    */
+    if (embeds.length >= 10) {
+      break;
     }
   }
 
-  const now =
-    new Date().toISOString().slice(11, 16);
-
-  return {
-    title:
-      "Kings Logistics — TruckersMP Live Tracker",
-
-    description:
-      `**${players.length} Kings member${
-        players.length === 1 ? "" : "s"
-      } currently online**`,
-
-    fields,
-
-    footer: {
-      text:
-        `ETS2: ${ets2Count} • ATS: ${atsCount}` +
-        ` • Last updated: ${now} UTC`
-    }
-  };
+  return embeds;
 }
 
 async function updateDiscordMessage(players) {
@@ -326,45 +457,66 @@ async function updateDiscordMessage(players) {
     `${DISCORD_WEBHOOK_URL}/messages/` +
     `${DISCORD_MESSAGE_ID}`;
 
-  const embed = buildDiscordEmbed(players);
+  const embeds =
+    buildDiscordEmbeds(players);
 
-  const response = await fetch(editUrl, {
-    method: "PATCH",
+  const response =
+    await fetch(editUrl, {
+      method: "PATCH",
 
-    headers: {
-      "Content-Type": "application/json"
-    },
+      headers: {
+        "Content-Type":
+          "application/json"
+      },
 
-    body: JSON.stringify({
-      content: "",
-      embeds: [embed]
-    })
-  });
+      body: JSON.stringify({
+        content: "",
+        embeds
+      })
+    });
 
   if (!response.ok) {
-    const errorText = await response.text();
+    const errorText =
+      await response.text();
 
     throw new Error(
       `Discord update failed: ` +
-      `HTTP ${response.status} - ${errorText}`
+      `HTTP ${response.status} - ` +
+      `${errorText}`
     );
   }
 
+  console.log("");
   console.log(
     "Discord Live Tracker message updated successfully."
   );
 }
 
 async function start() {
-  const kingsOnline = await getKingsOnline();
+  const kingsOnline =
+    await getKingsOnline();
 
   console.log("");
-  console.log("==============================");
-  console.log("Kings Logistics Live Tracker");
-  console.log("==============================");
-  console.log(`Online: ${kingsOnline.length}`);
+  console.log(
+    "=============================="
+  );
 
-  for (const player of kingsOnline) {
+  console.log(
+    "Kings Logistics Live Tracker"
+  );
+
+  console.log(
+    "=============================="
+  );
+
+  console.log(
+    `Online: ${kingsOnline.length}`
+  );
+
+  for (
+    const player
+    of kingsOnline
+  ) {
     console.log(
       `${player.name} | ` +
       `${player.game} | ` +
@@ -373,7 +525,9 @@ async function start() {
     );
   }
 
-  await updateDiscordMessage(kingsOnline);
+  await updateDiscordMessage(
+    kingsOnline
+  );
 }
 
 start().catch(error => {
