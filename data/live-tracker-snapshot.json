@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-30T23:03:38.640Z",
+  "updatedAt": "2026-08-30T23:10:06.192Z",
   "members": 110,
   "online": 1,
   "ets2Online": 1,
@@ -15,11 +15,11 @@
   ],
   "players": [
     {
-      "tmpId": 6343406,
-      "name": "FaJoste",
+      "tmpId": 6266493,
+      "name": "Ahmad_SY",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Turku",
+      "city": "Prague",
       "isEvent": false
     }
   ]
