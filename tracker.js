@@ -22,6 +22,7 @@ async function getServers() {
   }
 
   const allowedRegularServers = [
+    "Simulation",
     "Simulation 1",
     "Simulation 2",
     "[US] Simulation",
