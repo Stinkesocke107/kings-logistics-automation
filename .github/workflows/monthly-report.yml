@@ -2,6 +2,15 @@ name: Kings Monthly Report
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "Choose how the Kings Monthly Report should run"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - publish
 
   schedule:
     - cron: "0 10 1 * *"
@@ -30,6 +39,7 @@ jobs:
         env:
           MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
           NEWS_NOTIFICATIONS_ROLE_ID: ${{ secrets.NEWS_NOTIFICATIONS_ROLE_ID }}
+          MONTHLY_REPORT_PREVIEW: ${{ inputs.mode == 'preview' }}
         run: node monthly-report.js
 
       - name: Save Monthly Report Data
@@ -43,7 +53,6 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
 
           git add data/monthly-report-state.json
-
           git commit -m "Update Kings Monthly Report state"
 
           git pull --rebase origin main
