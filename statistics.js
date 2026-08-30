@@ -49,22 +49,15 @@ function nowISO() {
 
 function ensureDataDirectory() {
   fs.mkdirSync(
-    path.dirname(
-      STATE_FILE
-    ),
+    path.dirname(STATE_FILE),
     {
       recursive: true
     }
   );
 }
 
-function readJson(
-  file,
-  fallback
-) {
-  if (
-    !fs.existsSync(file)
-  ) {
+function readJson(file, fallback) {
+  if (!fs.existsSync(file)) {
     return fallback;
   }
 
@@ -84,10 +77,7 @@ function readJson(
   }
 }
 
-function writeJson(
-  file,
-  data
-) {
+function writeJson(file, data) {
   ensureDataDirectory();
 
   fs.writeFileSync(
@@ -101,10 +91,7 @@ function writeJson(
   );
 }
 
-function number(
-  value,
-  fallback = 0
-) {
+function number(value, fallback = 0) {
   const parsed =
     Number(value);
 
@@ -113,9 +100,7 @@ function number(
     : fallback;
 }
 
-function normalizeDate(
-  value
-) {
+function normalizeDate(value) {
   if (!value) {
     return null;
   }
@@ -134,15 +119,10 @@ function normalizeDate(
   return date;
 }
 
-function dateKey(
-  date
-) {
+function dateKey(date) {
   return date
     .toISOString()
-    .slice(
-      0,
-      10
-    );
+    .slice(0, 10);
 }
 
 function startOfDay(
@@ -203,30 +183,19 @@ function currentHourKey(
   ).toISOString();
 }
 
-function formatSigned(
-  value
-) {
+function formatSigned(value) {
   const parsed =
     number(value);
 
-  if (
-    parsed > 0
-  ) {
+  if (parsed > 0) {
     return `+${parsed}`;
   }
 
-  return String(
-    parsed
-  );
+  return String(parsed);
 }
 
-function percent(
-  part,
-  total
-) {
-  if (
-    total <= 0
-  ) {
+function percent(part, total) {
+  if (total <= 0) {
     return 0;
   }
 
@@ -238,9 +207,7 @@ function percent(
   );
 }
 
-function progressBar(
-  value
-) {
+function progressBar(value) {
   const safe =
     Math.max(
       0,
@@ -252,15 +219,13 @@ function progressBar(
 
   const filled =
     Math.round(
-      safe /
-      10
+      safe / 10
     );
 
   return (
     "█".repeat(filled) +
     "░".repeat(
-      10 -
-      filled
+      10 - filled
     )
   );
 }
@@ -269,9 +234,7 @@ function progressBar(
 // STATISTICS DATA
 // ======================================================
 
-function normalizeDay(
-  entry
-) {
+function normalizeDay(entry) {
   return {
     date:
       String(
@@ -281,9 +244,7 @@ function normalizeDay(
     startMembers:
       number(
         entry.startMembers,
-        number(
-          entry.members
-        )
+        number(entry.members)
       ),
 
     members:
@@ -358,13 +319,10 @@ function loadStatistics() {
     nowISO();
 
   let oldAllTime = {};
-
   let migrated =
     false;
 
-  if (
-    Array.isArray(raw)
-  ) {
+  if (Array.isArray(raw)) {
     oldHistory =
       raw;
 
@@ -431,9 +389,7 @@ function loadStatistics() {
 
   const history =
     oldHistory
-      .map(
-        normalizeDay
-      )
+      .map(normalizeDay)
       .filter(
         entry =>
           /^\d{4}-\d{2}-\d{2}$/.test(
@@ -441,10 +397,7 @@ function loadStatistics() {
           )
       )
       .sort(
-        (
-          a,
-          b
-        ) =>
+        (a, b) =>
           a.date.localeCompare(
             b.date
           )
@@ -481,8 +434,7 @@ function loadStatistics() {
     migrated,
 
     state: {
-      version:
-        2,
+      version: 2,
 
       createdAt,
 
@@ -526,7 +478,7 @@ function loadStatistics() {
 }
 
 // ======================================================
-// TRUCKERSMP REQUEST
+// HTTP REQUEST
 // ======================================================
 
 async function fetchJson(
@@ -534,24 +486,11 @@ async function fetchJson(
   label
 ) {
   const response =
-    await fetch(
-      url,
-      {
-        headers: {
-          Accept:
-            "application/json",
+    await fetch(url);
 
-          "User-Agent":
-            "Kings Logistics Advanced Statistics"
-        }
-      }
-    );
-
-  if (
-    !response.ok
-  ) {
+  if (!response.ok) {
     throw new Error(
-      `${label} failed: HTTP ${response.status}`
+      `${label}: HTTP ${response.status}`
     );
   }
 
@@ -559,14 +498,14 @@ async function fetchJson(
 }
 
 // ======================================================
-// MEMBER COUNT
+// MEMBERS
 // ======================================================
 
 async function getMemberCount() {
   const data =
     await fetchJson(
       MEMBERS_URL,
-      "TruckersMP VTC members request"
+      "TruckersMP members request failed"
     );
 
   if (
@@ -584,14 +523,14 @@ async function getMemberCount() {
 }
 
 // ======================================================
-// TRUCKERSMP SERVERS
+// SERVERS
 // ======================================================
 
 async function getServers() {
   const data =
     await fetchJson(
       SERVERS_URL,
-      "TruckersMP servers request"
+      "TruckersMP servers request failed"
     );
 
   if (
@@ -604,85 +543,94 @@ async function getServers() {
     );
   }
 
-  return data.response.filter(
-    server =>
-      server.online ===
-        true &&
-      Number.isFinite(
+  return data.response
+    .filter(server => {
+      if (!server.online) {
+        return false;
+      }
+
+      const mapId =
         Number(
           server.mapid
-        )
-      )
-  );
+        );
+
+      return Number.isFinite(
+        mapId
+      );
+    })
+    .map(server => ({
+      name:
+        server.name,
+
+      mapId:
+        Number(
+          server.mapid
+        ),
+
+      game:
+        server.game,
+
+      isEvent:
+        server.event === true ||
+        server.specialEvent === true
+    }));
 }
 
 // ======================================================
-// LIVE KINGS PLAYERS
+// LIVE MAP
 // ======================================================
 
-async function getKingsPlayers(
-  server
-) {
-  const params =
-    new URLSearchParams({
-      x1:
-        "-1000000",
+async function getPlayers(server) {
+  const url =
+    `${LIVE_MAP_URL}` +
+    `?x1=-1000000` +
+    `&y1=1000000` +
+    `&x2=1000000` +
+    `&y2=-1000000` +
+    `&server=${server.mapId}`;
 
-      y1:
-        "1000000",
+  const response =
+    await fetch(url);
 
-      x2:
-        "1000000",
-
-      y2:
-        "-1000000",
-
-      server:
-        String(
-          server.mapid
-        )
-    });
-
-  const data =
-    await fetchJson(
-      `${LIVE_MAP_URL}?${params.toString()}`,
-      `Live map request for ${server.game} ${server.name}`
+  if (!response.ok) {
+    throw new Error(
+      `${server.game} - ${server.name}: HTTP ${response.status}`
     );
-
-  let players = [];
-
-  if (
-    Array.isArray(data)
-  ) {
-    players =
-      data;
-  } else if (
-    Array.isArray(
-      data.players
-    )
-  ) {
-    players =
-      data.players;
-  } else if (
-    Array.isArray(
-      data.response
-    )
-  ) {
-    players =
-      data.response;
   }
 
-  return players.filter(
-    player =>
-      Number(
-        player.VtcId
-      ) ===
-      KINGS_VTC_ID
-  );
+  const data =
+    await response.json();
+
+  /*
+    IMPORTANT:
+
+    The TruckersMP live-map endpoint returns:
+
+    {
+      Success: true,
+      Data: [...]
+    }
+
+    This is the same response handling used
+    by the working Kings Live Tracker.
+  */
+
+  if (
+    !data.Success ||
+    !Array.isArray(
+      data.Data
+    )
+  ) {
+    throw new Error(
+      `${server.game} - ${server.name}: Invalid live response`
+    );
+  }
+
+  return data.Data;
 }
 
 // ======================================================
-// CURRENT ACTIVITY
+// CURRENT KINGS ACTIVITY
 // ======================================================
 
 async function getLiveActivity() {
@@ -693,134 +641,107 @@ async function getLiveActivity() {
     `Online TruckersMP servers checked: ${servers.length}`
   );
 
-  const results =
-    await Promise.all(
-      servers.map(
-        async server => {
-          const players =
-            await getKingsPlayers(
-              server
-            );
-
-          return {
-            server,
-            players
-          };
-        }
-      )
-    );
-
   const uniquePlayers =
     new Map();
 
   const serverCounts =
     [];
 
-  let ets2Count =
-    0;
-
-  let atsCount =
-    0;
+  let ets2Count = 0;
+  let atsCount = 0;
 
   for (
-    const result
-    of results
+    const server
+    of servers
   ) {
-    const server =
-      result.server;
-
-    const players =
-      result.players;
-
-    const game =
-      String(
-        server.game || ""
-      ).toUpperCase();
-
-    const serverName =
-      String(
-        server.name ||
-        server.shortname ||
-        "Unknown Server"
-      );
-
-    const count =
-      players.length;
-
-    if (
-      game ===
-      "ETS2"
-    ) {
-      ets2Count +=
-        count;
-    }
-
-    if (
-      game ===
-      "ATS"
-    ) {
-      atsCount +=
-        count;
-    }
-
-    if (
-      count > 0
-    ) {
-      serverCounts.push({
-        key:
-          `${game} — ${serverName}`,
-
-        game,
-
-        name:
-          serverName,
-
-        count,
-
-        event:
-          Boolean(
-            server.event
-          ),
-
-        promods:
-          Boolean(
-            server.promods
-          )
-      });
-    }
-
-    for (
-      const player
-      of players
-    ) {
-      const tmpId =
-        Number(
-          player.MpId ||
-          player.mpId ||
-          player.id
+    try {
+      const players =
+        await getPlayers(
+          server
         );
 
-      const key =
-        Number.isFinite(
-          tmpId
-        )
-          ? String(
-              tmpId
-            )
-          : `${server.id}:${player.Name}`;
+      const kingsPlayers =
+        players.filter(
+          player =>
+            Number(
+              player.VtcId
+            ) ===
+            KINGS_VTC_ID
+        );
 
-      uniquePlayers.set(
-        key,
-        player
+      const game =
+        String(
+          server.game || ""
+        ).toUpperCase();
+
+      if (
+        game === "ETS2"
+      ) {
+        ets2Count +=
+          kingsPlayers.length;
+      }
+
+      if (
+        game === "ATS"
+      ) {
+        atsCount +=
+          kingsPlayers.length;
+      }
+
+      if (
+        kingsPlayers.length > 0
+      ) {
+        serverCounts.push({
+          key:
+            `${game} — ${server.name}`,
+
+          game,
+
+          name:
+            server.name,
+
+          count:
+            kingsPlayers.length,
+
+          event:
+            server.isEvent
+        });
+      }
+
+      for (
+        const player
+        of kingsPlayers
+      ) {
+        const tmpId =
+          Number(
+            player.MpId
+          );
+
+        const key =
+          Number.isFinite(
+            tmpId
+          )
+            ? String(tmpId)
+            : `${server.mapId}:${player.Name}`;
+
+        uniquePlayers.set(
+          key,
+          player
+        );
+      }
+
+      console.log(
+        `${game} - ${server.name}: ${kingsPlayers.length} Kings member(s)`
+      );
+    } catch (error) {
+      console.error(
+        `Skipped server: ${error.message}`
       );
     }
   }
 
   serverCounts.sort(
-    (
-      a,
-      b
-    ) =>
+    (a, b) =>
       b.count -
         a.count ||
       a.key.localeCompare(
@@ -874,9 +795,7 @@ function historyCovers(
   driverHistory,
   start
 ) {
-  if (
-    !driverHistory
-  ) {
+  if (!driverHistory) {
     return false;
   }
 
@@ -885,9 +804,7 @@ function historyCovers(
       driverHistory.initializedAt
     );
 
-  if (
-    !initialized
-  ) {
+  if (!initialized) {
     return false;
   }
 
@@ -898,7 +815,7 @@ function historyCovers(
 }
 
 // ======================================================
-// JOIN / LEAVE MOVEMENT
+// DRIVER MOVEMENT
 // ======================================================
 
 function getMovement(
@@ -913,25 +830,15 @@ function getMovement(
     )
   ) {
     return {
-      complete:
-        false,
-
-      joined:
-        0,
-
-      left:
-        0,
-
-      net:
-        0
+      complete: false,
+      joined: 0,
+      left: 0,
+      net: 0
     };
   }
 
-  let joined =
-    0;
-
-  let left =
-    0;
+  let joined = 0;
+  let left = 0;
 
   for (
     const event
@@ -943,9 +850,7 @@ function getMovement(
         event.detectedAt
       );
 
-    if (
-      !date
-    ) {
+    if (!date) {
       continue;
     }
 
@@ -959,31 +864,24 @@ function getMovement(
     }
 
     if (
-      event.type ===
-      "join"
+      event.type === "join"
     ) {
       joined++;
     }
 
     if (
-      event.type ===
-      "leave"
+      event.type === "leave"
     ) {
       left++;
     }
   }
 
   return {
-    complete:
-      true,
-
+    complete: true,
     joined,
-
     left,
-
     net:
-      joined -
-      left
+      joined - left
   };
 }
 
@@ -991,9 +889,7 @@ function movementLine(
   label,
   movement
 ) {
-  if (
-    !movement.complete
-  ) {
+  if (!movement.complete) {
     return (
       `${label}: ` +
       "*collecting data*"
@@ -1009,7 +905,7 @@ function movementLine(
 }
 
 // ======================================================
-// UPDATE DAILY STATISTICS
+// UPDATE DAILY DATA
 // ======================================================
 
 function updateState(
@@ -1022,9 +918,7 @@ function updateState(
     false;
 
   const today =
-    dateKey(
-      now
-    );
+    dateKey(now);
 
   let entry =
     state.history.find(
@@ -1033,9 +927,7 @@ function updateState(
         today
     );
 
-  if (
-    !entry
-  ) {
+  if (!entry) {
     entry =
       normalizeDay({
         date:
@@ -1113,9 +1005,7 @@ function updateState(
   // ====================================================
 
   const hour =
-    currentHourKey(
-      now
-    );
+    currentHourKey(now);
 
   if (
     !entry.sampledHours.includes(
@@ -1191,14 +1081,11 @@ function updateState(
   }
 
   // ====================================================
-  // RETENTION
+  // HISTORY RETENTION
   // ====================================================
 
   state.history.sort(
-    (
-      a,
-      b
-    ) =>
+    (a, b) =>
       a.date.localeCompare(
         b.date
       )
@@ -1226,8 +1113,8 @@ function updateState(
     );
 
   if (
-    state.history.length !==
-    oldLength
+    oldLength !==
+    state.history.length
   ) {
     changed =
       true;
@@ -1237,22 +1124,19 @@ function updateState(
 }
 
 // ======================================================
-// PERIOD HELPERS
+// PERIOD STATISTICS
 // ======================================================
 
 function entriesFrom(
   state,
   start
 ) {
-  const startKey =
-    dateKey(
-      start
-    );
+  const key =
+    dateKey(start);
 
   return state.history.filter(
     day =>
-      day.date >=
-      startKey
+      day.date >= key
   );
 }
 
@@ -1268,8 +1152,7 @@ function memberGrowth(
     );
 
   if (
-    entries.length ===
-    0
+    entries.length === 0
   ) {
     return 0;
   }
@@ -1306,7 +1189,7 @@ function peakFrom(
 }
 
 // ======================================================
-// MONTHLY ACTIVITY ANALYTICS
+// MONTHLY ACTIVITY
 // ======================================================
 
 function getMonthlyActivity(
@@ -1319,17 +1202,11 @@ function getMonthlyActivity(
       monthStart
     );
 
-  let ets2 =
-    0;
+  let ets2 = 0;
+  let ats = 0;
+  let samples = 0;
 
-  let ats =
-    0;
-
-  let samples =
-    0;
-
-  const servers =
-    {};
+  const servers = {};
 
   for (
     const day
@@ -1360,44 +1237,29 @@ function getMonthlyActivity(
         {}
       )
     ) {
-      servers[
-        server
-      ] =
+      servers[server] =
         number(
-          servers[
-            server
-          ]
+          servers[server]
         ) +
-        number(
-          count
-        );
+        number(count);
     }
   }
 
   const total =
-    ets2 +
-    ats;
+    ets2 + ats;
 
   const ranking =
     Object.entries(
       servers
     )
       .map(
-        (
-          [
-            server,
-            count
-          ]
-        ) => ({
+        ([server, count]) => ({
           server,
           count
         })
       )
       .sort(
-        (
-          a,
-          b
-        ) =>
+        (a, b) =>
           b.count -
             a.count ||
           a.server.localeCompare(
@@ -1411,11 +1273,8 @@ function getMonthlyActivity(
 
   return {
     samples,
-
     ets2,
-
     ats,
-
     total,
 
     ets2Percent:
@@ -1450,7 +1309,7 @@ function getMonthlyActivity(
 }
 
 // ======================================================
-// MILESTONE PROGRESS
+// MILESTONE
 // ======================================================
 
 function getNextMilestone(
@@ -1462,8 +1321,7 @@ function getNextMilestone(
     milestone += 50
   ) {
     if (
-      members <
-      milestone
+      members < milestone
     ) {
       const completion =
         Math.min(
@@ -1472,8 +1330,7 @@ function getNextMilestone(
             (
               members /
               milestone
-            ) *
-            100
+            ) * 100
           )
         );
 
@@ -1493,7 +1350,7 @@ function getNextMilestone(
 }
 
 // ======================================================
-// BUILD DISCORD EMBED
+// EMBED
 // ======================================================
 
 function buildEmbed(
@@ -1504,29 +1361,19 @@ function buildEmbed(
   now
 ) {
   const dayStart =
-    startOfDay(
-      now
-    );
+    startOfDay(now);
 
   const weekStart =
-    startOfWeek(
-      now
-    );
+    startOfWeek(now);
 
   const monthStart =
-    startOfMonth(
-      now
-    );
+    startOfMonth(now);
 
   const updatedUnix =
     Math.floor(
       now.getTime() /
       1000
     );
-
-  // ====================================================
-  // MEMBER GROWTH
-  // ====================================================
 
   const todayGrowth =
     memberGrowth(
@@ -1549,10 +1396,6 @@ function buildEmbed(
       members
     );
 
-  // ====================================================
-  // ONLINE PEAKS
-  // ====================================================
-
   const todayPeak =
     peakFrom(
       state,
@@ -1573,10 +1416,6 @@ function buildEmbed(
       monthStart,
       "peakOnline"
     );
-
-  // ====================================================
-  // DRIVER MOVEMENT
-  // ====================================================
 
   const todayMovement =
     getMovement(
@@ -1599,10 +1438,6 @@ function buildEmbed(
       now
     );
 
-  // ====================================================
-  // SERVER / GAME ACTIVITY
-  // ====================================================
-
   const monthlyActivity =
     getMonthlyActivity(
       state,
@@ -1613,8 +1448,7 @@ function buildEmbed(
     "No Kings activity recorded yet.";
 
   if (
-    monthlyActivity.total >
-    0
+    monthlyActivity.total > 0
   ) {
     activityText =
       `ETS2: **${monthlyActivity.ets2Percent}%** • ` +
@@ -1629,10 +1463,6 @@ function buildEmbed(
     }
   }
 
-  // ====================================================
-  // MILESTONE
-  // ====================================================
-
   const milestone =
     getNextMilestone(
       members
@@ -1641,13 +1471,12 @@ function buildEmbed(
   let milestoneText =
     "All configured milestones up to **1,000 members** reached. 👑";
 
-  if (
-    milestone
-  ) {
+  if (milestone) {
     milestoneText =
       `**${members} / ${milestone.milestone}** members\n` +
-      `${progressBar(milestone.completion)} ` +
-      `**${milestone.completion}%**\n` +
+      `${progressBar(
+        milestone.completion
+      )} **${milestone.completion}%**\n` +
       `**${milestone.remaining}** remaining`;
   }
 
@@ -1723,9 +1552,7 @@ function buildEmbed(
               "This Month",
               monthMovement
             )
-          ].join(
-            "\n"
-          ),
+          ].join("\n"),
 
         inline:
           false
@@ -1763,7 +1590,7 @@ function buildEmbed(
 }
 
 // ======================================================
-// DISCORD WEBHOOK
+// DISCORD
 // ======================================================
 
 function webhookWithWait() {
@@ -1783,9 +1610,7 @@ function webhookWithWait() {
 async function createDiscordMessage(
   embed
 ) {
-  if (
-    !DISCORD_WEBHOOK_URL
-  ) {
+  if (!DISCORD_WEBHOOK_URL) {
     throw new Error(
       "STATS_DISCORD_WEBHOOK_URL is missing."
     );
@@ -1816,9 +1641,7 @@ async function createDiscordMessage(
       }
     );
 
-  if (
-    !response.ok
-  ) {
+  if (!response.ok) {
     throw new Error(
       `Statistics Discord create failed: HTTP ${response.status} - ${await response.text()}`
     );
@@ -1827,9 +1650,7 @@ async function createDiscordMessage(
   const message =
     await response.json();
 
-  if (
-    !message.id
-  ) {
+  if (!message.id) {
     throw new Error(
       "Discord did not return a Statistics message ID."
     );
@@ -1844,9 +1665,7 @@ async function updateDiscordMessage(
   messageId,
   embed
 ) {
-  if (
-    !DISCORD_WEBHOOK_URL
-  ) {
+  if (!DISCORD_WEBHOOK_URL) {
     throw new Error(
       "STATS_DISCORD_WEBHOOK_URL is missing."
     );
@@ -1886,15 +1705,12 @@ async function updateDiscordMessage(
     );
 
   if (
-    response.status ===
-    404
+    response.status === 404
   ) {
     return false;
   }
 
-  if (
-    !response.ok
-  ) {
+  if (!response.ok) {
     throw new Error(
       `Statistics Discord update failed: HTTP ${response.status} - ${await response.text()}`
     );
@@ -1907,18 +1723,14 @@ async function publishStatistics(
   state,
   embed
 ) {
-  if (
-    state.messageId
-  ) {
+  if (state.messageId) {
     const updated =
       await updateDiscordMessage(
         state.messageId,
         embed
       );
 
-    if (
-      updated
-    ) {
+    if (updated) {
       console.log(
         "Existing Kings Statistics message updated."
       );
@@ -2009,9 +1821,7 @@ async function start() {
   let stateChanged =
     loaded.migrated;
 
-  if (
-    loaded.migrated
-  ) {
+  if (loaded.migrated) {
     console.log("");
 
     console.log(
@@ -2046,16 +1856,12 @@ async function start() {
       embed
     );
 
-  if (
-    newMessage
-  ) {
+  if (newMessage) {
     stateChanged =
       true;
   }
 
-  if (
-    stateChanged
-  ) {
+  if (stateChanged) {
     state.updatedAt =
       nowISO();
 
@@ -2088,6 +1894,14 @@ async function start() {
   );
 
   console.log(
+    `ETS2: ${activity.ets2Count}`
+  );
+
+  console.log(
+    `ATS: ${activity.atsCount}`
+  );
+
+  console.log(
     `All-Time Tracked Peak: ${state.allTime.peakOnline}`
   );
 
@@ -2096,9 +1910,7 @@ async function start() {
       members
     );
 
-  if (
-    milestone
-  ) {
+  if (milestone) {
     console.log(
       `Next Milestone: ${members}/${milestone.milestone}`
     );
@@ -2119,20 +1931,16 @@ async function start() {
 // START
 // ======================================================
 
-start().catch(
-  error => {
-    console.error("");
+start().catch(error => {
+  console.error("");
 
-    console.error(
-      "Kings Advanced Statistics failed:"
-    );
+  console.error(
+    "Kings Advanced Statistics failed:"
+  );
 
-    console.error(
-      error
-    );
+  console.error(
+    error
+  );
 
-    process.exit(
-      1
-    );
-  }
-);
+  process.exit(1);
+});
