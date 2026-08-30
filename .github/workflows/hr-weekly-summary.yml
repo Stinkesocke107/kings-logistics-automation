@@ -1,0 +1,58 @@
+name: Kings HR Weekly Summary
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Choose how the HR Weekly Summary should run"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - publish
+
+  schedule:
+    - cron: "15 10 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-hr-weekly-summary
+  cancel-in-progress: false
+
+jobs:
+  create-hr-weekly-summary:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Create Kings HR Weekly Summary
+        env:
+          HR_AUTOMATION_WEBHOOK_URL: ${{ secrets.HR_AUTOMATION_WEBHOOK_URL }}
+          HR_WEEKLY_SUMMARY_PREVIEW: ${{ inputs.mode == 'preview' }}
+        run: node hr-weekly-summary.js
+
+      - name: Save HR Weekly Summary Data
+        run: |
+          if git diff --quiet -- data/hr-weekly-summary-state.json && [ -z "$(git status --porcelain data/hr-weekly-summary-state.json)" ]; then
+            echo "No HR Weekly Summary state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/hr-weekly-summary-state.json
+          git commit -m "Update Kings HR Weekly Summary state"
+
+          git pull --rebase origin main
+          git push origin main
