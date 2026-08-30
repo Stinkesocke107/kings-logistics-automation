@@ -1,0 +1,48 @@
+name: Kings Driver Probation Tracker
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-driver-probation
+  cancel-in-progress: false
+
+jobs:
+  check-driver-probation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Check Kings Driver Probations
+        env:
+          HR_AUTOMATION_WEBHOOK_URL: ${{ secrets.HR_AUTOMATION_WEBHOOK_URL }}
+        run: node probation.js
+
+      - name: Save Probation Data
+        run: |
+          if git diff --quiet -- data/probation-state.json && [ -z "$(git status --porcelain data/probation-state.json)" ]; then
+            echo "No Probation state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/probation-state.json
+          git commit -m "Update Kings Driver Probation state"
+
+          git pull --rebase origin main
+          git push origin main
