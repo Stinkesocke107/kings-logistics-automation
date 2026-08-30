@@ -6,14 +6,57 @@ const ETS2_LOCATIONS_URL =
 const ATS_LOCATIONS_URL =
   "https://map.truckersmp.com/locations_ats.min.json?v=6c59ff2b";
 
-const servers = [
-  { name: "ETS2 - Simulation 1", mapId: 2, game: "ETS2" },
-  { name: "ETS2 - Simulation 2", mapId: 41, game: "ETS2" },
-  { name: "ETS2 - [US] Simulation", mapId: 15, game: "ETS2" },
-  { name: "ETS2 - ProMods", mapId: 50, game: "ETS2" },
-  { name: "ATS - Simulation", mapId: 8, game: "ATS" },
-  { name: "ATS - [US] Simulation", mapId: 10, game: "ATS" }
-];
+const SERVERS_URL = "https://api.truckersmp.com/v2/servers";
+
+async function getServers() {
+  const response = await fetch(SERVERS_URL);
+
+  if (!response.ok) {
+    throw new Error(`Could not load TruckersMP servers: HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  if (!Array.isArray(data.response)) {
+    throw new Error("Invalid TruckersMP server response");
+  }
+
+  const allowedRegularServers = [
+    "Simulation 1",
+    "Simulation 2",
+    "[US] Simulation",
+    "ProMods"
+  ];
+
+  return data.response
+    .filter(server => {
+      if (!server.online) return false;
+
+      // Active Event Servers are always included
+      if (server.event === true || server.specialEvent === true) {
+        return true;
+      }
+
+      // No Arcade servers
+      if (server.name.toLowerCase().includes("arcade")) {
+        return false;
+      }
+
+      // No Asia server
+      if (server.name.toLowerCase().includes("asia")) {
+        return false;
+      }
+
+      // Only our normal relevant servers
+      return allowedRegularServers.includes(server.name);
+    })
+    .map(server => ({
+      name: `${server.game} - ${server.name}`,
+      mapId: server.mapid,
+      game: server.game,
+      isEvent: server.event === true || server.specialEvent === true
+    }));
+}
 
 async function getPlayers(server) {
   const url =
@@ -107,7 +150,17 @@ async function main() {
   console.log(`Loaded ${ets2Cities.length} ETS2 cities.`);
   console.log(`Loaded ${atsCities.length} ATS cities.`);
   console.log("");
+const servers = await getServers();
 
+console.log(`Loaded ${servers.length} relevant TruckersMP servers.`);
+
+for (const server of servers) {
+  console.log(
+    `Server: ${server.name}${server.isEvent ? " [EVENT]" : ""}`
+  );
+}
+
+console.log("");
   const kingsOnline = [];
 
   for (const server of servers) {
