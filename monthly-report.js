@@ -2,14 +2,19 @@ const fs = require("fs");
 const path = require("path");
 
 // ======================================================
-// KINGS LOGISTICS — AUTOMATIC MONTHLY REPORT
+// KINGS LOGISTICS — ADVANCED MONTHLY REPORT
 // ======================================================
 
-const DISCORD_WEBHOOK_URL =
+const WEBHOOK_URL =
   process.env.MONTHLY_REPORT_DISCORD_WEBHOOK_URL;
 
 const NEWS_ROLE_ID =
   process.env.NEWS_NOTIFICATIONS_ROLE_ID;
+
+const PREVIEW_MODE =
+  String(
+    process.env.MONTHLY_REPORT_PREVIEW || ""
+  ).toLowerCase() === "true";
 
 const STATISTICS_FILE =
   path.join(
@@ -18,11 +23,11 @@ const STATISTICS_FILE =
     "statistics.json"
   );
 
-const REPORT_STATE_FILE =
+const DRIVER_HISTORY_FILE =
   path.join(
     __dirname,
     "data",
-    "monthly-report-state.json"
+    "driver-history.json"
   );
 
 const CHANGELOG_QUEUE_FILE =
@@ -39,22 +44,23 @@ const CHANGELOG_HISTORY_FILE =
     "changelog-history.json"
   );
 
-const MAX_DISCORD_LENGTH = 2000;
-
+const STATE_FILE =
+  path.join(
+    __dirname,
+    "data",
+    "monthly-report-state.json"
+  );
 
 // ======================================================
-// JSON HELPERS
+// HELPERS
 // ======================================================
 
-function readJson(
-  file,
-  fallback
-) {
-  if (
-    !fs.existsSync(
-      file
-    )
-  ) {
+function nowISO() {
+  return new Date().toISOString();
+}
+
+function readJson(file, fallback) {
+  if (!fs.existsSync(file)) {
     return fallback;
   }
 
@@ -66,7 +72,7 @@ function readJson(
       )
     );
   } catch (error) {
-    console.error(
+    console.warn(
       `Could not read ${path.basename(file)}.`
     );
 
@@ -74,11 +80,7 @@ function readJson(
   }
 }
 
-
-function writeJson(
-  file,
-  data
-) {
+function writeJson(file, data) {
   fs.mkdirSync(
     path.dirname(file),
     {
@@ -97,429 +99,840 @@ function writeJson(
   );
 }
 
+function number(value, fallback = 0) {
+  const parsed =
+    Number(value);
+
+  return Number.isFinite(parsed)
+    ? parsed
+    : fallback;
+}
+
+function normalizeDate(value) {
+  if (!value) {
+    return null;
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+function formatSigned(value) {
+  const parsed =
+    number(value);
+
+  if (parsed > 0) {
+    return `+${parsed}`;
+  }
+
+  return String(parsed);
+}
+
+function percent(part, total) {
+  if (total <= 0) {
+    return 0;
+  }
+
+  return Math.round(
+    (
+      part /
+      total
+    ) * 100
+  );
+}
+
+function monthName(date) {
+  return new Intl.DateTimeFormat(
+    "en-US",
+    {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC"
+    }
+  ).format(date);
+}
+
+function monthKey(date) {
+  return (
+    `${date.getUTCFullYear()}-` +
+    `${String(
+      date.getUTCMonth() + 1
+    ).padStart(2, "0")}`
+  );
+}
+
+function daysInMonth(date) {
+  return new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth() + 1,
+      0
+    )
+  ).getUTCDate();
+}
 
 // ======================================================
-// PREVIOUS MONTH
+// REPORT PERIOD
 // ======================================================
 
 function getPreviousMonth() {
   const now =
     new Date();
 
-  const date =
+  const end =
     new Date(
       Date.UTC(
         now.getUTCFullYear(),
-        now.getUTCMonth() - 1,
+        now.getUTCMonth(),
         1
       )
     );
 
-  const year =
-    date.getUTCFullYear();
-
-  const monthNumber =
-    date.getUTCMonth() + 1;
-
-  const monthKey =
-    `${year}-${String(monthNumber).padStart(2, "0")}`;
-
-  const monthName =
-    date.toLocaleString(
-      "en-GB",
-      {
-        month: "long",
-        timeZone: "UTC"
-      }
-    );
-
-  const daysInMonth =
+  const start =
     new Date(
       Date.UTC(
-        year,
-        monthNumber,
-        0
+        end.getUTCFullYear(),
+        end.getUTCMonth() - 1,
+        1
       )
-    ).getUTCDate();
+    );
 
   return {
-    year,
-    monthNumber,
-    monthKey,
-    monthName,
-    daysInMonth
+    start,
+    end,
+
+    key:
+      monthKey(start),
+
+    label:
+      monthName(start)
   };
 }
 
+function getPreviewMonth() {
+  const now =
+    new Date();
+
+  const start =
+    new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        1
+      )
+    );
+
+  return {
+    start,
+    end:
+      now,
+
+    key:
+      "preview",
+
+    label:
+      `${monthName(start)} • Preview`
+  };
+}
 
 // ======================================================
-// LOAD MONTHLY STATISTICS
+// LOAD STATISTICS
 // ======================================================
 
-function getMonthStatistics(
-  monthInfo
-) {
-  const statistics =
+function loadStatistics() {
+  const raw =
     readJson(
       STATISTICS_FILE,
       null
     );
 
-  if (
-    !statistics ||
-    !Array.isArray(
-      statistics.days
-    )
-  ) {
-    return null;
+  if (!raw) {
+    throw new Error(
+      "Statistics data does not exist."
+    );
   }
 
-  const days =
-    statistics.days
-      .filter(
-        day =>
-          String(
-            day.date
-          ).startsWith(
-            monthInfo.monthKey
-          )
-      )
-      .sort(
-        (a, b) =>
-          a.date.localeCompare(
-            b.date
-          )
-      );
+  let history = [];
 
   if (
-    days.length === 0
+    Array.isArray(raw)
   ) {
-    return null;
+    history =
+      raw;
+  } else if (
+    Array.isArray(
+      raw.history
+    )
+  ) {
+    history =
+      raw.history;
+  } else if (
+    Array.isArray(
+      raw.days
+    )
+  ) {
+    history =
+      raw.days;
+  }
+
+  return history
+    .filter(
+      day =>
+        day &&
+        /^\d{4}-\d{2}-\d{2}$/.test(
+          String(day.date || "")
+        )
+    )
+    .sort(
+      (a, b) =>
+        String(a.date).localeCompare(
+          String(b.date)
+        )
+    );
+}
+
+// ======================================================
+// FILTER MONTH DATA
+// ======================================================
+
+function getMonthStatistics(
+  history,
+  period
+) {
+  return history.filter(
+    day => {
+      const date =
+        normalizeDate(
+          `${day.date}T00:00:00.000Z`
+        );
+
+      if (!date) {
+        return false;
+      }
+
+      return (
+        date.getTime() >=
+          period.start.getTime() &&
+        date.getTime() <
+          period.end.getTime()
+      );
+    }
+  );
+}
+
+// ======================================================
+// COVERAGE PROTECTION
+// ======================================================
+
+function hasFullCoverage(
+  days,
+  period
+) {
+  if (
+    days.length <
+    20
+  ) {
+    return false;
+  }
+
+  const firstDate =
+    normalizeDate(
+      `${days[0].date}T00:00:00.000Z`
+    );
+
+  const lastDate =
+    normalizeDate(
+      `${days[days.length - 1].date}T00:00:00.000Z`
+    );
+
+  if (
+    !firstDate ||
+    !lastDate
+  ) {
+    return false;
   }
 
   const firstDay =
-    days[0];
+    firstDate.getUTCDate();
 
   const lastDay =
+    lastDate.getUTCDate();
+
+  const finalDay =
+    daysInMonth(
+      period.start
+    );
+
+  return (
+    firstDay <= 3 &&
+    lastDay >=
+      finalDay - 2
+  );
+}
+
+// ======================================================
+// MEMBER + PEAK STATISTICS
+// ======================================================
+
+function buildStatistics(
+  days
+) {
+  if (
+    days.length ===
+    0
+  ) {
+    return null;
+  }
+
+  const first =
+    days[0];
+
+  const last =
     days[
       days.length - 1
     ];
 
   const startMembers =
-    Number(
-      firstDay.startMembers
-    ) || 0;
+    number(
+      first.startMembers,
+      first.members
+    );
 
   const endMembers =
-    Number(
-      lastDay.members
-    ) || startMembers;
-
-  const growth =
-    endMembers -
-    startMembers;
-
-  const peakOnline =
-    Math.max(
-      0,
-      ...days.map(
-        day =>
-          Number(
-            day.peakOnline
-          ) || 0
-      )
+    number(
+      last.members,
+      startMembers
     );
-
-  const peakETS2 =
-    Math.max(
-      0,
-      ...days.map(
-        day =>
-          Number(
-            day.peakETS2
-          ) || 0
-      )
-    );
-
-  const peakATS =
-    Math.max(
-      0,
-      ...days.map(
-        day =>
-          Number(
-            day.peakATS
-          ) || 0
-      )
-    );
-
-  const firstRecordedDay =
-    Number(
-      firstDay.date.slice(
-        -2
-      )
-    );
-
-  const lastRecordedDay =
-    Number(
-      lastDay.date.slice(
-        -2
-      )
-    );
-
-  /*
-    We do not want to publish a misleading
-    monthly report if Statistics only recorded
-    a few days of the month.
-
-    Requirements:
-    - At least 20 recorded days
-    - Recording started by day 3
-    - Recording continued until the final
-      three days of the month
-  */
-
-  const enoughCoverage =
-    days.length >= 20 &&
-    firstRecordedDay <= 3 &&
-    lastRecordedDay >=
-      monthInfo.daysInMonth - 2;
 
   return {
     recordedDays:
       days.length,
 
     firstRecordedDate:
-      firstDay.date,
+      first.date,
 
     lastRecordedDate:
-      lastDay.date,
+      last.date,
 
     startMembers,
+
     endMembers,
-    growth,
 
-    peakOnline,
-    peakETS2,
-    peakATS,
+    growth:
+      endMembers -
+      startMembers,
 
-    enoughCoverage
+    peakOnline:
+      Math.max(
+        0,
+        ...days.map(
+          day =>
+            number(
+              day.peakOnline
+            )
+        )
+      ),
+
+    peakETS2:
+      Math.max(
+        0,
+        ...days.map(
+          day =>
+            number(
+              day.peakETS2
+            )
+        )
+      ),
+
+    peakATS:
+      Math.max(
+        0,
+        ...days.map(
+          day =>
+            number(
+              day.peakATS
+            )
+        )
+      )
   };
 }
 
-
 // ======================================================
-// FIND MILESTONES REACHED DURING MONTH
+// ADVANCED ACTIVITY ANALYTICS
 // ======================================================
 
-function getMilestonesForMonth(
-  monthInfo
+function buildActivityAnalytics(
+  days
 ) {
-  const milestoneEntries =
-    [];
+  let ets2Samples =
+    0;
 
-  // ====================================================
-  // CURRENT CHANGELOG QUEUE
-  // ====================================================
+  let atsSamples =
+    0;
 
-  const queue =
+  let sampleCount =
+    0;
+
+  const serverSamples =
+    {};
+
+  for (
+    const day
+    of days
+  ) {
+    ets2Samples +=
+      number(
+        day.ets2PlayerSamples
+      );
+
+    atsSamples +=
+      number(
+        day.atsPlayerSamples
+      );
+
+    sampleCount +=
+      number(
+        day.activitySamples
+      );
+
+    const servers =
+      day.serverPlayerSamples &&
+      typeof day.serverPlayerSamples ===
+        "object"
+        ? day.serverPlayerSamples
+        : {};
+
+    for (
+      const [
+        server,
+        count
+      ]
+      of Object.entries(
+        servers
+      )
+    ) {
+      serverSamples[
+        server
+      ] =
+        number(
+          serverSamples[
+            server
+          ]
+        ) +
+        number(
+          count
+        );
+    }
+  }
+
+  const totalActivity =
+    ets2Samples +
+    atsSamples;
+
+  const ranking =
+    Object.entries(
+      serverSamples
+    )
+      .map(
+        ([server, count]) => ({
+          server,
+          count:
+            number(count)
+        })
+      )
+      .sort(
+        (a, b) =>
+          b.count -
+            a.count ||
+          a.server.localeCompare(
+            b.server
+          )
+      );
+
+  const mostUsed =
+    ranking.length >
+    0
+      ? ranking[0]
+      : null;
+
+  return {
+    sampleCount,
+
+    totalActivity,
+
+    ets2Samples,
+
+    atsSamples,
+
+    ets2Percent:
+      percent(
+        ets2Samples,
+        totalActivity
+      ),
+
+    atsPercent:
+      percent(
+        atsSamples,
+        totalActivity
+      ),
+
+    mostUsedServer:
+      mostUsed
+        ? mostUsed.server
+        : null,
+
+    mostUsedPercent:
+      mostUsed
+        ? percent(
+            mostUsed.count,
+            totalActivity
+          )
+        : 0
+  };
+}
+
+// ======================================================
+// DRIVER MOVEMENT
+// ======================================================
+
+function loadDriverHistory() {
+  const history =
     readJson(
-      CHANGELOG_QUEUE_FILE,
-      {
-        entries: []
-      }
+      DRIVER_HISTORY_FILE,
+      null
     );
 
   if (
-    Array.isArray(
-      queue.entries
+    !history ||
+    !Array.isArray(
+      history.events
     )
   ) {
-    milestoneEntries.push(
-      ...queue.entries
+    return null;
+  }
+
+  return history;
+}
+
+function driverHistoryCoversMonth(
+  history,
+  period
+) {
+  if (!history) {
+    return false;
+  }
+
+  const initializedAt =
+    normalizeDate(
+      history.initializedAt
+    );
+
+  if (!initializedAt) {
+    return false;
+  }
+
+  return (
+    initializedAt.getTime() <=
+    period.start.getTime()
+  );
+}
+
+function getDriverMovement(
+  history,
+  period
+) {
+  if (
+    !driverHistoryCoversMonth(
+      history,
+      period
+    )
+  ) {
+    return {
+      complete:
+        false,
+
+      joined:
+        0,
+
+      left:
+        0,
+
+      net:
+        0,
+
+      nameChanges:
+        0
+    };
+  }
+
+  let joined =
+    0;
+
+  let left =
+    0;
+
+  let nameChanges =
+    0;
+
+  for (
+    const event
+    of history.events
+  ) {
+    const date =
+      normalizeDate(
+        event.occurredAt ||
+        event.detectedAt
+      );
+
+    if (!date) {
+      continue;
+    }
+
+    if (
+      date.getTime() <
+        period.start.getTime() ||
+      date.getTime() >=
+        period.end.getTime()
+    ) {
+      continue;
+    }
+
+    if (
+      event.type ===
+      "join"
+    ) {
+      joined++;
+    }
+
+    if (
+      event.type ===
+      "leave"
+    ) {
+      left++;
+    }
+
+    if (
+      event.type ===
+      "name_change"
+    ) {
+      nameChanges++;
+    }
+  }
+
+  return {
+    complete:
+      true,
+
+    joined,
+
+    left,
+
+    net:
+      joined -
+      left,
+
+    nameChanges
+  };
+}
+
+// ======================================================
+// MILESTONES
+// ======================================================
+
+function collectMilestoneObjects(
+  value,
+  results = []
+) {
+  if (
+    Array.isArray(value)
+  ) {
+    for (
+      const item
+      of value
+    ) {
+      collectMilestoneObjects(
+        item,
+        results
+      );
+    }
+
+    return results;
+  }
+
+  if (
+    !value ||
+    typeof value !==
+      "object"
+  ) {
+    return results;
+  }
+
+  if (
+    typeof value.source ===
+      "string" &&
+    /^milestone-\d+$/.test(
+      value.source
+    )
+  ) {
+    results.push(
+      value
     );
   }
 
-  // ====================================================
-  // PUBLISHED CHANGELOG HISTORY
-  // ====================================================
+  for (
+    const child
+    of Object.values(
+      value
+    )
+  ) {
+    if (
+      child &&
+      typeof child ===
+        "object"
+    ) {
+      collectMilestoneObjects(
+        child,
+        results
+      );
+    }
+  }
+
+  return results;
+}
+
+function getMilestones(
+  period
+) {
+  const queue =
+    readJson(
+      CHANGELOG_QUEUE_FILE,
+      []
+    );
 
   const history =
     readJson(
       CHANGELOG_HISTORY_FILE,
-      {
-        changelogs: []
-      }
+      []
     );
 
-  if (
-    Array.isArray(
-      history.changelogs
-    )
-  ) {
-    for (
-      const changelog
-      of history.changelogs
-    ) {
-      if (
-        Array.isArray(
-          changelog.entries
-        )
-      ) {
-        milestoneEntries.push(
-          ...changelog.entries
-        );
-      }
-    }
-  }
+  const candidates = [
+    ...collectMilestoneObjects(
+      queue
+    ),
 
-  const milestones =
+    ...collectMilestoneObjects(
+      history
+    )
+  ];
+
+  const unique =
     new Map();
 
   for (
-    const entry
-    of milestoneEntries
+    const item
+    of candidates
   ) {
-    const source =
-      String(
-        entry.source || ""
+    const date =
+      normalizeDate(
+        item.addedAt
       );
 
-    if (
-      !source.startsWith(
-        "milestone-"
-      )
-    ) {
+    if (!date) {
       continue;
     }
 
     if (
-      !entry.addedAt
+      date.getTime() <
+        period.start.getTime() ||
+      date.getTime() >=
+        period.end.getTime()
     ) {
       continue;
     }
 
-    const addedAt =
+    const match =
       String(
-        entry.addedAt
+        item.source
+      ).match(
+        /^milestone-(\d+)$/
       );
 
-    if (
-      !addedAt.startsWith(
-        monthInfo.monthKey
-      )
-    ) {
+    if (!match) {
       continue;
     }
 
     const milestone =
       Number(
-        source.replace(
-          "milestone-",
-          ""
-        )
+        match[1]
       );
 
-    if (
-      !Number.isFinite(
-        milestone
-      )
-    ) {
-      continue;
-    }
-
-    milestones.set(
-      milestone,
+    unique.set(
+      item.source,
       milestone
     );
   }
 
-  return Array.from(
-    milestones.values()
-  ).sort(
+  return [
+    ...unique.values()
+  ].sort(
     (a, b) =>
       a - b
   );
 }
 
-
 // ======================================================
-// REPORT STATE / DUPLICATE PROTECTION
+// REPORT STATE
 // ======================================================
 
 function loadReportState() {
   const state =
     readJson(
-      REPORT_STATE_FILE,
-      {
-        publishedMonths: []
-      }
+      STATE_FILE,
+      null
     );
 
   if (
+    !state ||
     !Array.isArray(
       state.publishedMonths
     )
   ) {
-    state.publishedMonths = [];
+    return {
+      version:
+        1,
+
+      createdAt:
+        nowISO(),
+
+      updatedAt:
+        nowISO(),
+
+      publishedMonths:
+        []
+    };
   }
 
   return state;
 }
 
-
-function hasAlreadyPublished(
-  state,
-  monthKey
+function saveReportState(
+  state
 ) {
-  return state.publishedMonths
-    .some(
-      report =>
-        report.month ===
-        monthKey
-    );
-}
-
-
-function savePublishedReport(
-  state,
-  monthInfo,
-  statistics,
-  milestones
-) {
-  state.publishedMonths.push({
-    month:
-      monthInfo.monthKey,
-
-    publishedAt:
-      new Date().toISOString(),
-
-    startMembers:
-      statistics.startMembers,
-
-    endMembers:
-      statistics.endMembers,
-
-    growth:
-      statistics.growth,
-
-    peakOnline:
-      statistics.peakOnline,
-
-    peakETS2:
-      statistics.peakETS2,
-
-    peakATS:
-      statistics.peakATS,
-
-    recordedDays:
-      statistics.recordedDays,
-
-    milestones:
-      milestones
-  });
+  state.updatedAt =
+    nowISO();
 
   writeJson(
-    REPORT_STATE_FILE,
+    STATE_FILE,
     state
   );
 
@@ -528,118 +941,214 @@ function savePublishedReport(
   );
 }
 
-
 // ======================================================
-// FORMAT GROWTH
-// ======================================================
-
-function formatGrowth(
-  growth
-) {
-  if (
-    growth > 0
-  ) {
-    return `+${growth}`;
-  }
-
-  return String(
-    growth
-  );
-}
-
-
-// ======================================================
-// BUILD PUBLIC MONTHLY REPORT
+// BUILD REPORT
 // ======================================================
 
-function buildMonthlyReport(
-  monthInfo,
+function buildReport(
+  period,
   statistics,
+  activity,
+  movement,
   milestones
 ) {
-  let content =
-    `<@&${NEWS_ROLE_ID}>\n\n` +
-
-    `👑📊 **Kings Logistics — ${monthInfo.monthName} ${monthInfo.year} Monthly Report**\n\n` +
-
-    `Another month has come to an end, and here is a look back at the latest ` +
-    `Kings Logistics TruckersMP statistics and community growth.\n\n` +
-
-    `**Members**\n` +
-    `Start of Month: **${statistics.startMembers}**\n` +
-    `End of Month: **${statistics.endMembers}**\n` +
-    `Monthly Growth: **${formatGrowth(statistics.growth)}**\n\n` +
-
-    `**TruckersMP Activity**\n` +
-    `Highest Online: **${statistics.peakOnline}**\n` +
-    `ETS2 Peak: **${statistics.peakETS2}**\n` +
-    `ATS Peak: **${statistics.peakATS}**\n\n` +
-
-    `**Milestones**\n`;
+  const lines = [];
 
   if (
-    milestones.length === 0
+    !PREVIEW_MODE &&
+    NEWS_ROLE_ID
   ) {
-    content +=
-      `No new 50-member milestone was reached this month.`;
-  } else {
-    content +=
-      milestones
-        .map(
-          milestone =>
-            `🎉 **${milestone.toLocaleString("en-US")} TruckersMP Members** reached`
-        )
-        .join(
-          "\n"
-        );
+    lines.push(
+      `<@&${NEWS_ROLE_ID}>`
+    );
+
+    lines.push("");
   }
 
-  content +=
-    `\n\nThank you to everyone who continues to be part of the ` +
-    `**Kings Logistics Family** and helps our community move forward together. 👑🌍🚛\n\n` +
+  lines.push(
+    `👑📊 **Kings Logistics — ${period.label} Monthly Report**`
+  );
 
-    `**Kings Logistics — Connecting the world, creating friendships.** ` +
-    `<:kings_heart:1500949819110326352>`;
+  lines.push("");
+
+  if (PREVIEW_MODE) {
+    lines.push(
+      "**PREVIEW — this is not an official monthly publication.**"
+    );
+
+    lines.push("");
+  }
+
+  lines.push(
+    "Another month of Kings Logistics activity, growth and community is behind us. Here is the monthly overview."
+  );
+
+  lines.push("");
+
+  lines.push(
+    "**Members**"
+  );
+
+  lines.push(
+    `Start of Month: **${statistics.startMembers}**`
+  );
+
+  lines.push(
+    `End of Month: **${statistics.endMembers}**`
+  );
+
+  lines.push(
+    `Monthly Growth: **${formatSigned(statistics.growth)}**`
+  );
+
+  lines.push("");
+
+  lines.push(
+    "**Driver Movement**"
+  );
 
   if (
-    content.length >
-    MAX_DISCORD_LENGTH
+    movement.complete
   ) {
-    throw new Error(
-      `Monthly Report is too long for Discord: ${content.length} characters.`
+    lines.push(
+      `Joined: **${movement.joined}**`
+    );
+
+    lines.push(
+      `Left: **${movement.left}**`
+    );
+
+    lines.push(
+      `Net Growth: **${formatSigned(movement.net)}**`
+    );
+
+    lines.push(
+      `Name Changes: **${movement.nameChanges}**`
+    );
+  } else {
+    lines.push(
+      "*Driver History did not cover the complete month.*"
     );
   }
 
-  return content;
+  lines.push("");
+
+  lines.push(
+    "**TruckersMP Activity**"
+  );
+
+  lines.push(
+    `Highest Online: **${statistics.peakOnline}**`
+  );
+
+  lines.push(
+    `ETS2 Peak: **${statistics.peakETS2}**`
+  );
+
+  lines.push(
+    `ATS Peak: **${statistics.peakATS}**`
+  );
+
+  if (
+    activity.totalActivity >
+    0
+  ) {
+    lines.push(
+      `Activity Distribution: **ETS2 ${activity.ets2Percent}% • ATS ${activity.atsPercent}%**`
+    );
+
+    if (
+      activity.mostUsedServer
+    ) {
+      lines.push(
+        `Most Used Server: **${activity.mostUsedServer}** (${activity.mostUsedPercent}%)`
+      );
+    }
+  }
+
+  lines.push("");
+
+  lines.push(
+    "**Milestones**"
+  );
+
+  if (
+    milestones.length ===
+    0
+  ) {
+    lines.push(
+      "No new 50-member milestone was reached this month."
+    );
+  } else {
+    for (
+      const milestone
+      of milestones
+    ) {
+      lines.push(
+        `👑 **${milestone} TruckersMP Members reached**`
+      );
+    }
+  }
+
+  lines.push("");
+
+  lines.push(
+    "Thank you to everyone who continues to be part of the Kings Family and contributes to Kings Logistics."
+  );
+
+  lines.push("");
+
+  lines.push(
+    "*Kings Logistics — Connecting the world, creating friendships.*"
+  );
+
+  return lines.join(
+    "\n"
+  );
 }
 
-
 // ======================================================
-// SEND TO DISCORD
+// SEND DISCORD MESSAGE
 // ======================================================
 
-async function sendToDiscord(
+async function sendReport(
   content
 ) {
-  if (
-    !DISCORD_WEBHOOK_URL
-  ) {
+  if (!WEBHOOK_URL) {
     throw new Error(
       "MONTHLY_REPORT_DISCORD_WEBHOOK_URL is missing."
     );
   }
 
   if (
-    !NEWS_ROLE_ID
+    content.length >
+    2000
   ) {
     throw new Error(
-      "NEWS_NOTIFICATIONS_ROLE_ID is missing."
+      `Monthly Report is too long for Discord: ${content.length} characters.`
     );
   }
 
+  const payload = {
+    content,
+
+    allowed_mentions:
+      !PREVIEW_MODE &&
+      NEWS_ROLE_ID
+        ? {
+            parse: [],
+            roles: [
+              NEWS_ROLE_ID
+            ]
+          }
+        : {
+            parse: []
+          }
+  };
+
   const response =
     await fetch(
-      DISCORD_WEBHOOK_URL,
+      WEBHOOK_URL,
       {
         method:
           "POST",
@@ -650,89 +1159,54 @@ async function sendToDiscord(
         },
 
         body:
-          JSON.stringify({
-            content,
-
-            allowed_mentions: {
-              parse: [],
-
-              roles: [
-                NEWS_ROLE_ID
-              ]
-            }
-          })
+          JSON.stringify(
+            payload
+          )
       }
     );
 
-  if (
-    !response.ok
-  ) {
-    const errorText =
-      await response.text();
-
+  if (!response.ok) {
     throw new Error(
-      `Discord Monthly Report failed: HTTP ${response.status} - ${errorText}`
+      `Monthly Report Discord webhook failed: HTTP ${response.status} - ${await response.text()}`
     );
   }
-
-  console.log(
-    "Monthly Report posted successfully."
-  );
 }
 
-
 // ======================================================
-// CREATE MONTHLY REPORT
+// MAIN
 // ======================================================
 
 async function createMonthlyReport() {
-  const monthInfo =
-    getPreviousMonth();
+  const period =
+    PREVIEW_MODE
+      ? getPreviewMonth()
+      : getPreviousMonth();
 
   console.log(
-    `Preparing Monthly Report for ${monthInfo.monthName} ${monthInfo.year}...`
+    `Preparing Monthly Report for ${period.label}...`
   );
 
-  const state =
-    loadReportState();
-
-  // ====================================================
-  // DUPLICATE PROTECTION
-  // ====================================================
-
-  if (
-    hasAlreadyPublished(
-      state,
-      monthInfo.monthKey
-    )
-  ) {
-    console.log("");
+  if (PREVIEW_MODE) {
     console.log(
-      `${monthInfo.monthName} ${monthInfo.year} was already published.`
+      "Preview mode enabled."
     );
-
-    console.log(
-      "No duplicate Monthly Report will be posted."
-    );
-
-    return;
   }
 
-  // ====================================================
-  // STATISTICS
-  // ====================================================
+  const history =
+    loadStatistics();
 
-  const statistics =
+  const monthDays =
     getMonthStatistics(
-      monthInfo
+      history,
+      period
     );
 
   if (
-    !statistics
+    monthDays.length ===
+    0
   ) {
-    console.log("");
     console.log(
-      `No Statistics data exists for ${monthInfo.monthName} ${monthInfo.year}.`
+      `No Statistics data exists for ${period.label}.`
     );
 
     console.log(
@@ -742,69 +1216,229 @@ async function createMonthlyReport() {
     return;
   }
 
-  console.log(
-    `Recorded Statistics days: ${statistics.recordedDays}/${monthInfo.daysInMonth}`
-  );
-
   // ====================================================
-  // INCOMPLETE MONTH PROTECTION
+  // FULL-MONTH PROTECTION
   // ====================================================
 
   if (
-    !statistics.enoughCoverage
+    !PREVIEW_MODE &&
+    !hasFullCoverage(
+      monthDays,
+      period
+    )
   ) {
-    console.log("");
     console.log(
-      "Statistics coverage is not complete enough for a public Monthly Report."
+      `Statistics coverage for ${period.label} is incomplete.`
     );
 
     console.log(
-      "The report will be skipped to avoid publishing misleading data."
+      `Recorded days: ${monthDays.length}`
+    );
+
+    console.log(
+      "No Monthly Report will be posted."
     );
 
     return;
   }
 
-  // ====================================================
-  // MILESTONES
-  // ====================================================
+  const reportState =
+    loadReportState();
 
-  const milestones =
-    getMilestonesForMonth(
-      monthInfo
+  if (!PREVIEW_MODE) {
+    const alreadyPublished =
+      reportState.publishedMonths.some(
+        item =>
+          item.key ===
+          period.key
+      );
+
+    if (alreadyPublished) {
+      console.log(
+        `${period.label} Monthly Report was already published.`
+      );
+
+      console.log(
+        "No duplicate Monthly Report will be posted."
+      );
+
+      return;
+    }
+  }
+
+  const statistics =
+    buildStatistics(
+      monthDays
     );
 
+  const activity =
+    buildActivityAnalytics(
+      monthDays
+    );
+
+  const driverHistory =
+    loadDriverHistory();
+
+  const movement =
+    getDriverMovement(
+      driverHistory,
+      period
+    );
+
+  const milestones =
+    getMilestones(
+      period
+    );
+
+  console.log("");
   console.log(
-    `Milestones during month: ${milestones.length}`
+    `Recorded days: ${statistics.recordedDays}`
   );
 
-  // ====================================================
-  // BUILD + POST
-  // ====================================================
+  console.log(
+    `Members: ${statistics.startMembers} -> ${statistics.endMembers}`
+  );
+
+  console.log(
+    `Growth: ${formatSigned(statistics.growth)}`
+  );
+
+  console.log(
+    `Peak Online: ${statistics.peakOnline}`
+  );
+
+  console.log(
+    `ETS2 Peak: ${statistics.peakETS2}`
+  );
+
+  console.log(
+    `ATS Peak: ${statistics.peakATS}`
+  );
+
+  if (
+    movement.complete
+  ) {
+    console.log(
+      `Joined: ${movement.joined}`
+    );
+
+    console.log(
+      `Left: ${movement.left}`
+    );
+
+    console.log(
+      `Net Driver Growth: ${formatSigned(movement.net)}`
+    );
+  } else {
+    console.log(
+      "Driver Movement: incomplete history coverage"
+    );
+  }
+
+  if (
+    activity.mostUsedServer
+  ) {
+    console.log(
+      `Most Used Server: ${activity.mostUsedServer}`
+    );
+  } else {
+    console.log(
+      "Most Used Server: no activity data"
+    );
+  }
+
+  console.log(
+    `Milestones: ${
+      milestones.length > 0
+        ? milestones.join(", ")
+        : "none"
+    }`
+  );
 
   const content =
-    buildMonthlyReport(
-      monthInfo,
+    buildReport(
+      period,
       statistics,
+      activity,
+      movement,
       milestones
     );
 
-  await sendToDiscord(
+  await sendReport(
     content
   );
 
-  // ====================================================
-  // SAVE ONLY AFTER SUCCESSFUL DISCORD POST
-  // ====================================================
+  if (PREVIEW_MODE) {
+    console.log("");
+    console.log(
+      "Monthly Report PREVIEW sent successfully."
+    );
 
-  savePublishedReport(
-    state,
-    monthInfo,
-    statistics,
+    console.log(
+      "No publication state was changed."
+    );
+
+    return;
+  }
+
+  reportState.publishedMonths.push({
+    key:
+      period.key,
+
+    month:
+      period.label,
+
+    publishedAt:
+      nowISO(),
+
+    startMembers:
+      statistics.startMembers,
+
+    endMembers:
+      statistics.endMembers,
+
+    growth:
+      statistics.growth,
+
+    joined:
+      movement.complete
+        ? movement.joined
+        : null,
+
+    left:
+      movement.complete
+        ? movement.left
+        : null,
+
+    netDriverGrowth:
+      movement.complete
+        ? movement.net
+        : null,
+
+    peakOnline:
+      statistics.peakOnline,
+
+    peakETS2:
+      statistics.peakETS2,
+
+    peakATS:
+      statistics.peakATS,
+
+    mostUsedServer:
+      activity.mostUsedServer,
+
     milestones
+  });
+
+  saveReportState(
+    reportState
+  );
+
+  console.log("");
+  console.log(
+    `${period.label} Monthly Report published successfully.`
   );
 }
-
 
 // ======================================================
 // START
@@ -828,11 +1462,11 @@ async function start() {
   await createMonthlyReport();
 
   console.log("");
+
   console.log(
     "Kings Monthly Report process completed successfully."
   );
 }
-
 
 start().catch(error => {
   console.error("");
