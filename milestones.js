@@ -23,21 +23,16 @@ const STATE_FILE =
     "milestones.json"
   );
 
+const CHANGELOG_QUEUE_FILE =
+  path.join(
+    __dirname,
+    "data",
+    "changelog-queue.json"
+  );
+
 // ======================================================
-// MILESTONES
+// MILESTONES — EVERY 50 MEMBERS UNTIL 1000
 // ======================================================
-
-/*
-  Public Kings Logistics milestones:
-
-  150
-  200
-  250
-  ...
-  1000
-
-  Every 50 members.
-*/
 
 const MILESTONES = [];
 
@@ -48,6 +43,67 @@ for (
 ) {
   MILESTONES.push(
     milestone
+  );
+}
+
+// ======================================================
+// HELPERS
+// ======================================================
+
+function ensureDataDirectory() {
+  fs.mkdirSync(
+    path.join(
+      __dirname,
+      "data"
+    ),
+    {
+      recursive: true
+    }
+  );
+}
+
+function readJson(
+  file,
+  fallback
+) {
+  if (
+    !fs.existsSync(
+      file
+    )
+  ) {
+    return fallback;
+  }
+
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        file,
+        "utf8"
+      )
+    );
+  } catch (error) {
+    console.error(
+      `Could not read ${path.basename(file)}.`
+    );
+
+    return fallback;
+  }
+}
+
+function writeJson(
+  file,
+  data
+) {
+  ensureDataDirectory();
+
+  fs.writeFileSync(
+    file,
+    JSON.stringify(
+      data,
+      null,
+      2
+    ) + "\n",
+    "utf8"
   );
 }
 
@@ -114,69 +170,33 @@ async function getMemberCount() {
 }
 
 // ======================================================
-// LOAD STATE
+// MILESTONE STATE
 // ======================================================
 
 function loadState() {
+  const state =
+    readJson(
+      STATE_FILE,
+      null
+    );
+
   if (
-    !fs.existsSync(
-      STATE_FILE
+    !state ||
+    !Array.isArray(
+      state.reachedMilestones
     )
   ) {
     return null;
   }
 
-  try {
-    const raw =
-      fs.readFileSync(
-        STATE_FILE,
-        "utf8"
-      );
-
-    const state =
-      JSON.parse(
-        raw
-      );
-
-    if (
-      !Array.isArray(
-        state.reachedMilestones
-      )
-    ) {
-      return null;
-    }
-
-    return state;
-  } catch (error) {
-    console.error(
-      "Could not read previous Milestone state."
-    );
-
-    return null;
-  }
+  return state;
 }
-
-// ======================================================
-// SAVE STATE
-// ======================================================
 
 function saveState(
   reachedMilestones,
   memberCount,
   firstRun = false
 ) {
-  const directory =
-    path.dirname(
-      STATE_FILE
-    );
-
-  fs.mkdirSync(
-    directory,
-    {
-      recursive: true
-    }
-  );
-
   const existingState =
     loadState();
 
@@ -194,22 +214,21 @@ function saveState(
       memberCount,
 
     reachedMilestones:
-      [...new Set(
-        reachedMilestones
-      )].sort(
+      [
+        ...new Set(
+          reachedMilestones.map(
+            Number
+          )
+        )
+      ].sort(
         (a, b) =>
           a - b
       )
   };
 
-  fs.writeFileSync(
+  writeJson(
     STATE_FILE,
-    JSON.stringify(
-      state,
-      null,
-      2
-    ) + "\n",
-    "utf8"
+    state
   );
 
   console.log(
@@ -218,7 +237,80 @@ function saveState(
 }
 
 // ======================================================
-// BUILD NORMAL MILESTONE MESSAGE
+// CHANGELOG QUEUE
+// ======================================================
+
+function addMilestoneToChangelog(
+  milestone
+) {
+  const queue =
+    readJson(
+      CHANGELOG_QUEUE_FILE,
+      {
+        entries: []
+      }
+    );
+
+  if (
+    !Array.isArray(
+      queue.entries
+    )
+  ) {
+    queue.entries = [];
+  }
+
+  /*
+    Every automatic milestone gets a unique
+    source value.
+
+    This prevents the same milestone from
+    being added to the Changelog queue twice.
+  */
+
+  const source =
+    `milestone-${milestone}`;
+
+  const alreadyQueued =
+    queue.entries.some(
+      entry =>
+        entry.source ===
+        source
+    );
+
+  if (alreadyQueued) {
+    console.log(
+      `Milestone ${milestone} is already in the Changelog queue.`
+    );
+
+    return;
+  }
+
+  queue.entries.push({
+    category:
+      "Kings Milestones",
+
+    text:
+      `Kings Logistics reached ${milestone.toLocaleString("en-US")} members on TruckersMP.`,
+
+    source:
+      source,
+
+    addedAt:
+      new Date().toISOString()
+  });
+
+  writeJson(
+    CHANGELOG_QUEUE_FILE,
+    queue
+  );
+
+  console.log(
+    `Milestone ${milestone} added to the Changelog queue.`
+  );
+}
+
+// ======================================================
+// NORMAL MILESTONE MESSAGE
 // ======================================================
 
 function buildMilestoneMessage(
@@ -227,10 +319,10 @@ function buildMilestoneMessage(
   return (
     `<@&${NEWS_ROLE_ID}>\n\n` +
 
-    `👑🎉 **${milestone} KINGS LOGISTICS MEMBERS**\n\n` +
+    `👑🎉 **${milestone.toLocaleString("en-US")} KINGS LOGISTICS MEMBERS**\n\n` +
 
     `We have officially reached another major milestone — ` +
-    `**${milestone} members on TruckersMP!**\n\n` +
+    `**${milestone.toLocaleString("en-US")} members on TruckersMP!**\n\n` +
 
     `Thank you to every member of the ` +
     `**Kings Logistics Family** for being part of our journey ` +
@@ -247,7 +339,7 @@ function buildMilestoneMessage(
 }
 
 // ======================================================
-// BUILD 1000 MEMBER MESSAGE
+// SPECIAL 1000 MEMBER MESSAGE
 // ======================================================
 
 function build1000Message() {
@@ -339,7 +431,7 @@ async function sendMilestone(
   }
 
   console.log(
-    `Milestone ${milestone} posted successfully.`
+    `Milestone ${milestone} announcement posted successfully.`
   );
 }
 
@@ -357,18 +449,6 @@ async function checkMilestones() {
   // ====================================================
   // FIRST RUN
   // ====================================================
-
-  /*
-    The first run ONLY establishes the baseline.
-
-    Example:
-    If Kings already has 162 members when this
-    system is first activated, the 150 milestone
-    is marked as already reached.
-
-    It will NOT suddenly publish an old
-    150-member announcement.
-  */
 
   if (!state) {
     console.log("");
@@ -440,41 +520,32 @@ async function checkMilestones() {
   }
 
   // ====================================================
-  // POST EACH NEW MILESTONE
+  // HANDLE EACH NEW MILESTONE
   // ====================================================
-
-  /*
-    Normally only one milestone will be reached
-    at a time.
-
-    But if Kings somehow jumps across multiple
-    50-member milestones between checks,
-    each milestone is still handled correctly.
-  */
 
   for (
     const milestone
     of newMilestones
   ) {
+    console.log("");
     console.log(
       `New milestone reached: ${milestone}`
     );
 
+    // 1. Public Kings News announcement
     await sendMilestone(
       milestone
     );
 
-    reached.add(
+    // 2. Add to next Kings Changelog
+    addMilestoneToChangelog(
       milestone
     );
 
-    /*
-      Save immediately after every successful
-      milestone announcement.
-
-      This prevents duplicate posts if a later
-      milestone in the same run should fail.
-    */
+    // 3. Permanently remember milestone
+    reached.add(
+      milestone
+    );
 
     saveState(
       Array.from(
