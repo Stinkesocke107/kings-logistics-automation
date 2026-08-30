@@ -32,10 +32,10 @@ jobs:
           NEWS_NOTIFICATIONS_ROLE_ID: ${{ secrets.NEWS_NOTIFICATIONS_ROLE_ID }}
         run: node milestones.js
 
-      - name: Save Milestone State
+      - name: Save Milestone and Changelog Data
         run: |
-          if git diff --quiet -- data/milestones.json && [ -z "$(git status --porcelain data/milestones.json)" ]; then
-            echo "No Milestone state changes to save."
+          if git diff --quiet -- data/milestones.json data/changelog-queue.json && [ -z "$(git status --porcelain data/milestones.json data/changelog-queue.json)" ]; then
+            echo "No Milestone or Changelog Queue changes to save."
             exit 0
           fi
 
@@ -43,7 +43,9 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
 
           git add data/milestones.json
-          git commit -m "Update Kings Milestone state"
+          git add data/changelog-queue.json
+
+          git commit -m "Update Kings Milestone and Changelog data"
 
           git pull --rebase origin main
           git push origin main
