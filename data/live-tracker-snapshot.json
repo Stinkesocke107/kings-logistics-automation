@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-30T22:38:06.377Z",
+  "updatedAt": "2026-08-30T22:44:36.714Z",
   "members": 110,
-  "online": 5,
-  "ets2Online": 5,
+  "online": 4,
+  "ets2Online": 4,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 5,
+      "online": 4,
       "isEvent": false
     }
   ],
@@ -19,7 +19,7 @@
       "name": "FaJoste",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Trondheim",
+      "city": "Steinkjer",
       "isEvent": false
     },
     {
@@ -27,7 +27,7 @@
       "name": "God_FalleN",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Trondheim",
+      "city": "Steinkjer",
       "isEvent": false
     },
     {
@@ -35,15 +35,7 @@
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Trondheim",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6243003,
-      "name": "joshsouthampton",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Calais",
+      "city": "Steinkjer",
       "isEvent": false
     },
     {
@@ -51,7 +43,7 @@
       "name": "Ste clemo",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Edirne",
+      "city": "Burgas",
       "isEvent": false
     }
   ]
