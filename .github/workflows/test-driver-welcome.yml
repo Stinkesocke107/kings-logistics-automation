@@ -1,0 +1,42 @@
+name: Test Driver Welcome
+
+on:
+  workflow_dispatch:
+
+jobs:
+  send-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Test Welcome
+        env:
+          WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
+        run: |
+          python - <<'PY'
+          import os
+          import json
+          import urllib.request
+
+          content = """🧪 **TEST — Automatic Driver Update**
+
+          <:kings_arrow:1466617263699267694> Please welcome **[TestDriver](https://truckersmp.com)** to the <:KingsLogisticsLogo:1394506239920177243> **Kings Family** <:KingsLogisticsLogo:1394506239920177243> as a **Driver**! <:Cute_kings:1465424971143708702> We’re happy to have you with us — enjoy your time in the Kings Family! <:pepe_king:1465424883679891586>"""
+
+          data = json.dumps({
+              "content": content,
+              "allowed_mentions": {
+                  "parse": []
+              }
+          }).encode("utf-8")
+
+          request = urllib.request.Request(
+              os.environ["WEBHOOK_URL"],
+              data=data,
+              headers={
+                  "Content-Type": "application/json"
+              },
+              method="POST"
+          )
+
+          with urllib.request.urlopen(request) as response:
+              print("Test Driver Welcome sent successfully.")
+          PY
