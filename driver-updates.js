@@ -1,7 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 
-
 // ======================================================
 // KINGS LOGISTICS — AUTOMATIC DRIVER UPDATES
 // ======================================================
@@ -21,7 +20,6 @@ const STATE_FILE =
     "driver-members.json"
   );
 
-
 // ======================================================
 // HELPERS
 // ======================================================
@@ -37,11 +35,9 @@ function escapeMarkdown(text = "") {
     .replace(/\]/g, "\\]");
 }
 
-
 function getProfileUrl(tmpId) {
   return `https://truckersmp.com/user/${tmpId}`;
 }
-
 
 // ======================================================
 // LOAD CURRENT KINGS MEMBERS
@@ -52,21 +48,17 @@ async function getCurrentMembers() {
     "Loading Kings Logistics VTC members..."
   );
 
-
   const response =
     await fetch(
       MEMBERS_URL,
       {
         headers: {
-          "Accept":
-            "application/json",
-
+          "Accept": "application/json",
           "User-Agent":
             "Kings Logistics Driver Updates"
         }
       }
     );
-
 
   if (!response.ok) {
     throw new Error(
@@ -74,10 +66,8 @@ async function getCurrentMembers() {
     );
   }
 
-
   const data =
     await response.json();
-
 
   if (
     !data.response ||
@@ -89,7 +79,6 @@ async function getCurrentMembers() {
       "Invalid TruckersMP VTC members response."
     );
   }
-
 
   const members =
     data.response.members
@@ -111,18 +100,15 @@ async function getCurrentMembers() {
         member.username
       );
 
-
   console.log(
     `Current Kings members: ${members.length}`
   );
 
-
   return members;
 }
 
-
 // ======================================================
-// LOAD OLD MEMBER STATE
+// LOAD PREVIOUS MEMBER STATE
 // ======================================================
 
 function loadState() {
@@ -134,7 +120,6 @@ function loadState() {
     return null;
   }
 
-
   try {
     const raw =
       fs.readFileSync(
@@ -142,12 +127,10 @@ function loadState() {
         "utf8"
       );
 
-
     const state =
       JSON.parse(
         raw
       );
-
 
     if (
       !Array.isArray(
@@ -156,7 +139,6 @@ function loadState() {
     ) {
       return null;
     }
-
 
     return state;
   } catch (error) {
@@ -168,9 +150,8 @@ function loadState() {
   }
 }
 
-
 // ======================================================
-// SAVE CURRENT MEMBER STATE
+// SAVE MEMBER STATE
 // ======================================================
 
 function saveState(members) {
@@ -179,14 +160,12 @@ function saveState(members) {
       STATE_FILE
     );
 
-
   fs.mkdirSync(
     directory,
     {
       recursive: true
     }
   );
-
 
   const state = {
     updatedAt:
@@ -204,7 +183,6 @@ function saveState(members) {
         )
   };
 
-
   fs.writeFileSync(
     STATE_FILE,
     JSON.stringify(
@@ -215,15 +193,13 @@ function saveState(members) {
     "utf8"
   );
 
-
   console.log(
     "Driver member state saved."
   );
 }
 
-
 // ======================================================
-// DISCORD MESSAGE — NEW DRIVER
+// JOIN MESSAGE
 // ======================================================
 
 function buildJoinMessage(member) {
@@ -236,7 +212,6 @@ function buildJoinMessage(member) {
     getProfileUrl(
       member.tmpId
     );
-
 
   return (
     `<:kings_arrow:1466617263699267694> ` +
@@ -251,9 +226,8 @@ function buildJoinMessage(member) {
   );
 }
 
-
 // ======================================================
-// DISCORD MESSAGE — DRIVER LEFT
+// LEAVE MESSAGE
 // ======================================================
 
 function buildLeaveMessage(member) {
@@ -267,7 +241,6 @@ function buildLeaveMessage(member) {
       member.tmpId
     );
 
-
   return (
     `<:kings_arrow:1466617263699267694> ` +
     `Please note that **[${name}](${profile})** is no longer part of ` +
@@ -277,27 +250,22 @@ function buildLeaveMessage(member) {
   );
 }
 
-
 // ======================================================
 // SEND DISCORD MESSAGE
 // ======================================================
 
 async function sendDiscordMessage(content) {
-  if (
-    !DISCORD_WEBHOOK_URL
-  ) {
+  if (!DISCORD_WEBHOOK_URL) {
     throw new Error(
       "DRIVER_UPDATES_WEBHOOK_URL is missing."
     );
   }
 
-
   const response =
     await fetch(
       DISCORD_WEBHOOK_URL,
       {
-        method:
-          "POST",
+        method: "POST",
 
         headers: {
           "Content-Type":
@@ -315,13 +283,9 @@ async function sendDiscordMessage(content) {
       }
     );
 
-
-  if (
-    !response.ok
-  ) {
+  if (!response.ok) {
     const errorText =
       await response.text();
-
 
     throw new Error(
       `Discord webhook failed: HTTP ${response.status} - ${errorText}`
@@ -329,9 +293,8 @@ async function sendDiscordMessage(content) {
   }
 }
 
-
 // ======================================================
-// COMPARE OLD + CURRENT MEMBERS
+// COMPARE MEMBER LISTS
 // ======================================================
 
 function compareMembers(
@@ -350,7 +313,6 @@ function compareMembers(
       )
     );
 
-
   const currentMap =
     new Map(
       currentMembers.map(
@@ -363,17 +325,11 @@ function compareMembers(
       )
     );
 
-
   const joined = [];
-
   const left = [];
-
   const renamed = [];
 
-
-  // ====================================================
   // JOINED + NAME CHANGES
-  // ====================================================
 
   for (
     const [
@@ -394,12 +350,10 @@ function compareMembers(
       continue;
     }
 
-
     const oldMember =
       oldMap.get(
         tmpId
       );
-
 
     if (
       oldMember.username !==
@@ -417,10 +371,7 @@ function compareMembers(
     }
   }
 
-
-  // ====================================================
   // LEFT
-  // ====================================================
 
   for (
     const [
@@ -440,7 +391,6 @@ function compareMembers(
     }
   }
 
-
   return {
     joined,
     left,
@@ -448,9 +398,8 @@ function compareMembers(
   };
 }
 
-
 // ======================================================
-// SAFETY CHECK
+// SAFETY PROTECTION
 // ======================================================
 
 function validateMemberChange(
@@ -458,16 +407,10 @@ function validateMemberChange(
   currentMembers
 ) {
   /*
-    Important protection:
-
-    If TruckersMP accidentally returns only a
-    small part of the member list, we DO NOT
-    publish dozens of fake Leave messages.
-
-    If more than half of Kings suddenly
-    disappears in one check, the run stops.
+    If TruckersMP ever returns a broken or
+    incomplete member list, this protection
+    prevents dozens of false Leave messages.
   */
-
 
   if (
     oldMembers.length >= 20 &&
@@ -477,11 +420,10 @@ function validateMemberChange(
     throw new Error(
       `Safety stop: Member count suddenly changed from ` +
       `${oldMembers.length} to ${currentMembers.length}. ` +
-      `State was NOT changed and no Driver Updates were posted.`
+      `No Driver Updates were posted.`
     );
   }
 }
-
 
 // ======================================================
 // MAIN CHECK
@@ -491,22 +433,19 @@ async function checkDriverUpdates() {
   const currentMembers =
     await getCurrentMembers();
 
-
   const state =
     loadState();
-
 
   // ====================================================
   // FIRST RUN
   // ====================================================
 
   /*
-    On the very first run we ONLY save the
-    existing Kings member list.
+    First run only creates the baseline.
 
-    We do NOT post 110+ Welcome messages.
+    Existing Kings members are NOT posted
+    as new Drivers.
   */
-
 
   if (
     !state ||
@@ -523,32 +462,26 @@ async function checkDriverUpdates() {
       "Saving current Kings members without posting Discord updates."
     );
 
-
     saveState(
       currentMembers
     );
 
-
     return;
   }
 
-
   const oldMembers =
     state.members;
-
 
   validateMemberChange(
     oldMembers,
     currentMembers
   );
 
-
   const changes =
     compareMembers(
       oldMembers,
       currentMembers
     );
-
 
   console.log("");
   console.log(
@@ -563,9 +496,35 @@ async function checkDriverUpdates() {
     `Name changes: ${changes.renamed.length}`
   );
 
+  // ====================================================
+  // NO CHANGES
+  // ====================================================
+
+  /*
+    VERY IMPORTANT:
+
+    If nothing changed, the state file is
+    NOT rewritten.
+
+    This prevents unnecessary GitHub commits
+    every few minutes.
+  */
+
+  if (
+    changes.joined.length === 0 &&
+    changes.left.length === 0 &&
+    changes.renamed.length === 0
+  ) {
+    console.log("");
+    console.log(
+      "No Kings Driver changes detected."
+    );
+
+    return;
+  }
 
   // ====================================================
-  // POST NEW DRIVERS
+  // NEW DRIVERS
   // ====================================================
 
   for (
@@ -576,7 +535,6 @@ async function checkDriverUpdates() {
       `New Driver: ${member.username} (${member.tmpId})`
     );
 
-
     await sendDiscordMessage(
       buildJoinMessage(
         member
@@ -584,9 +542,8 @@ async function checkDriverUpdates() {
     );
   }
 
-
   // ====================================================
-  // POST DRIVERS WHO LEFT
+  // DRIVERS WHO LEFT
   // ====================================================
 
   for (
@@ -597,7 +554,6 @@ async function checkDriverUpdates() {
       `Driver left: ${member.username} (${member.tmpId})`
     );
 
-
     await sendDiscordMessage(
       buildLeaveMessage(
         member
@@ -605,19 +561,17 @@ async function checkDriverUpdates() {
     );
   }
 
-
   // ====================================================
-  // LOG NAME CHANGES
+  // NAME CHANGES
   // ====================================================
 
   /*
-    Name changes do NOT create a public
-    Join or Leave message.
+    A name change does NOT create a public
+    Join or Leave message because the same
+    TruckersMP ID identifies the same member.
 
-    The same TruckersMP ID means it is
-    still the same Kings member.
+    The new name is still saved for future checks.
   */
-
 
   for (
     const rename
@@ -629,21 +583,19 @@ async function checkDriverUpdates() {
     );
   }
 
+  // ====================================================
+  // SAVE NEW BASELINE
+  // ====================================================
 
   /*
-    Save the new member list only AFTER
-    all required Discord messages succeeded.
-
-    If Discord fails, GitHub can retry
-    during a later run.
+    Only save AFTER required Discord messages
+    were successfully sent.
   */
-
 
   saveState(
     currentMembers
   );
 }
-
 
 // ======================================================
 // START
@@ -664,16 +616,13 @@ async function start() {
 
   console.log("");
 
-
   await checkDriverUpdates();
-
 
   console.log("");
   console.log(
     "Kings Driver Updates completed successfully."
   );
 }
-
 
 start().catch(error => {
   console.error("");
