@@ -16,5 +16,7 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Run Kings Live Tracker
+            - name: Run Kings Live Tracker
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: node tracker.js
