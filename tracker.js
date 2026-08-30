@@ -11,21 +11,13 @@ const ETS2_LOCATIONS_URL =
 const ATS_LOCATIONS_URL =
   "https://map.truckersmp.com/locations_ats.min.json";
 
-/*
-  Load ALL currently online TruckersMP servers.
+const KINGS_COLOR = parseInt("182dff", 16);
 
-  Nothing is manually excluded anymore:
-  - Simulation
-  - Arcade
-  - ProMods
-  - Asia / SGP
-  - US
-  - Event Servers
-  - future servers
 
-  As long as TruckersMP reports the server as online
-  and provides a valid mapid, it will be checked.
-*/
+// ======================================================
+// TRUCKERSMP SERVERS
+// ======================================================
+
 async function getServers() {
   const response = await fetch(SERVERS_URL);
 
@@ -41,9 +33,29 @@ async function getServers() {
     throw new Error("Invalid TruckersMP server response");
   }
 
+  /*
+    Every currently online TruckersMP server is included.
+
+    This means automatically:
+    - Simulation
+    - Simulation 2
+    - US Simulation
+    - Asia / SGP
+    - Arcade
+    - ProMods
+    - ProMods Arcade
+    - ATS
+    - Event Servers
+    - Future TruckersMP servers
+
+    No manual server list is required.
+  */
+
   return data.response
     .filter(server => {
-      if (!server.online) return false;
+      if (!server.online) {
+        return false;
+      }
 
       const mapId = Number(server.mapid);
 
@@ -73,6 +85,11 @@ async function getServers() {
     });
 }
 
+
+// ======================================================
+// LIVE PLAYER DATA
+// ======================================================
+
 async function getPlayers(server) {
   const url =
     `https://tracker.ets2map.com/v3/area` +
@@ -101,6 +118,11 @@ async function getPlayers(server) {
   return data.Data;
 }
 
+
+// ======================================================
+// CITY / LOCATION DATA
+// ======================================================
+
 function collectCities(items, cities = []) {
   if (!Array.isArray(items)) {
     return cities;
@@ -127,6 +149,7 @@ function collectCities(items, cities = []) {
   return cities;
 }
 
+
 async function getCities(url, game) {
   const response = await fetch(url);
 
@@ -140,6 +163,7 @@ async function getCities(url, game) {
 
   return collectCities(data);
 }
+
 
 function getNearestCity(x, y, cities) {
   if (!cities.length) {
@@ -167,6 +191,11 @@ function getNearestCity(x, y, cities) {
     ? nearestCity.name
     : "Location unavailable";
 }
+
+
+// ======================================================
+// FIND ONLINE KINGS MEMBERS
+// ======================================================
 
 async function getKingsOnline() {
   console.log("Loading city data...");
@@ -215,8 +244,7 @@ async function getKingsOnline() {
     );
 
     try {
-      const players =
-        await getPlayers(server);
+      const players = await getPlayers(server);
 
       const kingsPlayers = players
         .filter(
@@ -225,21 +253,29 @@ async function getKingsOnline() {
             KINGS_VTC_ID
         )
         .map(player => {
-          const cities =
-            server.game === "ATS"
-              ? atsCities
-              : ets2Cities;
+          let cities = [];
+
+          if (server.game === "ATS") {
+            cities = atsCities;
+          } else if (server.game === "ETS2") {
+            cities = ets2Cities;
+          }
 
           return {
             name: player.Name,
             tmpId: Number(player.MpId),
             game: server.game,
             server: server.name,
-            city: getNearestCity(
-              player.X,
-              player.Y,
-              cities
-            ),
+
+            city:
+              cities.length > 0
+                ? getNearestCity(
+                    player.X,
+                    player.Y,
+                    cities
+                  )
+                : "Location unavailable",
+
             isEvent: server.isEvent
           };
         });
@@ -251,9 +287,10 @@ async function getKingsOnline() {
       );
     } catch (error) {
       /*
-        One unavailable server should never
-        stop the whole tracker.
+        If one TruckersMP server fails,
+        the complete Kings tracker continues.
       */
+
       console.error(
         `Skipped server: ${error.message}`
       );
@@ -261,8 +298,10 @@ async function getKingsOnline() {
   }
 
   /*
-    Protection against duplicate live data.
+    Prevent duplicate drivers if the live API
+    should ever return the same TMP ID twice.
   */
+
   const uniquePlayers = new Map();
 
   for (const player of kingsOnline) {
@@ -277,32 +316,44 @@ async function getKingsOnline() {
   );
 }
 
+
+// ======================================================
+// DISCORD EMBEDS
+// ======================================================
+
 function buildDiscordEmbeds(players) {
   const ets2Count =
     players.filter(
-      player =>
-        player.game === "ETS2"
+      player => player.game === "ETS2"
     ).length;
 
   const atsCount =
     players.filter(
-      player =>
-        player.game === "ATS"
+      player => player.game === "ATS"
     ).length;
 
+  /*
+    Discord renders this timestamp automatically
+    in each Discord user's own timezone.
+
+    :R = relative display:
+    "a few seconds ago"
+    "2 minutes ago"
+    etc.
+  */
+
   const timestamp =
-    Math.floor(
-      Date.now() / 1000
-    );
+    Math.floor(Date.now() / 1000);
 
   const embeds = [];
 
-  /*
-    EMBED 1
-    Professional overview
-  */
+
+  // ====================================================
+  // EMBED 1 — OVERVIEW
+  // ====================================================
+
   let overviewDescription =
-    "See which members of the **Kings Logistics Family** " +
+    "See which **Kings Logistics Family** members " +
     "are currently online on TruckersMP.\n\n";
 
   if (players.length === 0) {
@@ -330,16 +381,24 @@ function buildDiscordEmbeds(players) {
       overviewDescription,
 
     color:
-      parseInt("182dff", 16)
+      KINGS_COLOR
   });
+
+
+  /*
+    If nobody is online, only the overview
+    embed is needed.
+  */
 
   if (players.length === 0) {
     return embeds;
   }
 
-  /*
-    Group drivers by Game + Server.
-  */
+
+  // ====================================================
+  // GROUP DRIVERS BY GAME + SERVER
+  // ====================================================
+
   const groups = {};
 
   for (const player of players) {
@@ -353,16 +412,22 @@ function buildDiscordEmbeds(players) {
     groups[key].push(player);
   }
 
+
+  /*
+    Sort server groups alphabetically.
+  */
+
   const sortedGroups =
     Object.entries(groups).sort(
       ([a], [b]) =>
         a.localeCompare(b)
     );
 
-  /*
-    One embed per server that currently
-    has at least one Kings member online.
-  */
+
+  // ====================================================
+  // ONE EMBED PER ACTIVE KINGS SERVER
+  // ====================================================
+
   for (
     const [key, serverPlayers]
     of sortedGroups
@@ -370,10 +435,24 @@ function buildDiscordEmbeds(players) {
     const [game, server] =
       key.split("|||");
 
+
+    /*
+      Drivers are sorted alphabetically.
+    */
+
     serverPlayers.sort(
       (a, b) =>
         a.name.localeCompare(b.name)
     );
+
+
+    /*
+      Driver layout:
+
+      DriverName
+      City
+      Profile • Live Map
+    */
 
     const driverBlocks =
       serverPlayers.map(player => {
@@ -392,16 +471,23 @@ function buildDiscordEmbeds(players) {
         );
       });
 
+
+    /*
+      Clean separator only BETWEEN drivers.
+    */
+
     const separator =
-      "\n\n━━━━━━━━━━━━━━━━━━━\n\n";
+      "\n\n━━━━━━━━━━━━━━\n\n";
 
     let description =
       driverBlocks.join(separator);
 
+
     /*
-      Protect Discord's embed
-      description length.
+      Protection against Discord's
+      embed description limit.
     */
+
     if (description.length > 4000) {
       description =
         description.slice(
@@ -411,27 +497,50 @@ function buildDiscordEmbeds(players) {
         "\n\n*Additional Kings drivers are currently online.*";
     }
 
+
     const hasEventDriver =
       serverPlayers.some(
-        player => player.isEvent
+        player =>
+          player.isEvent
       );
+
+
+    let serverTitle =
+      `${game} — ${server}`;
+
+
+    /*
+      Event Server automatically receives
+      an Event Server indicator.
+    */
+
+    if (hasEventDriver) {
+      serverTitle +=
+        " — Event Server";
+    }
+
+
+    serverTitle +=
+      ` — ${serverPlayers.length} online`;
+
 
     embeds.push({
       title:
-        `${game} — ${server}` +
-        `${hasEventDriver ? " — Event Server" : ""}` +
-        ` — ${serverPlayers.length} online`,
+        serverTitle,
 
-      description,
+      description:
+        description,
 
       color:
-        parseInt("182dff", 16)
+        KINGS_COLOR
     });
 
+
     /*
-      Discord allows max 10 embeds
-      in one message.
+      Discord allows a maximum of
+      10 embeds inside one message.
     */
+
     if (embeds.length >= 10) {
       break;
     }
@@ -439,6 +548,11 @@ function buildDiscordEmbeds(players) {
 
   return embeds;
 }
+
+
+// ======================================================
+// UPDATE EXISTING DISCORD MESSAGE
+// ======================================================
 
 async function updateDiscordMessage(players) {
   if (!DISCORD_WEBHOOK_URL) {
@@ -453,12 +567,25 @@ async function updateDiscordMessage(players) {
     );
   }
 
+
+  /*
+    PATCH /messages/MESSAGE_ID
+
+    This is important:
+    We DO NOT create a new Discord message.
+
+    The same Kings Live Tracker message is
+    updated every time.
+  */
+
   const editUrl =
     `${DISCORD_WEBHOOK_URL}/messages/` +
     `${DISCORD_MESSAGE_ID}`;
 
+
   const embeds =
     buildDiscordEmbeds(players);
+
 
   const response =
     await fetch(editUrl, {
@@ -471,9 +598,10 @@ async function updateDiscordMessage(players) {
 
       body: JSON.stringify({
         content: "",
-        embeds
+        embeds: embeds
       })
     });
+
 
   if (!response.ok) {
     const errorText =
@@ -486,15 +614,22 @@ async function updateDiscordMessage(players) {
     );
   }
 
+
   console.log("");
   console.log(
     "Discord Live Tracker message updated successfully."
   );
 }
 
+
+// ======================================================
+// START TRACKER
+// ======================================================
+
 async function start() {
   const kingsOnline =
     await getKingsOnline();
+
 
   console.log("");
   console.log(
@@ -513,6 +648,7 @@ async function start() {
     `Online: ${kingsOnline.length}`
   );
 
+
   for (
     const player
     of kingsOnline
@@ -525,12 +661,15 @@ async function start() {
     );
   }
 
+
   await updateDiscordMessage(
     kingsOnline
   );
 }
 
+
 start().catch(error => {
   console.error(error);
+
   process.exit(1);
 });
