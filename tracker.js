@@ -1,5 +1,5 @@
 const KINGS_VTC_ID = 64284;
-
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const ETS2_LOCATIONS_URL =
   "https://map.truckersmp.com/locations_ets2.min.json?v=fa63451b";
 
@@ -243,4 +243,31 @@ for (const [serverName, players] of Object.entries(groupedServers)) {
 }
 }
 
-main().catch(console.error);
+async function sendDiscordTest() {
+  if (!DISCORD_WEBHOOK_URL) {
+    throw new Error("DISCORD_WEBHOOK_URL is missing.");
+  }
+
+  const response = await fetch(DISCORD_WEBHOOK_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      content: "Kings Live Tracker GitHub test successful."
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Discord webhook failed: HTTP ${response.status}`);
+  }
+
+  console.log("Discord webhook test successful.");
+}
+
+async function start() {
+  await main();
+  await sendDiscordTest();
+}
+
+start().catch(console.error);
