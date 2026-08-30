@@ -8,35 +8,69 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
       - name: Send Test Welcome
         env:
-          WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
+          DRIVER_UPDATES_WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
         run: |
-          python - <<'PY'
-          import os
-          import json
-          import urllib.request
+          node <<'NODE'
+          const webhook =
+            process.env.DRIVER_UPDATES_WEBHOOK_URL;
 
-          content = """🧪 **TEST — Automatic Driver Update**
+          if (!webhook) {
+            throw new Error(
+              "DRIVER_UPDATES_WEBHOOK_URL is missing."
+            );
+          }
 
-          <:kings_arrow:1466617263699267694> Please welcome **[TestDriver](https://truckersmp.com)** to the <:KingsLogisticsLogo:1394506239920177243> **Kings Family** <:KingsLogisticsLogo:1394506239920177243> as a **Driver**! <:Cute_kings:1465424971143708702> We’re happy to have you with us — enjoy your time in the Kings Family! <:pepe_king:1465424883679891586>"""
+          const content =
+            "🧪 **TEST — Automatic Driver Update**\n\n" +
+            "<:kings_arrow:1466617263699267694> " +
+            "Please welcome **[TestDriver](https://truckersmp.com)** to the " +
+            "<:KingsLogisticsLogo:1394506239920177243> " +
+            "**Kings Family** " +
+            "<:KingsLogisticsLogo:1394506239920177243> " +
+            "as a **Driver**! " +
+            "<:Cute_kings:1465424971143708702> " +
+            "We’re happy to have you with us — enjoy your time in the Kings Family! " +
+            "<:pepe_king:1465424883679891586>";
 
-          data = json.dumps({
-              "content": content,
-              "allowed_mentions": {
-                  "parse": []
+          const response =
+            await fetch(
+              webhook,
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body:
+                  JSON.stringify({
+                    content,
+
+                    allowed_mentions: {
+                      parse: []
+                    }
+                  })
               }
-          }).encode("utf-8")
+            );
 
-          request = urllib.request.Request(
-              os.environ["WEBHOOK_URL"],
-              data=data,
-              headers={
-                  "Content-Type": "application/json"
-              },
-              method="POST"
-          )
+          if (!response.ok) {
+            const errorText =
+              await response.text();
 
-          with urllib.request.urlopen(request) as response:
-              print("Test Driver Welcome sent successfully.")
-          PY
+            throw new Error(
+              `Discord test failed: HTTP ${response.status} - ${errorText}`
+            );
+          }
+
+          console.log(
+            "Test Driver Welcome sent successfully."
+          );
+          NODE
