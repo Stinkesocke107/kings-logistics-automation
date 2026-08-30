@@ -1,16 +1,26 @@
 const fs = require("fs");
 const path = require("path");
 
-const KINGS_VTC_ID = 64284;
+// ======================================================
+// KINGS LOGISTICS — ADVANCED STATISTICS
+// ======================================================
 
-const DISCORD_WEBHOOK_URL =
-  process.env.STATS_DISCORD_WEBHOOK_URL;
+const KINGS_VTC_ID = 64284;
+const KINGS_BLUE = 0x182dff;
+
+const HISTORY_RETENTION_DAYS = 730;
 
 const MEMBERS_URL =
   `https://api.truckersmp.com/v2/vtc/${KINGS_VTC_ID}/members`;
 
 const SERVERS_URL =
   "https://api.truckersmp.com/v2/servers";
+
+const LIVE_MAP_URL =
+  "https://tracker.ets2map.com/v3/area";
+
+const DISCORD_WEBHOOK_URL =
+  process.env.STATS_DISCORD_WEBHOOK_URL;
 
 const STATE_FILE =
   path.join(
@@ -19,94 +29,545 @@ const STATE_FILE =
     "statistics.json"
   );
 
-const KINGS_COLOR =
-  parseInt("182dff", 16);
+const DRIVER_HISTORY_FILE =
+  path.join(
+    __dirname,
+    "data",
+    "driver-history.json"
+  );
 
+const DAY_MS =
+  24 * 60 * 60 * 1000;
 
 // ======================================================
-// DATE HELPERS
+// HELPERS
 // ======================================================
 
-function getTodayUTC() {
-  return new Date()
-    .toISOString()
-    .slice(0, 10);
+function nowISO() {
+  return new Date().toISOString();
 }
 
-
-function getMonthUTC() {
-  return new Date()
-    .toISOString()
-    .slice(0, 7);
+function ensureDataDirectory() {
+  fs.mkdirSync(
+    path.dirname(
+      STATE_FILE
+    ),
+    {
+      recursive: true
+    }
+  );
 }
 
+function readJson(
+  file,
+  fallback
+) {
+  if (
+    !fs.existsSync(file)
+  ) {
+    return fallback;
+  }
 
-function getStartOfWeekUTC() {
-  const now =
-    new Date();
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        file,
+        "utf8"
+      )
+    );
+  } catch (error) {
+    console.warn(
+      `Could not read ${path.basename(file)}.`
+    );
 
+    return fallback;
+  }
+}
+
+function writeJson(
+  file,
+  data
+) {
+  ensureDataDirectory();
+
+  fs.writeFileSync(
+    file,
+    JSON.stringify(
+      data,
+      null,
+      2
+    ) + "\n",
+    "utf8"
+  );
+}
+
+function number(
+  value,
+  fallback = 0
+) {
+  const parsed =
+    Number(value);
+
+  return Number.isFinite(parsed)
+    ? parsed
+    : fallback;
+}
+
+function normalizeDate(
+  value
+) {
+  if (!value) {
+    return null;
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+function dateKey(
+  date
+) {
+  return date
+    .toISOString()
+    .slice(
+      0,
+      10
+    );
+}
+
+function startOfDay(
+  date = new Date()
+) {
+  return new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate()
+    )
+  );
+}
+
+function startOfWeek(
+  date = new Date()
+) {
   const day =
-    now.getUTCDay();
+    startOfDay(date);
 
-  const difference =
-    day === 0
-      ? -6
-      : 1 - day;
+  const daysSinceMonday =
+    (
+      day.getUTCDay() +
+      6
+    ) % 7;
 
-  const monday =
-    new Date(
-      Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate()
+  return new Date(
+    day.getTime() -
+    (
+      daysSinceMonday *
+      DAY_MS
+    )
+  );
+}
+
+function startOfMonth(
+  date = new Date()
+) {
+  return new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      1
+    )
+  );
+}
+
+function currentHourKey(
+  date = new Date()
+) {
+  return new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      date.getUTCHours()
+    )
+  ).toISOString();
+}
+
+function formatSigned(
+  value
+) {
+  const parsed =
+    number(value);
+
+  if (
+    parsed > 0
+  ) {
+    return `+${parsed}`;
+  }
+
+  return String(
+    parsed
+  );
+}
+
+function percent(
+  part,
+  total
+) {
+  if (
+    total <= 0
+  ) {
+    return 0;
+  }
+
+  return Math.round(
+    (
+      part /
+      total
+    ) * 100
+  );
+}
+
+function progressBar(
+  value
+) {
+  const safe =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        value
       )
     );
 
-  monday.setUTCDate(
-    monday.getUTCDate() +
-    difference
-  );
+  const filled =
+    Math.round(
+      safe /
+      10
+    );
 
-  return monday
-    .toISOString()
-    .slice(0, 10);
+  return (
+    "█".repeat(filled) +
+    "░".repeat(
+      10 -
+      filled
+    )
+  );
 }
 
+// ======================================================
+// STATISTICS DATA
+// ======================================================
+
+function normalizeDay(
+  entry
+) {
+  return {
+    date:
+      String(
+        entry.date || ""
+      ),
+
+    startMembers:
+      number(
+        entry.startMembers,
+        number(
+          entry.members
+        )
+      ),
+
+    members:
+      number(
+        entry.members
+      ),
+
+    peakOnline:
+      number(
+        entry.peakOnline
+      ),
+
+    peakETS2:
+      number(
+        entry.peakETS2
+      ),
+
+    peakATS:
+      number(
+        entry.peakATS
+      ),
+
+    activitySamples:
+      number(
+        entry.activitySamples
+      ),
+
+    ets2PlayerSamples:
+      number(
+        entry.ets2PlayerSamples
+      ),
+
+    atsPlayerSamples:
+      number(
+        entry.atsPlayerSamples
+      ),
+
+    serverPlayerSamples:
+      entry.serverPlayerSamples &&
+      typeof entry.serverPlayerSamples ===
+        "object"
+        ? {
+            ...entry.serverPlayerSamples
+          }
+        : {},
+
+    sampledHours:
+      Array.isArray(
+        entry.sampledHours
+      )
+        ? [
+            ...new Set(
+              entry.sampledHours.map(
+                String
+              )
+            )
+          ]
+        : []
+  };
+}
+
+function loadStatistics() {
+  const raw =
+    readJson(
+      STATE_FILE,
+      null
+    );
+
+  let oldHistory = [];
+  let messageId = null;
+  let createdAt =
+    nowISO();
+
+  let oldAllTime = {};
+
+  let migrated =
+    false;
+
+  if (
+    Array.isArray(raw)
+  ) {
+    oldHistory =
+      raw;
+
+    migrated =
+      true;
+  } else if (
+    raw &&
+    typeof raw ===
+      "object"
+  ) {
+    if (
+      Array.isArray(
+        raw.history
+      )
+    ) {
+      oldHistory =
+        raw.history;
+    } else if (
+      Array.isArray(
+        raw.days
+      )
+    ) {
+      oldHistory =
+        raw.days;
+
+      migrated =
+        true;
+    } else {
+      oldHistory =
+        [];
+
+      migrated =
+        true;
+    }
+
+    messageId =
+      raw.messageId ||
+      raw.discordMessageId ||
+      raw.discord_message_id ||
+      null;
+
+    createdAt =
+      raw.createdAt ||
+      createdAt;
+
+    oldAllTime =
+      raw.allTime &&
+      typeof raw.allTime ===
+        "object"
+        ? raw.allTime
+        : {};
+
+    if (
+      raw.version !==
+      2
+    ) {
+      migrated =
+        true;
+    }
+  } else {
+    migrated =
+      true;
+  }
+
+  const history =
+    oldHistory
+      .map(
+        normalizeDay
+      )
+      .filter(
+        entry =>
+          /^\d{4}-\d{2}-\d{2}$/.test(
+            entry.date
+          )
+      )
+      .sort(
+        (
+          a,
+          b
+        ) =>
+          a.date.localeCompare(
+            b.date
+          )
+      );
+
+  const previousOnlinePeak =
+    Math.max(
+      0,
+      ...history.map(
+        day =>
+          day.peakOnline
+      )
+    );
+
+  const previousETS2Peak =
+    Math.max(
+      0,
+      ...history.map(
+        day =>
+          day.peakETS2
+      )
+    );
+
+  const previousATSPeak =
+    Math.max(
+      0,
+      ...history.map(
+        day =>
+          day.peakATS
+      )
+    );
+
+  return {
+    migrated,
+
+    state: {
+      version:
+        2,
+
+      createdAt,
+
+      updatedAt:
+        raw &&
+        raw.updatedAt
+          ? raw.updatedAt
+          : createdAt,
+
+      messageId,
+
+      allTime: {
+        peakOnline:
+          Math.max(
+            number(
+              oldAllTime.peakOnline
+            ),
+            previousOnlinePeak
+          ),
+
+        peakETS2:
+          Math.max(
+            number(
+              oldAllTime.peakETS2
+            ),
+            previousETS2Peak
+          ),
+
+        peakATS:
+          Math.max(
+            number(
+              oldAllTime.peakATS
+            ),
+            previousATSPeak
+          )
+      },
+
+      history
+    }
+  };
+}
 
 // ======================================================
-// KINGS VTC MEMBERS
+// TRUCKERSMP REQUEST
 // ======================================================
 
-async function getMemberCount() {
-  console.log(
-    "Loading Kings Logistics VTC members..."
-  );
-
+async function fetchJson(
+  url,
+  label
+) {
   const response =
     await fetch(
-      MEMBERS_URL,
+      url,
       {
         headers: {
-          "Accept":
+          Accept:
             "application/json",
 
           "User-Agent":
-            "Kings Logistics Statistics"
+            "Kings Logistics Advanced Statistics"
         }
       }
     );
 
-
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
     throw new Error(
-      `VTC members request failed: HTTP ${response.status}`
+      `${label} failed: HTTP ${response.status}`
     );
   }
 
+  return response.json();
+}
 
+// ======================================================
+// MEMBER COUNT
+// ======================================================
+
+async function getMemberCount() {
   const data =
-    await response.json();
-
+    await fetchJson(
+      MEMBERS_URL,
+      "TruckersMP VTC members request"
+    );
 
   if (
     !data.response ||
@@ -119,41 +580,19 @@ async function getMemberCount() {
     );
   }
 
-
-  const count =
-    data.response.members.length;
-
-
-  console.log(
-    `Kings members: ${count}`
-  );
-
-
-  return count;
+  return data.response.members.length;
 }
-
 
 // ======================================================
 // TRUCKERSMP SERVERS
 // ======================================================
 
 async function getServers() {
-  const response =
-    await fetch(
-      SERVERS_URL
-    );
-
-
-  if (!response.ok) {
-    throw new Error(
-      `Server request failed: HTTP ${response.status}`
-    );
-  }
-
-
   const data =
-    await response.json();
-
+    await fetchJson(
+      SERVERS_URL,
+      "TruckersMP servers request"
+    );
 
   if (
     !Array.isArray(
@@ -161,644 +600,1181 @@ async function getServers() {
     )
   ) {
     throw new Error(
-      "Invalid TruckersMP server response."
+      "Invalid TruckersMP servers response."
     );
   }
 
-
-  return data.response
-    .filter(server => {
-      if (!server.online) {
-        return false;
-      }
-
-      const mapId =
-        Number(
-          server.mapid
-        );
-
-      return Number.isFinite(
-        mapId
-      );
-    })
-    .map(server => ({
-      name:
-        server.name,
-
-      game:
-        server.game,
-
-      mapId:
+  return data.response.filter(
+    server =>
+      server.online ===
+        true &&
+      Number.isFinite(
         Number(
           server.mapid
         )
-    }));
+      )
+  );
 }
 
-
 // ======================================================
-// LIVE PLAYER DATA
+// LIVE KINGS PLAYERS
 // ======================================================
 
-async function getPlayers(server) {
-  const url =
-    "https://tracker.ets2map.com/v3/area" +
-    "?x1=-1000000" +
-    "&y1=1000000" +
-    "&x2=1000000" +
-    "&y2=-1000000" +
-    `&server=${server.mapId}`;
+async function getKingsPlayers(
+  server
+) {
+  const params =
+    new URLSearchParams({
+      x1:
+        "-1000000",
 
+      y1:
+        "1000000",
 
-  const response =
-    await fetch(
-      url
-    );
+      x2:
+        "1000000",
 
+      y2:
+        "-1000000",
 
-  if (!response.ok) {
-    throw new Error(
-      `${server.game} - ${server.name}: HTTP ${response.status}`
-    );
-  }
-
+      server:
+        String(
+          server.mapid
+        )
+    });
 
   const data =
-    await response.json();
+    await fetchJson(
+      `${LIVE_MAP_URL}?${params.toString()}`,
+      `Live map request for ${server.game} ${server.name}`
+    );
 
+  let players = [];
 
   if (
-    !data.Success ||
-    !Array.isArray(
-      data.Data
+    Array.isArray(data)
+  ) {
+    players =
+      data;
+  } else if (
+    Array.isArray(
+      data.players
     )
   ) {
-    throw new Error(
-      `${server.game} - ${server.name}: Invalid live response`
-    );
+    players =
+      data.players;
+  } else if (
+    Array.isArray(
+      data.response
+    )
+  ) {
+    players =
+      data.response;
   }
 
-
-  return data.Data;
+  return players.filter(
+    player =>
+      Number(
+        player.VtcId
+      ) ===
+      KINGS_VTC_ID
+  );
 }
 
-
 // ======================================================
-// CURRENT KINGS ONLINE
+// CURRENT ACTIVITY
 // ======================================================
 
-async function getOnlineStatistics() {
+async function getLiveActivity() {
   const servers =
     await getServers();
 
-
   console.log(
-    `Checking ${servers.length} TruckersMP servers...`
+    `Online TruckersMP servers checked: ${servers.length}`
   );
 
+  const results =
+    await Promise.all(
+      servers.map(
+        async server => {
+          const players =
+            await getKingsPlayers(
+              server
+            );
+
+          return {
+            server,
+            players
+          };
+        }
+      )
+    );
 
   const uniquePlayers =
     new Map();
 
+  const serverCounts =
+    [];
+
+  let ets2Count =
+    0;
+
+  let atsCount =
+    0;
 
   for (
-    const server
-    of servers
+    const result
+    of results
   ) {
-    try {
-      const players =
-        await getPlayers(
-          server
-        );
+    const server =
+      result.server;
 
+    const players =
+      result.players;
 
-      for (
-        const player
-        of players
-      ) {
-        if (
-          Number(
-            player.VtcId
-          ) !== KINGS_VTC_ID
-        ) {
-          continue;
-        }
+    const game =
+      String(
+        server.game || ""
+      ).toUpperCase();
 
+    const serverName =
+      String(
+        server.name ||
+        server.shortname ||
+        "Unknown Server"
+      );
 
-        const tmpId =
-          Number(
-            player.MpId
-          );
+    const count =
+      players.length;
 
+    if (
+      game ===
+      "ETS2"
+    ) {
+      ets2Count +=
+        count;
+    }
 
-        if (
-          !Number.isFinite(
-            tmpId
+    if (
+      game ===
+      "ATS"
+    ) {
+      atsCount +=
+        count;
+    }
+
+    if (
+      count > 0
+    ) {
+      serverCounts.push({
+        key:
+          `${game} — ${serverName}`,
+
+        game,
+
+        name:
+          serverName,
+
+        count,
+
+        event:
+          Boolean(
+            server.event
+          ),
+
+        promods:
+          Boolean(
+            server.promods
           )
-        ) {
-          continue;
-        }
+      });
+    }
 
-
-        uniquePlayers.set(
-          tmpId,
-          {
-            tmpId:
-              tmpId,
-
-            game:
-              server.game,
-
-            server:
-              server.name
-          }
+    for (
+      const player
+      of players
+    ) {
+      const tmpId =
+        Number(
+          player.MpId ||
+          player.mpId ||
+          player.id
         );
-      }
-    } catch (error) {
-      console.error(
-        `Skipped ${server.game} - ${server.name}: ${error.message}`
+
+      const key =
+        Number.isFinite(
+          tmpId
+        )
+          ? String(
+              tmpId
+            )
+          : `${server.id}:${player.Name}`;
+
+      uniquePlayers.set(
+        key,
+        player
       );
     }
   }
 
-
-  const players =
-    Array.from(
-      uniquePlayers.values()
-    );
-
-
-  const ets2Count =
-    players.filter(
-      player =>
-        player.game === "ETS2"
-    ).length;
-
-
-  const atsCount =
-    players.filter(
-      player =>
-        player.game === "ATS"
-    ).length;
-
-
-  console.log(
-    `Currently online: ${players.length}`
+  serverCounts.sort(
+    (
+      a,
+      b
+    ) =>
+      b.count -
+        a.count ||
+      a.key.localeCompare(
+        b.key
+      )
   );
-
-
-  console.log(
-    `ETS2: ${ets2Count} | ATS: ${atsCount}`
-  );
-
 
   return {
-    total:
-      players.length,
+    totalOnline:
+      uniquePlayers.size,
 
-    ets2:
-      ets2Count,
+    ets2Count,
 
-    ats:
-      atsCount
+    atsCount,
+
+    serverCounts
   };
 }
 
-
 // ======================================================
-// LOAD STATISTICS DATA
+// DRIVER HISTORY
 // ======================================================
 
-function loadState() {
+function loadDriverHistory() {
+  const history =
+    readJson(
+      DRIVER_HISTORY_FILE,
+      null
+    );
+
   if (
-    !fs.existsSync(
-      STATE_FILE
+    !history ||
+    !Array.isArray(
+      history.members
+    ) ||
+    !Array.isArray(
+      history.events
+    )
+  ) {
+    console.warn(
+      "Driver History unavailable."
+    );
+
+    return null;
+  }
+
+  return history;
+}
+
+function historyCovers(
+  driverHistory,
+  start
+) {
+  if (
+    !driverHistory
+  ) {
+    return false;
+  }
+
+  const initialized =
+    normalizeDate(
+      driverHistory.initializedAt
+    );
+
+  if (
+    !initialized
+  ) {
+    return false;
+  }
+
+  return (
+    initialized.getTime() <=
+    start.getTime()
+  );
+}
+
+// ======================================================
+// JOIN / LEAVE MOVEMENT
+// ======================================================
+
+function getMovement(
+  driverHistory,
+  start,
+  end
+) {
+  if (
+    !historyCovers(
+      driverHistory,
+      start
     )
   ) {
     return {
-      discordMessageId:
-        null,
+      complete:
+        false,
 
-      days:
-        []
+      joined:
+        0,
+
+      left:
+        0,
+
+      net:
+        0
     };
   }
 
+  let joined =
+    0;
 
-  try {
-    const raw =
-      fs.readFileSync(
-        STATE_FILE,
-        "utf8"
+  let left =
+    0;
+
+  for (
+    const event
+    of driverHistory.events
+  ) {
+    const date =
+      normalizeDate(
+        event.occurredAt ||
+        event.detectedAt
       );
 
-
-    const state =
-      JSON.parse(
-        raw
-      );
-
-
     if (
-      !Array.isArray(
-        state.days
-      )
+      !date
     ) {
-      state.days =
-        [];
+      continue;
     }
 
-
     if (
-      !(
-        "discordMessageId"
-        in state
-      )
+      date.getTime() <
+        start.getTime() ||
+      date.getTime() >=
+        end.getTime()
     ) {
-      state.discordMessageId =
-        null;
+      continue;
     }
 
+    if (
+      event.type ===
+      "join"
+    ) {
+      joined++;
+    }
 
-    return state;
-  } catch (error) {
-    console.error(
-      "Could not read statistics state. Starting with a new state."
-    );
-
-
-    return {
-      discordMessageId:
-        null,
-
-      days:
-        []
-    };
+    if (
+      event.type ===
+      "leave"
+    ) {
+      left++;
+    }
   }
+
+  return {
+    complete:
+      true,
+
+    joined,
+
+    left,
+
+    net:
+      joined -
+      left
+  };
 }
 
-
-// ======================================================
-// SAVE STATISTICS DATA
-// ======================================================
-
-function saveState(state) {
-  const directory =
-    path.dirname(
-      STATE_FILE
-    );
-
-
-  fs.mkdirSync(
-    directory,
-    {
-      recursive:
-        true
-    }
-  );
-
-
-  fs.writeFileSync(
-    STATE_FILE,
-    JSON.stringify(
-      state,
-      null,
-      2
-    ) + "\n",
-    "utf8"
-  );
-
-
-  console.log(
-    "Statistics state saved."
-  );
-}
-
-
-// ======================================================
-// DAILY HISTORY
-// ======================================================
-
-function updateHistory(
-  state,
-  memberCount,
-  online
+function movementLine(
+  label,
+  movement
 ) {
-  const today =
-    getTodayUTC();
-
-
-  let day =
-    state.days.find(
-      item =>
-        item.date === today
+  if (
+    !movement.complete
+  ) {
+    return (
+      `${label}: ` +
+      "*collecting data*"
     );
-
-
-  if (!day) {
-    day = {
-      date:
-        today,
-
-      startMembers:
-        memberCount,
-
-      members:
-        memberCount,
-
-      peakOnline:
-        online.total,
-
-      peakETS2:
-        online.ets2,
-
-      peakATS:
-        online.ats
-    };
-
-
-    state.days.push(
-      day
-    );
-  } else {
-    day.members =
-      memberCount;
-
-
-    day.peakOnline =
-      Math.max(
-        Number(
-          day.peakOnline
-        ) || 0,
-        online.total
-      );
-
-
-    day.peakETS2 =
-      Math.max(
-        Number(
-          day.peakETS2
-        ) || 0,
-        online.ets2
-      );
-
-
-    day.peakATS =
-      Math.max(
-        Number(
-          day.peakATS
-        ) || 0,
-        online.ats
-      );
   }
 
+  return (
+    `${label}: ` +
+    `**${movement.joined} joined** • ` +
+    `**${movement.left} left** • ` +
+    `**${formatSigned(movement.net)} net**`
+  );
+}
 
-  state.days.sort(
-    (a, b) =>
+// ======================================================
+// UPDATE DAILY STATISTICS
+// ======================================================
+
+function updateState(
+  state,
+  members,
+  activity,
+  now
+) {
+  let changed =
+    false;
+
+  const today =
+    dateKey(
+      now
+    );
+
+  let entry =
+    state.history.find(
+      day =>
+        day.date ===
+        today
+    );
+
+  if (
+    !entry
+  ) {
+    entry =
+      normalizeDay({
+        date:
+          today,
+
+        startMembers:
+          members,
+
+        members,
+
+        peakOnline:
+          activity.totalOnline,
+
+        peakETS2:
+          activity.ets2Count,
+
+        peakATS:
+          activity.atsCount
+      });
+
+    state.history.push(
+      entry
+    );
+
+    changed =
+      true;
+  }
+
+  if (
+    entry.members !==
+    members
+  ) {
+    entry.members =
+      members;
+
+    changed =
+      true;
+  }
+
+  if (
+    activity.totalOnline >
+    entry.peakOnline
+  ) {
+    entry.peakOnline =
+      activity.totalOnline;
+
+    changed =
+      true;
+  }
+
+  if (
+    activity.ets2Count >
+    entry.peakETS2
+  ) {
+    entry.peakETS2 =
+      activity.ets2Count;
+
+    changed =
+      true;
+  }
+
+  if (
+    activity.atsCount >
+    entry.peakATS
+  ) {
+    entry.peakATS =
+      activity.atsCount;
+
+    changed =
+      true;
+  }
+
+  // ====================================================
+  // HOURLY ACTIVITY SAMPLE
+  // ====================================================
+
+  const hour =
+    currentHourKey(
+      now
+    );
+
+  if (
+    !entry.sampledHours.includes(
+      hour
+    )
+  ) {
+    entry.sampledHours.push(
+      hour
+    );
+
+    entry.activitySamples++;
+
+    entry.ets2PlayerSamples +=
+      activity.ets2Count;
+
+    entry.atsPlayerSamples +=
+      activity.atsCount;
+
+    for (
+      const server
+      of activity.serverCounts
+    ) {
+      entry.serverPlayerSamples[
+        server.key
+      ] =
+        number(
+          entry.serverPlayerSamples[
+            server.key
+          ]
+        ) +
+        server.count;
+    }
+
+    changed =
+      true;
+  }
+
+  // ====================================================
+  // ALL-TIME RECORDS
+  // ====================================================
+
+  if (
+    activity.totalOnline >
+    state.allTime.peakOnline
+  ) {
+    state.allTime.peakOnline =
+      activity.totalOnline;
+
+    changed =
+      true;
+  }
+
+  if (
+    activity.ets2Count >
+    state.allTime.peakETS2
+  ) {
+    state.allTime.peakETS2 =
+      activity.ets2Count;
+
+    changed =
+      true;
+  }
+
+  if (
+    activity.atsCount >
+    state.allTime.peakATS
+  ) {
+    state.allTime.peakATS =
+      activity.atsCount;
+
+    changed =
+      true;
+  }
+
+  // ====================================================
+  // RETENTION
+  // ====================================================
+
+  state.history.sort(
+    (
+      a,
+      b
+    ) =>
       a.date.localeCompare(
         b.date
       )
   );
 
-
-  if (
-    state.days.length >
-    730
-  ) {
-    state.days =
-      state.days.slice(
-        -730
-      );
-  }
-
-
-  return day;
-}
-
-
-// ======================================================
-// MEMBER GROWTH
-// ======================================================
-
-function getGrowth(
-  state,
-  memberCount
-) {
-  const today =
-    getTodayUTC();
-
-  const weekStart =
-    getStartOfWeekUTC();
-
-  const month =
-    getMonthUTC();
-
-
-  const todayEntry =
-    state.days.find(
-      item =>
-        item.date === today
-    );
-
-
-  const weekEntry =
-    state.days.find(
-      item =>
-        item.date >=
-        weekStart
-    );
-
-
-  const monthEntry =
-    state.days.find(
-      item =>
-        item.date.startsWith(
-          month
+  const cutoff =
+    dateKey(
+      new Date(
+        now.getTime() -
+        (
+          HISTORY_RETENTION_DAYS *
+          DAY_MS
         )
-    );
-
-
-  const todayStart =
-    todayEntry
-      ? todayEntry.startMembers
-      : memberCount;
-
-
-  const weekStartMembers =
-    weekEntry
-      ? weekEntry.startMembers
-      : memberCount;
-
-
-  const monthStartMembers =
-    monthEntry
-      ? monthEntry.startMembers
-      : memberCount;
-
-
-  return {
-    today:
-      memberCount -
-      todayStart,
-
-    week:
-      memberCount -
-      weekStartMembers,
-
-    month:
-      memberCount -
-      monthStartMembers
-  };
-}
-
-
-// ======================================================
-// ONLINE PEAKS
-// ======================================================
-
-function getPeaks(
-  state,
-  currentDay
-) {
-  const weekStart =
-    getStartOfWeekUTC();
-
-  const month =
-    getMonthUTC();
-
-
-  const weekDays =
-    state.days.filter(
-      item =>
-        item.date >=
-        weekStart
-    );
-
-
-  const monthDays =
-    state.days.filter(
-      item =>
-        item.date.startsWith(
-          month
-        )
-    );
-
-
-  const weeklyPeak =
-    Math.max(
-      0,
-      ...weekDays.map(
-        item =>
-          Number(
-            item.peakOnline
-          ) || 0
       )
     );
 
+  const oldLength =
+    state.history.length;
 
-  const monthlyPeak =
-    Math.max(
-      0,
-      ...monthDays.map(
-        item =>
-          Number(
-            item.peakOnline
-          ) || 0
-      )
+  state.history =
+    state.history.filter(
+      day =>
+        day.date >=
+        cutoff
     );
 
-
-  return {
-    daily:
-      Number(
-        currentDay.peakOnline
-      ) || 0,
-
-    weekly:
-      weeklyPeak,
-
-    monthly:
-      monthlyPeak
-  };
-}
-
-
-// ======================================================
-// FORMAT GROWTH
-// ======================================================
-
-function formatGrowth(value) {
   if (
-    value > 0
+    state.history.length !==
+    oldLength
   ) {
-    return `+${value}`;
+    changed =
+      true;
   }
 
+  return changed;
+}
 
-  return String(
-    value
+// ======================================================
+// PERIOD HELPERS
+// ======================================================
+
+function entriesFrom(
+  state,
+  start
+) {
+  const startKey =
+    dateKey(
+      start
+    );
+
+  return state.history.filter(
+    day =>
+      day.date >=
+      startKey
   );
 }
 
-
-// ======================================================
-// DISCORD EMBED
-// ======================================================
-
-function buildEmbed(
-  memberCount,
-  online,
-  growth,
-  peaks
+function memberGrowth(
+  state,
+  start,
+  currentMembers
 ) {
-  const timestamp =
-    Math.floor(
-      Date.now() /
-      1000
+  const entries =
+    entriesFrom(
+      state,
+      start
     );
 
+  if (
+    entries.length ===
+    0
+  ) {
+    return 0;
+  }
 
-  const description =
-    `**Members**\n` +
-    `**${memberCount}** TruckersMP Members\n` +
-    `Today: **${formatGrowth(growth.today)}**` +
-    ` • This Week: **${formatGrowth(growth.week)}**` +
-    ` • This Month: **${formatGrowth(growth.month)}**\n\n` +
+  return (
+    currentMembers -
+    number(
+      entries[0].startMembers,
+      currentMembers
+    )
+  );
+}
 
-    `**Current Activity**\n` +
-    `**${online.total}** Currently Online\n` +
-    `ETS2: **${online.ets2}**` +
-    ` • ATS: **${online.ats}**\n\n` +
+function peakFrom(
+  state,
+  start,
+  field
+) {
+  const entries =
+    entriesFrom(
+      state,
+      start
+    );
 
-    `**Online Peaks**\n` +
-    `Today: **${peaks.daily}**` +
-    ` • This Week: **${peaks.weekly}**` +
-    ` • This Month: **${peaks.monthly}**\n\n` +
+  return Math.max(
+    0,
+    ...entries.map(
+      entry =>
+        number(
+          entry[field]
+        )
+    )
+  );
+}
 
-    `Last updated <t:${timestamp}:R>`;
+// ======================================================
+// MONTHLY ACTIVITY ANALYTICS
+// ======================================================
 
+function getMonthlyActivity(
+  state,
+  monthStart
+) {
+  const entries =
+    entriesFrom(
+      state,
+      monthStart
+    );
+
+  let ets2 =
+    0;
+
+  let ats =
+    0;
+
+  let samples =
+    0;
+
+  const servers =
+    {};
+
+  for (
+    const day
+    of entries
+  ) {
+    ets2 +=
+      number(
+        day.ets2PlayerSamples
+      );
+
+    ats +=
+      number(
+        day.atsPlayerSamples
+      );
+
+    samples +=
+      number(
+        day.activitySamples
+      );
+
+    for (
+      const [
+        server,
+        count
+      ]
+      of Object.entries(
+        day.serverPlayerSamples ||
+        {}
+      )
+    ) {
+      servers[
+        server
+      ] =
+        number(
+          servers[
+            server
+          ]
+        ) +
+        number(
+          count
+        );
+    }
+  }
+
+  const total =
+    ets2 +
+    ats;
+
+  const ranking =
+    Object.entries(
+      servers
+    )
+      .map(
+        (
+          [
+            server,
+            count
+          ]
+        ) => ({
+          server,
+          count
+        })
+      )
+      .sort(
+        (
+          a,
+          b
+        ) =>
+          b.count -
+            a.count ||
+          a.server.localeCompare(
+            b.server
+          )
+      );
+
+  const mostUsed =
+    ranking[0] ||
+    null;
 
   return {
-    title:
-      "Kings Logistics Statistics",
+    samples,
 
-    description:
-      description,
+    ets2,
 
-    color:
-      KINGS_COLOR,
+    ats,
 
-    footer: {
-      text:
-        "Kings Logistics — Connecting the world, creating friendships."
-    }
+    total,
+
+    ets2Percent:
+      percent(
+        ets2,
+        total
+      ),
+
+    atsPercent:
+      percent(
+        ats,
+        total
+      ),
+
+    mostUsed:
+      mostUsed
+        ? {
+            server:
+              mostUsed.server,
+
+            count:
+              mostUsed.count,
+
+            percent:
+              percent(
+                mostUsed.count,
+                total
+              )
+          }
+        : null
   };
 }
 
+// ======================================================
+// MILESTONE PROGRESS
+// ======================================================
+
+function getNextMilestone(
+  members
+) {
+  for (
+    let milestone = 150;
+    milestone <= 1000;
+    milestone += 50
+  ) {
+    if (
+      members <
+      milestone
+    ) {
+      const completion =
+        Math.min(
+          100,
+          Math.floor(
+            (
+              members /
+              milestone
+            ) *
+            100
+          )
+        );
+
+      return {
+        milestone,
+
+        remaining:
+          milestone -
+          members,
+
+        completion
+      };
+    }
+  }
+
+  return null;
+}
 
 // ======================================================
-// CREATE DISCORD MESSAGE
+// BUILD DISCORD EMBED
 // ======================================================
+
+function buildEmbed(
+  state,
+  members,
+  activity,
+  driverHistory,
+  now
+) {
+  const dayStart =
+    startOfDay(
+      now
+    );
+
+  const weekStart =
+    startOfWeek(
+      now
+    );
+
+  const monthStart =
+    startOfMonth(
+      now
+    );
+
+  // ====================================================
+  // MEMBER GROWTH
+  // ====================================================
+
+  const todayGrowth =
+    memberGrowth(
+      state,
+      dayStart,
+      members
+    );
+
+  const weekGrowth =
+    memberGrowth(
+      state,
+      weekStart,
+      members
+    );
+
+  const monthGrowth =
+    memberGrowth(
+      state,
+      monthStart,
+      members
+    );
+
+  // ====================================================
+  // ONLINE PEAKS
+  // ====================================================
+
+  const todayPeak =
+    peakFrom(
+      state,
+      dayStart,
+      "peakOnline"
+    );
+
+  const weekPeak =
+    peakFrom(
+      state,
+      weekStart,
+      "peakOnline"
+    );
+
+  const monthPeak =
+    peakFrom(
+      state,
+      monthStart,
+      "peakOnline"
+    );
+
+  // ====================================================
+  // DRIVER MOVEMENT
+  // ====================================================
+
+  const todayMovement =
+    getMovement(
+      driverHistory,
+      dayStart,
+      now
+    );
+
+  const weekMovement =
+    getMovement(
+      driverHistory,
+      weekStart,
+      now
+    );
+
+  const monthMovement =
+    getMovement(
+      driverHistory,
+      monthStart,
+      now
+    );
+
+  // ====================================================
+  // SERVER / GAME ACTIVITY
+  // ====================================================
+
+  const monthlyActivity =
+    getMonthlyActivity(
+      state,
+      monthStart
+    );
+
+  let activityText =
+    "No Kings activity recorded yet.";
+
+  if (
+    monthlyActivity.total >
+    0
+  ) {
+    activityText =
+      `ETS2: **${monthlyActivity.ets2Percent}%** • ` +
+      `ATS: **${monthlyActivity.atsPercent}%**`;
+
+    if (
+      monthlyActivity.mostUsed
+    ) {
+      activityText +=
+        `\nMost Used: **${monthlyActivity.mostUsed.server}** ` +
+        `(${monthlyActivity.mostUsed.percent}%)`;
+    }
+  }
+
+  // ====================================================
+  // MILESTONE
+  // ====================================================
+
+  const milestone =
+    getNextMilestone(
+      members
+    );
+
+  let milestoneText =
+    "All configured milestones up to **1,000 members** reached. 👑";
+
+  if (
+    milestone
+  ) {
+    milestoneText =
+      `**${members} / ${milestone.milestone}** members\n` +
+      `${progressBar(milestone.completion)} ` +
+      `**${milestone.completion}%**\n` +
+      `**${milestone.remaining}** remaining`;
+  }
+
+  return {
+    title:
+      "👑 Kings Logistics Statistics",
+
+    description:
+      "Live and historical TruckersMP statistics for **Kings Logistics**.",
+
+    color:
+      KINGS_BLUE,
+
+    fields: [
+      {
+        name:
+          "Members",
+
+        value:
+          `**${members} TruckersMP Members**\n` +
+          `Today: **${formatSigned(todayGrowth)}** • ` +
+          `This Week: **${formatSigned(weekGrowth)}** • ` +
+          `This Month: **${formatSigned(monthGrowth)}**`,
+
+        inline:
+          false
+      },
+
+      {
+        name:
+          "Current Activity",
+
+        value:
+          `**${activity.totalOnline} Currently Online**\n` +
+          `ETS2: **${activity.ets2Count}** • ` +
+          `ATS: **${activity.atsCount}**`,
+
+        inline:
+          false
+      },
+
+      {
+        name:
+          "Online Peaks",
+
+        value:
+          `Today: **${todayPeak}** • ` +
+          `This Week: **${weekPeak}** • ` +
+          `This Month: **${monthPeak}**\n` +
+          `All-Time Tracked: **${state.allTime.peakOnline}**`,
+
+        inline:
+          false
+      },
+
+      {
+        name:
+          "Driver Movement",
+
+        value:
+          [
+            movementLine(
+              "Today",
+              todayMovement
+            ),
+
+            movementLine(
+              "This Week",
+              weekMovement
+            ),
+
+            movementLine(
+              "This Month",
+              monthMovement
+            )
+          ].join(
+            "\n"
+          ),
+
+        inline:
+          false
+      },
+
+      {
+        name:
+          "Activity This Month",
+
+        value:
+          activityText,
+
+        inline:
+          false
+      },
+
+      {
+        name:
+          "Next Milestone",
+
+        value:
+          milestoneText,
+
+        inline:
+          false
+      }
+    ],
+
+    footer: {
+      text:
+        "Kings Logistics • Advanced Statistics"
+    },
+
+    timestamp:
+      now.toISOString()
+  };
+}
+
+// ======================================================
+// DISCORD WEBHOOK
+// ======================================================
+
+function webhookWithWait() {
+  const url =
+    new URL(
+      DISCORD_WEBHOOK_URL
+    );
+
+  url.searchParams.set(
+    "wait",
+    "true"
+  );
+
+  return url.toString();
+}
 
 async function createDiscordMessage(
   embed
@@ -811,22 +1787,9 @@ async function createDiscordMessage(
     );
   }
 
-
-  const separator =
-    DISCORD_WEBHOOK_URL.includes(
-      "?"
-    )
-      ? "&"
-      : "?";
-
-
-  const url =
-    `${DISCORD_WEBHOOK_URL}${separator}wait=true`;
-
-
   const response =
     await fetch(
-      url,
+      webhookWithWait(),
       {
         method:
           "POST",
@@ -838,55 +1801,40 @@ async function createDiscordMessage(
 
         body:
           JSON.stringify({
-            content:
-              "",
-
             embeds: [
               embed
-            ]
+            ],
+
+            allowed_mentions: {
+              parse: []
+            }
           })
       }
     );
 
-
   if (
     !response.ok
   ) {
-    const errorText =
-      await response.text();
-
-
     throw new Error(
-      `Discord create failed: HTTP ${response.status} - ${errorText}`
+      `Statistics Discord create failed: HTTP ${response.status} - ${await response.text()}`
     );
   }
 
-
   const message =
     await response.json();
-
 
   if (
     !message.id
   ) {
     throw new Error(
-      "Discord did not return a message ID."
+      "Discord did not return a Statistics message ID."
     );
   }
 
-
-  console.log(
-    `Statistics Discord message created: ${message.id}`
+  return String(
+    message.id
   );
-
-
-  return message.id;
 }
-
-
-// ======================================================
-// UPDATE DISCORD MESSAGE
-// ======================================================
 
 async function updateDiscordMessage(
   messageId,
@@ -900,20 +1848,17 @@ async function updateDiscordMessage(
     );
   }
 
-
-  const baseUrl =
-    DISCORD_WEBHOOK_URL.split(
-      "?"
-    )[0];
-
-
-  const url =
-    `${baseUrl}/messages/${messageId}`;
-
+  const base =
+    DISCORD_WEBHOOK_URL
+      .split("?")[0]
+      .replace(
+        /\/$/,
+        ""
+      );
 
   const response =
     await fetch(
-      url,
+      `${base}/messages/${messageId}`,
       {
         method:
           "PATCH",
@@ -925,148 +1870,265 @@ async function updateDiscordMessage(
 
         body:
           JSON.stringify({
-            content:
-              "",
-
             embeds: [
               embed
-            ]
+            ],
+
+            allowed_mentions: {
+              parse: []
+            }
           })
       }
     );
 
+  if (
+    response.status ===
+    404
+  ) {
+    return false;
+  }
 
   if (
     !response.ok
   ) {
-    const errorText =
-      await response.text();
-
-
     throw new Error(
-      `Discord update failed: HTTP ${response.status} - ${errorText}`
+      `Statistics Discord update failed: HTTP ${response.status} - ${await response.text()}`
     );
   }
 
-
-  console.log(
-    "Statistics Discord message updated successfully."
-  );
+  return true;
 }
 
+async function publishStatistics(
+  state,
+  embed
+) {
+  if (
+    state.messageId
+  ) {
+    const updated =
+      await updateDiscordMessage(
+        state.messageId,
+        embed
+      );
+
+    if (
+      updated
+    ) {
+      console.log(
+        "Existing Kings Statistics message updated."
+      );
+
+      return false;
+    }
+
+    console.log(
+      "Stored Statistics message no longer exists."
+    );
+
+    console.log(
+      "Creating a new Statistics message."
+    );
+  }
+
+  state.messageId =
+    await createDiscordMessage(
+      embed
+    );
+
+  console.log(
+    `New Kings Statistics message created: ${state.messageId}`
+  );
+
+  return true;
+}
+
+// ======================================================
+// MAIN
+// ======================================================
+
+async function start() {
+  console.log(
+    "===================================="
+  );
+
+  console.log(
+    "Kings Logistics Advanced Statistics"
+  );
+
+  console.log(
+    "===================================="
+  );
+
+  console.log("");
+
+  const now =
+    new Date();
+
+  const loaded =
+    loadStatistics();
+
+  const state =
+    loaded.state;
+
+  const driverHistory =
+    loadDriverHistory();
+
+  console.log(
+    "Loading TruckersMP member count..."
+  );
+
+  const members =
+    await getMemberCount();
+
+  console.log(
+    `Current members: ${members}`
+  );
+
+  console.log("");
+
+  console.log(
+    "Loading Kings TruckersMP activity..."
+  );
+
+  const activity =
+    await getLiveActivity();
+
+  console.log(
+    `Currently online: ${activity.totalOnline}`
+  );
+
+  console.log(
+    `ETS2: ${activity.ets2Count} • ATS: ${activity.atsCount}`
+  );
+
+  let stateChanged =
+    loaded.migrated;
+
+  if (
+    loaded.migrated
+  ) {
+    console.log("");
+
+    console.log(
+      "Statistics data upgraded to Advanced Statistics format."
+    );
+  }
+
+  if (
+    updateState(
+      state,
+      members,
+      activity,
+      now
+    )
+  ) {
+    stateChanged =
+      true;
+  }
+
+  const embed =
+    buildEmbed(
+      state,
+      members,
+      activity,
+      driverHistory,
+      now
+    );
+
+  const newMessage =
+    await publishStatistics(
+      state,
+      embed
+    );
+
+  if (
+    newMessage
+  ) {
+    stateChanged =
+      true;
+  }
+
+  if (
+    stateChanged
+  ) {
+    state.updatedAt =
+      nowISO();
+
+    writeJson(
+      STATE_FILE,
+      state
+    );
+
+    console.log(
+      "Statistics data saved."
+    );
+  } else {
+    console.log(
+      "No persistent Statistics data changes to save."
+    );
+  }
+
+  console.log("");
+
+  console.log(
+    "Advanced Statistics summary:"
+  );
+
+  console.log(
+    `Members: ${members}`
+  );
+
+  console.log(
+    `Online: ${activity.totalOnline}`
+  );
+
+  console.log(
+    `All-Time Tracked Peak: ${state.allTime.peakOnline}`
+  );
+
+  const milestone =
+    getNextMilestone(
+      members
+    );
+
+  if (
+    milestone
+  ) {
+    console.log(
+      `Next Milestone: ${members}/${milestone.milestone}`
+    );
+  } else {
+    console.log(
+      "Next Milestone: all configured milestones reached"
+    );
+  }
+
+  console.log("");
+
+  console.log(
+    "Kings Advanced Statistics completed successfully."
+  );
+}
 
 // ======================================================
 // START
 // ======================================================
 
-async function start() {
-  console.log(
-    "=================================="
-  );
+start().catch(
+  error => {
+    console.error("");
 
-  console.log(
-    "Kings Logistics Statistics"
-  );
-
-  console.log(
-    "=================================="
-  );
-
-  console.log("");
-
-
-  const [
-    memberCount,
-    online
-  ] =
-    await Promise.all([
-      getMemberCount(),
-      getOnlineStatistics()
-    ]);
-
-
-  const state =
-    loadState();
-
-
-  const currentDay =
-    updateHistory(
-      state,
-      memberCount,
-      online
+    console.error(
+      "Kings Advanced Statistics failed:"
     );
 
-
-  const growth =
-    getGrowth(
-      state,
-      memberCount
+    console.error(
+      error
     );
 
-
-  const peaks =
-    getPeaks(
-      state,
-      currentDay
-    );
-
-
-  const embed =
-    buildEmbed(
-      memberCount,
-      online,
-      growth,
-      peaks
-    );
-
-
-  if (
-    !state.discordMessageId
-  ) {
-    console.log("");
-    console.log(
-      "No Statistics Discord message exists yet."
-    );
-
-
-    state.discordMessageId =
-      await createDiscordMessage(
-        embed
-      );
-  } else {
-    await updateDiscordMessage(
-      state.discordMessageId,
-      embed
+    process.exit(
+      1
     );
   }
-
-
-  saveState(
-    state
-  );
-
-
-  console.log("");
-  console.log(
-    "Kings Statistics completed successfully."
-  );
-}
-
-
-// ======================================================
-// RUN
-// ======================================================
-
-start().catch(error => {
-  console.error("");
-
-  console.error(
-    "Kings Statistics failed:"
-  );
-
-  console.error(
-    error
-  );
-
-  process.exit(1);
-});
+);
