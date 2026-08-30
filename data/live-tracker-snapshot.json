@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-30T21:40:32.536Z",
+  "updatedAt": "2026-08-30T21:46:47.976Z",
   "members": 110,
-  "online": 3,
-  "ets2Online": 3,
+  "online": 4,
+  "ets2Online": 4,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 3,
+      "online": 4,
       "isEvent": false
     }
   ],
@@ -36,6 +36,14 @@
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Bergen",
+      "isEvent": false
+    },
+    {
+      "tmpId": 6164282,
+      "name": "Ste clemo",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Burgas",
       "isEvent": false
     }
   ]
