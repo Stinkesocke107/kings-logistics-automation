@@ -2,11 +2,19 @@ name: Kings TruckersMP Live Tracker
 
 on:
   workflow_dispatch:
+
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-live-tracker
+  cancel-in-progress: false
 
 jobs:
-  test-live-tracker:
+  update-live-tracker:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,8 +26,24 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Run Kings Live Tracker
+      - name: Update Kings Live Tracker
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DISCORD_MESSAGE_ID: ${{ secrets.DISCORD_MESSAGE_ID }}
         run: node tracker.js
+
+      - name: Save Live Tracker Snapshot
+        run: |
+          if git diff --quiet -- data/live-tracker-snapshot.json && [ -z "$(git status --porcelain data/live-tracker-snapshot.json)" ]; then
+            echo "No Live Tracker snapshot changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/live-tracker-snapshot.json
+          git commit -m "Update Kings Live Tracker snapshot"
+
+          git pull --rebase origin main
+          git push origin main
