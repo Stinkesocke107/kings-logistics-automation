@@ -158,12 +158,35 @@ async function main() {
     return;
   }
 
-  for (const player of kingsOnline) {
+const groupedServers = {};
+
+for (const player of kingsOnline) {
+  if (!groupedServers[player.server]) {
+    groupedServers[player.server] = [];
+  }
+
+  groupedServers[player.server].push(player);
+}
+
+for (const [serverName, players] of Object.entries(groupedServers)) {
+  console.log("");
+  console.log(
+    `${serverName} — ${players.length} online`
+  );
+  console.log("--------------------------------");
+
+  for (const player of players) {
     console.log("");
     console.log(player.name);
-    console.log(`${player.server} | ${player.city}`);
-    console.log(`TMP ID: ${player.tmpId}`);
+    console.log(player.city);
+    console.log(
+      `Profile: https://truckersmp.com/user/${player.tmpId}`
+    );
+    console.log(
+      `Live Map: https://map.truckersmp.com/?follow=${player.tmpId}`
+    );
   }
+}
 }
 
 main().catch(console.error);
