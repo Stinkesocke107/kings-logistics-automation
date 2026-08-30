@@ -1,446 +1,666 @@
 {
-  "updatedAt": "2026-08-30T08:52:33.253Z",
+  "updatedAt": "2026-08-30T19:05:37.696Z",
   "totalMembers": 110,
   "members": [
     {
       "tmpId": 161999,
-      "username": "woody1990"
+      "vtcMemberId": 537460,
+      "username": "woody1990",
+      "joinDate": "2026-08-14T13:42:57.000Z"
     },
     {
       "tmpId": 543429,
-      "username": "Leon 22"
+      "vtcMemberId": 537596,
+      "username": "Leon 22",
+      "joinDate": "2026-08-14T23:40:22.000Z"
     },
     {
       "tmpId": 964634,
-      "username": "Kediceyhun"
+      "vtcMemberId": 533659,
+      "username": "Kediceyhun",
+      "joinDate": "2026-07-26T13:16:00.000Z"
     },
     {
       "tmpId": 1147562,
-      "username": "Snapli"
+      "vtcMemberId": 317219,
+      "username": "Snapli",
+      "joinDate": "2023-07-25T09:01:12.000Z"
     },
     {
       "tmpId": 1191879,
-      "username": "Bram_Bogg"
+      "vtcMemberId": 467372,
+      "username": "Bram_Bogg",
+      "joinDate": "2025-08-29T18:17:35.000Z"
     },
     {
       "tmpId": 1522731,
-      "username": "FMGinge"
+      "vtcMemberId": 505138,
+      "username": "FMGinge",
+      "joinDate": "2026-03-04T08:44:54.000Z"
     },
     {
       "tmpId": 1843898,
-      "username": "JustBram"
+      "vtcMemberId": 506886,
+      "username": "JustBram",
+      "joinDate": "2026-03-13T12:18:37.000Z"
     },
     {
       "tmpId": 1853681,
-      "username": "Slix0"
+      "vtcMemberId": 438717,
+      "username": "Slix0",
+      "joinDate": "2025-03-27T21:16:25.000Z"
     },
     {
       "tmpId": 1937931,
-      "username": "Anthony S232"
+      "vtcMemberId": 512962,
+      "username": "Anthony S232",
+      "joinDate": "2026-04-08T18:03:23.000Z"
     },
     {
       "tmpId": 2186515,
-      "username": "Dalefn88"
+      "vtcMemberId": 524310,
+      "username": "Dalefn88",
+      "joinDate": "2026-06-02T16:31:15.000Z"
     },
     {
       "tmpId": 2435998,
-      "username": "Fischbrötchen"
+      "vtcMemberId": 447981,
+      "username": "Fischbrötchen",
+      "joinDate": "2025-05-18T18:52:29.000Z"
     },
     {
       "tmpId": 2580317,
-      "username": "Epic_dutchgamer"
+      "vtcMemberId": 518898,
+      "username": "Epic_dutchgamer",
+      "joinDate": "2026-05-04T18:03:03.000Z"
     },
     {
       "tmpId": 2674159,
-      "username": "Astoros"
+      "vtcMemberId": 494695,
+      "username": "Astoros",
+      "joinDate": "2026-01-15T04:53:23.000Z"
     },
     {
       "tmpId": 2852052,
-      "username": "matellog"
+      "vtcMemberId": 464119,
+      "username": "matellog",
+      "joinDate": "2025-08-13T17:33:09.000Z"
     },
     {
       "tmpId": 3471932,
-      "username": "fire_tiger"
+      "vtcMemberId": 513034,
+      "username": "fire_tiger",
+      "joinDate": "2026-04-08T23:05:20.000Z"
     },
     {
       "tmpId": 3549552,
-      "username": "PMVF17976"
+      "vtcMemberId": 530482,
+      "username": "PMVF17976",
+      "joinDate": "2026-07-11T15:56:59.000Z"
     },
     {
       "tmpId": 3929437,
-      "username": "KMeeks"
+      "vtcMemberId": 532947,
+      "username": "KMeeks",
+      "joinDate": "2026-07-22T19:47:34.000Z"
     },
     {
       "tmpId": 4116475,
-      "username": "TeilZeitMond"
+      "vtcMemberId": 475303,
+      "username": "TeilZeitMond",
+      "joinDate": "2025-10-10T20:30:18.000Z"
     },
     {
       "tmpId": 4481857,
-      "username": "RDZ Official"
+      "vtcMemberId": 512365,
+      "username": "RDZ Official",
+      "joinDate": "2026-04-05T20:07:14.000Z"
     },
     {
       "tmpId": 4519121,
-      "username": "toorob_nl"
+      "vtcMemberId": 504291,
+      "username": "toorob_nl",
+      "joinDate": "2026-02-28T21:03:52.000Z"
     },
     {
       "tmpId": 4643676,
-      "username": "PedroShadow"
+      "vtcMemberId": 538467,
+      "username": "PedroShadow",
+      "joinDate": "2026-08-18T18:03:06.000Z"
     },
     {
       "tmpId": 4731942,
-      "username": "goldenking3116"
+      "vtcMemberId": 516121,
+      "username": "goldenking3116",
+      "joinDate": "2026-04-23T08:23:42.000Z"
     },
     {
       "tmpId": 4758943,
-      "username": "RedDevilPanda666"
+      "vtcMemberId": 470402,
+      "username": "RedDevilPanda666",
+      "joinDate": "2025-09-14T03:51:50.000Z"
     },
     {
       "tmpId": 4763967,
-      "username": "Ghost.x"
+      "vtcMemberId": 529008,
+      "username": "Ghost.x",
+      "joinDate": "2026-07-03T20:48:27.000Z"
     },
     {
       "tmpId": 4772434,
-      "username": "Justusrex1406"
+      "vtcMemberId": 465479,
+      "username": "Justusrex1406",
+      "joinDate": "2025-08-20T20:09:37.000Z"
     },
     {
       "tmpId": 4799914,
-      "username": "K 1 T S U N 3"
+      "vtcMemberId": 470388,
+      "username": "K 1 T S U N 3",
+      "joinDate": "2025-09-14T00:40:30.000Z"
     },
     {
       "tmpId": 4863509,
-      "username": "Sahne_101"
+      "vtcMemberId": 472305,
+      "username": "Sahne_101",
+      "joinDate": "2025-09-25T16:19:53.000Z"
     },
     {
       "tmpId": 4863557,
-      "username": "lasse-kröger"
+      "vtcMemberId": 409895,
+      "username": "lasse-kröger",
+      "joinDate": "2024-11-03T17:10:23.000Z"
     },
     {
       "tmpId": 4891248,
-      "username": "Stinkesocke107"
+      "vtcMemberId": 314275,
+      "username": "Stinkesocke107",
+      "joinDate": "2023-07-09T19:25:36.000Z"
     },
     {
       "tmpId": 5043994,
-      "username": "Rayfix09"
+      "vtcMemberId": 473776,
+      "username": "Rayfix09",
+      "joinDate": "2025-10-03T20:50:03.000Z"
     },
     {
       "tmpId": 5070887,
-      "username": "[GER] KingBramus"
+      "vtcMemberId": 470324,
+      "username": "[GER] KingBramus",
+      "joinDate": "2025-09-13T16:57:25.000Z"
     },
     {
       "tmpId": 5098880,
-      "username": "linuszett"
+      "vtcMemberId": 457219,
+      "username": "linuszett",
+      "joinDate": "2025-07-09T17:21:51.000Z"
     },
     {
       "tmpId": 5149875,
-      "username": "Fantango_the3rd"
+      "vtcMemberId": 471201,
+      "username": "Fantango_the3rd",
+      "joinDate": "2025-09-18T19:53:25.000Z"
     },
     {
       "tmpId": 5152841,
-      "username": "El_Pappy"
+      "vtcMemberId": 535187,
+      "username": "El_Pappy",
+      "joinDate": "2026-08-02T23:09:08.000Z"
     },
     {
       "tmpId": 5249588,
-      "username": "IceCubeAlf"
+      "vtcMemberId": 525793,
+      "username": "IceCubeAlf",
+      "joinDate": "2026-06-12T02:54:28.000Z"
     },
     {
       "tmpId": 5302257,
-      "username": "TheSteelGuy8"
+      "vtcMemberId": 499906,
+      "username": "TheSteelGuy8",
+      "joinDate": "2026-02-06T23:50:21.000Z"
     },
     {
       "tmpId": 5318474,
-      "username": "Paul Brandt"
+      "vtcMemberId": 373149,
+      "username": "Paul Brandt",
+      "joinDate": "2024-04-22T19:19:44.000Z"
     },
     {
       "tmpId": 5334442,
-      "username": "tianp112"
+      "vtcMemberId": 538044,
+      "username": "tianp112",
+      "joinDate": "2026-08-16T20:09:08.000Z"
     },
     {
       "tmpId": 5345460,
-      "username": "H O C H S T A P L E R"
+      "vtcMemberId": 490558,
+      "username": "H O C H S T A P L E R",
+      "joinDate": "2025-12-28T20:52:35.000Z"
     },
     {
       "tmpId": 5358213,
-      "username": "Taser00700"
+      "vtcMemberId": 384557,
+      "username": "Taser00700",
+      "joinDate": "2024-06-25T21:42:19.000Z"
     },
     {
       "tmpId": 5361062,
-      "username": "didi_0815"
+      "vtcMemberId": 474025,
+      "username": "didi_0815",
+      "joinDate": "2025-10-04T23:25:46.000Z"
     },
     {
       "tmpId": 5411849,
-      "username": "BlackSeaTransit"
+      "vtcMemberId": 514824,
+      "username": "BlackSeaTransit",
+      "joinDate": "2026-04-17T11:07:01.000Z"
     },
     {
       "tmpId": 5419500,
-      "username": "Magierjuwel"
+      "vtcMemberId": 365288,
+      "username": "Magierjuwel",
+      "joinDate": "2024-03-19T21:42:42.000Z"
     },
     {
       "tmpId": 5466808,
-      "username": "kjell81"
+      "vtcMemberId": 472860,
+      "username": "kjell81",
+      "joinDate": "2025-09-28T17:08:58.000Z"
     },
     {
       "tmpId": 5483333,
-      "username": "W4Nehro"
+      "vtcMemberId": 493651,
+      "username": "W4Nehro",
+      "joinDate": "2026-01-10T17:00:36.000Z"
     },
     {
       "tmpId": 5492147,
-      "username": "QuizzyXX"
+      "vtcMemberId": 460402,
+      "username": "QuizzyXX",
+      "joinDate": "2025-07-24T23:53:27.000Z"
     },
     {
       "tmpId": 5596129,
-      "username": "jaym1954"
+      "vtcMemberId": 465651,
+      "username": "jaym1954",
+      "joinDate": "2025-08-21T18:24:18.000Z"
     },
     {
       "tmpId": 5618632,
-      "username": "DieselBoy Fluffy GER"
+      "vtcMemberId": 467361,
+      "username": "DieselBoy Fluffy GER",
+      "joinDate": "2025-08-29T17:06:33.000Z"
     },
     {
       "tmpId": 5636000,
-      "username": "Pentiko´s Soap :]"
+      "vtcMemberId": 493268,
+      "username": "Pentiko´s Soap :]",
+      "joinDate": "2026-01-08T23:52:17.000Z"
     },
     {
       "tmpId": 5655769,
-      "username": "JackyJack"
+      "vtcMemberId": 407336,
+      "username": "JackyJack",
+      "joinDate": "2024-10-19T21:14:31.000Z"
     },
     {
       "tmpId": 5656707,
-      "username": "DavidWhoKnows"
+      "vtcMemberId": 407964,
+      "username": "DavidWhoKnows",
+      "joinDate": "2024-10-24T05:44:57.000Z"
     },
     {
       "tmpId": 5658072,
-      "username": "MaTriXx01"
+      "vtcMemberId": 407891,
+      "username": "MaTriXx01",
+      "joinDate": "2024-10-23T15:55:31.000Z"
     },
     {
       "tmpId": 5668756,
-      "username": "ICE_IURI"
+      "vtcMemberId": 537457,
+      "username": "ICE_IURI",
+      "joinDate": "2026-08-14T13:27:19.000Z"
     },
     {
       "tmpId": 5732715,
-      "username": "fenekk"
+      "vtcMemberId": 532869,
+      "username": "fenekk",
+      "joinDate": "2026-07-22T14:53:04.000Z"
     },
     {
       "tmpId": 5734637,
-      "username": "ygaogamess"
+      "vtcMemberId": 527905,
+      "username": "ygaogamess",
+      "joinDate": "2026-06-26T23:19:55.000Z"
     },
     {
       "tmpId": 5750445,
-      "username": "Jxnis15"
+      "vtcMemberId": 421752,
+      "username": "Jxnis15",
+      "joinDate": "2025-01-04T16:13:43.000Z"
     },
     {
       "tmpId": 5758304,
-      "username": "Amsal129"
+      "vtcMemberId": 458674,
+      "username": "Amsal129",
+      "joinDate": "2025-07-16T20:44:26.000Z"
     },
     {
       "tmpId": 5760863,
-      "username": "cobyRobinson444"
+      "vtcMemberId": 497318,
+      "username": "cobyRobinson444",
+      "joinDate": "2026-01-25T18:02:35.000Z"
     },
     {
       "tmpId": 5771734,
-      "username": "Razxe"
+      "vtcMemberId": 465858,
+      "username": "Razxe",
+      "joinDate": "2025-08-22T21:37:29.000Z"
     },
     {
       "tmpId": 5797180,
-      "username": "felipevilla"
+      "vtcMemberId": 500998,
+      "username": "felipevilla",
+      "joinDate": "2026-02-13T03:21:10.000Z"
     },
     {
       "tmpId": 5798555,
-      "username": "XxMostHxtedxX"
+      "vtcMemberId": 466027,
+      "username": "XxMostHxtedxX",
+      "joinDate": "2025-08-23T19:57:03.000Z"
     },
     {
       "tmpId": 5812929,
-      "username": "janek_nbg"
+      "vtcMemberId": 431908,
+      "username": "janek_nbg",
+      "joinDate": "2025-02-21T16:01:03.000Z"
     },
     {
       "tmpId": 5828661,
-      "username": "Rhiley"
+      "vtcMemberId": 434941,
+      "username": "Rhiley",
+      "joinDate": "2025-03-07T15:37:26.000Z"
     },
     {
       "tmpId": 5895824,
-      "username": "g_df40"
+      "vtcMemberId": 532611,
+      "username": "g_df40",
+      "joinDate": "2026-07-21T13:46:38.000Z"
     },
     {
       "tmpId": 5925120,
-      "username": "Rizzxn"
+      "vtcMemberId": 527268,
+      "username": "Rizzxn",
+      "joinDate": "2026-06-21T20:22:35.000Z"
     },
     {
       "tmpId": 5939452,
-      "username": "SinisterNinja11"
+      "vtcMemberId": 505357,
+      "username": "SinisterNinja11",
+      "joinDate": "2026-03-05T10:18:54.000Z"
     },
     {
       "tmpId": 5960131,
-      "username": "Jamie-Oliver"
+      "vtcMemberId": 459566,
+      "username": "Jamie-Oliver",
+      "joinDate": "2025-07-20T23:45:59.000Z"
     },
     {
       "tmpId": 6006380,
-      "username": "_razxe_"
+      "vtcMemberId": 469817,
+      "username": "_razxe_",
+      "joinDate": "2025-09-10T19:47:04.000Z"
     },
     {
       "tmpId": 6011269,
-      "username": "Timbo7247x"
+      "vtcMemberId": 499311,
+      "username": "Timbo7247x",
+      "joinDate": "2026-02-03T23:58:30.000Z"
     },
     {
       "tmpId": 6024372,
-      "username": "KINGTommo8851"
+      "vtcMemberId": 471956,
+      "username": "KINGTommo8851",
+      "joinDate": "2025-09-22T22:11:16.000Z"
     },
     {
       "tmpId": 6026197,
-      "username": "44-8w"
+      "vtcMemberId": 525414,
+      "username": "44-8w",
+      "joinDate": "2026-06-09T12:03:22.000Z"
     },
     {
       "tmpId": 6043870,
-      "username": "Kuerbiiiii"
+      "vtcMemberId": 523030,
+      "username": "Kuerbiiiii",
+      "joinDate": "2026-05-26T07:47:10.000Z"
     },
     {
       "tmpId": 6046913,
-      "username": "Buroz06"
+      "vtcMemberId": 475933,
+      "username": "Buroz06",
+      "joinDate": "2025-10-13T05:38:12.000Z"
     },
     {
       "tmpId": 6055744,
-      "username": "Davidboss10_boss"
+      "vtcMemberId": 517892,
+      "username": "Davidboss10_boss",
+      "joinDate": "2026-04-30T22:29:21.000Z"
     },
     {
       "tmpId": 6057609,
-      "username": "Jae2000"
+      "vtcMemberId": 479230,
+      "username": "Jae2000",
+      "joinDate": "2025-10-31T08:53:12.000Z"
     },
     {
       "tmpId": 6102336,
-      "username": "jordan1709"
+      "vtcMemberId": 521429,
+      "username": "jordan1709",
+      "joinDate": "2026-05-18T01:10:59.000Z"
     },
     {
       "tmpId": 6150847,
-      "username": "Gepard4CZ"
+      "vtcMemberId": 496293,
+      "username": "Gepard4CZ",
+      "joinDate": "2026-01-21T18:39:52.000Z"
     },
     {
       "tmpId": 6164282,
-      "username": "Ste clemo"
+      "vtcMemberId": 500557,
+      "username": "Ste clemo",
+      "joinDate": "2026-02-10T12:04:43.000Z"
     },
     {
       "tmpId": 6176363,
-      "username": "zrku"
+      "vtcMemberId": 505691,
+      "username": "zrku",
+      "joinDate": "2026-03-06T22:02:09.000Z"
     },
     {
       "tmpId": 6176758,
-      "username": "TamtheBam"
+      "vtcMemberId": 502702,
+      "username": "TamtheBam",
+      "joinDate": "2026-02-22T13:49:16.000Z"
     },
     {
       "tmpId": 6199050,
-      "username": "maxim_chem"
+      "vtcMemberId": 507673,
+      "username": "maxim_chem",
+      "joinDate": "2026-03-15T20:51:06.000Z"
     },
     {
       "tmpId": 6200970,
-      "username": "Eryniell"
+      "vtcMemberId": 509467,
+      "username": "Eryniell",
+      "joinDate": "2026-03-24T19:37:55.000Z"
     },
     {
       "tmpId": 6202864,
-      "username": "Harry Trotter"
+      "vtcMemberId": 508851,
+      "username": "Harry Trotter",
+      "joinDate": "2026-03-22T06:13:34.000Z"
     },
     {
       "tmpId": 6217428,
-      "username": "jxy00"
+      "vtcMemberId": 537299,
+      "username": "jxy00",
+      "joinDate": "2026-08-13T17:47:32.000Z"
     },
     {
       "tmpId": 6220412,
-      "username": "God_FalleN"
+      "vtcMemberId": 539230,
+      "username": "God_FalleN",
+      "joinDate": "2026-08-22T18:09:32.000Z"
     },
     {
       "tmpId": 6222618,
-      "username": "versusmev"
+      "vtcMemberId": 515591,
+      "username": "versusmev",
+      "joinDate": "2026-04-20T12:32:09.000Z"
     },
     {
       "tmpId": 6232460,
-      "username": "TCHAPCHA"
+      "vtcMemberId": 515147,
+      "username": "TCHAPCHA",
+      "joinDate": "2026-04-18T17:57:09.000Z"
     },
     {
       "tmpId": 6237689,
-      "username": "User_6237689"
+      "vtcMemberId": 515402,
+      "username": "User_6237689",
+      "joinDate": "2026-04-19T14:45:12.000Z"
     },
     {
       "tmpId": 6239821,
-      "username": "stridsford"
+      "vtcMemberId": 537721,
+      "username": "stridsford",
+      "joinDate": "2026-08-15T14:03:57.000Z"
     },
     {
       "tmpId": 6243003,
-      "username": "joshsouthampton"
+      "vtcMemberId": 537708,
+      "username": "joshsouthampton",
+      "joinDate": "2026-08-15T13:21:35.000Z"
     },
     {
       "tmpId": 6254923,
-      "username": "KNEVITT7468"
+      "vtcMemberId": 520493,
+      "username": "KNEVITT7468",
+      "joinDate": "2026-05-13T17:01:11.000Z"
     },
     {
       "tmpId": 6256308,
-      "username": "FazCarbon"
+      "vtcMemberId": 521381,
+      "username": "FazCarbon",
+      "joinDate": "2026-05-17T19:50:23.000Z"
     },
     {
       "tmpId": 6256911,
-      "username": "Zynth4074"
+      "vtcMemberId": 539081,
+      "username": "Zynth4074",
+      "joinDate": "2026-08-22T00:34:43.000Z"
     },
     {
       "tmpId": 6258635,
-      "username": "Weebitblue"
+      "vtcMemberId": 521175,
+      "username": "Weebitblue",
+      "joinDate": "2026-05-17T03:42:00.000Z"
     },
     {
       "tmpId": 6259764,
-      "username": "TCHAPTCHA"
+      "vtcMemberId": 521352,
+      "username": "TCHAPTCHA",
+      "joinDate": "2026-05-17T18:16:52.000Z"
     },
     {
       "tmpId": 6261572,
-      "username": "ekamiii9"
+      "vtcMemberId": 526973,
+      "username": "ekamiii9",
+      "joinDate": "2026-06-19T20:34:31.000Z"
     },
     {
       "tmpId": 6266493,
-      "username": "Ahmad_SY"
+      "vtcMemberId": 536922,
+      "username": "Ahmad_SY",
+      "joinDate": "2026-08-11T16:54:45.000Z"
     },
     {
       "tmpId": 6269537,
-      "username": "The_PerpetuallyMarkedone"
+      "vtcMemberId": 539158,
+      "username": "The_PerpetuallyMarkedone",
+      "joinDate": "2026-08-22T14:00:44.000Z"
     },
     {
       "tmpId": 6289947,
-      "username": "aym122342"
+      "vtcMemberId": 528797,
+      "username": "aym122342",
+      "joinDate": "2026-07-02T15:04:44.000Z"
     },
     {
       "tmpId": 6295172,
-      "username": "Muj_3747"
+      "vtcMemberId": 533325,
+      "username": "Muj_3747",
+      "joinDate": "2026-07-24T19:46:46.000Z"
     },
     {
       "tmpId": 6297195,
-      "username": "Dunny0131"
+      "vtcMemberId": 530354,
+      "username": "Dunny0131",
+      "joinDate": "2026-07-10T22:46:50.000Z"
     },
     {
       "tmpId": 6297215,
-      "username": "User_6297215"
+      "vtcMemberId": 529519,
+      "username": "User_6297215",
+      "joinDate": "2026-07-06T13:56:53.000Z"
     },
     {
       "tmpId": 6299857,
-      "username": "(DE) xnickw210"
+      "vtcMemberId": 530591,
+      "username": "(DE) xnickw210",
+      "joinDate": "2026-07-12T00:45:34.000Z"
     },
     {
       "tmpId": 6300751,
-      "username": "vam3r"
+      "vtcMemberId": 533237,
+      "username": "vam3r",
+      "joinDate": "2026-07-24T12:25:20.000Z"
     },
     {
       "tmpId": 6301928,
-      "username": "Peruga"
+      "vtcMemberId": 530965,
+      "username": "Peruga",
+      "joinDate": "2026-07-13T18:44:50.000Z"
     },
     {
       "tmpId": 6305043,
-      "username": "gamDev"
+      "vtcMemberId": 532603,
+      "username": "gamDev",
+      "joinDate": "2026-07-21T13:22:00.000Z"
     },
     {
       "tmpId": 6327501,
-      "username": "Yiga"
+      "vtcMemberId": 538516,
+      "username": "Yiga",
+      "joinDate": "2026-08-18T23:47:09.000Z"
     },
     {
       "tmpId": 6343406,
-      "username": "FaJoste"
+      "vtcMemberId": 539225,
+      "username": "FaJoste",
+      "joinDate": "2026-08-22T18:02:47.000Z"
     },
     {
       "tmpId": 6345786,
-      "username": "Maxi_274"
+      "vtcMemberId": 540740,
+      "username": "Maxi_274",
+      "joinDate": "2026-08-29T19:21:08.000Z"
     },
     {
       "tmpId": 6347683,
-      "username": "Ari_C4"
+      "vtcMemberId": 539501,
+      "username": "Ari_C4",
+      "joinDate": "2026-08-23T23:43:40.000Z"
     }
   ]
 }
