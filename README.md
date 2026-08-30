@@ -8,11 +8,11 @@ Automation systems and tools for Kings Logistics.
 - TruckersMP News Automation
 - Kings Statistics
 - Automatic Driver Updates
+- Milestone Detection
+- Changelog Automation
 
 ## Planned Systems
 
-- Milestone Detection
-- Changelog Automation
 - Monthly Kings Reports
 - System Monitoring
 
