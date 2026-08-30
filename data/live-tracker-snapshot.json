@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-30T22:19:03.330Z",
+  "updatedAt": "2026-08-30T22:25:21.205Z",
   "members": 110,
   "online": 5,
   "ets2Online": 5,
@@ -19,7 +19,7 @@
       "name": "FaJoste",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Ålesund",
+      "city": "Kristiansund",
       "isEvent": false
     },
     {
@@ -35,7 +35,7 @@
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Ålesund",
+      "city": "Kristiansund",
       "isEvent": false
     },
     {
@@ -43,7 +43,7 @@
       "name": "joshsouthampton",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Brussels",
+      "city": "Lille",
       "isEvent": false
     },
     {
