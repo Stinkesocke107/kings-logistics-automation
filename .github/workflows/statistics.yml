@@ -1,16 +1,13 @@
-name: Kings Logistics Statistics
+name: Kings Statistics Manual
 
 on:
   workflow_dispatch:
-
-  schedule:
-    - cron: "*/15 * * * *"
 
 permissions:
   contents: write
 
 concurrency:
-  group: kings-statistics
+  group: kings-statistics-manual
   cancel-in-progress: false
 
 jobs:
@@ -31,18 +28,15 @@ jobs:
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
         run: node statistics.js
 
-      - name: Update Kings Statistics Snapshot
-        run: node statistics-snapshot.js
-
       - name: Update Kings Central Overview
         env:
           CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
         run: node central-overview.js
 
-      - name: Save Kings Statistics & Overview Data
+      - name: Save Statistics Data
         run: |
-          if git diff --quiet -- data/statistics.json data/statistics-snapshot.json data/central-overview.json && [ -z "$(git status --porcelain data/statistics.json data/statistics-snapshot.json data/central-overview.json)" ]; then
-            echo "No Statistics or Overview data changes to save."
+          if git diff --quiet -- data/statistics.json data/central-overview.json && [ -z "$(git status --porcelain data/statistics.json data/central-overview.json)" ]; then
+            echo "No Statistics data changes to save."
             exit 0
           fi
 
@@ -50,10 +44,9 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
 
           git add data/statistics.json
-          git add data/statistics-snapshot.json
           git add data/central-overview.json
 
-          git commit -m "Update Kings Statistics and Overview data"
+          git commit -m "Update Kings Statistics"
 
           git pull --rebase origin main
           git push origin main
