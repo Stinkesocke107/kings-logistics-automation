@@ -1,4 +1,4 @@
-name: Kings TruckersMP Live Tracker
+name: Kings Live Systems
 
 on:
   workflow_dispatch:
@@ -10,11 +10,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: kings-live-tracker
+  group: kings-live-systems
   cancel-in-progress: false
 
 jobs:
-  update-live-tracker:
+  update-live-systems:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,16 +26,44 @@ jobs:
         with:
           node-version: "24"
 
+      # ==================================================
+      # 1. LIVE TRACKER + CENTRAL SNAPSHOT
+      # ==================================================
+
       - name: Update Kings Live Tracker
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DISCORD_MESSAGE_ID: ${{ secrets.DISCORD_MESSAGE_ID }}
         run: node tracker.js
 
-      - name: Save Live Tracker Snapshot
+      # ==================================================
+      # 2. ADVANCED STATISTICS
+      # Uses live-tracker-snapshot.json
+      # ==================================================
+
+      - name: Update Kings Advanced Statistics
+        env:
+          STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
+        run: node statistics.js
+
+      # ==================================================
+      # 3. CENTRAL OVERVIEW
+      # Uses the same live-tracker-snapshot.json
+      # ==================================================
+
+      - name: Update Kings Central Overview
+        env:
+          CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
+        run: node central-overview.js
+
+      # ==================================================
+      # SAVE DATA
+      # ==================================================
+
+      - name: Save Kings Live System Data
         run: |
-          if git diff --quiet -- data/live-tracker-snapshot.json && [ -z "$(git status --porcelain data/live-tracker-snapshot.json)" ]; then
-            echo "No Live Tracker snapshot changes to save."
+          if git diff --quiet -- data/live-tracker-snapshot.json data/statistics.json data/central-overview.json && [ -z "$(git status --porcelain data/live-tracker-snapshot.json data/statistics.json data/central-overview.json)" ]; then
+            echo "No Kings Live System data changes to save."
             exit 0
           fi
 
@@ -43,7 +71,10 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
 
           git add data/live-tracker-snapshot.json
-          git commit -m "Update Kings Live Tracker snapshot"
+          git add data/statistics.json
+          git add data/central-overview.json
+
+          git commit -m "Update Kings Live Systems"
 
           git pull --rebase origin main
           git push origin main
