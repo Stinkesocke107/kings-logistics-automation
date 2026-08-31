@@ -1,27 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T16:10:43.998Z",
+  "updatedAt": "2026-08-31T16:17:20.465Z",
   "members": 110,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 2,
+      "online": 1,
       "isEvent": false
     }
   ],
   "players": [
-    {
-      "tmpId": 6243003,
-      "name": "joshsouthampton",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Nuremberg",
-      "isEvent": false
-    },
     {
       "tmpId": 6239821,
       "name": "stridsford",
