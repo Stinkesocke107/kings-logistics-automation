@@ -1,11 +1,17 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T17:21:43.423Z",
+  "updatedAt": "2026-08-31T17:28:21.855Z",
   "members": 110,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
+    },
     {
       "game": "ETS2",
       "name": "Simulation 2",
@@ -20,6 +26,14 @@
       "game": "ETS2",
       "server": "Simulation 2",
       "city": "Barcelona",
+      "isEvent": false
+    },
+    {
+      "tmpId": 6239821,
+      "name": "stridsford",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Nuremberg",
       "isEvent": false
     }
   ]
