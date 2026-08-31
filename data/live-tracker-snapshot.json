@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T17:34:54.385Z",
+  "updatedAt": "2026-08-31T17:41:11.421Z",
   "members": 110,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 3,
+  "ets2Online": 3,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 1,
+      "online": 2,
       "isEvent": false
     },
     {
@@ -21,11 +21,19 @@
   ],
   "players": [
     {
+      "tmpId": 6199050,
+      "name": "maxim_chem",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Nuremberg",
+      "isEvent": false
+    },
+    {
       "tmpId": 6301928,
       "name": "Peruga",
       "game": "ETS2",
       "server": "Simulation 2",
-      "city": "Barcelona",
+      "city": "Montpellier",
       "isEvent": false
     },
     {
