@@ -1,10 +1,26 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T16:55:47.898Z",
+  "updatedAt": "2026-08-31T17:02:11.533Z",
   "members": 110,
-  "online": 0,
-  "ets2Online": 0,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
-  "activeServers": [],
-  "players": []
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
+    }
+  ],
+  "players": [
+    {
+      "tmpId": 6266493,
+      "name": "Ahmad_SY",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Prague",
+      "isEvent": false
+    }
+  ]
 }
