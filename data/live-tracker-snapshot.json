@@ -1,10 +1,26 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T14:52:30.228Z",
+  "updatedAt": "2026-08-31T14:58:56.485Z",
   "members": 110,
-  "online": 0,
-  "ets2Online": 0,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
-  "activeServers": [],
-  "players": []
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
+    }
+  ],
+  "players": [
+    {
+      "tmpId": 5732715,
+      "name": "fenekk",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Kalamata",
+      "isEvent": false
+    }
+  ]
 }
