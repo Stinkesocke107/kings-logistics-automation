@@ -1,22 +1,38 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T18:06:50.357Z",
+  "updatedAt": "2026-08-31T18:13:14.979Z",
   "members": 110,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 3,
+  "ets2Online": 3,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 1,
+      "online": 3,
       "isEvent": false
     }
   ],
   "players": [
     {
+      "tmpId": 6243003,
+      "name": "joshsouthampton",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Nuremberg",
+      "isEvent": false
+    },
+    {
       "tmpId": 6199050,
       "name": "maxim_chem",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Nuremberg",
+      "isEvent": false
+    },
+    {
+      "tmpId": 6239821,
+      "name": "stridsford",
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Frankfurt am Main",
