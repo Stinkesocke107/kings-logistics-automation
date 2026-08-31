@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T18:32:44.866Z",
+  "updatedAt": "2026-08-31T18:39:12.130Z",
   "members": 110,
   "online": 1,
   "ets2Online": 1,
@@ -19,7 +19,7 @@
       "name": "maxim_chem",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Nuremberg",
+      "city": "Prague",
       "isEvent": false
     }
   ]
