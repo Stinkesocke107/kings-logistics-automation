@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T17:02:11.533Z",
+  "updatedAt": "2026-08-31T17:08:50.048Z",
   "members": 110,
   "online": 1,
   "ets2Online": 1,
@@ -8,18 +8,18 @@
   "activeServers": [
     {
       "game": "ETS2",
-      "name": "Simulation 1",
+      "name": "Simulation 2",
       "online": 1,
       "isEvent": false
     }
   ],
   "players": [
     {
-      "tmpId": 6266493,
-      "name": "Ahmad_SY",
+      "tmpId": 6301928,
+      "name": "Peruga",
       "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Prague",
+      "server": "Simulation 2",
+      "city": "Barcelona",
       "isEvent": false
     }
   ]
