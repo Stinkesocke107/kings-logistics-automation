@@ -1,27 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T15:25:22.611Z",
+  "updatedAt": "2026-08-31T15:31:55.816Z",
   "members": 110,
-  "online": 3,
-  "ets2Online": 3,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 3,
+      "online": 2,
       "isEvent": false
     }
   ],
   "players": [
-    {
-      "tmpId": 5732715,
-      "name": "fenekk",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Lamia",
-      "isEvent": false
-    },
     {
       "tmpId": 6243003,
       "name": "joshsouthampton",
