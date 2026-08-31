@@ -1,26 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T09:03:28.086Z",
+  "updatedAt": "2026-08-31T09:09:50.182Z",
   "members": 110,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 0,
+  "ets2Online": 0,
   "atsOnline": 0,
-  "activeServers": [
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
-    }
-  ],
-  "players": [
-    {
-      "tmpId": 3471932,
-      "name": "fire_tiger",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Thessaloniki",
-      "isEvent": false
-    }
-  ]
+  "activeServers": [],
+  "players": []
 }
