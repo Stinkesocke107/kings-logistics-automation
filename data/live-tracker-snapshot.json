@@ -1,10 +1,34 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T21:40:36.353Z",
+  "updatedAt": "2026-09-01T21:46:57.727Z",
   "members": 109,
-  "online": 0,
-  "ets2Online": 0,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
-  "activeServers": [],
-  "players": []
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 2,
+      "isEvent": false
+    }
+  ],
+  "players": [
+    {
+      "tmpId": 6026197,
+      "name": "44-8w",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Frankfurt am Main",
+      "isEvent": false
+    },
+    {
+      "tmpId": 4799914,
+      "name": "K 1 T S U N 3",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Frankfurt am Main",
+      "isEvent": false
+    }
+  ]
 }
