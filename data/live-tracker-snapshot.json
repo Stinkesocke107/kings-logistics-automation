@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T17:52:19.933Z",
+  "updatedAt": "2026-09-01T17:58:40.043Z",
   "members": 109,
-  "online": 4,
-  "ets2Online": 4,
+  "online": 3,
+  "ets2Online": 3,
   "atsOnline": 0,
   "activeServers": [
     {
@@ -15,7 +15,7 @@
     {
       "game": "ETS2",
       "name": "Simulation 2",
-      "online": 2,
+      "online": 1,
       "isEvent": false
     }
   ],
@@ -25,7 +25,7 @@
       "name": "joshsouthampton",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Plymouth",
+      "city": "Bilbao",
       "isEvent": false
     },
     {
@@ -34,14 +34,6 @@
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Frankfurt am Main",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6301928,
-      "name": "Peruga",
-      "game": "ETS2",
-      "server": "Simulation 2",
-      "city": "Barcelona",
       "isEvent": false
     },
     {
