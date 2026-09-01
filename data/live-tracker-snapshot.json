@@ -1,21 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T18:10:45.813Z",
+  "updatedAt": "2026-09-01T18:26:39.623Z",
   "members": 109,
-  "online": 3,
-  "ets2Online": 3,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
       "online": 2,
-      "isEvent": false
-    },
-    {
-      "game": "ETS2",
-      "name": "Simulation 2",
-      "online": 1,
       "isEvent": false
     }
   ],
@@ -25,7 +19,7 @@
       "name": "joshsouthampton",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Navia",
+      "city": "A Coruña",
       "isEvent": false
     },
     {
@@ -34,14 +28,6 @@
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Nuremberg",
-      "isEvent": false
-    },
-    {
-      "tmpId": 4863509,
-      "name": "Sahne_101",
-      "game": "ETS2",
-      "server": "Simulation 2",
-      "city": "Warsaw",
       "isEvent": false
     }
   ]
