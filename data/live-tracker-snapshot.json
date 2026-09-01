@@ -1,11 +1,17 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T09:01:38.137Z",
+  "updatedAt": "2026-09-01T09:16:00.626Z",
   "members": 110,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
+    },
     {
       "game": "ETS2",
       "name": "Simulation 2",
@@ -14,6 +20,14 @@
     }
   ],
   "players": [
+    {
+      "tmpId": 6243003,
+      "name": "joshsouthampton",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Prague",
+      "isEvent": false
+    },
     {
       "tmpId": 6301928,
       "name": "Peruga",
