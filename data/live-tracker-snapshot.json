@@ -1,10 +1,26 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T08:33:12.649Z",
+  "updatedAt": "2026-09-01T08:45:49.210Z",
   "members": 110,
-  "online": 0,
-  "ets2Online": 0,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
-  "activeServers": [],
-  "players": []
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 2",
+      "online": 1,
+      "isEvent": false
+    }
+  ],
+  "players": [
+    {
+      "tmpId": 6301928,
+      "name": "Peruga",
+      "game": "ETS2",
+      "server": "Simulation 2",
+      "city": "Montpellier",
+      "isEvent": false
+    }
+  ]
 }
