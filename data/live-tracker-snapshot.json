@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T10:09:15.806Z",
+  "updatedAt": "2026-09-01T10:26:04.221Z",
   "members": 110,
   "online": 2,
   "ets2Online": 2,
@@ -25,7 +25,7 @@
       "name": "joshsouthampton",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Prague",
+      "city": "Nuremberg",
       "isEvent": false
     },
     {
@@ -33,7 +33,7 @@
       "name": "Peruga",
       "game": "ETS2",
       "server": "Simulation 2",
-      "city": "Nuremberg",
+      "city": "Leipzig",
       "isEvent": false
     }
   ]
