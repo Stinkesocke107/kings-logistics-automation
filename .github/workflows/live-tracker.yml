@@ -4,20 +4,26 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: "*/5 * * * *"
+    # Every 5 minutes, shifted away from :00 / :05 / :10...
+    - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
 
 permissions:
   contents: write
 
 concurrency:
   group: kings-live-systems
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   update-live-systems:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
+      # ==================================================
+      # SETUP
+      # ==================================================
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -27,7 +33,8 @@ jobs:
           node-version: "24"
 
       # ==================================================
-      # 1. LIVE TRACKER + CENTRAL SNAPSHOT
+      # 1. LIVE TRACKER
+      # Creates the shared live-tracker-snapshot.json
       # ==================================================
 
       - name: Update Kings Live Tracker
@@ -38,7 +45,7 @@ jobs:
 
       # ==================================================
       # 2. ADVANCED STATISTICS
-      # Uses live-tracker-snapshot.json
+      # Uses the same Live Tracker Snapshot
       # ==================================================
 
       - name: Update Kings Advanced Statistics
@@ -48,7 +55,7 @@ jobs:
 
       # ==================================================
       # 3. CENTRAL OVERVIEW
-      # Uses the same live-tracker-snapshot.json
+      # Uses the same Live Tracker Snapshot
       # ==================================================
 
       - name: Update Kings Central Overview
@@ -57,12 +64,20 @@ jobs:
         run: node central-overview.js
 
       # ==================================================
-      # SAVE DATA
+      # SAVE UPDATED DATA
       # ==================================================
 
       - name: Save Kings Live System Data
         run: |
-          if git diff --quiet -- data/live-tracker-snapshot.json data/statistics.json data/central-overview.json && [ -z "$(git status --porcelain data/live-tracker-snapshot.json data/statistics.json data/central-overview.json)" ]; then
+          if git diff --quiet -- \
+            data/live-tracker-snapshot.json \
+            data/statistics.json \
+            data/central-overview.json \
+            && [ -z "$(git status --porcelain \
+              data/live-tracker-snapshot.json \
+              data/statistics.json \
+              data/central-overview.json)" ]; then
+
             echo "No Kings Live System data changes to save."
             exit 0
           fi
