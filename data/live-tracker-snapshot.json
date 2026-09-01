@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T09:29:21.242Z",
+  "updatedAt": "2026-09-01T09:41:05.418Z",
   "members": 110,
   "online": 2,
   "ets2Online": 2,
@@ -33,7 +33,7 @@
       "name": "Peruga",
       "game": "ETS2",
       "server": "Simulation 2",
-      "city": "Lyon",
+      "city": "Bern",
       "isEvent": false
     }
   ]
