@@ -1,7 +1,7 @@
 {
   "version": 1,
   "initializedAt": "2026-08-30T19:05:37.694Z",
-  "updatedAt": "2026-09-01T16:36:38.095Z",
+  "updatedAt": "2026-09-01T22:39:15.403Z",
   "members": [
     {
       "tmpId": 161999,
@@ -1812,12 +1812,12 @@
       "tmpId": 6261572,
       "currentVtcMemberId": 526973,
       "currentName": "ekamiii9",
-      "status": "active",
+      "status": "left",
       "firstKnownJoinAt": "2026-06-19T20:34:31.000Z",
       "lastJoinedAt": "2026-06-19T20:34:31.000Z",
-      "lastLeftAt": null,
+      "lastLeftAt": "2026-09-01T22:39:15.402Z",
       "joinCountTracked": 0,
-      "leaveCountTracked": 0,
+      "leaveCountTracked": 1,
       "trackingStartedAt": "2026-08-30T19:05:37.694Z",
       "nameHistory": [
         {
@@ -2002,12 +2002,12 @@
       "tmpId": 6305043,
       "currentVtcMemberId": 532603,
       "currentName": "gamDev",
-      "status": "active",
+      "status": "left",
       "firstKnownJoinAt": "2026-07-21T13:22:00.000Z",
       "lastJoinedAt": "2026-07-21T13:22:00.000Z",
-      "lastLeftAt": null,
+      "lastLeftAt": "2026-09-01T22:39:15.402Z",
       "joinCountTracked": 0,
-      "leaveCountTracked": 0,
+      "leaveCountTracked": 1,
       "trackingStartedAt": "2026-08-30T19:05:37.694Z",
       "nameHistory": [
         {
@@ -2101,6 +2101,20 @@
       "username": "Peruga",
       "occurredAt": "2026-09-01T16:36:38.095Z",
       "detectedAt": "2026-09-01T16:36:38.095Z"
+    },
+    {
+      "type": "leave",
+      "tmpId": 6261572,
+      "username": "ekamiii9",
+      "occurredAt": "2026-09-01T22:39:15.402Z",
+      "detectedAt": "2026-09-01T22:39:15.402Z"
+    },
+    {
+      "type": "leave",
+      "tmpId": 6305043,
+      "username": "gamDev",
+      "occurredAt": "2026-09-01T22:39:15.402Z",
+      "detectedAt": "2026-09-01T22:39:15.402Z"
     }
   ]
 }
