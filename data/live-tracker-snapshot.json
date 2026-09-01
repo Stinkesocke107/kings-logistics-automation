@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T17:45:59.349Z",
+  "updatedAt": "2026-09-01T17:52:19.933Z",
   "members": 109,
   "online": 4,
   "ets2Online": 4,
@@ -25,7 +25,7 @@
       "name": "joshsouthampton",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Southampton",
+      "city": "Plymouth",
       "isEvent": false
     },
     {
@@ -33,7 +33,7 @@
       "name": "maxim_chem",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Nuremberg",
+      "city": "Frankfurt am Main",
       "isEvent": false
     },
     {
@@ -41,7 +41,7 @@
       "name": "Peruga",
       "game": "ETS2",
       "server": "Simulation 2",
-      "city": "Oslo",
+      "city": "Barcelona",
       "isEvent": false
     },
     {
