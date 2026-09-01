@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T16:30:43.855Z",
-  "members": 110,
-  "online": 3,
-  "ets2Online": 3,
+  "updatedAt": "2026-09-01T16:49:45.142Z",
+  "members": 109,
+  "online": 4,
+  "ets2Online": 4,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 2,
+      "online": 3,
       "isEvent": false
     },
     {
@@ -25,7 +25,15 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Klagenfurt am Wörthersee",
+      "city": "Nuremberg",
+      "isEvent": false
+    },
+    {
+      "tmpId": 6243003,
+      "name": "joshsouthampton",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Frankfurt am Main",
       "isEvent": false
     },
     {
@@ -41,7 +49,7 @@
       "name": "Peruga",
       "game": "ETS2",
       "server": "Simulation 2",
-      "city": "Vaasa",
+      "city": "Örnsköldsvik",
       "isEvent": false
     }
   ]
