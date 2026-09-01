@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: "*/5 * * * *"
+    # Every 5 minutes, staggered to reduce scheduling congestion
+    - cron: "1,6,11,16,21,26,31,36,41,46,51,56 * * * *"
 
 permissions:
   contents: write
@@ -14,8 +15,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  check-driver-updates:
+  driver-updates:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -26,14 +28,20 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Check Kings Driver Automation
+      - name: Check Kings Driver Updates
         env:
           DRIVER_UPDATES_WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
         run: node driver-updates.js
 
       - name: Save Driver Data
         run: |
-          if git diff --quiet -- data/driver-members.json data/driver-history.json && [ -z "$(git status --porcelain data/driver-members.json data/driver-history.json)" ]; then
+          if git diff --quiet -- \
+            data/driver-members.json \
+            data/driver-history.json \
+            && [ -z "$(git status --porcelain \
+              data/driver-members.json \
+              data/driver-history.json)" ]; then
+
             echo "No Driver data changes to save."
             exit 0
           fi
