@@ -1,7 +1,7 @@
 {
   "version": 1,
   "initializedAt": "2026-08-30T19:05:37.694Z",
-  "updatedAt": "2026-08-30T19:05:37.695Z",
+  "updatedAt": "2026-09-01T16:36:38.095Z",
   "members": [
     {
       "tmpId": 161999,
@@ -1983,12 +1983,12 @@
       "tmpId": 6301928,
       "currentVtcMemberId": 530965,
       "currentName": "Peruga",
-      "status": "active",
+      "status": "left",
       "firstKnownJoinAt": "2026-07-13T18:44:50.000Z",
       "lastJoinedAt": "2026-07-13T18:44:50.000Z",
-      "lastLeftAt": null,
+      "lastLeftAt": "2026-09-01T16:36:38.095Z",
       "joinCountTracked": 0,
-      "leaveCountTracked": 0,
+      "leaveCountTracked": 1,
       "trackingStartedAt": "2026-08-30T19:05:37.694Z",
       "nameHistory": [
         {
@@ -2094,5 +2094,13 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "type": "leave",
+      "tmpId": 6301928,
+      "username": "Peruga",
+      "occurredAt": "2026-09-01T16:36:38.095Z",
+      "detectedAt": "2026-09-01T16:36:38.095Z"
+    }
+  ]
 }
