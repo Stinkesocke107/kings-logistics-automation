@@ -1,17 +1,11 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T17:10:50.265Z",
+  "updatedAt": "2026-09-01T17:22:10.754Z",
   "members": 109,
-  "online": 4,
-  "ets2Online": 4,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 3,
-      "isEvent": false
-    },
     {
       "game": "ETS2",
       "name": "Simulation 2",
@@ -21,35 +15,11 @@
   ],
   "players": [
     {
-      "tmpId": 5895824,
-      "name": "g_df40",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Duisburg",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6243003,
-      "name": "joshsouthampton",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Brussels",
-      "isEvent": false
-    },
-    {
-      "tmpId": 4799914,
-      "name": "K 1 T S U N 3",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Calais",
-      "isEvent": false
-    },
-    {
       "tmpId": 6301928,
       "name": "Peruga",
       "game": "ETS2",
       "server": "Simulation 2",
-      "city": "Uppsala",
+      "city": "Karlstad",
       "isEvent": false
     }
   ]
