@@ -1,10 +1,26 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T17:00:30.104Z",
-  "members": 107,
-  "online": 0,
-  "ets2Online": 0,
+  "updatedAt": "2026-09-02T17:11:58.388Z",
+  "members": 108,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
-  "activeServers": [],
-  "players": []
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "NOXEN GROUP MONTHLY CONVOY",
+      "online": 1,
+      "isEvent": true
+    }
+  ],
+  "players": [
+    {
+      "tmpId": 1191879,
+      "name": "Bram_Bogg",
+      "game": "ETS2",
+      "server": "NOXEN GROUP MONTHLY CONVOY",
+      "city": "TruckersMP HQ",
+      "isEvent": true
+    }
+  ]
 }
