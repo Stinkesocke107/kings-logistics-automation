@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T18:37:23.642Z",
+  "updatedAt": "2026-09-02T18:47:15.600Z",
   "members": 108,
   "online": 6,
   "ets2Online": 6,
@@ -41,7 +41,7 @@
       "name": "Bram_Bogg",
       "game": "ETS2",
       "server": "NOXEN GROUP MONTHLY CONVOY",
-      "city": "Dresden",
+      "city": "Leipzig",
       "isEvent": true
     },
     {
@@ -57,7 +57,7 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Nuremberg",
+      "city": "Prague",
       "isEvent": false
     },
     {
@@ -65,7 +65,7 @@
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "NOXEN GROUP MONTHLY CONVOY",
-      "city": "Dresden",
+      "city": "Leipzig",
       "isEvent": true
     }
   ]
