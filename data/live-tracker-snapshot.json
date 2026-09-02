@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T17:40:07.383Z",
+  "updatedAt": "2026-09-02T17:46:34.661Z",
   "members": 108,
-  "online": 3,
-  "ets2Online": 3,
+  "online": 5,
+  "ets2Online": 5,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 2,
+      "online": 4,
       "isEvent": false
     },
     {
@@ -21,11 +21,27 @@
   ],
   "players": [
     {
+      "tmpId": 5857623,
+      "name": "~QuEr~",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Prague",
+      "isEvent": false
+    },
+    {
       "tmpId": 6026197,
       "name": "44-8w",
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Nuremberg",
+      "isEvent": false
+    },
+    {
+      "tmpId": 6266493,
+      "name": "Ahmad_SY",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Prague",
       "isEvent": false
     },
     {
@@ -41,7 +57,7 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Geneva",
+      "city": "Bern",
       "isEvent": false
     }
   ]
