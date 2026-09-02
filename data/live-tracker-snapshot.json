@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T17:53:03.513Z",
+  "updatedAt": "2026-09-02T17:58:30.040Z",
   "members": 108,
   "online": 6,
   "ets2Online": 6,
@@ -14,14 +14,8 @@
     },
     {
       "game": "ETS2",
-      "name": "Arcade",
-      "online": 1,
-      "isEvent": false
-    },
-    {
-      "game": "ETS2",
       "name": "NOXEN GROUP MONTHLY CONVOY",
-      "online": 1,
+      "online": 2,
       "isEvent": true
     }
   ],
@@ -63,16 +57,16 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Stuttgart",
+      "city": "Mannheim",
       "isEvent": false
     },
     {
       "tmpId": 5249588,
       "name": "IceCubeAlf",
       "game": "ETS2",
-      "server": "Arcade",
+      "server": "NOXEN GROUP MONTHLY CONVOY",
       "city": "TruckersMP HQ",
-      "isEvent": false
+      "isEvent": true
     }
   ]
 }
