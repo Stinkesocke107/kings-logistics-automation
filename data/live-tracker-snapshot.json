@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T14:35:14.670Z",
+  "updatedAt": "2026-09-02T14:47:12.454Z",
   "members": 107,
   "online": 2,
   "ets2Online": 2,
@@ -19,7 +19,7 @@
       "name": "Ahmad_SY",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Liège",
+      "city": "Lille",
       "isEvent": false
     },
     {
@@ -27,7 +27,7 @@
       "name": "joshsouthampton",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Calais",
+      "city": "Cologne",
       "isEvent": false
     }
   ]
