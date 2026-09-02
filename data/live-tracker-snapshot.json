@@ -1,19 +1,27 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T15:09:15.514Z",
+  "updatedAt": "2026-09-02T15:25:31.469Z",
   "members": 107,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 1,
+      "online": 2,
       "isEvent": false
     }
   ],
   "players": [
+    {
+      "tmpId": 5895824,
+      "name": "g_df40",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Calais",
+      "isEvent": false
+    },
     {
       "tmpId": 6243003,
       "name": "joshsouthampton",
