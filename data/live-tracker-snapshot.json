@@ -1,26 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T15:58:37.163Z",
+  "updatedAt": "2026-09-02T16:09:27.029Z",
   "members": 107,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 0,
+  "ets2Online": 0,
   "atsOnline": 0,
-  "activeServers": [
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
-    }
-  ],
-  "players": [
-    {
-      "tmpId": 5895824,
-      "name": "g_df40",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Geneva",
-      "isEvent": false
-    }
-  ]
+  "activeServers": [],
+  "players": []
 }
