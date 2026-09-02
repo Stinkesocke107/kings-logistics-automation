@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T12:23:16.133Z",
+  "updatedAt": "2026-09-02T12:38:33.019Z",
   "members": 107,
-  "online": 3,
-  "ets2Online": 3,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 3,
+      "online": 1,
       "isEvent": false
     }
   ],
@@ -20,22 +20,6 @@
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Prague",
-      "isEvent": false
-    },
-    {
-      "tmpId": 5895824,
-      "name": "g_df40",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Calais",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6199050,
-      "name": "maxim_chem",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Frankfurt am Main",
       "isEvent": false
     }
   ]
