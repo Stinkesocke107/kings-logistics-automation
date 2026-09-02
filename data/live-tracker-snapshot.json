@@ -1,34 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T19:29:28.921Z",
+  "updatedAt": "2026-09-02T19:36:21.695Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 0,
+  "ets2Online": 0,
   "atsOnline": 0,
-  "activeServers": [
-    {
-      "game": "ETS2",
-      "name": "NOXEN GROUP MONTHLY CONVOY",
-      "online": 2,
-      "isEvent": true
-    }
-  ],
-  "players": [
-    {
-      "tmpId": 1191879,
-      "name": "Bram_Bogg",
-      "game": "ETS2",
-      "server": "NOXEN GROUP MONTHLY CONVOY",
-      "city": "Calais",
-      "isEvent": true
-    },
-    {
-      "tmpId": 5249588,
-      "name": "IceCubeAlf",
-      "game": "ETS2",
-      "server": "NOXEN GROUP MONTHLY CONVOY",
-      "city": "Calais",
-      "isEvent": true
-    }
-  ]
+  "activeServers": [],
+  "players": []
 }
