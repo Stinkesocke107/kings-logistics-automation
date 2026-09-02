@@ -1,17 +1,11 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T19:12:32.012Z",
+  "updatedAt": "2026-09-02T19:22:13.659Z",
   "members": 108,
-  "online": 5,
-  "ets2Online": 5,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 3,
-      "isEvent": false
-    },
     {
       "game": "ETS2",
       "name": "NOXEN GROUP MONTHLY CONVOY",
@@ -21,43 +15,19 @@
   ],
   "players": [
     {
-      "tmpId": 5857623,
-      "name": "~QuEr~",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Frankfurt am Main",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6266493,
-      "name": "Ahmad_SY",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Frankfurt am Main",
-      "isEvent": false
-    },
-    {
       "tmpId": 1191879,
       "name": "Bram_Bogg",
       "game": "ETS2",
       "server": "NOXEN GROUP MONTHLY CONVOY",
-      "city": "Düsseldorf",
+      "city": "Lille",
       "isEvent": true
-    },
-    {
-      "tmpId": 5732715,
-      "name": "fenekk",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Innsbruck",
-      "isEvent": false
     },
     {
       "tmpId": 5249588,
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "NOXEN GROUP MONTHLY CONVOY",
-      "city": "Düsseldorf",
+      "city": "Lille",
       "isEvent": true
     }
   ]
