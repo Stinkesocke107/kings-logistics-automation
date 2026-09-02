@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T21:20:10.165Z",
+  "updatedAt": "2026-09-02T21:29:55.717Z",
   "members": 108,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 1,
+      "online": 2,
       "isEvent": false
     }
   ],
@@ -19,7 +19,15 @@
       "name": "44-8w",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Frankfurt am Main",
+      "city": "Nuremberg",
+      "isEvent": false
+    },
+    {
+      "tmpId": 4799914,
+      "name": "K 1 T S U N 3",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Hamburg",
       "isEvent": false
     }
   ]
