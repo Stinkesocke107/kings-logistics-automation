@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T15:38:50.295Z",
+  "updatedAt": "2026-09-02T15:50:32.994Z",
   "members": 107,
   "online": 2,
   "ets2Online": 2,
@@ -19,7 +19,7 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Paris",
+      "city": "Dijon",
       "isEvent": false
     },
     {
@@ -27,7 +27,7 @@
       "name": "joshsouthampton",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Prague",
+      "city": "Frankfurt am Main",
       "isEvent": false
     }
   ]
