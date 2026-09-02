@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T14:12:16.808Z",
+  "updatedAt": "2026-09-02T14:24:45.795Z",
   "members": 107,
-  "online": 4,
-  "ets2Online": 4,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 4,
+      "online": 2,
       "isEvent": false
     }
   ],
@@ -19,7 +19,7 @@
       "name": "Ahmad_SY",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Frankfurt am Main",
+      "city": "Cologne",
       "isEvent": false
     },
     {
@@ -27,23 +27,7 @@
       "name": "joshsouthampton",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Plymouth",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6199050,
-      "name": "maxim_chem",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Nuremberg",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6295172,
-      "name": "Muj_3747",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Nuremberg",
+      "city": "Southampton",
       "isEvent": false
     }
   ]
