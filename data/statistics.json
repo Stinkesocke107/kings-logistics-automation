@@ -1,7 +1,7 @@
 {
   "version": 2,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-09-02T17:53:03.877Z",
+  "updatedAt": "2026-09-02T18:10:29.203Z",
   "messageId": "1543540873537658891",
   "allTime": {
     "peakOnline": 6,
@@ -118,11 +118,12 @@
       "peakOnline": 6,
       "peakETS2": 6,
       "peakATS": 0,
-      "activitySamples": 18,
-      "ets2PlayerSamples": 12,
+      "activitySamples": 19,
+      "ets2PlayerSamples": 17,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {
-        "ETS2 — Simulation 1": 12
+        "ETS2 — Simulation 1": 15,
+        "ETS2 — NOXEN GROUP MONTHLY CONVOY": 2
       },
       "sampledHours": [
         "2026-09-02T00:00:00.000Z",
@@ -142,7 +143,8 @@
         "2026-09-02T14:00:00.000Z",
         "2026-09-02T15:00:00.000Z",
         "2026-09-02T16:00:00.000Z",
-        "2026-09-02T17:00:00.000Z"
+        "2026-09-02T17:00:00.000Z",
+        "2026-09-02T18:00:00.000Z"
       ]
     }
   ]

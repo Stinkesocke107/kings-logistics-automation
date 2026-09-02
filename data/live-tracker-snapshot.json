@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T17:58:30.040Z",
+  "updatedAt": "2026-09-02T18:10:28.712Z",
   "members": 108,
-  "online": 6,
-  "ets2Online": 6,
+  "online": 5,
+  "ets2Online": 5,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 4,
+      "online": 3,
       "isEvent": false
     },
     {
@@ -23,14 +23,6 @@
     {
       "tmpId": 5857623,
       "name": "~QuEr~",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Prague",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6026197,
-      "name": "44-8w",
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Prague",
@@ -57,7 +49,7 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Mannheim",
+      "city": "Frankfurt am Main",
       "isEvent": false
     },
     {
