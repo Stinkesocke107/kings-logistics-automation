@@ -1,7 +1,7 @@
 {
   "version": 1,
   "initializedAt": "2026-08-30T19:05:37.694Z",
-  "updatedAt": "2026-09-01T22:39:15.403Z",
+  "updatedAt": "2026-09-02T17:19:54.493Z",
   "members": [
     {
       "tmpId": 161999,
@@ -1201,6 +1201,25 @@
       ]
     },
     {
+      "tmpId": 5857623,
+      "currentVtcMemberId": 541560,
+      "currentName": "~QuEr~",
+      "status": "active",
+      "firstKnownJoinAt": "2026-09-02T17:09:13.000Z",
+      "lastJoinedAt": "2026-09-02T17:09:13.000Z",
+      "lastLeftAt": null,
+      "joinCountTracked": 1,
+      "leaveCountTracked": 0,
+      "trackingStartedAt": "2026-09-02T17:19:54.493Z",
+      "nameHistory": [
+        {
+          "name": "~QuEr~",
+          "firstSeenAt": "2026-09-02T17:19:54.493Z",
+          "lastSeenAt": null
+        }
+      ]
+    },
+    {
       "tmpId": 5895824,
       "currentVtcMemberId": 532611,
       "currentName": "g_df40",
@@ -2115,6 +2134,13 @@
       "username": "gamDev",
       "occurredAt": "2026-09-01T22:39:15.402Z",
       "detectedAt": "2026-09-01T22:39:15.402Z"
+    },
+    {
+      "type": "join",
+      "tmpId": 5857623,
+      "username": "~QuEr~",
+      "occurredAt": "2026-09-02T17:09:13.000Z",
+      "detectedAt": "2026-09-02T17:19:54.493Z"
     }
   ]
 }
