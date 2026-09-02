@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T19:22:13.659Z",
+  "updatedAt": "2026-09-02T19:29:28.921Z",
   "members": 108,
   "online": 2,
   "ets2Online": 2,
@@ -19,7 +19,7 @@
       "name": "Bram_Bogg",
       "game": "ETS2",
       "server": "NOXEN GROUP MONTHLY CONVOY",
-      "city": "Lille",
+      "city": "Calais",
       "isEvent": true
     },
     {
@@ -27,7 +27,7 @@
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "NOXEN GROUP MONTHLY CONVOY",
-      "city": "Lille",
+      "city": "Calais",
       "isEvent": true
     }
   ]
