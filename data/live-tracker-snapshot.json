@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-03T20:15:54.875Z",
+  "updatedAt": "2026-09-03T20:26:20.322Z",
   "members": 108,
-  "online": 4,
-  "ets2Online": 4,
+  "online": 3,
+  "ets2Online": 3,
   "atsOnline": 0,
   "activeServers": [
     {
@@ -11,23 +11,9 @@
       "name": "Twisted Transport September",
       "online": 3,
       "isEvent": true
-    },
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
     }
   ],
   "players": [
-    {
-      "tmpId": 6026197,
-      "name": "44-8w",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Prague",
-      "isEvent": false
-    },
     {
       "tmpId": 6343406,
       "name": "FaJoste",
