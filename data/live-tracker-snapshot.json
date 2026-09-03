@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-03T19:43:30.086Z",
+  "updatedAt": "2026-09-03T19:49:34.854Z",
   "members": 108,
   "online": 4,
   "ets2Online": 4,
@@ -33,7 +33,7 @@
       "name": "FaJoste",
       "game": "ETS2",
       "server": "Twisted Transport September",
-      "city": "Sofia",
+      "city": "Kozloduy",
       "isEvent": true
     },
     {
@@ -41,7 +41,7 @@
       "name": "God_FalleN",
       "game": "ETS2",
       "server": "Twisted Transport September",
-      "city": "Sofia",
+      "city": "Kozloduy",
       "isEvent": true
     },
     {
@@ -49,7 +49,7 @@
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "Twisted Transport September",
-      "city": "Sofia",
+      "city": "Kozloduy",
       "isEvent": true
     }
   ]
