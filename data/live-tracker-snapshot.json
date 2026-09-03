@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-03T20:35:55.686Z",
+  "updatedAt": "2026-09-03T20:44:07.898Z",
   "members": 108,
   "online": 1,
   "ets2Online": 1,
@@ -8,19 +8,19 @@
   "activeServers": [
     {
       "game": "ETS2",
-      "name": "Twisted Transport September",
+      "name": "Simulation 1",
       "online": 1,
-      "isEvent": true
+      "isEvent": false
     }
   ],
   "players": [
     {
-      "tmpId": 6343406,
-      "name": "FaJoste",
+      "tmpId": 6220412,
+      "name": "God_FalleN",
       "game": "ETS2",
-      "server": "Twisted Transport September",
-      "city": "Hunedoara",
-      "isEvent": true
+      "server": "Simulation 1",
+      "city": "Porto",
+      "isEvent": false
     }
   ]
 }
