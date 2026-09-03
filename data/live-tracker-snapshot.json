@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-03T19:55:31.927Z",
+  "updatedAt": "2026-09-03T20:02:20.406Z",
   "members": 108,
   "online": 4,
   "ets2Online": 4,
@@ -25,7 +25,7 @@
       "name": "44-8w",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Frankfurt am Main",
+      "city": "Nuremberg",
       "isEvent": false
     },
     {
@@ -41,7 +41,7 @@
       "name": "God_FalleN",
       "game": "ETS2",
       "server": "Twisted Transport September",
-      "city": "Kozloduy",
+      "city": "Craiova",
       "isEvent": true
     },
     {
