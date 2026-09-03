@@ -1,10 +1,26 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-03T09:33:36.333Z",
+  "updatedAt": "2026-09-03T09:44:30.481Z",
   "members": 108,
-  "online": 0,
-  "ets2Online": 0,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
-  "activeServers": [],
-  "players": []
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
+    }
+  ],
+  "players": [
+    {
+      "tmpId": 5895824,
+      "name": "g_df40",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Brussels",
+      "isEvent": false
+    }
+  ]
 }
