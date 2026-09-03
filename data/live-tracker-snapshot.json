@@ -1,26 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-03T05:40:33.959Z",
+  "updatedAt": "2026-09-03T05:56:48.776Z",
   "members": 108,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 0,
+  "ets2Online": 0,
   "atsOnline": 0,
-  "activeServers": [
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
-    }
-  ],
-  "players": [
-    {
-      "tmpId": 5249588,
-      "name": "IceCubeAlf",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Frankfurt am Main",
-      "isEvent": false
-    }
-  ]
+  "activeServers": [],
+  "players": []
 }
