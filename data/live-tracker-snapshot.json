@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-03T18:36:55.893Z",
+  "updatedAt": "2026-09-03T18:48:45.194Z",
   "members": 108,
   "online": 3,
   "ets2Online": 3,
@@ -8,24 +8,20 @@
   "activeServers": [
     {
       "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
-    },
-    {
-      "game": "ETS2",
-      "name": "Simulation 2",
-      "online": 1,
-      "isEvent": false
-    },
-    {
-      "game": "ETS2",
       "name": "Twisted Transport September",
-      "online": 1,
+      "online": 3,
       "isEvent": true
     }
   ],
   "players": [
+    {
+      "tmpId": 6343406,
+      "name": "FaJoste",
+      "game": "ETS2",
+      "server": "Twisted Transport September",
+      "city": "Tekirdağ",
+      "isEvent": true
+    },
     {
       "tmpId": 6220412,
       "name": "God_FalleN",
@@ -35,20 +31,12 @@
       "isEvent": true
     },
     {
-      "tmpId": 4731942,
-      "name": "goldenking3116",
+      "tmpId": 5249588,
+      "name": "IceCubeAlf",
       "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Kokkola",
-      "isEvent": false
-    },
-    {
-      "tmpId": 4863509,
-      "name": "Sahne_101",
-      "game": "ETS2",
-      "server": "Simulation 2",
-      "city": "Debrecen",
-      "isEvent": false
+      "server": "Twisted Transport September",
+      "city": "Edirne",
+      "isEvent": true
     }
   ]
 }
