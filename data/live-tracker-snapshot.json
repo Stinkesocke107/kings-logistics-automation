@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-03T20:26:20.322Z",
+  "updatedAt": "2026-09-03T20:35:55.686Z",
   "members": 108,
-  "online": 3,
-  "ets2Online": 3,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Twisted Transport September",
-      "online": 3,
+      "online": 1,
       "isEvent": true
     }
   ],
@@ -17,22 +17,6 @@
     {
       "tmpId": 6343406,
       "name": "FaJoste",
-      "game": "ETS2",
-      "server": "Twisted Transport September",
-      "city": "Hunedoara",
-      "isEvent": true
-    },
-    {
-      "tmpId": 6220412,
-      "name": "God_FalleN",
-      "game": "ETS2",
-      "server": "Twisted Transport September",
-      "city": "Hunedoara",
-      "isEvent": true
-    },
-    {
-      "tmpId": 5249588,
-      "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "Twisted Transport September",
       "city": "Hunedoara",
