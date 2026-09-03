@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-03T19:29:57.586Z",
+  "updatedAt": "2026-09-03T19:37:09.032Z",
   "members": 108,
   "online": 4,
   "ets2Online": 4,
@@ -33,7 +33,7 @@
       "name": "FaJoste",
       "game": "ETS2",
       "server": "Twisted Transport September",
-      "city": "Plovdiv",
+      "city": "Sofia",
       "isEvent": true
     },
     {
@@ -41,7 +41,7 @@
       "name": "God_FalleN",
       "game": "ETS2",
       "server": "Twisted Transport September",
-      "city": "Plovdiv",
+      "city": "Sofia",
       "isEvent": true
     },
     {
@@ -49,7 +49,7 @@
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "Twisted Transport September",
-      "city": "Plovdiv",
+      "city": "Sofia",
       "isEvent": true
     }
   ]
