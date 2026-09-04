@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T19:38:19.216Z",
+  "updatedAt": "2026-09-04T19:44:23.960Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
@@ -11,12 +11,6 @@
       "name": "Pink Ribbon VTC - September",
       "online": 1,
       "isEvent": true
-    },
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
     }
   ],
   "players": [
@@ -27,14 +21,6 @@
       "server": "Pink Ribbon VTC - September",
       "city": "Edirne",
       "isEvent": true
-    },
-    {
-      "tmpId": 6217428,
-      "name": "jxy00",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Bremen",
-      "isEvent": false
     }
   ]
 }
