@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T19:50:18.759Z",
+  "updatedAt": "2026-09-04T19:56:16.070Z",
   "members": 108,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
@@ -11,6 +11,12 @@
       "name": "Pink Ribbon VTC - September",
       "online": 1,
       "isEvent": true
+    },
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
     }
   ],
   "players": [
@@ -19,8 +25,16 @@
       "name": "FaJoste",
       "game": "ETS2",
       "server": "Pink Ribbon VTC - September",
-      "city": "Edirne",
+      "city": "Burgas",
       "isEvent": true
+    },
+    {
+      "tmpId": 5345460,
+      "name": "H O C H S T A P L E R",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Dortmund",
+      "isEvent": false
     }
   ]
 }
