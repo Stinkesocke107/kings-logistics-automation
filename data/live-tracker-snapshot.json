@@ -1,19 +1,27 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T21:03:57.397Z",
+  "updatedAt": "2026-09-04T21:16:28.653Z",
   "members": 108,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 1,
+      "online": 2,
       "isEvent": false
     }
   ],
   "players": [
+    {
+      "tmpId": 5895824,
+      "name": "g_df40",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Suzzara",
+      "isEvent": false
+    },
     {
       "tmpId": 4799914,
       "name": "K 1 T S U N 3",
