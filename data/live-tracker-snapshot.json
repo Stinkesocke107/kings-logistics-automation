@@ -1,20 +1,14 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T18:46:56.143Z",
+  "updatedAt": "2026-09-04T18:54:39.107Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
-    },
-    {
-      "game": "ETS2",
-      "name": "Simulation 2",
       "online": 1,
       "isEvent": false
     }
@@ -26,14 +20,6 @@
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Hanover",
-      "isEvent": false
-    },
-    {
-      "tmpId": 4863509,
-      "name": "Sahne_101",
-      "game": "ETS2",
-      "server": "Simulation 2",
-      "city": "Brno",
       "isEvent": false
     }
   ]
