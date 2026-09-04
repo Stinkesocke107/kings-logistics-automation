@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T20:03:26.277Z",
+  "updatedAt": "2026-09-04T20:17:06.372Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 3,
+  "ets2Online": 3,
   "atsOnline": 0,
   "activeServers": [
     {
@@ -17,6 +17,12 @@
       "name": "Simulation 1",
       "online": 1,
       "isEvent": false
+    },
+    {
+      "game": "ETS2",
+      "name": "Simulation 2",
+      "online": 1,
+      "isEvent": false
     }
   ],
   "players": [
@@ -25,15 +31,23 @@
       "name": "FaJoste",
       "game": "ETS2",
       "server": "Pink Ribbon VTC - September",
-      "city": "Karlovo",
+      "city": "Pernik",
       "isEvent": true
+    },
+    {
+      "tmpId": 6220412,
+      "name": "God_FalleN",
+      "game": "ETS2",
+      "server": "Simulation 2",
+      "city": "Kavala",
+      "isEvent": false
     },
     {
       "tmpId": 5345460,
       "name": "H O C H S T A P L E R",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Dortmund",
+      "city": "Frankfurt am Main",
       "isEvent": false
     }
   ]
