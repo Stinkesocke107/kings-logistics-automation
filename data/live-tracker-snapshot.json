@@ -1,25 +1,33 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T11:23:14.114Z",
+  "updatedAt": "2026-09-04T11:32:38.349Z",
   "members": 108,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 1,
+      "online": 2,
       "isEvent": false
     }
   ],
   "players": [
     {
+      "tmpId": 5895824,
+      "name": "g_df40",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Taranto",
+      "isEvent": false
+    },
+    {
       "tmpId": 5249588,
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Nuremberg",
+      "city": "Salzburg",
       "isEvent": false
     }
   ]
