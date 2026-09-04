@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T12:26:45.526Z",
+  "updatedAt": "2026-09-04T12:40:43.773Z",
   "members": 108,
   "online": 2,
   "ets2Online": 2,
@@ -19,7 +19,7 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Terni",
+      "city": "Florence",
       "isEvent": false
     },
     {
@@ -27,7 +27,7 @@
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Klagenfurt am Wörthersee",
+      "city": "Graz",
       "isEvent": false
     }
   ]
