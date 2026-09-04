@@ -1,10 +1,26 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T13:34:06.663Z",
+  "updatedAt": "2026-09-04T13:45:09.844Z",
   "members": 108,
-  "online": 0,
-  "ets2Online": 0,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
-  "activeServers": [],
-  "players": []
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
+    }
+  ],
+  "players": [
+    {
+      "tmpId": 1937931,
+      "name": "Anthony S232",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Dover",
+      "isEvent": false
+    }
+  ]
 }
