@@ -1,7 +1,7 @@
 {
   "version": 2,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-09-04T21:03:57.817Z",
+  "updatedAt": "2026-09-04T22:01:56.697Z",
   "messageId": "1543540873537658891",
   "allTime": {
     "peakOnline": 6,
@@ -198,11 +198,11 @@
       "peakOnline": 3,
       "peakETS2": 3,
       "peakATS": 0,
-      "activitySamples": 22,
-      "ets2PlayerSamples": 12,
+      "activitySamples": 23,
+      "ets2PlayerSamples": 13,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {
-        "ETS2 — Simulation 1": 11,
+        "ETS2 — Simulation 1": 12,
         "ETS2 — Pink Ribbon VTC - September": 1
       },
       "sampledHours": [
@@ -227,7 +227,8 @@
         "2026-09-04T18:00:00.000Z",
         "2026-09-04T19:00:00.000Z",
         "2026-09-04T20:00:00.000Z",
-        "2026-09-04T21:00:00.000Z"
+        "2026-09-04T21:00:00.000Z",
+        "2026-09-04T22:00:00.000Z"
       ]
     }
   ]
