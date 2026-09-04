@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T09:14:16.097Z",
+  "updatedAt": "2026-09-04T09:26:44.338Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 2,
+      "online": 1,
       "isEvent": false
     }
   ],
@@ -19,15 +19,7 @@
       "name": "IceCubeAlf",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Birmingham",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6102336,
-      "name": "jordan1709",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Duisburg",
+      "city": "Dover",
       "isEvent": false
     }
   ]
