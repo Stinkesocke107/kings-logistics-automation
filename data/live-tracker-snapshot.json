@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T18:38:43.196Z",
+  "updatedAt": "2026-09-04T18:46:56.143Z",
   "members": 108,
   "online": 2,
   "ets2Online": 2,
@@ -25,7 +25,7 @@
       "name": "jxy00",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Tartu",
+      "city": "Hanover",
       "isEvent": false
     },
     {
@@ -33,7 +33,7 @@
       "name": "Sahne_101",
       "game": "ETS2",
       "server": "Simulation 2",
-      "city": "Bratislava",
+      "city": "Brno",
       "isEvent": false
     }
   ]
