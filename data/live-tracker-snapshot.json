@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T20:50:11.802Z",
+  "updatedAt": "2026-09-04T20:56:17.101Z",
   "members": 108,
-  "online": 3,
-  "ets2Online": 3,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Pink Ribbon VTC - September",
-      "online": 2,
+      "online": 1,
       "isEvent": true
     },
     {
@@ -23,14 +23,6 @@
     {
       "tmpId": 6343406,
       "name": "FaJoste",
-      "game": "ETS2",
-      "server": "Pink Ribbon VTC - September",
-      "city": "Kavala",
-      "isEvent": true
-    },
-    {
-      "tmpId": 6220412,
-      "name": "God_FalleN",
       "game": "ETS2",
       "server": "Pink Ribbon VTC - September",
       "city": "Kavala",
