@@ -1,11 +1,17 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T18:28:09.170Z",
+  "updatedAt": "2026-09-04T18:38:43.196Z",
   "members": 108,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
+    },
     {
       "game": "ETS2",
       "name": "Simulation 2",
@@ -15,11 +21,19 @@
   ],
   "players": [
     {
+      "tmpId": 6217428,
+      "name": "jxy00",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Tartu",
+      "isEvent": false
+    },
+    {
       "tmpId": 4863509,
       "name": "Sahne_101",
       "game": "ETS2",
       "server": "Simulation 2",
-      "city": "Budapest",
+      "city": "Bratislava",
       "isEvent": false
     }
   ]
