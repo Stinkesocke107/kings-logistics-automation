@@ -1,26 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T01:49:46.061Z",
+  "updatedAt": "2026-09-04T01:55:56.746Z",
   "members": 108,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 0,
+  "ets2Online": 0,
   "atsOnline": 0,
-  "activeServers": [
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
-    }
-  ],
-  "players": [
-    {
-      "tmpId": 6327501,
-      "name": "Yiga",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Brussels",
-      "isEvent": false
-    }
-  ]
+  "activeServers": [],
+  "players": []
 }
