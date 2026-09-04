@@ -1,26 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T16:06:39.996Z",
+  "updatedAt": "2026-09-04T16:21:11.509Z",
   "members": 108,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 0,
+  "ets2Online": 0,
   "atsOnline": 0,
-  "activeServers": [
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
-    }
-  ],
-  "players": [
-    {
-      "tmpId": 6266493,
-      "name": "Ahmad_SY",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Nuremberg",
-      "isEvent": false
-    }
-  ]
+  "activeServers": [],
+  "players": []
 }
