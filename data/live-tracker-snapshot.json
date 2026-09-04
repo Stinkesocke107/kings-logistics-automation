@@ -1,10 +1,26 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T17:35:34.536Z",
+  "updatedAt": "2026-09-04T17:42:25.489Z",
   "members": 108,
-  "online": 0,
-  "ets2Online": 0,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
-  "activeServers": [],
-  "players": []
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
+    }
+  ],
+  "players": [
+    {
+      "tmpId": 1191879,
+      "name": "Bram_Bogg",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Calais",
+      "isEvent": false
+    }
+  ]
 }
