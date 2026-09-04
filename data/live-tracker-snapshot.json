@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T20:37:06.910Z",
+  "updatedAt": "2026-09-04T20:44:18.506Z",
   "members": 108,
   "online": 3,
   "ets2Online": 3,
@@ -37,11 +37,11 @@
       "isEvent": true
     },
     {
-      "tmpId": 5345460,
-      "name": "H O C H S T A P L E R",
+      "tmpId": 4799914,
+      "name": "K 1 T S U N 3",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Frankfurt am Main",
+      "city": "Hamburg",
       "isEvent": false
     }
   ]
