@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T20:10:21.848Z",
+  "updatedAt": "2026-09-05T20:21:24.127Z",
   "members": 108,
-  "online": 6,
-  "ets2Online": 6,
+  "online": 8,
+  "ets2Online": 8,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 6,
+      "online": 8,
       "isEvent": false
     }
   ],
@@ -19,7 +19,7 @@
       "name": "Ahmad_SY",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Prague",
+      "city": "Nuremberg",
       "isEvent": false
     },
     {
@@ -27,7 +27,7 @@
       "name": "FaJoste",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Ioannina",
+      "city": "Vlorë",
       "isEvent": false
     },
     {
@@ -35,15 +35,7 @@
       "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Lacq",
-      "isEvent": false
-    },
-    {
-      "tmpId": 5895824,
-      "name": "g_df40",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Odense",
+      "city": "Toulouse",
       "isEvent": false
     },
     {
@@ -51,7 +43,31 @@
       "name": "God_FalleN",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Ioannina",
+      "city": "Vlorë",
+      "isEvent": false
+    },
+    {
+      "tmpId": 5345460,
+      "name": "H O C H S T A P L E R",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Prague",
+      "isEvent": false
+    },
+    {
+      "tmpId": 6243003,
+      "name": "joshsouthampton",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Frankfurt am Main",
+      "isEvent": false
+    },
+    {
+      "tmpId": 4863509,
+      "name": "Sahne_101",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Prague",
       "isEvent": false
     },
     {
