@@ -1,33 +1,25 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T22:57:22.470Z",
+  "updatedAt": "2026-09-05T23:05:07.092Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 2,
+      "online": 1,
       "isEvent": false
     }
   ],
   "players": [
     {
-      "tmpId": 4731942,
-      "name": "goldenking3116",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Kokkola",
-      "isEvent": false
-    },
-    {
       "tmpId": 6269537,
       "name": "The_PerpetuallyMarkedone",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Nuremberg",
+      "city": "Frankfurt am Main",
       "isEvent": false
     }
   ]
