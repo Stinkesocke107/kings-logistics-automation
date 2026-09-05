@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T22:16:43.412Z",
+  "updatedAt": "2026-09-05T22:25:16.763Z",
   "members": 108,
-  "online": 3,
-  "ets2Online": 3,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 3,
+      "online": 2,
       "isEvent": false
     }
   ],
@@ -19,15 +19,7 @@
       "name": "goldenking3116",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Kunda",
-      "isEvent": false
-    },
-    {
-      "tmpId": 4799914,
-      "name": "K 1 T S U N 3",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Frankfurt am Main",
+      "city": "Maribor",
       "isEvent": false
     },
     {
