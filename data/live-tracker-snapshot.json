@@ -1,15 +1,21 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T18:56:17.200Z",
+  "updatedAt": "2026-09-05T19:02:26.685Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 3,
+  "ets2Online": 3,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
       "online": 2,
+      "isEvent": false
+    },
+    {
+      "game": "ETS2",
+      "name": "Simulation 2",
+      "online": 1,
       "isEvent": false
     }
   ],
@@ -26,8 +32,16 @@
       "tmpId": 6220412,
       "name": "God_FalleN",
       "game": "ETS2",
-      "server": "Simulation 1",
+      "server": "Simulation 2",
       "city": "Athens",
+      "isEvent": false
+    },
+    {
+      "tmpId": 6269537,
+      "name": "The_PerpetuallyMarkedone",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Prague",
       "isEvent": false
     }
   ]
