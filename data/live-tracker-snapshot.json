@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T10:44:36.172Z",
+  "updatedAt": "2026-09-05T10:50:24.259Z",
   "members": 108,
   "online": 2,
   "ets2Online": 2,
@@ -19,7 +19,7 @@
       "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Klagenfurt am Wörthersee",
+      "city": "Venice",
       "isEvent": false
     },
     {
@@ -27,7 +27,7 @@
       "name": "H O C H S T A P L E R",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Nuremberg",
+      "city": "Frankfurt am Main",
       "isEvent": false
     }
   ]
