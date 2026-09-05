@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T21:16:19.254Z",
+  "updatedAt": "2026-09-05T21:25:12.869Z",
   "members": 108,
   "online": 3,
   "ets2Online": 3,
@@ -9,7 +9,13 @@
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 3,
+      "online": 2,
+      "isEvent": false
+    },
+    {
+      "game": "ETS2",
+      "name": "Simulation 2",
+      "online": 1,
       "isEvent": false
     }
   ],
@@ -19,14 +25,14 @@
       "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Trieste",
+      "city": "Maribor",
       "isEvent": false
     },
     {
       "tmpId": 6220412,
       "name": "God_FalleN",
       "game": "ETS2",
-      "server": "Simulation 1",
+      "server": "Simulation 2",
       "city": "Bijelo Polje",
       "isEvent": false
     },
