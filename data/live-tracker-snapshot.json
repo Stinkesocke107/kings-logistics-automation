@@ -1,41 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T21:31:25.598Z",
+  "updatedAt": "2026-09-05T21:38:29.050Z",
   "members": 108,
-  "online": 3,
-  "ets2Online": 3,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 2,
-      "isEvent": false
-    },
-    {
-      "game": "ETS2",
-      "name": "Simulation 2",
       "online": 1,
       "isEvent": false
     }
   ],
   "players": [
-    {
-      "tmpId": 3471932,
-      "name": "fire_tiger",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Zagreb",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6220412,
-      "name": "God_FalleN",
-      "game": "ETS2",
-      "server": "Simulation 2",
-      "city": "Bijelo Polje",
-      "isEvent": false
-    },
     {
       "tmpId": 4799914,
       "name": "K 1 T S U N 3",
