@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T20:56:50.845Z",
+  "updatedAt": "2026-09-05T21:04:39.035Z",
   "members": 108,
   "online": 5,
   "ets2Online": 5,
@@ -19,7 +19,7 @@
       "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Milan",
+      "city": "Verona",
       "isEvent": false
     },
     {
@@ -35,7 +35,7 @@
       "name": "H O C H S T A P L E R",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Bremen",
+      "city": "Groningen",
       "isEvent": false
     },
     {
@@ -51,7 +51,7 @@
       "name": "Sahne_101",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Bremen",
+      "city": "Groningen",
       "isEvent": false
     }
   ]
