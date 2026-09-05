@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T11:03:10.643Z",
+  "updatedAt": "2026-09-05T11:14:58.905Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 2,
+      "online": 1,
       "isEvent": false
     }
   ],
@@ -19,15 +19,7 @@
       "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Suzzara",
-      "isEvent": false
-    },
-    {
-      "tmpId": 5345460,
-      "name": "H O C H S T A P L E R",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Frankfurt am Main",
+      "city": "Genoa",
       "isEvent": false
     }
   ]
