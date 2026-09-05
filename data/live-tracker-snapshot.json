@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T10:30:46.496Z",
+  "updatedAt": "2026-09-05T10:38:32.096Z",
   "members": 108,
   "online": 2,
   "ets2Online": 2,
@@ -15,19 +15,19 @@
   ],
   "players": [
     {
+      "tmpId": 3471932,
+      "name": "fire_tiger",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Ljubljana",
+      "isEvent": false
+    },
+    {
       "tmpId": 5345460,
       "name": "H O C H S T A P L E R",
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Nuremberg",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6102336,
-      "name": "jordan1709",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Innsbruck",
       "isEvent": false
     }
   ]
