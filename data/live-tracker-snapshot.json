@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T21:25:12.869Z",
+  "updatedAt": "2026-09-05T21:31:25.598Z",
   "members": 108,
   "online": 3,
   "ets2Online": 3,
@@ -25,7 +25,7 @@
       "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Maribor",
+      "city": "Zagreb",
       "isEvent": false
     },
     {
