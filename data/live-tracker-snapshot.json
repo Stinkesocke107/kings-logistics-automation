@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T20:30:24.473Z",
+  "updatedAt": "2026-09-05T20:38:45.958Z",
   "members": 108,
   "online": 7,
   "ets2Online": 7,
@@ -15,19 +15,11 @@
   ],
   "players": [
     {
-      "tmpId": 6266493,
-      "name": "Ahmad_SY",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Nuremberg",
-      "isEvent": false
-    },
-    {
       "tmpId": 3471932,
       "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Montpellier",
+      "city": "Marseille",
       "isEvent": false
     },
     {
@@ -43,7 +35,7 @@
       "name": "H O C H S T A P L E R",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Dresden",
+      "city": "Berlin",
       "isEvent": false
     },
     {
@@ -52,6 +44,14 @@
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Nuremberg",
+      "isEvent": false
+    },
+    {
+      "tmpId": 4799914,
+      "name": "K 1 T S U N 3",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Frankfurt am Main",
       "isEvent": false
     },
     {
@@ -67,7 +67,7 @@
       "name": "The_PerpetuallyMarkedone",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Munich",
+      "city": "Salzburg",
       "isEvent": false
     }
   ]
