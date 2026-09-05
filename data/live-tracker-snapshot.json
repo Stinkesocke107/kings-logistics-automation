@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T22:39:04.321Z",
+  "updatedAt": "2026-09-05T22:45:15.250Z",
   "members": 108,
   "online": 2,
   "ets2Online": 2,
@@ -19,7 +19,7 @@
       "name": "goldenking3116",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Osnabrück",
+      "city": "Hanover",
       "isEvent": false
     },
     {
@@ -27,7 +27,7 @@
       "name": "The_PerpetuallyMarkedone",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Prague",
+      "city": "Nuremberg",
       "isEvent": false
     }
   ]
