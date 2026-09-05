@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T09:55:11.758Z",
+  "updatedAt": "2026-09-05T10:01:45.005Z",
   "members": 108,
   "online": 2,
   "ets2Online": 2,
@@ -19,7 +19,7 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Hamburg",
+      "city": "Osnabrück",
       "isEvent": false
     },
     {
@@ -27,7 +27,7 @@
       "name": "H O C H S T A P L E R",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Erfurt",
+      "city": "Nuremberg",
       "isEvent": false
     }
   ]
