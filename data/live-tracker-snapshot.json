@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T20:21:24.127Z",
+  "updatedAt": "2026-09-05T20:30:24.473Z",
   "members": 108,
-  "online": 8,
-  "ets2Online": 8,
+  "online": 7,
+  "ets2Online": 7,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 8,
+      "online": 7,
       "isEvent": false
     }
   ],
@@ -23,19 +23,11 @@
       "isEvent": false
     },
     {
-      "tmpId": 6343406,
-      "name": "FaJoste",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Vlorë",
-      "isEvent": false
-    },
-    {
       "tmpId": 3471932,
       "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Toulouse",
+      "city": "Montpellier",
       "isEvent": false
     },
     {
@@ -51,7 +43,7 @@
       "name": "H O C H S T A P L E R",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Prague",
+      "city": "Dresden",
       "isEvent": false
     },
     {
@@ -59,7 +51,7 @@
       "name": "joshsouthampton",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Frankfurt am Main",
+      "city": "Nuremberg",
       "isEvent": false
     },
     {
@@ -67,7 +59,7 @@
       "name": "Sahne_101",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Prague",
+      "city": "Dresden",
       "isEvent": false
     },
     {
@@ -75,7 +67,7 @@
       "name": "The_PerpetuallyMarkedone",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Innsbruck",
+      "city": "Munich",
       "isEvent": false
     }
   ]
