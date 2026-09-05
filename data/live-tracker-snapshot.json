@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-05T15:40:14.155Z",
+  "updatedAt": "2026-09-05T15:46:24.215Z",
   "members": 108,
-  "online": 1,
-  "ets2Online": 1,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 1,
+      "online": 2,
       "isEvent": false
     }
   ],
@@ -20,6 +20,14 @@
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Porto",
+      "isEvent": false
+    },
+    {
+      "tmpId": 5318474,
+      "name": "Paul Brandt",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Kassel",
       "isEvent": false
     }
   ]
