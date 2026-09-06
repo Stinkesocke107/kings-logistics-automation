@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-06T10:00:17.135Z",
+  "updatedAt": "2026-09-06T10:11:56.338Z",
   "members": 108,
   "online": 1,
   "ets2Online": 1,
@@ -15,11 +15,11 @@
   ],
   "players": [
     {
-      "tmpId": 4799914,
-      "name": "K 1 T S U N 3",
+      "tmpId": 3471932,
+      "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Frankfurt am Main",
+      "city": "Budapest",
       "isEvent": false
     }
   ]
