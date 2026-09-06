@@ -1,7 +1,7 @@
 {
   "version": 2,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-09-06T09:00:28.077Z",
+  "updatedAt": "2026-09-06T09:48:07.405Z",
   "messageId": "1543540873537658891",
   "allTime": {
     "peakOnline": 8,
@@ -277,8 +277,8 @@
       "date": "2026-09-06",
       "startMembers": 108,
       "members": 108,
-      "peakOnline": 0,
-      "peakETS2": 0,
+      "peakOnline": 1,
+      "peakETS2": 1,
       "peakATS": 0,
       "activitySamples": 10,
       "ets2PlayerSamples": 0,
