@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-06T10:40:45.721Z",
+  "updatedAt": "2026-09-06T10:47:14.730Z",
   "members": 108,
   "online": 3,
   "ets2Online": 3,
@@ -27,7 +27,7 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Kassel",
+      "city": "Frankfurt am Main",
       "isEvent": false
     },
     {
@@ -35,7 +35,7 @@
       "name": "The_PerpetuallyMarkedone",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Innsbruck",
+      "city": "Prague",
       "isEvent": false
     }
   ]
