@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-06T15:56:14.932Z",
+  "updatedAt": "2026-09-06T16:04:01.292Z",
   "members": 108,
-  "online": 3,
-  "ets2Online": 3,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 3,
+      "online": 2,
       "isEvent": false
     }
   ],
@@ -19,7 +19,7 @@
       "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Craiova",
+      "city": "Kozloduy",
       "isEvent": false
     },
     {
@@ -28,14 +28,6 @@
       "game": "ETS2",
       "server": "Simulation 1",
       "city": "Frankfurt am Main",
-      "isEvent": false
-    },
-    {
-      "tmpId": 4863509,
-      "name": "Sahne_101",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Nuremberg",
       "isEvent": false
     }
   ]
