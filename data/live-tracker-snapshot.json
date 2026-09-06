@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-06T22:01:43.690Z",
+  "updatedAt": "2026-09-06T22:14:39.422Z",
   "members": 108,
   "online": 1,
   "ets2Online": 1,
@@ -19,7 +19,7 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Hanover",
+      "city": "Hamburg",
       "isEvent": false
     }
   ]
