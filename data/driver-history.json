@@ -1,7 +1,7 @@
 {
   "version": 1,
   "initializedAt": "2026-08-30T19:05:37.694Z",
-  "updatedAt": "2026-09-02T17:19:54.493Z",
+  "updatedAt": "2026-09-06T23:56:55.036Z",
   "members": [
     {
       "tmpId": 161999,
@@ -1355,7 +1355,7 @@
     {
       "tmpId": 6026197,
       "currentVtcMemberId": 525414,
-      "currentName": "44-8w",
+      "currentName": "exreflex",
       "status": "active",
       "firstKnownJoinAt": "2026-06-09T12:03:22.000Z",
       "lastJoinedAt": "2026-06-09T12:03:22.000Z",
@@ -1367,6 +1367,11 @@
         {
           "name": "44-8w",
           "firstSeenAt": "2026-08-30T19:05:37.694Z",
+          "lastSeenAt": "2026-09-06T23:56:55.035Z"
+        },
+        {
+          "name": "exreflex",
+          "firstSeenAt": "2026-09-06T23:56:55.035Z",
           "lastSeenAt": null
         }
       ]
@@ -2141,6 +2146,14 @@
       "username": "~QuEr~",
       "occurredAt": "2026-09-02T17:09:13.000Z",
       "detectedAt": "2026-09-02T17:19:54.493Z"
+    },
+    {
+      "type": "name_change",
+      "tmpId": 6026197,
+      "oldUsername": "44-8w",
+      "newUsername": "exreflex",
+      "occurredAt": "2026-09-06T23:56:55.035Z",
+      "detectedAt": "2026-09-06T23:56:55.035Z"
     }
   ]
 }
