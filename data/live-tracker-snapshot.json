@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-06T15:50:08.227Z",
+  "updatedAt": "2026-09-06T15:56:14.932Z",
   "members": 108,
   "online": 3,
   "ets2Online": 3,
@@ -35,7 +35,7 @@
       "name": "Sahne_101",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Groningen",
+      "city": "Nuremberg",
       "isEvent": false
     }
   ]
