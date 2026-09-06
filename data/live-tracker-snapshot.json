@@ -1,34 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-06T11:28:13.124Z",
+  "updatedAt": "2026-09-06T11:36:30.916Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 0,
+  "ets2Online": 0,
   "atsOnline": 0,
-  "activeServers": [
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 2,
-      "isEvent": false
-    }
-  ],
-  "players": [
-    {
-      "tmpId": 5895824,
-      "name": "g_df40",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Prague",
-      "isEvent": false
-    },
-    {
-      "tmpId": 6269537,
-      "name": "The_PerpetuallyMarkedone",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Frankfurt am Main",
-      "isEvent": false
-    }
-  ]
+  "activeServers": [],
+  "players": []
 }
