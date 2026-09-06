@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-06T10:32:01.006Z",
+  "updatedAt": "2026-09-06T10:40:45.721Z",
   "members": 108,
   "online": 3,
   "ets2Online": 3,
@@ -19,7 +19,7 @@
       "name": "fire_tiger",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Timișoara",
+      "city": "Reșița",
       "isEvent": false
     },
     {
@@ -27,7 +27,7 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Hamburg",
+      "city": "Kassel",
       "isEvent": false
     },
     {
@@ -35,7 +35,7 @@
       "name": "The_PerpetuallyMarkedone",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Prague",
+      "city": "Innsbruck",
       "isEvent": false
     }
   ]
