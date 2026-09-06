@@ -1,34 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-06T16:04:01.292Z",
+  "updatedAt": "2026-09-06T16:18:16.064Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 0,
+  "ets2Online": 0,
   "atsOnline": 0,
-  "activeServers": [
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 2,
-      "isEvent": false
-    }
-  ],
-  "players": [
-    {
-      "tmpId": 3471932,
-      "name": "fire_tiger",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Kozloduy",
-      "isEvent": false
-    },
-    {
-      "tmpId": 5895824,
-      "name": "g_df40",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Frankfurt am Main",
-      "isEvent": false
-    }
-  ]
+  "activeServers": [],
+  "players": []
 }
