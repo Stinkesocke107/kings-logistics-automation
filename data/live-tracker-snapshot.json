@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-06T21:35:16.285Z",
+  "updatedAt": "2026-09-06T21:41:54.344Z",
   "members": 108,
-  "online": 2,
-  "ets2Online": 2,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 2,
+      "online": 1,
       "isEvent": false
     }
   ],
@@ -19,15 +19,7 @@
       "name": "g_df40",
       "game": "ETS2",
       "server": "Simulation 1",
-      "city": "Brussels",
-      "isEvent": false
-    },
-    {
-      "tmpId": 4481857,
-      "name": "RDZ Official",
-      "game": "ETS2",
-      "server": "Simulation 1",
-      "city": "Vienna",
+      "city": "Dortmund",
       "isEvent": false
     }
   ]
