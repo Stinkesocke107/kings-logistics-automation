@@ -1,10 +1,26 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-06T14:20:29.604Z",
+  "updatedAt": "2026-09-06T14:29:37.513Z",
   "members": 108,
-  "online": 0,
-  "ets2Online": 0,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
-  "activeServers": [],
-  "players": []
+  "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
+    }
+  ],
+  "players": [
+    {
+      "tmpId": 4863509,
+      "name": "Sahne_101",
+      "game": "ETS2",
+      "server": "Simulation 1",
+      "city": "Groningen",
+      "isEvent": false
+    }
+  ]
 }
