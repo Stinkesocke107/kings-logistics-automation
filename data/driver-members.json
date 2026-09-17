@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "encrypted": true,
+  "algorithm": "aes-256-gcm",
+  "status": "uninitialized"
+}

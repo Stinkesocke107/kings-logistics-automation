@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "createdAt": "2026-09-07T10:30:07.723Z",
+  "updatedAt": "2026-09-14T10:30:08.960Z",
+  "publishedWeeks": [
+    {
+      "key": "2026-08-31",
+      "periodStart": "2026-08-31T00:00:00.000Z",
+      "periodEnd": "2026-09-07T00:00:00.000Z",
+      "publishedAt": "2026-09-07T10:30:08.114Z",
+      "currentDrivers": 108,
+      "joined": 1,
+      "left": 3,
+      "netGrowth": -2,
+      "probationReviews": 0,
+      "nameChanges": 1
+    },
+    {
+      "key": "2026-09-07",
+      "periodStart": "2026-09-07T00:00:00.000Z",
+      "periodEnd": "2026-09-14T00:00:00.000Z",
+      "publishedAt": "2026-09-14T10:30:08.960Z",
+      "currentDrivers": 108,
+      "joined": 0,
+      "left": 0,
+      "netGrowth": 0,
+      "probationReviews": 1,
+      "nameChanges": 1
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+name: Kings Driver Updates
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # Every 5 minutes, staggered to reduce scheduling congestion
+    - cron: "1,6,11,16,21,26,31,36,41,46,51,56 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-driver-updates
+  cancel-in-progress: false
+
+jobs:
+  driver-updates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Check Kings Driver Updates
+        env:
+          DRIVER_UPDATES_WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+        run: node driver-updates.js
+
+      - name: Save Driver Data
+        run: |
+          if git diff --quiet -- \
+            data/driver-members.json \
+            data/driver-history.json \
+            && [ -z "$(git status --porcelain \
+              data/driver-members.json \
+              data/driver-history.json)" ]; then
+
+            echo "No Driver data changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/driver-members.json
+          git add data/driver-history.json
+
+          git commit -m "Update Kings Driver data"
+
+          git pull --rebase origin main
+          git push origin main

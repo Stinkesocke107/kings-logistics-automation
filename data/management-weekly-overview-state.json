@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "createdAt": "2026-09-07T10:42:51.005Z",
+  "updatedAt": "2026-09-14T10:44:15.910Z",
+  "publishedWeeks": [
+    {
+      "key": "2026-08-31",
+      "periodStart": "2026-08-31T00:00:00.000Z",
+      "periodEnd": "2026-09-07T00:00:00.000Z",
+      "publishedAt": "2026-09-07T10:42:51.326Z",
+      "members": 108,
+      "joined": 1,
+      "left": 3,
+      "netGrowth": -2,
+      "nameChanges": 1,
+      "probationReviews": 0,
+      "weeklyPeak": 8,
+      "peakETS2": 8,
+      "peakATS": 0,
+      "allTimePeak": 8
+    },
+    {
+      "key": "2026-09-07",
+      "periodStart": "2026-09-07T00:00:00.000Z",
+      "periodEnd": "2026-09-14T00:00:00.000Z",
+      "publishedAt": "2026-09-14T10:44:15.910Z",
+      "members": 108,
+      "joined": 0,
+      "left": 0,
+      "netGrowth": 0,
+      "nameChanges": 1,
+      "probationReviews": 1,
+      "weeklyPeak": 5,
+      "peakETS2": 4,
+      "peakATS": 1,
+      "allTimePeak": 8
+    }
+  ]
+}

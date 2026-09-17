@@ -1,0 +1,56 @@
+name: Add Changelog Entry
+
+on:
+  workflow_dispatch:
+    inputs:
+      category:
+        description: "Changelog category"
+        required: true
+        type: string
+
+      change:
+        description: "What was changed?"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-changelog-queue
+  cancel-in-progress: false
+
+jobs:
+  add-changelog-entry:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Add Changelog Entry
+        env:
+          CHANGELOG_CATEGORY: ${{ inputs.category }}
+          CHANGELOG_TEXT: ${{ inputs.change }}
+        run: node add-changelog-entry.js
+
+      - name: Save Changelog Queue
+        run: |
+          if git diff --quiet -- data/changelog-queue.json && [ -z "$(git status --porcelain data/changelog-queue.json)" ]; then
+            echo "No Changelog Queue changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/changelog-queue.json
+          git commit -m "Add Kings Changelog entry"
+
+          git pull --rebase origin main
+          git push origin main

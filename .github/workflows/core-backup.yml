@@ -1,0 +1,374 @@
+name: Kings Automation Core - Backup
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_type:
+        description: "Backup type"
+        required: true
+        default: "normal"
+        type: choice
+        options:
+          - normal
+          - restore-point
+
+      restore_point_name:
+        description: "Restore Point name (only for restore-point)"
+        required: false
+        default: ""
+        type: string
+
+  schedule:
+    # Daily normal backup at 03:37 UTC
+    - cron: "37 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-core-backup
+  cancel-in-progress: false
+
+jobs:
+  create-backup:
+    name: Create Kings Backup
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # ==================================================
+      # SETUP
+      # ==================================================
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      # ==================================================
+      # DETERMINE BACKUP MODE
+      # Scheduled runs are always normal backups.
+      # ==================================================
+
+      - name: Prepare Backup Mode
+        id: backup_mode
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TYPE: ${{ inputs.backup_type }}
+          INPUT_NAME: ${{ inputs.restore_point_name }}
+        run: |
+          TYPE="normal"
+          NAME=""
+          RETENTION="30"
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$INPUT_TYPE" = "restore-point" ]; then
+            TYPE="restore-point"
+            RETENTION="90"
+
+            if [ -n "$INPUT_NAME" ]; then
+              NAME="$INPUT_NAME"
+            else
+              NAME="manual-restore-point"
+            fi
+          fi
+
+          SAFE_NAME=$(printf '%s' "$NAME" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed 's/[^a-z0-9._-]/-/g' \
+            | sed 's/--*/-/g' \
+            | sed 's/^-//' \
+            | sed 's/-$//')
+
+          if [ "$TYPE" = "restore-point" ] && [ -z "$SAFE_NAME" ]; then
+            SAFE_NAME="manual-restore-point"
+          fi
+
+          if [ "$TYPE" = "restore-point" ]; then
+            ARTIFACT_NAME="kings-restore-point-${SAFE_NAME}-${GITHUB_RUN_NUMBER}"
+          else
+            ARTIFACT_NAME="kings-automation-backup-${GITHUB_RUN_NUMBER}"
+          fi
+
+          echo "type=$TYPE" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "safe_name=$SAFE_NAME" >> "$GITHUB_OUTPUT"
+          echo "retention=$RETENTION" >> "$GITHUB_OUTPUT"
+          echo "artifact_name=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
+
+          echo "Backup Type: $TYPE"
+          echo "Retention: $RETENTION days"
+
+          if [ "$TYPE" = "restore-point" ]; then
+            echo "Restore Point Name: $NAME"
+          fi
+
+      # ==================================================
+      # CREATE BACKUP + HEALTH CHECK
+      # ==================================================
+
+      - name: Prepare Kings Automation Backup
+        run: node core-backup.js
+
+      # ==================================================
+      # VERIFY BACKUP PACKAGE
+      # ==================================================
+
+      - name: Verify Backup Package
+        shell: bash
+        run: |
+          if [ ! -d "backup-staging" ]; then
+            echo "ERROR: backup-staging directory does not exist."
+            exit 1
+          fi
+
+          if [ ! -f "backup-staging/backup-manifest.json" ]; then
+            echo "ERROR: backup-manifest.json does not exist."
+            exit 1
+          fi
+
+          if [ ! -f "backup-staging/backup-health.json" ]; then
+            echo "ERROR: backup-health.json does not exist."
+            exit 1
+          fi
+
+          if [ ! -d "backup-staging/.github/workflows" ]; then
+            echo "ERROR: .github/workflows is missing from backup staging."
+            exit 1
+          fi
+
+          FILE_COUNT=$(find backup-staging -type f | wc -l)
+
+          echo "Backup files found: $FILE_COUNT"
+
+          if [ "$FILE_COUNT" -lt 3 ]; then
+            echo "ERROR: Backup package appears to be empty."
+            exit 1
+          fi
+
+          echo "Backup package structure verified successfully."
+
+      # ==================================================
+      # READ HEALTH RESULT
+      # ==================================================
+
+      - name: Read Backup Health
+        id: backup_health
+        shell: bash
+        run: |
+          STATUS=$(node -e "
+            const fs = require('fs');
+
+            const health = JSON.parse(
+              fs.readFileSync(
+                'backup-staging/backup-health.json',
+                'utf8'
+              )
+            );
+
+            process.stdout.write(
+              String(health.status || 'UNKNOWN')
+            );
+          ")
+
+          HEALTHY=$(node -e "
+            const fs = require('fs');
+
+            const health = JSON.parse(
+              fs.readFileSync(
+                'backup-staging/backup-health.json',
+                'utf8'
+              )
+            );
+
+            process.stdout.write(
+              health.healthy === true
+                ? 'true'
+                : 'false'
+            );
+          ")
+
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "healthy=$HEALTHY" >> "$GITHUB_OUTPUT"
+
+          echo "Backup Health Status: $STATUS"
+          echo "Backup Healthy: $HEALTHY"
+
+      # ==================================================
+      # BACKUP INFORMATION
+      # ==================================================
+
+      - name: Create Backup Information
+        shell: bash
+        env:
+          BACKUP_TYPE: ${{ steps.backup_mode.outputs.type }}
+          BACKUP_NAME: ${{ steps.backup_mode.outputs.name }}
+          RETENTION: ${{ steps.backup_mode.outputs.retention }}
+          HEALTH_STATUS: ${{ steps.backup_health.outputs.status }}
+        run: |
+          {
+            echo "Kings Logistics Automation Backup"
+            echo ""
+            echo "Backup Type: $BACKUP_TYPE"
+
+            if [ "$BACKUP_TYPE" = "restore-point" ]; then
+              echo "Restore Point Name: $BACKUP_NAME"
+            fi
+
+            echo ""
+            echo "Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            echo "Repository: $GITHUB_REPOSITORY"
+            echo "Branch: $GITHUB_REF_NAME"
+            echo "Commit: $GITHUB_SHA"
+            echo "Run ID: $GITHUB_RUN_ID"
+            echo "Run Number: $GITHUB_RUN_NUMBER"
+            echo "Retention: $RETENTION days"
+            echo "Health: $HEALTH_STATUS"
+          } > backup-staging/BACKUP-INFO.txt
+
+      # ==================================================
+      # RESTORE POINT METADATA
+      # ==================================================
+
+      - name: Create Restore Point Metadata
+        if: steps.backup_mode.outputs.type == 'restore-point'
+        shell: bash
+        env:
+          RESTORE_NAME: ${{ steps.backup_mode.outputs.name }}
+        run: |
+          node - <<'NODE'
+          const fs = require("fs");
+
+          const data = {
+            version: 1,
+            type: "restore-point",
+            name: process.env.RESTORE_NAME || "manual-restore-point",
+            createdAt: new Date().toISOString(),
+            repository: process.env.GITHUB_REPOSITORY || null,
+            branch: process.env.GITHUB_REF_NAME || null,
+            commit: process.env.GITHUB_SHA || null,
+            workflowRunId: process.env.GITHUB_RUN_ID || null,
+            workflowRunNumber: process.env.GITHUB_RUN_NUMBER || null
+          };
+
+          fs.writeFileSync(
+            "backup-staging/restore-point.json",
+            JSON.stringify(data, null, 2) + "\n",
+            "utf8"
+          );
+          NODE
+
+          echo "Restore Point metadata created."
+
+      # ==================================================
+      # UPLOAD BACKUP / RESTORE POINT
+      # IMPORTANT:
+      # include-hidden-files is required for .github/
+      # ==================================================
+
+      - name: Upload Kings Backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.backup_mode.outputs.artifact_name }}
+          path: backup-staging/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: ${{ steps.backup_mode.outputs.retention }}
+          compression-level: 9
+
+      # ==================================================
+      # JOB SUMMARY
+      # ==================================================
+
+      - name: Backup Summary
+        if: always()
+        shell: bash
+        env:
+          BACKUP_TYPE: ${{ steps.backup_mode.outputs.type }}
+          BACKUP_NAME: ${{ steps.backup_mode.outputs.name }}
+          RETENTION: ${{ steps.backup_mode.outputs.retention }}
+          HEALTHY: ${{ steps.backup_health.outputs.healthy }}
+        run: |
+          echo "## 👑 Kings Automation Backup" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$HEALTHY" = "true" ]; then
+            echo "✅ **Status: HEALTHY**" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ **Status: UNHEALTHY**" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$BACKUP_TYPE" = "restore-point" ]; then
+            echo "🛡️ **Type: RESTORE POINT**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Name:** $BACKUP_NAME" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "💾 **Type: NORMAL BACKUP**" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Retention:** $RETENTION days" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Run:** #$GITHUB_RUN_NUMBER" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Commit:** \`$GITHUB_SHA\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "The complete backup is available as a GitHub Actions artifact." >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -f "backup-staging/backup-health.json" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "### Health Details" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+
+            node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require("fs");
+
+          const health = JSON.parse(
+            fs.readFileSync(
+              "backup-staging/backup-health.json",
+              "utf8"
+            )
+          );
+
+          const critical =
+            health.criticalFiles || {};
+
+          const json =
+            health.json || {};
+
+          const copies =
+            health.copies || {};
+
+          console.log(
+            `- Critical files: **${critical.present ?? 0}/${critical.expected ?? 0}**`
+          );
+
+          console.log(
+            `- Valid JSON files: **${json.valid ?? 0}/${json.checked ?? 0}**`
+          );
+
+          console.log(
+            `- Backup copy errors: **${Array.isArray(copies.errors) ? copies.errors.length : 0}**`
+          );
+          NODE
+          fi
+
+      # ==================================================
+      # FINAL HEALTH ENFORCEMENT
+      # ==================================================
+
+      - name: Enforce Backup Health
+        shell: bash
+        run: |
+          if [ "${{ steps.backup_health.outputs.healthy }}" != "true" ]; then
+            echo "Kings Backup Health Check FAILED."
+            echo "The backup artifact was preserved for investigation."
+            exit 1
+          fi
+
+          echo "Kings Backup Health Check PASSED."

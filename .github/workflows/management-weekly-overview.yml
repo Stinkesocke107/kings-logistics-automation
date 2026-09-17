@@ -1,0 +1,58 @@
+name: Kings Management Weekly Overview
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Choose how the Management Weekly Overview should run"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - publish
+
+  schedule:
+    - cron: "30 10 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-management-weekly-overview
+  cancel-in-progress: false
+
+jobs:
+  create-management-weekly-overview:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Create Kings Management Weekly Overview
+        env:
+          MANAGEMENT_AUTOMATION_WEBHOOK_URL: ${{ secrets.MANAGEMENT_AUTOMATION_WEBHOOK_URL }}
+          MANAGEMENT_WEEKLY_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
+        run: node management-weekly-overview.js
+
+      - name: Save Management Weekly Overview Data
+        run: |
+          if git diff --quiet -- data/management-weekly-overview-state.json && [ -z "$(git status --porcelain data/management-weekly-overview-state.json)" ]; then
+            echo "No Management Weekly Overview state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/management-weekly-overview-state.json
+          git commit -m "Update Kings Management Weekly Overview state"
+
+          git pull --rebase origin main
+          git push origin main

@@ -1,0 +1,434 @@
+name: Kings Automation Core - Recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_run_number:
+        description: "Restore Point backup run number"
+        required: true
+        type: string
+
+      recovery_mode:
+        description: "Recovery mode"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - apply
+
+      confirmation:
+        description: "For APPLY enter exactly: RESTORE_KINGS"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: kings-core-recovery
+  cancel-in-progress: false
+
+jobs:
+  kings-recovery:
+    name: Kings Recovery
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # ==================================================
+      # SETUP
+      # ==================================================
+
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      # ==================================================
+      # VALIDATE USER INPUT
+      # ==================================================
+
+      - name: Validate Recovery Request
+        shell: bash
+        env:
+          BACKUP_RUN_NUMBER: ${{ inputs.backup_run_number }}
+          RECOVERY_MODE: ${{ inputs.recovery_mode }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if ! [[ "$BACKUP_RUN_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: Backup run number must be numeric."
+            exit 1
+          fi
+
+          if [ "$RECOVERY_MODE" != "preview" ] && [ "$RECOVERY_MODE" != "apply" ]; then
+            echo "ERROR: Invalid recovery mode."
+            exit 1
+          fi
+
+          if [ "$RECOVERY_MODE" = "apply" ]; then
+            if [ "$GITHUB_REF_NAME" != "main" ]; then
+              echo "ERROR: APPLY recovery is only allowed on main."
+              exit 1
+            fi
+
+            if [ "$CONFIRMATION" != "RESTORE_KINGS" ]; then
+              echo "ERROR: APPLY mode requires exact confirmation:"
+              echo "RESTORE_KINGS"
+              exit 1
+            fi
+
+            echo "REAL RECOVERY MODE CONFIRMED."
+          else
+            echo "PREVIEW mode selected."
+          fi
+
+      # ==================================================
+      # FIND SELECTED BACKUP RUN
+      # ==================================================
+
+      - name: Find Restore Point Run
+        id: backup_run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BACKUP_RUN_NUMBER: ${{ inputs.backup_run_number }}
+        run: |
+          RUN_ID=$(gh run list \
+            --workflow core-backup.yml \
+            --limit 200 \
+            --json databaseId,number \
+            --jq ".[] | select(.number == ${BACKUP_RUN_NUMBER}) | .databaseId" \
+            | head -n 1)
+
+          if [ -z "$RUN_ID" ]; then
+            echo "ERROR: Backup Run #$BACKUP_RUN_NUMBER was not found."
+            exit 1
+          fi
+
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+          echo "Restore Point Run Number: #$BACKUP_RUN_NUMBER"
+          echo "GitHub Run ID: $RUN_ID"
+
+      # ==================================================
+      # DOWNLOAD RESTORE POINT
+      # ==================================================
+
+      - name: Download Restore Point
+        uses: actions/download-artifact@v4
+        with:
+          pattern: kings-restore-point-*
+          path: restore-source
+          merge-multiple: true
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.backup_run.outputs.run_id }}
+
+      # ==================================================
+      # VERIFY RESTORE POINT STRUCTURE
+      # ==================================================
+
+      - name: Verify Restore Point Structure
+        shell: bash
+        run: |
+          if [ ! -f "restore-source/restore-point.json" ]; then
+            echo "ERROR: restore-point.json is missing."
+            echo "The selected run may not be a Restore Point."
+            exit 1
+          fi
+
+          if [ ! -f "restore-source/backup-manifest.json" ]; then
+            echo "ERROR: backup-manifest.json is missing."
+            exit 1
+          fi
+
+          if [ ! -f "restore-source/backup-health.json" ]; then
+            echo "ERROR: backup-health.json is missing."
+            exit 1
+          fi
+
+          echo "Restore Point structure verified."
+
+      # ==================================================
+      # EMERGENCY BACKUP
+      # ONLY BEFORE REAL RECOVERY
+      # ==================================================
+
+      - name: Create Emergency Pre-Recovery Backup
+        if: inputs.recovery_mode == 'apply'
+        run: node core-backup.js
+
+      - name: Verify Emergency Backup Health
+        if: inputs.recovery_mode == 'apply'
+        id: emergency_health
+        shell: bash
+        run: |
+          if [ ! -f "backup-staging/backup-health.json" ]; then
+            echo "ERROR: Emergency backup health file is missing."
+            exit 1
+          fi
+
+          HEALTHY=$(node -e "
+            const fs = require('fs');
+
+            const health = JSON.parse(
+              fs.readFileSync(
+                'backup-staging/backup-health.json',
+                'utf8'
+              )
+            );
+
+            process.stdout.write(
+              health.healthy === true
+                ? 'true'
+                : 'false'
+            );
+          ")
+
+          echo "healthy=$HEALTHY" >> "$GITHUB_OUTPUT"
+          echo "Emergency Backup Healthy: $HEALTHY"
+
+      # ==================================================
+      # ALWAYS PRESERVE EMERGENCY BACKUP BEFORE RECOVERY
+      # ==================================================
+
+      - name: Upload Emergency Pre-Recovery Backup
+        if: inputs.recovery_mode == 'apply'
+        uses: actions/upload-artifact@v4
+        with:
+          name: kings-emergency-pre-recovery-${{ github.run_number }}
+          path: backup-staging/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 90
+          compression-level: 9
+
+      # ==================================================
+      # DO NOT RECOVER IF EMERGENCY BACKUP IS UNHEALTHY
+      # ==================================================
+
+      - name: Enforce Emergency Backup Health
+        if: inputs.recovery_mode == 'apply'
+        shell: bash
+        run: |
+          if [ "${{ steps.emergency_health.outputs.healthy }}" != "true" ]; then
+            echo "ERROR: Emergency backup is UNHEALTHY."
+            echo "Recovery has been stopped."
+            echo "The emergency backup artifact was preserved."
+            exit 1
+          fi
+
+          echo "Emergency backup is HEALTHY."
+          echo "Recovery may continue."
+
+      # ==================================================
+      # RUN RECOVERY ENGINE
+      # ==================================================
+
+      - name: Run Kings Recovery
+        env:
+          RECOVERY_MODE: ${{ inputs.recovery_mode }}
+          RECOVERY_CONFIRMATION: ${{ inputs.confirmation }}
+        run: node core-recovery.js
+
+      # ==================================================
+      # READ RECOVERY PLAN
+      # ==================================================
+
+      - name: Read Recovery Plan
+        id: recovery_plan
+        shell: bash
+        run: |
+          if [ ! -f "recovery-plan.json" ]; then
+            echo "ERROR: recovery-plan.json was not created."
+            exit 1
+          fi
+
+          TOTAL=$(node -e "
+            const p = require('./recovery-plan.json');
+            process.stdout.write(
+              String(p.summary.totalFiles || 0)
+            );
+          ")
+
+          UNCHANGED=$(node -e "
+            const p = require('./recovery-plan.json');
+            process.stdout.write(
+              String(p.summary.unchanged || 0)
+            );
+          ")
+
+          RESTORE=$(node -e "
+            const p = require('./recovery-plan.json');
+            process.stdout.write(
+              String(p.summary.restoreRequired || 0)
+            );
+          ")
+
+          MISSING=$(node -e "
+            const p = require('./recovery-plan.json');
+            process.stdout.write(
+              String(p.summary.missingCurrent || 0)
+            );
+          ")
+
+          ACTIONS=$(node -e "
+            const p = require('./recovery-plan.json');
+            process.stdout.write(
+              String(p.summary.actionsRequired || 0)
+            );
+          ")
+
+          echo "total=$TOTAL" >> "$GITHUB_OUTPUT"
+          echo "unchanged=$UNCHANGED" >> "$GITHUB_OUTPUT"
+          echo "restore=$RESTORE" >> "$GITHUB_OUTPUT"
+          echo "missing=$MISSING" >> "$GITHUB_OUTPUT"
+          echo "actions=$ACTIONS" >> "$GITHUB_OUTPUT"
+
+      # ==================================================
+      # COMMIT REAL RECOVERY
+      # Only files actually restored are staged.
+      # ==================================================
+
+      - name: Commit Recovered Files
+        if: inputs.recovery_mode == 'apply'
+        shell: bash
+        run: |
+          if [ ! -f "recovery-result.json" ]; then
+            echo "ERROR: recovery-result.json was not created."
+            exit 1
+          fi
+
+          node - <<'NODE' > recovered-files.txt
+          const fs = require("fs");
+
+          const result = JSON.parse(
+            fs.readFileSync(
+              "recovery-result.json",
+              "utf8"
+            )
+          );
+
+          for (const file of result.files || []) {
+            console.log(file.path);
+          }
+          NODE
+
+          if [ ! -s "recovered-files.txt" ]; then
+            echo "No repository files required restoration."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          while IFS= read -r FILE; do
+            if [ -n "$FILE" ]; then
+              git add -- "$FILE"
+            fi
+          done < recovered-files.txt
+
+          if git diff --cached --quiet; then
+            echo "No Git changes require committing."
+            exit 0
+          fi
+
+          echo "Files staged for recovery:"
+          git diff --cached --name-only
+
+          git commit -m "Restore Kings Automation from backup run #${{ inputs.backup_run_number }}"
+
+          git pull --rebase origin main
+          git push origin main
+
+          echo "Recovered files committed successfully."
+
+      # ==================================================
+      # SAVE RECOVERY AUDIT INFORMATION
+      # ==================================================
+
+      - name: Upload Recovery Audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kings-recovery-audit-${{ github.run_number }}
+          path: |
+            recovery-plan.json
+            recovery-result.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      # ==================================================
+      # SUMMARY
+      # ==================================================
+
+      - name: Recovery Summary
+        if: always()
+        shell: bash
+        env:
+          MODE: ${{ inputs.recovery_mode }}
+          BACKUP_RUN_NUMBER: ${{ inputs.backup_run_number }}
+          TOTAL: ${{ steps.recovery_plan.outputs.total }}
+          UNCHANGED: ${{ steps.recovery_plan.outputs.unchanged }}
+          RESTORE: ${{ steps.recovery_plan.outputs.restore }}
+          MISSING: ${{ steps.recovery_plan.outputs.missing }}
+          ACTIONS: ${{ steps.recovery_plan.outputs.actions }}
+        run: |
+          echo "## 🛡️ Kings Automation Recovery" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "**Restore Point:** Backup Run #$BACKUP_RUN_NUMBER" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$MODE" = "apply" ]; then
+            echo "🚨 **Mode: APPLY**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "A 90-day emergency backup was created before recovery." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "🔍 **Mode: PREVIEW**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "No repository files were modified." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Recovery Plan" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Total files: **${TOTAL:-0}**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Unchanged: **${UNCHANGED:-0}**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Restore required: **${RESTORE:-0}**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Missing current files: **${MISSING:-0}**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Total recovery actions: **${ACTIONS:-0}**" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -f "recovery-plan.json" ]; then
+            CHANGED=$(node -e "
+              const p = require('./recovery-plan.json');
+
+              const changed = p.files.filter(
+                f => f.status !== 'UNCHANGED'
+              );
+
+              for (const file of changed.slice(0, 50)) {
+                console.log(
+                  '- \`' +
+                  file.path +
+                  '\` — **' +
+                  file.status +
+                  '**'
+                );
+              }
+            ")
+
+            if [ -n "$CHANGED" ]; then
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              echo "### Recovery Files" >> "$GITHUB_STEP_SUMMARY"
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              echo "$CHANGED" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
