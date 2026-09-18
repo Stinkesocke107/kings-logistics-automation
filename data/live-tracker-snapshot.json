@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-18T20:58:25.408Z",
+  "updatedAt": "2026-09-18T21:09:27.785Z",
   "members": 108,
   "discordMessageId": "1550299096278110219",
   "online": 2,
@@ -9,13 +9,13 @@
   "activeServers": [
     {
       "game": "ETS2",
-      "name": "Simulation 1",
+      "name": "ProMods",
       "online": 1,
       "isEvent": false
     },
     {
       "game": "ETS2",
-      "name": "Simulation 2",
+      "name": "Simulation 1",
       "online": 1,
       "isEvent": false
     }
