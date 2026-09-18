@@ -183,32 +183,28 @@ function saveState(
 // ======================================================
 
 function loadQueue() {
-  const queue =
-    readJson(
-      QUEUE_FILE,
-      {
-        entries: []
-      }
-    );
+  // Accept the current array format and the legacy { entries: [] } format.
+  // Invalid data must stop publication rather than silently hide entries.
+  const raw = fs.existsSync(QUEUE_FILE)
+    ? JSON.parse(fs.readFileSync(QUEUE_FILE, "utf8"))
+    : [];
 
-  if (
-    !Array.isArray(
-      queue.entries
-    )
-  ) {
-    queue.entries = [];
+  if (Array.isArray(raw)) {
+    return { entries: raw };
   }
 
-  return queue;
+  if (raw && Array.isArray(raw.entries)) {
+    return { entries: raw.entries };
+  }
+
+  throw new Error("Changelog Queue has an unsupported format.");
 }
 
 
 function clearQueue() {
   writeJson(
     QUEUE_FILE,
-    {
-      entries: []
-    }
+    []
   );
 }
 

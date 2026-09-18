@@ -243,20 +243,19 @@ function saveState(
 function addMilestoneToChangelog(
   milestone
 ) {
-  const queue =
-    readJson(
-      CHANGELOG_QUEUE_FILE,
-      {
-        entries: []
-      }
-    );
+  // Match the Queue Manager's array format; retain legacy compatibility.
+  const raw = fs.existsSync(CHANGELOG_QUEUE_FILE)
+    ? JSON.parse(fs.readFileSync(CHANGELOG_QUEUE_FILE, "utf8"))
+    : [];
 
-  if (
-    !Array.isArray(
-      queue.entries
-    )
-  ) {
-    queue.entries = [];
+  const queue = Array.isArray(raw)
+    ? raw
+    : raw && Array.isArray(raw.entries)
+      ? raw.entries
+      : null;
+
+  if (!queue) {
+    throw new Error("Changelog Queue has an unsupported format.");
   }
 
   /*
@@ -271,7 +270,7 @@ function addMilestoneToChangelog(
     `milestone-${milestone}`;
 
   const alreadyQueued =
-    queue.entries.some(
+    queue.some(
       entry =>
         entry.source ===
         source
@@ -285,7 +284,7 @@ function addMilestoneToChangelog(
     return;
   }
 
-  queue.entries.push({
+  queue.push({
     category:
       "Kings Milestones",
 
