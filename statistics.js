@@ -560,6 +560,12 @@ function loadStatistics() {
 
       messageId,
 
+      recreateMessage:
+        Boolean(
+          raw &&
+          raw.recreateMessage
+        ),
+
       allTime: {
         peakOnline:
           Math.max(
@@ -1494,6 +1500,45 @@ async function createDiscordMessage(
   );
 }
 
+async function deleteDiscordMessage(
+  messageId
+) {
+  if (!DISCORD_WEBHOOK_URL) {
+    throw new Error(
+      "STATS_DISCORD_WEBHOOK_URL is missing."
+    );
+  }
+
+  const base =
+    DISCORD_WEBHOOK_URL
+      .split("?")[0]
+      .replace(
+        /\/$/,
+        ""
+      );
+
+  const response =
+    await fetch(
+      `${base}/messages/${messageId}`,
+      {
+        method:
+          "DELETE"
+      }
+    );
+
+  if (
+    response.status === 404
+  ) {
+    return;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Statistics Discord delete failed: HTTP ${response.status} - ${await response.text()}`
+    );
+  }
+}
+
 async function updateDiscordMessage(
   messageId,
   embed
@@ -1554,6 +1599,22 @@ async function publishStatistics(
   state,
   embed
 ) {
+  if (
+    state.recreateMessage &&
+    state.messageId
+  ) {
+    console.log(
+      "Refreshing Kings Statistics with a completely new Discord message."
+    );
+
+    await deleteDiscordMessage(
+      state.messageId
+    );
+
+    state.messageId =
+      null;
+  }
+
   if (state.messageId) {
     const updated =
       await updateDiscordMessage(
@@ -1582,6 +1643,9 @@ async function publishStatistics(
     await createDiscordMessage(
       embed
     );
+
+  state.recreateMessage =
+    false;
 
   console.log(
     `New Kings Statistics message created: ${state.messageId}`
