@@ -797,7 +797,10 @@ function loadOverviewState() {
         nowISO(),
 
       messageId:
-        null
+        null,
+
+      recreateMessage:
+        false
     };
   }
 
@@ -814,7 +817,12 @@ function loadOverviewState() {
 
     messageId:
       state.messageId ||
-      null
+      null,
+
+    recreateMessage:
+      Boolean(
+        state.recreateMessage
+      )
   };
 }
 
@@ -1093,6 +1101,45 @@ async function createDiscordMessage(
   );
 }
 
+async function deleteDiscordMessage(
+  messageId
+) {
+  if (!WEBHOOK_URL) {
+    throw new Error(
+      "CENTRAL_OVERVIEW_WEBHOOK_URL is missing."
+    );
+  }
+
+  const base =
+    WEBHOOK_URL
+      .split("?")[0]
+      .replace(
+        /\/$/,
+        ""
+      );
+
+  const response =
+    await fetch(
+      `${base}/messages/${messageId}`,
+      {
+        method:
+          "DELETE"
+      }
+    );
+
+  if (
+    response.status === 404
+  ) {
+    return;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Central Overview Discord delete failed: HTTP ${response.status} - ${await response.text()}`
+    );
+  }
+}
+
 async function updateDiscordMessage(
   messageId,
   embed
@@ -1160,6 +1207,22 @@ async function publishOverview(
   state,
   embed
 ) {
+  if (
+    state.recreateMessage &&
+    state.messageId
+  ) {
+    console.log(
+      "Refreshing Kings Central Overview with a completely new Discord message."
+    );
+
+    await deleteDiscordMessage(
+      state.messageId
+    );
+
+    state.messageId =
+      null;
+  }
+
   if (state.messageId) {
     const updated =
       await updateDiscordMessage(
@@ -1188,6 +1251,9 @@ async function publishOverview(
     await createDiscordMessage(
       embed
     );
+
+  state.recreateMessage =
+    false;
 
   console.log(
     `New Kings Central Overview message created: ${state.messageId}`
