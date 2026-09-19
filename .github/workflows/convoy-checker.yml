@@ -30,6 +30,13 @@ jobs:
           DISCORD_WRITE_MODE: 'true'
         run: node convoy-checker.js
 
+      - name: Convert convoy event times to Discord timestamps
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
+        run: node convoy-time-display.js
+
       - name: Send one-time convoy notifications
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -37,9 +44,13 @@ jobs:
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-notifications.js
 
-      - name: Generate convoy overview statistics
+      - name: Send scheduled convoy reminders
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: node convoy-reminders.js
+
+      - name: Generate convoy overview statistics
+        env:
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-overview.js
