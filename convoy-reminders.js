@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { discordTimestamp, localDateForUnix } = require('./convoy-time-utils');
+const { discordTimestamp } = require('./convoy-time-utils');
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -8,7 +8,7 @@ const REPORT_PATH = 'output/convoy-check-results.json';
 const TEST_MODE = /^(?:1|true|yes|on)$/i.test(process.env.CONVOY_REMINDER_TEST_MODE || '');
 
 const REMINDER_24H_MARKER = '⏰ **Kings Convoy Reminder — 24 Hours**';
-const REMINDER_DAY_MARKER = '📅 **Kings Convoy Reminder — Event Day**';
+const REMINDER_2H_MARKER = '🚨 **Kings Convoy Reminder — 2 Hours**';
 const FOLLOW_UP_MARKER = '✅ **Kings Convoy Follow-up — Status Required**';
 
 if (!TOKEN) {
@@ -28,7 +28,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Reminders/1.3'
+    'User-Agent': 'Kings Logistics Convoy Reminders/1.4'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -95,7 +95,7 @@ function newestHumanCommand(messages, regex) {
 function getTestCommands(messages) {
   return {
     reminder24h: newestHumanCommand(messages, /(?:^|\n)\s*Reminder\s+Test\s*:\s*(?:24h|24\s*hours?)\s*(?:$|\n)/i),
-    eventDay: newestHumanCommand(messages, /(?:^|\n)\s*Reminder\s+Test\s*:\s*Event\s+Day\s*(?:$|\n)/i),
+    reminder2h: newestHumanCommand(messages, /(?:^|\n)\s*Reminder\s+Test\s*:\s*(?:2h|2\s*hours?)\s*(?:$|\n)/i),
     afterConvoy: newestHumanCommand(messages, /(?:^|\n)\s*Reminder\s+Test\s*:\s*(?:After\s+Convoy|Follow\s*Up)\s*(?:$|\n)/i)
   };
 }
@@ -197,7 +197,7 @@ async function sendMessage(item, marker, title, description, messages, botId, op
     `**${title}**`,
     description,
     '',
-    `🕒 **Event Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}`,
+    `🕒 **Meeting Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}`,
     meetup ? `📍 **Meeting Point:** ${meetup}` : null,
     route ? `🛣️ **Route:** ${route}` : null,
     eventId ? `🔗 **TruckersMP Event ID:** ${eventId}` : null
@@ -225,8 +225,8 @@ async function handleTestThread(item, messages, botId) {
     const result = await sendMessage(
       item,
       REMINDER_24H_MARKER,
-      'Convoy starts within 24 hours',
-      'This is a TEST of the 24-hour convoy reminder. Real convoys receive this automatically when the event is within 24 hours.',
+      'Convoy meeting starts within 24 hours',
+      'This is a TEST of the 24-hour convoy reminder. The countdown is based on the convoy Meeting Time.',
       messages,
       botId,
       { testTriggerId: commands.reminder24h.id }
@@ -235,17 +235,17 @@ async function handleTestThread(item, messages, botId) {
     handled = true;
   }
 
-  if (commands.eventDay) {
+  if (commands.reminder2h) {
     const result = await sendMessage(
       item,
-      REMINDER_DAY_MARKER,
-      'Convoy is today',
-      'This is a TEST of the event-day reminder. Real convoys receive this automatically on the event day.',
+      REMINDER_2H_MARKER,
+      'Convoy meeting starts within 2 hours',
+      'This is a TEST of the final pre-convoy reminder. The countdown is based on the convoy Meeting Time.',
       messages,
       botId,
-      { testTriggerId: commands.eventDay.id }
+      { testTriggerId: commands.reminder2h.id }
     );
-    console.log(`- ${item.name} | TEST event-day: ${result.action}`);
+    console.log(`- ${item.name} | TEST 2h: ${result.action}`);
     handled = true;
   }
 
@@ -299,7 +299,7 @@ async function main() {
     if (testThread) {
       if (!TEST_MODE) continue;
       if (!item.eventUnix || !item.eventTimeValid) {
-        console.log(`- ${item.name} | TEST skipped: valid event time required`);
+        console.log(`- ${item.name} | TEST skipped: valid Meeting Time required`);
         continue;
       }
 
@@ -319,9 +319,7 @@ async function main() {
 
     try {
       const messages = await discord(`/channels/${item.threadId}/messages?limit=100`);
-      const secondsUntil = item.eventUnix - nowUnix;
-      const localToday = localDateForUnix(nowUnix, item.eventTimeOffsetMinutes ?? 0);
-      const isEventDay = localToday === item.validation?.parsed?.eventDate;
+      const secondsUntilMeeting = item.eventUnix - nowUnix;
 
       if (nowUnix >= item.eventUnix + 3 * 60 * 60) {
         const result = await sendMessage(
@@ -339,27 +337,27 @@ async function main() {
         continue;
       }
 
-      if (secondsUntil <= 0) continue;
+      if (secondsUntilMeeting <= 0) continue;
 
-      if (isEventDay) {
+      if (secondsUntilMeeting <= 2 * 60 * 60) {
         const result = await sendMessage(
           item,
-          REMINDER_DAY_MARKER,
-          'Convoy is today',
-          'This is the event-day reminder for this scheduled convoy.',
+          REMINDER_2H_MARKER,
+          'Convoy meeting starts within 2 hours',
+          'Final reminder: please be ready for the convoy meeting. This countdown is based on the Meeting Time.',
           messages,
           bot.id
         );
-        console.log(`- ${item.name} | event-day: ${result.action}`);
+        console.log(`- ${item.name} | 2h: ${result.action}`);
         continue;
       }
 
-      if (secondsUntil <= 24 * 60 * 60) {
+      if (secondsUntilMeeting <= 24 * 60 * 60) {
         const result = await sendMessage(
           item,
           REMINDER_24H_MARKER,
-          'Convoy starts within 24 hours',
-          'Please make sure everything is ready for the convoy.',
+          'Convoy meeting starts within 24 hours',
+          'Please make sure everything is ready for the convoy. This countdown is based on the Meeting Time.',
           messages,
           bot.id
         );
