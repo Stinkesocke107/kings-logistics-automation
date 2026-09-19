@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { discordTimestamp } = require('./convoy-time-utils');
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -22,7 +23,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Overview Discord/1.1'
+    'User-Agent': 'Kings Logistics Convoy Overview Discord/1.2'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -55,12 +56,6 @@ function monthLabel(monthKey) {
   }).format(new Date(Date.UTC(year, month - 1, 1)));
 }
 
-function formatDate(isoDate) {
-  if (!isoDate) return 'Awaiting date';
-  const [year, month, day] = isoDate.split('-');
-  return `${day}.${month}.${year}`;
-}
-
 function truncate(value, max = 70) {
   const text = String(value || 'Unnamed Convoy').replace(/\s+/g, ' ').trim();
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
@@ -80,11 +75,18 @@ function makeEmptyMonth() {
   };
 }
 
+function convoyTimeLabel(convoy) {
+  if (convoy.eventUnix && convoy.eventTimeValid) {
+    return `${discordTimestamp(convoy.eventUnix, 'F')} · ${discordTimestamp(convoy.eventUnix, 'R')}`;
+  }
+  return '⚠️ Awaiting valid event time / timezone';
+}
+
 function buildMessage(overview) {
   const currentMonth = new Date(overview.generatedAt || Date.now()).toISOString().slice(0, 7);
   const month = overview.months?.[currentMonth] || makeEmptyMonth();
   const currentConvoys = [...(month.convoys || [])]
-    .sort((a, b) => String(a.eventDate || '').localeCompare(String(b.eventDate || '')));
+    .sort((a, b) => Number(a.eventUnix || 0) - Number(b.eventUnix || 0));
 
   const lines = [
     MESSAGE_MARKER,
@@ -101,6 +103,7 @@ function buildMessage(overview) {
     `👑 Confirmed Kings-slot Convoys: **${overview.overall?.countedConvoys || 0}**`,
     `📋 Real Convoy Submissions: **${overview.overall?.realConvoySubmissions || 0}**`,
     `📅 Awaiting valid Event Date: **${overview.overall?.undatedCountedConvoys || 0}**`,
+    `🕒 Awaiting valid timezone: **${overview.overall?.invalidEventTimeConvoys || 0}**`,
     '',
     '**Convoys this month**'
   ];
@@ -110,18 +113,18 @@ function buildMessage(overview) {
   } else {
     const shown = currentConvoys.slice(0, 10);
     for (const convoy of shown) {
-      lines.push(`• ${formatDate(convoy.eventDate)} — **${truncate(convoy.name)}** — \`${convoy.status || 'Unknown'}\``);
+      lines.push(`• ${convoyTimeLabel(convoy)} — **${truncate(convoy.name)}** — \`${convoy.status || 'Unknown'}\``);
     }
     if (currentConvoys.length > shown.length) {
       lines.push(`• …and ${currentConvoys.length - shown.length} more.`);
     }
   }
 
-  lines.push('', '🤖 Updated automatically every 15 minutes. TEST threads are excluded from the statistics.');
+  lines.push('', '🤖 Updated automatically every 15 minutes. Discord shows every event time in each member’s local timezone. TEST threads are excluded.');
 
   let content = lines.join('\n');
   if (content.length > 1990) {
-    content = `${content.slice(0, 1960)}\n…\n🤖 Updated automatically.`;
+    content = `${content.slice(0, 1950)}\n…\n🤖 Updated automatically.`;
   }
   return content;
 }
