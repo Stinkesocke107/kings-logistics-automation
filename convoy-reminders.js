@@ -28,7 +28,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Reminders/1.2'
+    'User-Agent': 'Kings Logistics Convoy Reminders/1.3'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -98,6 +98,15 @@ function getTestCommands(messages) {
     eventDay: newestHumanCommand(messages, /(?:^|\n)\s*Reminder\s+Test\s*:\s*Event\s+Day\s*(?:$|\n)/i),
     afterConvoy: newestHumanCommand(messages, /(?:^|\n)\s*Reminder\s+Test\s*:\s*(?:After\s+Convoy|Follow\s*Up)\s*(?:$|\n)/i)
   };
+}
+
+function newestHumanTerminalStatus(messages) {
+  return [...(messages || [])]
+    .filter((message) => {
+      if (message.author?.bot) return false;
+      return /^\s*(?:Completed|Finished|Cancelled|Canceled)\s*$/i.test(message.content || '');
+    })
+    .sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0))[0] || null;
 }
 
 function detectStatusPhrase(text = '') {
@@ -241,20 +250,31 @@ async function handleTestThread(item, messages, botId) {
   }
 
   if (commands.afterConvoy) {
-    const result = await sendMessage(
-      item,
-      FOLLOW_UP_MARKER,
-      'Convoy status update required',
-      'The convoy should now be finished. Please post `Completed` or `Cancelled` so the system can set the final status and forum tag correctly. This is a TEST of the automatic post-convoy follow-up.',
-      messages,
-      botId,
-      { testTriggerId: commands.afterConvoy.id }
-    );
-    console.log(`- ${item.name} | TEST follow-up: ${result.action}`);
+    const terminalMessage = newestHumanTerminalStatus(messages);
+    const terminalAfterTrigger = terminalMessage &&
+      new Date(terminalMessage.timestamp || 0) > new Date(commands.afterConvoy.timestamp || 0);
 
-    const tagResult = await markPostConvoyNeedsInformation(item);
-    console.log(`- ${item.name} | TEST post-convoy status: Needs Information | Tag: ${tagResult.action}`);
-    handled = true;
+    if (terminalAfterTrigger) {
+      console.log(`- ${item.name} | TEST follow-up: terminal status posted after trigger; no Needs Information override`);
+      handled = true;
+    } else {
+      const result = await sendMessage(
+        item,
+        FOLLOW_UP_MARKER,
+        'Convoy status update required',
+        'The convoy should now be finished. Please post `Completed` or `Cancelled` so the system can set the final status and forum tag correctly. This is a TEST of the automatic post-convoy follow-up.',
+        messages,
+        botId,
+        { testTriggerId: commands.afterConvoy.id }
+      );
+      console.log(`- ${item.name} | TEST follow-up: ${result.action}`);
+
+      if (result.action === 'sent') {
+        const tagResult = await markPostConvoyNeedsInformation(item);
+        console.log(`- ${item.name} | TEST post-convoy status: Needs Information | Tag: ${tagResult.action}`);
+      }
+      handled = true;
+    }
   }
 
   if (!handled) {
