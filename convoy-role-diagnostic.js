@@ -18,12 +18,13 @@ if (!TOKEN) {
 }
 
 const API = 'https://discord.com/api/v10';
+const memberCache = new Map();
 
 async function discord(path) {
   const response = await fetch(`${API}${path}`, {
     headers: {
       Authorization: `Bot ${TOKEN}`,
-      'User-Agent': 'Kings Logistics Convoy Role Diagnostic/1.1'
+      'User-Agent': 'Kings Logistics Convoy Role Diagnostic/1.2'
     }
   });
 
@@ -57,6 +58,41 @@ function preview(text = '') {
   return value.length > 120 ? `${value.slice(0, 120)}…` : value;
 }
 
+async function lookupMemberRoles(message) {
+  const inlineRoles = message.member?.roles || [];
+  const userId = message.author?.id || null;
+
+  if (!userId) {
+    return {
+      inlineRoles,
+      lookupRoles: [],
+      lookupError: 'Missing author ID.'
+    };
+  }
+
+  if (!memberCache.has(userId)) {
+    try {
+      const member = await discord(`/guilds/${GUILD_ID}/members/${userId}`);
+      memberCache.set(userId, {
+        roles: member.roles || [],
+        error: null
+      });
+    } catch (error) {
+      memberCache.set(userId, {
+        roles: [],
+        error: error.message
+      });
+    }
+  }
+
+  const cached = memberCache.get(userId);
+  return {
+    inlineRoles,
+    lookupRoles: cached.roles,
+    lookupError: cached.error
+  };
+}
+
 async function main() {
   const activeData = await discord(`/guilds/${GUILD_ID}/threads/active`);
   const threads = (activeData.threads || []).filter((thread) => thread.parent_id === FORUM_ID);
@@ -77,16 +113,21 @@ async function main() {
     for (const message of messages) {
       const content = message.content || '';
       const status = detectStatusPhrase(content);
-      const roles = message.member?.roles || [];
-      const matches = roles.filter((roleId) => EVENT_TEAM_ROLE_IDS.has(roleId));
+      const inlineRoles = message.member?.roles || [];
 
-      console.log(`Message ${message.id} | author ${message.author?.id || 'unknown'} | type ${message.type} | content: ${preview(content)} | roles: ${roles.length ? roles.join(', ') : 'NONE'}`);
+      console.log(`Message ${message.id} | author ${message.author?.id || 'unknown'} | type ${message.type} | content: ${preview(content)} | inline roles: ${inlineRoles.length ? inlineRoles.join(', ') : 'NONE'}`);
 
       if (!status) continue;
 
       found += 1;
       console.log(`STATUS DETECTED: ${status}`);
+
+      const roleInfo = await lookupMemberRoles(message);
+      const matches = roleInfo.lookupRoles.filter((roleId) => EVENT_TEAM_ROLE_IDS.has(roleId));
+
+      console.log(`Guild member lookup roles: ${roleInfo.lookupRoles.length ? roleInfo.lookupRoles.join(', ') : 'NONE'}`);
       console.log(`Configured Event Team role matches: ${matches.length ? matches.join(', ') : 'NONE'}`);
+      if (roleInfo.lookupError) console.log(`Guild member lookup error: ${roleInfo.lookupError}`);
     }
   }
 
