@@ -25,7 +25,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Announcements/2.0'
+    'User-Agent': 'Kings Logistics Convoy Announcements/2.1'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -51,6 +51,64 @@ async function discord(path, options = {}) {
 
 function normalize(text = '') {
   return String(text).replace(/\r/g, '').trim();
+}
+
+function stripMarkdown(text = '') {
+  return normalize(text).replace(/[*_`~]/g, '');
+}
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function getFieldValue(text, labels) {
+  const cleaned = stripMarkdown(text);
+  const names = labels.map(escapeRegex).join('|');
+  const match = cleaned.match(
+    new RegExp(`(?:^|\\n)\\s*(?:[-#>]+\\s*)?(?:${names})\\s*(?::|-)\\s*([^\\n]+)`, 'i')
+  );
+  if (!match) return null;
+
+  const value = match[1].trim();
+  if (!value || /^(?:n\/?a|none|tbd|todo|unknown|-)$/i.test(value)) return null;
+  return value;
+}
+
+function latestHumanField(messages, labels) {
+  const sorted = [...(messages || [])]
+    .filter((message) => !message.author?.bot)
+    .sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+
+  for (const message of sorted) {
+    const value = getFieldValue(message.content || '', labels);
+    if (value) return value;
+  }
+
+  return null;
+}
+
+function applyLatestThreadFields(item, messages) {
+  item.validation = item.validation || {};
+  item.validation.parsed = item.validation.parsed || {};
+  const parsed = item.validation.parsed;
+
+  const fields = [
+    ['eventType', ['Event Type', 'Convoy Type', 'Type']],
+    ['responsibleStaff', ['Responsible Staff', 'Responsible Person', 'Staff', 'Organizer']],
+    ['kingsSlot', ['Kings Slot', 'Slot Confirmation', 'Confirmed Slot', 'Slot Number', 'Slot']],
+    ['route', ['Route']],
+    ['start', ['Start', 'Starting Point', 'Departure']],
+    ['destination', ['Destination', 'End', 'End Point']],
+    ['meetup', ['Meeting Point', 'Meeting Location', 'Meetup', 'Meetup Point']],
+    ['meetupTime', ['Meeting Time', 'Meetup Time', 'Departure Time', 'Time']]
+  ];
+
+  for (const [key, labels] of fields) {
+    const value = latestHumanField(messages, labels);
+    if (value) parsed[key] = value;
+  }
+
+  return item;
 }
 
 function isTestThread(item) {
@@ -137,7 +195,7 @@ function buildAnnouncement(item) {
     '',
     presentation.intro,
     '',
-    item.eventUnix ? `🕒 **Event Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}` : null,
+    item.eventUnix ? `🕒 **Meeting Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}` : null,
     eventType ? `📋 **Event Type:** ${eventType}` : null,
     meetup ? `📍 **Meeting Point:** ${meetup}` : null,
     route ? `🛣️ **Route:** ${route}` : null,
@@ -201,6 +259,13 @@ async function main() {
     if (!MANAGED_STATUSES.has(item.status)) continue;
 
     try {
+      try {
+        const sourceMessages = await discord(`/channels/${item.threadId}/messages?limit=100`);
+        if (Array.isArray(sourceMessages)) applyLatestThreadFields(item, sourceMessages);
+      } catch (sourceError) {
+        console.warn(`- ${item.name} | source refresh skipped: ${sourceError.message}`);
+      }
+
       const existing = await findAnnouncement(item, bot.id);
 
       if (!existing) {
@@ -217,7 +282,7 @@ async function main() {
         }
 
         if (!item.eventUnix || !item.eventTimeValid) {
-          console.log(`- ${item.name} | skipped: valid event time required before first announcement`);
+          console.log(`- ${item.name} | skipped: valid Meeting Time required before first announcement`);
           skipped += 1;
           continue;
         }
