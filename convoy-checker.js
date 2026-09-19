@@ -15,7 +15,7 @@ async function discord(path) {
   const response = await fetch(`${API}${path}`, {
     headers: {
       Authorization: `Bot ${TOKEN}`,
-      'User-Agent': 'Kings Logistics Convoy Checker/1.1'
+      'User-Agent': 'Kings Logistics Convoy Checker/1.2'
     }
   });
 
@@ -33,6 +33,10 @@ function normalize(text = '') {
 
 function hasAny(text, expressions) {
   return expressions.some((expression) => expression.test(text));
+}
+
+function isTemplateThread(thread) {
+  return /\btemplate\b/i.test(thread.name || '');
 }
 
 function extractEventId(text = '') {
@@ -119,6 +123,17 @@ async function main() {
   const results = [];
 
   for (const thread of byId.values()) {
+    if (isTemplateThread(thread)) {
+      results.push({
+        threadId: thread.id,
+        name: thread.name,
+        archived: Boolean(thread.thread_metadata?.archived),
+        ignored: true,
+        ignoreReason: 'template'
+      });
+      continue;
+    }
+
     try {
       const starter = await getStarterMessage(thread.id);
       const text = normalize(starter.content || '');
@@ -145,8 +160,10 @@ async function main() {
     }
   }
 
+  const actualConvoys = results.filter((item) => !item.ignored);
+
   const eventMap = new Map();
-  for (const item of results) {
+  for (const item of actualConvoys) {
     if (!item.eventId) continue;
     if (!eventMap.has(item.eventId)) eventMap.set(item.eventId, []);
     eventMap.get(item.eventId).push(item.threadId);
@@ -165,11 +182,13 @@ async function main() {
     forum: { id: forum.id, name: forum.name, type: forum.type },
     summary: {
       totalThreads: results.length,
+      actualConvoys: actualConvoys.length,
+      ignoredTemplates: results.filter((item) => item.ignored).length,
       activeThreads: activeThreads.length,
       archivedThreads: results.filter((item) => item.archived).length,
-      complete: results.filter((item) => item.validation?.complete).length,
-      incomplete: results.filter((item) => item.validation && !item.validation.complete).length,
-      errors: results.filter((item) => item.error).length,
+      complete: actualConvoys.filter((item) => item.validation?.complete).length,
+      incomplete: actualConvoys.filter((item) => item.validation && !item.validation.complete).length,
+      errors: actualConvoys.filter((item) => item.error).length,
       duplicateEventIds: duplicateEventIds.length
     },
     duplicateEventIds,
@@ -182,7 +201,8 @@ async function main() {
   console.log('Kings Convoy Checker connected successfully.');
   console.log(`Bot: ${bot.username} (${bot.id})`);
   console.log(`Forum: ${forum.name} (${forum.id})`);
-  console.log(`Threads checked: ${report.summary.totalThreads}`);
+  console.log(`Threads found: ${report.summary.totalThreads}`);
+  console.log(`Actual convoys: ${report.summary.actualConvoys} | Ignored templates: ${report.summary.ignoredTemplates}`);
   console.log(`Complete: ${report.summary.complete} | Incomplete: ${report.summary.incomplete} | Errors: ${report.summary.errors}`);
   console.log(`Duplicate TruckersMP event IDs: ${report.summary.duplicateEventIds}`);
 
@@ -192,6 +212,11 @@ async function main() {
   }
 
   for (const item of results) {
+    if (item.ignored) {
+      console.log(`- IGNORED | ${item.name} (${item.threadId}) | Reason: ${item.ignoreReason}`);
+      continue;
+    }
+
     if (item.error) {
       console.log(`- ERROR | ${item.name} (${item.threadId}) | ${item.error}`);
       continue;
