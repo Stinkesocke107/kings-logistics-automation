@@ -29,7 +29,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Checker/3.1'
+    'User-Agent': 'Kings Logistics Convoy Checker/3.2'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -102,6 +102,53 @@ function isConfirmedSlot(value) {
   return cleaned.length > 0;
 }
 
+function validDateParts(year, month, day) {
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day;
+}
+
+function toFourDigitYear(year) {
+  const value = Number(year);
+  if (String(year).length === 2) return value >= 70 ? 1900 + value : 2000 + value;
+  return value;
+}
+
+function parseEventDate(value) {
+  if (!value) return null;
+  const text = value.trim();
+  let match = text.match(/^(20\d{2}|19\d{2})-(\d{1,2})-(\d{1,2})$/);
+
+  if (match) {
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (!validDateParts(year, month, day)) return null;
+    return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }
+
+  match = text.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/);
+  if (!match) return null;
+
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = toFourDigitYear(match[3]);
+  if (!validDateParts(year, month, day)) return null;
+
+  return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function formatEventDate(isoDate) {
+  if (!isoDate) return null;
+  const [year, month, day] = isoDate.split('-');
+  return `${day}.${month}.${year}`;
+}
+
+function isTestThreadName(name = '') {
+  return /^\s*\[?test\]?(?:\s|[-_:])/i.test(name);
+}
+
 async function getMemberRoles(message) {
   const inlineRoles = message.member?.roles || [];
   if (inlineRoles.length > 0) {
@@ -159,6 +206,8 @@ function isTemplateThread(thread, tagNamesById) {
 
 function checkFields(starterText, messages) {
   const eventType = getFieldValue(starterText, ['Event Type', 'Convoy Type', 'Type']);
+  const eventDateRaw = getFieldValue(starterText, ['Event Date', 'Convoy Date', 'Date']);
+  const eventDate = parseEventDate(eventDateRaw);
   const responsibleStaff = getFieldValue(starterText, ['Responsible Staff', 'Responsible Person', 'Staff', 'Organizer']);
   const kingsSlot = getFieldValue(starterText, ['Kings Slot', 'Slot Confirmation', 'Confirmed Slot', 'Slot Number', 'Slot']);
   const route = getFieldValue(starterText, ['Route']);
@@ -170,6 +219,7 @@ function checkFields(starterText, messages) {
   const checks = {
     eventLink: /https?:\/\/(?:www\.)?truckersmp\.com\/events\/\d+/i.test(starterText),
     eventType: Boolean(eventType),
+    eventDate: Boolean(eventDate),
     responsibleStaff: Boolean(responsibleStaff),
     kingsSlotConfirmed: isConfirmedSlot(kingsSlot),
     route: Boolean(route || (start && destination)),
@@ -188,6 +238,8 @@ function checkFields(starterText, messages) {
     complete: missing.length === 0,
     parsed: {
       eventType,
+      eventDateRaw,
+      eventDate,
       responsibleStaff,
       kingsSlot,
       route,
@@ -261,7 +313,6 @@ async function getStaffStatus(messages) {
 function deriveStatus({ validation, staffStatus, starterText, duplicate }) {
   const explicitStatus = staffStatus?.status || null;
 
-  if (explicitStatus === 'Cancelled' || explicitStatus === 'Completed') return explicitStatus;
   if (duplicate) return 'Needs Information';
 
   if (!validation.complete) {
@@ -271,6 +322,7 @@ function deriveStatus({ validation, staffStatus, starterText, duplicate }) {
     return hasSubmissionSignal ? 'Needs Information' : 'Submitted';
   }
 
+  if (explicitStatus === 'Cancelled' || explicitStatus === 'Completed') return explicitStatus;
   if (explicitStatus === 'Needs Information') return 'Needs Information';
   if (explicitStatus === 'Scheduled') return 'Scheduled';
   return 'Ready for Approval';
@@ -284,6 +336,7 @@ function friendlyIssueName(issue) {
   const names = {
     eventLink: 'TruckersMP Event Link',
     eventType: 'Event Type',
+    eventDate: 'Event Date (DD.MM.YYYY)',
     responsibleStaff: 'Responsible Staff',
     kingsSlotConfirmed: 'Confirmed Kings Slot',
     route: 'Route',
@@ -313,6 +366,9 @@ function buildDiscordStatusMessage(item) {
   }
 
   const eventLine = item.eventId ? `🔗 **TruckersMP Event ID:** ${item.eventId}` : null;
+  const eventDateLine = item.validation?.parsed?.eventDate
+    ? `📅 **Event Date:** ${formatEventDate(item.validation.parsed.eventDate)}`
+    : null;
 
   return [
     STATUS_MESSAGE_MARKER,
@@ -321,6 +377,7 @@ function buildDiscordStatusMessage(item) {
     validationLine,
     approvalLine,
     eventLine,
+    eventDateLine,
     '',
     '🤖 This is the single automated status message for this convoy. It is checked every 15 minutes and updated only when something changes.'
   ].filter(Boolean).join('\n');
@@ -385,11 +442,7 @@ async function syncForumStatusTag(item, statusTagIds, allStatusTagIds) {
 
   const targetTagId = statusTagIds.get(item.status);
   if (!targetTagId) {
-    return {
-      action: 'skipped',
-      reason: 'missing-status-tag',
-      status: item.status
-    };
+    return { action: 'skipped', reason: 'missing-status-tag', status: item.status };
   }
 
   const current = [...(item.appliedTagIds || [])];
@@ -397,20 +450,14 @@ async function syncForumStatusTag(item, statusTagIds, allStatusTagIds) {
   const desired = [...preserved, targetTagId];
 
   if (desired.length > 5) {
-    return {
-      action: 'skipped',
-      reason: 'too-many-tags',
-      preservedTagCount: preserved.length
-    };
+    return { action: 'skipped', reason: 'too-many-tags', preservedTagCount: preserved.length };
   }
 
   const sameSet =
     current.length === desired.length &&
     current.every((tagId) => desired.includes(tagId));
 
-  if (sameSet) {
-    return { action: 'unchanged', tagId: targetTagId };
-  }
+  if (sameSet) return { action: 'unchanged', tagId: targetTagId };
 
   await discord(`/channels/${item.threadId}`, {
     method: 'PATCH',
@@ -432,14 +479,13 @@ function appendGithubSummary(report) {
     '',
     `Actual convoys: **${report.summary.actualConvoys}** · Ignored templates: **${report.summary.ignoredTemplates}**`,
     '',
-    '| Convoy | Status | Missing / Issue | Discord message | Forum tag |',
-    '|---|---|---|---|---|'
+    '| Convoy | Status | Event Date | Missing / Issue | Discord message | Forum tag |',
+    '|---|---|---|---|---|---|'
   ];
 
   const visible = report.threads.filter((item) => !item.ignored);
-
   if (visible.length === 0) {
-    lines.push('| — | No real convoy submissions found | — | — | — |');
+    lines.push('| — | No real convoy submissions found | — | — | — | — |');
   } else {
     for (const item of visible) {
       const issue = item.error
@@ -448,14 +494,14 @@ function appendGithubSummary(report) {
             ...(item.validation?.missing || []),
             ...(item.duplicateEventId ? ['duplicateEventId'] : [])
           ].join(', ') || '—';
-
+      const eventDate = item.validation?.parsed?.eventDate || '—';
       const messageSync = item.discordStatusSync?.action || (WRITE_MODE ? 'not-run' : 'disabled');
       const tagSync = item.forumTagSync?.action
         ? `${item.forumTagSync.action}${item.forumTagSync.reason ? ` (${item.forumTagSync.reason})` : ''}`
         : (WRITE_MODE ? 'not-run' : 'disabled');
 
       lines.push(
-        `| ${String(item.name || '').replace(/\|/g, '\\|')} | ${item.status || 'Error'} | ${String(issue).replace(/\|/g, '\\|')} | ${messageSync} | ${tagSync} |`
+        `| ${String(item.name || '').replace(/\|/g, '\\|')} | ${item.status || 'Error'} | ${eventDate} | ${String(issue).replace(/\|/g, '\\|')} | ${messageSync} | ${tagSync} |`
       );
     }
   }
@@ -511,6 +557,7 @@ async function main() {
       results.push({
         threadId: thread.id,
         name: thread.name,
+        testThread: isTestThreadName(thread.name || ''),
         archived: Boolean(thread.thread_metadata?.archived),
         locked: Boolean(thread.thread_metadata?.locked),
         ownerId: thread.owner_id || null,
@@ -525,10 +572,6 @@ async function main() {
         tagNames: (thread.applied_tags || [])
           .map((tagId) => tagNamesById.get(tagId))
           .filter(Boolean),
-        tagStatusBeforeSync: (thread.applied_tags || [])
-          .map((tagId) => tagNamesById.get(tagId))
-          .map((name) => detectStatusPhrase(name || ''))
-          .find(Boolean) || null,
         staffStatus,
         validation,
         starterTextForStatus: starterText
@@ -537,6 +580,7 @@ async function main() {
       results.push({
         threadId: thread.id,
         name: thread.name,
+        testThread: isTestThreadName(thread.name || ''),
         archived: Boolean(thread.thread_metadata?.archived),
         status: 'Error',
         error: error.message
@@ -548,7 +592,7 @@ async function main() {
   const eventMap = new Map();
 
   for (const item of actualConvoys) {
-    if (!item.eventId) continue;
+    if (item.testThread || !item.eventId) continue;
     if (!eventMap.has(item.eventId)) eventMap.set(item.eventId, []);
     eventMap.get(item.eventId).push(item.threadId);
   }
@@ -580,11 +624,7 @@ async function main() {
       if (item.error) continue;
 
       try {
-        item.forumTagSync = await syncForumStatusTag(
-          item,
-          statusTagIds,
-          allStatusTagIds
-        );
+        item.forumTagSync = await syncForumStatusTag(item, statusTagIds, allStatusTagIds);
       } catch (error) {
         item.forumTagSync = { action: 'failed', error: error.message };
         console.warn(`Forum tag sync failed for ${item.name}: ${error.message}`);
@@ -613,10 +653,7 @@ async function main() {
   const statusTagsAvailable = Object.fromEntries(
     [...statusTagIds.entries()].map(([status, tagId]) => [
       status,
-      {
-        id: tagId,
-        name: tagNamesById.get(tagId) || null
-      }
+      { id: tagId, name: tagNamesById.get(tagId) || null }
     ])
   );
 
@@ -636,6 +673,7 @@ async function main() {
       totalThreads: results.length,
       actualConvoys: actualConvoys.length,
       ignoredTemplates: results.filter((item) => item.ignored).length,
+      testThreads: actualConvoys.filter((item) => item.testThread).length,
       activeThreads: activeThreads.length,
       archivedThreads: results.filter((item) => item.archived).length,
       errors: actualConvoys.filter((item) => item.error).length,
@@ -660,7 +698,7 @@ async function main() {
   console.log(`Mode: ${report.mode}`);
   console.log(`Threads found: ${report.summary.totalThreads}`);
   console.log(
-    `Actual convoys: ${report.summary.actualConvoys} | Ignored templates: ${report.summary.ignoredTemplates}`
+    `Actual convoys: ${report.summary.actualConvoys} | Ignored templates: ${report.summary.ignoredTemplates} | Test threads: ${report.summary.testThreads}`
   );
   console.log(`Duplicate TruckersMP event IDs: ${report.summary.duplicateEventIds}`);
   console.log(`Status counts: ${JSON.stringify(report.summary.statuses)}`);
@@ -671,9 +709,7 @@ async function main() {
 
   for (const item of results) {
     if (item.ignored) {
-      console.log(
-        `- IGNORED | ${item.name} (${item.threadId}) | Reason: ${item.ignoreReason}`
-      );
+      console.log(`- IGNORED | ${item.name} (${item.threadId}) | Reason: ${item.ignoreReason}`);
       continue;
     }
 
@@ -690,23 +726,22 @@ async function main() {
     const approval = item.staffStatus?.authorId
       ? ` | Staff status by ${item.staffStatus.authorId}: ${item.staffStatus.status} via ${item.staffStatus.roleSource}; matched roles: ${item.staffStatus.matchedRoleIds.join(', ')}`
       : '';
-
     const messageSync = item.discordStatusSync
       ? ` | Discord message: ${item.discordStatusSync.action}${item.discordStatusSync.reason ? ` (${item.discordStatusSync.reason})` : ''}`
       : '';
-
     const tagSync = item.forumTagSync
       ? ` | Forum tag: ${item.forumTagSync.action}${item.forumTagSync.reason ? ` (${item.forumTagSync.reason})` : ''}`
       : '';
+    const date = item.validation?.parsed?.eventDate || 'none';
 
     console.log(
-      `- ${item.status.toUpperCase()} | ${item.name} (${item.threadId}) | Event: ${item.eventId || 'none'} | Issues: ${issues.join(', ') || 'none'}${approval}${messageSync}${tagSync}`
+      `- ${item.status.toUpperCase()} | ${item.name} (${item.threadId}) | Event: ${item.eventId || 'none'} | Date: ${date} | Issues: ${issues.join(', ') || 'none'}${approval}${messageSync}${tagSync}`
     );
   }
 
   console.log(
     WRITE_MODE
-      ? '\nDiscord write mode: bot only creates/edits its own convoy status message and synchronizes existing forum status tags.'
+      ? '\nDiscord write mode: bot creates/edits its own convoy status message and synchronizes existing forum status tags.'
       : '\nREAD_ONLY mode: no Discord data was changed.'
   );
 }
