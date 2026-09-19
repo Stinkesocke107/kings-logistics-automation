@@ -20,12 +20,13 @@ if (!TOKEN) {
 }
 
 const API = 'https://discord.com/api/v10';
+const memberRoleCache = new Map();
 
 async function discord(path) {
   const response = await fetch(`${API}${path}`, {
     headers: {
       Authorization: `Bot ${TOKEN}`,
-      'User-Agent': 'Kings Logistics Convoy Checker/2.0'
+      'User-Agent': 'Kings Logistics Convoy Checker/2.1'
     }
   });
 
@@ -80,9 +81,37 @@ function isConfirmedSlot(value) {
   return normalized.length > 0;
 }
 
-function hasEventTeamRole(message) {
-  const roles = message.member?.roles || [];
-  return roles.some((roleId) => EVENT_TEAM_ROLE_IDS.has(roleId));
+async function getMemberRoles(message) {
+  const inlineRoles = message.member?.roles || [];
+  if (inlineRoles.length > 0) {
+    return { roles: inlineRoles, source: 'message.member', error: null };
+  }
+
+  const userId = message.author?.id || null;
+  if (!userId) {
+    return { roles: [], source: 'none', error: 'Message has no author ID.' };
+  }
+
+  if (memberRoleCache.has(userId)) return memberRoleCache.get(userId);
+
+  try {
+    const member = await discord(`/guilds/${GUILD_ID}/members/${userId}`);
+    const result = {
+      roles: member.roles || [],
+      source: 'guild-member-lookup',
+      error: null
+    };
+    memberRoleCache.set(userId, result);
+    return result;
+  } catch (error) {
+    const result = {
+      roles: [],
+      source: 'guild-member-lookup',
+      error: error.message
+    };
+    memberRoleCache.set(userId, result);
+    return result;
+  }
 }
 
 function detectStatusPhrase(text = '') {
@@ -188,18 +217,28 @@ function getStarterMessage(messages, threadId) {
   return messages.find((message) => message.id === threadId) || messages[messages.length - 1];
 }
 
-function getStaffStatus(messages) {
-  const candidates = messages
-    .filter((message) => hasEventTeamRole(message))
-    .map((message) => ({
-      status: detectStatusPhrase(message.content || ''),
+async function getStaffStatus(messages) {
+  const candidates = [];
+
+  for (const message of messages) {
+    const status = detectStatusPhrase(message.content || '');
+    if (!status) continue;
+
+    const roleInfo = await getMemberRoles(message);
+    const matchedRoleIds = roleInfo.roles.filter((roleId) => EVENT_TEAM_ROLE_IDS.has(roleId));
+    if (matchedRoleIds.length === 0) continue;
+
+    candidates.push({
+      status,
       authorId: message.author?.id || null,
       messageId: message.id,
-      timestamp: message.timestamp || ''
-    }))
-    .filter((item) => item.status)
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      timestamp: message.timestamp || '',
+      roleSource: roleInfo.source,
+      matchedRoleIds
+    });
+  }
 
+  candidates.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
   return candidates[0] || null;
 }
 
@@ -292,7 +331,7 @@ async function main() {
       const starterText = normalize(starter.content || '');
       const validation = checkFields(starterText, messages);
       const tagStatus = detectForumTagStatus(thread, tagNamesById);
-      const staffStatus = getStaffStatus(messages);
+      const staffStatus = await getStaffStatus(messages);
 
       results.push({
         threadId: thread.id,
@@ -405,7 +444,9 @@ async function main() {
       ...(item.validation.missing || []),
       ...(item.duplicateEventId ? ['duplicateEventId'] : [])
     ];
-    const approval = item.staffStatus?.authorId ? ` | Staff status by ${item.staffStatus.authorId}: ${item.staffStatus.status}` : '';
+    const approval = item.staffStatus?.authorId
+      ? ` | Staff status by ${item.staffStatus.authorId}: ${item.staffStatus.status} via ${item.staffStatus.roleSource}; matched roles: ${item.staffStatus.matchedRoleIds.join(', ')}`
+      : '';
     console.log(`- ${item.status.toUpperCase()} | ${item.name} (${item.threadId}) | Event: ${item.eventId || 'none'} | Issues: ${issues.join(', ') || 'none'}${approval}`);
   }
 
