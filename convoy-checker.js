@@ -3,6 +3,8 @@ const fs = require('fs');
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const FORUM_ID = process.env.DISCORD_CONVOY_FORUM_ID || '1550619824005062697';
+const WRITE_MODE = /^(?:1|true|yes|on)$/i.test(process.env.DISCORD_WRITE_MODE || '');
+const STATUS_MESSAGE_MARKER = '👑 **Kings Convoy Automation**';
 
 const EVENT_TEAM_ROLE_IDS = new Set([
   '1378658861816217600',
@@ -23,20 +25,32 @@ if (!TOKEN) {
 const API = 'https://discord.com/api/v10';
 const memberRoleCache = new Map();
 
-async function discord(path) {
+async function discord(path, options = {}) {
+  const method = options.method || 'GET';
+  const headers = {
+    Authorization: `Bot ${TOKEN}`,
+    'User-Agent': 'Kings Logistics Convoy Checker/3.0'
+  };
+
+  if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+
   const response = await fetch(`${API}${path}`, {
-    headers: {
-      Authorization: `Bot ${TOKEN}`,
-      'User-Agent': 'Kings Logistics Convoy Checker/2.1'
-    }
+    method,
+    headers,
+    body: options.body !== undefined ? JSON.stringify(options.body) : undefined
   });
 
+  const text = await response.text();
   if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Discord API ${response.status} on ${path}: ${body.slice(0, 500)}`);
+    throw new Error(`Discord API ${response.status} on ${method} ${path}: ${text.slice(0, 500)}`);
   }
 
-  return response.json();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
 }
 
 function normalize(text = '') {
@@ -222,6 +236,8 @@ async function getStaffStatus(messages) {
   const candidates = [];
 
   for (const message of messages) {
+    if (message.author?.bot) continue;
+
     const status = detectStatusPhrase(message.content || '');
     if (!status) continue;
 
@@ -261,6 +277,92 @@ function statusKey(status) {
   return status.replace(/\s+/g, '').replace(/^./, (char) => char.toLowerCase());
 }
 
+function friendlyIssueName(issue) {
+  const names = {
+    eventLink: 'TruckersMP Event Link',
+    eventType: 'Event Type',
+    responsibleStaff: 'Responsible Staff',
+    kingsSlotConfirmed: 'Confirmed Kings Slot',
+    route: 'Route',
+    meetup: 'Meeting Point',
+    meetupTime: 'Meeting Time',
+    imageProof: 'Slot / Event image proof',
+    duplicateEventId: 'Duplicate TruckersMP Event ID'
+  };
+  return names[issue] || issue;
+}
+
+function buildDiscordStatusMessage(item) {
+  const issues = [
+    ...(item.validation?.missing || []),
+    ...(item.duplicateEventId ? ['duplicateEventId'] : [])
+  ];
+
+  let validationLine;
+  if (issues.length === 0) {
+    validationLine = '✅ **Validation:** All required information is complete.';
+  } else {
+    validationLine = `⚠️ **Missing / Issue:** ${issues.map(friendlyIssueName).join(', ')}`;
+  }
+
+  let approvalLine = 'ℹ️ **Approval:** No authorized staff status has been detected yet.';
+  if (item.status === 'Ready for Approval') {
+    approvalLine = '⏳ **Approval:** Waiting for Event Team / CEO approval.';
+  } else if (item.staffStatus?.authorId) {
+    approvalLine = '✅ **Staff status:** Recognized from an authorized Kings role.';
+  }
+
+  const eventLine = item.eventId ? `🔗 **TruckersMP Event ID:** ${item.eventId}` : null;
+
+  return [
+    STATUS_MESSAGE_MARKER,
+    '',
+    `**Status:** \`${item.status}\``,
+    validationLine,
+    approvalLine,
+    eventLine,
+    '',
+    '🤖 This is the single automated status message for this convoy. It is checked every 15 minutes and updated only when something changes.'
+  ].filter(Boolean).join('\n');
+}
+
+async function syncDiscordStatus(item, messages, botId) {
+  if (!WRITE_MODE) return { action: 'disabled' };
+  if (item.archived) return { action: 'skipped', reason: 'archived-thread' };
+  if (item.locked) return { action: 'skipped', reason: 'locked-thread' };
+
+  const content = buildDiscordStatusMessage(item);
+  const existing = messages.find((message) =>
+    message.author?.id === botId &&
+    (message.content || '').includes(STATUS_MESSAGE_MARKER)
+  );
+
+  if (!existing) {
+    const created = await discord(`/channels/${item.threadId}/messages`, {
+      method: 'POST',
+      body: {
+        content,
+        allowed_mentions: { parse: [] }
+      }
+    });
+    return { action: 'created', messageId: created?.id || null };
+  }
+
+  if (normalize(existing.content || '') === normalize(content)) {
+    return { action: 'unchanged', messageId: existing.id };
+  }
+
+  const updated = await discord(`/channels/${item.threadId}/messages/${existing.id}`, {
+    method: 'PATCH',
+    body: {
+      content,
+      allowed_mentions: { parse: [] }
+    }
+  });
+
+  return { action: 'updated', messageId: updated?.id || existing.id };
+}
+
 function appendGithubSummary(report) {
   const summaryPath = process.env.GITHUB_STEP_SUMMARY;
   if (!summaryPath) return;
@@ -272,13 +374,13 @@ function appendGithubSummary(report) {
     '',
     `Actual convoys: **${report.summary.actualConvoys}** · Ignored templates: **${report.summary.ignoredTemplates}**`,
     '',
-    '| Convoy | Status | Missing / Issue |',
-    '|---|---|---|'
+    '| Convoy | Status | Missing / Issue | Discord status |',
+    '|---|---|---|---|'
   ];
 
   const visible = report.threads.filter((item) => !item.ignored);
   if (visible.length === 0) {
-    lines.push('| — | No real convoy submissions found | — |');
+    lines.push('| — | No real convoy submissions found | — | — |');
   } else {
     for (const item of visible) {
       const issue = item.error
@@ -287,7 +389,8 @@ function appendGithubSummary(report) {
             ...(item.validation?.missing || []),
             ...(item.duplicateEventId ? ['duplicateEventId'] : [])
           ].join(', ') || '—';
-      lines.push(`| ${String(item.name || '').replace(/\|/g, '\\|')} | ${item.status || 'Error'} | ${issue.replace(/\|/g, '\\|')} |`);
+      const sync = item.discordStatusSync?.action || (WRITE_MODE ? 'not-run' : 'disabled');
+      lines.push(`| ${String(item.name || '').replace(/\|/g, '\\|')} | ${item.status || 'Error'} | ${issue.replace(/\|/g, '\\|')} | ${sync} |`);
     }
   }
 
@@ -313,6 +416,7 @@ async function main() {
   }
 
   const results = [];
+  const messagesByThreadId = new Map();
 
   for (const thread of byId.values()) {
     if (isTemplateThread(thread, tagNamesById)) {
@@ -328,6 +432,7 @@ async function main() {
 
     try {
       const messages = await getThreadMessages(thread.id);
+      messagesByThreadId.set(thread.id, messages);
       const starter = getStarterMessage(messages, thread.id);
       const starterText = normalize(starter.content || '');
       const validation = checkFields(starterText, messages);
@@ -388,6 +493,22 @@ async function main() {
     delete item.starterTextForStatus;
   }
 
+  if (WRITE_MODE) {
+    for (const item of actualConvoys) {
+      if (item.error) continue;
+      try {
+        item.discordStatusSync = await syncDiscordStatus(
+          item,
+          messagesByThreadId.get(item.threadId) || [],
+          bot.id
+        );
+      } catch (error) {
+        item.discordStatusSync = { action: 'failed', error: error.message };
+        console.warn(`Discord status sync failed for ${item.name}: ${error.message}`);
+      }
+    }
+  }
+
   const statusCounts = {};
   for (const item of actualConvoys) {
     if (!item.status) continue;
@@ -397,7 +518,7 @@ async function main() {
 
   const report = {
     generatedAt: new Date().toISOString(),
-    mode: 'READ_ONLY',
+    mode: WRITE_MODE ? 'DISCORD_STATUS_WRITE' : 'READ_ONLY',
     guildId: GUILD_ID,
     forumId: FORUM_ID,
     bot: { id: bot.id, username: bot.username },
@@ -423,6 +544,7 @@ async function main() {
   console.log('Kings Convoy Checker connected successfully.');
   console.log(`Bot: ${bot.username} (${bot.id})`);
   console.log(`Forum: ${forum.name} (${forum.id})`);
+  console.log(`Mode: ${report.mode}`);
   console.log(`Threads found: ${report.summary.totalThreads}`);
   console.log(`Actual convoys: ${report.summary.actualConvoys} | Ignored templates: ${report.summary.ignoredTemplates}`);
   console.log(`Duplicate TruckersMP event IDs: ${report.summary.duplicateEventIds}`);
@@ -448,10 +570,15 @@ async function main() {
     const approval = item.staffStatus?.authorId
       ? ` | Staff status by ${item.staffStatus.authorId}: ${item.staffStatus.status} via ${item.staffStatus.roleSource}; matched roles: ${item.staffStatus.matchedRoleIds.join(', ')}`
       : '';
-    console.log(`- ${item.status.toUpperCase()} | ${item.name} (${item.threadId}) | Event: ${item.eventId || 'none'} | Issues: ${issues.join(', ') || 'none'}${approval}`);
+    const sync = item.discordStatusSync
+      ? ` | Discord status: ${item.discordStatusSync.action}${item.discordStatusSync.reason ? ` (${item.discordStatusSync.reason})` : ''}`
+      : '';
+    console.log(`- ${item.status.toUpperCase()} | ${item.name} (${item.threadId}) | Event: ${item.eventId || 'none'} | Issues: ${issues.join(', ') || 'none'}${approval}${sync}`);
   }
 
-  console.log('\nREAD_ONLY mode: no Discord data was changed.');
+  console.log(WRITE_MODE
+    ? '\nDiscord status write mode: bot only creates/edits its own convoy status message.'
+    : '\nREAD_ONLY mode: no Discord data was changed.');
 }
 
 main().catch((error) => {
