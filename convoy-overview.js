@@ -66,6 +66,7 @@ function buildMarkdown(overview) {
     `- Convoys with confirmed Kings slot: **${overview.overall.countedConvoys}**`,
     `- Excluded test threads: **${overview.overall.excludedTestThreads}**`,
     `- Confirmed-slot convoys awaiting a valid Event Date: **${overview.overall.undatedCountedConvoys}**`,
+    `- Confirmed-slot convoys awaiting a valid timezone: **${overview.overall.invalidEventTimeConvoys}**`,
     '',
     '## Monthly statistics',
     '',
@@ -83,16 +84,16 @@ function buildMarkdown(overview) {
     }
   }
 
-  lines.push('', '## Counted convoys', '', '| Date | Convoy | Status | Event ID | Type |', '|---|---|---|---|---|');
+  lines.push('', '## Counted convoys', '', '| Date | Time | Convoy | Status | Event ID | Type |', '|---|---|---|---|---|---|');
 
   if (overview.countedConvoys.length === 0) {
-    lines.push('| — | No counted convoys yet | — | — | — |');
+    lines.push('| — | — | No counted convoys yet | — | — | — |');
   } else {
     for (const convoy of [...overview.countedConvoys].sort((a, b) =>
       String(b.eventDate || '').localeCompare(String(a.eventDate || ''))
     )) {
       lines.push(
-        `| ${escapeTable(convoy.eventDate || 'Awaiting valid date')} | ${escapeTable(convoy.name)} | ${escapeTable(convoy.status)} | ${escapeTable(convoy.eventId || '—')} | ${escapeTable(convoy.eventType || '—')} |`
+        `| ${escapeTable(convoy.eventDate || 'Awaiting valid date')} | ${escapeTable(convoy.meetingTime || 'Awaiting valid time')} | ${escapeTable(convoy.name)} | ${escapeTable(convoy.status)} | ${escapeTable(convoy.eventId || '—')} | ${escapeTable(convoy.eventType || '—')} |`
       );
     }
   }
@@ -114,7 +115,7 @@ function appendGithubSummary(overview) {
     '',
     `Counted convoys: **${month.countedConvoys}** · Scheduled: **${month.scheduled}** · Completed: **${month.completed}** · Cancelled: **${month.cancelled}**`,
     '',
-    `Confirmed-slot convoys awaiting a valid Event Date: **${overview.overall.undatedCountedConvoys}**`,
+    `Awaiting valid Event Date: **${overview.overall.undatedCountedConvoys}** · Awaiting valid timezone: **${overview.overall.invalidEventTimeConvoys}**`,
     ''
   ];
 
@@ -139,6 +140,7 @@ function main() {
   const months = {};
   const statusCounts = {};
   let undatedCountedConvoys = 0;
+  let invalidEventTimeConvoys = 0;
 
   for (const item of realThreads) {
     increment(statusCounts, item.status || 'Unknown');
@@ -148,6 +150,10 @@ function main() {
 
     const eventDate = item.validation?.parsed?.eventDate || null;
     const rawEventDate = item.validation?.parsed?.eventDateRaw || null;
+    const meetingTime = item.validation?.parsed?.meetupTime || null;
+    const eventUnix = item.eventUnix || null;
+    const eventTimeValid = Boolean(item.eventTimeValid && eventUnix);
+
     const convoy = {
       threadId: item.threadId,
       name: item.name,
@@ -156,10 +162,17 @@ function main() {
       status: item.status || 'Unknown',
       confirmedKingsSlot,
       eventDate,
-      rawEventDate
+      rawEventDate,
+      meetingTime,
+      eventUnix,
+      eventTimeValid,
+      eventTimeZone: item.eventTimeZone || null,
+      eventTimeOffsetMinutes: item.eventTimeOffsetMinutes ?? null
     };
 
     countedConvoys.push(convoy);
+
+    if (!eventTimeValid && eventDate && meetingTime) invalidEventTimeConvoys += 1;
 
     const month = monthKey(eventDate);
     if (!month) {
@@ -184,6 +197,7 @@ function main() {
       countedConvoys: countedConvoys.length,
       excludedTestThreads,
       undatedCountedConvoys,
+      invalidEventTimeConvoys,
       statusesAcrossRealSubmissions: statusCounts
     },
     months,
@@ -200,6 +214,7 @@ function main() {
   console.log(`Confirmed-slot convoys: ${overview.overall.countedConvoys}`);
   console.log(`Excluded test threads: ${overview.overall.excludedTestThreads}`);
   console.log(`Awaiting valid Event Date: ${overview.overall.undatedCountedConvoys}`);
+  console.log(`Awaiting valid timezone: ${overview.overall.invalidEventTimeConvoys}`);
   console.log(`Months: ${Object.keys(months).sort().join(', ') || 'none'}`);
 }
 
