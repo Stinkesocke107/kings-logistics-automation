@@ -44,6 +44,13 @@ jobs:
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-overview.js
 
+      - name: Sync convoy overview to Discord
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_OVERVIEW_CHANNEL_ID: '1550619865805754378'
+        run: node convoy-overview-discord.js
+
       - name: Upload convoy reports
         if: always()
         uses: actions/upload-artifact@v4
