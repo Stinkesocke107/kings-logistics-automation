@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Run read-only convoy checker
         env:
@@ -26,14 +26,6 @@ jobs:
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-checker.js
-
-      - name: Diagnose approval roles
-        if: always()
-        env:
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_GUILD_ID: '1114967437788577792'
-          DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
-        run: node convoy-role-diagnostic.js
 
       - name: Upload convoy check report
         if: always()
