@@ -22,7 +22,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Overview Discord/1.0'
+    'User-Agent': 'Kings Logistics Convoy Overview Discord/1.1'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -56,7 +56,7 @@ function monthLabel(monthKey) {
 }
 
 function formatDate(isoDate) {
-  if (!isoDate) return 'Undated';
+  if (!isoDate) return 'Awaiting date';
   const [year, month, day] = isoDate.split('-');
   return `${day}.${month}.${year}`;
 }
@@ -100,13 +100,13 @@ function buildMessage(overview) {
     '**Overall**',
     `👑 Confirmed Kings-slot Convoys: **${overview.overall?.countedConvoys || 0}**`,
     `📋 Real Convoy Submissions: **${overview.overall?.realConvoySubmissions || 0}**`,
-    `❓ Confirmed-slot Convoys without Event Date: **${overview.overall?.undatedCountedConvoys || 0}**`,
+    `📅 Awaiting valid Event Date: **${overview.overall?.undatedCountedConvoys || 0}**`,
     '',
     '**Convoys this month**'
   ];
 
   if (currentConvoys.length === 0) {
-    lines.push('— No counted convoys with an event date this month.');
+    lines.push('— No counted convoys with a valid Event Date this month.');
   } else {
     const shown = currentConvoys.slice(0, 10);
     for (const convoy of shown) {
