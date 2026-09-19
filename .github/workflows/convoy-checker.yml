@@ -37,11 +37,21 @@ jobs:
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-notifications.js
 
-      - name: Upload convoy check report
+      - name: Generate convoy overview statistics
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
+        run: node convoy-overview.js
+
+      - name: Upload convoy reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kings-convoy-check-report
-          path: output/convoy-check-results.json
+          name: kings-convoy-reports
+          path: |
+            output/convoy-check-results.json
+            output/convoy-overview.json
+            output/convoy-overview.md
           if-no-files-found: ignore
           retention-days: 14
