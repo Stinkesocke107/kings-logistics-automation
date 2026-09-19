@@ -23,7 +23,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Time Display/1.0'
+    'User-Agent': 'Kings Logistics Convoy Time Display/1.1'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -49,6 +49,83 @@ async function discord(path, options = {}) {
 
 function normalize(text = '') {
   return String(text).replace(/\r/g, '').trim();
+}
+
+function stripMarkdown(text = '') {
+  return normalize(text).replace(/[*_`~]/g, '');
+}
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function getFieldValue(text, labels) {
+  const cleaned = stripMarkdown(text);
+  const names = labels.map(escapeRegex).join('|');
+  const match = cleaned.match(
+    new RegExp(`(?:^|\\n)\\s*(?:[-#>]+\\s*)?(?:${names})\\s*(?::|-)\\s*([^\\n]+)`, 'i')
+  );
+  if (!match) return null;
+
+  const value = match[1].trim();
+  if (!value || /^(?:n\/?a|none|tbd|todo|unknown|-)$/i.test(value)) return null;
+  return value;
+}
+
+function latestHumanField(messages, labels) {
+  const sorted = [...(messages || [])]
+    .filter((message) => !message.author?.bot)
+    .sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+
+  for (const message of sorted) {
+    const value = getFieldValue(message.content || '', labels);
+    if (value) {
+      return {
+        value,
+        messageId: message.id,
+        timestamp: message.timestamp || null
+      };
+    }
+  }
+
+  return null;
+}
+
+function validDateParts(year, month, day) {
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day;
+}
+
+function toFourDigitYear(year) {
+  const value = Number(year);
+  if (String(year).length === 2) return value >= 70 ? 1900 + value : 2000 + value;
+  return value;
+}
+
+function parseEventDate(value) {
+  if (!value) return null;
+  const text = String(value).trim();
+
+  let match = text.match(/^(20\d{2}|19\d{2})-(\d{1,2})-(\d{1,2})$/);
+  if (match) {
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (!validDateParts(year, month, day)) return null;
+    return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }
+
+  match = text.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/);
+  if (!match) return null;
+
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = toFourDigitYear(match[3]);
+  if (!validDateParts(year, month, day)) return null;
+
+  return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
 function detectStatusPhrase(text = '') {
@@ -93,6 +170,66 @@ function getStatusTagConfiguration(availableTags) {
   return { statusTagIds, allStatusTagIds };
 }
 
+function deriveStatus(item) {
+  const explicitStatus = item.staffStatus?.status || null;
+
+  if (item.duplicateEventId) return 'Needs Information';
+  if (!item.validation?.complete) return 'Needs Information';
+  if (explicitStatus === 'Cancelled' || explicitStatus === 'Completed') return explicitStatus;
+  if (explicitStatus === 'Needs Information') return 'Needs Information';
+  if (explicitStatus === 'Scheduled') return 'Scheduled';
+  return 'Ready for Approval';
+}
+
+function refreshDateAndTimeFromThread(item, messages) {
+  if (!item.validation) return null;
+
+  item.validation.parsed = item.validation.parsed || {};
+  item.validation.checks = item.validation.checks || {};
+
+  const dateField = latestHumanField(messages, ['Event Date', 'Convoy Date', 'Date']);
+  const timeField = latestHumanField(messages, ['Meeting Time', 'Meetup Time', 'Departure Time', 'Time']);
+
+  if (dateField) {
+    item.validation.parsed.eventDateRaw = dateField.value;
+    item.validation.parsed.eventDate = parseEventDate(dateField.value);
+  }
+
+  if (timeField) {
+    item.validation.parsed.meetupTime = timeField.value;
+  }
+
+  const eventDate = item.validation.parsed.eventDate || null;
+  const meetingTime = item.validation.parsed.meetupTime || null;
+  const parsedTime = parseMeetingTime(eventDate, meetingTime);
+
+  item.validation.checks.eventDate = Boolean(eventDate);
+  item.validation.checks.meetupTime = Boolean(meetingTime);
+
+  const existingMissing = (item.validation.missing || []).filter((issue) =>
+    !['eventDate', 'meetupTime', 'meetingTimeTimezone'].includes(issue)
+  );
+
+  if (!eventDate) existingMissing.push('eventDate');
+  if (!meetingTime) existingMissing.push('meetupTime');
+  if (eventDate && meetingTime && !parsedTime) existingMissing.push('meetingTimeTimezone');
+
+  item.validation.missing = [...new Set(existingMissing)];
+  item.validation.complete = item.validation.missing.length === 0;
+
+  item.eventTimeValid = Boolean(parsedTime);
+  item.eventUnix = parsedTime?.unix || null;
+  item.eventTimeOffsetMinutes = parsedTime?.offsetMinutes ?? null;
+  item.eventTimeZone = parsedTime?.zoneLabel || null;
+  item.status = deriveStatus(item);
+
+  return {
+    parsedTime,
+    dateField,
+    timeField
+  };
+}
+
 function buildStatusMessage(item) {
   const issues = [
     ...(item.validation?.missing || []),
@@ -128,6 +265,39 @@ function buildStatusMessage(item) {
   ].filter(Boolean).join('\n');
 }
 
+async function syncStatusMessage(item, messages, botId) {
+  const content = buildStatusMessage(item);
+  const existing = (messages || []).find((message) =>
+    message.author?.id === botId &&
+    (message.content || '').includes(STATUS_MESSAGE_MARKER)
+  );
+
+  if (!existing) {
+    const created = await discord(`/channels/${item.threadId}/messages`, {
+      method: 'POST',
+      body: {
+        content,
+        allowed_mentions: { parse: [] }
+      }
+    });
+    return { action: 'created', messageId: created?.id || null };
+  }
+
+  if (normalize(existing.content || '') === normalize(content)) {
+    return { action: 'unchanged', messageId: existing.id };
+  }
+
+  await discord(`/channels/${item.threadId}/messages/${existing.id}`, {
+    method: 'PATCH',
+    body: {
+      content,
+      allowed_mentions: { parse: [] }
+    }
+  });
+
+  return { action: 'updated', messageId: existing.id };
+}
+
 async function syncStatusTag(item, forum, thread) {
   const { statusTagIds, allStatusTagIds } = getStatusTagConfiguration(forum.available_tags || []);
   const targetTagId = statusTagIds.get(item.status);
@@ -136,6 +306,8 @@ async function syncStatusTag(item, forum, thread) {
   const current = [...(thread.applied_tags || [])];
   const preserved = current.filter((tagId) => !allStatusTagIds.has(tagId));
   const desired = [...preserved, targetTagId];
+
+  if (desired.length > 5) return { action: 'skipped', reason: 'too-many-tags' };
 
   const sameSet = current.length === desired.length && current.every((tagId) => desired.includes(tagId));
   if (sameSet) return { action: 'unchanged', tagId: targetTagId };
@@ -146,6 +318,21 @@ async function syncStatusTag(item, forum, thread) {
   });
 
   return { action: 'updated', tagId: targetTagId };
+}
+
+function statusKey(status) {
+  return String(status || 'Unknown').replace(/\s+/g, '').replace(/^./, (char) => char.toLowerCase());
+}
+
+function refreshReportSummary(report) {
+  const counts = {};
+  for (const item of report.threads || []) {
+    if (item.ignored || item.error || !item.status) continue;
+    const key = statusKey(item.status);
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  report.summary = report.summary || {};
+  report.summary.statuses = counts;
 }
 
 async function main() {
@@ -161,69 +348,46 @@ async function main() {
 
   for (const item of report.threads || []) {
     if (item.ignored || item.error) continue;
-
-    const eventDate = item.validation?.parsed?.eventDate || null;
-    const meetingTime = item.validation?.parsed?.meetupTime || null;
-    const parsedTime = parseMeetingTime(eventDate, meetingTime);
-
-    item.eventTimeValid = Boolean(parsedTime);
-    item.eventUnix = parsedTime?.unix || null;
-    item.eventTimeOffsetMinutes = parsedTime?.offsetMinutes ?? null;
-    item.eventTimeZone = parsedTime?.zoneLabel || null;
-
-    if (eventDate && meetingTime && !parsedTime) {
-      const missing = item.validation?.missing || [];
-      if (!missing.includes('meetingTimeTimezone')) missing.push('meetingTimeTimezone');
-      if (item.validation) {
-        item.validation.missing = missing;
-        item.validation.complete = false;
-      }
-
-      if (!['Completed', 'Cancelled'].includes(item.status)) {
-        item.status = 'Needs Information';
-      }
-      changedReport = true;
-    }
-
-    if (parsedTime && item.validation?.missing?.includes('meetingTimeTimezone')) {
-      item.validation.missing = item.validation.missing.filter((issue) => issue !== 'meetingTimeTimezone');
-      item.validation.complete = item.validation.missing.length === 0;
-      changedReport = true;
-    }
-
     if (item.archived || item.locked) continue;
 
     try {
       const thread = await discord(`/channels/${item.threadId}`);
       const messages = await discord(`/channels/${item.threadId}/messages?limit=100`);
-      const existing = (messages || []).find((message) =>
-        message.author?.id === bot.id &&
-        (message.content || '').includes(STATUS_MESSAGE_MARKER)
+
+      const before = JSON.stringify({
+        eventDate: item.validation?.parsed?.eventDate || null,
+        eventDateRaw: item.validation?.parsed?.eventDateRaw || null,
+        meetupTime: item.validation?.parsed?.meetupTime || null,
+        missing: item.validation?.missing || [],
+        status: item.status || null,
+        eventUnix: item.eventUnix || null
+      });
+
+      const refreshed = refreshDateAndTimeFromThread(item, messages);
+
+      const after = JSON.stringify({
+        eventDate: item.validation?.parsed?.eventDate || null,
+        eventDateRaw: item.validation?.parsed?.eventDateRaw || null,
+        meetupTime: item.validation?.parsed?.meetupTime || null,
+        missing: item.validation?.missing || [],
+        status: item.status || null,
+        eventUnix: item.eventUnix || null
+      });
+
+      if (before !== after) changedReport = true;
+
+      const messageResult = await syncStatusMessage(item, messages, bot.id);
+      const tagResult = await syncStatusTag(item, forum, thread);
+
+      console.log(
+        `- ${item.name} | Status: ${item.status} | Date source: ${refreshed?.dateField?.messageId || 'existing report'} | Time source: ${refreshed?.timeField?.messageId || 'existing report'} | Message: ${messageResult.action} | Tag: ${tagResult.action}`
       );
-
-      if (existing) {
-        const content = buildStatusMessage(item);
-        if (normalize(existing.content || '') !== normalize(content)) {
-          await discord(`/channels/${item.threadId}/messages/${existing.id}`, {
-            method: 'PATCH',
-            body: {
-              content,
-              allowed_mentions: { parse: [] }
-            }
-          });
-          console.log(`- Updated timestamp display | ${item.name}`);
-        }
-      }
-
-      if (eventDate && meetingTime && !parsedTime && !['Completed', 'Cancelled'].includes(item.status)) {
-        const tagResult = await syncStatusTag(item, forum, thread);
-        console.log(`- Time validation tag sync | ${item.name} | ${tagResult.action}`);
-      }
     } catch (error) {
       console.warn(`- Time display failed | ${item.name} | ${error.message}`);
     }
   }
 
+  refreshReportSummary(report);
   fs.writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
   console.log(`Kings Convoy Time Display finished. Report updated: ${changedReport ? 'yes' : 'no'}.`);
 }
