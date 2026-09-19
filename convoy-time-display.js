@@ -23,7 +23,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Time Display/1.1'
+    'User-Agent': 'Kings Logistics Convoy Time Display/1.2'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -89,6 +89,45 @@ function latestHumanField(messages, labels) {
   }
 
   return null;
+}
+
+function latestHumanEventId(messages) {
+  const sorted = [...(messages || [])]
+    .filter((message) => !message.author?.bot)
+    .sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+
+  for (const message of sorted) {
+    const match = String(message.content || '').match(/https?:\/\/(?:www\.)?truckersmp\.com\/events\/(\d+)/i);
+    if (match) {
+      return {
+        value: match[1],
+        messageId: message.id,
+        timestamp: message.timestamp || null
+      };
+    }
+  }
+
+  return null;
+}
+
+function hasImage(messages) {
+  return (messages || []).some((message) => {
+    if (message.author?.bot) return false;
+    if ((message.attachments || []).some((attachment) => {
+      const contentType = String(attachment.content_type || '').toLowerCase();
+      const filename = String(attachment.filename || '').toLowerCase();
+      return contentType.startsWith('image/') || /\.(?:png|jpe?g|gif|webp|bmp)$/i.test(filename);
+    })) return true;
+
+    return (message.embeds || []).some((embed) => embed.image || embed.thumbnail);
+  });
+}
+
+function isConfirmedSlot(value = '') {
+  const text = String(value).trim();
+  if (!text) return false;
+  if (/\b(?:not\s+confirmed|unconfirmed|pending|waiting|requested|request|tbd|unknown|none|no)\b/i.test(text)) return false;
+  return /\bconfirmed\b/i.test(text) || /\bslot\s*[#:-]?\s*\d+\b/i.test(text) || /^\d+$/.test(text);
 }
 
 function validDateParts(year, month, day) {
@@ -173,48 +212,79 @@ function getStatusTagConfiguration(availableTags) {
 function deriveStatus(item) {
   const explicitStatus = item.staffStatus?.status || null;
 
+  // Completed/Cancelled are terminal states and must never be overwritten by later validation changes.
+  if (explicitStatus === 'Cancelled' || explicitStatus === 'Completed') return explicitStatus;
   if (item.duplicateEventId) return 'Needs Information';
   if (!item.validation?.complete) return 'Needs Information';
-  if (explicitStatus === 'Cancelled' || explicitStatus === 'Completed') return explicitStatus;
   if (explicitStatus === 'Needs Information') return 'Needs Information';
   if (explicitStatus === 'Scheduled') return 'Scheduled';
   return 'Ready for Approval';
 }
 
-function refreshDateAndTimeFromThread(item, messages) {
+function refreshFieldsFromThread(item, messages) {
   if (!item.validation) return null;
 
   item.validation.parsed = item.validation.parsed || {};
   item.validation.checks = item.validation.checks || {};
+  const parsed = item.validation.parsed;
+
+  const sources = {};
+  const fieldDefinitions = [
+    ['eventType', ['Event Type', 'Convoy Type', 'Type']],
+    ['responsibleStaff', ['Responsible Staff', 'Responsible Person', 'Staff', 'Organizer']],
+    ['kingsSlot', ['Kings Slot', 'Slot Confirmation', 'Confirmed Slot', 'Slot Number', 'Slot']],
+    ['route', ['Route']],
+    ['start', ['Start', 'Starting Point', 'Departure']],
+    ['destination', ['Destination', 'End', 'End Point']],
+    ['meetup', ['Meeting Point', 'Meeting Location', 'Meetup', 'Meetup Point']],
+    ['meetupTime', ['Meeting Time', 'Meetup Time', 'Departure Time', 'Time']]
+  ];
+
+  for (const [key, labels] of fieldDefinitions) {
+    const field = latestHumanField(messages, labels);
+    if (!field) continue;
+    parsed[key] = field.value;
+    sources[key] = field;
+  }
 
   const dateField = latestHumanField(messages, ['Event Date', 'Convoy Date', 'Date']);
-  const timeField = latestHumanField(messages, ['Meeting Time', 'Meetup Time', 'Departure Time', 'Time']);
-
   if (dateField) {
-    item.validation.parsed.eventDateRaw = dateField.value;
-    item.validation.parsed.eventDate = parseEventDate(dateField.value);
+    parsed.eventDateRaw = dateField.value;
+    parsed.eventDate = parseEventDate(dateField.value);
+    sources.eventDate = dateField;
   }
 
-  if (timeField) {
-    item.validation.parsed.meetupTime = timeField.value;
+  const eventIdField = latestHumanEventId(messages);
+  if (eventIdField) {
+    item.eventId = eventIdField.value;
+    sources.eventId = eventIdField;
   }
 
-  const eventDate = item.validation.parsed.eventDate || null;
-  const meetingTime = item.validation.parsed.meetupTime || null;
+  const eventDate = parsed.eventDate || null;
+  const meetingTime = parsed.meetupTime || null;
   const parsedTime = parseMeetingTime(eventDate, meetingTime);
 
-  item.validation.checks.eventDate = Boolean(eventDate);
-  item.validation.checks.meetupTime = Boolean(meetingTime);
+  const checks = {
+    eventLink: Boolean(item.eventId),
+    eventType: Boolean(parsed.eventType),
+    eventDate: Boolean(eventDate),
+    responsibleStaff: Boolean(parsed.responsibleStaff),
+    kingsSlotConfirmed: isConfirmedSlot(parsed.kingsSlot),
+    route: Boolean(parsed.route || (parsed.start && parsed.destination)),
+    meetup: Boolean(parsed.meetup),
+    meetupTime: Boolean(meetingTime),
+    imageProof: hasImage(messages)
+  };
 
-  const existingMissing = (item.validation.missing || []).filter((issue) =>
-    !['eventDate', 'meetupTime', 'meetingTimeTimezone'].includes(issue)
-  );
+  item.validation.checks = checks;
 
-  if (!eventDate) existingMissing.push('eventDate');
-  if (!meetingTime) existingMissing.push('meetupTime');
-  if (eventDate && meetingTime && !parsedTime) existingMissing.push('meetingTimeTimezone');
+  const missing = Object.entries(checks)
+    .filter(([, ok]) => !ok)
+    .map(([name]) => name);
 
-  item.validation.missing = [...new Set(existingMissing)];
+  if (eventDate && meetingTime && !parsedTime) missing.push('meetingTimeTimezone');
+
+  item.validation.missing = [...new Set(missing)];
   item.validation.complete = item.validation.missing.length === 0;
 
   item.eventTimeValid = Boolean(parsedTime);
@@ -225,8 +295,7 @@ function refreshDateAndTimeFromThread(item, messages) {
 
   return {
     parsedTime,
-    dateField,
-    timeField
+    sources
   };
 }
 
@@ -249,7 +318,7 @@ function buildStatusMessage(item) {
 
   const eventLine = item.eventId ? `🔗 **TruckersMP Event ID:** ${item.eventId}` : null;
   const eventTimeLine = item.eventUnix
-    ? `🕒 **Event Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}`
+    ? `🕒 **Meeting Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}`
     : null;
 
   return [
@@ -355,20 +424,20 @@ async function main() {
       const messages = await discord(`/channels/${item.threadId}/messages?limit=100`);
 
       const before = JSON.stringify({
-        eventDate: item.validation?.parsed?.eventDate || null,
-        eventDateRaw: item.validation?.parsed?.eventDateRaw || null,
-        meetupTime: item.validation?.parsed?.meetupTime || null,
+        eventId: item.eventId || null,
+        parsed: item.validation?.parsed || {},
+        checks: item.validation?.checks || {},
         missing: item.validation?.missing || [],
         status: item.status || null,
         eventUnix: item.eventUnix || null
       });
 
-      const refreshed = refreshDateAndTimeFromThread(item, messages);
+      const refreshed = refreshFieldsFromThread(item, messages);
 
       const after = JSON.stringify({
-        eventDate: item.validation?.parsed?.eventDate || null,
-        eventDateRaw: item.validation?.parsed?.eventDateRaw || null,
-        meetupTime: item.validation?.parsed?.meetupTime || null,
+        eventId: item.eventId || null,
+        parsed: item.validation?.parsed || {},
+        checks: item.validation?.checks || {},
         missing: item.validation?.missing || [],
         status: item.status || null,
         eventUnix: item.eventUnix || null
@@ -378,21 +447,22 @@ async function main() {
 
       const messageResult = await syncStatusMessage(item, messages, bot.id);
       const tagResult = await syncStatusTag(item, forum, thread);
+      const sources = refreshed?.sources || {};
 
       console.log(
-        `- ${item.name} | Status: ${item.status} | Date source: ${refreshed?.dateField?.messageId || 'existing report'} | Time source: ${refreshed?.timeField?.messageId || 'existing report'} | Message: ${messageResult.action} | Tag: ${tagResult.action}`
+        `- ${item.name} | Status: ${item.status} | Date: ${sources.eventDate?.messageId || 'existing'} | Meeting Time: ${sources.meetupTime?.messageId || 'existing'} | Route: ${sources.route?.messageId || 'existing'} | Meeting Point: ${sources.meetup?.messageId || 'existing'} | Slot: ${sources.kingsSlot?.messageId || 'existing'} | Message: ${messageResult.action} | Tag: ${tagResult.action}`
       );
     } catch (error) {
-      console.warn(`- Time display failed | ${item.name} | ${error.message}`);
+      console.warn(`- Time/field sync failed | ${item.name} | ${error.message}`);
     }
   }
 
   refreshReportSummary(report);
   fs.writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
-  console.log(`Kings Convoy Time Display finished. Report updated: ${changedReport ? 'yes' : 'no'}.`);
+  console.log(`Kings Convoy Time/Field Sync finished. Report updated: ${changedReport ? 'yes' : 'no'}.`);
 }
 
 main().catch((error) => {
-  console.error('Kings Convoy Time Display failed:', error.message);
+  console.error('Kings Convoy Time/Field Sync failed:', error.message);
   process.exit(1);
 });
