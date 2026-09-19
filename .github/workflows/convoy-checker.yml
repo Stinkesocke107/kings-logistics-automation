@@ -22,11 +22,12 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Run read-only convoy checker
+      - name: Run convoy checker and sync Discord status
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
+          DISCORD_WRITE_MODE: 'true'
         run: node convoy-checker.js
 
       - name: Upload convoy check report
