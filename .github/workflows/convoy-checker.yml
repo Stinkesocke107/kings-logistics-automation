@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Run convoy checker and sync Discord status
+      - name: Run convoy checker and sync Discord status + forum tag
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
