@@ -1,7 +1,7 @@
 {
   "version": 2,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-09-19T22:00:20.842Z",
+  "updatedAt": "2026-09-19T23:03:33.785Z",
   "messageId": "1550301949470048277",
   "recreateMessage": false,
   "allTime": {
@@ -787,12 +787,12 @@
       "peakOnline": 4,
       "peakETS2": 4,
       "peakATS": 0,
-      "activitySamples": 23,
-      "ets2PlayerSamples": 21,
+      "activitySamples": 24,
+      "ets2PlayerSamples": 23,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {
         "ETS2 — Arcade": 2,
-        "ETS2 — Simulation 1": 15,
+        "ETS2 — Simulation 1": 17,
         "ETS2 — Official ETS2 Convoy - September": 4
       },
       "sampledHours": [
@@ -818,7 +818,8 @@
         "2026-09-19T19:00:00.000Z",
         "2026-09-19T20:00:00.000Z",
         "2026-09-19T21:00:00.000Z",
-        "2026-09-19T22:00:00.000Z"
+        "2026-09-19T22:00:00.000Z",
+        "2026-09-19T23:00:00.000Z"
       ]
     }
   ]
