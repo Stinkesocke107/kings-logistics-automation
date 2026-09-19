@@ -43,7 +43,6 @@ jobs:
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_ANNOUNCEMENT_CHANNEL_ID: '1550997669596631200'
           DISCORD_CONVOY_ANNOUNCEMENT_ROLE_ID: '1476774746480709675'
-          CONVOY_ANNOUNCEMENT_TEST_MODE: 'true'
         run: node convoy-announcements.js
 
       - name: Send one-time convoy notifications
