@@ -29,7 +29,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Checker/3.0'
+    'User-Agent': 'Kings Logistics Convoy Checker/3.1'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -54,7 +54,7 @@ async function discord(path, options = {}) {
 }
 
 function normalize(text = '') {
-  return text.replace(/\r/g, '').trim();
+  return String(text).replace(/\r/g, '').trim();
 }
 
 function stripMarkdown(text = '') {
@@ -68,7 +68,9 @@ function escapeRegex(value) {
 function getFieldValue(text, labels) {
   const cleaned = stripMarkdown(text);
   const names = labels.map(escapeRegex).join('|');
-  const match = cleaned.match(new RegExp(`(?:^|\\n)\\s*(?:[-#>]+\\s*)?(?:${names})\\s*(?::|-)\\s*([^\\n]+)`, 'i'));
+  const match = cleaned.match(
+    new RegExp(`(?:^|\\n)\\s*(?:[-#>]+\\s*)?(?:${names})\\s*(?::|-)\\s*([^\\n]+)`, 'i')
+  );
   if (!match) return null;
 
   const value = match[1].trim();
@@ -82,18 +84,22 @@ function extractEventId(text = '') {
 }
 
 function hasImage(messages = []) {
-  return messages.some((message) => (message.attachments || []).some((attachment) => {
-    const type = attachment.content_type || '';
-    const name = attachment.filename || '';
-    return type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(name);
-  }));
+  return messages.some((message) =>
+    (message.attachments || []).some((attachment) => {
+      const type = attachment.content_type || '';
+      const name = attachment.filename || '';
+      return type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(name);
+    })
+  );
 }
 
 function isConfirmedSlot(value) {
   if (!value) return false;
-  const normalized = value.trim();
-  if (/\b(?:no|none|n\/?a|tbd|pending|waiting|unconfirmed|not\s+confirmed|not\s+booked)\b/i.test(normalized)) return false;
-  return normalized.length > 0;
+  const cleaned = value.trim();
+  if (/\b(?:no|none|n\/?a|tbd|pending|waiting|unconfirmed|not\s+confirmed|not\s+booked)\b/i.test(cleaned)) {
+    return false;
+  }
+  return cleaned.length > 0;
 }
 
 async function getMemberRoles(message) {
@@ -103,10 +109,7 @@ async function getMemberRoles(message) {
   }
 
   const userId = message.author?.id || null;
-  if (!userId) {
-    return { roles: [], source: 'none', error: 'Message has no author ID.' };
-  }
-
+  if (!userId) return { roles: [], source: 'none', error: 'Message has no author ID.' };
   if (memberRoleCache.has(userId)) return memberRoleCache.get(userId);
 
   try {
@@ -133,22 +136,18 @@ function detectStatusPhrase(text = '') {
   const value = stripMarkdown(text).toLowerCase();
   if (/\b(cancelled|canceled)\b/.test(value)) return 'Cancelled';
   if (/\b(completed|finished)\b/.test(value)) return 'Completed';
-  if (/\b(needs?\s+(?:more\s+)?information|needs?\s+info|missing\s+information)\b/.test(value)) return 'Needs Information';
+  if (/\b(needs?\s+(?:more\s+)?information|needs?\s+info|missing\s+information)\b/.test(value)) {
+    return 'Needs Information';
+  }
   if (/\bready\s+for\s+approval\b/.test(value)) return 'Ready for Approval';
   if (/\bsubmitted\b/.test(value)) return 'Submitted';
-  if (/\b(?:scheduled|approved)\b/.test(value) && !/\b(?:not|isn['’]?t|is\s+not)\s+(?:yet\s+)?approved\b/.test(value)) return 'Scheduled';
+  if (
+    /\b(?:scheduled|approved)\b/.test(value) &&
+    !/\b(?:not|isn['’]?t|is\s+not)\s+(?:yet\s+)?approved\b/.test(value)
+  ) {
+    return 'Scheduled';
+  }
   return null;
-}
-
-function detectForumTagStatus(thread, tagNamesById) {
-  const statuses = (thread.applied_tags || [])
-    .map((tagId) => tagNamesById.get(tagId))
-    .filter(Boolean)
-    .map(detectStatusPhrase)
-    .filter(Boolean);
-
-  const priority = ['Cancelled', 'Completed', 'Scheduled', 'Needs Information', 'Ready for Approval', 'Submitted'];
-  return priority.find((status) => statuses.includes(status)) || null;
 }
 
 function isTemplateThread(thread, tagNamesById) {
@@ -259,15 +258,19 @@ async function getStaffStatus(messages) {
   return candidates[0] || null;
 }
 
-function deriveStatus({ validation, tagStatus, staffStatus, starterText, duplicate }) {
-  const explicitStatus = tagStatus || staffStatus?.status || null;
+function deriveStatus({ validation, staffStatus, starterText, duplicate }) {
+  const explicitStatus = staffStatus?.status || null;
 
   if (explicitStatus === 'Cancelled' || explicitStatus === 'Completed') return explicitStatus;
   if (duplicate) return 'Needs Information';
+
   if (!validation.complete) {
-    const hasSubmissionSignal = Boolean(extractEventId(starterText)) || Object.values(validation.parsed).some(Boolean);
+    const hasSubmissionSignal =
+      Boolean(extractEventId(starterText)) ||
+      Object.values(validation.parsed).some(Boolean);
     return hasSubmissionSignal ? 'Needs Information' : 'Submitted';
   }
+
   if (explicitStatus === 'Needs Information') return 'Needs Information';
   if (explicitStatus === 'Scheduled') return 'Scheduled';
   return 'Ready for Approval';
@@ -298,12 +301,9 @@ function buildDiscordStatusMessage(item) {
     ...(item.duplicateEventId ? ['duplicateEventId'] : [])
   ];
 
-  let validationLine;
-  if (issues.length === 0) {
-    validationLine = '✅ **Validation:** All required information is complete.';
-  } else {
-    validationLine = `⚠️ **Missing / Issue:** ${issues.map(friendlyIssueName).join(', ')}`;
-  }
+  const validationLine = issues.length === 0
+    ? '✅ **Validation:** All required information is complete.'
+    : `⚠️ **Missing / Issue:** ${issues.map(friendlyIssueName).join(', ')}`;
 
   let approvalLine = 'ℹ️ **Approval:** No authorized staff status has been detected yet.';
   if (item.status === 'Ready for Approval') {
@@ -363,6 +363,64 @@ async function syncDiscordStatus(item, messages, botId) {
   return { action: 'updated', messageId: updated?.id || existing.id };
 }
 
+function getStatusTagConfiguration(availableTags) {
+  const statusTagIds = new Map();
+  const allStatusTagIds = new Set();
+
+  for (const tag of availableTags || []) {
+    const status = detectStatusPhrase(tag.name || '');
+    if (!status) continue;
+
+    allStatusTagIds.add(tag.id);
+    if (!statusTagIds.has(status)) statusTagIds.set(status, tag.id);
+  }
+
+  return { statusTagIds, allStatusTagIds };
+}
+
+async function syncForumStatusTag(item, statusTagIds, allStatusTagIds) {
+  if (!WRITE_MODE) return { action: 'disabled' };
+  if (item.archived) return { action: 'skipped', reason: 'archived-thread' };
+  if (item.locked) return { action: 'skipped', reason: 'locked-thread' };
+
+  const targetTagId = statusTagIds.get(item.status);
+  if (!targetTagId) {
+    return {
+      action: 'skipped',
+      reason: 'missing-status-tag',
+      status: item.status
+    };
+  }
+
+  const current = [...(item.appliedTagIds || [])];
+  const preserved = current.filter((tagId) => !allStatusTagIds.has(tagId));
+  const desired = [...preserved, targetTagId];
+
+  if (desired.length > 5) {
+    return {
+      action: 'skipped',
+      reason: 'too-many-tags',
+      preservedTagCount: preserved.length
+    };
+  }
+
+  const sameSet =
+    current.length === desired.length &&
+    current.every((tagId) => desired.includes(tagId));
+
+  if (sameSet) {
+    return { action: 'unchanged', tagId: targetTagId };
+  }
+
+  await discord(`/channels/${item.threadId}`, {
+    method: 'PATCH',
+    body: { applied_tags: desired }
+  });
+
+  item.appliedTagIds = desired;
+  return { action: 'updated', tagId: targetTagId };
+}
+
 function appendGithubSummary(report) {
   const summaryPath = process.env.GITHUB_STEP_SUMMARY;
   if (!summaryPath) return;
@@ -374,13 +432,14 @@ function appendGithubSummary(report) {
     '',
     `Actual convoys: **${report.summary.actualConvoys}** · Ignored templates: **${report.summary.ignoredTemplates}**`,
     '',
-    '| Convoy | Status | Missing / Issue | Discord status |',
-    '|---|---|---|---|'
+    '| Convoy | Status | Missing / Issue | Discord message | Forum tag |',
+    '|---|---|---|---|---|'
   ];
 
   const visible = report.threads.filter((item) => !item.ignored);
+
   if (visible.length === 0) {
-    lines.push('| — | No real convoy submissions found | — | — |');
+    lines.push('| — | No real convoy submissions found | — | — | — |');
   } else {
     for (const item of visible) {
       const issue = item.error
@@ -389,8 +448,15 @@ function appendGithubSummary(report) {
             ...(item.validation?.missing || []),
             ...(item.duplicateEventId ? ['duplicateEventId'] : [])
           ].join(', ') || '—';
-      const sync = item.discordStatusSync?.action || (WRITE_MODE ? 'not-run' : 'disabled');
-      lines.push(`| ${String(item.name || '').replace(/\|/g, '\\|')} | ${item.status || 'Error'} | ${issue.replace(/\|/g, '\\|')} | ${sync} |`);
+
+      const messageSync = item.discordStatusSync?.action || (WRITE_MODE ? 'not-run' : 'disabled');
+      const tagSync = item.forumTagSync?.action
+        ? `${item.forumTagSync.action}${item.forumTagSync.reason ? ` (${item.forumTagSync.reason})` : ''}`
+        : (WRITE_MODE ? 'not-run' : 'disabled');
+
+      lines.push(
+        `| ${String(item.name || '').replace(/\|/g, '\\|')} | ${item.status || 'Error'} | ${String(issue).replace(/\|/g, '\\|')} | ${messageSync} | ${tagSync} |`
+      );
     }
   }
 
@@ -405,7 +471,10 @@ async function main() {
     throw new Error(`Forum ${FORUM_ID} does not belong to guild ${GUILD_ID}.`);
   }
 
-  const tagNamesById = new Map((forum.available_tags || []).map((tag) => [tag.id, tag.name]));
+  const availableTags = forum.available_tags || [];
+  const tagNamesById = new Map(availableTags.map((tag) => [tag.id, tag.name]));
+  const { statusTagIds, allStatusTagIds } = getStatusTagConfiguration(availableTags);
+
   const activeData = await discord(`/guilds/${GUILD_ID}/threads/active`);
   const activeThreads = (activeData.threads || []).filter((thread) => thread.parent_id === FORUM_ID);
   const archivedThreads = await getArchivedForumThreads();
@@ -433,10 +502,10 @@ async function main() {
     try {
       const messages = await getThreadMessages(thread.id);
       messagesByThreadId.set(thread.id, messages);
+
       const starter = getStarterMessage(messages, thread.id);
       const starterText = normalize(starter.content || '');
       const validation = checkFields(starterText, messages);
-      const tagStatus = detectForumTagStatus(thread, tagNamesById);
       const staffStatus = await getStaffStatus(messages);
 
       results.push({
@@ -448,9 +517,18 @@ async function main() {
         starterAuthorId: starter.author?.id || null,
         eventId: extractEventId(starterText),
         messageCountChecked: messages.length,
-        attachmentCount: messages.reduce((count, message) => count + (message.attachments || []).length, 0),
-        tagNames: (thread.applied_tags || []).map((tagId) => tagNamesById.get(tagId)).filter(Boolean),
-        tagStatus,
+        attachmentCount: messages.reduce(
+          (count, message) => count + (message.attachments || []).length,
+          0
+        ),
+        appliedTagIds: [...(thread.applied_tags || [])],
+        tagNames: (thread.applied_tags || [])
+          .map((tagId) => tagNamesById.get(tagId))
+          .filter(Boolean),
+        tagStatusBeforeSync: (thread.applied_tags || [])
+          .map((tagId) => tagNamesById.get(tagId))
+          .map((name) => detectStatusPhrase(name || ''))
+          .find(Boolean) || null,
         staffStatus,
         validation,
         starterTextForStatus: starterText
@@ -478,24 +556,40 @@ async function main() {
   const duplicateEventIds = [...eventMap.entries()]
     .filter(([, threadIds]) => threadIds.length > 1)
     .map(([eventId, threadIds]) => ({ eventId, threadIds }));
-  const duplicateThreadIds = new Set(duplicateEventIds.flatMap((item) => item.threadIds));
+
+  const duplicateThreadIds = new Set(
+    duplicateEventIds.flatMap((item) => item.threadIds)
+  );
 
   for (const item of actualConvoys) {
     if (item.error) continue;
+
     item.duplicateEventId = duplicateThreadIds.has(item.threadId);
     item.status = deriveStatus({
       validation: item.validation,
-      tagStatus: item.tagStatus,
       staffStatus: item.staffStatus,
       starterText: item.starterTextForStatus,
       duplicate: item.duplicateEventId
     });
+
     delete item.starterTextForStatus;
   }
 
   if (WRITE_MODE) {
     for (const item of actualConvoys) {
       if (item.error) continue;
+
+      try {
+        item.forumTagSync = await syncForumStatusTag(
+          item,
+          statusTagIds,
+          allStatusTagIds
+        );
+      } catch (error) {
+        item.forumTagSync = { action: 'failed', error: error.message };
+        console.warn(`Forum tag sync failed for ${item.name}: ${error.message}`);
+      }
+
       try {
         item.discordStatusSync = await syncDiscordStatus(
           item,
@@ -516,13 +610,28 @@ async function main() {
     statusCounts[key] = (statusCounts[key] || 0) + 1;
   }
 
+  const statusTagsAvailable = Object.fromEntries(
+    [...statusTagIds.entries()].map(([status, tagId]) => [
+      status,
+      {
+        id: tagId,
+        name: tagNamesById.get(tagId) || null
+      }
+    ])
+  );
+
   const report = {
     generatedAt: new Date().toISOString(),
-    mode: WRITE_MODE ? 'DISCORD_STATUS_WRITE' : 'READ_ONLY',
+    mode: WRITE_MODE ? 'DISCORD_MESSAGE_AND_TAG_WRITE' : 'READ_ONLY',
     guildId: GUILD_ID,
     forumId: FORUM_ID,
     bot: { id: bot.id, username: bot.username },
-    forum: { id: forum.id, name: forum.name, type: forum.type },
+    forum: {
+      id: forum.id,
+      name: forum.name,
+      type: forum.type,
+      statusTagsAvailable
+    },
     summary: {
       totalThreads: results.length,
       actualConvoys: actualConvoys.length,
@@ -538,7 +647,11 @@ async function main() {
   };
 
   fs.mkdirSync('output', { recursive: true });
-  fs.writeFileSync('output/convoy-check-results.json', JSON.stringify(report, null, 2));
+  fs.writeFileSync(
+    'output/convoy-check-results.json',
+    JSON.stringify(report, null, 2)
+  );
+
   appendGithubSummary(report);
 
   console.log('Kings Convoy Checker connected successfully.');
@@ -546,18 +659,24 @@ async function main() {
   console.log(`Forum: ${forum.name} (${forum.id})`);
   console.log(`Mode: ${report.mode}`);
   console.log(`Threads found: ${report.summary.totalThreads}`);
-  console.log(`Actual convoys: ${report.summary.actualConvoys} | Ignored templates: ${report.summary.ignoredTemplates}`);
+  console.log(
+    `Actual convoys: ${report.summary.actualConvoys} | Ignored templates: ${report.summary.ignoredTemplates}`
+  );
   console.log(`Duplicate TruckersMP event IDs: ${report.summary.duplicateEventIds}`);
   console.log(`Status counts: ${JSON.stringify(report.summary.statuses)}`);
+  console.log(`Status tags available: ${JSON.stringify(statusTagsAvailable)}`);
 
   console.log('\nConvoy validation details:');
   if (results.length === 0) console.log('- No convoy threads found.');
 
   for (const item of results) {
     if (item.ignored) {
-      console.log(`- IGNORED | ${item.name} (${item.threadId}) | Reason: ${item.ignoreReason}`);
+      console.log(
+        `- IGNORED | ${item.name} (${item.threadId}) | Reason: ${item.ignoreReason}`
+      );
       continue;
     }
+
     if (item.error) {
       console.log(`- ERROR | ${item.name} (${item.threadId}) | ${item.error}`);
       continue;
@@ -567,18 +686,29 @@ async function main() {
       ...(item.validation.missing || []),
       ...(item.duplicateEventId ? ['duplicateEventId'] : [])
     ];
+
     const approval = item.staffStatus?.authorId
       ? ` | Staff status by ${item.staffStatus.authorId}: ${item.staffStatus.status} via ${item.staffStatus.roleSource}; matched roles: ${item.staffStatus.matchedRoleIds.join(', ')}`
       : '';
-    const sync = item.discordStatusSync
-      ? ` | Discord status: ${item.discordStatusSync.action}${item.discordStatusSync.reason ? ` (${item.discordStatusSync.reason})` : ''}`
+
+    const messageSync = item.discordStatusSync
+      ? ` | Discord message: ${item.discordStatusSync.action}${item.discordStatusSync.reason ? ` (${item.discordStatusSync.reason})` : ''}`
       : '';
-    console.log(`- ${item.status.toUpperCase()} | ${item.name} (${item.threadId}) | Event: ${item.eventId || 'none'} | Issues: ${issues.join(', ') || 'none'}${approval}${sync}`);
+
+    const tagSync = item.forumTagSync
+      ? ` | Forum tag: ${item.forumTagSync.action}${item.forumTagSync.reason ? ` (${item.forumTagSync.reason})` : ''}`
+      : '';
+
+    console.log(
+      `- ${item.status.toUpperCase()} | ${item.name} (${item.threadId}) | Event: ${item.eventId || 'none'} | Issues: ${issues.join(', ') || 'none'}${approval}${messageSync}${tagSync}`
+    );
   }
 
-  console.log(WRITE_MODE
-    ? '\nDiscord status write mode: bot only creates/edits its own convoy status message.'
-    : '\nREAD_ONLY mode: no Discord data was changed.');
+  console.log(
+    WRITE_MODE
+      ? '\nDiscord write mode: bot only creates/edits its own convoy status message and synchronizes existing forum status tags.'
+      : '\nREAD_ONLY mode: no Discord data was changed.'
+  );
 }
 
 main().catch((error) => {
