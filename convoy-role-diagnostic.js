@@ -23,7 +23,7 @@ async function discord(path) {
   const response = await fetch(`${API}${path}`, {
     headers: {
       Authorization: `Bot ${TOKEN}`,
-      'User-Agent': 'Kings Logistics Convoy Role Diagnostic/1.0'
+      'User-Agent': 'Kings Logistics Convoy Role Diagnostic/1.1'
     }
   });
 
@@ -35,12 +35,26 @@ async function discord(path) {
   return response.json();
 }
 
+function clean(text = '') {
+  return String(text)
+    .normalize('NFKC')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/[*_`~]/g, '')
+    .trim();
+}
+
 function detectStatusPhrase(text = '') {
-  const value = text.toLowerCase().replace(/[*_`~]/g, '').trim();
-  if (/\b(cancelled|canceled)\b/.test(value)) return 'Cancelled';
-  if (/\b(completed|finished)\b/.test(value)) return 'Completed';
-  if (/\b(?:scheduled|approved)\b/.test(value)) return 'Scheduled';
+  const value = clean(text).toLowerCase();
+  if (/(?:^|\s)(cancelled|canceled)(?:\s|$)/.test(value)) return 'Cancelled';
+  if (/(?:^|\s)(completed|finished)(?:\s|$)/.test(value)) return 'Completed';
+  if (/(?:^|\s)(scheduled|approved)(?:\s|$)/.test(value)) return 'Scheduled';
   return null;
+}
+
+function preview(text = '') {
+  const value = clean(text).replace(/\s+/g, ' ');
+  if (!value) return '<EMPTY>';
+  return value.length > 120 ? `${value.slice(0, 120)}…` : value;
 }
 
 async function main() {
@@ -56,25 +70,28 @@ async function main() {
     if (/\btemplate\b/i.test(thread.name || '')) continue;
 
     const messages = await discord(`/channels/${thread.id}/messages?limit=100`);
-    for (const message of messages) {
-      const status = detectStatusPhrase(message.content || '');
-      if (!status) continue;
+    console.log('---');
+    console.log(`Thread: ${thread.name} (${thread.id})`);
+    console.log(`Messages returned by Discord: ${messages.length}`);
 
-      found += 1;
+    for (const message of messages) {
+      const content = message.content || '';
+      const status = detectStatusPhrase(content);
       const roles = message.member?.roles || [];
       const matches = roles.filter((roleId) => EVENT_TEAM_ROLE_IDS.has(roleId));
 
-      console.log('---');
-      console.log(`Thread: ${thread.name} (${thread.id})`);
-      console.log(`Status phrase detected: ${status}`);
-      console.log(`Author ID: ${message.author?.id || 'unknown'}`);
-      console.log(`Roles supplied by Discord: ${roles.length ? roles.join(', ') : 'NONE'}`);
+      console.log(`Message ${message.id} | author ${message.author?.id || 'unknown'} | type ${message.type} | content: ${preview(content)} | roles: ${roles.length ? roles.join(', ') : 'NONE'}`);
+
+      if (!status) continue;
+
+      found += 1;
+      console.log(`STATUS DETECTED: ${status}`);
       console.log(`Configured Event Team role matches: ${matches.length ? matches.join(', ') : 'NONE'}`);
     }
   }
 
   if (found === 0) {
-    console.log('No Approved/Scheduled/Completed/Cancelled status message was found.');
+    console.log('No Approved/Scheduled/Completed/Cancelled status message was found in the text Discord returned.');
   }
 
   console.log('Diagnostic is READ_ONLY. No Discord data was changed.');
