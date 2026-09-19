@@ -2,6 +2,8 @@ const fs = require('fs');
 const { discordTimestamp, localDateForUnix } = require('./convoy-time-utils');
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
+const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
+const FORUM_ID = process.env.DISCORD_CONVOY_FORUM_ID || '1550619824005062697';
 const REPORT_PATH = 'output/convoy-check-results.json';
 const TEST_MODE = /^(?:1|true|yes|on)$/i.test(process.env.CONVOY_REMINDER_TEST_MODE || '');
 
@@ -20,12 +22,13 @@ if (!fs.existsSync(REPORT_PATH)) {
 }
 
 const API = 'https://discord.com/api/v10';
+let statusTagConfiguration = null;
 
 async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Reminders/1.1'
+    'User-Agent': 'Kings Logistics Convoy Reminders/1.2'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -95,6 +98,71 @@ function getTestCommands(messages) {
     eventDay: newestHumanCommand(messages, /(?:^|\n)\s*Reminder\s+Test\s*:\s*Event\s+Day\s*(?:$|\n)/i),
     afterConvoy: newestHumanCommand(messages, /(?:^|\n)\s*Reminder\s+Test\s*:\s*(?:After\s+Convoy|Follow\s*Up)\s*(?:$|\n)/i)
   };
+}
+
+function detectStatusPhrase(text = '') {
+  const value = String(text).toLowerCase();
+  if (/\b(cancelled|canceled)\b/.test(value)) return 'Cancelled';
+  if (/\b(completed|finished)\b/.test(value)) return 'Completed';
+  if (/\bneeds?\s+(?:more\s+)?information\b|\bneeds?\s+info\b|\bmissing\s+information\b/.test(value)) return 'Needs Information';
+  if (/\bready\s+for\s+approval\b/.test(value)) return 'Ready for Approval';
+  if (/\bsubmitted\b/.test(value)) return 'Submitted';
+  if (/\b(?:scheduled|approved)\b/.test(value)) return 'Scheduled';
+  return null;
+}
+
+async function getStatusTagConfiguration() {
+  if (statusTagConfiguration) return statusTagConfiguration;
+
+  const forum = await discord(`/channels/${FORUM_ID}`);
+  if (forum.guild_id && forum.guild_id !== GUILD_ID) {
+    throw new Error(`Forum ${FORUM_ID} does not belong to guild ${GUILD_ID}.`);
+  }
+
+  const statusTagIds = new Map();
+  const allStatusTagIds = new Set();
+
+  for (const tag of forum.available_tags || []) {
+    const status = detectStatusPhrase(tag.name || '');
+    if (!status) continue;
+    allStatusTagIds.add(tag.id);
+    if (!statusTagIds.has(status)) statusTagIds.set(status, tag.id);
+  }
+
+  statusTagConfiguration = { statusTagIds, allStatusTagIds };
+  return statusTagConfiguration;
+}
+
+async function syncThreadStatusTag(item, targetStatus) {
+  const { statusTagIds, allStatusTagIds } = await getStatusTagConfiguration();
+  const targetTagId = statusTagIds.get(targetStatus);
+  if (!targetTagId) return { action: 'skipped', reason: 'missing-status-tag' };
+
+  const thread = await discord(`/channels/${item.threadId}`);
+  const current = [...(thread.applied_tags || [])];
+  const preserved = current.filter((tagId) => !allStatusTagIds.has(tagId));
+  const desired = [...preserved, targetTagId];
+
+  if (desired.length > 5) {
+    return { action: 'skipped', reason: 'too-many-tags' };
+  }
+
+  const sameSet = current.length === desired.length && current.every((tagId) => desired.includes(tagId));
+  if (sameSet) return { action: 'unchanged', tagId: targetTagId };
+
+  await discord(`/channels/${item.threadId}`, {
+    method: 'PATCH',
+    body: { applied_tags: desired }
+  });
+
+  return { action: 'updated', tagId: targetTagId };
+}
+
+async function markPostConvoyNeedsInformation(item) {
+  item.status = 'Needs Information';
+  const tagResult = await syncThreadStatusTag(item, 'Needs Information');
+  console.log(`- ${item.name} | post-convoy forum tag: ${tagResult.action}${tagResult.reason ? ` (${tagResult.reason})` : ''}`);
+  return tagResult;
 }
 
 async function sendMessage(item, marker, title, description, messages, botId, options = {}) {
@@ -177,12 +245,15 @@ async function handleTestThread(item, messages, botId) {
       item,
       FOLLOW_UP_MARKER,
       'Convoy status update required',
-      'This is a TEST of the post-convoy follow-up. Real convoys receive this automatically after the event if the status is still `Scheduled`.',
+      'The convoy should now be finished. Please post `Completed` or `Cancelled` so the system can set the final status and forum tag correctly. This is a TEST of the automatic post-convoy follow-up.',
       messages,
       botId,
       { testTriggerId: commands.afterConvoy.id }
     );
     console.log(`- ${item.name} | TEST follow-up: ${result.action}`);
+
+    const tagResult = await markPostConvoyNeedsInformation(item);
+    console.log(`- ${item.name} | TEST post-convoy status: Needs Information | Tag: ${tagResult.action}`);
     handled = true;
   }
 
@@ -195,6 +266,7 @@ async function main() {
   const report = JSON.parse(fs.readFileSync(REPORT_PATH, 'utf8'));
   const bot = await discord('/users/@me');
   const nowUnix = Math.floor(Date.now() / 1000);
+  let reportChanged = false;
 
   console.log(`Kings Convoy Reminders started. Test mode: ${TEST_MODE ? 'enabled' : 'disabled'}.`);
 
@@ -213,7 +285,9 @@ async function main() {
 
       try {
         const messages = await discord(`/channels/${item.threadId}/messages?limit=100`);
+        const beforeStatus = item.status;
         await handleTestThread(item, messages, bot.id);
+        if (beforeStatus !== item.status) reportChanged = true;
       } catch (error) {
         console.warn(`- TEST reminder failed | ${item.name} | ${error.message}`);
       }
@@ -234,11 +308,14 @@ async function main() {
           item,
           FOLLOW_UP_MARKER,
           'Convoy status update required',
-          'The convoy should now be finished. Please post `Completed` or `Cancelled` so the system can close the event correctly.',
+          'The convoy should now be finished. Please post `Completed` or `Cancelled` so the system can set the final status and forum tag correctly.',
           messages,
           bot.id
         );
         console.log(`- ${item.name} | follow-up: ${result.action}`);
+
+        await markPostConvoyNeedsInformation(item);
+        reportChanged = true;
         continue;
       }
 
@@ -271,6 +348,11 @@ async function main() {
     } catch (error) {
       console.warn(`- Reminder failed | ${item.name} | ${error.message}`);
     }
+  }
+
+  if (reportChanged) {
+    fs.writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
+    console.log('Convoy report updated with post-convoy status changes.');
   }
 
   console.log('Kings Convoy Reminders finished.');
