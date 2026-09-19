@@ -37,6 +37,14 @@ jobs:
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-time-display.js
 
+      - name: Send scheduled convoy announcements
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_ANNOUNCEMENT_CHANNEL_ID: '1550997669596631200'
+          DISCORD_CONVOY_ANNOUNCEMENT_ROLE_ID: '1476774746480709675'
+        run: node convoy-announcements.js
+
       - name: Send one-time convoy notifications
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
