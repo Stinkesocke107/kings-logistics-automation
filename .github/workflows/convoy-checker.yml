@@ -47,6 +47,7 @@ jobs:
       - name: Send scheduled convoy reminders
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          CONVOY_REMINDER_TEST_MODE: 'true'
         run: node convoy-reminders.js
 
       - name: Generate convoy overview statistics
