@@ -15,7 +15,7 @@ async function discord(path) {
   const response = await fetch(`${API}${path}`, {
     headers: {
       Authorization: `Bot ${TOKEN}`,
-      'User-Agent': 'Kings Logistics Convoy Checker/1.0'
+      'User-Agent': 'Kings Logistics Convoy Checker/1.1'
     }
   });
 
@@ -185,7 +185,33 @@ async function main() {
   console.log(`Threads checked: ${report.summary.totalThreads}`);
   console.log(`Complete: ${report.summary.complete} | Incomplete: ${report.summary.incomplete} | Errors: ${report.summary.errors}`);
   console.log(`Duplicate TruckersMP event IDs: ${report.summary.duplicateEventIds}`);
-  console.log('READ_ONLY mode: no Discord data was changed.');
+
+  console.log('\nConvoy validation details:');
+  if (results.length === 0) {
+    console.log('- No convoy threads found.');
+  }
+
+  for (const item of results) {
+    if (item.error) {
+      console.log(`- ERROR | ${item.name} (${item.threadId}) | ${item.error}`);
+      continue;
+    }
+
+    if (item.validation.complete) {
+      console.log(`- COMPLETE | ${item.name} (${item.threadId})`);
+    } else {
+      console.log(`- INCOMPLETE | ${item.name} (${item.threadId}) | Missing: ${item.validation.missing.join(', ')}`);
+    }
+  }
+
+  if (duplicateEventIds.length > 0) {
+    console.log('\nDuplicate TruckersMP event IDs:');
+    for (const duplicate of duplicateEventIds) {
+      console.log(`- Event ${duplicate.eventId}: ${duplicate.threadIds.join(', ')}`);
+    }
+  }
+
+  console.log('\nREAD_ONLY mode: no Discord data was changed.');
 }
 
 main().catch((error) => {
