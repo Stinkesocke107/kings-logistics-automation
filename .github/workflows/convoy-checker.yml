@@ -1,0 +1,37 @@
+name: Kings Convoy Checker
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-convoys:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run read-only convoy checker
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
+        run: node convoy-checker.js
+
+      - name: Upload convoy check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kings-convoy-check-report
+          path: output/convoy-check-results.json
+          if-no-files-found: ignore
+          retention-days: 14
