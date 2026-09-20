@@ -1,7 +1,7 @@
 {
   "version": 2,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-09-20T17:38:28.702Z",
+  "updatedAt": "2026-09-20T18:11:56.766Z",
   "messageId": "1550301949470048277",
   "recreateMessage": false,
   "allTime": {
@@ -829,11 +829,12 @@
       "peakOnline": 4,
       "peakETS2": 4,
       "peakATS": 0,
-      "activitySamples": 18,
-      "ets2PlayerSamples": 12,
+      "activitySamples": 19,
+      "ets2PlayerSamples": 15,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {
-        "ETS2 — Simulation 1": 12
+        "ETS2 — Simulation 1": 13,
+        "ETS2 — LIGHTNING LOGISTICS | CONVOY #58": 2
       },
       "sampledHours": [
         "2026-09-20T00:00:00.000Z",
@@ -853,7 +854,8 @@
         "2026-09-20T14:00:00.000Z",
         "2026-09-20T15:00:00.000Z",
         "2026-09-20T16:00:00.000Z",
-        "2026-09-20T17:00:00.000Z"
+        "2026-09-20T17:00:00.000Z",
+        "2026-09-20T18:00:00.000Z"
       ]
     }
   ]
