@@ -30,6 +30,12 @@ jobs:
           DISCORD_WRITE_MODE: 'true'
         run: node convoy-checker.js
 
+      - name: Auto-fill convoy data from TruckersMP Event ID
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_VTC_NAME: 'Kings Logistics'
+        run: node convoy-truckersmp-sync.js
+
       - name: Convert convoy event times to Discord timestamps
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
