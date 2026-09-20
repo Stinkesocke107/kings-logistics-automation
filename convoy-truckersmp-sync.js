@@ -225,6 +225,8 @@ async function main() {
         truckersmp: item.truckersmp || null
       });
 
+      // Keep the Event ID even if the TruckersMP API is temporarily unavailable.
+      item.eventId = String(eventId);
       const event = await fetchTruckersMpEvent(eventId);
       item.eventId = String(event.id || eventId);
       const autoFilled = applyTruckersMpDefaults(item, event);
@@ -277,7 +279,30 @@ async function main() {
     }
   }
 
-  if (changed || synced > 0 || failed > 0) {
+  // Recalculate duplicate Event IDs after IDs from plain `Event ID:` messages have been resolved.
+  const eventMap = new Map();
+  for (const item of report.threads || []) {
+    if (item.ignored || item.error || isTestThread(item) || !item.eventId) continue;
+    const eventId = String(item.eventId);
+    if (!eventMap.has(eventId)) eventMap.set(eventId, []);
+    eventMap.get(eventId).push(item.threadId);
+  }
+
+  const duplicateEventIds = [...eventMap.entries()]
+    .filter(([, threadIds]) => threadIds.length > 1)
+    .map(([eventId, threadIds]) => ({ eventId, threadIds }));
+
+  const duplicateThreadIds = new Set(duplicateEventIds.flatMap((entry) => entry.threadIds));
+  for (const item of report.threads || []) {
+    if (item.ignored || item.error || isTestThread(item)) continue;
+    item.duplicateEventId = duplicateThreadIds.has(item.threadId);
+  }
+
+  report.duplicateEventIds = duplicateEventIds;
+  report.summary = report.summary || {};
+  report.summary.duplicateEventIds = duplicateEventIds.length;
+
+  if (changed || synced > 0 || failed > 0 || duplicateEventIds.length > 0) {
     fs.writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
   }
 
