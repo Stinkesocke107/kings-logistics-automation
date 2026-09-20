@@ -1,16 +1,16 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-20T17:52:05.379Z",
+  "updatedAt": "2026-09-20T17:58:44.690Z",
   "members": 108,
   "discordMessageId": "1550299096278110219",
-  "online": 2,
-  "ets2Online": 2,
+  "online": 3,
+  "ets2Online": 3,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "LIGHTNING LOGISTICS | CONVOY #58",
-      "online": 1,
+      "online": 2,
       "isEvent": true
     },
     {
