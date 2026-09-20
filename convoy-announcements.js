@@ -7,8 +7,11 @@ const CHANNEL_ID = process.env.DISCORD_CONVOY_ANNOUNCEMENT_CHANNEL_ID || '155099
 const PING_ROLE_ID = process.env.DISCORD_CONVOY_ANNOUNCEMENT_ROLE_ID || '1476774746480709675';
 const REPORT_PATH = 'output/convoy-check-results.json';
 const TEST_MODE = /^(?:1|true|yes|on)$/i.test(process.env.CONVOY_ANNOUNCEMENT_TEST_MODE || '');
-const MARKER_PREFIX = '📣 **Kings Convoy Announcement**';
+const ANNOUNCEMENT_MARKER = '📣 **Kings Convoy Announcement**';
+const PUBLIC_2H_MARKER = '🚨 **Kings Convoy Public Reminder — 2 Hours**';
 const MANAGED_STATUSES = new Set(['Scheduled', 'Completed', 'Cancelled']);
+const ANNOUNCEMENT_WINDOW_SECONDS = 24 * 60 * 60;
+const FINAL_REMINDER_WINDOW_SECONDS = 2 * 60 * 60;
 
 if (!TOKEN) {
   console.error('Missing DISCORD_BOT_TOKEN.');
@@ -26,7 +29,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Announcements/2.2'
+    'User-Agent': 'Kings Logistics Convoy Announcements/3.0'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -133,12 +136,16 @@ function routeLabel(item) {
   return null;
 }
 
-function markerFor(item) {
-  return `${MARKER_PREFIX}\n🔒 **Source Thread:** \`${item.threadId}\``;
+function sourceMarker(item) {
+  return `🔒 **Source Thread:** \`${item.threadId}\``;
 }
 
-async function findAnnouncement(item, botId) {
-  const marker = markerFor(item);
+function markerFor(item, marker) {
+  return `${marker}\n${sourceMarker(item)}`;
+}
+
+async function findManagedMessage(item, botId, marker) {
+  const lookupMarker = markerFor(item, marker);
   let before = null;
 
   for (let page = 0; page < 10; page += 1) {
@@ -150,7 +157,7 @@ async function findAnnouncement(item, botId) {
 
     const found = messages.find((message) =>
       message.author?.id === botId &&
-      (message.content || '').includes(marker)
+      (message.content || '').includes(lookupMarker)
     );
 
     if (found) return found;
@@ -196,7 +203,7 @@ function statusPresentation(status) {
 
   return {
     line: '🟢 **Status:** `Scheduled`',
-    intro: 'A Kings Logistics convoy has been scheduled. 👑',
+    intro: 'A Kings Logistics convoy is coming up within 24 hours. 👑',
     footer: 'Please make sure you are ready before the meeting time. See you on the road! :kings_heart:'
   };
 }
@@ -212,15 +219,15 @@ function buildAnnouncement(item, options = {}) {
   const meetup = parsed.meetup || null;
   const eventType = parsed.eventType || null;
   const presentation = statusPresentation(item.status);
-  const showRolePing = !testMode && item.status === 'Scheduled' && PING_ROLE_ID;
+  const showRoleMention = !testMode && item.status === 'Scheduled' && PING_ROLE_ID;
 
   return [
-    markerFor(item),
+    markerFor(item, ANNOUNCEMENT_MARKER),
     testMode ? '🧪 **TEST ANNOUNCEMENT — NOT A REAL CONVOY NOTICE**' : null,
     testMode && testTriggerId ? `🧪 **Test Trigger ID:** \`${testTriggerId}\`` : null,
     '',
-    showRolePing ? `<@&${PING_ROLE_ID}>` : null,
-    showRolePing ? '' : null,
+    showRoleMention ? `<@&${PING_ROLE_ID}>` : null,
+    showRoleMention ? '' : null,
     `# 🚛 ${item.name || 'Kings Convoy'}`,
     presentation.line,
     '',
@@ -238,14 +245,33 @@ function buildAnnouncement(item, options = {}) {
   ].filter((value) => value !== null && value !== undefined).join('\n');
 }
 
-async function createAnnouncement(item, options = {}) {
-  const testMode = Boolean(options.testMode);
-  const content = buildAnnouncement(item, options);
-  const allowedMentions = { parse: [] };
+function buildTwoHourReminder(item) {
+  const parsed = item.validation?.parsed || {};
+  const route = routeLabel(item);
+  const eventUrl = item.eventId ? `https://truckersmp.com/events/${item.eventId}` : null;
+  const meetup = parsed.meetup || null;
 
-  if (!testMode && item.status === 'Scheduled' && PING_ROLE_ID) {
-    allowedMentions.roles = [PING_ROLE_ID];
-  }
+  return [
+    markerFor(item, PUBLIC_2H_MARKER),
+    '',
+    PING_ROLE_ID ? `<@&${PING_ROLE_ID}>` : null,
+    PING_ROLE_ID ? '' : null,
+    `# 🚨 ${item.name || 'Kings Convoy'} — 2 Hour Reminder`,
+    '',
+    'The convoy Meeting Time is now within 2 hours. Please get ready and make sure you arrive on time. 👑🚛',
+    '',
+    item.eventUnix ? `🕒 **Meeting Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}` : null,
+    meetup ? `📍 **Meeting Point:** ${meetup}` : null,
+    route ? `🛣️ **Route:** ${route}` : null,
+    eventUrl ? `🔗 **TruckersMP Event:** ${eventUrl}` : null,
+    '',
+    'See you on the road! :kings_heart:'
+  ].filter((value) => value !== null && value !== undefined).join('\n');
+}
+
+async function createMessage(content, pingRole = false) {
+  const allowedMentions = { parse: [] };
+  if (pingRole && PING_ROLE_ID) allowedMentions.roles = [PING_ROLE_ID];
 
   return discord(`/channels/${CHANNEL_ID}/messages`, {
     method: 'POST',
@@ -256,9 +282,7 @@ async function createAnnouncement(item, options = {}) {
   });
 }
 
-async function updateAnnouncement(item, existing, options = {}) {
-  const content = buildAnnouncement(item, options);
-
+async function updateMessage(existing, content) {
   if (normalize(existing.content || '') === normalize(content)) {
     return { action: 'unchanged', messageId: existing.id };
   }
@@ -278,14 +302,18 @@ async function main() {
   const report = JSON.parse(fs.readFileSync(REPORT_PATH, 'utf8'));
   const bot = await discord('/users/@me');
   const channel = await discord(`/channels/${CHANNEL_ID}`);
+  const nowUnix = Math.floor(Date.now() / 1000);
 
   if (channel.guild_id && channel.guild_id !== GUILD_ID) {
     throw new Error(`Announcement channel ${CHANNEL_ID} does not belong to guild ${GUILD_ID}.`);
   }
 
-  let created = 0;
-  let updated = 0;
-  let unchanged = 0;
+  let announcementsCreated = 0;
+  let announcementsUpdated = 0;
+  let announcementsUnchanged = 0;
+  let public2hCreated = 0;
+  let public2hUpdated = 0;
+  let public2hUnchanged = 0;
   let skipped = 0;
   let failed = 0;
 
@@ -324,63 +352,107 @@ async function main() {
           continue;
         }
 
-        const existing = await findAnnouncement(item, bot.id);
-        const options = { testMode: true, testTriggerId: trigger.id };
+        const existing = await findManagedMessage(item, bot.id, ANNOUNCEMENT_MARKER);
+        const content = buildAnnouncement(item, { testMode: true, testTriggerId: trigger.id });
 
         if (!existing) {
-          const message = await createAnnouncement(item, options);
+          const message = await createMessage(content, false);
           console.log(`- ${item.name} | TEST announcement created: ${message?.id || 'unknown'}`);
-          created += 1;
+          announcementsCreated += 1;
         } else {
-          const result = await updateAnnouncement(item, existing, options);
+          const result = await updateMessage(existing, content);
           console.log(`- ${item.name} | TEST announcement ${result.action}: ${result.messageId}`);
-          if (result.action === 'updated') updated += 1;
-          else unchanged += 1;
+          if (result.action === 'updated') announcementsUpdated += 1;
+          else announcementsUnchanged += 1;
         }
         continue;
       }
 
       if (!MANAGED_STATUSES.has(item.status)) continue;
 
-      const existing = await findAnnouncement(item, bot.id);
+      const existingAnnouncement = await findManagedMessage(item, bot.id, ANNOUNCEMENT_MARKER);
 
-      if (!existing) {
-        if (item.status !== 'Scheduled') {
-          console.log(`- ${item.name} | ${item.status}: no existing announcement; nothing to update`);
+      if (item.status === 'Completed' || item.status === 'Cancelled') {
+        if (!existingAnnouncement) {
+          console.log(`- ${item.name} | ${item.status}: no existing public announcement; nothing to update`);
           skipped += 1;
           continue;
         }
 
-        if (item.archived || item.locked) {
-          console.log(`- ${item.name} | skipped: scheduled thread is archived or locked`);
-          skipped += 1;
-          continue;
-        }
-
-        if (!item.eventUnix || !item.eventTimeValid) {
-          console.log(`- ${item.name} | skipped: valid Meeting Time required before first announcement`);
-          skipped += 1;
-          continue;
-        }
-
-        const message = await createAnnouncement(item);
-        console.log(`- ${item.name} | announcement created: ${message?.id || 'unknown'}`);
-        created += 1;
+        const result = await updateMessage(existingAnnouncement, buildAnnouncement(item));
+        console.log(`- ${item.name} | terminal announcement ${result.action}: ${result.messageId}`);
+        if (result.action === 'updated') announcementsUpdated += 1;
+        else announcementsUnchanged += 1;
         continue;
       }
 
-      const result = await updateAnnouncement(item, existing);
-      console.log(`- ${item.name} | announcement ${result.action}: ${result.messageId}`);
-      if (result.action === 'updated') updated += 1;
-      else unchanged += 1;
+      if (item.archived || item.locked) {
+        console.log(`- ${item.name} | skipped: scheduled thread is archived or locked`);
+        skipped += 1;
+        continue;
+      }
+
+      if (!item.eventUnix || !item.eventTimeValid) {
+        console.log(`- ${item.name} | skipped: valid Meeting Time required`);
+        skipped += 1;
+        continue;
+      }
+
+      const secondsUntilMeeting = item.eventUnix - nowUnix;
+
+      if (secondsUntilMeeting <= 0) {
+        if (existingAnnouncement) {
+          const result = await updateMessage(existingAnnouncement, buildAnnouncement(item));
+          console.log(`- ${item.name} | meeting time passed; existing announcement ${result.action}`);
+          if (result.action === 'updated') announcementsUpdated += 1;
+          else announcementsUnchanged += 1;
+        } else {
+          console.log(`- ${item.name} | skipped: Meeting Time already passed`);
+          skipped += 1;
+        }
+        continue;
+      }
+
+      if (!existingAnnouncement) {
+        if (secondsUntilMeeting > ANNOUNCEMENT_WINDOW_SECONDS) {
+          console.log(`- ${item.name} | waiting: public announcement starts 24h before Meeting Time`);
+          skipped += 1;
+          continue;
+        }
+
+        const message = await createMessage(buildAnnouncement(item), true);
+        console.log(`- ${item.name} | 24h public announcement created: ${message?.id || 'unknown'}`);
+        announcementsCreated += 1;
+      } else {
+        const result = await updateMessage(existingAnnouncement, buildAnnouncement(item));
+        console.log(`- ${item.name} | public announcement ${result.action}: ${result.messageId}`);
+        if (result.action === 'updated') announcementsUpdated += 1;
+        else announcementsUnchanged += 1;
+      }
+
+      if (secondsUntilMeeting <= FINAL_REMINDER_WINDOW_SECONDS) {
+        const existing2h = await findManagedMessage(item, bot.id, PUBLIC_2H_MARKER);
+        const reminderContent = buildTwoHourReminder(item);
+
+        if (!existing2h) {
+          const message = await createMessage(reminderContent, true);
+          console.log(`- ${item.name} | 2h public reminder created: ${message?.id || 'unknown'}`);
+          public2hCreated += 1;
+        } else {
+          const result = await updateMessage(existing2h, reminderContent);
+          console.log(`- ${item.name} | 2h public reminder ${result.action}: ${result.messageId}`);
+          if (result.action === 'updated') public2hUpdated += 1;
+          else public2hUnchanged += 1;
+        }
+      }
     } catch (error) {
       failed += 1;
-      console.warn(`- ${item.name} | announcement sync failed: ${error.message}`);
+      console.warn(`- ${item.name} | public convoy sync failed: ${error.message}`);
     }
   }
 
   console.log(
-    `Kings Convoy Announcements finished. Created: ${created}. Updated: ${updated}. Unchanged: ${unchanged}. Skipped: ${skipped}. Failed: ${failed}.`
+    `Kings Convoy Announcements finished. 24h created: ${announcementsCreated}. 24h updated: ${announcementsUpdated}. 24h unchanged: ${announcementsUnchanged}. 2h created: ${public2hCreated}. 2h updated: ${public2hUpdated}. 2h unchanged: ${public2hUnchanged}. Skipped: ${skipped}. Failed: ${failed}.`
   );
 }
 
