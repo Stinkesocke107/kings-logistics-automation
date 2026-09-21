@@ -6,17 +6,13 @@ const HISTORY_RETENTION_DAYS = 730;
 const MAX_SNAPSHOT_AGE_MINUTES = 20;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
-const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
-const STATS_CHANNEL_ID = process.env.STATS_CHANNEL_ID || '1543539008771063818';
-const DISCORD_API = 'https://discord.com/api/v10';
-
+const STATS_DISCORD_WEBHOOK_URL = process.env.STATS_DISCORD_WEBHOOK_URL || null;
 const STATE_FILE = path.join(__dirname, 'data', 'statistics.json');
 const LIVE_SNAPSHOT_FILE = path.join(__dirname, 'data', 'live-tracker-snapshot.json');
 const DRIVER_HISTORY_FILE = path.join(__dirname, 'data', 'driver-history.json');
 
-if (!DISCORD_BOT_TOKEN) {
-  console.error('DISCORD_BOT_TOKEN is missing.');
+if (!STATS_DISCORD_WEBHOOK_URL) {
+  console.error('STATS_DISCORD_WEBHOOK_URL is missing.');
   process.exit(1);
 }
 
@@ -68,58 +64,9 @@ function progressBar(value) {
   return `${'█'.repeat(filled)}${'░'.repeat(10 - filled)}`;
 }
 
-async function discord(pathname, options = {}) {
-  const method = String(options.method || 'GET').toUpperCase();
-
-  // HARD SAFETY GUARD: Statistics may only read Discord and create/update
-  // messages in the dedicated statistics channel. No member/role/moderation
-  // or permission writes are possible from this module.
-  if (method !== 'GET') {
-    const createPath = `/channels/${STATS_CHANNEL_ID}/messages`;
-    const updatePattern = new RegExp(`^/channels/${STATS_CHANNEL_ID}/messages/\\d+$`);
-    const allowed =
-      (method === 'POST' && pathname === createPath) ||
-      (method === 'PATCH' && updatePattern.test(pathname));
-    if (!allowed) throw new Error(`Safety guard blocked Discord write: ${method} ${pathname}`);
-  }
-
-  const headers = {
-    Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-    'User-Agent': 'Kings Logistics Advanced Statistics/3.0'
-  };
-  if (options.body !== undefined) headers['Content-Type'] = 'application/json';
-
-  const response = await fetch(`${DISCORD_API}${pathname}`, {
-    method,
-    headers,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-    signal: AbortSignal.timeout(15000)
-  });
-
-  const text = await response.text();
-  if (!response.ok) {
-    const error = new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
-    error.status = response.status;
-    throw error;
-  }
-
-  if (!text) return null;
-  try { return JSON.parse(text); } catch { return text; }
-}
-
-async function validateStatsChannel() {
-  const channel = await discord(`/channels/${STATS_CHANNEL_ID}`);
-  if (channel.guild_id && channel.guild_id !== DISCORD_GUILD_ID) {
-    throw new Error('Configured Statistics channel is not in the configured guild.');
-  }
-  return channel;
-}
-
 function loadLiveSnapshot() {
   const snapshot = readJson(LIVE_SNAPSHOT_FILE, null);
-  if (!snapshot || typeof snapshot !== 'object') {
-    throw new Error('Kings Live Tracker snapshot does not exist.');
-  }
+  if (!snapshot || typeof snapshot !== 'object') throw new Error('Kings Live Tracker snapshot does not exist.');
 
   const updatedAt = normalizeDate(snapshot.updatedAt);
   if (!updatedAt) throw new Error('Kings Live Tracker snapshot has no valid updatedAt timestamp.');
@@ -132,10 +79,7 @@ function loadLiveSnapshot() {
   const serverCounts = (Array.isArray(snapshot.activeServers) ? snapshot.activeServers : [])
     .map((server) => ({
       key: `${String(server.game || 'Unknown').toUpperCase()} — ${String(server.name || 'Unknown Server')}`,
-      game: String(server.game || '').toUpperCase(),
-      name: String(server.name || 'Unknown Server'),
-      count: number(server.online),
-      event: Boolean(server.isEvent)
+      count: number(server.online)
     }))
     .filter((server) => server.count > 0);
 
@@ -203,19 +147,14 @@ function loadStatistics() {
 
 function loadDriverHistory() {
   const history = readJson(DRIVER_HISTORY_FILE, null);
-  if (!history || !Array.isArray(history.events)) return null;
-  return history;
+  return history && Array.isArray(history.events) ? history : null;
 }
-
 function historyCovers(driverHistory, start) {
   const initialized = normalizeDate(driverHistory?.initializedAt);
   return Boolean(initialized && initialized.getTime() <= start.getTime());
 }
-
 function movement(driverHistory, start, end) {
-  if (!historyCovers(driverHistory, start)) {
-    return { complete: false, joined: 0, left: 0, net: 0 };
-  }
+  if (!historyCovers(driverHistory, start)) return { complete: false, joined: 0, left: 0, net: 0 };
 
   let joined = 0;
   let left = 0;
@@ -268,10 +207,9 @@ function updateState(state, members, activity, sampleTime) {
   if (activity.atsCount > state.allTime.peakATS) { state.allTime.peakATS = activity.atsCount; changed = true; }
 
   const cutoff = dateKey(new Date(sampleTime.getTime() - HISTORY_RETENTION_DAYS * DAY_MS));
-  const oldLength = state.history.length;
+  const before = state.history.length;
   state.history = state.history.filter((day) => day.date >= cutoff).sort((a, b) => a.date.localeCompare(b.date));
-  if (oldLength !== state.history.length) changed = true;
-
+  if (before !== state.history.length) changed = true;
   return changed;
 }
 
@@ -281,12 +219,10 @@ function entriesFrom(state, start) {
 }
 function memberGrowth(state, start, currentMembers) {
   const entries = entriesFrom(state, start);
-  if (!entries.length) return 0;
-  return currentMembers - number(entries[0].startMembers, currentMembers);
+  return entries.length ? currentMembers - number(entries[0].startMembers, currentMembers) : 0;
 }
 function peakFrom(state, start, field) {
-  const entries = entriesFrom(state, start);
-  return Math.max(0, ...entries.map((entry) => number(entry[field])));
+  return Math.max(0, ...entriesFrom(state, start).map((entry) => number(entry[field])));
 }
 function monthlyActivity(state, start) {
   const entries = entriesFrom(state, start);
@@ -329,9 +265,6 @@ function buildEmbed(state, live, driverHistory) {
   const dayStart = startOfDay(sampleTime);
   const weekStart = startOfWeek(sampleTime);
   const monthStart = startOfMonth(sampleTime);
-  const todayMovement = movement(driverHistory, dayStart, sampleTime);
-  const weekMovement = movement(driverHistory, weekStart, sampleTime);
-  const monthMovement = movement(driverHistory, monthStart, sampleTime);
   const activity = monthlyActivity(state, monthStart);
   const milestone = nextMilestone(live.members);
   const updatedUnix = Math.floor(sampleTime.getTime() / 1000);
@@ -370,65 +303,58 @@ function buildEmbed(state, live, driverHistory) {
       {
         name: 'Driver Movement',
         value: [
-          movementLine('Today', todayMovement),
-          movementLine('This Week', weekMovement),
-          movementLine('This Month', monthMovement)
+          movementLine('Today', movement(driverHistory, dayStart, sampleTime)),
+          movementLine('This Week', movement(driverHistory, weekStart, sampleTime)),
+          movementLine('This Month', movement(driverHistory, monthStart, sampleTime))
         ].join('\n'),
         inline: false
       },
       { name: 'Activity This Month', value: activityText, inline: false },
       { name: 'Next Milestone', value: `${milestoneText}\n\nLast updated <t:${updatedUnix}:R>`, inline: false }
     ],
-    footer: { text: 'Kings Logistics • Advanced Statistics • Kings Systems' }
+    footer: { text: 'Kings Logistics • Advanced Statistics' }
   };
 }
 
-async function findExistingBotMessage() {
-  const messages = await discord(`/channels/${STATS_CHANNEL_ID}/messages?limit=100`);
-  return (messages || []).find((message) =>
-    message.author?.bot &&
-    !message.webhook_id &&
-    Array.isArray(message.embeds) &&
-    message.embeds.some((embed) => embed.title === '👑 Kings Logistics Statistics')
-  ) || null;
+function webhookBase() {
+  return STATS_DISCORD_WEBHOOK_URL.split('?')[0].replace(/\/$/, '');
+}
+
+async function createMessage(embed) {
+  const url = new URL(STATS_DISCORD_WEBHOOK_URL);
+  url.searchParams.set('wait', 'true');
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ embeds: [embed], allowed_mentions: { parse: [] } }),
+    signal: AbortSignal.timeout(15000)
+  });
+  if (!response.ok) throw new Error(`Statistics Discord create failed: HTTP ${response.status} - ${await response.text()}`);
+  const message = await response.json();
+  if (!message?.id) throw new Error('Discord did not return a Statistics message ID.');
+  return String(message.id);
+}
+
+async function updateMessage(messageId, embed) {
+  const response = await fetch(`${webhookBase()}/messages/${messageId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ embeds: [embed], allowed_mentions: { parse: [] } }),
+    signal: AbortSignal.timeout(15000)
+  });
+  if (response.status === 404) return false;
+  if (!response.ok) throw new Error(`Statistics Discord update failed: HTTP ${response.status} - ${await response.text()}`);
+  return true;
 }
 
 async function syncDiscord(state, embed) {
-  await validateStatsChannel();
-
-  if (state.messageId) {
-    try {
-      await discord(`/channels/${STATS_CHANNEL_ID}/messages/${state.messageId}`, {
-        method: 'PATCH',
-        body: { embeds: [embed], allowed_mentions: { parse: [] } }
-      });
-      console.log('Existing Kings Statistics message updated by Kings Systems.');
-      return false;
-    } catch (error) {
-      if (![403, 404].includes(error.status)) throw error;
-      console.log('Stored Statistics message is not editable by Kings Systems; looking for the bot-owned overview.');
-    }
+  if (state.messageId && await updateMessage(state.messageId, embed)) {
+    console.log('Existing Kings Statistics message updated.');
+    return false;
   }
 
-  const existing = await findExistingBotMessage();
-  if (existing) {
-    await discord(`/channels/${STATS_CHANNEL_ID}/messages/${existing.id}`, {
-      method: 'PATCH',
-      body: { embeds: [embed], allowed_mentions: { parse: [] } }
-    });
-    const changed = state.messageId !== existing.id;
-    state.messageId = existing.id;
-    console.log('Kings Systems Statistics message found and updated.');
-    return changed;
-  }
-
-  const created = await discord(`/channels/${STATS_CHANNEL_ID}/messages`, {
-    method: 'POST',
-    body: { embeds: [embed], allowed_mentions: { parse: [] } }
-  });
-  if (!created?.id) throw new Error('Discord did not return a Statistics message ID.');
-  state.messageId = String(created.id);
-  console.log(`New Kings Systems Statistics message created: ${state.messageId}`);
+  state.messageId = await createMessage(embed);
+  console.log(`New Kings Statistics message created: ${state.messageId}`);
   return true;
 }
 
@@ -459,7 +385,6 @@ async function main() {
   console.log(`ATS: ${live.activity.atsCount}`);
   console.log(`All-Time Tracked Peak: ${state.allTime.peakOnline}`);
   console.log('Kings Advanced Statistics completed successfully.');
-  console.log('Safety: Statistics reporting only. No personnel actions are implemented.');
 }
 
 main().catch((error) => {
