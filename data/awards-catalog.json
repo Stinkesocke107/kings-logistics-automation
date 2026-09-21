@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "mode": "manual-recognition-only",
+  "updatedAt": "2026-09-21T21:30:00.000Z",
+  "awards": [
+    {
+      "id": "driver-of-the-month",
+      "name": "Driver of the Month",
+      "scope": "driver",
+      "cadence": "monthly",
+      "assignment": "human-leadership-only"
+    },
+    {
+      "id": "staff-of-the-month",
+      "name": "Staff of the Month",
+      "scope": "staff",
+      "cadence": "monthly",
+      "assignment": "human-leadership-only"
+    },
+    {
+      "id": "high-staff-of-the-month",
+      "name": "High Staff of the Month",
+      "scope": "high-staff",
+      "cadence": "monthly",
+      "assignment": "human-leadership-only"
+    },
+    {
+      "id": "staff-excellence",
+      "name": "Staff Excellence Award",
+      "scope": "staff",
+      "cadence": "as-needed",
+      "assignment": "human-leadership-only"
+    }
+  ],
+  "note": "Kings Systems may track and display awards, but it must never automatically select winners, change roles, unlock permissions, or make personnel decisions. Award recipients are chosen by human Kings Leadership."
+}
