@@ -36,7 +36,20 @@ jobs:
       - name: Update Kings Advanced Statistics
         env:
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
-        run: node statistics.js
+        run: |
+          node statistics.js
+
+          # statistics.json stores historical/hourly data and therefore may not
+          # otherwise change on every 5-minute run. Keep updatedAt as a health
+          # heartbeat for the last successful Statistics processing run.
+          node - <<'NODE'
+          const fs = require('fs');
+          const file = 'data/statistics.json';
+          const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+          data.updatedAt = new Date().toISOString();
+          fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n', 'utf8');
+          console.log(`Statistics heartbeat updated: ${data.updatedAt}`);
+          NODE
 
       - name: Update Kings Central Overview
         env:
