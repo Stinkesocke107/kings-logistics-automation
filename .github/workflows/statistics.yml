@@ -3,11 +3,6 @@ name: Kings Statistics Manual
 on:
   workflow_dispatch:
 
-  push:
-    paths:
-      - 'statistics.js'
-      - '.github/workflows/statistics.yml'
-
 permissions:
   contents: write
 
