@@ -3,6 +3,11 @@ name: Kings Driver Probation Tracker
 on:
   workflow_dispatch:
 
+  push:
+    paths:
+      - 'probation.js'
+      - '.github/workflows/probation.yml'
+
   schedule:
     - cron: "0 * * * *"
 
