@@ -10,7 +10,7 @@ on:
       - '.github/workflows/hr-leadership.yml'
 
   schedule:
-    - cron: "27 * * * *"
+    - cron: "7,22,37,52 * * * *"
 
 permissions:
   contents: write
