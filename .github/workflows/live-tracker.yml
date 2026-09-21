@@ -20,10 +20,6 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      # ==================================================
-      # SETUP
-      # ==================================================
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -32,39 +28,22 @@ jobs:
         with:
           node-version: "24"
 
-      # ==================================================
-      # 1. LIVE TRACKER
-      # Creates the shared live-tracker-snapshot.json
-      # ==================================================
-
       - name: Update Kings Live Tracker
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: node tracker.js
 
-      # ==================================================
-      # 2. ADVANCED STATISTICS
-      # Uses the same Live Tracker Snapshot
-      # ==================================================
-
       - name: Update Kings Advanced Statistics
         env:
-          STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          STATS_CHANNEL_ID: '1543539008771063818'
         run: node statistics.js
-
-      # ==================================================
-      # 3. CENTRAL OVERVIEW
-      # Uses the same Live Tracker Snapshot
-      # ==================================================
 
       - name: Update Kings Central Overview
         env:
           CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
         run: node central-overview.js
-
-      # ==================================================
-      # SAVE UPDATED DATA
-      # ==================================================
 
       - name: Save Kings Live System Data
         run: |
