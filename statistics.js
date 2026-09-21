@@ -1,1850 +1,468 @@
-const fs = require("fs");
-const path = require("path");
-
-// ======================================================
-// KINGS LOGISTICS — ADVANCED STATISTICS
-// Uses the Kings Live Tracker as its live data source.
-// ======================================================
+const fs = require('fs');
+const path = require('path');
 
 const KINGS_BLUE = 0x182dff;
 const HISTORY_RETENTION_DAYS = 730;
 const MAX_SNAPSHOT_AGE_MINUTES = 20;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
-const DISCORD_WEBHOOK_URL =
-  process.env.STATS_DISCORD_WEBHOOK_URL;
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
+const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
+const STATS_CHANNEL_ID = process.env.STATS_CHANNEL_ID || '1543539008771063818';
+const DISCORD_API = 'https://discord.com/api/v10';
 
-const STATE_FILE =
-  path.join(
-    __dirname,
-    "data",
-    "statistics.json"
-  );
+const STATE_FILE = path.join(__dirname, 'data', 'statistics.json');
+const LIVE_SNAPSHOT_FILE = path.join(__dirname, 'data', 'live-tracker-snapshot.json');
+const DRIVER_HISTORY_FILE = path.join(__dirname, 'data', 'driver-history.json');
 
-const LIVE_SNAPSHOT_FILE =
-  path.join(
-    __dirname,
-    "data",
-    "live-tracker-snapshot.json"
-  );
-
-const DRIVER_HISTORY_FILE =
-  path.join(
-    __dirname,
-    "data",
-    "driver-history.json"
-  );
-
-const DAY_MS =
-  24 * 60 * 60 * 1000;
-
-// ======================================================
-// HELPERS
-// ======================================================
-
-function nowISO() {
-  return new Date().toISOString();
+if (!DISCORD_BOT_TOKEN) {
+  console.error('DISCORD_BOT_TOKEN is missing.');
+  process.exit(1);
 }
 
-function ensureDataDirectory() {
-  fs.mkdirSync(
-    path.dirname(STATE_FILE),
-    {
-      recursive: true
-    }
-  );
-}
-
-function readJson(file, fallback) {
-  if (!fs.existsSync(file)) {
-    return fallback;
-  }
-
-  try {
-    return JSON.parse(
-      fs.readFileSync(
-        file,
-        "utf8"
-      )
-    );
-  } catch (error) {
-    console.warn(
-      `Could not read ${path.basename(file)}.`
-    );
-
-    return fallback;
-  }
-}
-
-function writeJson(file, data) {
-  ensureDataDirectory();
-
-  fs.writeFileSync(
-    file,
-    JSON.stringify(
-      data,
-      null,
-      2
-    ) + "\n",
-    "utf8"
-  );
-}
-
+function nowISO() { return new Date().toISOString(); }
 function number(value, fallback = 0) {
-  const parsed =
-    Number(value);
-
-  return Number.isFinite(parsed)
-    ? parsed
-    : fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
-
+function readJson(file, fallback = null) {
+  if (!fs.existsSync(file)) return fallback;
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return fallback; }
+}
+function writeJson(file, value) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+}
 function normalizeDate(value) {
-  if (!value) {
-    return null;
-  }
-
-  const date =
-    new Date(value);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return null;
-  }
-
-  return date;
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
-
-function dateKey(date) {
-  return date
-    .toISOString()
-    .slice(0, 10);
+function dateKey(date) { return date.toISOString().slice(0, 10); }
+function startOfDay(date = new Date()) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
-
-function startOfDay(
-  date = new Date()
-) {
-  return new Date(
-    Date.UTC(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      date.getUTCDate()
-    )
-  );
+function startOfWeek(date = new Date()) {
+  const day = startOfDay(date);
+  const daysSinceMonday = (day.getUTCDay() + 6) % 7;
+  return new Date(day.getTime() - daysSinceMonday * DAY_MS);
 }
-
-function startOfWeek(
-  date = new Date()
-) {
-  const day =
-    startOfDay(date);
-
-  const daysSinceMonday =
-    (
-      day.getUTCDay() +
-      6
-    ) % 7;
-
-  return new Date(
-    day.getTime() -
-    (
-      daysSinceMonday *
-      DAY_MS
-    )
-  );
+function startOfMonth(date = new Date()) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
 }
-
-function startOfMonth(
-  date = new Date()
-) {
-  return new Date(
-    Date.UTC(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      1
-    )
-  );
+function hourKey(date) {
+  return new Date(Date.UTC(
+    date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours()
+  )).toISOString();
 }
-
-function currentHourKey(
-  date = new Date()
-) {
-  return new Date(
-    Date.UTC(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      date.getUTCDate(),
-      date.getUTCHours()
-    )
-  ).toISOString();
-}
-
 function formatSigned(value) {
-  const parsed =
-    number(value);
-
-  if (parsed > 0) {
-    return `+${parsed}`;
-  }
-
-  return String(parsed);
+  const parsed = number(value);
+  return parsed > 0 ? `+${parsed}` : String(parsed);
 }
-
 function percent(part, total) {
-  if (total <= 0) {
-    return 0;
+  return total > 0 ? Math.round((part / total) * 100) : 0;
+}
+function progressBar(value) {
+  const safe = Math.max(0, Math.min(100, value));
+  const filled = Math.round(safe / 10);
+  return `${'█'.repeat(filled)}${'░'.repeat(10 - filled)}`;
+}
+
+async function discord(pathname, options = {}) {
+  const method = String(options.method || 'GET').toUpperCase();
+
+  // HARD SAFETY GUARD: Statistics may only read Discord and create/update
+  // messages in the dedicated statistics channel. No member/role/moderation
+  // or permission writes are possible from this module.
+  if (method !== 'GET') {
+    const createPath = `/channels/${STATS_CHANNEL_ID}/messages`;
+    const updatePattern = new RegExp(`^/channels/${STATS_CHANNEL_ID}/messages/\\d+$`);
+    const allowed =
+      (method === 'POST' && pathname === createPath) ||
+      (method === 'PATCH' && updatePattern.test(pathname));
+    if (!allowed) throw new Error(`Safety guard blocked Discord write: ${method} ${pathname}`);
   }
 
-  return Math.round(
-    (
-      part /
-      total
-    ) * 100
-  );
+  const headers = {
+    Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+    'User-Agent': 'Kings Logistics Advanced Statistics/3.0'
+  };
+  if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+
+  const response = await fetch(`${DISCORD_API}${pathname}`, {
+    method,
+    headers,
+    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    signal: AbortSignal.timeout(15000)
+  });
+
+  const text = await response.text();
+  if (!response.ok) {
+    const error = new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+    error.status = response.status;
+    throw error;
+  }
+
+  if (!text) return null;
+  try { return JSON.parse(text); } catch { return text; }
 }
 
-function progressBar(value) {
-  const safe =
-    Math.max(
-      0,
-      Math.min(
-        100,
-        value
-      )
-    );
-
-  const filled =
-    Math.round(
-      safe / 10
-    );
-
-  return (
-    "█".repeat(filled) +
-    "░".repeat(
-      10 - filled
-    )
-  );
+async function validateStatsChannel() {
+  const channel = await discord(`/channels/${STATS_CHANNEL_ID}`);
+  if (channel.guild_id && channel.guild_id !== DISCORD_GUILD_ID) {
+    throw new Error('Configured Statistics channel is not in the configured guild.');
+  }
+  return channel;
 }
-
-// ======================================================
-// CENTRAL LIVE SNAPSHOT
-// ======================================================
 
 function loadLiveSnapshot() {
-  const snapshot =
-    readJson(
-      LIVE_SNAPSHOT_FILE,
-      null
-    );
-
-  if (
-    !snapshot ||
-    typeof snapshot !== "object"
-  ) {
-    throw new Error(
-      "Kings Live Tracker snapshot does not exist."
-    );
+  const snapshot = readJson(LIVE_SNAPSHOT_FILE, null);
+  if (!snapshot || typeof snapshot !== 'object') {
+    throw new Error('Kings Live Tracker snapshot does not exist.');
   }
 
-  const updatedAt =
-    normalizeDate(
-      snapshot.updatedAt
-    );
+  const updatedAt = normalizeDate(snapshot.updatedAt);
+  if (!updatedAt) throw new Error('Kings Live Tracker snapshot has no valid updatedAt timestamp.');
 
-  if (!updatedAt) {
-    throw new Error(
-      "Kings Live Tracker snapshot has no valid updatedAt timestamp."
-    );
+  const ageMs = Date.now() - updatedAt.getTime();
+  if (ageMs > MAX_SNAPSHOT_AGE_MINUTES * 60 * 1000) {
+    throw new Error(`Kings Live Tracker snapshot is too old (${Math.floor(ageMs / 60000)} minutes).`);
   }
 
-  const ageMs =
-    Date.now() -
-    updatedAt.getTime();
-
-  const maximumAge =
-    MAX_SNAPSHOT_AGE_MINUTES *
-    60 *
-    1000;
-
-  if (ageMs > maximumAge) {
-    throw new Error(
-      `Kings Live Tracker snapshot is too old (${Math.floor(
-        ageMs / 60000
-      )} minutes).`
-    );
-  }
-
-  const activeServers =
-    Array.isArray(
-      snapshot.activeServers
-    )
-      ? snapshot.activeServers
-      : [];
-
-  const serverCounts =
-    activeServers
-      .map(server => ({
-        key:
-          `${String(
-            server.game || "Unknown"
-          ).toUpperCase()} — ${String(
-            server.name || "Unknown Server"
-          )}`,
-
-        game:
-          String(
-            server.game || ""
-          ).toUpperCase(),
-
-        name:
-          String(
-            server.name ||
-            "Unknown Server"
-          ),
-
-        count:
-          number(
-            server.online
-          ),
-
-        event:
-          Boolean(
-            server.isEvent
-          )
-      }))
-      .filter(
-        server =>
-          server.count > 0
-      );
+  const serverCounts = (Array.isArray(snapshot.activeServers) ? snapshot.activeServers : [])
+    .map((server) => ({
+      key: `${String(server.game || 'Unknown').toUpperCase()} — ${String(server.name || 'Unknown Server')}`,
+      game: String(server.game || '').toUpperCase(),
+      name: String(server.name || 'Unknown Server'),
+      count: number(server.online),
+      event: Boolean(server.isEvent)
+    }))
+    .filter((server) => server.count > 0);
 
   return {
     updatedAt,
-
-    members:
-      number(
-        snapshot.members
-      ),
-
+    members: number(snapshot.members),
     activity: {
-      totalOnline:
-        number(
-          snapshot.online
-        ),
-
-      ets2Count:
-        number(
-          snapshot.ets2Online
-        ),
-
-      atsCount:
-        number(
-          snapshot.atsOnline
-        ),
-
+      totalOnline: number(snapshot.online),
+      ets2Count: number(snapshot.ets2Online),
+      atsCount: number(snapshot.atsOnline),
       serverCounts
     }
   };
 }
 
-// ======================================================
-// STATISTICS DATA
-// ======================================================
-
-function normalizeDay(entry) {
+function normalizeDay(entry = {}) {
   return {
-    date:
-      String(
-        entry.date || ""
-      ),
-
-    startMembers:
-      number(
-        entry.startMembers,
-        number(entry.members)
-      ),
-
-    members:
-      number(
-        entry.members
-      ),
-
-    peakOnline:
-      number(
-        entry.peakOnline
-      ),
-
-    peakETS2:
-      number(
-        entry.peakETS2
-      ),
-
-    peakATS:
-      number(
-        entry.peakATS
-      ),
-
-    activitySamples:
-      number(
-        entry.activitySamples
-      ),
-
-    ets2PlayerSamples:
-      number(
-        entry.ets2PlayerSamples
-      ),
-
-    atsPlayerSamples:
-      number(
-        entry.atsPlayerSamples
-      ),
-
+    date: String(entry.date || ''),
+    startMembers: number(entry.startMembers, number(entry.members)),
+    members: number(entry.members),
+    peakOnline: number(entry.peakOnline),
+    peakETS2: number(entry.peakETS2),
+    peakATS: number(entry.peakATS),
+    activitySamples: number(entry.activitySamples),
+    ets2PlayerSamples: number(entry.ets2PlayerSamples),
+    atsPlayerSamples: number(entry.atsPlayerSamples),
     serverPlayerSamples:
-      entry.serverPlayerSamples &&
-      typeof entry.serverPlayerSamples ===
-        "object"
-        ? {
-            ...entry.serverPlayerSamples
-          }
+      entry.serverPlayerSamples && typeof entry.serverPlayerSamples === 'object'
+        ? { ...entry.serverPlayerSamples }
         : {},
-
-    sampledHours:
-      Array.isArray(
-        entry.sampledHours
-      )
-        ? [
-            ...new Set(
-              entry.sampledHours.map(
-                String
-              )
-            )
-          ]
-        : []
+    sampledHours: Array.isArray(entry.sampledHours)
+      ? [...new Set(entry.sampledHours.map(String))]
+      : []
   };
 }
 
 function loadStatistics() {
-  const raw =
-    readJson(
-      STATE_FILE,
-      null
-    );
+  const raw = readJson(STATE_FILE, {});
+  const historySource = Array.isArray(raw)
+    ? raw
+    : Array.isArray(raw.history)
+      ? raw.history
+      : Array.isArray(raw.days)
+        ? raw.days
+        : [];
 
-  let oldHistory = [];
-  let messageId = null;
-  let createdAt =
-    nowISO();
-
-  let oldAllTime = {};
-  let migrated =
-    false;
-
-  if (Array.isArray(raw)) {
-    oldHistory =
-      raw;
-
-    migrated =
-      true;
-  } else if (
-    raw &&
-    typeof raw ===
-      "object"
-  ) {
-    if (
-      Array.isArray(
-        raw.history
-      )
-    ) {
-      oldHistory =
-        raw.history;
-    } else if (
-      Array.isArray(
-        raw.days
-      )
-    ) {
-      oldHistory =
-        raw.days;
-
-      migrated =
-        true;
-    } else {
-      migrated =
-        true;
-    }
-
-    messageId =
-      raw.messageId ||
-      raw.discordMessageId ||
-      raw.discord_message_id ||
-      null;
-
-    createdAt =
-      raw.createdAt ||
-      createdAt;
-
-    oldAllTime =
-      raw.allTime &&
-      typeof raw.allTime ===
-        "object"
-        ? raw.allTime
-        : {};
-
-    if (
-      raw.version !== 2
-    ) {
-      migrated =
-        true;
-    }
-  } else {
-    migrated =
-      true;
-  }
-
-  const history =
-    oldHistory
-      .map(normalizeDay)
-      .filter(
-        entry =>
-          /^\d{4}-\d{2}-\d{2}$/.test(
-            entry.date
-          )
-      )
-      .sort(
-        (a, b) =>
-          a.date.localeCompare(
-            b.date
-          )
-      );
-
-  const previousOnlinePeak =
-    Math.max(
-      0,
-      ...history.map(
-        day =>
-          day.peakOnline
-      )
-    );
-
-  const previousETS2Peak =
-    Math.max(
-      0,
-      ...history.map(
-        day =>
-          day.peakETS2
-      )
-    );
-
-  const previousATSPeak =
-    Math.max(
-      0,
-      ...history.map(
-        day =>
-          day.peakATS
-      )
-    );
+  const history = historySource
+    .map(normalizeDay)
+    .filter((item) => /^\d{4}-\d{2}-\d{2}$/.test(item.date))
+    .sort((a, b) => a.date.localeCompare(b.date));
 
   return {
-    migrated,
-
-    state: {
-      version: 2,
-
-      createdAt,
-
-      updatedAt:
-        raw &&
-        raw.updatedAt
-          ? raw.updatedAt
-          : createdAt,
-
-      messageId,
-
-      recreateMessage:
-        Boolean(
-          raw &&
-          raw.recreateMessage
-        ),
-
-      allTime: {
-        peakOnline:
-          Math.max(
-            number(
-              oldAllTime.peakOnline
-            ),
-            previousOnlinePeak
-          ),
-
-        peakETS2:
-          Math.max(
-            number(
-              oldAllTime.peakETS2
-            ),
-            previousETS2Peak
-          ),
-
-        peakATS:
-          Math.max(
-            number(
-              oldAllTime.peakATS
-            ),
-            previousATSPeak
-          )
-      },
-
-      history
-    }
+    version: 3,
+    createdAt: raw.createdAt || nowISO(),
+    updatedAt: raw.updatedAt || nowISO(),
+    messageId: raw.messageId || raw.discordMessageId || null,
+    allTime: {
+      peakOnline: Math.max(number(raw?.allTime?.peakOnline), ...history.map((d) => d.peakOnline), 0),
+      peakETS2: Math.max(number(raw?.allTime?.peakETS2), ...history.map((d) => d.peakETS2), 0),
+      peakATS: Math.max(number(raw?.allTime?.peakATS), ...history.map((d) => d.peakATS), 0)
+    },
+    history
   };
 }
 
-// ======================================================
-// DRIVER HISTORY
-// ======================================================
-
 function loadDriverHistory() {
-  const history =
-    readJson(
-      DRIVER_HISTORY_FILE,
-      null
-    );
-
-  if (
-    !history ||
-    !Array.isArray(
-      history.members
-    ) ||
-    !Array.isArray(
-      history.events
-    )
-  ) {
-    console.warn(
-      "Driver History unavailable."
-    );
-
-    return null;
-  }
-
+  const history = readJson(DRIVER_HISTORY_FILE, null);
+  if (!history || !Array.isArray(history.events)) return null;
   return history;
 }
 
-function historyCovers(
-  driverHistory,
-  start
-) {
-  if (!driverHistory) {
-    return false;
-  }
-
-  const initialized =
-    normalizeDate(
-      driverHistory.initializedAt
-    );
-
-  if (!initialized) {
-    return false;
-  }
-
-  return (
-    initialized.getTime() <=
-    start.getTime()
-  );
+function historyCovers(driverHistory, start) {
+  const initialized = normalizeDate(driverHistory?.initializedAt);
+  return Boolean(initialized && initialized.getTime() <= start.getTime());
 }
 
-// ======================================================
-// DRIVER MOVEMENT
-// ======================================================
-
-function getMovement(
-  driverHistory,
-  start,
-  end
-) {
-  if (
-    !historyCovers(
-      driverHistory,
-      start
-    )
-  ) {
-    return {
-      complete: false,
-      joined: 0,
-      left: 0,
-      net: 0
-    };
+function movement(driverHistory, start, end) {
+  if (!historyCovers(driverHistory, start)) {
+    return { complete: false, joined: 0, left: 0, net: 0 };
   }
 
   let joined = 0;
   let left = 0;
-
-  for (
-    const event
-    of driverHistory.events
-  ) {
-    const date =
-      normalizeDate(
-        event.occurredAt ||
-        event.detectedAt
-      );
-
-    if (!date) {
-      continue;
-    }
-
-    if (
-      date.getTime() <
-        start.getTime() ||
-      date.getTime() >=
-        end.getTime()
-    ) {
-      continue;
-    }
-
-    if (
-      event.type === "join"
-    ) {
-      joined++;
-    }
-
-    if (
-      event.type === "leave"
-    ) {
-      left++;
-    }
+  for (const event of driverHistory.events) {
+    const date = normalizeDate(event.occurredAt || event.detectedAt);
+    if (!date || date < start || date >= end) continue;
+    if (event.type === 'join') joined++;
+    if (event.type === 'leave') left++;
   }
-
-  return {
-    complete: true,
-    joined,
-    left,
-
-    net:
-      joined -
-      left
-  };
+  return { complete: true, joined, left, net: joined - left };
 }
 
-function movementLine(
-  label,
-  movement
-) {
-  if (!movement.complete) {
-    return (
-      `${label}: ` +
-      "*collecting data*"
-    );
-  }
-
-  return (
-    `${label}: ` +
-    `**${movement.joined} joined** • ` +
-    `**${movement.left} left** • ` +
-    `**${formatSigned(movement.net)} net**`
-  );
-}
-
-// ======================================================
-// UPDATE DAILY STATISTICS
-// ======================================================
-
-function updateState(
-  state,
-  members,
-  activity,
-  sampleTime
-) {
-  let changed =
-    false;
-
-  const today =
-    dateKey(
-      sampleTime
-    );
-
-  let entry =
-    state.history.find(
-      day =>
-        day.date ===
-        today
-    );
+function updateState(state, members, activity, sampleTime) {
+  let changed = false;
+  const today = dateKey(sampleTime);
+  let entry = state.history.find((day) => day.date === today);
 
   if (!entry) {
-    entry =
-      normalizeDay({
-        date:
-          today,
-
-        startMembers:
-          members,
-
-        members,
-
-        peakOnline:
-          activity.totalOnline,
-
-        peakETS2:
-          activity.ets2Count,
-
-        peakATS:
-          activity.atsCount
-      });
-
-    state.history.push(
-      entry
-    );
-
-    changed =
-      true;
+    entry = normalizeDay({
+      date: today,
+      startMembers: members,
+      members,
+      peakOnline: activity.totalOnline,
+      peakETS2: activity.ets2Count,
+      peakATS: activity.atsCount
+    });
+    state.history.push(entry);
+    changed = true;
   }
 
-  if (
-    entry.members !==
-    members
-  ) {
-    entry.members =
-      members;
+  if (entry.members !== members) { entry.members = members; changed = true; }
+  if (activity.totalOnline > entry.peakOnline) { entry.peakOnline = activity.totalOnline; changed = true; }
+  if (activity.ets2Count > entry.peakETS2) { entry.peakETS2 = activity.ets2Count; changed = true; }
+  if (activity.atsCount > entry.peakATS) { entry.peakATS = activity.atsCount; changed = true; }
 
-    changed =
-      true;
-  }
-
-  if (
-    activity.totalOnline >
-    entry.peakOnline
-  ) {
-    entry.peakOnline =
-      activity.totalOnline;
-
-    changed =
-      true;
-  }
-
-  if (
-    activity.ets2Count >
-    entry.peakETS2
-  ) {
-    entry.peakETS2 =
-      activity.ets2Count;
-
-    changed =
-      true;
-  }
-
-  if (
-    activity.atsCount >
-    entry.peakATS
-  ) {
-    entry.peakATS =
-      activity.atsCount;
-
-    changed =
-      true;
-  }
-
-  // ====================================================
-  // ONE ACTIVITY SAMPLE PER HOUR
-  // ====================================================
-
-  const hour =
-    currentHourKey(
-      sampleTime
-    );
-
-  if (
-    !entry.sampledHours.includes(
-      hour
-    )
-  ) {
-    entry.sampledHours.push(
-      hour
-    );
-
+  const hour = hourKey(sampleTime);
+  if (!entry.sampledHours.includes(hour)) {
+    entry.sampledHours.push(hour);
     entry.activitySamples++;
-
-    entry.ets2PlayerSamples +=
-      activity.ets2Count;
-
-    entry.atsPlayerSamples +=
-      activity.atsCount;
-
-    for (
-      const server
-      of activity.serverCounts
-    ) {
-      entry.serverPlayerSamples[
-        server.key
-      ] =
-        number(
-          entry.serverPlayerSamples[
-            server.key
-          ]
-        ) +
-        server.count;
+    entry.ets2PlayerSamples += activity.ets2Count;
+    entry.atsPlayerSamples += activity.atsCount;
+    for (const server of activity.serverCounts) {
+      entry.serverPlayerSamples[server.key] = number(entry.serverPlayerSamples[server.key]) + server.count;
     }
-
-    changed =
-      true;
+    changed = true;
   }
 
-  // ====================================================
-  // ALL-TIME RECORDS
-  // ====================================================
+  if (activity.totalOnline > state.allTime.peakOnline) { state.allTime.peakOnline = activity.totalOnline; changed = true; }
+  if (activity.ets2Count > state.allTime.peakETS2) { state.allTime.peakETS2 = activity.ets2Count; changed = true; }
+  if (activity.atsCount > state.allTime.peakATS) { state.allTime.peakATS = activity.atsCount; changed = true; }
 
-  if (
-    activity.totalOnline >
-    state.allTime.peakOnline
-  ) {
-    state.allTime.peakOnline =
-      activity.totalOnline;
-
-    changed =
-      true;
-  }
-
-  if (
-    activity.ets2Count >
-    state.allTime.peakETS2
-  ) {
-    state.allTime.peakETS2 =
-      activity.ets2Count;
-
-    changed =
-      true;
-  }
-
-  if (
-    activity.atsCount >
-    state.allTime.peakATS
-  ) {
-    state.allTime.peakATS =
-      activity.atsCount;
-
-    changed =
-      true;
-  }
-
-  // ====================================================
-  // HISTORY RETENTION
-  // ====================================================
-
-  state.history.sort(
-    (a, b) =>
-      a.date.localeCompare(
-        b.date
-      )
-  );
-
-  const cutoff =
-    dateKey(
-      new Date(
-        sampleTime.getTime() -
-        (
-          HISTORY_RETENTION_DAYS *
-          DAY_MS
-        )
-      )
-    );
-
-  const oldLength =
-    state.history.length;
-
-  state.history =
-    state.history.filter(
-      day =>
-        day.date >=
-        cutoff
-    );
-
-  if (
-    oldLength !==
-    state.history.length
-  ) {
-    changed =
-      true;
-  }
+  const cutoff = dateKey(new Date(sampleTime.getTime() - HISTORY_RETENTION_DAYS * DAY_MS));
+  const oldLength = state.history.length;
+  state.history = state.history.filter((day) => day.date >= cutoff).sort((a, b) => a.date.localeCompare(b.date));
+  if (oldLength !== state.history.length) changed = true;
 
   return changed;
 }
 
-// ======================================================
-// PERIOD STATISTICS
-// ======================================================
-
-function entriesFrom(
-  state,
-  start
-) {
-  const key =
-    dateKey(start);
-
-  return state.history.filter(
-    day =>
-      day.date >= key
-  );
+function entriesFrom(state, start) {
+  const key = dateKey(start);
+  return state.history.filter((day) => day.date >= key);
 }
-
-function memberGrowth(
-  state,
-  start,
-  currentMembers
-) {
-  const entries =
-    entriesFrom(
-      state,
-      start
-    );
-
-  if (
-    entries.length === 0
-  ) {
-    return 0;
-  }
-
-  return (
-    currentMembers -
-    number(
-      entries[0].startMembers,
-      currentMembers
-    )
-  );
+function memberGrowth(state, start, currentMembers) {
+  const entries = entriesFrom(state, start);
+  if (!entries.length) return 0;
+  return currentMembers - number(entries[0].startMembers, currentMembers);
 }
-
-function peakFrom(
-  state,
-  start,
-  field
-) {
-  const entries =
-    entriesFrom(
-      state,
-      start
-    );
-
-  return Math.max(
-    0,
-    ...entries.map(
-      entry =>
-        number(
-          entry[field]
-        )
-    )
-  );
+function peakFrom(state, start, field) {
+  const entries = entriesFrom(state, start);
+  return Math.max(0, ...entries.map((entry) => number(entry[field])));
 }
-
-// ======================================================
-// MONTHLY ACTIVITY
-// ======================================================
-
-function getMonthlyActivity(
-  state,
-  monthStart
-) {
-  const entries =
-    entriesFrom(
-      state,
-      monthStart
-    );
-
+function monthlyActivity(state, start) {
+  const entries = entriesFrom(state, start);
   let ets2 = 0;
   let ats = 0;
-
   const servers = {};
-
-  for (
-    const day
-    of entries
-  ) {
-    ets2 +=
-      number(
-        day.ets2PlayerSamples
-      );
-
-    ats +=
-      number(
-        day.atsPlayerSamples
-      );
-
-    for (
-      const [
-        server,
-        count
-      ]
-      of Object.entries(
-        day.serverPlayerSamples ||
-        {}
-      )
-    ) {
-      servers[server] =
-        number(
-          servers[server]
-        ) +
-        number(count);
+  for (const day of entries) {
+    ets2 += number(day.ets2PlayerSamples);
+    ats += number(day.atsPlayerSamples);
+    for (const [server, count] of Object.entries(day.serverPlayerSamples || {})) {
+      servers[server] = number(servers[server]) + number(count);
     }
   }
-
-  const total =
-    ets2 + ats;
-
-  const ranking =
-    Object.entries(
-      servers
-    )
-      .map(
-        ([server, count]) => ({
-          server,
-          count
-        })
-      )
-      .sort(
-        (a, b) =>
-          b.count -
-            a.count ||
-          a.server.localeCompare(
-            b.server
-          )
-      );
-
-  const mostUsed =
-    ranking[0] ||
-    null;
-
+  const total = ets2 + ats;
+  const ranking = Object.entries(servers).sort((a, b) => number(b[1]) - number(a[1]) || a[0].localeCompare(b[0]));
+  const best = ranking[0] || null;
   return {
-    ets2,
-    ats,
     total,
-
-    ets2Percent:
-      percent(
-        ets2,
-        total
-      ),
-
-    atsPercent:
-      percent(
-        ats,
-        total
-      ),
-
-    mostUsed:
-      mostUsed
-        ? {
-            server:
-              mostUsed.server,
-
-            count:
-              mostUsed.count,
-
-            percent:
-              percent(
-                mostUsed.count,
-                total
-              )
-          }
-        : null
+    ets2Percent: percent(ets2, total),
+    atsPercent: percent(ats, total),
+    mostUsed: best ? { server: best[0], percent: percent(number(best[1]), total) } : null
   };
 }
-
-// ======================================================
-// MILESTONE
-// ======================================================
-
-function getNextMilestone(
-  members
-) {
-  for (
-    let milestone = 150;
-    milestone <= 1000;
-    milestone += 50
-  ) {
-    if (
-      members < milestone
-    ) {
-      const completion =
-        Math.min(
-          100,
-          Math.floor(
-            (
-              members /
-              milestone
-            ) * 100
-          )
-        );
-
-      return {
-        milestone,
-
-        remaining:
-          milestone -
-          members,
-
-        completion
-      };
+function nextMilestone(members) {
+  for (let milestone = 150; milestone <= 1000; milestone += 50) {
+    if (members < milestone) {
+      const completion = Math.min(100, Math.floor((members / milestone) * 100));
+      return { milestone, remaining: milestone - members, completion };
     }
   }
-
   return null;
 }
+function movementLine(label, data) {
+  if (!data.complete) return `${label}: *collecting data*`;
+  return `${label}: **${data.joined} joined** • **${data.left} left** • **${formatSigned(data.net)} net**`;
+}
 
-// ======================================================
-// BUILD EMBED
-// ======================================================
+function buildEmbed(state, live, driverHistory) {
+  const sampleTime = live.updatedAt;
+  const dayStart = startOfDay(sampleTime);
+  const weekStart = startOfWeek(sampleTime);
+  const monthStart = startOfMonth(sampleTime);
+  const todayMovement = movement(driverHistory, dayStart, sampleTime);
+  const weekMovement = movement(driverHistory, weekStart, sampleTime);
+  const monthMovement = movement(driverHistory, monthStart, sampleTime);
+  const activity = monthlyActivity(state, monthStart);
+  const milestone = nextMilestone(live.members);
+  const updatedUnix = Math.floor(sampleTime.getTime() / 1000);
 
-function buildEmbed(
-  state,
-  members,
-  activity,
-  driverHistory,
-  sampleTime
-) {
-  const dayStart =
-    startOfDay(
-      sampleTime
-    );
-
-  const weekStart =
-    startOfWeek(
-      sampleTime
-    );
-
-  const monthStart =
-    startOfMonth(
-      sampleTime
-    );
-
-  const updatedUnix =
-    Math.floor(
-      sampleTime.getTime() /
-      1000
-    );
-
-  const todayGrowth =
-    memberGrowth(
-      state,
-      dayStart,
-      members
-    );
-
-  const weekGrowth =
-    memberGrowth(
-      state,
-      weekStart,
-      members
-    );
-
-  const monthGrowth =
-    memberGrowth(
-      state,
-      monthStart,
-      members
-    );
-
-  const todayPeak =
-    peakFrom(
-      state,
-      dayStart,
-      "peakOnline"
-    );
-
-  const weekPeak =
-    peakFrom(
-      state,
-      weekStart,
-      "peakOnline"
-    );
-
-  const monthPeak =
-    peakFrom(
-      state,
-      monthStart,
-      "peakOnline"
-    );
-
-  const todayMovement =
-    getMovement(
-      driverHistory,
-      dayStart,
-      sampleTime
-    );
-
-  const weekMovement =
-    getMovement(
-      driverHistory,
-      weekStart,
-      sampleTime
-    );
-
-  const monthMovement =
-    getMovement(
-      driverHistory,
-      monthStart,
-      sampleTime
-    );
-
-  const monthlyActivity =
-    getMonthlyActivity(
-      state,
-      monthStart
-    );
-
-  let activityText =
-    "No Kings activity recorded yet.";
-
-  if (
-    monthlyActivity.total > 0
-  ) {
-    activityText =
-      `ETS2: **${monthlyActivity.ets2Percent}%** • ` +
-      `ATS: **${monthlyActivity.atsPercent}%**`;
-
-    if (
-      monthlyActivity.mostUsed
-    ) {
-      activityText +=
-        `\nMost Used: **${monthlyActivity.mostUsed.server}** ` +
-        `(${monthlyActivity.mostUsed.percent}%)`;
-    }
+  let activityText = 'No Kings activity recorded yet.';
+  if (activity.total > 0) {
+    activityText = `ETS2: **${activity.ets2Percent}%** • ATS: **${activity.atsPercent}%**`;
+    if (activity.mostUsed) activityText += `\nMost Used: **${activity.mostUsed.server}** (${activity.mostUsed.percent}%)`;
   }
 
-  const milestone =
-    getNextMilestone(
-      members
-    );
-
-  let milestoneText =
-    "All configured milestones up to **1,000 members** reached. 👑";
-
+  let milestoneText = 'All configured milestones up to **1,000 members** reached. 👑';
   if (milestone) {
-    milestoneText =
-      `**${members} / ${milestone.milestone}** members\n` +
-      `${progressBar(
-        milestone.completion
-      )} **${milestone.completion}%**\n` +
-      `**${milestone.remaining}** remaining`;
+    milestoneText = `**${live.members} / ${milestone.milestone}** members\n${progressBar(milestone.completion)} **${milestone.completion}%**\n**${milestone.remaining}** remaining`;
   }
 
   return {
-    title:
-      "👑 Kings Logistics Statistics",
-
-    description:
-      "Live and historical TruckersMP statistics for **Kings Logistics**.",
-
-    color:
-      KINGS_BLUE,
-
+    title: '👑 Kings Logistics Statistics',
+    description: 'Live and historical TruckersMP statistics for **Kings Logistics**.',
+    color: KINGS_BLUE,
     fields: [
       {
-        name:
-          "Members",
-
-        value:
-          `**${members} TruckersMP Members**\n` +
-          `Today: **${formatSigned(todayGrowth)}** • ` +
-          `This Week: **${formatSigned(weekGrowth)}** • ` +
-          `This Month: **${formatSigned(monthGrowth)}**`,
-
-        inline:
-          false
+        name: 'Members',
+        value: `**${live.members} TruckersMP Members**\nToday: **${formatSigned(memberGrowth(state, dayStart, live.members))}** • This Week: **${formatSigned(memberGrowth(state, weekStart, live.members))}** • This Month: **${formatSigned(memberGrowth(state, monthStart, live.members))}**`,
+        inline: false
       },
-
       {
-        name:
-          "Current Activity",
-
-        value:
-          `**${activity.totalOnline} Currently Online**\n` +
-          `ETS2: **${activity.ets2Count}** • ` +
-          `ATS: **${activity.atsCount}**`,
-
-        inline:
-          false
+        name: 'Current Activity',
+        value: `**${live.activity.totalOnline} Currently Online**\nETS2: **${live.activity.ets2Count}** • ATS: **${live.activity.atsCount}**`,
+        inline: false
       },
-
       {
-        name:
-          "Online Peaks",
-
-        value:
-          `Today: **${todayPeak}** • ` +
-          `This Week: **${weekPeak}** • ` +
-          `This Month: **${monthPeak}**\n` +
-          `All-Time Tracked: **${state.allTime.peakOnline}**`,
-
-        inline:
-          false
+        name: 'Online Peaks',
+        value: `Today: **${peakFrom(state, dayStart, 'peakOnline')}** • This Week: **${peakFrom(state, weekStart, 'peakOnline')}** • This Month: **${peakFrom(state, monthStart, 'peakOnline')}**\nAll-Time Tracked: **${state.allTime.peakOnline}**`,
+        inline: false
       },
-
       {
-        name:
-          "Driver Movement",
-
-        value:
-          [
-            movementLine(
-              "Today",
-              todayMovement
-            ),
-
-            movementLine(
-              "This Week",
-              weekMovement
-            ),
-
-            movementLine(
-              "This Month",
-              monthMovement
-            )
-          ].join("\n"),
-
-        inline:
-          false
+        name: 'Driver Movement',
+        value: [
+          movementLine('Today', todayMovement),
+          movementLine('This Week', weekMovement),
+          movementLine('This Month', monthMovement)
+        ].join('\n'),
+        inline: false
       },
-
-      {
-        name:
-          "Activity This Month",
-
-        value:
-          activityText,
-
-        inline:
-          false
-      },
-
-      {
-        name:
-          "Next Milestone",
-
-        value:
-          `${milestoneText}\n\n` +
-          `Last updated <t:${updatedUnix}:R>`,
-
-        inline:
-          false
-      }
+      { name: 'Activity This Month', value: activityText, inline: false },
+      { name: 'Next Milestone', value: `${milestoneText}\n\nLast updated <t:${updatedUnix}:R>`, inline: false }
     ],
-
-    footer: {
-      text:
-        "Kings Logistics • Advanced Statistics"
-    }
+    footer: { text: 'Kings Logistics • Advanced Statistics • Kings Systems' }
   };
 }
 
-// ======================================================
-// DISCORD
-// ======================================================
-
-function webhookWithWait() {
-  const url =
-    new URL(
-      DISCORD_WEBHOOK_URL
-    );
-
-  url.searchParams.set(
-    "wait",
-    "true"
-  );
-
-  return url.toString();
+async function findExistingBotMessage() {
+  const messages = await discord(`/channels/${STATS_CHANNEL_ID}/messages?limit=100`);
+  return (messages || []).find((message) =>
+    message.author?.bot &&
+    Array.isArray(message.embeds) &&
+    message.embeds.some((embed) => embed.title === '👑 Kings Logistics Statistics')
+  ) || null;
 }
 
-async function createDiscordMessage(
-  embed
-) {
-  if (!DISCORD_WEBHOOK_URL) {
-    throw new Error(
-      "STATS_DISCORD_WEBHOOK_URL is missing."
-    );
-  }
-
-  const response =
-    await fetch(
-      webhookWithWait(),
-      {
-        method:
-          "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body:
-          JSON.stringify({
-            embeds: [embed],
-
-            allowed_mentions: {
-              parse: []
-            }
-          })
-      }
-    );
-
-  if (!response.ok) {
-    throw new Error(
-      `Statistics Discord create failed: HTTP ${response.status} - ${await response.text()}`
-    );
-  }
-
-  const message =
-    await response.json();
-
-  if (!message.id) {
-    throw new Error(
-      "Discord did not return a Statistics message ID."
-    );
-  }
-
-  return String(
-    message.id
-  );
-}
-
-async function deleteDiscordMessage(
-  messageId
-) {
-  if (!DISCORD_WEBHOOK_URL) {
-    throw new Error(
-      "STATS_DISCORD_WEBHOOK_URL is missing."
-    );
-  }
-
-  const base =
-    DISCORD_WEBHOOK_URL
-      .split("?")[0]
-      .replace(
-        /\/$/,
-        ""
-      );
-
-  const response =
-    await fetch(
-      `${base}/messages/${messageId}`,
-      {
-        method:
-          "DELETE"
-      }
-    );
-
-  if (
-    response.status === 404
-  ) {
-    return;
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      `Statistics Discord delete failed: HTTP ${response.status} - ${await response.text()}`
-    );
-  }
-}
-
-async function updateDiscordMessage(
-  messageId,
-  embed
-) {
-  if (!DISCORD_WEBHOOK_URL) {
-    throw new Error(
-      "STATS_DISCORD_WEBHOOK_URL is missing."
-    );
-  }
-
-  const base =
-    DISCORD_WEBHOOK_URL
-      .split("?")[0]
-      .replace(
-        /\/$/,
-        ""
-      );
-
-  const response =
-    await fetch(
-      `${base}/messages/${messageId}`,
-      {
-        method:
-          "PATCH",
-
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body:
-          JSON.stringify({
-            embeds: [embed],
-
-            allowed_mentions: {
-              parse: []
-            }
-          })
-      }
-    );
-
-  if (
-    response.status === 404
-  ) {
-    return false;
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      `Statistics Discord update failed: HTTP ${response.status} - ${await response.text()}`
-    );
-  }
-
-  return true;
-}
-
-async function publishStatistics(
-  state,
-  embed
-) {
-  if (
-    state.recreateMessage &&
-    state.messageId
-  ) {
-    console.log(
-      "Refreshing Kings Statistics with a completely new Discord message."
-    );
-
-    await deleteDiscordMessage(
-      state.messageId
-    );
-
-    state.messageId =
-      null;
-  }
+async function syncDiscord(state, embed) {
+  await validateStatsChannel();
 
   if (state.messageId) {
-    const updated =
-      await updateDiscordMessage(
-        state.messageId,
-        embed
-      );
-
-    if (updated) {
-      console.log(
-        "Existing Kings Statistics message updated."
-      );
-
+    try {
+      await discord(`/channels/${STATS_CHANNEL_ID}/messages/${state.messageId}`, {
+        method: 'PATCH',
+        body: { embeds: [embed], allowed_mentions: { parse: [] } }
+      });
+      console.log('Existing Kings Statistics message updated by Kings Systems.');
       return false;
+    } catch (error) {
+      if (![403, 404].includes(error.status)) throw error;
+      console.log('Stored Statistics message is not editable by Kings Systems; looking for the bot-owned overview.');
     }
-
-    console.log(
-      "Stored Statistics message no longer exists."
-    );
-
-    console.log(
-      "Creating a new Statistics message."
-    );
   }
 
-  state.messageId =
-    await createDiscordMessage(
-      embed
-    );
+  const existing = await findExistingBotMessage();
+  if (existing) {
+    await discord(`/channels/${STATS_CHANNEL_ID}/messages/${existing.id}`, {
+      method: 'PATCH',
+      body: { embeds: [embed], allowed_mentions: { parse: [] } }
+    });
+    const changed = state.messageId !== existing.id;
+    state.messageId = existing.id;
+    console.log('Kings Systems Statistics message found and updated.');
+    return changed;
+  }
 
-  state.recreateMessage =
-    false;
-
-  console.log(
-    `New Kings Statistics message created: ${state.messageId}`
-  );
-
+  const created = await discord(`/channels/${STATS_CHANNEL_ID}/messages`, {
+    method: 'POST',
+    body: { embeds: [embed], allowed_mentions: { parse: [] } }
+  });
+  if (!created?.id) throw new Error('Discord did not return a Statistics message ID.');
+  state.messageId = String(created.id);
+  console.log(`New Kings Systems Statistics message created: ${state.messageId}`);
   return true;
 }
 
-// ======================================================
-// MAIN
-// ======================================================
+async function main() {
+  console.log('====================================');
+  console.log('Kings Logistics Advanced Statistics');
+  console.log('====================================');
 
-async function start() {
-  console.log(
-    "===================================="
-  );
+  const live = loadLiveSnapshot();
+  const state = loadStatistics();
+  const driverHistory = loadDriverHistory();
 
-  console.log(
-    "Kings Logistics Advanced Statistics"
-  );
+  let changed = updateState(state, live.members, live.activity, live.updatedAt);
+  const embed = buildEmbed(state, live, driverHistory);
+  if (await syncDiscord(state, embed)) changed = true;
 
-  console.log(
-    "===================================="
-  );
-
-  console.log("");
-
-  console.log(
-    "Loading central Kings Live Tracker snapshot..."
-  );
-
-  const live =
-    loadLiveSnapshot();
-
-  const members =
-    live.members;
-
-  const activity =
-    live.activity;
-
-  const sampleTime =
-    live.updatedAt;
-
-  console.log(
-    `Snapshot age: ${Math.max(
-      0,
-      Math.floor(
-        (
-          Date.now() -
-          sampleTime.getTime()
-        ) / 1000
-      )
-    )} seconds`
-  );
-
-  console.log(
-    `Members: ${members}`
-  );
-
-  console.log(
-    `Currently Online: ${activity.totalOnline}`
-  );
-
-  console.log(
-    `ETS2: ${activity.ets2Count}`
-  );
-
-  console.log(
-    `ATS: ${activity.atsCount}`
-  );
-
-  console.log(
-    `Active Servers: ${activity.serverCounts.length}`
-  );
-
-  const loaded =
-    loadStatistics();
-
-  const state =
-    loaded.state;
-
-  const driverHistory =
-    loadDriverHistory();
-
-  let stateChanged =
-    loaded.migrated;
-
-  if (
-    updateState(
-      state,
-      members,
-      activity,
-      sampleTime
-    )
-  ) {
-    stateChanged =
-      true;
-  }
-
-  const embed =
-    buildEmbed(
-      state,
-      members,
-      activity,
-      driverHistory,
-      sampleTime
-    );
-
-  const newMessage =
-    await publishStatistics(
-      state,
-      embed
-    );
-
-  if (newMessage) {
-    stateChanged =
-      true;
-  }
-
-  if (stateChanged) {
-    state.updatedAt =
-      nowISO();
-
-    writeJson(
-      STATE_FILE,
-      state
-    );
-
-    console.log(
-      "Statistics data saved."
-    );
+  if (changed) {
+    state.updatedAt = nowISO();
+    writeJson(STATE_FILE, state);
+    console.log('Statistics data saved.');
   } else {
-    console.log(
-      "No persistent Statistics data changes to save."
-    );
+    console.log('No persistent Statistics data changes to save.');
   }
 
-  console.log("");
-
-  console.log(
-    "Advanced Statistics summary:"
-  );
-
-  console.log(
-    `Members: ${members}`
-  );
-
-  console.log(
-    `Online: ${activity.totalOnline}`
-  );
-
-  console.log(
-    `ETS2: ${activity.ets2Count}`
-  );
-
-  console.log(
-    `ATS: ${activity.atsCount}`
-  );
-
-  console.log(
-    `All-Time Tracked Peak: ${state.allTime.peakOnline}`
-  );
-
-  const milestone =
-    getNextMilestone(
-      members
-    );
-
-  if (milestone) {
-    console.log(
-      `Next Milestone: ${members}/${milestone.milestone}`
-    );
-  }
-
-  console.log("");
-
-  console.log(
-    "Live data source: Kings Live Tracker Snapshot"
-  );
-
-  console.log(
-    "Kings Advanced Statistics completed successfully."
-  );
+  console.log(`Members: ${live.members}`);
+  console.log(`Online: ${live.activity.totalOnline}`);
+  console.log(`ETS2: ${live.activity.ets2Count}`);
+  console.log(`ATS: ${live.activity.atsCount}`);
+  console.log(`All-Time Tracked Peak: ${state.allTime.peakOnline}`);
+  console.log('Kings Advanced Statistics completed successfully.');
+  console.log('Safety: Statistics reporting only. No personnel actions are implemented.');
 }
 
-// ======================================================
-// START
-// ======================================================
-
-start().catch(error => {
-  console.error("");
-
-  console.error(
-    "Kings Advanced Statistics failed:"
-  );
-
-  console.error(
-    error
-  );
-
+main().catch((error) => {
+  console.error('Kings Advanced Statistics failed:');
+  console.error(error);
   process.exit(1);
 });
