@@ -3,6 +3,7 @@ name: Kings Driver Achievements
 on:
   workflow_dispatch:
 
+  # Temporary self-test trigger while the recognition baseline is verified.
   push:
     paths:
       - 'driver-achievements.js'
