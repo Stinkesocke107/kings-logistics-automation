@@ -1,0 +1,58 @@
+name: Kings Staff Management
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - 'staff-management.js'
+      - '.github/workflows/staff-management.yml'
+
+  schedule:
+    - cron: "43 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-staff-management
+  cancel-in-progress: false
+
+jobs:
+  staff-management:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Update Staff Management
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          STAFF_LEADERSHIP_CHANNEL_NAME: 'staff-leadership'
+        run: node staff-management.js
+
+      - name: Save Staff Management Data
+        run: |
+          if git diff --quiet -- data/staff-management.json data/staff-management-summary.json && [ -z "$(git status --porcelain data/staff-management.json data/staff-management-summary.json)" ]; then
+            echo "No Staff Management data changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/staff-management.json
+          git add data/staff-management-summary.json
+          git commit -m "Update Kings Staff Management data"
+
+          git pull --rebase origin main
+          git push origin main
