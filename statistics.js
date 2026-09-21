@@ -387,6 +387,7 @@ async function findExistingBotMessage() {
   const messages = await discord(`/channels/${STATS_CHANNEL_ID}/messages?limit=100`);
   return (messages || []).find((message) =>
     message.author?.bot &&
+    !message.webhook_id &&
     Array.isArray(message.embeds) &&
     message.embeds.some((embed) => embed.title === '👑 Kings Logistics Statistics')
   ) || null;
