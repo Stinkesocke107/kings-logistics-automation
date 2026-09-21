@@ -12,11 +12,6 @@ on:
           - preview
           - publish
 
-  push:
-    paths:
-      - 'driver-weekly-summary.js'
-      - '.github/workflows/driver-weekly-summary.yml'
-
   schedule:
     - cron: "5 10 * * 1"
 
@@ -47,7 +42,7 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
-          DRIVER_WEEKLY_SUMMARY_PREVIEW: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'preview') }}
+          DRIVER_WEEKLY_SUMMARY_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
         run: node driver-weekly-summary.js
 
       - name: Save Driver Weekly Summary State
