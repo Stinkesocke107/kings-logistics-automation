@@ -1,0 +1,42 @@
+name: Kings Management Overview
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - 'management-overview.js'
+      - '.github/workflows/management-overview.yml'
+
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-management-overview
+  cancel-in-progress: false
+
+jobs:
+  management-overview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Update Kings Management Overview
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
+          CONVOY_MANAGEMENT_FORUM_ID: '1550619824005062697'
+        run: node management-overview.js
