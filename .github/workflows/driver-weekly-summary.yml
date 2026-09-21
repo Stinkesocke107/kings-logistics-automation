@@ -1,0 +1,68 @@
+name: Kings Driver Weekly Summary
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Choose how the Driver Weekly Summary should run"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - publish
+
+  push:
+    paths:
+      - 'driver-weekly-summary.js'
+      - '.github/workflows/driver-weekly-summary.yml'
+
+  schedule:
+    - cron: "5 10 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-driver-weekly-summary
+  cancel-in-progress: false
+
+jobs:
+  create-driver-weekly-summary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Create Driver Weekly Summary
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
+          DRIVER_WEEKLY_SUMMARY_PREVIEW: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'preview') }}
+        run: node driver-weekly-summary.js
+
+      - name: Save Driver Weekly Summary State
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') }}
+        run: |
+          if git diff --quiet -- data/driver-weekly-summary-state.json && [ -z "$(git status --porcelain data/driver-weekly-summary-state.json)" ]; then
+            echo "No Driver Weekly Summary state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/driver-weekly-summary-state.json
+          git commit -m "Update Kings Driver Weekly Summary state"
+
+          git pull --rebase origin main
+          git push origin main
