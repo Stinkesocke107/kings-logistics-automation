@@ -14,6 +14,9 @@ const LIVE_FILE = path.join(__dirname, 'data', 'live-tracker-snapshot.json');
 const STATISTICS_FILE = path.join(__dirname, 'data', 'statistics.json');
 const HR_FILE = path.join(__dirname, 'data', 'hr-probation.json');
 const MONTHLY_REPORT_STATE_FILE = path.join(__dirname, 'data', 'monthly-report-state.json');
+const MILESTONE_FILE = path.join(__dirname, 'data', 'milestones.json');
+const ACHIEVEMENT_SUMMARY_FILE = path.join(__dirname, 'data', 'driver-achievements-summary.json');
+const AWARDS_CATALOG_FILE = path.join(__dirname, 'data', 'awards-catalog.json');
 
 const DISCORD_API = 'https://discord.com/api/v10';
 const OVERVIEW_TITLE = '👑 Kings Management Overview';
@@ -104,6 +107,42 @@ function reportingStatus(statistics, monthlyReportState) {
   };
 }
 
+function recognitionStatus(milestones, achievements, awardsCatalog, fallbackMembers) {
+  const members = number(milestones?.memberCountAtLastUpdate, fallbackMembers);
+  let nextMilestone = null;
+  for (let milestone = 150; milestone <= 1000; milestone += 50) {
+    if (members < milestone) {
+      nextMilestone = milestone;
+      break;
+    }
+  }
+
+  const counts = achievements?.counts && typeof achievements.counts === 'object'
+    ? achievements.counts
+    : {};
+  const awardTypes = Array.isArray(awardsCatalog?.awards) ? awardsCatalog.awards.length : 0;
+
+  return {
+    members,
+    reachedMilestones: Array.isArray(milestones?.reachedMilestones) ? milestones.reachedMilestones.length : 0,
+    nextMilestone,
+    remaining: nextMilestone ? Math.max(0, nextMilestone - members) : 0,
+    trackedDrivers: number(achievements?.trackedCurrentDrivers),
+    upcoming30Days: number(achievements?.upcoming30Days),
+    counts: {
+      oneMonth: number(counts['1m']),
+      threeMonths: number(counts['3m']),
+      sixMonths: number(counts['6m']),
+      oneYear: number(counts['1y']),
+      twoYears: number(counts['2y']),
+      threeYears: number(counts['3y']),
+      fourYears: number(counts['4y']),
+      fiveYears: number(counts['5y'])
+    },
+    awardTypes
+  };
+}
+
 async function discord(pathname, options = {}) {
   const method = String(options.method || 'GET').toUpperCase();
 
@@ -116,7 +155,7 @@ async function discord(pathname, options = {}) {
 
   const headers = {
     Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-    'User-Agent': 'Kings Logistics Management Overview/1.1'
+    'User-Agent': 'Kings Logistics Management Overview/1.2'
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
@@ -201,7 +240,7 @@ async function getEventStatus() {
   return counts;
 }
 
-function buildEmbed(driver, live, statistics, hr, events, reports) {
+function buildEmbed(driver, live, statistics, hr, events, reports, recognition) {
   const activity = driver?.activity || {};
   const reviews = Array.isArray(hr?.reviews) ? hr.reviews : [];
   const openProbation = reviews.filter((review) => review.status === 'open').length;
@@ -226,6 +265,10 @@ function buildEmbed(driver, live, statistics, hr, events, reports) {
 
   let overall = '✅ No current management attention flags';
   if (managementAttention > 0) overall = `⚠️ **${managementAttention}** item${managementAttention === 1 ? '' : 's'} currently need management/leadership attention`;
+
+  const nextMilestoneText = recognition.nextMilestone
+    ? `Next VTC Milestone: **${recognition.members}/${recognition.nextMilestone}** • **${recognition.remaining} remaining**`
+    : `VTC Milestones: **all configured milestones up to 1,000 reached**`;
 
   return {
     title: OVERVIEW_TITLE,
@@ -261,6 +304,16 @@ function buildEmbed(driver, live, statistics, hr, events, reports) {
           `Statistics History: **${reports.retainedDays} days** • Current Month: **${reports.currentMonthDays} recorded days**\n` +
           `Hourly Samples Today: **${reports.hourlySamplesToday}** • All-Time Tracked Peak: **${reports.allTimePeak}**\n` +
           `Latest Published Monthly Report: **${reports.latestPublishedMonth || 'none tracked yet'}** • Schedule: **1st of each month, 10:00 UTC**`,
+        inline: false
+      },
+      {
+        name: '👑 Milestones & Recognition',
+        value:
+          `${nextMilestoneText}\n` +
+          `Loyalty: **1m ${recognition.counts.oneMonth}** • **3m ${recognition.counts.threeMonths}** • **6m ${recognition.counts.sixMonths}** • **1y ${recognition.counts.oneYear}**\n` +
+          `Long-Term: **2y ${recognition.counts.twoYears}** • **3y ${recognition.counts.threeYears}** • **4y ${recognition.counts.fourYears}** • **5y ${recognition.counts.fiveYears}**\n` +
+          `Upcoming Loyalty Achievements (30d): **${recognition.upcoming30Days}** • Manual Award Types: **${recognition.awardTypes}**\n` +
+          `Awards remain **human Leadership decisions** — no automatic winner, role or permission changes.`,
         inline: false
       },
       {
@@ -319,10 +372,14 @@ async function main() {
 
   const hr = loadHrState();
   const monthlyReportState = readJson(MONTHLY_REPORT_STATE_FILE, { publishedMonths: [] });
+  const milestones = readJson(MILESTONE_FILE, { reachedMilestones: [] });
+  const achievementSummary = readJson(ACHIEVEMENT_SUMMARY_FILE, { counts: {} });
+  const awardsCatalog = readJson(AWARDS_CATALOG_FILE, { awards: [] });
   const reports = reportingStatus(statistics, monthlyReportState);
+  const recognition = recognitionStatus(milestones, achievementSummary, awardsCatalog, number(driver.currentDrivers, number(live.members)));
   const channel = await resolveManagementChannel();
   const events = await getEventStatus();
-  const embed = buildEmbed(driver, live, statistics, hr, events, reports);
+  const embed = buildEmbed(driver, live, statistics, hr, events, reports, recognition);
   await syncOverview(channel, embed);
 
   console.log('Kings Management Overview synchronized successfully.');
@@ -331,7 +388,10 @@ async function main() {
   console.log(`Open HR Reviews: ${(hr.reviews || []).filter((r) => r.status === 'open').length}`);
   console.log(`Statistics history days: ${reports.retainedDays}`);
   console.log(`Current month recorded days: ${reports.currentMonthDays}`);
-  console.log('Safety: Aggregate/read-only management reporting. No personnel actions are implemented.');
+  console.log(`Next member milestone: ${recognition.nextMilestone || 'all configured reached'} (${recognition.remaining} remaining)`);
+  console.log(`Loyalty achievements upcoming in 30 days: ${recognition.upcoming30Days}`);
+  console.log(`Manual award types configured: ${recognition.awardTypes}`);
+  console.log('Safety: Aggregate/read-only management reporting. No personnel actions or automatic award decisions are implemented.');
 }
 
 main().catch((error) => {
