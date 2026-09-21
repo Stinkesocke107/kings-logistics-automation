@@ -23,8 +23,10 @@ jobs:
         with:
           node-version: '24'
 
-      - name: List matching Discord channels
+      - name: Resolve Discord channel targets
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
+          STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
+          MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
         run: node discord-channel-discovery.js
