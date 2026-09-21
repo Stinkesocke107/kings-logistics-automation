@@ -35,6 +35,14 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Verify Technical Alert Engine
+        run: |
+          if [ ! -f "system-alerts.js" ]; then
+            echo "ERROR: system-alerts.js is missing."
+            exit 1
+          fi
+          echo "Kings System Alerts engine present."
+
       - name: Run Kings System Monitoring
         id: health
         env:
