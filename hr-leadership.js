@@ -10,6 +10,7 @@ const HR_LEADERSHIP_CHANNEL_NAME = process.env.HR_LEADERSHIP_CHANNEL_NAME || 'hr
 
 const DRIVER_STATE_FILE = path.join(__dirname, 'data', 'driver-management.json');
 const PROBATION_STATE_FILE = path.join(__dirname, 'data', 'probation-state.json');
+const HR_PROBATION_FILE = path.join(__dirname, 'data', 'hr-probation.json');
 
 const PROBATION_DAYS = 7;
 const DISCORD_API = 'https://discord.com/api/v10';
@@ -34,22 +35,22 @@ function readJson(file, fallback = null) {
   }
 }
 
-function deriveDriverKey() {
+function deriveKey(domain) {
   return crypto
     .createHash('sha256')
-    .update('kings-driver-management-v1\0')
+    .update(`${domain}\0`)
     .update(String(DRIVER_STATE_KEY))
     .digest();
 }
 
-function decryptDriverState(container) {
+function decrypt(container, domain) {
   if (!container?.encrypted || container.algorithm !== 'aes-256-gcm') {
-    throw new Error('Driver Management state is not encrypted as expected.');
+    throw new Error('Encrypted state is not in the expected format.');
   }
 
   const decipher = crypto.createDecipheriv(
     'aes-256-gcm',
-    deriveDriverKey(),
+    deriveKey(domain),
     Buffer.from(container.iv, 'base64')
   );
   decipher.setAuthTag(Buffer.from(container.authTag, 'base64'));
@@ -96,6 +97,11 @@ function driverLink(driver) {
   return `[${escapeMarkdown(driver.username || `TMP ${driver.tmpId}`)}](${profileUrl(driver.tmpId)})`;
 }
 
+function formatDate(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 'unknown' : date.toISOString().slice(0, 10);
+}
+
 function compactList(items, formatter, limit = 12) {
   if (!items.length) return 'None ✅';
   const lines = items.slice(0, limit).map(formatter);
@@ -119,7 +125,7 @@ async function discord(pathname, options = {}) {
 
   const headers = {
     Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-    'User-Agent': 'Kings Logistics HR Leadership/1.0'
+    'User-Agent': 'Kings Logistics HR Leadership/1.1'
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
@@ -181,11 +187,14 @@ async function resolveHrChannel() {
   throw new Error(`Could not find HR Leadership channel "${HR_LEADERSHIP_CHANNEL_NAME}".`);
 }
 
-function buildData(driverState, probationState) {
+function buildData(driverState, probationState, hrProbationState) {
   const now = Date.now();
   const current = (driverState.drivers || []).filter((driver) => driver.current);
   const notifiedByKey = new Map(
     (probationState?.notified || []).map((item) => [String(item.key || ''), item])
+  );
+  const reviewByKey = new Map(
+    (hrProbationState?.reviews || []).map((review) => [String(review.key || ''), review])
   );
 
   const probationActive = current
@@ -193,20 +202,37 @@ function buildData(driverState, probationState) {
     .filter((item) => item.age !== null && item.age < PROBATION_DAYS)
     .sort((a, b) => a.age - b.age);
 
-  const probationReviews = current
-    .map((driver) => {
-      if (!driver.joinDate) return null;
-      const key = probationKey(driver.tmpId, driver.joinDate);
-      const reminder = notifiedByKey.get(key);
-      if (!reminder?.notifiedAt) return null;
-      return {
+  const probationReviews = [];
+  const probationExtended = [];
+
+  for (const driver of current) {
+    if (!driver.joinDate) continue;
+    const key = probationKey(driver.tmpId, driver.joinDate);
+    const reminder = notifiedByKey.get(key);
+    if (!reminder?.notifiedAt) continue;
+
+    const tracked = reviewByKey.get(key) || null;
+    if (tracked?.status === 'completed') continue;
+
+    if (tracked?.status === 'extended' && tracked.dueAt && new Date(tracked.dueAt).getTime() > now) {
+      probationExtended.push({
         driver,
-        age: ageDays(driver.joinDate, now),
-        notifiedAt: reminder.notifiedAt
-      };
-    })
-    .filter(Boolean)
-    .sort((a, b) => new Date(a.notifiedAt) - new Date(b.notifiedAt));
+        dueAt: tracked.dueAt,
+        age: ageDays(driver.joinDate, now)
+      });
+      continue;
+    }
+
+    probationReviews.push({
+      driver,
+      age: ageDays(driver.joinDate, now),
+      notifiedAt: reminder.notifiedAt,
+      extensionDue: tracked?.status === 'extended' ? tracked.dueAt : null
+    });
+  }
+
+  probationReviews.sort((a, b) => new Date(a.notifiedAt) - new Date(b.notifiedAt));
+  probationExtended.sort((a, b) => new Date(a.dueAt) - new Date(b.dueAt));
 
   const hrReviews = current
     .filter((driver) => driver.activityLevel === 'HR Review')
@@ -225,6 +251,7 @@ function buildData(driverState, probationState) {
     current,
     probationActive,
     probationReviews,
+    probationExtended,
     hrReviews,
     approvedLeave,
     joinedLast7Days
@@ -241,7 +268,15 @@ function buildMessage(driverState, data) {
 
   const probationReviewText = compactList(
     data.probationReviews,
-    (item) => `• ${driverLink(item.driver)} — **${item.age ?? PROBATION_DAYS}d** member — review reminder sent`
+    (item) => {
+      const extension = item.extensionDue ? ` — extension due **${formatDate(item.extensionDue)}**` : '';
+      return `• ${driverLink(item.driver)} — **${item.age ?? PROBATION_DAYS}d** member — review open${extension}`;
+    }
+  );
+
+  const extendedText = compactList(
+    data.probationExtended,
+    (item) => `• ${driverLink(item.driver)} — extended until **${formatDate(item.dueAt)}**`
   );
 
   const hrReviewText = compactList(
@@ -250,7 +285,7 @@ function buildMessage(driverState, data) {
   );
 
   const leaveText = compactList(
-    data.approvedLeave,
+    data.aprovedLeave || data.approvedLeave,
     (driver) => `• ${driverLink(driver)} — approved inactivity`
   );
 
@@ -262,15 +297,19 @@ function buildMessage(driverState, data) {
     `**Current Drivers:** ${data.current.length}`,
     `**Joined last 7 days:** ${data.joinedLast7Days.length}`,
     `**In Probation:** ${data.probationActive.length}`,
-    `**Probation Reviews:** ${data.probationReviews.length}`,
+    `**Open Probation Reviews:** ${data.probationReviews.length}`,
+    `**Extended Probation Reviews:** ${data.probationExtended.length}`,
     `**30d HR Reviews:** ${data.hrReviews.length}`,
     `**Approved Leave:** ${data.approvedLeave.length}`,
     '',
     `## 🕒 Driver Probation — First ${PROBATION_DAYS} Days`,
     probationActiveText,
     '',
-    '## 📋 Probation Reviews',
+    '## 📋 Open Probation Reviews',
     probationReviewText,
+    '',
+    '## 🗓️ Extended Probation Reviews',
+    extendedText,
     '',
     '## ⚠️ Driver Activity — HR Review',
     hrReviewText,
@@ -320,16 +359,21 @@ async function main() {
   const driverContainer = readJson(DRIVER_STATE_FILE, null);
   if (!driverContainer) throw new Error('Driver Management state is missing.');
 
-  const driverState = decryptDriverState(driverContainer);
+  const driverState = decrypt(driverContainer, 'kings-driver-management-v1');
   const probationState = readJson(PROBATION_STATE_FILE, { notified: [] });
-  const data = buildData(driverState, probationState);
+  const hrProbationContainer = readJson(HR_PROBATION_FILE, null);
+  const hrProbationState = hrProbationContainer
+    ? decrypt(hrProbationContainer, 'kings-hr-probation-v1')
+    : { reviews: [] };
 
+  const data = buildData(driverState, probationState, hrProbationState);
   await syncOverview(driverState, data);
 
   console.log('Kings HR Leadership overview updated successfully.');
   console.log(`Current Drivers: ${data.current.length}`);
   console.log(`Probation: ${data.probationActive.length}`);
-  console.log(`Probation Reviews: ${data.probationReviews.length}`);
+  console.log(`Open Probation Reviews: ${data.probationReviews.length}`);
+  console.log(`Extended Probation Reviews: ${data.probationExtended.length}`);
   console.log(`30d HR Reviews: ${data.hrReviews.length}`);
   console.log(`Approved Leave: ${data.approvedLeave.length}`);
   console.log('Safety: No automatic personnel actions are implemented.');
