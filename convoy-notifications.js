@@ -1,8 +1,10 @@
+const fs = require('fs');
+
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const FORUM_ID = process.env.DISCORD_CONVOY_FORUM_ID || '1550619824005062697';
+const REPORT_PATH = 'output/convoy-check-results.json';
 
-const STATUS_MESSAGE_MARKER = '👑 **Kings Convoy Automation**';
 const READY_NOTIFICATION_MARKER = '🔔 **Kings Convoy Notification — Ready for Approval**';
 const NEEDS_INFO_NOTIFICATION_MARKER = '⚠️ **Kings Convoy Notification — Needs Information**';
 
@@ -22,13 +24,18 @@ if (!TOKEN) {
   process.exit(1);
 }
 
+if (!fs.existsSync(REPORT_PATH)) {
+  console.error(`Missing ${REPORT_PATH}. Run convoy-checker.js and convoy-time-display.js first.`);
+  process.exit(1);
+}
+
 const API = 'https://discord.com/api/v10';
 
 async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Notifications/1.0'
+    'User-Agent': 'Kings Logistics Convoy Notifications/2.0'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -52,35 +59,65 @@ async function discord(path, options = {}) {
   }
 }
 
-function extractStatus(content = '') {
-  const match = content.match(/\*\*Status:\*\*\s*`([^`]+)`/i);
-  return match ? match[1].trim() : null;
+function isTestThread(item) {
+  if (typeof item?.testThread === 'boolean') return item.testThread;
+  return /^\s*\[?test\]?(?:\s|[-_:])/i.test(item?.name || '');
 }
 
-function extractMissingIssues(content = '') {
-  const match = content.match(/⚠️\s*\*\*Missing\s*\/\s*Issue:\*\*\s*([^\n]+)/i);
-  return match ? match[1].trim() : null;
-}
-
-function extractEventId(content = '') {
-  const match = content.match(/TruckersMP Event ID:\*\*\s*(\d+)/i);
-  return match ? match[1] : null;
-}
-
-function alreadyNotified(messages, botId, marker) {
-  return messages.some((message) =>
+function botMessagesWithMarker(messages, botId, marker) {
+  return (messages || []).filter((message) =>
     message.author?.id === botId &&
     (message.content || '').includes(marker)
   );
 }
 
-async function sendReadyForApproval(thread, messages, botId, statusMessage) {
+function alreadyNotified(messages, botId, marker) {
+  return botMessagesWithMarker(messages, botId, marker).length > 0;
+}
+
+async function deleteNotifications(threadId, messages, botId, marker) {
+  const matches = botMessagesWithMarker(messages, botId, marker);
+  let deleted = 0;
+
+  for (const message of matches) {
+    await discord(`/channels/${threadId}/messages/${message.id}`, { method: 'DELETE' });
+    deleted += 1;
+  }
+
+  return deleted;
+}
+
+function friendlyIssueName(issue) {
+  const names = {
+    eventLink: 'TruckersMP Event Link / Event ID',
+    eventType: 'Event Type',
+    eventDate: 'Event Date',
+    responsibleStaff: 'Responsible Staff',
+    kingsSlotConfirmed: 'Confirmed Kings Slot',
+    route: 'Route',
+    meetup: 'Meeting Point',
+    meetupTime: 'Meeting Time',
+    meetingTimeTimezone: 'Meeting Time with timezone',
+    imageProof: 'Slot / Event image proof',
+    duplicateEventId: 'Duplicate TruckersMP Event ID'
+  };
+  return names[issue] || issue;
+}
+
+function missingIssues(item) {
+  return [
+    ...(item.validation?.missing || []),
+    ...(item.duplicateEventId ? ['duplicateEventId'] : [])
+  ].map(friendlyIssueName);
+}
+
+async function sendReadyForApproval(thread, item, messages, botId) {
   if (alreadyNotified(messages, botId, READY_NOTIFICATION_MARKER)) {
     return { action: 'already-sent', type: 'ready-for-approval' };
   }
 
   const roleMentions = APPROVAL_ROLE_IDS.map((roleId) => `<@&${roleId}>`).join(' ');
-  const eventId = extractEventId(statusMessage.content || '');
+  const eventId = item.eventId || null;
 
   const content = [
     READY_NOTIFICATION_MARKER,
@@ -113,15 +150,15 @@ async function sendReadyForApproval(thread, messages, botId, statusMessage) {
   };
 }
 
-async function sendNeedsInformation(thread, messages, botId, statusMessage) {
+async function sendNeedsInformation(thread, item, messages, botId) {
   if (alreadyNotified(messages, botId, NEEDS_INFO_NOTIFICATION_MARKER)) {
     return { action: 'already-sent', type: 'needs-information' };
   }
 
-  const ownerId = thread.owner_id || null;
+  const ownerId = thread.owner_id || item.ownerId || item.starterAuthorId || null;
   const ownerMention = ownerId ? `<@${ownerId}>` : null;
-  const missing = extractMissingIssues(statusMessage.content || '');
-  const eventId = extractEventId(statusMessage.content || '');
+  const issues = missingIssues(item);
+  const eventId = item.eventId || null;
 
   const content = [
     NEEDS_INFO_NOTIFICATION_MARKER,
@@ -131,7 +168,7 @@ async function sendNeedsInformation(thread, messages, botId, statusMessage) {
     'This convoy is missing required information.',
     `**Convoy:** ${thread.name}`,
     eventId ? `**TruckersMP Event ID:** ${eventId}` : null,
-    missing ? `**Missing / Issue:** ${missing}` : null,
+    issues.length ? `**Missing / Issue:** ${issues.join(', ')}` : null,
     '',
     'Please update the convoy entry so it can continue through the approval process.',
     'This notification is sent only once for this convoy.'
@@ -156,11 +193,18 @@ async function sendNeedsInformation(thread, messages, botId, statusMessage) {
 }
 
 async function main() {
+  const report = JSON.parse(fs.readFileSync(REPORT_PATH, 'utf8'));
+  const finalByThreadId = new Map(
+    (report.threads || [])
+      .filter((item) => item?.threadId)
+      .map((item) => [item.threadId, item])
+  );
+
   const bot = await discord('/users/@me');
   const activeData = await discord(`/guilds/${GUILD_ID}/threads/active`);
   const threads = (activeData.threads || []).filter((thread) => thread.parent_id === FORUM_ID);
 
-  console.log('Kings Convoy Notifications started.');
+  console.log('Kings Convoy Notifications started from finalized convoy report.');
   console.log(`Active convoy threads: ${threads.length}`);
 
   for (const thread of threads) {
@@ -169,28 +213,54 @@ async function main() {
       continue;
     }
 
+    const item = finalByThreadId.get(thread.id);
+    if (!item || item.ignored || item.error || isTestThread(item)) {
+      console.log(`- SKIPPED | ${thread.name} | no production-ready finalized report item`);
+      continue;
+    }
+
     try {
       const messages = await discord(`/channels/${thread.id}/messages?limit=100`);
-      const statusMessage = messages.find((message) =>
-        message.author?.id === bot.id &&
-        (message.content || '').includes(STATUS_MESSAGE_MARKER)
-      );
+      const status = item.status || null;
 
-      if (!statusMessage) {
-        console.log(`- SKIPPED | ${thread.name} | no Kings status message found`);
-        continue;
+      // Remove stale Needs Information notices when the finalized post-sync status is no longer missing data.
+      let staleNeedsInfoDeleted = 0;
+      if (status !== 'Needs Information') {
+        staleNeedsInfoDeleted = await deleteNotifications(
+          thread.id,
+          messages,
+          bot.id,
+          NEEDS_INFO_NOTIFICATION_MARKER
+        );
       }
 
-      const status = extractStatus(statusMessage.content || '');
+      // If a convoy falls back to Needs Information after previously being ready, remove the obsolete approval notice.
+      let staleReadyDeleted = 0;
+      if (status === 'Needs Information') {
+        staleReadyDeleted = await deleteNotifications(
+          thread.id,
+          messages,
+          bot.id,
+          READY_NOTIFICATION_MARKER
+        );
+      }
+
+      // Refresh message list after cleanup so duplicate protection uses the live state.
+      const currentMessages = (staleNeedsInfoDeleted || staleReadyDeleted)
+        ? await discord(`/channels/${thread.id}/messages?limit=100`)
+        : messages;
+
       let result = { action: 'not-needed', type: status || 'unknown' };
 
       if (status === 'Ready for Approval') {
-        result = await sendReadyForApproval(thread, messages, bot.id, statusMessage);
+        result = await sendReadyForApproval(thread, item, currentMessages, bot.id);
       } else if (status === 'Needs Information') {
-        result = await sendNeedsInformation(thread, messages, bot.id, statusMessage);
+        result = await sendNeedsInformation(thread, item, currentMessages, bot.id);
       }
 
-      console.log(`- ${thread.name} | Status: ${status || 'unknown'} | Notification: ${result.action}`);
+      console.log(
+        `- ${thread.name} | Final status: ${status || 'unknown'} | Notification: ${result.action} | Stale Needs Info removed: ${staleNeedsInfoDeleted} | Stale Ready removed: ${staleReadyDeleted}`
+      );
     } catch (error) {
       console.warn(`- FAILED | ${thread.name} | ${error.message}`);
     }
