@@ -31,9 +31,7 @@ jobs:
 
       - name: Update Kings Advanced Statistics
         env:
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_GUILD_ID: '1114967437788577792'
-          STATS_CHANNEL_ID: '1543539008771063818'
+          STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
         run: node statistics.js
 
       - name: Update Kings Central Overview
