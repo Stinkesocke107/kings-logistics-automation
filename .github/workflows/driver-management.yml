@@ -1,0 +1,56 @@
+name: Kings Driver Management
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-driver-management
+  cancel-in-progress: false
+
+jobs:
+  driver-management:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Update Driver Management
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+        run: node driver-management.js
+
+      - name: Save Driver Management Data
+        run: |
+          if git diff --quiet -- \
+            data/driver-management.json \
+            data/driver-management-summary.json \
+            && [ -z "$(git status --porcelain \
+              data/driver-management.json \
+              data/driver-management-summary.json)" ]; then
+
+            echo "No Driver Management data changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/driver-management.json
+          git add data/driver-management-summary.json
+
+          git commit -m "Update Kings Driver Management"
+
+          git pull --rebase origin main
+          git push origin main
