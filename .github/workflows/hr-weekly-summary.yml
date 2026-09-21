@@ -12,11 +12,6 @@ on:
           - preview
           - publish
 
-  push:
-    paths:
-      - 'hr-weekly-summary.js'
-      - '.github/workflows/hr-weekly-summary.yml'
-
   schedule:
     - cron: "15 10 * * 1"
 
@@ -47,7 +42,7 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
-          HR_WEEKLY_SUMMARY_PREVIEW: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'preview') }}
+          HR_WEEKLY_SUMMARY_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
         run: node hr-weekly-summary.js
 
       - name: Save HR Weekly Summary Data
