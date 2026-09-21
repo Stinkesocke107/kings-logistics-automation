@@ -1,6 +1,18 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
+  "active": {
+    "stale-data:data/statistics.json": {
+      "severity": "critical",
+      "system": "Statistics data",
+      "message": "Statistics data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-09-21T23:04:24.943Z",
+        "ageMinutes": 37,
+        "maxAgeMinutes": 35
+      },
+      "firstAlertedAt": "2026-09-21T23:42:28.570Z"
+    }
+  },
   "pending": {}
 }
