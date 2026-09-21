@@ -28,8 +28,10 @@ jobs:
 
       - name: Check Kings Driver Probations
         env:
-          HR_AUTOMATION_WEBHOOK_URL: ${{ secrets.HR_AUTOMATION_WEBHOOK_URL }}
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
         run: node probation.js
 
       - name: Save Probation Data
