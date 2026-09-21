@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "mode": "recognition-only",
+  "updatedAt": "2026-09-21T21:34:12.761Z",
+  "currentDrivers": 108,
+  "trackedCurrentDrivers": 108,
+  "counts": {
+    "1m": 101,
+    "3m": 77,
+    "6m": 55,
+    "1y": 30,
+    "2y": 5,
+    "3y": 2,
+    "4y": 0,
+    "5y": 0
+  },
+  "upcoming30Days": 32,
+  "achievements": [
+    {
+      "id": "1m",
+      "label": "1 Month with Kings"
+    },
+    {
+      "id": "3m",
+      "label": "3 Months with Kings"
+    },
+    {
+      "id": "6m",
+      "label": "6 Months with Kings"
+    },
+    {
+      "id": "1y",
+      "label": "1 Year with Kings"
+    },
+    {
+      "id": "2y",
+      "label": "2 Years with Kings"
+    },
+    {
+      "id": "3y",
+      "label": "3 Years with Kings"
+    },
+    {
+      "id": "4y",
+      "label": "4 Years with Kings"
+    },
+    {
+      "id": "5y",
+      "label": "5 Years with Kings"
+    }
+  ],
+  "note": "Recognition only. The automation never changes roles, grants permissions, disciplines members, or makes personnel decisions."
+}
