@@ -12,11 +12,6 @@ on:
           - preview
           - publish
 
-  push:
-    paths:
-      - 'management-weekly-overview.js'
-      - '.github/workflows/management-weekly-overview.yml'
-
   schedule:
     - cron: "30 10 * * 1"
 
@@ -48,7 +43,7 @@ jobs:
           DISCORD_GUILD_ID: '1114967437788577792'
           MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
           CONVOY_MANAGEMENT_FORUM_ID: '1550619824005062697'
-          MANAGEMENT_WEEKLY_PREVIEW: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'preview') }}
+          MANAGEMENT_WEEKLY_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
         run: node management-weekly-overview.js
 
       - name: Save Management Weekly Overview Data
