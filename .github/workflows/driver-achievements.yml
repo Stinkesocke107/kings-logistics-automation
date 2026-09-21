@@ -1,0 +1,58 @@
+name: Kings Driver Achievements
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - 'driver-achievements.js'
+      - '.github/workflows/driver-achievements.yml'
+
+  schedule:
+    - cron: "20 9 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-driver-achievements
+  cancel-in-progress: false
+
+jobs:
+  driver-achievements:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Update Driver Achievements
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
+        run: node driver-achievements.js
+
+      - name: Save Driver Achievement Data
+        run: |
+          if git diff --quiet -- data/driver-achievements.json data/driver-achievements-summary.json && [ -z "$(git status --porcelain data/driver-achievements.json data/driver-achievements-summary.json)" ]; then
+            echo "No Driver Achievement data changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/driver-achievements.json
+          git add data/driver-achievements-summary.json
+          git commit -m "Update Kings Driver Achievement data"
+
+          git pull --rebase origin main
+          git push origin main
