@@ -3,6 +3,11 @@ name: Kings Statistics Manual
 on:
   workflow_dispatch:
 
+  push:
+    paths:
+      - 'statistics.js'
+      - '.github/workflows/statistics.yml'
+
 permissions:
   contents: write
 
@@ -13,6 +18,7 @@ concurrency:
 jobs:
   update-statistics:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -25,7 +31,9 @@ jobs:
 
       - name: Update Kings Advanced Statistics
         env:
-          STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          STATS_CHANNEL_ID: '1543539008771063818'
         run: node statistics.js
 
       - name: Update Kings Central Overview
@@ -45,7 +53,6 @@ jobs:
 
           git add data/statistics.json
           git add data/central-overview.json
-
           git commit -m "Update Kings Statistics"
 
           git pull --rebase origin main
