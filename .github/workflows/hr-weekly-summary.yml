@@ -12,6 +12,11 @@ on:
           - preview
           - publish
 
+  push:
+    paths:
+      - 'hr-weekly-summary.js'
+      - '.github/workflows/hr-weekly-summary.yml'
+
   schedule:
     - cron: "15 10 * * 1"
 
@@ -25,6 +30,7 @@ concurrency:
 jobs:
   create-hr-weekly-summary:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -37,11 +43,15 @@ jobs:
 
       - name: Create Kings HR Weekly Summary
         env:
-          HR_AUTOMATION_WEBHOOK_URL: ${{ secrets.HR_AUTOMATION_WEBHOOK_URL }}
-          HR_WEEKLY_SUMMARY_PREVIEW: ${{ inputs.mode == 'preview' }}
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
+          HR_WEEKLY_SUMMARY_PREVIEW: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'preview') }}
         run: node hr-weekly-summary.js
 
       - name: Save HR Weekly Summary Data
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') }}
         run: |
           if git diff --quiet -- data/hr-weekly-summary-state.json && [ -z "$(git status --porcelain data/hr-weekly-summary-state.json)" ]; then
             echo "No HR Weekly Summary state changes to save."
