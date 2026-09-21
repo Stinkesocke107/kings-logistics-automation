@@ -6,13 +6,14 @@ on:
   push:
     paths:
       - 'system-monitoring.js'
+      - 'system-alerts.js'
       - '.github/workflows/system-monitoring.yml'
 
   schedule:
     - cron: '7,37 * * * *'
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 concurrency:
@@ -53,6 +54,28 @@ jobs:
           echo "Critical Issues: $CRITICAL"
           echo "Warnings: $WARNINGS"
 
+      - name: Process Kings System Alerts
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          SYSTEM_ALERTS_CHANNEL_NAME: 'system-alerts'
+        run: node system-alerts.js
+
+      - name: Save System Alert State
+        run: |
+          if git diff --quiet -- data/system-alerts-state.json && [ -z "$(git status --porcelain data/system-alerts-state.json)" ]; then
+            echo "No System Alert state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add data/system-alerts-state.json
+          git commit -m "Update Kings System Alert state"
+          git pull --rebase origin main
+          git push origin main
+
       - name: Preserve unhealthy health report
         if: steps.health.outputs.status != 'HEALTHY'
         uses: actions/upload-artifact@v4
@@ -68,5 +91,5 @@ jobs:
         run: |
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Safety" >> "$GITHUB_STEP_SUMMARY"
-          echo "Kings System Monitoring is read-only." >> "$GITHUB_STEP_SUMMARY"
-          echo "It never changes Discord roles, permissions, members, Staff/Driver status, bans, kicks, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
+          echo "Kings System Monitoring and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
+          echo "They never change Discord roles, permissions, members, Staff/Driver status, bans, kicks, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
