@@ -3,6 +3,11 @@ name: Kings Milestone Detector
 on:
   workflow_dispatch:
 
+  push:
+    paths:
+      - 'milestones.js'
+      - '.github/workflows/milestones.yml'
+
   schedule:
     - cron: "*/5 * * * *"
 
@@ -16,6 +21,7 @@ concurrency:
 jobs:
   check-milestones:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -46,6 +52,5 @@ jobs:
           git add data/changelog-queue.json
 
           git commit -m "Update Kings Milestone and Changelog data"
-
           git pull --rebase origin main
           git push origin main
