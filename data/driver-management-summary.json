@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "mode": "advisory-only",
+  "updatedAt": "2026-09-21T19:51:38.249Z",
+  "currentDrivers": 108,
+  "onlineNow": 0,
+  "joinedLast7Days": 0,
+  "joinedLast30Days": 7,
+  "leftLast7Days": 0,
+  "leftLast30Days": 0,
+  "activity": {
+    "grace": 108,
+    "active": 0,
+    "info7Days": 0,
+    "attention14Days": 0,
+    "hrReview30Days": 0,
+    "unknown": 0
+  },
+  "rules": {
+    "infoDays": 7,
+    "attentionDays": 14,
+    "hrReviewDays": 30,
+    "newDriverGraceDays": 14
+  },
+  "note": "Advisory only. The automation never kicks, bans, removes, disciplines, or changes roles for Drivers. Human Leadership/HR always decides any action."
+}
