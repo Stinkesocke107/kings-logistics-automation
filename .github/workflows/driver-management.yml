@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'driver-management.js'
+      - 'driver-loa.js'
       - 'driver-status-alerts.js'
       - '.github/workflows/driver-management.yml'
   schedule:
@@ -34,10 +35,15 @@ jobs:
       - name: Update Driver Management
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+        run: node driver-management.js
+
+      - name: Sync Driver LOA
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
-        run: node driver-management.js
+        run: node driver-loa.js
 
       - name: Send Driver Status Alerts
         env:
@@ -52,9 +58,11 @@ jobs:
           if git diff --quiet -- \
             data/driver-management.json \
             data/driver-management-summary.json \
+            data/driver-loa.json \
             && [ -z "$(git status --porcelain \
               data/driver-management.json \
-              data/driver-management-summary.json)" ]; then
+              data/driver-management-summary.json \
+              data/driver-loa.json)" ]; then
 
             echo "No Driver Management data changes to save."
             exit 0
@@ -65,6 +73,7 @@ jobs:
 
           git add data/driver-management.json
           git add data/driver-management-summary.json
+          git add data/driver-loa.json
 
           git commit -m "Update Kings Driver Management"
 
