@@ -18,6 +18,12 @@ on:
         default: ""
         type: string
 
+  # Temporary self-test trigger. Removed after the finalization test succeeds.
+  push:
+    paths:
+      - 'backup-final-check.js'
+      - '.github/workflows/core-backup.yml'
+
   schedule:
     # Daily normal backup at 03:37 UTC
     - cron: "37 3 * * *"
@@ -36,10 +42,6 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      # ==================================================
-      # SETUP
-      # ==================================================
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -47,11 +49,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24"
-
-      # ==================================================
-      # DETERMINE BACKUP MODE
-      # Scheduled runs are always normal backups.
-      # ==================================================
 
       - name: Prepare Backup Mode
         id: backup_mode
@@ -106,16 +103,11 @@ jobs:
             echo "Restore Point Name: $NAME"
           fi
 
-      # ==================================================
-      # CREATE BACKUP + HEALTH CHECK
-      # ==================================================
-
       - name: Prepare Kings Automation Backup
         run: node core-backup.js
 
-      # ==================================================
-      # VERIFY BACKUP PACKAGE
-      # ==================================================
+      - name: Run Final Dynamic Backup Validation
+        run: node backup-final-check.js
 
       - name: Verify Backup Package
         shell: bash
@@ -125,15 +117,12 @@ jobs:
             exit 1
           fi
 
-          if [ ! -f "backup-staging/backup-manifest.json" ]; then
-            echo "ERROR: backup-manifest.json does not exist."
-            exit 1
-          fi
-
-          if [ ! -f "backup-staging/backup-health.json" ]; then
-            echo "ERROR: backup-health.json does not exist."
-            exit 1
-          fi
+          for FILE in backup-manifest.json backup-health.json backup-final-health.json; do
+            if [ ! -f "backup-staging/$FILE" ]; then
+              echo "ERROR: $FILE does not exist."
+              exit 1
+            fi
+          done
 
           if [ ! -d "backup-staging/.github/workflows" ]; then
             echo "ERROR: .github/workflows is missing from backup staging."
@@ -141,7 +130,6 @@ jobs:
           fi
 
           FILE_COUNT=$(find backup-staging -type f | wc -l)
-
           echo "Backup files found: $FILE_COUNT"
 
           if [ "$FILE_COUNT" -lt 3 ]; then
@@ -151,55 +139,27 @@ jobs:
 
           echo "Backup package structure verified successfully."
 
-      # ==================================================
-      # READ HEALTH RESULT
-      # ==================================================
-
       - name: Read Backup Health
         id: backup_health
         shell: bash
         run: |
-          STATUS=$(node -e "
-            const fs = require('fs');
+          node - <<'NODE' > combined-backup-health.txt
+          const fs = require('fs');
+          const core = JSON.parse(fs.readFileSync('backup-staging/backup-health.json', 'utf8'));
+          const final = JSON.parse(fs.readFileSync('backup-staging/backup-final-health.json', 'utf8'));
+          const healthy = core.healthy === true && final.healthy === true;
+          console.log(healthy ? 'HEALTHY' : 'UNHEALTHY');
+          console.log(healthy ? 'true' : 'false');
+          NODE
 
-            const health = JSON.parse(
-              fs.readFileSync(
-                'backup-staging/backup-health.json',
-                'utf8'
-              )
-            );
-
-            process.stdout.write(
-              String(health.status || 'UNKNOWN')
-            );
-          ")
-
-          HEALTHY=$(node -e "
-            const fs = require('fs');
-
-            const health = JSON.parse(
-              fs.readFileSync(
-                'backup-staging/backup-health.json',
-                'utf8'
-              )
-            );
-
-            process.stdout.write(
-              health.healthy === true
-                ? 'true'
-                : 'false'
-            );
-          ")
+          STATUS=$(sed -n '1p' combined-backup-health.txt)
+          HEALTHY=$(sed -n '2p' combined-backup-health.txt)
 
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
           echo "healthy=$HEALTHY" >> "$GITHUB_OUTPUT"
 
-          echo "Backup Health Status: $STATUS"
-          echo "Backup Healthy: $HEALTHY"
-
-      # ==================================================
-      # BACKUP INFORMATION
-      # ==================================================
+          echo "Combined Backup Health Status: $STATUS"
+          echo "Combined Backup Healthy: $HEALTHY"
 
       - name: Create Backup Information
         shell: bash
@@ -227,11 +187,8 @@ jobs:
             echo "Run Number: $GITHUB_RUN_NUMBER"
             echo "Retention: $RETENTION days"
             echo "Health: $HEALTH_STATUS"
+            echo "Validation: Core + Dynamic Repository Coverage + SHA-256 + Encryption"
           } > backup-staging/BACKUP-INFO.txt
-
-      # ==================================================
-      # RESTORE POINT METADATA
-      # ==================================================
 
       - name: Create Restore Point Metadata
         if: steps.backup_mode.outputs.type == 'restore-point'
@@ -263,12 +220,6 @@ jobs:
 
           echo "Restore Point metadata created."
 
-      # ==================================================
-      # UPLOAD BACKUP / RESTORE POINT
-      # IMPORTANT:
-      # include-hidden-files is required for .github/
-      # ==================================================
-
       - name: Upload Kings Backup
         uses: actions/upload-artifact@v4
         with:
@@ -278,10 +229,6 @@ jobs:
           include-hidden-files: true
           retention-days: ${{ steps.backup_mode.outputs.retention }}
           compression-level: 9
-
-      # ==================================================
-      # JOB SUMMARY
-      # ==================================================
 
       - name: Backup Summary
         if: always()
@@ -320,47 +267,29 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "The complete backup is available as a GitHub Actions artifact." >> "$GITHUB_STEP_SUMMARY"
 
-          if [ -f "backup-staging/backup-health.json" ]; then
+          if [ -f "backup-staging/backup-health.json" ] && [ -f "backup-staging/backup-final-health.json" ]; then
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "### Health Details" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
 
             node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
-          const fs = require("fs");
+          const fs = require('fs');
+          const core = JSON.parse(fs.readFileSync('backup-staging/backup-health.json', 'utf8'));
+          const final = JSON.parse(fs.readFileSync('backup-staging/backup-final-health.json', 'utf8'));
+          const critical = core.criticalFiles || {};
+          const json = core.json || {};
+          const copies = core.copies || {};
+          const summary = final.summary || {};
 
-          const health = JSON.parse(
-            fs.readFileSync(
-              "backup-staging/backup-health.json",
-              "utf8"
-            )
-          );
-
-          const critical =
-            health.criticalFiles || {};
-
-          const json =
-            health.json || {};
-
-          const copies =
-            health.copies || {};
-
-          console.log(
-            `- Critical files: **${critical.present ?? 0}/${critical.expected ?? 0}**`
-          );
-
-          console.log(
-            `- Valid JSON files: **${json.valid ?? 0}/${json.checked ?? 0}**`
-          );
-
-          console.log(
-            `- Backup copy errors: **${Array.isArray(copies.errors) ? copies.errors.length : 0}**`
-          );
+          console.log(`- Legacy critical files: **${critical.present ?? 0}/${critical.expected ?? 0}**`);
+          console.log(`- Valid JSON files: **${json.valid ?? 0}/${json.checked ?? 0}**`);
+          console.log(`- Core backup copy errors: **${Array.isArray(copies.errors) ? copies.errors.length : 0}**`);
+          console.log(`- Dynamic repository coverage: **${summary.repositoryFilesCovered ?? 0}/${summary.repositoryFilesExpected ?? 0}**`);
+          console.log(`- SHA-256 checks verified: **${summary.checksumsChecked ?? 0}**`);
+          console.log(`- Encrypted sensitive states: **${summary.encryptedStatesHealthy ?? 0}/${summary.encryptedStatesChecked ?? 0}**`);
+          console.log(`- Forbidden sensitive files in backup: **${summary.forbiddenFiles ?? 0}**`);
           NODE
           fi
-
-      # ==================================================
-      # FINAL HEALTH ENFORCEMENT
-      # ==================================================
 
       - name: Enforce Backup Health
         shell: bash
