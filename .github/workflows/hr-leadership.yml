@@ -1,0 +1,41 @@
+name: Kings HR Leadership Overview
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - 'hr-leadership.js'
+      - '.github/workflows/hr-leadership.yml'
+
+  schedule:
+    - cron: "27 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-hr-leadership
+  cancel-in-progress: false
+
+jobs:
+  hr-leadership:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Update HR Leadership Overview
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
+        run: node hr-leadership.js
