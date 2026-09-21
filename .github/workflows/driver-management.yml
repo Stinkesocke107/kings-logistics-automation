@@ -2,6 +2,10 @@ name: Kings Driver Management
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'driver-management.js'
+      - '.github/workflows/driver-management.yml'
   schedule:
     - cron: "17 * * * *"
 
