@@ -3,6 +3,7 @@ name: Kings Milestone Detector
 on:
   workflow_dispatch:
 
+  # Temporary self-test trigger while the hardened detector is verified.
   push:
     paths:
       - 'milestones.js'
