@@ -7,8 +7,8 @@ const MEMBERS_URL = `https://api.truckersmp.com/v2/vtc/${KINGS_VTC_ID}/members`;
 const ROLES_URL = `https://api.truckersmp.com/v2/vtc/${KINGS_VTC_ID}/roles`;
 const DISCORD_API = 'https://discord.com/api/v10';
 
-// Reuse the existing private state key with strict domain separation so no new
-// repository secret is required. Personal Staff history remains encrypted.
+// Reuse the existing private state key with strict domain separation. This
+// avoids another secret while keeping Staff data cryptographically separate.
 const STATE_KEY = process.env.STAFF_STATE_KEY || process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -47,7 +47,9 @@ function parseIdSet(value) {
   return new Set(
     String(value || '')
       .split(',')
-      .map((item) => Number(item.trim()))
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .map(Number)
       .filter(Number.isFinite)
   );
 }
@@ -77,8 +79,10 @@ function deriveKey() {
 function encryptState(state) {
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv('aes-256-gcm', deriveKey(), iv);
-  const plaintext = Buffer.from(JSON.stringify(state), 'utf8');
-  const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
+  const ciphertext = Buffer.concat([
+    cipher.update(Buffer.from(JSON.stringify(state), 'utf8')),
+    cipher.final()
+  ]);
 
   return {
     version: 1,
@@ -111,7 +115,7 @@ async function fetchJson(url, label) {
   const response = await fetch(url, {
     headers: {
       Accept: 'application/json',
-      'User-Agent': 'Kings Logistics Staff Management/1.0'
+      'User-Agent': 'Kings Logistics Staff Management/1.1'
     },
     signal: AbortSignal.timeout(15000)
   });
@@ -126,25 +130,23 @@ async function discord(pathname, options = {}) {
   const method = String(options.method || 'GET').toUpperCase();
 
   // HARD SAFETY GUARD:
-  // Staff Management may only read Discord and create/update messages in the
-  // resolved Staff Leadership channel. It can never modify members, roles,
-  // permissions, bans, kicks or any other personnel data.
+  // Staff Management may only read Discord and post/update messages in the
+  // resolved Staff Leadership channel. Member, role, permission, kick and ban
+  // endpoints are impossible to call through this helper.
   if (method !== 'GET') {
-    const messagePath = pathname.match(/^\/channels\/(\d+)\/messages(?:\/(\d+))?$/);
+    const match = pathname.match(/^\/channels\/(\d+)\/messages(?:\/(\d+))?$/);
     const allowed =
-      messagePath &&
+      match &&
       resolvedWriteChannelId &&
-      messagePath[1] === String(resolvedWriteChannelId) &&
+      match[1] === String(resolvedWriteChannelId) &&
       (method === 'POST' || method === 'PATCH');
 
-    if (!allowed) {
-      throw new Error(`Safety guard blocked Discord write: ${method} ${pathname}`);
-    }
+    if (!allowed) throw new Error(`Safety guard blocked Discord write: ${method} ${pathname}`);
   }
 
   const headers = {
     Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-    'User-Agent': 'Kings Logistics Staff Management/1.0'
+    'User-Agent': 'Kings Logistics Staff Management/1.1'
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
@@ -175,16 +177,9 @@ function normalizeChannelName(value = '') {
   return normalizeName(value).replace(/\s+/g, '-');
 }
 
-function isAutomaticStaffRole(role) {
-  const id = Number(role?.id);
-  if (EXCLUDE_ROLE_IDS.has(id)) return false;
-  if (INCLUDE_ROLE_IDS.size) return INCLUDE_ROLE_IDS.has(id);
-  if (role?.owner === true) return true;
-
-  const name = normalizeName(role?.name);
-  if (!name) return false;
-
-  const patterns = [
+function explicitStaffKeyword(roleName) {
+  const name = normalizeName(roleName);
+  return [
     /\bowner\b/,
     /\bfounder\b/,
     /\bceo\b/,
@@ -205,27 +200,56 @@ function isAutomaticStaffRole(role) {
     /\brecruit/,
     /\bevent/,
     /\bmedia\b/,
+    /\bcreative\b/,
+    /\bdesign/,
     /\bdeveloper\b/,
     /\bdevelopment\b/,
+    /\badd on\b/,
     /\btrainer\b/,
     /\btraining\b/,
     /\bsupport\b/,
     /\boperations\b/,
     /\bconvoy control\b/
-  ];
+  ].some((pattern) => pattern.test(name));
+}
 
-  return patterns.some((pattern) => pattern.test(name));
+function detectStaffRoles(roles) {
+  if (INCLUDE_ROLE_IDS.size) {
+    return roles.filter((role) => INCLUDE_ROLE_IDS.has(Number(role.id)) && !EXCLUDE_ROLE_IDS.has(Number(role.id)));
+  }
+
+  // Kings has a clear hierarchy anchor on TruckersMP: "Kings Driver". Roles
+  // above it are Staff/Management. Explicit Staff roles created below that
+  // anchor (for example Driver Operations) are also included by name.
+  const driverAnchor =
+    roles.find((role) => normalizeName(role.name) === 'kings driver') ||
+    roles.find((role) => normalizeName(role.name) === 'driver');
+  const driverOrder = Number.isFinite(Number(driverAnchor?.order)) ? Number(driverAnchor.order) : null;
+
+  if (driverAnchor) {
+    console.log(`Kings Driver hierarchy anchor: role ${driverAnchor.id}, order ${driverOrder}.`);
+  } else {
+    console.warn('Kings Driver hierarchy anchor was not found; using conservative Staff-name detection only.');
+  }
+
+  return roles.filter((role) => {
+    const id = Number(role.id);
+    if (EXCLUDE_ROLE_IDS.has(id)) return false;
+    if (role.owner === true) return true;
+    if (driverOrder !== null && Number(role.order) < driverOrder) return true;
+    return explicitStaffKeyword(role.name);
+  });
 }
 
 function departmentForRole(roleName) {
   const name = normalizeName(roleName);
   if (/\bhuman resources\b|\bhr\b|\brecruit/.test(name)) return 'HR & Recruitment';
   if (/\bevent|\bconvoy control\b/.test(name)) return 'Events';
-  if (/\bmedia\b/.test(name)) return 'Media';
-  if (/\bdeveloper\b|\bdevelopment\b/.test(name)) return 'Development';
-  if (/\bmoderator\b|\bmoderation\b/.test(name)) return 'Moderation';
+  if (/\bcreative\b|\bmedia\b|\bdesign/.test(name)) return 'Creative & Media';
+  if (/\bdriver services\b|\bdriver operations\b/.test(name)) return 'Driver Services';
+  if (/\bdeveloper\b|\bdevelopment\b|\badd on\b/.test(name)) return 'Development';
+  if (/\bcommunity support\b|\bmoderator\b|\bmoderation\b|\bsupport\b/.test(name)) return 'Community Support';
   if (/\btrainer\b|\btraining\b/.test(name)) return 'Training';
-  if (/\bsupport\b/.test(name)) return 'Support';
   if (/\bowner\b|\bfounder\b|\bceo\b|\bcoo\b|\bchief\b|\bdirector\b|\bmanagement\b|\bmanager\b|\bhead\b/.test(name)) {
     return 'Management';
   }
@@ -255,9 +279,7 @@ async function resolveStaffChannel() {
     resolvedWriteChannelId = String(exact[0].id);
     return exact[0];
   }
-  if (exact.length > 1) {
-    throw new Error(`Multiple exact Staff Leadership channels found: ${exact.map((c) => c.name).join(', ')}`);
-  }
+  if (exact.length > 1) throw new Error(`Multiple exact Staff Leadership channels found: ${exact.map((c) => c.name).join(', ')}`);
 
   const fuzzy = textChannels.filter((channel) => {
     const name = normalizeChannelName(channel.name);
@@ -267,9 +289,7 @@ async function resolveStaffChannel() {
     resolvedWriteChannelId = String(fuzzy[0].id);
     return fuzzy[0];
   }
-  if (fuzzy.length > 1) {
-    throw new Error(`Multiple Staff Leadership channels found: ${fuzzy.map((c) => c.name).join(', ')}`);
-  }
+  if (fuzzy.length > 1) throw new Error(`Multiple Staff Leadership channels found: ${fuzzy.map((c) => c.name).join(', ')}`);
 
   throw new Error(`Could not find Staff Leadership channel "${STAFF_CHANNEL_NAME}".`);
 }
@@ -326,7 +346,10 @@ function currentStaffRoster(members, staffRoles) {
 
       const matched = memberRoles.filter((role) => staffRoleIds.has(Number(role.id)));
       if (!matched.length && staffRoleIds.has(Number(member.roleId))) {
-        matched.push({ id: Number(member.roleId), name: roleNameById.get(Number(member.roleId)) || member.roleName });
+        matched.push({
+          id: Number(member.roleId),
+          name: roleNameById.get(Number(member.roleId)) || member.roleName
+        });
       }
       if (!matched.length) return null;
 
@@ -391,21 +414,16 @@ function updateState(previous, roster) {
     const old = byId.get(Number(current.tmpId));
 
     if (!old) {
-      const record = {
+      byId.set(Number(current.tmpId), {
         ...current,
         currentStaff: true,
         firstObservedAt: now,
         lastChangedAt: now,
         leftStaffAt: null
-      };
-      byId.set(Number(current.tmpId), record);
+      });
       changes.push({
-        type: 'staff_joined',
-        at: now,
-        tmpId: current.tmpId,
-        username: current.username,
-        previousRoles: [],
-        newRoles: current.roleNames
+        type: 'staff_joined', at: now, tmpId: current.tmpId, username: current.username,
+        previousRoles: [], newRoles: current.roleNames
       });
       logicalChanged = true;
       continue;
@@ -413,25 +431,16 @@ function updateState(previous, roster) {
 
     if (old.currentStaff === false) {
       changes.push({
-        type: 'staff_joined',
-        at: now,
-        tmpId: current.tmpId,
-        username: current.username,
-        previousRoles: old.roleNames || [],
-        newRoles: current.roleNames
+        type: 'staff_joined', at: now, tmpId: current.tmpId, username: current.username,
+        previousRoles: old.roleNames || [], newRoles: current.roleNames
       });
       old.firstObservedAt = now;
       old.lastChangedAt = now;
-      old.leftStaffAt = null;
       logicalChanged = true;
     } else if (!sameStringArray(old.roleNames, current.roleNames)) {
       changes.push({
-        type: 'role_changed',
-        at: now,
-        tmpId: current.tmpId,
-        username: current.username,
-        previousRoles: old.roleNames || [],
-        newRoles: current.roleNames
+        type: 'role_changed', at: now, tmpId: current.tmpId, username: current.username,
+        previousRoles: old.roleNames || [], newRoles: current.roleNames
       });
       old.lastChangedAt = now;
       logicalChanged = true;
@@ -440,25 +449,17 @@ function updateState(previous, roster) {
     if (old.username !== current.username) logicalChanged = true;
     if (!sameStringArray(old.departments, current.departments)) logicalChanged = true;
 
-    Object.assign(old, current, {
-      currentStaff: true,
-      leftStaffAt: null
-    });
+    Object.assign(old, current, { currentStaff: true, leftStaffAt: null });
   }
 
   for (const old of byId.values()) {
     if (!old.currentStaff || currentIds.has(Number(old.tmpId))) continue;
-
     old.currentStaff = false;
     old.leftStaffAt = now;
     old.lastChangedAt = now;
     changes.push({
-      type: 'staff_left',
-      at: now,
-      tmpId: old.tmpId,
-      username: old.username,
-      previousRoles: old.roleNames || [],
-      newRoles: []
+      type: 'staff_left', at: now, tmpId: old.tmpId, username: old.username,
+      previousRoles: old.roleNames || [], newRoles: []
     });
     logicalChanged = true;
   }
@@ -469,31 +470,32 @@ function updateState(previous, roster) {
     const time = new Date(event?.at || 0).getTime();
     return Number.isFinite(time) && time >= cutoff;
   });
-
   if (history.length !== oldHistory.length) logicalChanged = true;
 
-  const state = {
-    version: 1,
-    mode: 'advisory-only',
-    initializedAt: previous.initializedAt || now,
-    updatedAt: logicalChanged ? now : previous.updatedAt || previous.initializedAt || now,
-    staff: [...byId.values()].sort((a, b) => Number(a.tmpId) - Number(b.tmpId)),
-    history
+  return {
+    state: {
+      version: 1,
+      mode: 'advisory-only',
+      initializedAt: previous.initializedAt || now,
+      updatedAt: logicalChanged ? now : previous.updatedAt || previous.initializedAt || now,
+      staff: [...byId.values()].sort((a, b) => Number(a.tmpId) - Number(b.tmpId)),
+      history
+    },
+    changes,
+    logicalChanged
   };
-
-  return { state, changes, logicalChanged };
 }
 
 function countBy(items) {
-  const result = {};
-  for (const item of items) result[item] = (result[item] || 0) + 1;
-  return Object.fromEntries(Object.entries(result).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
+  const counts = {};
+  for (const item of items) counts[item] = (counts[item] || 0) + 1;
+  return Object.fromEntries(
+    Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  );
 }
 
 function buildSummary(state, staffRoles) {
   const current = (state.staff || []).filter((person) => person.currentStaff);
-  const roleCounts = countBy(current.flatMap((person) => person.roleNames || []));
-  const departmentCounts = countBy(current.flatMap((person) => person.departments || []));
   const cutoff30 = Date.now() - 30 * 86400000;
   const recent = (state.history || []).filter((event) => new Date(event.at || 0).getTime() >= cutoff30);
 
@@ -504,14 +506,14 @@ function buildSummary(state, staffRoles) {
     currentStaff: current.length,
     trackedStaffRecords: (state.staff || []).length,
     staffRoles: staffRoles.map((role) => ({ id: role.id, name: role.name, order: role.order })),
-    roleCounts,
-    departmentCounts,
+    roleCounts: countBy(current.flatMap((person) => person.roleNames || [])),
+    departmentCounts: countBy(current.flatMap((person) => person.departments || [])),
     changesLast30Days: {
       joinedStaff: recent.filter((event) => event.type === 'staff_joined').length,
       roleChanges: recent.filter((event) => event.type === 'role_changed').length,
       leftStaff: recent.filter((event) => event.type === 'staff_left').length
     },
-    note: 'Advisory/read-only. Kings Systems never changes Staff roles, permissions, employment status, or makes promotion/demotion/personnel decisions.'
+    note: 'Advisory/read-only. Kings Systems never changes Staff roles, permissions, Staff status, or makes promotion/demotion/personnel decisions.'
   };
 }
 
@@ -603,7 +605,7 @@ async function syncOverview(channel, embed) {
   }
 }
 
-function chunk(items, size) {
+function chunks(items, size) {
   const result = [];
   for (let index = 0; index < items.length; index += size) result.push(items.slice(index, index + size));
   return result;
@@ -615,7 +617,7 @@ async function sendChangeAlerts(channel, changes) {
     return;
   }
 
-  for (const group of chunk(changes, 8)) {
+  for (const group of chunks(changes, 8)) {
     const lines = group.map((event) => {
       const person = `[${escapeMarkdown(event.username || `TMP ${event.tmpId}`)}](${profileUrl(event.tmpId)})`;
       if (event.type === 'staff_joined') return `➕ ${person}\nNew Staff role(s): **${roleText(event.newRoles)}**`;
@@ -648,12 +650,13 @@ async function main() {
   console.log('=================================');
 
   const [roles, members] = await Promise.all([getVtcRoles(), getVtcMembers()]);
-  const staffRoles = roles.filter(isAutomaticStaffRole);
-  const nonStaffRoles = roles.filter((role) => !staffRoles.some((staffRole) => staffRole.id === role.id));
+  const staffRoles = detectStaffRoles(roles);
+  const staffRoleIds = new Set(staffRoles.map((role) => Number(role.id)));
+  const nonStaffRoles = roles.filter((role) => !staffRoleIds.has(Number(role.id)));
 
   console.log(`VTC roles discovered: ${roles.length}`);
   for (const role of roles) {
-    const marker = staffRoles.some((staffRole) => staffRole.id === role.id) ? 'STAFF' : 'OTHER';
+    const marker = staffRoleIds.has(Number(role.id)) ? 'STAFF' : 'OTHER';
     console.log(`[${marker}] role ${role.id}: ${role.name} (order ${role.order}${role.owner ? ', owner' : ''})`);
   }
 
@@ -682,9 +685,7 @@ async function main() {
 
   const summary = buildSummary(state, staffRoles);
   const channel = await resolveStaffChannel();
-  const embed = buildOverviewEmbed(summary, state);
-  await syncOverview(channel, embed);
-
+  await syncOverview(channel, buildOverviewEmbed(summary, state));
   if (!firstRun) await sendChangeAlerts(channel, changes);
 
   const existingSummary = readJson(SUMMARY_FILE, null);
