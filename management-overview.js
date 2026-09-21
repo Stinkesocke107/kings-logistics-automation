@@ -17,6 +17,7 @@ const MONTHLY_REPORT_STATE_FILE = path.join(__dirname, 'data', 'monthly-report-s
 const MILESTONE_FILE = path.join(__dirname, 'data', 'milestones.json');
 const ACHIEVEMENT_SUMMARY_FILE = path.join(__dirname, 'data', 'driver-achievements-summary.json');
 const AWARDS_CATALOG_FILE = path.join(__dirname, 'data', 'awards-catalog.json');
+const STAFF_SUMMARY_FILE = path.join(__dirname, 'data', 'staff-management-summary.json');
 
 const DISCORD_API = 'https://discord.com/api/v10';
 const OVERVIEW_TITLE = '👑 Kings Management Overview';
@@ -143,6 +144,38 @@ function recognitionStatus(milestones, achievements, awardsCatalog, fallbackMemb
   };
 }
 
+function staffStatus(staff) {
+  if (!staff) {
+    return {
+      available: false,
+      currentStaff: 0,
+      staffRoles: 0,
+      departments: [],
+      changes: { joinedStaff: 0, roleChanges: 0, leftStaff: 0 },
+      updatedAt: null
+    };
+  }
+
+  const departmentCounts = staff.departmentCounts && typeof staff.departmentCounts === 'object'
+    ? staff.departmentCounts
+    : {};
+
+  return {
+    available: true,
+    currentStaff: number(staff.currentStaff),
+    staffRoles: Array.isArray(staff.staffRoles) ? staff.staffRoles.length : 0,
+    departments: Object.entries(departmentCounts)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 6),
+    changes: {
+      joinedStaff: number(staff?.changesLast30Days?.joinedStaff),
+      roleChanges: number(staff?.changesLast30Days?.roleChanges),
+      leftStaff: number(staff?.changesLast30Days?.leftStaff)
+    },
+    updatedAt: staff.updatedAt || null
+  };
+}
+
 async function discord(pathname, options = {}) {
   const method = String(options.method || 'GET').toUpperCase();
 
@@ -155,7 +188,7 @@ async function discord(pathname, options = {}) {
 
   const headers = {
     Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-    'User-Agent': 'Kings Logistics Management Overview/1.2'
+    'User-Agent': 'Kings Logistics Management Overview/1.3'
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
@@ -240,7 +273,7 @@ async function getEventStatus() {
   return counts;
 }
 
-function buildEmbed(driver, live, statistics, hr, events, reports, recognition) {
+function buildEmbed(driver, live, statistics, hr, events, reports, recognition, staff) {
   const activity = driver?.activity || {};
   const reviews = Array.isArray(hr?.reviews) ? hr.reviews : [];
   const openProbation = reviews.filter((review) => review.status === 'open').length;
@@ -269,6 +302,17 @@ function buildEmbed(driver, live, statistics, hr, events, reports, recognition) 
   const nextMilestoneText = recognition.nextMilestone
     ? `Next VTC Milestone: **${recognition.members}/${recognition.nextMilestone}** • **${recognition.remaining} remaining**`
     : `VTC Milestones: **all configured milestones up to 1,000 reached**`;
+
+  const departmentText = staff.departments.length
+    ? staff.departments.map(([name, count]) => `${name} **${count}**`).join(' • ')
+    : 'No department assignments detected';
+
+  const staffText = staff.available
+    ? `Current Staff: **${staff.currentStaff}** • Tracked VTC Staff Roles: **${staff.staffRoles}**\n` +
+      `30d: **${staff.changes.joinedStaff} joined** • **${staff.changes.roleChanges} role changes** • **${staff.changes.leftStaff} left**\n` +
+      `Departments: ${departmentText}\n` +
+      `Read-only Staff monitoring — detailed roster and changes remain in **staff-leadership**.`
+    : 'Staff Management data is **not available yet**.';
 
   return {
     title: OVERVIEW_TITLE,
@@ -318,22 +362,24 @@ function buildEmbed(driver, live, statistics, hr, events, reports, recognition) 
       },
       {
         name: '🛡️ Staff Management',
-        value: 'Staff Management automation is **not connected yet**. This section will become live when the Staff Management system is built.',
+        value: staffText,
         inline: false
       },
       {
         name: '⚙️ System Health',
         value:
-          `Healthy data sources: **${healthySources}/4**\n` +
+          `Healthy time-sensitive data sources: **${healthySources}/4**\n` +
           `Live Tracker: ${liveFresh.text} • Driver Management: ${driverFresh.text}\n` +
-          `Statistics: ${statsFresh.text} • HR: ${hrFresh.text}`,
+          `Statistics: ${statsFresh.text} • HR: ${hrFresh.text}\n` +
+          `Staff Management: ${staff.available ? '✅ connected' : '❌ missing'}`,
         inline: false
       },
       {
         name: '🕒 Data Updates',
         value:
           `Live: ${discordTimestamp(live?.updatedAt)} • Driver: ${discordTimestamp(driver?.updatedAt)}\n` +
-          `Statistics: ${discordTimestamp(statistics?.updatedAt)} • HR: ${discordTimestamp(hr?.updatedAt)}`,
+          `Statistics: ${discordTimestamp(statistics?.updatedAt)} • HR: ${discordTimestamp(hr?.updatedAt)}\n` +
+          `Staff roster last changed: ${discordTimestamp(staff.updatedAt)}`,
         inline: false
       }
     ],
@@ -375,11 +421,14 @@ async function main() {
   const milestones = readJson(MILESTONE_FILE, { reachedMilestones: [] });
   const achievementSummary = readJson(ACHIEVEMENT_SUMMARY_FILE, { counts: {} });
   const awardsCatalog = readJson(AWARDS_CATALOG_FILE, { awards: [] });
+  const staffSummary = readJson(STAFF_SUMMARY_FILE, null);
+
   const reports = reportingStatus(statistics, monthlyReportState);
   const recognition = recognitionStatus(milestones, achievementSummary, awardsCatalog, number(driver.currentDrivers, number(live.members)));
+  const staff = staffStatus(staffSummary);
   const channel = await resolveManagementChannel();
   const events = await getEventStatus();
-  const embed = buildEmbed(driver, live, statistics, hr, events, reports, recognition);
+  const embed = buildEmbed(driver, live, statistics, hr, events, reports, recognition, staff);
   await syncOverview(channel, embed);
 
   console.log('Kings Management Overview synchronized successfully.');
@@ -391,6 +440,8 @@ async function main() {
   console.log(`Next member milestone: ${recognition.nextMilestone || 'all configured reached'} (${recognition.remaining} remaining)`);
   console.log(`Loyalty achievements upcoming in 30 days: ${recognition.upcoming30Days}`);
   console.log(`Manual award types configured: ${recognition.awardTypes}`);
+  console.log(`Current Staff: ${staff.available ? staff.currentStaff : 'unavailable'}`);
+  console.log(`Staff VTC roles tracked: ${staff.available ? staff.staffRoles : 'unavailable'}`);
   console.log('Safety: Aggregate/read-only management reporting. No personnel actions or automatic award decisions are implemented.');
 }
 
