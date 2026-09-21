@@ -13,6 +13,7 @@ const DRIVER_SUMMARY_FILE = path.join(__dirname, 'data', 'driver-management-summ
 const LIVE_FILE = path.join(__dirname, 'data', 'live-tracker-snapshot.json');
 const STATISTICS_FILE = path.join(__dirname, 'data', 'statistics.json');
 const HR_FILE = path.join(__dirname, 'data', 'hr-probation.json');
+const MONTHLY_REPORT_STATE_FILE = path.join(__dirname, 'data', 'monthly-report-state.json');
 
 const DISCORD_API = 'https://discord.com/api/v10';
 const OVERVIEW_TITLE = '👑 Kings Management Overview';
@@ -76,6 +77,33 @@ function discordTimestamp(value) {
   return Number.isFinite(time) && time > 0 ? `<t:${Math.floor(time / 1000)}:R>` : 'unknown';
 }
 
+function currentMonthKey() {
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
+function reportingStatus(statistics, monthlyReportState) {
+  const history = Array.isArray(statistics?.history) ? statistics.history : [];
+  const month = currentMonthKey();
+  const monthDays = history.filter((day) => String(day?.date || '').startsWith(month));
+  const today = new Date().toISOString().slice(0, 10);
+  const todayEntry = history.find((day) => day?.date === today) || null;
+  const hourlySamplesToday = Array.isArray(todayEntry?.sampledHours)
+    ? todayEntry.sampledHours.length
+    : number(todayEntry?.activitySamples);
+  const latestPublished = Array.isArray(monthlyReportState?.publishedMonths) && monthlyReportState.publishedMonths.length
+    ? monthlyReportState.publishedMonths[monthlyReportState.publishedMonths.length - 1]
+    : null;
+
+  return {
+    retainedDays: history.length,
+    currentMonthDays: monthDays.length,
+    hourlySamplesToday,
+    allTimePeak: number(statistics?.allTime?.peakOnline),
+    latestPublishedMonth: latestPublished?.key || latestPublished?.month || null
+  };
+}
+
 async function discord(pathname, options = {}) {
   const method = String(options.method || 'GET').toUpperCase();
 
@@ -88,7 +116,7 @@ async function discord(pathname, options = {}) {
 
   const headers = {
     Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-    'User-Agent': 'Kings Logistics Management Overview/1.0'
+    'User-Agent': 'Kings Logistics Management Overview/1.1'
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
@@ -173,7 +201,7 @@ async function getEventStatus() {
   return counts;
 }
 
-function buildEmbed(driver, live, statistics, hr, events) {
+function buildEmbed(driver, live, statistics, hr, events, reports) {
   const activity = driver?.activity || {};
   const reviews = Array.isArray(hr?.reviews) ? hr.reviews : [];
   const openProbation = reviews.filter((review) => review.status === 'open').length;
@@ -225,6 +253,14 @@ function buildEmbed(driver, live, statistics, hr, events) {
           `Active Threads: **${events.active}**\n` +
           `Submitted: **${events.submitted}** • Needs Information: **${events.needsInformation}** • Ready for Approval: **${events.readyForApproval}** • Scheduled: **${events.scheduled}**` +
           (events.other ? ` • Other: **${events.other}**` : ''),
+        inline: false
+      },
+      {
+        name: '📈 Statistics & Reporting',
+        value:
+          `Statistics History: **${reports.retainedDays} days** • Current Month: **${reports.currentMonthDays} recorded days**\n` +
+          `Hourly Samples Today: **${reports.hourlySamplesToday}** • All-Time Tracked Peak: **${reports.allTimePeak}**\n` +
+          `Latest Published Monthly Report: **${reports.latestPublishedMonth || 'none tracked yet'}** • Schedule: **1st of each month, 10:00 UTC**`,
         inline: false
       },
       {
@@ -282,15 +318,19 @@ async function main() {
   if (!statistics) throw new Error('Statistics data is missing.');
 
   const hr = loadHrState();
+  const monthlyReportState = readJson(MONTHLY_REPORT_STATE_FILE, { publishedMonths: [] });
+  const reports = reportingStatus(statistics, monthlyReportState);
   const channel = await resolveManagementChannel();
   const events = await getEventStatus();
-  const embed = buildEmbed(driver, live, statistics, hr, events);
+  const embed = buildEmbed(driver, live, statistics, hr, events, reports);
   await syncOverview(channel, embed);
 
   console.log('Kings Management Overview synchronized successfully.');
   console.log(`Drivers: ${number(driver.currentDrivers)}`);
   console.log(`Event Threads: ${events.active}`);
   console.log(`Open HR Reviews: ${(hr.reviews || []).filter((r) => r.status === 'open').length}`);
+  console.log(`Statistics history days: ${reports.retainedDays}`);
+  console.log(`Current month recorded days: ${reports.currentMonthDays}`);
   console.log('Safety: Aggregate/read-only management reporting. No personnel actions are implemented.');
 }
 
