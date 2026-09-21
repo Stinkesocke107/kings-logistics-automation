@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "encrypted": true,
+  "algorithm": "aes-256-gcm",
+  "iv": "5nsnrc1F1b6tc05x",
+  "authTag": "QC30evNubpK/UTZgy/wIsA==",
+  "ciphertext": "CjBBrDSqIC6R5/RCK9i63bOHG9XZmxSWhj1AXOiyaxBpy6fE2EsyUrO7e+OxUJOPMMZIwijO09SCzVs8O/vWATkAk84BO5eOp6o2NyjYTqxWNKeoAqmEBicftfN6uUFa0woj3PiT0wwHgGB0Dv7GgpksyZ3TKzeMfjK5EGKK6eOT6wmAIaXglcKZ2pmSnpxyvhan6Rh8q9qrwQ=="
+}
