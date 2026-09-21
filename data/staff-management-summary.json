@@ -1,0 +1,235 @@
+{
+  "version": 1,
+  "mode": "advisory-only",
+  "updatedAt": "2026-09-21T21:54:02.125Z",
+  "currentStaff": 12,
+  "trackedStaffRecords": 12,
+  "staffRoles": [
+    {
+      "id": 177880,
+      "name": "CEO",
+      "order": 0
+    },
+    {
+      "id": 235365,
+      "name": "Head Management",
+      "order": 1
+    },
+    {
+      "id": 261992,
+      "name": "Head Management HR",
+      "order": 2
+    },
+    {
+      "id": 261995,
+      "name": "Head Management Events",
+      "order": 3
+    },
+    {
+      "id": 261996,
+      "name": "Head Management Creative",
+      "order": 4
+    },
+    {
+      "id": 262000,
+      "name": "Head Management Driver Services",
+      "order": 5
+    },
+    {
+      "id": 262001,
+      "name": "Head Management Development",
+      "order": 6
+    },
+    {
+      "id": 233129,
+      "name": "Management",
+      "order": 7
+    },
+    {
+      "id": 262003,
+      "name": "HR Management",
+      "order": 8
+    },
+    {
+      "id": 262004,
+      "name": "Events Management",
+      "order": 9
+    },
+    {
+      "id": 262005,
+      "name": "Creative Management",
+      "order": 10
+    },
+    {
+      "id": 262006,
+      "name": "Driver Services Management",
+      "order": 11
+    },
+    {
+      "id": 262007,
+      "name": "Development Management",
+      "order": 12
+    },
+    {
+      "id": 258225,
+      "name": "Director",
+      "order": 13
+    },
+    {
+      "id": 233127,
+      "name": "HR Director",
+      "order": 14
+    },
+    {
+      "id": 233125,
+      "name": "Event Director",
+      "order": 15
+    },
+    {
+      "id": 233126,
+      "name": "Creative Director",
+      "order": 16
+    },
+    {
+      "id": 233124,
+      "name": "Driver Services Director",
+      "order": 17
+    },
+    {
+      "id": 233128,
+      "name": "Development Director",
+      "order": 18
+    },
+    {
+      "id": 233122,
+      "name": "Team Lead",
+      "order": 19
+    },
+    {
+      "id": 262010,
+      "name": "HR Recruitment Team Lead",
+      "order": 20
+    },
+    {
+      "id": 262009,
+      "name": "Community Support Lead",
+      "order": 21
+    },
+    {
+      "id": 262012,
+      "name": "Event Planner Lead",
+      "order": 22
+    },
+    {
+      "id": 262013,
+      "name": "Event Coordination Lead",
+      "order": 23
+    },
+    {
+      "id": 262015,
+      "name": "Media Team Lead",
+      "order": 24
+    },
+    {
+      "id": 262016,
+      "name": "Design Team Lead",
+      "order": 25
+    },
+    {
+      "id": 264556,
+      "name": "Development Lead",
+      "order": 26
+    },
+    {
+      "id": 262018,
+      "name": "Add-On Team Lead",
+      "order": 27
+    },
+    {
+      "id": 258224,
+      "name": "Staff",
+      "order": 28
+    },
+    {
+      "id": 259117,
+      "name": "HR Recruiter",
+      "order": 29
+    },
+    {
+      "id": 233120,
+      "name": "Community Support Moderator",
+      "order": 30
+    },
+    {
+      "id": 233116,
+      "name": "Event Planner",
+      "order": 31
+    },
+    {
+      "id": 233115,
+      "name": "Event Coordinator",
+      "order": 32
+    },
+    {
+      "id": 233112,
+      "name": "Media Specialist",
+      "order": 33
+    },
+    {
+      "id": 233113,
+      "name": "Designer",
+      "order": 34
+    },
+    {
+      "id": 233111,
+      "name": "Developer",
+      "order": 35
+    },
+    {
+      "id": 250464,
+      "name": "Add-On Specialist",
+      "order": 36
+    },
+    {
+      "id": 272717,
+      "name": "Driver Operations Team Lead",
+      "order": 40
+    },
+    {
+      "id": 272718,
+      "name": "Driver Operations Specialist",
+      "order": 41
+    }
+  ],
+  "roleCounts": {
+    "Staff": 5,
+    "Event Coordinator": 3,
+    "Management": 3,
+    "Developer": 2,
+    "Driver Services Management": 2,
+    "Team Lead": 2,
+    "Add-On Specialist": 1,
+    "Add-On Team Lead": 1,
+    "CEO": 1,
+    "Community Support Moderator": 1,
+    "Director": 1,
+    "Driver Services Director": 1,
+    "Event Coordination Lead": 1,
+    "HR Management": 1
+  },
+  "departmentCounts": {
+    "General Staff": 7,
+    "Management": 5,
+    "Development": 4,
+    "Driver Services": 3,
+    "Events": 3,
+    "Community Support": 1,
+    "HR & Recruitment": 1
+  },
+  "changesLast30Days": {
+    "joinedStaff": 0,
+    "roleChanges": 0,
+    "leftStaff": 0
+  },
+  "note": "Advisory/read-only. Kings Systems never changes Staff roles, permissions, Staff status, or makes promotion/demotion/personnel decisions."
+}
