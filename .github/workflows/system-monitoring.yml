@@ -1,0 +1,72 @@
+name: Kings System Monitoring
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - 'system-monitoring.js'
+      - '.github/workflows/system-monitoring.yml'
+
+  schedule:
+    - cron: '7,37 * * * *'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: kings-system-monitoring
+  cancel-in-progress: true
+
+jobs:
+  system-monitoring:
+    name: Monitor Kings Systems
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Run Kings System Monitoring
+        id: health
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          node system-monitoring.js
+
+          STATUS=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.status || 'UNKNOWN'))")
+          CRITICAL=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.criticalIssues || 0))")
+          WARNINGS=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.warnings || 0))")
+
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "critical=$CRITICAL" >> "$GITHUB_OUTPUT"
+          echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
+
+          echo "Kings System Health: $STATUS"
+          echo "Critical Issues: $CRITICAL"
+          echo "Warnings: $WARNINGS"
+
+      - name: Preserve unhealthy health report
+        if: steps.health.outputs.status != 'HEALTHY'
+        uses: actions/upload-artifact@v4
+        with:
+          name: kings-system-health-${{ github.run_number }}
+          path: data/system-health.json
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 9
+
+      - name: Monitoring Safety Summary
+        if: always()
+        run: |
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Safety" >> "$GITHUB_STEP_SUMMARY"
+          echo "Kings System Monitoring is read-only." >> "$GITHUB_STEP_SUMMARY"
+          echo "It never changes Discord roles, permissions, members, Staff/Driver status, bans, kicks, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
