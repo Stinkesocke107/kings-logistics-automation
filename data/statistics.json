@@ -1,7 +1,7 @@
 {
   "version": 3,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-09-22T21:53:25.988Z",
+  "updatedAt": "2026-09-22T22:00:10.411Z",
   "messageId": "1550301949470048277",
   "allTime": {
     "peakOnline": 8,
@@ -910,11 +910,11 @@
       "peakOnline": 3,
       "peakETS2": 3,
       "peakATS": 0,
-      "activitySamples": 22,
-      "ets2PlayerSamples": 15,
+      "activitySamples": 23,
+      "ets2PlayerSamples": 18,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {
-        "ETS2 — Simulation 1": 13,
+        "ETS2 — Simulation 1": 16,
         "ETS2 — Arab Transport September Convoy": 2
       },
       "sampledHours": [
@@ -939,7 +939,8 @@
         "2026-09-22T18:00:00.000Z",
         "2026-09-22T19:00:00.000Z",
         "2026-09-22T20:00:00.000Z",
-        "2026-09-22T21:00:00.000Z"
+        "2026-09-22T21:00:00.000Z",
+        "2026-09-22T22:00:00.000Z"
       ]
     }
   ]
