@@ -1,0 +1,159 @@
+name: Temporary Convoy TruckersMP Authority Patch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/convoy-tmp-authority-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-convoy-display:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch authoritative TruckersMP display logic
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const file = 'convoy-time-display.js';
+          let content = fs.readFileSync(file, 'utf8');
+
+          const oldValidation = `  const eventIdField = latestHumanEventId(messages);
+          if (eventIdField) {
+            item.eventId = eventIdField.value;
+            sources.eventId = eventIdField;
+          }
+
+          const eventDate = parsed.eventDate || null;`;
+
+          const newValidation = `  const eventIdField = latestHumanEventId(messages);
+          if (eventIdField) {
+            item.eventId = eventIdField.value;
+            sources.eventId = eventIdField;
+          }
+
+          // When a valid TruckersMP event link exists and the API sync succeeded,
+          // TruckersMP is authoritative for public event data. Kings-specific fields
+          // such as Responsible Staff, Kings Slot and image proof remain Discord-owned.
+          const tmpAuthoritative = item.truckersmpSync?.ok && item.truckersmpSync?.authoritative
+            ? item.truckersmp?.authoritative
+            : null;
+
+          if (tmpAuthoritative) {
+            const authoritativeKeys = ['eventType', 'route', 'start', 'destination', 'meetup', 'meetupTime'];
+            for (const key of authoritativeKeys) {
+              const value = tmpAuthoritative[key];
+              if (value !== null && value !== undefined && String(value).trim() !== '') {
+                parsed[key] = value;
+              }
+            }
+
+            if (tmpAuthoritative.eventDate) {
+              parsed.eventDate = tmpAuthoritative.eventDate;
+              parsed.eventDateRaw = tmpAuthoritative.eventDate;
+            }
+
+            sources.truckersmp = {
+              eventId: item.eventId || item.truckersmp?.id || null,
+              syncedAt: item.truckersmpSync?.syncedAt || null,
+              authoritative: true
+            };
+          }
+
+          const eventDate = parsed.eventDate || null;`;
+
+          if (!content.includes(oldValidation)) {
+            throw new Error('Could not find convoy validation insertion point.');
+          }
+          content = content.replace(oldValidation, newValidation);
+
+          const oldDisplay = `  const eventLine = item.eventId ? \`🔗 **TruckersMP Event ID:** \${item.eventId}\` : null;
+          const eventTimeLine = item.eventUnix
+            ? \`🕒 **Meeting Time:** \${discordTimestamp(item.eventUnix, 'F')} · \${discordTimestamp(item.eventUnix, 'R')}\`
+            : null;
+
+          return [
+            STATUS_MESSAGE_MARKER,
+            '',
+            \`**Status:** \\`\${item.status}\\`\`,
+            validationLine,
+            approvalLine,
+            eventLine,
+            eventTimeLine,
+            '',
+            '🤖 This is the single automated status message for this convoy. It is checked every 15 minutes and updated only when something changes.'
+          ].filter(Boolean).join('\\n');`;
+
+          const newDisplay = `  const tmpAuthoritative = Boolean(item.truckersmpSync?.ok && item.truckersmpSync?.authoritative);
+          const eventLine = item.eventId ? \`🔗 **TruckersMP Event ID:** \${item.eventId}\` : null;
+          const sourceLine = tmpAuthoritative
+            ? \`🌐 **Event Source:** TruckersMP Event #\${item.eventId || item.truckersmp?.id} · authoritative\`
+            : null;
+          const typeLine = tmpAuthoritative && item.validation?.parsed?.eventType
+            ? \`📋 **Event Type:** \${item.validation.parsed.eventType}\`
+            : null;
+          const dateLine = tmpAuthoritative && item.validation?.parsed?.eventDate
+            ? \`📅 **Event Date:** \${item.validation.parsed.eventDate}\`
+            : null;
+          const routeLine = tmpAuthoritative && item.validation?.parsed?.route
+            ? \`🛣️ **Route:** \${item.validation.parsed.route}\`
+            : null;
+          const meetingPointLine = tmpAuthoritative && item.validation?.parsed?.meetup
+            ? \`📍 **Meeting Point:** \${item.validation.parsed.meetup}\`
+            : null;
+          const gameServerLine = tmpAuthoritative && (item.truckersmp?.game || item.truckersmp?.server)
+            ? \`🎮 **Game / Server:** \${[item.truckersmp?.game, item.truckersmp?.server].filter(Boolean).join(' · ')}\`
+            : null;
+          const eventTimeLine = item.eventUnix
+            ? \`🕒 **Meeting Time:** \${discordTimestamp(item.eventUnix, 'F')} · \${discordTimestamp(item.eventUnix, 'R')}\`
+            : null;
+
+          return [
+            STATUS_MESSAGE_MARKER,
+            '',
+            \`**Status:** \\`\${item.status}\\`\`,
+            validationLine,
+            approvalLine,
+            eventLine,
+            sourceLine,
+            typeLine,
+            dateLine,
+            routeLine,
+            meetingPointLine,
+            gameServerLine,
+            eventTimeLine,
+            '',
+            '🤖 This is the single automated status message for this convoy. It is checked every 15 minutes and updated only when something changes.'
+          ].filter(Boolean).join('\\n');`;
+
+          if (!content.includes(oldDisplay)) {
+            throw new Error('Could not find convoy status display block.');
+          }
+          content = content.replace(oldDisplay, newDisplay);
+
+          fs.writeFileSync(file, content, 'utf8');
+          NODE
+
+          node --check convoy-time-display.js
+
+      - name: Save convoy display patch
+        run: |
+          if git diff --quiet -- convoy-time-display.js; then
+            echo 'No patch needed.'
+            exit 0
+          fi
+
+          git config user.name 'Kings Logistics Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add convoy-time-display.js
+          git commit -m 'Keep TruckersMP event data authoritative in convoy display'
+          git pull --rebase origin main
+          git push origin main
