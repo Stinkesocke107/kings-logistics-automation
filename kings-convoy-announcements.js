@@ -4,10 +4,8 @@ const SOURCE_FORUM_ID = process.env.DISCORD_KINGS_CONVOY_SOURCE_FORUM_ID || '150
 const ANNOUNCEMENT_CHANNEL_ID = process.env.DISCORD_KINGS_CONVOY_ANNOUNCEMENT_CHANNEL_ID || '1351613882791366838';
 const TMP_API_BASE = process.env.TRUCKERSMP_API_BASE || 'https://api.truckersmp.com/v2';
 
-const MARKER_24H = '📣 **Kings Convoy Announcement — 24 Hours**';
-const MARKER_1H = '🚨 **Kings Convoy Final Reminder — 1 Hour**';
-const WINDOW_24H = 24 * 60 * 60;
-const WINDOW_1H = 60 * 60;
+const MARKER_2H = '📣 **Kings Convoy Announcement — 2 Hours**';
+const WINDOW_2H = 2 * 60 * 60;
 
 if (!TOKEN) {
   console.error('Missing DISCORD_BOT_TOKEN.');
@@ -21,7 +19,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.0'
+    'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.1'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -159,7 +157,7 @@ async function fetchTruckersMpEvent(eventId) {
     const response = await fetch(`${TMP_API_BASE}/events/${encodeURIComponent(eventId)}`, {
       headers: {
         Accept: 'application/json',
-        'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.0'
+        'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.1'
       },
       signal: AbortSignal.timeout(12000)
     });
@@ -321,12 +319,12 @@ function detailsFrom(event, messages) {
   };
 }
 
-function eventMarker(eventId, phaseMarker) {
-  return `${phaseMarker}\n🔗 **Event ID:** \`${eventId}\``;
+function eventMarker(eventId) {
+  return `${MARKER_2H}\n🔗 **Event ID:** \`${eventId}\``;
 }
 
-async function findExistingAnnouncement(eventId, phaseMarker, botId) {
-  const lookup = eventMarker(eventId, phaseMarker);
+async function findExistingAnnouncement(eventId, botId) {
+  const lookup = eventMarker(eventId);
   let before = null;
 
   for (let page = 0; page < 10; page += 1) {
@@ -348,20 +346,17 @@ async function findExistingAnnouncement(eventId, phaseMarker, botId) {
   return null;
 }
 
-function buildContent({ eventId, phaseMarker, phase, name, details }) {
+function buildContent({ eventId, name, details }) {
   const eventUrl = `https://truckersmp.com/events/${eventId}`;
-  const intro = phase === '1h'
-    ? 'Our Kings Logistics convoy Meeting Time is now within 1 hour. Please get ready and make sure you arrive on time. 👑🚛'
-    : 'A Kings Logistics convoy is coming up within 24 hours. Get ready to join us on the road! 👑🚛';
 
   return [
-    eventMarker(eventId, phaseMarker),
+    eventMarker(eventId),
     '',
     '@everyone',
     '',
     `# 👑 KINGS LOGISTICS | ${name}`,
     '',
-    intro,
+    'Our Kings Logistics convoy Meeting Time is now within 2 hours. Get ready to join us on the road! 👑🚛',
     '',
     details.meetingUnix ? `📅 **Date:** <t:${details.meetingUnix}:D>` : null,
     details.meetingUnix ? `🕒 **Meeting Time:** <t:${details.meetingUnix}:t> · <t:${details.meetingUnix}:R>` : null,
@@ -410,7 +405,7 @@ async function sendAnnouncement(content, routeImage) {
     method: 'POST',
     headers: {
       Authorization: `Bot ${TOKEN}`,
-      'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.0'
+      'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.1'
     },
     body: form,
     signal: AbortSignal.timeout(20000)
@@ -442,8 +437,7 @@ async function main() {
 
   const entries = await listSourceEntries(sourceForum);
   const nowUnix = Math.floor(Date.now() / 1000);
-  let sent24h = 0;
-  let sent1h = 0;
+  let sent2h = 0;
   let skipped = 0;
   let failed = 0;
 
@@ -470,7 +464,7 @@ async function main() {
       }
 
       const secondsUntilMeeting = details.meetingUnix - nowUnix;
-      if (secondsUntilMeeting <= 0 || secondsUntilMeeting > WINDOW_24H) {
+      if (secondsUntilMeeting <= 0 || secondsUntilMeeting > WINDOW_2H) {
         skipped += 1;
         continue;
       }
@@ -482,21 +476,18 @@ async function main() {
         continue;
       }
 
-      const name = displayName(entry, event);
-      const phase = secondsUntilMeeting <= WINDOW_1H ? '1h' : '24h';
-      const phaseMarker = phase === '1h' ? MARKER_1H : MARKER_24H;
-      const existing = await findExistingAnnouncement(eventId, phaseMarker, bot.id);
+      const existing = await findExistingAnnouncement(eventId, bot.id);
       if (existing) {
-        console.log(`- ${entry.name} | ${phase} Kings announcement: already-sent`);
+        console.log(`- ${entry.name} | 2h Kings announcement: already-sent`);
         skipped += 1;
         continue;
       }
 
-      const content = buildContent({ eventId, phaseMarker, phase, name, details });
+      const name = displayName(entry, event);
+      const content = buildContent({ eventId, name, details });
       const sent = await sendAnnouncement(content, routeImage);
-      console.log(`- ${entry.name} | ${phase} Kings announcement sent: ${sent?.id || 'unknown'}`);
-      if (phase === '1h') sent1h += 1;
-      else sent24h += 1;
+      console.log(`- ${entry.name} | 2h Kings announcement sent: ${sent?.id || 'unknown'}`);
+      sent2h += 1;
     } catch (error) {
       failed += 1;
       console.warn(`- ${entry.name} | Kings convoy announcement failed: ${error.message}`);
@@ -504,7 +495,7 @@ async function main() {
   }
 
   console.log(
-    `Kings Convoy Announcements finished. 24h sent: ${sent24h}. 1h sent: ${sent1h}. Skipped: ${skipped}. Failed: ${failed}.`
+    `Kings Convoy Announcements finished. 2h sent: ${sent2h}. Skipped: ${skipped}. Failed: ${failed}.`
   );
 }
 
