@@ -6,7 +6,7 @@ on:
       - '.github/workflows/action-pinning-self-update.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: kings-action-pinning-self-update
@@ -20,27 +20,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
 
-      - name: Pin external Actions
+      - name: Pin external Actions in isolated runner
         run: node pin-actions.js
 
-      - name: Commit pinned workflow references
-        run: |
-          if git diff --quiet -- .github/workflows; then
-            echo "All workflow Actions were already pinned."
-            exit 0
-          fi
-
-          git config user.name "Kings Logistics Automation"
-          git config user.email "actions@users.noreply.github.com"
-          git add .github/workflows
-          git commit -m "Pin GitHub Actions to immutable commit SHAs"
-          git pull --rebase origin main
-          git push origin main
+      - name: Upload pinned workflows for direct GitHub update
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pinned-kings-workflows
+          path: .github/workflows/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 9
