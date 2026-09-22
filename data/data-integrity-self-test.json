@@ -1,0 +1,364 @@
+{
+  "version": 1,
+  "mode": "read-only-cross-system-integrity",
+  "checkedAt": "2026-09-22T00:51:26.050Z",
+  "status": "HEALTHY",
+  "healthy": true,
+  "summary": {
+    "checks": 39,
+    "healthyChecks": 39,
+    "failedChecks": 0,
+    "criticalIssues": 0,
+    "warnings": 0
+  },
+  "issues": [],
+  "checks": [
+    {
+      "check": "source:live",
+      "ok": true,
+      "details": {
+        "file": "data/live-tracker-snapshot.json"
+      }
+    },
+    {
+      "check": "source:driver",
+      "ok": true,
+      "details": {
+        "file": "data/driver-management-summary.json"
+      }
+    },
+    {
+      "check": "source:staff",
+      "ok": true,
+      "details": {
+        "file": "data/staff-management-summary.json"
+      }
+    },
+    {
+      "check": "source:achievements",
+      "ok": true,
+      "details": {
+        "file": "data/driver-achievements-summary.json"
+      }
+    },
+    {
+      "check": "source:milestones",
+      "ok": true,
+      "details": {
+        "file": "data/milestones.json"
+      }
+    },
+    {
+      "check": "source:statistics",
+      "ok": true,
+      "details": {
+        "file": "data/statistics.json"
+      }
+    },
+    {
+      "check": "source:driverHistory",
+      "ok": true,
+      "details": {
+        "file": "data/driver-history.json"
+      }
+    },
+    {
+      "check": "Live Tracker vs Driver Management",
+      "ok": true,
+      "details": {
+        "Driver Management": 108,
+        "Live Tracker": 108,
+        "difference": 0,
+        "tolerance": 2
+      }
+    },
+    {
+      "check": "Achievements vs Driver Management",
+      "ok": true,
+      "details": {
+        "Driver Management": 108,
+        "Driver Achievements": 108,
+        "difference": 0,
+        "tolerance": 2
+      }
+    },
+    {
+      "check": "Achievement tracked drivers vs Driver Management",
+      "ok": true,
+      "details": {
+        "Driver Management": 108,
+        "Achievement Tracked Drivers": 108,
+        "difference": 0,
+        "tolerance": 2
+      }
+    },
+    {
+      "check": "Milestones vs Driver Management",
+      "ok": true,
+      "details": {
+        "Driver Management": 108,
+        "Milestones": 108,
+        "difference": 0,
+        "tolerance": 2
+      }
+    },
+    {
+      "check": "Driver History vs Driver Management",
+      "ok": true,
+      "details": {
+        "Driver Management": 108,
+        "Driver History": 108,
+        "difference": 0,
+        "tolerance": 2
+      }
+    },
+    {
+      "check": "Statistics vs Driver Management",
+      "ok": true,
+      "details": {
+        "Driver Management": 108,
+        "Statistics": 108,
+        "difference": 0,
+        "tolerance": 2
+      }
+    },
+    {
+      "check": "live-snapshot-numeric-values",
+      "ok": true,
+      "details": {
+        "members": 108,
+        "online": 0,
+        "ets2": 0,
+        "ats": 0
+      }
+    },
+    {
+      "check": "live-game-total",
+      "ok": true,
+      "details": {
+        "online": 0,
+        "ets2": 0,
+        "ats": 0
+      }
+    },
+    {
+      "check": "live-online-plausibility",
+      "ok": true,
+      "details": {
+        "members": 108,
+        "online": 0,
+        "ets2": 0,
+        "ats": 0
+      }
+    },
+    {
+      "check": "driver-activity-partition",
+      "ok": true,
+      "details": {
+        "currentDrivers": 108,
+        "activityTotal": 108,
+        "buckets": {
+          "grace": 108,
+          "active": 0,
+          "approvedLeave": 0,
+          "info7Days": 0,
+          "attention14Days": 0,
+          "hrReview30Days": 0,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "check": "driver-online-plausibility",
+      "ok": true,
+      "details": {
+        "onlineNow": 0,
+        "currentDrivers": 108
+      }
+    },
+    {
+      "check": "achievement-tracked-coverage",
+      "ok": true,
+      "details": {
+        "currentDrivers": 108,
+        "trackedDrivers": 108
+      }
+    },
+    {
+      "check": "achievement-count-ranges",
+      "ok": true,
+      "details": {
+        "counts": {
+          "1m": 101,
+          "3m": 77,
+          "6m": 55,
+          "1y": 30,
+          "2y": 5,
+          "3y": 2,
+          "4y": 0,
+          "5y": 0
+        },
+        "currentDrivers": 108
+      }
+    },
+    {
+      "check": "achievement-count-order",
+      "ok": true,
+      "details": {
+        "counts": {
+          "1m": 101,
+          "3m": 77,
+          "6m": 55,
+          "1y": 30,
+          "2y": 5,
+          "3y": 2,
+          "4y": 0,
+          "5y": 0
+        }
+      }
+    },
+    {
+      "check": "achievement-upcoming-range",
+      "ok": true,
+      "details": {
+        "upcoming30Days": 32
+      }
+    },
+    {
+      "check": "staff-tracked-coverage",
+      "ok": true,
+      "details": {
+        "currentStaff": 12,
+        "trackedStaff": 12
+      }
+    },
+    {
+      "check": "staff-count-plausibility",
+      "ok": true,
+      "details": {
+        "currentStaff": 12,
+        "driverCount": 108
+      }
+    },
+    {
+      "check": "milestone-member-count",
+      "ok": true,
+      "details": {
+        "memberCountAtLastUpdate": 108
+      }
+    },
+    {
+      "check": "milestone-history-format",
+      "ok": true,
+      "details": {
+        "reachedMilestones": []
+      }
+    },
+    {
+      "check": "statistics-history-present",
+      "ok": true,
+      "details": {
+        "days": 24
+      }
+    },
+    {
+      "check": "statistics-date-series",
+      "ok": true,
+      "details": {
+        "validDates": true,
+        "uniqueDates": true,
+        "sortedDates": true
+      }
+    },
+    {
+      "check": "statistics-row-values",
+      "ok": true,
+      "details": null
+    },
+    {
+      "check": "statistics-member-continuity",
+      "ok": true,
+      "details": null
+    },
+    {
+      "check": "statistics-sample-structure",
+      "ok": true,
+      "details": null
+    },
+    {
+      "check": "statistics-all-time-peaks",
+      "ok": true,
+      "details": {
+        "allTime": {
+          "peakOnline": 8,
+          "peakETS2": 8,
+          "peakATS": 1
+        },
+        "retainedHistoryMax": {
+          "peakOnline": 8,
+          "peakETS2": 8,
+          "peakATS": 1
+        }
+      }
+    },
+    {
+      "check": "timestamp:Live Tracker",
+      "ok": true,
+      "details": {
+        "updatedAt": "2026-09-22T00:49:52.428Z"
+      }
+    },
+    {
+      "check": "timestamp:Driver Management",
+      "ok": true,
+      "details": {
+        "updatedAt": "2026-09-22T00:30:00.114Z"
+      }
+    },
+    {
+      "check": "timestamp:Staff Management",
+      "ok": true,
+      "details": {
+        "updatedAt": "2026-09-21T21:54:02.125Z"
+      }
+    },
+    {
+      "check": "timestamp:Driver Achievements",
+      "ok": true,
+      "details": {
+        "updatedAt": "2026-09-21T21:39:42.317Z"
+      }
+    },
+    {
+      "check": "timestamp:VTC Milestones",
+      "ok": true,
+      "details": {
+        "updatedAt": "2026-09-21T21:33:20.136Z"
+      }
+    },
+    {
+      "check": "timestamp:Statistics",
+      "ok": true,
+      "details": {
+        "updatedAt": "2026-09-22T00:49:52.850Z"
+      }
+    },
+    {
+      "check": "timestamp:Driver History",
+      "ok": true,
+      "details": {
+        "updatedAt": "2026-09-18T00:12:46.331Z"
+      }
+    }
+  ],
+  "sources": [
+    "data/live-tracker-snapshot.json",
+    "data/driver-management-summary.json",
+    "data/staff-management-summary.json",
+    "data/driver-achievements-summary.json",
+    "data/milestones.json",
+    "data/statistics.json",
+    "data/driver-history.json"
+  ],
+  "note": "Read-only technical integrity checks. No personnel, member, role, permission, kick, ban, promotion, demotion, or disciplinary actions are performed."
+}
