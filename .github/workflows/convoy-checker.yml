@@ -74,7 +74,7 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_REMINDER_CHANNEL_NAME: 'convoy-reminders'
-          DISCORD_DRIVER_ROLE_NAME: 'Driver'
+          DISCORD_DRIVER_ROLE_ID: '1476774746480709675'
         run: node convoy-driver-reminders.js
 
       - name: Archive finished convoy threads
