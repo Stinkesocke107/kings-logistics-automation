@@ -40,12 +40,12 @@ function makeMonthStats() {
 
 function statusCounterKey(status) {
   const map = {
-    'Scheduled': 'scheduled',
-    'Completed': 'completed',
-    'Cancelled': 'cancelled',
+    Scheduled: 'scheduled',
+    Completed: 'completed',
+    Cancelled: 'cancelled',
     'Needs Information': 'needsInformation',
     'Ready for Approval': 'readyForApproval',
-    'Submitted': 'submitted'
+    Submitted: 'submitted'
   };
   return map[status] || 'other';
 }
@@ -64,6 +64,7 @@ function buildMarkdown(overview) {
     '',
     `- Real convoy submissions: **${overview.overall.realConvoySubmissions}**`,
     `- Convoys with confirmed Kings slot: **${overview.overall.countedConvoys}**`,
+    `- Upcoming scheduled convoys: **${overview.overall.upcomingScheduledConvoys}**`,
     `- Excluded test threads: **${overview.overall.excludedTestThreads}**`,
     `- Confirmed-slot convoys awaiting a valid Event Date: **${overview.overall.undatedCountedConvoys}**`,
     `- Confirmed-slot convoys awaiting a valid timezone: **${overview.overall.invalidEventTimeConvoys}**`,
@@ -84,16 +85,16 @@ function buildMarkdown(overview) {
     }
   }
 
-  lines.push('', '## Counted convoys', '', '| Date | Time | Convoy | Status | Event ID | Type |', '|---|---|---|---|---|---|');
+  lines.push('', '## Counted convoys', '', '| Date | Time | Convoy | Status | Server | Route | Event ID |', '|---|---|---|---|---|---|---|');
 
   if (overview.countedConvoys.length === 0) {
-    lines.push('| — | — | No counted convoys yet | — | — | — |');
+    lines.push('| — | — | No counted convoys yet | — | — | — | — |');
   } else {
     for (const convoy of [...overview.countedConvoys].sort((a, b) =>
-      String(b.eventDate || '').localeCompare(String(a.eventDate || ''))
+      Number(b.eventUnix || 0) - Number(a.eventUnix || 0)
     )) {
       lines.push(
-        `| ${escapeTable(convoy.eventDate || 'Awaiting valid date')} | ${escapeTable(convoy.meetingTime || 'Awaiting valid time')} | ${escapeTable(convoy.name)} | ${escapeTable(convoy.status)} | ${escapeTable(convoy.eventId || '—')} | ${escapeTable(convoy.eventType || '—')} |`
+        `| ${escapeTable(convoy.eventDate || 'Awaiting valid date')} | ${escapeTable(convoy.meetingTime || 'Awaiting valid time')} | ${escapeTable(convoy.name)} | ${escapeTable(convoy.status)} | ${escapeTable(convoy.server || '—')} | ${escapeTable(convoy.route || '—')} | ${escapeTable(convoy.eventId || '—')} |`
       );
     }
   }
@@ -107,6 +108,7 @@ function appendGithubSummary(overview) {
 
   const currentMonth = new Date().toISOString().slice(0, 7);
   const month = overview.months[currentMonth] || makeMonthStats();
+  const next = overview.upcomingConvoys?.[0] || null;
   const lines = [
     '',
     '# Kings Convoy Monthly Overview',
@@ -114,6 +116,8 @@ function appendGithubSummary(overview) {
     `Current month: **${currentMonth}**`,
     '',
     `Counted convoys: **${month.countedConvoys}** · Scheduled: **${month.scheduled}** · Completed: **${month.completed}** · Cancelled: **${month.cancelled}**`,
+    '',
+    next ? `Next convoy: **${next.name}** · ${next.server || 'Server unavailable'}` : 'Next convoy: **None scheduled**',
     '',
     `Awaiting valid Event Date: **${overview.overall.undatedCountedConvoys}** · Awaiting valid timezone: **${overview.overall.invalidEventTimeConvoys}**`,
     ''
@@ -148,26 +152,37 @@ function main() {
     const confirmedKingsSlot = Boolean(item.validation?.checks?.kingsSlotConfirmed);
     if (!confirmedKingsSlot) continue;
 
-    const eventDate = item.validation?.parsed?.eventDate || null;
-    const rawEventDate = item.validation?.parsed?.eventDateRaw || null;
-    const meetingTime = item.validation?.parsed?.meetupTime || null;
+    const parsed = item.validation?.parsed || {};
+    const eventDate = parsed.eventDate || null;
+    const rawEventDate = parsed.eventDateRaw || null;
+    const meetingTime = parsed.meetupTime || null;
     const eventUnix = item.eventUnix || null;
     const eventTimeValid = Boolean(item.eventTimeValid && eventUnix);
+    const eventId = item.eventId || null;
 
     const convoy = {
       threadId: item.threadId,
       name: item.name,
-      eventId: item.eventId || null,
-      eventType: item.validation?.parsed?.eventType || null,
+      eventId,
+      eventUrl: item.truckersmp?.url || (eventId ? `https://truckersmp.com/events/${eventId}` : null),
+      eventType: parsed.eventType || null,
       status: item.status || 'Unknown',
       confirmedKingsSlot,
+      kingsSlot: parsed.kingsSlot || null,
       eventDate,
       rawEventDate,
       meetingTime,
       eventUnix,
       eventTimeValid,
       eventTimeZone: item.eventTimeZone || null,
-      eventTimeOffsetMinutes: item.eventTimeOffsetMinutes ?? null
+      eventTimeOffsetMinutes: item.eventTimeOffsetMinutes ?? null,
+      server: item.truckersmp?.server || parsed.server || null,
+      route: parsed.route || (parsed.start && parsed.destination ? `${parsed.start} → ${parsed.destination}` : null),
+      meetingPoint: parsed.meetup || null,
+      start: parsed.start || null,
+      destination: parsed.destination || null,
+      game: item.truckersmp?.game || null,
+      hostVtc: item.truckersmp?.hostVtc || null
     };
 
     countedConvoys.push(convoy);
@@ -187,6 +202,11 @@ function main() {
     stats.convoys.push(convoy);
   }
 
+  const nowUnix = Math.floor(Date.now() / 1000);
+  const upcomingConvoys = countedConvoys
+    .filter((convoy) => convoy.status === 'Scheduled' && convoy.eventTimeValid && Number(convoy.eventUnix) > nowUnix)
+    .sort((a, b) => Number(a.eventUnix) - Number(b.eventUnix));
+
   const overview = {
     generatedAt: new Date().toISOString(),
     guildId: GUILD_ID,
@@ -195,12 +215,14 @@ function main() {
     overall: {
       realConvoySubmissions: realThreads.length,
       countedConvoys: countedConvoys.length,
+      upcomingScheduledConvoys: upcomingConvoys.length,
       excludedTestThreads,
       undatedCountedConvoys,
       invalidEventTimeConvoys,
       statusesAcrossRealSubmissions: statusCounts
     },
     months,
+    upcomingConvoys,
     countedConvoys
   };
 
@@ -212,6 +234,7 @@ function main() {
   console.log('Kings Convoy Overview generated successfully.');
   console.log(`Real convoy submissions: ${overview.overall.realConvoySubmissions}`);
   console.log(`Confirmed-slot convoys: ${overview.overall.countedConvoys}`);
+  console.log(`Upcoming scheduled convoys: ${overview.overall.upcomingScheduledConvoys}`);
   console.log(`Excluded test threads: ${overview.overall.excludedTestThreads}`);
   console.log(`Awaiting valid Event Date: ${overview.overall.undatedCountedConvoys}`);
   console.log(`Awaiting valid timezone: ${overview.overall.invalidEventTimeConvoys}`);
