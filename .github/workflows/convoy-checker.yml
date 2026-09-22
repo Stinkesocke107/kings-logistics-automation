@@ -2,6 +2,10 @@ name: Kings Convoy Checker
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'convoy-*.js'
+      - '.github/workflows/convoy-checker.yml'
   schedule:
     - cron: '*/15 * * * *'
 
