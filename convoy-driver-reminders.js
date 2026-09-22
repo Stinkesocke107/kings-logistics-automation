@@ -12,7 +12,6 @@ const DRIVER_ROLE_NAME = process.env.DISCORD_DRIVER_ROLE_NAME || 'Convoy Driver'
 
 const REMINDER_24H_MARKER = '⏰ **Kings Driver Convoy Reminder — 24 Hours**';
 const REMINDER_1H_MARKER = '🚨 **Kings Driver Convoy Reminder — 1 Hour**';
-const LEGACY_REMINDER_2H_MARKER = '🚨 **Kings Driver Convoy Reminder — 2 Hours**';
 
 if (!TOKEN) {
   console.error('Missing DISCORD_BOT_TOKEN.');
@@ -30,7 +29,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Driver Convoy Reminders/1.2'
+    'User-Agent': 'Kings Logistics Driver Convoy Reminders/1.3'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -244,19 +243,6 @@ async function main() {
 
     try {
       if (secondsUntilMeeting <= 60 * 60) {
-        const legacy2h = await findExistingReminder(
-          reminderChannel.id,
-          item,
-          LEGACY_REMINDER_2H_MARKER,
-          bot.id
-        );
-
-        if (legacy2h) {
-          console.log(`- ${item.name} | 1h driver reminder skipped: legacy 2h reminder already sent`);
-          skipped += 1;
-          continue;
-        }
-
         const result = await sendReminder(
           reminderChannel.id,
           item,
