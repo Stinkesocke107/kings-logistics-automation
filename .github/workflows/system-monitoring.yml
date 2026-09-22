@@ -7,6 +7,7 @@ on:
     paths:
       - 'system-monitoring.js'
       - 'system-alerts.js'
+      - 'data-integrity.js'
       - '.github/workflows/system-monitoring.yml'
 
   schedule:
@@ -35,13 +36,19 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Verify Technical Alert Engine
+      - name: Verify Technical Health Engines
         run: |
-          if [ ! -f "system-alerts.js" ]; then
-            echo "ERROR: system-alerts.js is missing."
-            exit 1
-          fi
-          echo "Kings System Alerts engine present."
+          for file in system-alerts.js data-integrity.js; do
+            if [ ! -f "$file" ]; then
+              echo "ERROR: $file is missing."
+              exit 1
+            fi
+          done
+
+          node --check system-monitoring.js
+          node --check data-integrity.js
+          node --check system-alerts.js
+          echo "Kings Monitoring, Data Integrity, and System Alerts engines present and syntactically valid."
 
       - name: Run Kings System Monitoring
         id: health
@@ -49,10 +56,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           node system-monitoring.js
+          node data-integrity.js
 
           STATUS=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.status || 'UNKNOWN'))")
           CRITICAL=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.criticalIssues || 0))")
           WARNINGS=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.warnings || 0))")
+          INTEGRITY=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.deepIntegrityHealthy || 0) + '/' + String(h.summary?.deepIntegrityChecks || 0))")
 
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
           echo "critical=$CRITICAL" >> "$GITHUB_OUTPUT"
@@ -61,6 +70,7 @@ jobs:
           echo "Kings System Health: $STATUS"
           echo "Critical Issues: $CRITICAL"
           echo "Warnings: $WARNINGS"
+          echo "Deep Integrity: $INTEGRITY"
 
       - name: Process Kings System Alerts
         env:
@@ -89,7 +99,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: kings-system-health-${{ github.run_number }}
-          path: data/system-health.json
+          path: |
+            data/system-health.json
+            data/data-integrity.json
           if-no-files-found: error
           retention-days: 14
           compression-level: 9
@@ -99,5 +111,5 @@ jobs:
         run: |
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Safety" >> "$GITHUB_STEP_SUMMARY"
-          echo "Kings System Monitoring and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
-          echo "They never change Discord roles, permissions, members, Staff/Driver status, bans, kicks, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
+          echo "Kings System Monitoring, Data Integrity, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
+          echo "They never change Discord roles, permissions, members, Staff/Driver/HR status, bans, kicks, promotions, demotions, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
