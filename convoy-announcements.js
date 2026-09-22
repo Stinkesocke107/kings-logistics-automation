@@ -8,10 +8,8 @@ const PING_ROLE_ID = process.env.DISCORD_CONVOY_ANNOUNCEMENT_ROLE_ID || '1476774
 const REPORT_PATH = 'output/convoy-check-results.json';
 const TEST_MODE = /^(?:1|true|yes|on)$/i.test(process.env.CONVOY_ANNOUNCEMENT_TEST_MODE || '');
 const ANNOUNCEMENT_MARKER = '📣 **Kings Convoy Announcement**';
-const PUBLIC_2H_MARKER = '🚨 **Kings Convoy Public Reminder — 2 Hours**';
 const MANAGED_STATUSES = new Set(['Scheduled', 'Completed', 'Cancelled']);
 const ANNOUNCEMENT_WINDOW_SECONDS = 24 * 60 * 60;
-const FINAL_REMINDER_WINDOW_SECONDS = 2 * 60 * 60;
 
 if (!TOKEN) {
   console.error('Missing DISCORD_BOT_TOKEN.');
@@ -29,7 +27,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Announcements/3.0'
+    'User-Agent': 'Kings Logistics Convoy Announcements/3.1'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -245,30 +243,6 @@ function buildAnnouncement(item, options = {}) {
   ].filter((value) => value !== null && value !== undefined).join('\n');
 }
 
-function buildTwoHourReminder(item) {
-  const parsed = item.validation?.parsed || {};
-  const route = routeLabel(item);
-  const eventUrl = item.eventId ? `https://truckersmp.com/events/${item.eventId}` : null;
-  const meetup = parsed.meetup || null;
-
-  return [
-    markerFor(item, PUBLIC_2H_MARKER),
-    '',
-    PING_ROLE_ID ? `<@&${PING_ROLE_ID}>` : null,
-    PING_ROLE_ID ? '' : null,
-    `# 🚨 ${item.name || 'Kings Convoy'} — 2 Hour Reminder`,
-    '',
-    'The convoy Meeting Time is now within 2 hours. Please get ready and make sure you arrive on time. 👑🚛',
-    '',
-    item.eventUnix ? `🕒 **Meeting Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}` : null,
-    meetup ? `📍 **Meeting Point:** ${meetup}` : null,
-    route ? `🛣️ **Route:** ${route}` : null,
-    eventUrl ? `🔗 **TruckersMP Event:** ${eventUrl}` : null,
-    '',
-    'See you on the road! :kings_heart:'
-  ].filter((value) => value !== null && value !== undefined).join('\n');
-}
-
 async function createMessage(content, pingRole = false) {
   const allowedMentions = { parse: [] };
   if (pingRole && PING_ROLE_ID) allowedMentions.roles = [PING_ROLE_ID];
@@ -311,9 +285,6 @@ async function main() {
   let announcementsCreated = 0;
   let announcementsUpdated = 0;
   let announcementsUnchanged = 0;
-  let public2hCreated = 0;
-  let public2hUpdated = 0;
-  let public2hUnchanged = 0;
   let skipped = 0;
   let failed = 0;
 
@@ -429,22 +400,6 @@ async function main() {
         if (result.action === 'updated') announcementsUpdated += 1;
         else announcementsUnchanged += 1;
       }
-
-      if (secondsUntilMeeting <= FINAL_REMINDER_WINDOW_SECONDS) {
-        const existing2h = await findManagedMessage(item, bot.id, PUBLIC_2H_MARKER);
-        const reminderContent = buildTwoHourReminder(item);
-
-        if (!existing2h) {
-          const message = await createMessage(reminderContent, true);
-          console.log(`- ${item.name} | 2h public reminder created: ${message?.id || 'unknown'}`);
-          public2hCreated += 1;
-        } else {
-          const result = await updateMessage(existing2h, reminderContent);
-          console.log(`- ${item.name} | 2h public reminder ${result.action}: ${result.messageId}`);
-          if (result.action === 'updated') public2hUpdated += 1;
-          else public2hUnchanged += 1;
-        }
-      }
     } catch (error) {
       failed += 1;
       console.warn(`- ${item.name} | public convoy sync failed: ${error.message}`);
@@ -452,7 +407,7 @@ async function main() {
   }
 
   console.log(
-    `Kings Convoy Announcements finished. 24h created: ${announcementsCreated}. 24h updated: ${announcementsUpdated}. 24h unchanged: ${announcementsUnchanged}. 2h created: ${public2hCreated}. 2h updated: ${public2hUpdated}. 2h unchanged: ${public2hUnchanged}. Skipped: ${skipped}. Failed: ${failed}.`
+    `Kings Convoy Announcements finished. 24h created: ${announcementsCreated}. 24h updated: ${announcementsUpdated}. 24h unchanged: ${announcementsUnchanged}. Skipped: ${skipped}. Failed: ${failed}.`
   );
 }
 
