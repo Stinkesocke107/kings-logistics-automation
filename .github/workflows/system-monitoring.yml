@@ -9,6 +9,7 @@ on:
       - 'system-alerts.js'
       - 'data-integrity.js'
       - 'system-hardening.js'
+      - 'security-audit.js'
       - '.github/workflows/system-monitoring.yml'
 
   schedule:
@@ -30,16 +31,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
 
       - name: Verify Technical Health Engines
         run: |
-          for file in system-monitoring.js system-alerts.js data-integrity.js system-hardening.js; do
+          for file in system-monitoring.js system-alerts.js data-integrity.js system-hardening.js security-audit.js; do
             if [ ! -f "$file" ]; then
               echo "ERROR: $file is missing."
               exit 1
@@ -47,7 +48,7 @@ jobs:
             node --check "$file"
           done
 
-          echo "Kings Monitoring, Data Integrity, Final Hardening, and System Alerts engines present and syntactically valid."
+          echo "Kings Monitoring, Data Integrity, Final Hardening, Repository Security Audit, and System Alerts engines present and syntactically valid."
 
       - name: Run Kings System Monitoring
         id: health
@@ -93,12 +94,14 @@ jobs:
 
           node data-integrity.js
           node system-hardening.js
+          node security-audit.js
 
           STATUS=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.status || 'UNKNOWN'))")
           CRITICAL=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.criticalIssues || 0))")
           WARNINGS=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.warnings || 0))")
           INTEGRITY=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.deepIntegrityHealthy || 0) + '/' + String(h.summary?.deepIntegrityChecks || 0))")
           HARDENING=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.hardeningHealthy || 0) + '/' + String(h.summary?.hardeningChecks || 0))")
+          SECURITY=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.securityHealthy || 0) + '/' + String(h.summary?.securityChecks || 0))")
 
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
           echo "critical=$CRITICAL" >> "$GITHUB_OUTPUT"
@@ -109,6 +112,7 @@ jobs:
           echo "Warnings: $WARNINGS"
           echo "Deep Integrity: $INTEGRITY"
           echo "Final Hardening: $HARDENING"
+          echo "Repository Security: $SECURITY"
 
       - name: Process Kings System Alerts
         env:
@@ -134,13 +138,14 @@ jobs:
 
       - name: Preserve unhealthy health report
         if: steps.health.outputs.status != 'HEALTHY'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: kings-system-health-${{ github.run_number }}
           path: |
             data/system-health.json
             data/data-integrity.json
             data/system-hardening.json
+            data/security-audit.json
           if-no-files-found: error
           retention-days: 14
           compression-level: 9
@@ -150,5 +155,5 @@ jobs:
         run: |
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Safety" >> "$GITHUB_STEP_SUMMARY"
-          echo "Kings System Monitoring, Data Integrity, Final Hardening, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
+          echo "Kings System Monitoring, Data Integrity, Final Hardening, Repository Security Audit, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
           echo "They never change Discord roles, permissions, members, Staff/Driver/HR status, bans, kicks, promotions, demotions, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
