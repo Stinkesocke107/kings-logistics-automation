@@ -2,5 +2,12 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {}
+  "pending": {
+    "stale-data:data/staff-management-summary.json": {
+      "count": 1,
+      "firstSeenAt": "2026-09-22T01:00:33.444Z",
+      "system": "Staff Management data",
+      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
+    }
+  }
 }
