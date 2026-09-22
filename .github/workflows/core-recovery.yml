@@ -35,26 +35,26 @@ jobs:
   kings-recovery:
     name: Kings Recovery
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
-      # ==================================================
-      # SETUP
-      # ==================================================
-
       - name: Checkout current repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Capture Initial Repository State
+        id: initial_state
+        shell: bash
+        run: |
+          INITIAL_HEAD=$(git rev-parse HEAD)
+          echo "head=$INITIAL_HEAD" >> "$GITHUB_OUTPUT"
+          echo "Initial main HEAD: $INITIAL_HEAD"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "24"
-
-      # ==================================================
-      # VALIDATE USER INPUT
-      # ==================================================
 
       - name: Validate Recovery Request
         shell: bash
@@ -80,8 +80,7 @@ jobs:
             fi
 
             if [ "$CONFIRMATION" != "RESTORE_KINGS" ]; then
-              echo "ERROR: APPLY mode requires exact confirmation:"
-              echo "RESTORE_KINGS"
+              echo "ERROR: APPLY mode requires exact confirmation: RESTORE_KINGS"
               exit 1
             fi
 
@@ -90,11 +89,7 @@ jobs:
             echo "PREVIEW mode selected."
           fi
 
-      # ==================================================
-      # FIND SELECTED BACKUP RUN
-      # ==================================================
-
-      - name: Find Restore Point Run
+      - name: Find Successful Restore Point Run
         id: backup_run
         shell: bash
         env:
@@ -104,23 +99,19 @@ jobs:
           RUN_ID=$(gh run list \
             --workflow core-backup.yml \
             --limit 200 \
-            --json databaseId,number \
-            --jq ".[] | select(.number == ${BACKUP_RUN_NUMBER}) | .databaseId" \
+            --json databaseId,number,status,conclusion \
+            --jq ".[] | select(.number == ${BACKUP_RUN_NUMBER} and .status == \"completed\" and .conclusion == \"success\") | .databaseId" \
             | head -n 1)
 
           if [ -z "$RUN_ID" ]; then
-            echo "ERROR: Backup Run #$BACKUP_RUN_NUMBER was not found."
+            echo "ERROR: Backup Run #$BACKUP_RUN_NUMBER is missing, incomplete, or not successful."
+            echo "Recovery accepts only successfully completed Kings Backup runs."
             exit 1
           fi
 
           echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
-
           echo "Restore Point Run Number: #$BACKUP_RUN_NUMBER"
           echo "GitHub Run ID: $RUN_ID"
-
-      # ==================================================
-      # DOWNLOAD RESTORE POINT
-      # ==================================================
 
       - name: Download Restore Point
         uses: actions/download-artifact@v4
@@ -131,73 +122,50 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ steps.backup_run.outputs.run_id }}
 
-      # ==================================================
-      # VERIFY RESTORE POINT STRUCTURE
-      # ==================================================
-
       - name: Verify Restore Point Structure
         shell: bash
         run: |
-          if [ ! -f "restore-source/restore-point.json" ]; then
-            echo "ERROR: restore-point.json is missing."
-            echo "The selected run may not be a Restore Point."
-            exit 1
-          fi
-
-          if [ ! -f "restore-source/backup-manifest.json" ]; then
-            echo "ERROR: backup-manifest.json is missing."
-            exit 1
-          fi
-
-          if [ ! -f "restore-source/backup-health.json" ]; then
-            echo "ERROR: backup-health.json is missing."
-            exit 1
-          fi
+          for FILE in restore-point.json backup-manifest.json backup-health.json; do
+            if [ ! -f "restore-source/$FILE" ]; then
+              echo "ERROR: $FILE is missing from the selected Restore Point."
+              exit 1
+            fi
+          done
 
           echo "Restore Point structure verified."
 
-      # ==================================================
-      # EMERGENCY BACKUP
-      # ONLY BEFORE REAL RECOVERY
-      # ==================================================
+      - name: Run Independent Recovery Safety Gate
+        env:
+          RECOVERY_TARGET_RUN: ${{ inputs.backup_run_number }}
+          RECOVERY_MODE: ${{ inputs.recovery_mode }}
+        run: node recovery-safety-check.js
 
       - name: Create Emergency Pre-Recovery Backup
         if: inputs.recovery_mode == 'apply'
-        run: node core-backup.js
+        run: |
+          node core-backup.js
+          node backup-final-check.js
 
       - name: Verify Emergency Backup Health
         if: inputs.recovery_mode == 'apply'
         id: emergency_health
         shell: bash
         run: |
-          if [ ! -f "backup-staging/backup-health.json" ]; then
-            echo "ERROR: Emergency backup health file is missing."
+          if [ ! -f "backup-staging/backup-health.json" ] || [ ! -f "backup-staging/backup-final-health.json" ]; then
+            echo "ERROR: Emergency backup health metadata is missing."
             exit 1
           fi
 
-          HEALTHY=$(node -e "
-            const fs = require('fs');
-
-            const health = JSON.parse(
-              fs.readFileSync(
-                'backup-staging/backup-health.json',
-                'utf8'
-              )
-            );
-
-            process.stdout.write(
-              health.healthy === true
-                ? 'true'
-                : 'false'
-            );
-          ")
+          HEALTHY=$(node - <<'NODE'
+          const fs = require('fs');
+          const core = JSON.parse(fs.readFileSync('backup-staging/backup-health.json', 'utf8'));
+          const final = JSON.parse(fs.readFileSync('backup-staging/backup-final-health.json', 'utf8'));
+          process.stdout.write(core.healthy === true && final.healthy === true ? 'true' : 'false');
+          NODE
+          )
 
           echo "healthy=$HEALTHY" >> "$GITHUB_OUTPUT"
           echo "Emergency Backup Healthy: $HEALTHY"
-
-      # ==================================================
-      # ALWAYS PRESERVE EMERGENCY BACKUP BEFORE RECOVERY
-      # ==================================================
 
       - name: Upload Emergency Pre-Recovery Backup
         if: inputs.recovery_mode == 'apply'
@@ -210,37 +178,42 @@ jobs:
           retention-days: 90
           compression-level: 9
 
-      # ==================================================
-      # DO NOT RECOVER IF EMERGENCY BACKUP IS UNHEALTHY
-      # ==================================================
-
       - name: Enforce Emergency Backup Health
         if: inputs.recovery_mode == 'apply'
         shell: bash
         run: |
           if [ "${{ steps.emergency_health.outputs.healthy }}" != "true" ]; then
             echo "ERROR: Emergency backup is UNHEALTHY."
-            echo "Recovery has been stopped."
-            echo "The emergency backup artifact was preserved."
+            echo "Recovery has been stopped before repository restoration."
             exit 1
           fi
 
-          echo "Emergency backup is HEALTHY."
-          echo "Recovery may continue."
+          echo "Emergency backup passed core + final dynamic validation."
 
-      # ==================================================
-      # RUN RECOVERY ENGINE
-      # ==================================================
+      - name: Enforce Main Stability Before Apply
+        if: inputs.recovery_mode == 'apply'
+        shell: bash
+        env:
+          INITIAL_HEAD: ${{ steps.initial_state.outputs.head }}
+        run: |
+          git fetch origin main
+          REMOTE_HEAD=$(git rev-parse origin/main)
+
+          if [ "$REMOTE_HEAD" != "$INITIAL_HEAD" ]; then
+            echo "ERROR: main changed while Recovery was preparing."
+            echo "Initial: $INITIAL_HEAD"
+            echo "Current: $REMOTE_HEAD"
+            echo "Recovery stopped before APPLY. Start a new recovery run from the latest main."
+            exit 1
+          fi
+
+          echo "main is unchanged. APPLY may continue."
 
       - name: Run Kings Recovery
         env:
           RECOVERY_MODE: ${{ inputs.recovery_mode }}
           RECOVERY_CONFIRMATION: ${{ inputs.confirmation }}
         run: node core-recovery.js
-
-      # ==================================================
-      # READ RECOVERY PLAN
-      # ==================================================
 
       - name: Read Recovery Plan
         id: recovery_plan
@@ -251,40 +224,11 @@ jobs:
             exit 1
           fi
 
-          TOTAL=$(node -e "
-            const p = require('./recovery-plan.json');
-            process.stdout.write(
-              String(p.summary.totalFiles || 0)
-            );
-          ")
-
-          UNCHANGED=$(node -e "
-            const p = require('./recovery-plan.json');
-            process.stdout.write(
-              String(p.summary.unchanged || 0)
-            );
-          ")
-
-          RESTORE=$(node -e "
-            const p = require('./recovery-plan.json');
-            process.stdout.write(
-              String(p.summary.restoreRequired || 0)
-            );
-          ")
-
-          MISSING=$(node -e "
-            const p = require('./recovery-plan.json');
-            process.stdout.write(
-              String(p.summary.missingCurrent || 0)
-            );
-          ")
-
-          ACTIONS=$(node -e "
-            const p = require('./recovery-plan.json');
-            process.stdout.write(
-              String(p.summary.actionsRequired || 0)
-            );
-          ")
+          TOTAL=$(node -e "const p=require('./recovery-plan.json');process.stdout.write(String(p.summary.totalFiles||0))")
+          UNCHANGED=$(node -e "const p=require('./recovery-plan.json');process.stdout.write(String(p.summary.unchanged||0))")
+          RESTORE=$(node -e "const p=require('./recovery-plan.json');process.stdout.write(String(p.summary.restoreRequired||0))")
+          MISSING=$(node -e "const p=require('./recovery-plan.json');process.stdout.write(String(p.summary.missingCurrent||0))")
+          ACTIONS=$(node -e "const p=require('./recovery-plan.json');process.stdout.write(String(p.summary.actionsRequired||0))")
 
           echo "total=$TOTAL" >> "$GITHUB_OUTPUT"
           echo "unchanged=$UNCHANGED" >> "$GITHUB_OUTPUT"
@@ -292,12 +236,7 @@ jobs:
           echo "missing=$MISSING" >> "$GITHUB_OUTPUT"
           echo "actions=$ACTIONS" >> "$GITHUB_OUTPUT"
 
-      # ==================================================
-      # COMMIT REAL RECOVERY
-      # Only files actually restored are staged.
-      # ==================================================
-
-      - name: Commit Recovered Files
+      - name: Validate Recovered File Syntax
         if: inputs.recovery_mode == 'apply'
         shell: bash
         run: |
@@ -306,24 +245,60 @@ jobs:
             exit 1
           fi
 
-          node - <<'NODE' > recovered-files.txt
-          const fs = require("fs");
+          node - <<'NODE'
+          const fs = require('fs');
+          const { spawnSync } = require('child_process');
+          const result = JSON.parse(fs.readFileSync('recovery-result.json', 'utf8'));
 
-          const result = JSON.parse(
-            fs.readFileSync(
-              "recovery-result.json",
-              "utf8"
-            )
-          );
+          for (const entry of result.files || []) {
+            const file = entry.path;
 
-          for (const file of result.files || []) {
-            console.log(file.path);
+            if (file.endsWith('.json')) {
+              JSON.parse(fs.readFileSync(file, 'utf8'));
+            }
+
+            if (/^[^/]+\.js$/i.test(file)) {
+              const check = spawnSync(process.execPath, ['--check', file], { stdio: 'inherit' });
+              if (check.status !== 0) {
+                throw new Error(`JavaScript syntax validation failed: ${file}`);
+              }
+            }
           }
+
+          console.log('Recovered JSON/JavaScript files passed syntax validation.');
+          NODE
+
+      - name: Commit Recovered Files
+        if: inputs.recovery_mode == 'apply'
+        shell: bash
+        env:
+          INITIAL_HEAD: ${{ steps.initial_state.outputs.head }}
+        run: |
+          if [ ! -f "recovery-result.json" ]; then
+            echo "ERROR: recovery-result.json was not created."
+            exit 1
+          fi
+
+          node - <<'NODE' > recovered-files.txt
+          const fs = require('fs');
+          const result = JSON.parse(fs.readFileSync('recovery-result.json', 'utf8'));
+          for (const file of result.files || []) console.log(file.path);
           NODE
 
           if [ ! -s "recovered-files.txt" ]; then
             echo "No repository files required restoration."
             exit 0
+          fi
+
+          git fetch origin main
+          REMOTE_HEAD=$(git rev-parse origin/main)
+
+          if [ "$REMOTE_HEAD" != "$INITIAL_HEAD" ]; then
+            echo "ERROR: main changed during Recovery APPLY."
+            echo "Initial: $INITIAL_HEAD"
+            echo "Current: $REMOTE_HEAD"
+            echo "Nothing will be pushed. Start a new recovery run."
+            exit 1
           fi
 
           git config user.name "Kings Logistics Automation"
@@ -344,15 +319,9 @@ jobs:
           git diff --cached --name-only
 
           git commit -m "Restore Kings Automation from backup run #${{ inputs.backup_run_number }}"
-
-          git pull --rebase origin main
-          git push origin main
+          git push origin HEAD:main
 
           echo "Recovered files committed successfully."
-
-      # ==================================================
-      # SAVE RECOVERY AUDIT INFORMATION
-      # ==================================================
 
       - name: Upload Recovery Audit
         if: always()
@@ -364,10 +333,6 @@ jobs:
             recovery-result.json
           if-no-files-found: warn
           retention-days: 90
-
-      # ==================================================
-      # SUMMARY
-      # ==================================================
 
       - name: Recovery Summary
         if: always()
@@ -383,14 +348,14 @@ jobs:
         run: |
           echo "## 🛡️ Kings Automation Recovery" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-
           echo "**Restore Point:** Backup Run #$BACKUP_RUN_NUMBER" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
           if [ "$MODE" = "apply" ]; then
             echo "🚨 **Mode: APPLY**" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "A 90-day emergency backup was created before recovery." >> "$GITHUB_STEP_SUMMARY"
+            echo "A fully validated 90-day emergency backup was created before recovery." >> "$GITHUB_STEP_SUMMARY"
+            echo "Branch drift protection was enforced before APPLY and before push." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "🔍 **Mode: PREVIEW**" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
@@ -407,23 +372,7 @@ jobs:
           echo "- Total recovery actions: **${ACTIONS:-0}**" >> "$GITHUB_STEP_SUMMARY"
 
           if [ -f "recovery-plan.json" ]; then
-            CHANGED=$(node -e "
-              const p = require('./recovery-plan.json');
-
-              const changed = p.files.filter(
-                f => f.status !== 'UNCHANGED'
-              );
-
-              for (const file of changed.slice(0, 50)) {
-                console.log(
-                  '- \`' +
-                  file.path +
-                  '\` — **' +
-                  file.status +
-                  '**'
-                );
-              }
-            ")
+            CHANGED=$(node -e "const p=require('./recovery-plan.json');for(const f of p.files.filter(x=>x.status!=='UNCHANGED').slice(0,50))console.log('- \`'+f.path+'\` — **'+f.status+'**')")
 
             if [ -n "$CHANGED" ]; then
               echo "" >> "$GITHUB_STEP_SUMMARY"
