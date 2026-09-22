@@ -18,12 +18,6 @@ on:
         default: ""
         type: string
 
-  # Temporary self-test trigger. Removed after the finalization test succeeds.
-  push:
-    paths:
-      - 'backup-final-check.js'
-      - '.github/workflows/core-backup.yml'
-
   schedule:
     # Daily normal backup at 03:37 UTC
     - cron: "37 3 * * *"
