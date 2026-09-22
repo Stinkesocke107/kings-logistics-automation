@@ -1,4 +1,4 @@
-# Repository security and Discord permission audits are part of every Kings System Monitoring run.
+# Repository security, Discord permission audits, and the live Discord monitor are part of every Kings System Monitoring run.
 name: Kings System Monitoring
 
 on:
@@ -8,6 +8,7 @@ on:
     paths:
       - 'system-monitoring.js'
       - 'system-alerts.js'
+      - 'system-monitor-discord.js'
       - 'data-integrity.js'
       - 'system-hardening.js'
       - 'security-audit.js'
@@ -42,7 +43,7 @@ jobs:
 
       - name: Verify Technical Health Engines
         run: |
-          for file in system-monitoring.js system-alerts.js data-integrity.js system-hardening.js security-audit.js discord-permission-audit.js; do
+          for file in system-monitoring.js system-alerts.js system-monitor-discord.js data-integrity.js system-hardening.js security-audit.js discord-permission-audit.js; do
             if [ ! -f "$file" ]; then
               echo "ERROR: $file is missing."
               exit 1
@@ -50,7 +51,7 @@ jobs:
             node --check "$file"
           done
 
-          echo "Kings Monitoring, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, and System Alerts engines present and syntactically valid."
+          echo "Kings Monitoring, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, and System Alerts engines present and syntactically valid."
 
       - name: Run Kings System Monitoring
         id: health
@@ -138,6 +139,13 @@ jobs:
           echo "Warnings: $WARNINGS"
           echo "Discord Permission Audit: $PERMISSIONS"
 
+      - name: Update Kings Systems Live Monitor
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          SYSTEM_MONITOR_CHANNEL_NAME: 'system-monitor'
+        run: node system-monitor-discord.js
+
       - name: Process Kings System Alerts
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -180,5 +188,5 @@ jobs:
         run: |
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Safety" >> "$GITHUB_STEP_SUMMARY"
-          echo "Kings System Monitoring, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
+          echo "Kings System Monitoring, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
           echo "They never change Discord roles, permissions, members, Staff/Driver/HR status, bans, kicks, timeouts, promotions, demotions, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
