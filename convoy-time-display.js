@@ -260,6 +260,32 @@ function refreshFieldsFromThread(item, messages) {
     sources.eventId = eventIdField;
   }
 
+  // TruckersMP is authoritative for public event data whenever its API sync succeeded.
+  // Kings-specific fields such as Responsible Staff, Kings Slot and image proof stay Discord-owned.
+  const tmpAuthoritative = item.truckersmpSync?.ok && item.truckersmpSync?.authoritative
+    ? item.truckersmp?.authoritative
+    : null;
+
+  if (tmpAuthoritative) {
+    const authoritativeKeys = ['eventType', 'route', 'start', 'destination', 'meetup', 'meetupTime'];
+    for (const key of authoritativeKeys) {
+      const value = tmpAuthoritative[key];
+      if (value !== null && value !== undefined && String(value).trim() !== '') {
+        parsed[key] = value;
+      }
+    }
+
+    if (tmpAuthoritative.eventDate) {
+      parsed.eventDate = tmpAuthoritative.eventDate;
+      parsed.eventDateRaw = tmpAuthoritative.eventDate;
+    }
+
+    sources.truckersmp = {
+      eventId: item.eventId || item.truckersmp?.id || null,
+      syncedAt: item.truckersmpSync?.syncedAt || null,
+      authoritative: true
+    };
+  }
   const eventDate = parsed.eventDate || null;
   const meetingTime = parsed.meetupTime || null;
   const parsedTime = parseMeetingTime(eventDate, meetingTime);
@@ -316,7 +342,26 @@ function buildStatusMessage(item) {
     approvalLine = '✅ **Staff status:** Recognized from an authorized Kings role.';
   }
 
+  const tmpAuthoritativeDisplay = Boolean(item.truckersmpSync?.ok && item.truckersmpSync?.authoritative);
   const eventLine = item.eventId ? `🔗 **TruckersMP Event ID:** ${item.eventId}` : null;
+  const sourceLine = tmpAuthoritativeDisplay
+    ? `🌐 **Event Source:** TruckersMP Event #${item.eventId || item.truckersmp?.id} · authoritative`
+    : null;
+  const typeLine = tmpAuthoritativeDisplay && item.validation?.parsed?.eventType
+    ? `📋 **Event Type:** ${item.validation.parsed.eventType}`
+    : null;
+  const dateLine = tmpAuthoritativeDisplay && item.validation?.parsed?.eventDate
+    ? `📅 **Event Date:** ${item.validation.parsed.eventDate}`
+    : null;
+  const routeLine = tmpAuthoritativeDisplay && item.validation?.parsed?.route
+    ? `🛣️ **Route:** ${item.validation.parsed.route}`
+    : null;
+  const meetingPointLine = tmpAuthoritativeDisplay && item.validation?.parsed?.meetup
+    ? `📍 **Meeting Point:** ${item.validation.parsed.meetup}`
+    : null;
+  const gameServerLine = tmpAuthoritativeDisplay && (item.truckersmp?.game || item.truckersmp?.server)
+    ? `🎮 **Game / Server:** ${[item.truckersmp?.game, item.truckersmp?.server].filter(Boolean).join(' · ')}`
+    : null;
   const eventTimeLine = item.eventUnix
     ? `🕒 **Meeting Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}`
     : null;
@@ -328,6 +373,12 @@ function buildStatusMessage(item) {
     validationLine,
     approvalLine,
     eventLine,
+    sourceLine,
+    typeLine,
+    dateLine,
+    routeLine,
+    meetingPointLine,
+    gameServerLine,
     eventTimeLine,
     '',
     '🤖 This is the single automated status message for this convoy. It is checked every 15 minutes and updated only when something changes.'
