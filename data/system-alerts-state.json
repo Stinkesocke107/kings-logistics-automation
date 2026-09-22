@@ -2,5 +2,18 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {}
+  "pending": {
+    "security-unpinned-github-actions": {
+      "count": 1,
+      "firstSeenAt": "2026-09-22T01:24:36.850Z",
+      "system": "GitHub Actions Security",
+      "message": "45 external GitHub Action reference(s) are not pinned to an immutable commit SHA."
+    },
+    "security-main-protection-inactive": {
+      "count": 1,
+      "firstSeenAt": "2026-09-22T01:24:36.850Z",
+      "system": "GitHub Repository Protection",
+      "message": "main is not currently verified as protected by an active ruleset that blocks branch deletion and non-fast-forward/force pushes."
+    }
+  }
 }
