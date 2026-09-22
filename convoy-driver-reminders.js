@@ -30,7 +30,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Driver Convoy Reminders/1.1'
+    'User-Agent': 'Kings Logistics Driver Convoy Reminders/1.2'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -162,6 +162,7 @@ function buildReminder(item, marker, title, description, driverRoleId) {
   const route = routeLabel(item);
   const meetup = parsed.meetup || null;
   const slot = parsed.kingsSlot || null;
+  const server = item.truckersmp?.server || parsed.server || null;
   const eventUrl = item.eventId ? `https://truckersmp.com/events/${item.eventId}` : null;
 
   return [
@@ -175,6 +176,7 @@ function buildReminder(item, marker, title, description, driverRoleId) {
     '',
     `🚛 **Convoy:** ${item.name || 'Kings Convoy'}`,
     `🕒 **Meeting Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}`,
+    server ? `🎙️ **Server:** ${server}` : null,
     meetup ? `📍 **Meeting Point:** ${meetup}` : null,
     route ? `🛣️ **Route:** ${route}` : null,
     slot ? `🚚 **Kings Slot:** ${slot}` : null,
