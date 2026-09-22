@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-22T17:46:42.605Z",
+  "updatedAt": "2026-09-22T17:53:36.478Z",
   "members": 108,
   "discordMessageId": "1550299096278110219",
-  "online": 2,
-  "ets2Online": 2,
+  "online": 3,
+  "ets2Online": 3,
   "atsOnline": 0,
   "activeServers": [
     {
@@ -12,6 +12,12 @@
       "name": "Simulation 1",
       "online": 2,
       "isEvent": false
+    },
+    {
+      "game": "ETS2",
+      "name": "Arab Transport September Convoy",
+      "online": 1,
+      "isEvent": true
     }
   ]
 }
