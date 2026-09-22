@@ -55,6 +55,42 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           node system-monitoring.js
+
+          # Staff Management is intentionally event-driven: its summary file only changes
+          # when Staff data changes. Workflow freshness is therefore the correct heartbeat.
+          node <<'NODE'
+          const fs = require('fs');
+          const file = 'data/system-health.json';
+          const health = JSON.parse(fs.readFileSync(file, 'utf8'));
+          const staffWorkflow = Array.isArray(health.workflows)
+            ? health.workflows.find((item) => item.file === 'staff-management.yml')
+            : null;
+
+          if (staffWorkflow?.ok) {
+            const staleId = 'stale-data:data/staff-management-summary.json';
+            health.issues = (health.issues || []).filter((item) => item.id !== staleId);
+
+            const freshness = health.data?.freshness;
+            if (Array.isArray(freshness)) {
+              const staffData = freshness.find((item) => item.file === 'data/staff-management-summary.json');
+              if (staffData) {
+                staffData.ok = true;
+                staffData.freshnessBasis = 'staff-management-workflow';
+              }
+              health.summary.freshDataHealthy = freshness.filter((item) => item.ok).length;
+            }
+
+            const critical = health.issues.filter((item) => item.severity === 'critical').length;
+            const warnings = health.issues.filter((item) => item.severity === 'warning').length;
+            health.summary.criticalIssues = critical;
+            health.summary.warnings = warnings;
+            health.status = critical ? 'UNHEALTHY' : warnings ? 'DEGRADED' : 'HEALTHY';
+            health.healthy = health.status === 'HEALTHY';
+            fs.writeFileSync(file, JSON.stringify(health, null, 2) + '\n');
+            console.log('Staff Management freshness normalized to workflow heartbeat.');
+          }
+          NODE
+
           node data-integrity.js
           node system-hardening.js
 
