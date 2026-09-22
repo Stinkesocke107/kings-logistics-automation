@@ -28,7 +28,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Reminders/1.4'
+    'User-Agent': 'Kings Logistics Convoy Reminders/1.5'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -288,7 +288,7 @@ async function main() {
   const nowUnix = Math.floor(Date.now() / 1000);
   let reportChanged = false;
 
-  console.log(`Kings Convoy Reminders started. Test mode: ${TEST_MODE ? 'enabled' : 'disabled'}.`);
+  console.log(`Kings Convoy Follow-up started. Test mode: ${TEST_MODE ? 'enabled' : 'disabled'}.`);
 
   for (const item of report.threads || []) {
     if (item.ignored || item.error) continue;
@@ -319,7 +319,6 @@ async function main() {
 
     try {
       const messages = await discord(`/channels/${item.threadId}/messages?limit=100`);
-      const secondsUntilMeeting = item.eventUnix - nowUnix;
 
       if (nowUnix >= item.eventUnix + 3 * 60 * 60) {
         const result = await sendMessage(
@@ -337,34 +336,9 @@ async function main() {
         continue;
       }
 
-      if (secondsUntilMeeting <= 0) continue;
-
-      if (secondsUntilMeeting <= 2 * 60 * 60) {
-        const result = await sendMessage(
-          item,
-          REMINDER_2H_MARKER,
-          'Convoy meeting starts within 2 hours',
-          'Final reminder: please be ready for the convoy meeting. This countdown is based on the Meeting Time.',
-          messages,
-          bot.id
-        );
-        console.log(`- ${item.name} | 2h: ${result.action}`);
-        continue;
-      }
-
-      if (secondsUntilMeeting <= 24 * 60 * 60) {
-        const result = await sendMessage(
-          item,
-          REMINDER_24H_MARKER,
-          'Convoy meeting starts within 24 hours',
-          'Please make sure everything is ready for the convoy. This countdown is based on the Meeting Time.',
-          messages,
-          bot.id
-        );
-        console.log(`- ${item.name} | 24h: ${result.action}`);
-      }
+      console.log(`- ${item.name} | pre-convoy source-thread reminder disabled; Convoy Driver reminders handle 24h/1h notifications`);
     } catch (error) {
-      console.warn(`- Reminder failed | ${item.name} | ${error.message}`);
+      console.warn(`- Follow-up failed | ${item.name} | ${error.message}`);
     }
   }
 
@@ -373,10 +347,10 @@ async function main() {
     console.log('Convoy report updated with post-convoy status changes.');
   }
 
-  console.log('Kings Convoy Reminders finished.');
+  console.log('Kings Convoy Follow-up finished.');
 }
 
 main().catch((error) => {
-  console.error('Kings Convoy Reminders failed:', error.message);
+  console.error('Kings Convoy Follow-up failed:', error.message);
   process.exit(1);
 });
