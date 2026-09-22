@@ -5,7 +5,7 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const CHANNEL_ID = process.env.DISCORD_CONVOY_OVERVIEW_CHANNEL_ID || '1550619865805754378';
 const OVERVIEW_PATH = 'output/convoy-overview.json';
-const MESSAGE_MARKER = '👑 **Kings Convoy Overview**';
+const MESSAGE_MARKER = '👑 **Kings Logistics | Convoy Overview**';
 
 if (!TOKEN) {
   console.error('Missing DISCORD_BOT_TOKEN.');
@@ -23,7 +23,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Overview Discord/1.2'
+    'User-Agent': 'Kings Logistics Convoy Overview Discord/2.0'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -56,7 +56,7 @@ function monthLabel(monthKey) {
   }).format(new Date(Date.UTC(year, month - 1, 1)));
 }
 
-function truncate(value, max = 70) {
+function truncate(value, max = 58) {
   const text = String(value || 'Unnamed Convoy').replace(/\s+/g, ' ').trim();
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 }
@@ -75,56 +75,83 @@ function makeEmptyMonth() {
   };
 }
 
+function statusIcon(status) {
+  const icons = {
+    Scheduled: '🟢',
+    Completed: '✅',
+    Cancelled: '❌',
+    'Needs Information': '⚠️',
+    'Ready for Approval': '⏳',
+    Submitted: '📥'
+  };
+  return icons[status] || '▫️';
+}
+
 function convoyTimeLabel(convoy) {
   if (convoy.eventUnix && convoy.eventTimeValid) {
-    return `${discordTimestamp(convoy.eventUnix, 'F')} · ${discordTimestamp(convoy.eventUnix, 'R')}`;
+    return `${discordTimestamp(convoy.eventUnix, 'f')} · ${discordTimestamp(convoy.eventUnix, 'R')}`;
   }
-  return '⚠️ Awaiting valid event time / timezone';
+  return '⚠️ Time unavailable';
+}
+
+function compactUpcoming(convoy) {
+  const server = convoy.server ? ` · 🎙️ ${truncate(convoy.server, 24)}` : '';
+  return `${statusIcon(convoy.status)} ${discordTimestamp(convoy.eventUnix, 'd')} — **${truncate(convoy.name, 42)}**${server}`;
 }
 
 function buildMessage(overview) {
-  const currentMonth = new Date(overview.generatedAt || Date.now()).toISOString().slice(0, 7);
+  const generatedAt = new Date(overview.generatedAt || Date.now());
+  const currentMonth = generatedAt.toISOString().slice(0, 7);
   const month = overview.months?.[currentMonth] || makeEmptyMonth();
-  const currentConvoys = [...(month.convoys || [])]
-    .sort((a, b) => Number(a.eventUnix || 0) - Number(b.eventUnix || 0));
+  const upcoming = [...(overview.upcomingConvoys || [])];
+  const next = upcoming[0] || null;
 
   const lines = [
     MESSAGE_MARKER,
+    '💙 Live overview of Kings Logistics convoy operations.',
     '',
-    `📅 **${monthLabel(currentMonth)}**`,
-    `🚛 Counted Convoys: **${month.countedConvoys}**`,
-    `🗓️ Scheduled: **${month.scheduled}**`,
-    `✅ Completed: **${month.completed}**`,
-    `❌ Cancelled: **${month.cancelled}**`,
-    `⚠️ Needs Information: **${month.needsInformation}**`,
-    `⏳ Ready for Approval: **${month.readyForApproval}**`,
+    `## 📊 ${monthLabel(currentMonth)}`,
+    `🚛 **${month.countedConvoys}** Convoys  ·  🟢 **${month.scheduled}** Scheduled  ·  ✅ **${month.completed}** Completed  ·  ❌ **${month.cancelled}** Cancelled`,
+    `⚠️ **${month.needsInformation}** Needs Info  ·  ⏳ **${month.readyForApproval}** Ready for Approval`,
     '',
-    '**Overall**',
-    `👑 Confirmed Kings-slot Convoys: **${overview.overall?.countedConvoys || 0}**`,
-    `📋 Real Convoy Submissions: **${overview.overall?.realConvoySubmissions || 0}**`,
-    `📅 Awaiting valid Event Date: **${overview.overall?.undatedCountedConvoys || 0}**`,
-    `🕒 Awaiting valid timezone: **${overview.overall?.invalidEventTimeConvoys || 0}**`,
-    '',
-    '**Convoys this month**'
+    '## ⏭️ Next Convoy'
   ];
 
-  if (currentConvoys.length === 0) {
-    lines.push('— No counted convoys with a valid Event Date this month.');
+  if (!next) {
+    lines.push('No upcoming scheduled convoy with a confirmed Kings slot.');
   } else {
-    const shown = currentConvoys.slice(0, 10);
-    for (const convoy of shown) {
-      lines.push(`• ${convoyTimeLabel(convoy)} — **${truncate(convoy.name)}** — \`${convoy.status || 'Unknown'}\``);
-    }
-    if (currentConvoys.length > shown.length) {
-      lines.push(`• …and ${currentConvoys.length - shown.length} more.`);
-    }
+    lines.push(
+      `**${truncate(next.name, 70)}**`,
+      `🕒 **Meeting:** ${convoyTimeLabel(next)}`,
+      next.server ? `🎙️ **Server:** ${next.server}` : null,
+      next.meetingPoint ? `📍 **Meeting Point:** ${next.meetingPoint}` : null,
+      next.route ? `🛣️ **Route:** ${next.route}` : null,
+      next.kingsSlot ? `🚚 **Kings Slot:** ${next.kingsSlot}` : null,
+      next.eventUrl ? `🔗 **TruckersMP Event:** ${next.eventUrl}` : null
+    );
   }
 
-  lines.push('', '🤖 Updated automatically every 15 minutes. Discord shows every event time in each member’s local timezone. TEST threads are excluded.');
+  lines.push('', '## 📅 Upcoming Convoys');
+  const shown = upcoming.slice(0, 5);
+  if (shown.length === 0) {
+    lines.push('— No upcoming convoys currently scheduled.');
+  } else {
+    for (const convoy of shown) lines.push(compactUpcoming(convoy));
+    if (upcoming.length > shown.length) lines.push(`…and **${upcoming.length - shown.length}** more.`);
+  }
 
-  let content = lines.join('\n');
+  lines.push(
+    '',
+    '## 📋 System Overview',
+    `👑 Confirmed Kings Slots: **${overview.overall?.countedConvoys || 0}**  ·  📥 Real Submissions: **${overview.overall?.realConvoySubmissions || 0}**`,
+    `🗓️ Upcoming Scheduled: **${overview.overall?.upcomingScheduledConvoys || 0}**  ·  ⚠️ Missing Date: **${overview.overall?.undatedCountedConvoys || 0}**  ·  🕒 Invalid Time: **${overview.overall?.invalidEventTimeConvoys || 0}**`,
+    '',
+    '🤖 Updated automatically every 15 minutes. Times are shown in each member’s local timezone. TEST threads are excluded.'
+  );
+
+  let content = lines.filter((value) => value !== null && value !== undefined).join('\n');
   if (content.length > 1990) {
-    content = `${content.slice(0, 1950)}\n…\n🤖 Updated automatically.`;
+    content = `${content.slice(0, 1940)}\n…\n🤖 Updated automatically every 15 minutes.`;
   }
   return content;
 }
@@ -142,7 +169,7 @@ async function main() {
   const messages = await discord(`/channels/${CHANNEL_ID}/messages?limit=100`);
   const existing = (messages || []).find((message) =>
     message.author?.id === bot.id &&
-    (message.content || '').includes(MESSAGE_MARKER)
+    ((message.content || '').includes(MESSAGE_MARKER) || (message.content || '').includes('👑 **Kings Convoy Overview**'))
   );
 
   if (!existing) {
