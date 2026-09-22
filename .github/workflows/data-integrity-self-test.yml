@@ -1,0 +1,38 @@
+name: Temporary Data Integrity Self-Test
+
+on:
+  push:
+    paths:
+      - '.github/workflows/data-integrity-self-test.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Run isolated integrity test
+        run: |
+          node --check data-integrity.js
+          node data-integrity.js
+          cp data/data-integrity.json data/data-integrity-self-test.json
+
+      - name: Persist test result
+        run: |
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/data-integrity-self-test.json
+          git commit -m "Record temporary data integrity self-test"
+          git pull --rebase origin main
+          git push origin main
