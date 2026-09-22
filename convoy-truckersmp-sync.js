@@ -22,7 +22,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics TruckersMP Convoy Sync/1.0'
+    'User-Agent': 'Kings Logistics TruckersMP Convoy Sync/1.1'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -75,15 +75,17 @@ function latestHumanEventId(messages, fallback = null) {
 }
 
 function cleanText(value) {
-  const text = String(value || '').trim();
+  const text = String(value ?? '').trim();
   return text || null;
 }
 
 function locationLabel(location) {
-  if (!location || typeof location !== 'object') return null;
+  if (!location) return null;
+  if (typeof location === 'string') return cleanText(location);
+  if (typeof location !== 'object') return null;
 
   const city = cleanText(location.city);
-  const place = cleanText(location.location);
+  const place = cleanText(location.location || location.name);
 
   if (city && place && city.toLowerCase() !== place.toLowerCase()) {
     return `${city} — ${place}`;
@@ -107,11 +109,46 @@ function utcTime(value) {
 }
 
 function internalEventType(event) {
-  const hostVtc = cleanText(event?.vtc?.name);
+  const hostVtc = cleanText(
+    typeof event?.vtc === 'string'
+      ? event.vtc
+      : event?.vtc?.name || event?.vtc?.company_name || event?.host_vtc?.name
+  );
+
   if (hostVtc && hostVtc.toLowerCase() === KINGS_VTC_NAME.toLowerCase()) {
     return 'Kings-hosted';
   }
+
   return 'External';
+}
+
+function unwrapEventPayload(payload) {
+  if (!payload || typeof payload !== 'object') return null;
+
+  let current = payload;
+  for (let depth = 0; depth < 5; depth += 1) {
+    if (!current || typeof current !== 'object') break;
+
+    if (current.id && (current.start_at || current.meetup_at || current.departure || current.arrive)) {
+      return current;
+    }
+
+    if (current.response && typeof current.response === 'object') {
+      current = current.response;
+      continue;
+    }
+    if (current.data && typeof current.data === 'object') {
+      current = current.data;
+      continue;
+    }
+    if (current.event && typeof current.event === 'object') {
+      current = current.event;
+      continue;
+    }
+    break;
+  }
+
+  return current && typeof current === 'object' ? current : null;
 }
 
 async function fetchTruckersMpEvent(eventId) {
@@ -121,7 +158,7 @@ async function fetchTruckersMpEvent(eventId) {
     const response = await fetch(`${TMP_API_BASE}/events/${encodeURIComponent(eventId)}`, {
       headers: {
         Accept: 'application/json',
-        'User-Agent': 'Kings Logistics TruckersMP Convoy Sync/1.0'
+        'User-Agent': 'Kings Logistics TruckersMP Convoy Sync/1.1'
       },
       signal: AbortSignal.timeout(12000)
     });
@@ -135,61 +172,75 @@ async function fetchTruckersMpEvent(eventId) {
       throw new Error(`TruckersMP API returned invalid JSON (${response.status}).`);
     }
 
-    if (!response.ok || payload?.error || !payload?.response) {
-      const descriptor = payload?.descriptor || payload?.response || `HTTP ${response.status}`;
+    if (!response.ok || payload?.error === true) {
+      const descriptor = payload?.descriptor || payload?.message || `HTTP ${response.status}`;
       throw new Error(`TruckersMP Event ${eventId} could not be loaded: ${String(descriptor).slice(0, 300)}`);
     }
 
-    return payload.response;
+    const event = unwrapEventPayload(payload);
+    if (!event || !cleanText(event.id || eventId)) {
+      throw new Error(`TruckersMP Event ${eventId} returned no usable event object.`);
+    }
+
+    return event;
   })();
 
   tmpEventCache.set(eventId, promise);
   return promise;
 }
 
-function fillIfMissing(parsed, key, value, autoFilled) {
-  if (parsed[key] !== null && parsed[key] !== undefined && String(parsed[key]).trim() !== '') {
-    return false;
-  }
+function setAuthoritative(parsed, key, value, applied) {
   if (value === null || value === undefined || String(value).trim() === '') return false;
-
   parsed[key] = value;
-  autoFilled.push(key);
+  applied.push(key);
   return true;
 }
 
-function applyTruckersMpDefaults(item, event) {
-  item.validation = item.validation || {};
-  item.validation.parsed = item.validation.parsed || {};
-  const parsed = item.validation.parsed;
-  const autoFilled = [];
-
+function buildAuthoritativeFields(event) {
   const departure = locationLabel(event.departure);
   const arrival = locationLabel(event.arrive);
-  const route = departure && arrival ? `${departure} → ${arrival}` : null;
+  const route = departure && arrival
+    ? `${departure} → ${arrival}`
+    : departure || arrival || null;
 
-  // Event Date can fall back to start_at, but Meeting Time never does.
-  // Reminders must always use the real meetup time, not the departure/start time.
+  // Event date is based on meetup time where available. Meeting Time must never
+  // silently fall back to start_at because reminders need the real meetup time.
   const eventDate = utcDate(event.meetup_at) || utcDate(event.start_at);
   const meetingTime = utcTime(event.meetup_at);
 
-  fillIfMissing(parsed, 'eventType', internalEventType(event), autoFilled);
+  return {
+    eventType: internalEventType(event),
+    eventDate,
+    route,
+    start: departure,
+    destination: arrival,
+    meetup: departure,
+    meetupTime: meetingTime
+  };
+}
 
-  if (!parsed.eventDate) {
-    if (eventDate) {
-      parsed.eventDate = eventDate;
-      parsed.eventDateRaw = parsed.eventDateRaw || eventDate;
-      autoFilled.push('eventDate');
-    }
+function applyTruckersMpAuthoritative(item, event) {
+  item.validation = item.validation || {};
+  item.validation.parsed = item.validation.parsed || {};
+  const parsed = item.validation.parsed;
+  const applied = [];
+  const authoritative = buildAuthoritativeFields(event);
+
+  setAuthoritative(parsed, 'eventType', authoritative.eventType, applied);
+
+  if (authoritative.eventDate) {
+    parsed.eventDate = authoritative.eventDate;
+    parsed.eventDateRaw = authoritative.eventDate;
+    applied.push('eventDate');
   }
 
-  fillIfMissing(parsed, 'route', route, autoFilled);
-  fillIfMissing(parsed, 'start', departure, autoFilled);
-  fillIfMissing(parsed, 'destination', arrival, autoFilled);
-  fillIfMissing(parsed, 'meetup', departure, autoFilled);
-  fillIfMissing(parsed, 'meetupTime', meetingTime, autoFilled);
+  setAuthoritative(parsed, 'route', authoritative.route, applied);
+  setAuthoritative(parsed, 'start', authoritative.start, applied);
+  setAuthoritative(parsed, 'destination', authoritative.destination, applied);
+  setAuthoritative(parsed, 'meetup', authoritative.meetup, applied);
+  setAuthoritative(parsed, 'meetupTime', authoritative.meetupTime, applied);
 
-  return autoFilled;
+  return { authoritative, applied };
 }
 
 async function main() {
@@ -212,6 +263,7 @@ async function main() {
       if (!eventId) {
         item.truckersmpSync = {
           ok: false,
+          authoritative: false,
           reason: 'missing-event-id',
           syncedAt: new Date().toISOString()
         };
@@ -229,28 +281,45 @@ async function main() {
       item.eventId = String(eventId);
       const event = await fetchTruckersMpEvent(eventId);
       item.eventId = String(event.id || eventId);
-      const autoFilled = applyTruckersMpDefaults(item, event);
+      const { authoritative, applied } = applyTruckersMpAuthoritative(item, event);
+
+      const eventType = typeof event.event_type === 'string'
+        ? cleanText(event.event_type)
+        : cleanText(event.event_type?.name || event.event_type?.key);
+      const server = typeof event.server === 'string'
+        ? cleanText(event.server)
+        : cleanText(event.server?.name);
+      const game = typeof event.game === 'string'
+        ? cleanText(event.game)
+        : cleanText(event.game?.name || event.game?.short_name);
+      const hostVtc = cleanText(
+        typeof event.vtc === 'string'
+          ? event.vtc
+          : event.vtc?.name || event.vtc?.company_name || event.host_vtc?.name
+      );
 
       item.truckersmp = {
         id: Number(event.id || eventId),
-        name: cleanText(event.name),
-        publicEventType: cleanText(event.event_type?.name),
-        game: cleanText(event.game),
-        server: cleanText(event.server?.name),
-        language: cleanText(event.language),
+        name: cleanText(event.name || event.title),
+        publicEventType: eventType,
+        game,
+        server,
+        language: cleanText(typeof event.language === 'string' ? event.language : event.language?.name),
         departure: event.departure || null,
         arrive: event.arrive || null,
         meetupAtUtc: cleanText(event.meetup_at),
         startAtUtc: cleanText(event.start_at),
-        hostVtc: cleanText(event.vtc?.name),
+        hostVtc,
         url: cleanText(event.url) || `https://truckersmp.com/events/${eventId}`,
-        updatedAtUtc: cleanText(event.updated_at)
+        updatedAtUtc: cleanText(event.updated_at),
+        authoritative
       };
 
       item.truckersmpSync = {
         ok: true,
+        authoritative: true,
         source: 'TruckersMP API v2',
-        autoFilled,
+        applied,
         meetingTimeSource: event.meetup_at ? 'meetup_at' : 'manual-required',
         syncedAt: new Date().toISOString()
       };
@@ -265,17 +334,19 @@ async function main() {
       synced += 1;
 
       console.log(
-        `- ${item.name} | TruckersMP ${item.eventId} synced | Auto-filled: ${autoFilled.join(', ') || 'none'} | Meeting Time: ${event.meetup_at ? 'API meetup_at' : 'manual required'}`
+        `- ${item.name} | TruckersMP ${item.eventId} authoritative sync | Applied: ${applied.join(', ') || 'none'} | Meeting Time: ${event.meetup_at ? 'API meetup_at' : 'manual required'}`
       );
     } catch (error) {
       failed += 1;
       item.truckersmpSync = {
         ok: false,
+        authoritative: false,
         reason: 'api-error',
         error: error.message,
         syncedAt: new Date().toISOString()
       };
-      console.warn(`- ${item.name} | TruckersMP sync failed: ${error.message}`);
+      // Never clear existing/manual values when the external API is unavailable.
+      console.warn(`- ${item.name} | TruckersMP sync failed; existing values kept: ${error.message}`);
     }
   }
 
