@@ -21,28 +21,28 @@ jobs:
 
       - name: Patch authoritative TruckersMP display logic
         run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const file = 'convoy-time-display.js';
-          let content = fs.readFileSync(file, 'utf8');
+          python3 <<'PY'
+          from pathlib import Path
 
-          const oldValidation = `  const eventIdField = latestHumanEventId(messages);
+          file = Path('convoy-time-display.js')
+          content = file.read_text(encoding='utf-8')
+
+          old_validation = '''  const eventIdField = latestHumanEventId(messages);
           if (eventIdField) {
             item.eventId = eventIdField.value;
             sources.eventId = eventIdField;
           }
 
-          const eventDate = parsed.eventDate || null;`;
+          const eventDate = parsed.eventDate || null;'''
 
-          const newValidation = `  const eventIdField = latestHumanEventId(messages);
+          new_validation = '''  const eventIdField = latestHumanEventId(messages);
           if (eventIdField) {
             item.eventId = eventIdField.value;
             sources.eventId = eventIdField;
           }
 
-          // When a valid TruckersMP event link exists and the API sync succeeded,
-          // TruckersMP is authoritative for public event data. Kings-specific fields
-          // such as Responsible Staff, Kings Slot and image proof remain Discord-owned.
+          // TruckersMP is authoritative for public event data whenever its API sync succeeded.
+          // Kings-specific fields such as Responsible Staff, Kings Slot and image proof stay Discord-owned.
           const tmpAuthoritative = item.truckersmpSync?.ok && item.truckersmpSync?.authoritative
             ? item.truckersmp?.authoritative
             : null;
@@ -68,58 +68,45 @@ jobs:
             };
           }
 
-          const eventDate = parsed.eventDate || null;`;
+          const eventDate = parsed.eventDate || null;'''
 
-          if (!content.includes(oldValidation)) {
-            throw new Error('Could not find convoy validation insertion point.');
-          }
-          content = content.replace(oldValidation, newValidation);
+          if old_validation not in content:
+              raise SystemExit('Could not find convoy validation insertion point.')
+          content = content.replace(old_validation, new_validation, 1)
 
-          const oldDisplay = `  const eventLine = item.eventId ? \`🔗 **TruckersMP Event ID:** \${item.eventId}\` : null;
-          const eventTimeLine = item.eventUnix
-            ? \`🕒 **Meeting Time:** \${discordTimestamp(item.eventUnix, 'F')} · \${discordTimestamp(item.eventUnix, 'R')}\`
-            : null;
+          display_start = content.find("  const eventLine = item.eventId ?")
+          display_end = content.find("\n}\n\nasync function syncStatusMessage", display_start)
+          if display_start < 0 or display_end < 0:
+              raise SystemExit('Could not find convoy status display block.')
 
-          return [
-            STATUS_MESSAGE_MARKER,
-            '',
-            \`**Status:** \\`\${item.status}\\`\`,
-            validationLine,
-            approvalLine,
-            eventLine,
-            eventTimeLine,
-            '',
-            '🤖 This is the single automated status message for this convoy. It is checked every 15 minutes and updated only when something changes.'
-          ].filter(Boolean).join('\\n');`;
-
-          const newDisplay = `  const tmpAuthoritative = Boolean(item.truckersmpSync?.ok && item.truckersmpSync?.authoritative);
-          const eventLine = item.eventId ? \`🔗 **TruckersMP Event ID:** \${item.eventId}\` : null;
+          new_display = '''  const tmpAuthoritative = Boolean(item.truckersmpSync?.ok && item.truckersmpSync?.authoritative);
+          const eventLine = item.eventId ? `🔗 **TruckersMP Event ID:** ${item.eventId}` : null;
           const sourceLine = tmpAuthoritative
-            ? \`🌐 **Event Source:** TruckersMP Event #\${item.eventId || item.truckersmp?.id} · authoritative\`
+            ? `🌐 **Event Source:** TruckersMP Event #${item.eventId || item.truckersmp?.id} · authoritative`
             : null;
           const typeLine = tmpAuthoritative && item.validation?.parsed?.eventType
-            ? \`📋 **Event Type:** \${item.validation.parsed.eventType}\`
+            ? `📋 **Event Type:** ${item.validation.parsed.eventType}`
             : null;
           const dateLine = tmpAuthoritative && item.validation?.parsed?.eventDate
-            ? \`📅 **Event Date:** \${item.validation.parsed.eventDate}\`
+            ? `📅 **Event Date:** ${item.validation.parsed.eventDate}`
             : null;
           const routeLine = tmpAuthoritative && item.validation?.parsed?.route
-            ? \`🛣️ **Route:** \${item.validation.parsed.route}\`
+            ? `🛣️ **Route:** ${item.validation.parsed.route}`
             : null;
           const meetingPointLine = tmpAuthoritative && item.validation?.parsed?.meetup
-            ? \`📍 **Meeting Point:** \${item.validation.parsed.meetup}\`
+            ? `📍 **Meeting Point:** ${item.validation.parsed.meetup}`
             : null;
           const gameServerLine = tmpAuthoritative && (item.truckersmp?.game || item.truckersmp?.server)
-            ? \`🎮 **Game / Server:** \${[item.truckersmp?.game, item.truckersmp?.server].filter(Boolean).join(' · ')}\`
+            ? `🎮 **Game / Server:** ${[item.truckersmp?.game, item.truckersmp?.server].filter(Boolean).join(' · ')}`
             : null;
           const eventTimeLine = item.eventUnix
-            ? \`🕒 **Meeting Time:** \${discordTimestamp(item.eventUnix, 'F')} · \${discordTimestamp(item.eventUnix, 'R')}\`
+            ? `🕒 **Meeting Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}`
             : null;
 
           return [
             STATUS_MESSAGE_MARKER,
             '',
-            \`**Status:** \\`\${item.status}\\`\`,
+            `**Status:** \`${item.status}\``,
             validationLine,
             approvalLine,
             eventLine,
@@ -132,15 +119,11 @@ jobs:
             eventTimeLine,
             '',
             '🤖 This is the single automated status message for this convoy. It is checked every 15 minutes and updated only when something changes.'
-          ].filter(Boolean).join('\\n');`;
+          ].filter(Boolean).join('\\n');'''
 
-          if (!content.includes(oldDisplay)) {
-            throw new Error('Could not find convoy status display block.');
-          }
-          content = content.replace(oldDisplay, newDisplay);
-
-          fs.writeFileSync(file, content, 'utf8');
-          NODE
+          content = content[:display_start] + new_display + content[display_end:]
+          file.write_text(content, encoding='utf-8')
+          PY
 
           node --check convoy-time-display.js
 
