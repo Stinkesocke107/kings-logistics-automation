@@ -8,10 +8,11 @@ const REPORT_PATH = 'output/convoy-check-results.json';
 const REMINDER_CHANNEL_ID = process.env.DISCORD_CONVOY_REMINDER_CHANNEL_ID || null;
 const REMINDER_CHANNEL_NAME = process.env.DISCORD_CONVOY_REMINDER_CHANNEL_NAME || 'convoy-reminders';
 const DRIVER_ROLE_ID = process.env.DISCORD_DRIVER_ROLE_ID || null;
-const DRIVER_ROLE_NAME = process.env.DISCORD_DRIVER_ROLE_NAME || 'Driver';
+const DRIVER_ROLE_NAME = process.env.DISCORD_DRIVER_ROLE_NAME || 'Convoy Driver';
 
 const REMINDER_24H_MARKER = '⏰ **Kings Driver Convoy Reminder — 24 Hours**';
-const REMINDER_2H_MARKER = '🚨 **Kings Driver Convoy Reminder — 2 Hours**';
+const REMINDER_1H_MARKER = '🚨 **Kings Driver Convoy Reminder — 1 Hour**';
+const LEGACY_REMINDER_2H_MARKER = '🚨 **Kings Driver Convoy Reminder — 2 Hours**';
 
 if (!TOKEN) {
   console.error('Missing DISCORD_BOT_TOKEN.');
@@ -29,7 +30,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Driver Convoy Reminders/1.0'
+    'User-Agent': 'Kings Logistics Driver Convoy Reminders/1.1'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -108,7 +109,7 @@ async function resolveDriverRole() {
   const exact = (roles || []).find((role) => String(role.name || '').trim().toLowerCase() === wanted);
   if (exact) return exact;
 
-  const aliases = ['driver', 'kings driver', 'kings logistics driver'];
+  const aliases = ['convoy driver', 'driver', 'kings driver', 'kings logistics driver'];
   const aliasMatch = (roles || []).find((role) => aliases.includes(String(role.name || '').trim().toLowerCase()));
   if (aliasMatch) return aliasMatch;
 
@@ -179,7 +180,7 @@ function buildReminder(item, marker, title, description, driverRoleId) {
     slot ? `🚚 **Kings Slot:** ${slot}` : null,
     eventUrl ? `🔗 **TruckersMP Event:** ${eventUrl}` : null,
     '',
-    'Please make sure you are ready and arrive before the meeting time. :kings_heart:'
+    'Please make sure you are ready and arrive before the meeting time. 💙'
   ].filter(Boolean).join('\n');
 }
 
@@ -213,7 +214,7 @@ async function main() {
   console.log(`Driver ping role: ${driverRole.name} (${driverRole.id})`);
 
   let sent24h = 0;
-  let sent2h = 0;
+  let sent1h = 0;
   let skipped = 0;
   let failed = 0;
 
@@ -240,18 +241,31 @@ async function main() {
     }
 
     try {
-      if (secondsUntilMeeting <= 2 * 60 * 60) {
+      if (secondsUntilMeeting <= 60 * 60) {
+        const legacy2h = await findExistingReminder(
+          reminderChannel.id,
+          item,
+          LEGACY_REMINDER_2H_MARKER,
+          bot.id
+        );
+
+        if (legacy2h) {
+          console.log(`- ${item.name} | 1h driver reminder skipped: legacy 2h reminder already sent`);
+          skipped += 1;
+          continue;
+        }
+
         const result = await sendReminder(
           reminderChannel.id,
           item,
-          REMINDER_2H_MARKER,
-          '🚨 Convoy Reminder — 2 Hours',
-          'The convoy Meeting Time is now within 2 hours. Please get ready and make sure you arrive on time.',
+          REMINDER_1H_MARKER,
+          '🚨 Convoy Reminder — 1 Hour',
+          'The convoy Meeting Time is now within 1 hour. Please get ready and make sure you arrive on time.',
           bot.id,
           driverRole.id
         );
-        console.log(`- ${item.name} | 2h driver reminder: ${result.action}`);
-        if (result.action === 'sent') sent2h += 1;
+        console.log(`- ${item.name} | 1h driver reminder: ${result.action}`);
+        if (result.action === 'sent') sent1h += 1;
         continue;
       }
 
@@ -273,7 +287,7 @@ async function main() {
   }
 
   console.log(
-    `Kings Driver Convoy Reminders finished. 24h sent: ${sent24h}. 2h sent: ${sent2h}. Skipped: ${skipped}. Failed: ${failed}.`
+    `Kings Driver Convoy Reminders finished. 24h sent: ${sent24h}. 1h sent: ${sent1h}. Skipped: ${skipped}. Failed: ${failed}.`
   );
 }
 
