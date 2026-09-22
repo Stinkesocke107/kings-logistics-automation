@@ -1,4 +1,4 @@
-# Repository security audit is part of every Kings System Monitoring run.
+# Repository security and Discord permission audits are part of every Kings System Monitoring run.
 name: Kings System Monitoring
 
 on:
@@ -11,6 +11,7 @@ on:
       - 'data-integrity.js'
       - 'system-hardening.js'
       - 'security-audit.js'
+      - 'discord-permission-audit.js'
       - '.github/workflows/system-monitoring.yml'
 
   schedule:
@@ -41,7 +42,7 @@ jobs:
 
       - name: Verify Technical Health Engines
         run: |
-          for file in system-monitoring.js system-alerts.js data-integrity.js system-hardening.js security-audit.js; do
+          for file in system-monitoring.js system-alerts.js data-integrity.js system-hardening.js security-audit.js discord-permission-audit.js; do
             if [ ! -f "$file" ]; then
               echo "ERROR: $file is missing."
               exit 1
@@ -49,7 +50,7 @@ jobs:
             node --check "$file"
           done
 
-          echo "Kings Monitoring, Data Integrity, Final Hardening, Repository Security Audit, and System Alerts engines present and syntactically valid."
+          echo "Kings Monitoring, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, and System Alerts engines present and syntactically valid."
 
       - name: Run Kings System Monitoring
         id: health
@@ -108,12 +109,34 @@ jobs:
           echo "critical=$CRITICAL" >> "$GITHUB_OUTPUT"
           echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
 
-          echo "Kings System Health: $STATUS"
+          echo "Kings System Health before Discord permission audit: $STATUS"
           echo "Critical Issues: $CRITICAL"
           echo "Warnings: $WARNINGS"
           echo "Deep Integrity: $INTEGRITY"
           echo "Final Hardening: $HARDENING"
           echo "Repository Security: $SECURITY"
+
+      - name: Audit Kings Systems Discord Permissions
+        id: discord_permissions
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+        run: |
+          node discord-permission-audit.js
+
+          STATUS=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.status || 'UNKNOWN'))")
+          CRITICAL=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.criticalIssues || 0))")
+          WARNINGS=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.warnings || 0))")
+          PERMISSIONS=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.discordPermissionHealthy || 0) + '/' + String(h.summary?.discordPermissionChecks || 0))")
+
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "critical=$CRITICAL" >> "$GITHUB_OUTPUT"
+          echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
+
+          echo "Kings Final System Health: $STATUS"
+          echo "Critical Issues: $CRITICAL"
+          echo "Warnings: $WARNINGS"
+          echo "Discord Permission Audit: $PERMISSIONS"
 
       - name: Process Kings System Alerts
         env:
@@ -138,7 +161,7 @@ jobs:
           git push origin main
 
       - name: Preserve unhealthy health report
-        if: steps.health.outputs.status != 'HEALTHY'
+        if: steps.discord_permissions.outputs.status != 'HEALTHY'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: kings-system-health-${{ github.run_number }}
@@ -147,6 +170,7 @@ jobs:
             data/data-integrity.json
             data/system-hardening.json
             data/security-audit.json
+            data/discord-permission-audit.json
           if-no-files-found: error
           retention-days: 14
           compression-level: 9
@@ -156,5 +180,5 @@ jobs:
         run: |
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Safety" >> "$GITHUB_STEP_SUMMARY"
-          echo "Kings System Monitoring, Data Integrity, Final Hardening, Repository Security Audit, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
-          echo "They never change Discord roles, permissions, members, Staff/Driver/HR status, bans, kicks, promotions, demotions, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
+          echo "Kings System Monitoring, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
+          echo "They never change Discord roles, permissions, members, Staff/Driver/HR status, bans, kicks, timeouts, promotions, demotions, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
