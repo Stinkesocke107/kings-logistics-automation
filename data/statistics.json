@@ -1,7 +1,7 @@
 {
   "version": 3,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-09-24T21:57:09.472Z",
+  "updatedAt": "2026-09-24T22:07:43.915Z",
   "messageId": "1550301949470048277",
   "allTime": {
     "peakOnline": 8,
@@ -991,11 +991,11 @@
       "peakOnline": 3,
       "peakETS2": 3,
       "peakATS": 0,
-      "activitySamples": 22,
-      "ets2PlayerSamples": 14,
+      "activitySamples": 23,
+      "ets2PlayerSamples": 15,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {
-        "ETS2 — Simulation 1": 12,
+        "ETS2 — Simulation 1": 13,
         "ETS2 — Drive Along 4th Year Anniversary": 2
       },
       "sampledHours": [
@@ -1020,7 +1020,8 @@
         "2026-09-24T18:00:00.000Z",
         "2026-09-24T19:00:00.000Z",
         "2026-09-24T20:00:00.000Z",
-        "2026-09-24T21:00:00.000Z"
+        "2026-09-24T21:00:00.000Z",
+        "2026-09-24T22:00:00.000Z"
       ]
     }
   ]
