@@ -1,23 +1,23 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-24T17:21:46.157Z",
+  "updatedAt": "2026-09-24T17:32:10.325Z",
   "members": 108,
   "discordMessageId": "1550299096278110219",
-  "online": 2,
-  "ets2Online": 2,
+  "online": 3,
+  "ets2Online": 3,
   "atsOnline": 0,
   "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 2,
+      "isEvent": false
+    },
     {
       "game": "ETS2",
       "name": "Drive Along 4th Year Anniversary",
       "online": 1,
       "isEvent": true
-    },
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
     }
   ]
 }
