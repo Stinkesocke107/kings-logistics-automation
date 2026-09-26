@@ -1,17 +1,10 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-26T01:31:33.895Z",
+  "updatedAt": "2026-09-26T01:42:46.161Z",
   "members": 107,
   "discordMessageId": "1550299096278110219",
-  "online": 1,
+  "online": 0,
   "ets2Online": 0,
-  "atsOnline": 1,
-  "activeServers": [
-    {
-      "game": "ATS",
-      "name": "[US] Simulation",
-      "online": 1,
-      "isEvent": false
-    }
-  ]
+  "atsOnline": 0,
+  "activeServers": []
 }
