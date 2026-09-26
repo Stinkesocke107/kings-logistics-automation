@@ -1,0 +1,37 @@
+name: Kings Convoy - Read-only Preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-convoy-preview
+  cancel-in-progress: false
+
+jobs:
+  inspect-forum:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Test read-only preview
+        run: node --test tests/convoy-preview.test.cjs
+      - name: Inspect configured convoy forum
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          CONVOY_REPORT_KEY: ${{ secrets.CONVOY_REPORT_KEY }}
+        run: node convoy-preview.js
+      - name: Preserve encrypted preview report
+        uses: actions/upload-artifact@v4
+        with:
+          name: convoy-preview-encrypted-${{ github.run_id }}
+          path: tmp/convoy-preview.enc.json
+          if-no-files-found: error
+          retention-days: 7
