@@ -1,13 +1,17 @@
 {
   "version": 2,
   "initializedAt": "2026-09-17T22:19:52.000Z",
-  "updatedAt": "2026-09-25T01:59:33.473Z",
-  "currentDrivers": 107,
+  "updatedAt": "2026-09-27T20:43:24.711Z",
+  "currentDrivers": 108,
   "members": [],
   "events": [
     {
       "type": "leave",
       "occurredAt": "2026-09-25T01:59:33.473Z"
+    },
+    {
+      "type": "join",
+      "occurredAt": "2026-09-27T20:43:24.710Z"
     }
   ]
 }
