@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "createdAt": "2026-09-28T10:22:21.694Z",
+  "updatedAt": "2026-09-28T10:22:22.581Z",
+  "publishedWeeks": [
+    {
+      "key": "2026-09-21",
+      "periodStart": "2026-09-21T00:00:00.000Z",
+      "periodEnd": "2026-09-28T00:00:00.000Z",
+      "publishedAt": "2026-09-28T10:22:22.581Z",
+      "completeCoverage": false,
+      "currentDrivers": 108,
+      "joined": 1,
+      "left": 1,
+      "netGrowth": 0,
+      "activeLoa": 0,
+      "scheduledLoa": 0,
+      "info": 0,
+      "attention": 0,
+      "hrReview": 0,
+      "restored": 0,
+      "openReviews": 0
+    }
+  ]
+}
