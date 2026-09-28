@@ -1,7 +1,7 @@
 {
   "version": 3,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-09-28T05:57:03.031Z",
+  "updatedAt": "2026-09-28T06:10:40.951Z",
   "messageId": "1550301949470048277",
   "allTime": {
     "peakOnline": 8,
@@ -1154,7 +1154,7 @@
       "peakOnline": 1,
       "peakETS2": 1,
       "peakATS": 0,
-      "activitySamples": 6,
+      "activitySamples": 7,
       "ets2PlayerSamples": 1,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {
@@ -1166,7 +1166,8 @@
         "2026-09-28T02:00:00.000Z",
         "2026-09-28T03:00:00.000Z",
         "2026-09-28T04:00:00.000Z",
-        "2026-09-28T05:00:00.000Z"
+        "2026-09-28T05:00:00.000Z",
+        "2026-09-28T06:00:00.000Z"
       ]
     }
   ]
