@@ -18,6 +18,8 @@ jobs:
   check-convoys:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      KINGS_API_HEALTH_NAMESPACE: 'convoy-system'
 
     steps:
       - name: Checkout repository
@@ -123,5 +125,4 @@ jobs:
           git add data/api-health
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "Update Kings API health state"
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
