@@ -11,7 +11,7 @@ on:
       - 'tracker.js'
       - 'statistics.js'
       - 'central-overview.js'
-      - 'lib/api-resilience.js'
+      - 'api-resilience.js'
       - 'scripts/git-safe-push.sh'
 
   schedule:
