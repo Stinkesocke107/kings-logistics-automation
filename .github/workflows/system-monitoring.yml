@@ -1,4 +1,4 @@
-# Repository security, Discord permission audits, and the live Discord monitor are part of every Kings System Monitoring run.
+# Repository security, Discord permission audits, API resilience, and the live Discord monitor are part of every Kings System Monitoring run.
 name: Kings System Monitoring
 
 on:
@@ -9,6 +9,8 @@ on:
       - 'system-monitoring.js'
       - 'system-alerts.js'
       - 'system-monitor-discord.js'
+      - 'api-resilience.js'
+      - 'kings-branding.js'
       - 'data-integrity.js'
       - 'system-hardening.js'
       - 'security-audit.js'
@@ -43,7 +45,7 @@ jobs:
 
       - name: Verify Technical Health Engines
         run: |
-          for file in system-monitoring.js system-alerts.js system-monitor-discord.js data-integrity.js system-hardening.js security-audit.js discord-permission-audit.js; do
+          for file in system-monitoring.js system-alerts.js system-monitor-discord.js api-resilience.js kings-branding.js data-integrity.js system-hardening.js security-audit.js discord-permission-audit.js; do
             if [ ! -f "$file" ]; then
               echo "ERROR: $file is missing."
               exit 1
@@ -51,7 +53,7 @@ jobs:
             node --check "$file"
           done
 
-          echo "Kings Monitoring, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, and System Alerts engines present and syntactically valid."
+          echo "Kings Monitoring, API Resilience, Branding, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, and System Alerts engines present and syntactically valid."
 
       - name: Run Kings System Monitoring
         id: health
@@ -105,6 +107,7 @@ jobs:
           INTEGRITY=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.deepIntegrityHealthy || 0) + '/' + String(h.summary?.deepIntegrityChecks || 0))")
           HARDENING=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.hardeningHealthy || 0) + '/' + String(h.summary?.hardeningChecks || 0))")
           SECURITY=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.securityHealthy || 0) + '/' + String(h.summary?.securityChecks || 0))")
+          API_HEALTH=$(node -e "const h=require('./data/system-health.json'); process.stdout.write(String(h.summary?.apiServicesHealthy || 0) + '/' + String(h.summary?.apiServicesChecked || 0) + ' healthy; ' + String(h.summary?.apiServicesDegraded || 0) + ' degraded; ' + String(h.summary?.apiServicesDown || 0) + ' down')")
 
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
           echo "critical=$CRITICAL" >> "$GITHUB_OUTPUT"
@@ -113,6 +116,7 @@ jobs:
           echo "Kings System Health before Discord permission audit: $STATUS"
           echo "Critical Issues: $CRITICAL"
           echo "Warnings: $WARNINGS"
+          echo "API Resilience: $API_HEALTH"
           echo "Deep Integrity: $INTEGRITY"
           echo "Final Hardening: $HARDENING"
           echo "Repository Security: $SECURITY"
@@ -179,7 +183,8 @@ jobs:
             data/system-hardening.json
             data/security-audit.json
             data/discord-permission-audit.json
-          if-no-files-found: error
+            data/api-health
+          if-no-files-found: ignore
           retention-days: 14
           compression-level: 9
 
@@ -188,5 +193,5 @@ jobs:
         run: |
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Safety" >> "$GITHUB_STEP_SUMMARY"
-          echo "Kings System Monitoring, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
+          echo "Kings System Monitoring, API Resilience, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
           echo "They never change Discord roles, permissions, members, Staff/Driver/HR status, bans, kicks, timeouts, promotions, demotions, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
