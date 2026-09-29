@@ -1,0 +1,57 @@
+name: One-time API Resilience Wave Two
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/one-time-api-resilience-wave2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Apply convoy API hardening
+        run: python3 tools/harden-api-wave2.py
+
+      - name: Validate hardened convoy files
+        run: |
+          node --check api-resilience.js
+          node --check convoy-truckersmp-sync.js
+          node --check kings-convoy-announcements.js
+          grep -q "truckersmp-convoy-event-sync" convoy-truckersmp-sync.js
+          grep -q "lastKnownGoodAt" convoy-truckersmp-sync.js
+          grep -q "truckersmp-kings-convoy-announcement" kings-convoy-announcements.js
+          grep -q "kings-convoy-route-image" kings-convoy-announcements.js
+
+      - name: Remove temporary migration files
+        if: always()
+        run: |
+          rm -f .github/workflows/one-time-api-resilience-wave2.yml
+          rm -f tools/harden-api-wave2.py
+
+      - name: Save convoy API hardening
+        if: always()
+        run: |
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Harden convoy TruckersMP API handling"
+          git pull --rebase origin main
+          git push origin main
