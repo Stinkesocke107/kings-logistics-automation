@@ -46,7 +46,7 @@ jobs:
           MANAGEMENT_WEEKLY_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
         run: node management-weekly-overview.js
 
-      - name: Save Management Weekly Overview Data
+      - name: Save Management Weekly Overview Data Safely
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') }}
         run: |
           if git diff --quiet -- data/management-weekly-overview-state.json && [ -z "$(git status --porcelain data/management-weekly-overview-state.json)" ]; then
@@ -59,6 +59,4 @@ jobs:
 
           git add data/management-weekly-overview-state.json
           git commit -m "Update Kings Management Weekly Overview state"
-
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
