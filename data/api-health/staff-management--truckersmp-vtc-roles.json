@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "namespace": "staff-management",
+  "service": "truckersmp-vtc-roles",
+  "healthKey": "staff-management--truckersmp-vtc-roles",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-29T21:45:25.654Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-29T21:45:25.654Z"
+}
