@@ -97,30 +97,27 @@
       },
       "firstAlertedAt": "2026-09-29T06:24:09.480Z"
     },
-    "workflow-overdue:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-09-29T11:20:50Z",
-        "ageMinutes": 157,
-        "maxAgeMinutes": 150
-      },
-      "firstAlertedAt": "2026-09-29T13:58:07.583Z"
-    }
-  },
-  "pending": {
     "workflow-overdue:management-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-09-29T13:58:07.583Z",
+      "severity": "warning",
       "system": "Management Overview",
-      "message": "Management Overview has not run within the expected time window."
+      "message": "Management Overview has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-09-29T14:00:25Z",
+        "ageMinutes": 316,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-09-29T19:16:39.487Z"
     },
     "integrity-staff-coverage": {
-      "count": 1,
-      "firstSeenAt": "2026-09-29T13:58:07.583Z",
+      "severity": "warning",
       "system": "Staff Management",
-      "message": "Tracked Staff records do not equal the current Staff count."
+      "message": "Tracked Staff records do not equal the current Staff count.",
+      "details": {
+        "currentStaff": 11,
+        "trackedStaff": 12
+      },
+      "firstAlertedAt": "2026-09-29T19:16:39.487Z"
     }
-  }
+  },
+  "pending": {}
 }
