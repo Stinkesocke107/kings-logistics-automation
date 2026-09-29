@@ -7,6 +7,7 @@ const DEFAULT_BASE_DELAY_MS = 750;
 const MAX_DELAY_MS = 15000;
 
 const HEALTH_DIR = path.join(__dirname, 'data', 'api-health');
+const HEALTH_NAMESPACE = String(process.env.KINGS_API_HEALTH_NAMESPACE || '').trim();
 const circuitState = new Map();
 
 function nowISO() {
@@ -60,14 +61,20 @@ function safeReadJson(file, fallback = null) {
   }
 }
 
-function safeLabel(label) {
-  const normalized = String(label || 'external-api')
+function normalizeLabel(value) {
+  const normalized = String(value || 'external-api')
     .toLowerCase()
     .replace(/[^a-z0-9._-]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 120);
 
   return normalized || 'external-api';
+}
+
+function safeLabel(label) {
+  const service = normalizeLabel(label);
+  if (!HEALTH_NAMESPACE) return service;
+  return `${normalizeLabel(HEALTH_NAMESPACE)}--${service}`.slice(0, 180);
 }
 
 function healthFile(label) {
@@ -83,7 +90,9 @@ function writeHealth(label, patch) {
   const previous = readHealth(label) || {};
   const value = {
     version: 1,
+    namespace: HEALTH_NAMESPACE || null,
     service: String(label || 'external-api'),
+    healthKey: safeLabel(label),
     ...previous,
     ...patch,
     updatedAt: nowISO()
@@ -94,19 +103,21 @@ function writeHealth(label, patch) {
 }
 
 function getCircuit(label) {
-  if (!circuitState.has(label)) {
+  const key = safeLabel(label);
+
+  if (!circuitState.has(key)) {
     const previous = readHealth(label);
     const openUntil = previous?.circuitOpenUntil
       ? new Date(previous.circuitOpenUntil).getTime()
       : 0;
 
-    circuitState.set(label, {
+    circuitState.set(key, {
       failures: Number(previous?.consecutiveFailures || 0),
       openUntil: Number.isFinite(openUntil) ? openUntil : 0
     });
   }
 
-  return circuitState.get(label);
+  return circuitState.get(key);
 }
 
 function recordSuccess(label) {
@@ -116,8 +127,6 @@ function recordSuccess(label) {
 
   const previous = readHealth(label);
 
-  // Once a service is persistently healthy, do not rewrite its file on every
-  // scheduled request. A write occurs on first initialization or recovery.
   if (
     previous?.status === 'healthy' &&
     Number(previous?.consecutiveFailures || 0) === 0 &&
@@ -289,6 +298,7 @@ async function resilientFetchJson(url, options = {}) {
 
 module.exports = {
   HEALTH_DIR,
+  HEALTH_NAMESPACE,
   healthFile,
   parseRetryAfter,
   retryDelay,
