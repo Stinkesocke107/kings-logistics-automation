@@ -36,6 +36,8 @@ jobs:
     name: Kings Recovery
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment:
+      name: ${{ inputs.recovery_mode == 'apply' && 'kings-production-recovery' || 'kings-recovery-preview' }}
 
     steps:
       - name: Checkout current repository
@@ -62,6 +64,7 @@ jobs:
           BACKUP_RUN_NUMBER: ${{ inputs.backup_run_number }}
           RECOVERY_MODE: ${{ inputs.recovery_mode }}
           CONFIRMATION: ${{ inputs.confirmation }}
+          RECOVERY_ENVIRONMENT_ARMED: ${{ vars.KINGS_RECOVERY_ENVIRONMENT_ARMED }}
         run: |
           if ! [[ "$BACKUP_RUN_NUMBER" =~ ^[0-9]+$ ]]; then
             echo "ERROR: Backup run number must be numeric."
@@ -84,7 +87,14 @@ jobs:
               exit 1
             fi
 
+            if [ "$RECOVERY_ENVIRONMENT_ARMED" != "ENABLED" ]; then
+              echo "ERROR: Protected Recovery Environment is not armed."
+              echo "Set KINGS_RECOVERY_ENVIRONMENT_ARMED=ENABLED only inside the protected kings-production-recovery environment."
+              exit 1
+            fi
+
             echo "REAL RECOVERY MODE CONFIRMED."
+            echo "Protected Recovery Environment is armed."
           else
             echo "PREVIEW mode selected."
           fi
