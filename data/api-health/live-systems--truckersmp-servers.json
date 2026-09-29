@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "namespace": "live-systems",
+  "service": "truckersmp-servers",
+  "healthKey": "live-systems--truckersmp-servers",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-29T22:15:52.245Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-29T22:15:52.245Z"
+}

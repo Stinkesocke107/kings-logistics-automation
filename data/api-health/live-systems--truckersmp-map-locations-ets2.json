@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "namespace": "live-systems",
+  "service": "truckersmp-map-locations-ets2",
+  "healthKey": "live-systems--truckersmp-map-locations-ets2",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-29T22:15:51.917Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-29T22:15:51.917Z"
+}
