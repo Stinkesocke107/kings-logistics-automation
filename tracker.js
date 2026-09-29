@@ -1,4 +1,5 @@
 require('./kings-branding').installDiscordBranding();
+const { resilientFetchJson } = require('./api-resilience');
 const fs = require("fs");
 const path = require("path");
 
@@ -121,30 +122,20 @@ function getStoredDiscordMessageId() {
 // ======================================================
 
 async function getMemberCount() {
-  const response =
-    await fetch(
-      MEMBERS_URL
-    );
-
-  if (!response.ok) {
-    throw new Error(
-      `Could not load Kings VTC members: HTTP ${response.status}`
-    );
-  }
-
-  const data =
-    await response.json();
-
-  if (
-    !data.response ||
-    !Array.isArray(
-      data.response.members
-    )
-  ) {
-    throw new Error(
-      "Invalid TruckersMP VTC members response."
-    );
-  }
+  const data = await resilientFetchJson(
+    MEMBERS_URL,
+    {
+      label: 'truckersmp-vtc-members-live-tracker',
+      retries: 3,
+      timeoutMs: 15000,
+      validateJson: (payload) =>
+        Boolean(
+          payload &&
+          payload.response &&
+          Array.isArray(payload.response.members)
+        )
+    }
+  );
 
   return data.response.members.length;
 }
@@ -154,80 +145,33 @@ async function getMemberCount() {
 // ======================================================
 
 async function getServers() {
-  const response =
-    await fetch(
-      SERVERS_URL
-    );
-
-  if (!response.ok) {
-    throw new Error(
-      `Could not load TruckersMP servers: HTTP ${response.status}`
-    );
-  }
-
-  const data =
-    await response.json();
-
-  if (
-    !Array.isArray(
-      data.response
-    )
-  ) {
-    throw new Error(
-      "Invalid TruckersMP server response"
-    );
-  }
+  const data = await resilientFetchJson(
+    SERVERS_URL,
+    {
+      label: 'truckersmp-servers',
+      retries: 3,
+      timeoutMs: 15000,
+      validateJson: (payload) =>
+        Boolean(payload && Array.isArray(payload.response))
+    }
+  );
 
   return data.response
     .filter(server => {
-      if (!server.online) {
-        return false;
-      }
-
-      const mapId =
-        Number(
-          server.mapid
-        );
-
-      return Number.isFinite(
-        mapId
-      );
+      if (!server.online) return false;
+      const mapId = Number(server.mapid);
+      return Number.isFinite(mapId);
     })
     .map(server => ({
-      name:
-        server.name,
-
-      mapId:
-        Number(
-          server.mapid
-        ),
-
-      game:
-        server.game,
-
-      isEvent:
-        server.event === true ||
-        server.specialEvent === true
+      name: server.name,
+      mapId: Number(server.mapid),
+      game: server.game,
+      isEvent: server.event === true || server.specialEvent === true
     }))
     .sort((a, b) => {
-      const gameCompare =
-        String(
-          a.game
-        ).localeCompare(
-          String(
-            b.game
-          )
-        );
-
-      if (
-        gameCompare !== 0
-      ) {
-        return gameCompare;
-      }
-
-      return a.name.localeCompare(
-        b.name
-      );
+      const gameCompare = String(a.game).localeCompare(String(b.game));
+      if (gameCompare !== 0) return gameCompare;
+      return a.name.localeCompare(b.name);
     });
 }
 
@@ -244,28 +188,16 @@ async function getPlayers(server) {
     `&y2=-1000000` +
     `&server=${server.mapId}`;
 
-  const response =
-    await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(
-      `${server.game} - ${server.name}: HTTP ${response.status}`
-    );
-  }
-
-  const data =
-    await response.json();
-
-  if (
-    !data.Success ||
-    !Array.isArray(
-      data.Data
-    )
-  ) {
-    throw new Error(
-      `${server.game} - ${server.name}: Invalid live response`
-    );
-  }
+  const data = await resilientFetchJson(
+    url,
+    {
+      label: 'truckersmp-map-live',
+      retries: 2,
+      timeoutMs: 12000,
+      validateJson: (payload) =>
+        Boolean(payload && payload.Success && Array.isArray(payload.Data))
+    }
+  );
 
   return data.Data;
 }
@@ -321,17 +253,15 @@ async function getCities(
   url,
   game
 ) {
-  const response =
-    await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(
-      `Could not load ${game} locations: HTTP ${response.status}`
-    );
-  }
-
-  const data =
-    await response.json();
+  const data = await resilientFetchJson(
+    url,
+    {
+      label: `truckersmp-map-locations-${String(game).toLowerCase()}`,
+      retries: 3,
+      timeoutMs: 15000,
+      validateJson: (payload) => Array.isArray(payload)
+    }
+  );
 
   return collectCities(
     data
@@ -428,6 +358,9 @@ async function getKingsOnline() {
 
   const kingsOnline = [];
 
+  let successfulServerChecks =
+    0;
+
   for (
     const server
     of servers
@@ -441,6 +374,8 @@ async function getKingsOnline() {
         await getPlayers(
           server
         );
+
+      successfulServerChecks++;
 
       const kingsPlayers =
         players
@@ -514,6 +449,15 @@ async function getKingsOnline() {
         `Skipped server: ${error.message}`
       );
     }
+  }
+
+  if (
+    servers.length > 0 &&
+    successfulServerChecks === 0
+  ) {
+    throw new Error(
+      "All live TruckersMP server checks failed. Keeping the last known good tracker state instead of publishing a false zero-online snapshot."
+    );
   }
 
   /*

@@ -1,4 +1,5 @@
 require('./kings-branding').installDiscordBranding();
+const { resilientFetchJson } = require('./api-resilience');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -113,18 +114,20 @@ function decryptState(container) {
 }
 
 async function fetchJson(url, label) {
-  const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-      'User-Agent': 'Kings Logistics Staff Management/1.1'
+  return resilientFetchJson(url, {
+    label: String(label || 'truckersmp-api')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-'),
+    retries: 3,
+    timeoutMs: 15000,
+    fetchOptions: {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'Kings Logistics Staff Management/1.2'
+      }
     },
-    signal: AbortSignal.timeout(15000)
+    validateJson: (payload) => Boolean(payload && payload.error !== true)
   });
-
-  if (!response.ok) throw new Error(`${label}: HTTP ${response.status}`);
-  const data = await response.json();
-  if (data?.error) throw new Error(`${label}: API returned an error.`);
-  return data;
 }
 
 async function discord(pathname, options = {}) {

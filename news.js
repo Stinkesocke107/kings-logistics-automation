@@ -1,4 +1,5 @@
 require('./kings-branding').installDiscordBranding();
+const { resilientFetchJson } = require('./api-resilience');
 const fs = require("fs");
 const path = require("path");
 
@@ -70,100 +71,49 @@ function truncate(text, maxLength) {
 
 async function getNews() {
   console.log(
-    "Loading Kings Logistics TruckersMP News API..."
+    "Loading Kings Logistics TruckersMP News API with resilience..."
   );
 
-  const response =
-    await fetch(
-      NEWS_API_URL,
-      {
+  const data = await resilientFetchJson(
+    NEWS_API_URL,
+    {
+      label: 'truckersmp-vtc-news',
+      retries: 3,
+      timeoutMs: 15000,
+      fetchOptions: {
         headers: {
-          "Accept":
-            "application/json",
-
-          "User-Agent":
-            "Kings Logistics GitHub Automation"
+          "Accept": "application/json",
+          "User-Agent": "Kings Logistics GitHub Automation"
         }
-      }
-    );
-
-
-  if (!response.ok) {
-    throw new Error(
-      `TruckersMP News API request failed: HTTP ${response.status}`
-    );
-  }
-
-
-  const data =
-    await response.json();
-
-
-  if (
-    data.error === true ||
-    !data.response ||
-    !Array.isArray(
-      data.response.news
-    )
-  ) {
-    throw new Error(
-      "Invalid TruckersMP VTC News API response."
-    );
-  }
-
+      },
+      validateJson: (payload) =>
+        Boolean(
+          payload &&
+          payload.error !== true &&
+          payload.response &&
+          Array.isArray(payload.response.news)
+        )
+    }
+  );
 
   const news =
     data.response.news
       .map(item => ({
-        id:
-          Number(item.id),
-
-        title:
-          item.title || "Kings Logistics News",
-
-        description:
-          cleanText(
-            item.content_summary || ""
-          ),
-
-        author:
-          item.author || "Kings Logistics",
-
-        publishedAt:
-          item.published_at || null,
-
-        updatedAt:
-          item.updated_at || null,
-
-        url:
-          `https://truckersmp.com/vtc/${KINGS_VTC_ID}/news/${item.id}`
+        id: Number(item.id),
+        title: item.title || "Kings Logistics News",
+        description: cleanText(item.content_summary || ""),
+        author: item.author || "Kings Logistics",
+        publishedAt: item.published_at || null,
+        updatedAt: item.updated_at || null,
+        url: `https://truckersmp.com/vtc/${KINGS_VTC_ID}/news/${item.id}`
       }))
-      .filter(
-        item =>
-          Number.isFinite(item.id)
-      );
+      .filter(item => Number.isFinite(item.id));
 
-
-  /*
-    Sort newest -> oldest.
-  */
-
-  news.sort(
-    (a, b) => {
-      const dateA =
-        new Date(
-          a.publishedAt || 0
-        ).getTime();
-
-      const dateB =
-        new Date(
-          b.publishedAt || 0
-        ).getTime();
-
-      return dateB - dateA;
-    }
-  );
-
+  news.sort((a, b) => {
+    const dateA = new Date(a.publishedAt || 0).getTime();
+    const dateB = new Date(b.publishedAt || 0).getTime();
+    return dateB - dateA;
+  });
 
   if (news.length === 0) {
     throw new Error(
@@ -171,15 +121,12 @@ async function getNews() {
     );
   }
 
-
   console.log(
     `Loaded ${news.length} Kings Logistics news post(s).`
   );
-
   console.log(
     `Latest news: ${news[0].title}`
   );
-
 
   return news;
 }
