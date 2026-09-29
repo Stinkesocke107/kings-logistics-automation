@@ -1,4 +1,5 @@
 require('./kings-branding').installDiscordBranding();
+const { resilientFetchJson } = require('./api-resilience');
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
@@ -25,6 +26,9 @@ const STATE_FILE =
 
 const HISTORY_FILE =
   path.join(__dirname, "data", "driver-history.json");
+
+const CHANGE_GUARD_FILE =
+  path.join(__dirname, "data", "driver-change-guard.json");
 
 function nowISO() {
   return new Date().toISOString();
@@ -279,40 +283,30 @@ function saveState(members) {
 
 async function getCurrentMembers() {
   console.log(
-    "Loading Kings Logistics VTC members..."
+    "Loading Kings Logistics VTC members with API resilience..."
   );
 
-  const response =
-    await fetch(
-      MEMBERS_URL,
-      {
+  const data = await resilientFetchJson(
+    MEMBERS_URL,
+    {
+      label: 'truckersmp-vtc-members',
+      retries: 3,
+      timeoutMs: 15000,
+      fetchOptions: {
         headers: {
           Accept: "application/json",
           "User-Agent":
             "Kings Logistics Driver Automation"
         }
-      }
-    );
-
-  if (!response.ok) {
-    throw new Error(
-      `TruckersMP members request failed: HTTP ${response.status}`
-    );
-  }
-
-  const data =
-    await response.json();
-
-  if (
-    !data.response ||
-    !Array.isArray(
-      data.response.members
-    )
-  ) {
-    throw new Error(
-      "Invalid TruckersMP VTC members response."
-    );
-  }
+      },
+      validateJson: (payload) =>
+        Boolean(
+          payload &&
+          payload.response &&
+          Array.isArray(payload.response.members)
+        )
+    }
+  );
 
   const members =
     data.response.members
@@ -343,6 +337,12 @@ async function getCurrentMembers() {
         (a, b) =>
           a.tmpId - b.tmpId
       );
+
+  if (members.length === 0) {
+    throw new Error(
+      "Safety stop: TruckersMP returned an empty Kings member list."
+    );
+  }
 
   console.log(
     `Current Kings members: ${members.length}`
@@ -450,6 +450,87 @@ function appendAnonymousEvents(
   }
 }
 
+
+function memberSnapshotFingerprint(currentMembers) {
+  const stable = currentMembers
+    .map((member) => Number(member.tmpId))
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b)
+    .join(',');
+
+  return crypto
+    .createHash('sha256')
+    .update(`kings-driver-change-guard-v1\0${stable}`)
+    .digest('hex');
+}
+
+function clearChangeGuard() {
+  if (!fs.existsSync(CHANGE_GUARD_FILE)) return;
+
+  try {
+    fs.unlinkSync(CHANGE_GUARD_FILE);
+  } catch (error) {
+    console.warn(`Could not clear Driver change guard: ${error.message}`);
+  }
+}
+
+function destructiveChangeConfirmed(oldMembers, currentMembers, changes) {
+  const oldCount = oldMembers.length;
+  const currentCount = currentMembers.length;
+  const leftCount = changes.left.length;
+  const significant =
+    leftCount >= 3 ||
+    (oldCount >= 10 && leftCount / oldCount >= 0.10);
+
+  if (!significant) {
+    clearChangeGuard();
+    return true;
+  }
+
+  const fingerprint = memberSnapshotFingerprint(currentMembers);
+  const previous = readJson(CHANGE_GUARD_FILE, null);
+  const now = Date.now();
+  const previousObserved = previous?.observedAt
+    ? new Date(previous.observedAt).getTime()
+    : 0;
+  const stillFresh =
+    Number.isFinite(previousObserved) &&
+    previousObserved > 0 &&
+    now - previousObserved <= 2 * 60 * 60 * 1000;
+
+  if (
+    previous?.fingerprint === fingerprint &&
+    previous?.oldCount === oldCount &&
+    previous?.currentCount === currentCount &&
+    stillFresh
+  ) {
+    console.warn(
+      `Driver destructive-change guard confirmed the same ${leftCount}-leave snapshot on a second poll.`
+    );
+    clearChangeGuard();
+    return true;
+  }
+
+  writeJson(
+    CHANGE_GUARD_FILE,
+    {
+      version: 1,
+      observedAt: nowISO(),
+      oldCount,
+      currentCount,
+      leftCount,
+      fingerprint
+    }
+  );
+
+  console.warn(
+    `Safety hold: ${leftCount} Driver leave(s) detected (${oldCount} -> ${currentCount}). ` +
+    'No leave messages or permanent state changes will be made until the same snapshot is confirmed by the next poll.'
+  );
+
+  return false;
+}
+
 // ======================================================
 // MEMBER COMPARISON
 // ======================================================
@@ -540,7 +621,16 @@ function validateMemberChange(
     throw new Error(
       `Safety stop: Member count suddenly changed from ` +
       `${oldMembers.length} to ${currentMembers.length}. ` +
-      "No Driver Updates were processed."
+      "This is treated as an untrusted API snapshot. No Driver Updates were processed."
+    );
+  }
+
+  if (
+    oldMembers.length >= 10 &&
+    currentMembers.length === 0
+  ) {
+    throw new Error(
+      "Safety stop: TruckersMP returned zero Kings members. No Driver Updates were processed."
     );
   }
 }
@@ -710,6 +800,16 @@ async function checkDriverUpdates() {
     changes.joined.length > 0 ||
     changes.left.length > 0 ||
     changes.renamed.length > 0;
+
+  if (
+    !destructiveChangeConfirmed(
+      oldMembers,
+      currentMembers,
+      changes
+    )
+  ) {
+    return;
+  }
 
   if (!hasChanges) {
     if (
