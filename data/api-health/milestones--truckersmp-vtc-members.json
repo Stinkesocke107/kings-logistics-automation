@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "namespace": "milestones",
+  "service": "TruckersMP VTC members",
+  "healthKey": "milestones--truckersmp-vtc-members",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-29T22:47:08.297Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-29T22:47:08.297Z"
+}
