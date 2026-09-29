@@ -566,9 +566,9 @@ function buildJoinMessage(member) {
   return (
     `<:kings_arrow:1466617263699267694> ` +
     `Please welcome **[${name}](${profile})** to the ` +
-    `<:KingsLogisticsLogo:1394506239920177243> ` +
+    `<:Kings_Logistics_Logo:1545254529648431124> ` +
     `**Kings Family** ` +
-    `<:KingsLogisticsLogo:1394506239920177243> ` +
+    `<:Kings_Logistics_Logo:1545254529648431124> ` +
     `as a **Driver**! ` +
     `<:Cute_kings:1465424971143708702> ` +
     `We’re happy to have you with us — enjoy your time in the Kings Family! ` +
@@ -590,9 +590,9 @@ function buildLeaveMessage(member) {
   return (
     `<:kings_arrow:1466617263699267694> ` +
     `Please note that **[${name}](${profile})** is no longer part of ` +
-    `<:KingsLogisticsLogo:1394506239920177243> ` +
+    `<:Kings_Logistics_Logo:1545254529648431124> ` +
     `**Kings Logistics** ` +
-    `<:KingsLogisticsLogo:1394506239920177243>.`
+    `<:Kings_Logistics_Logo:1545254529648431124>.`
   );
 }
 
