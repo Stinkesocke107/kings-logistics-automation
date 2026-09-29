@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { resilientFetchJson } = require('./api-resilience');
 
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'data');
@@ -111,18 +112,20 @@ function workflowPath(file) {
 
 async function githubJson(pathname) {
   if (!GITHUB_TOKEN) throw new Error('GITHUB_TOKEN is missing.');
-  const response = await fetch(`${GITHUB_API}${pathname}`, {
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${GITHUB_TOKEN}`,
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'Kings Logistics System Monitoring/1.0'
-    },
-    signal: AbortSignal.timeout(15000)
+
+  return resilientFetchJson(`${GITHUB_API}${pathname}`, {
+    label: 'GitHub Actions API',
+    retries: 3,
+    timeoutMs: 15000,
+    fetchOptions: {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'Kings Logistics System Monitoring/1.0'
+      }
+    }
   });
-  const text = await response.text();
-  if (!response.ok) throw new Error(`GitHub API ${response.status}: ${text.slice(0, 300)}`);
-  return text ? JSON.parse(text) : null;
 }
 
 function checkCriticalFiles(issues) {
@@ -232,7 +235,6 @@ function checkFreshData(issues) {
   }
   return results;
 }
-
 
 function checkApiHealth(issues) {
   const directory = path.join(DATA_DIR, 'api-health');
@@ -564,9 +566,11 @@ async function main() {
   const json = checkJsonFiles(issues);
   const encryptedStates = checkEncryptedStates(issues);
   const freshData = checkFreshData(issues);
-  const apiHealth = checkApiHealth(issues);
   const integrity = checkCrossSystemIntegrity(issues);
   const workflows = await checkWorkflows(issues);
+  // Run API-health inspection after workflow API calls so the monitoring engine's
+  // own GitHub API health state is included in this same health report.
+  const apiHealth = checkApiHealth(issues);
 
   issues.sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || a.system.localeCompare(b.system));
 
