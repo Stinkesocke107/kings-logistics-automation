@@ -51,14 +51,18 @@
         "maxAgeMinutes": 45
       },
       "firstAlertedAt": "2026-09-29T22:43:59.414Z"
+    },
+    "workflow-overdue:milestones.yml": {
+      "severity": "warning",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-09-29T21:16:18Z",
+        "ageMinutes": 88,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-09-29T22:45:01.875Z"
     }
   },
-  "pending": {
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-09-29T22:43:59.414Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
