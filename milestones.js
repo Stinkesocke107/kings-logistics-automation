@@ -1,4 +1,5 @@
 require('./kings-branding').installDiscordBranding();
+const { resilientFetchJson } = require('./api-resilience');
 const fs = require('fs');
 const path = require('path');
 
@@ -39,25 +40,20 @@ function writeJson(file, data) {
 }
 
 async function getMemberCount() {
-  const response = await fetch(MEMBERS_URL, {
-    headers: {
-      Accept: 'application/json',
-      'User-Agent': 'Kings Logistics Milestone Detector/2.0'
+  const data = await resilientFetchJson(MEMBERS_URL, {
+    label: 'TruckersMP VTC members',
+    retries: 3,
+    timeoutMs: 15000,
+    fetchOptions: {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'Kings Logistics Milestone Detector/2.0'
+      }
     },
-    signal: AbortSignal.timeout(15000)
+    validateJson: (payload) => Array.isArray(payload?.response?.members)
   });
 
-  if (!response.ok) {
-    throw new Error(`TruckersMP members request failed: HTTP ${response.status}`);
-  }
-
-  const data = await response.json();
-  const members = data?.response?.members;
-  if (!Array.isArray(members)) {
-    throw new Error('Invalid TruckersMP VTC members response.');
-  }
-
-  const count = members.length;
+  const count = data.response.members.length;
   if (!Number.isFinite(count) || count < 1) {
     throw new Error(`Invalid Kings member count: ${count}`);
   }
@@ -224,7 +220,8 @@ async function checkMilestones() {
   for (const milestone of newMilestones) {
     console.log(`New milestone reached: ${milestone}`);
 
-    // Public output remains a one-way webhook by design.
+    // Public output remains a one-way webhook by design. Do not retry this POST
+    // automatically because an ambiguous network timeout could otherwise duplicate it.
     await sendMilestone(milestone);
     addMilestoneToChangelog(milestone);
 
