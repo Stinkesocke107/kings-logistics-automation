@@ -45,7 +45,7 @@ jobs:
           DRIVER_WEEKLY_SUMMARY_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
         run: node driver-weekly-summary.js
 
-      - name: Save Driver Weekly Summary State
+      - name: Save Driver Weekly Summary State Safely
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') }}
         run: |
           if git diff --quiet -- data/driver-weekly-summary-state.json && [ -z "$(git status --porcelain data/driver-weekly-summary-state.json)" ]; then
@@ -58,6 +58,4 @@ jobs:
 
           git add data/driver-weekly-summary-state.json
           git commit -m "Update Kings Driver Weekly Summary state"
-
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
