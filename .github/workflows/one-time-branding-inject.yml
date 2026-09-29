@@ -1,0 +1,108 @@
+name: One-time Kings Branding Injection
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-branding-inject.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-branding-injection
+  cancel-in-progress: false
+
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Inject branding into Discord-facing scripts
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          marker = "require('./kings-branding').installDiscordBranding();\n"
+          changed = []
+
+          for path in Path('.').glob('*.js'):
+              if path.name == 'kings-branding.js':
+                  continue
+
+              source = path.read_text(encoding='utf-8')
+              uses_discord = re.search(
+                  r'discord\.com|discordapp\.com|DISCORD_[A-Z0-9_]*WEBHOOK|WEBHOOK_URL|/channels/',
+                  source,
+                  re.I
+              )
+
+              if not uses_discord:
+                  continue
+
+              if "require('./kings-branding').installDiscordBranding()" in source or 'require("./kings-branding").installDiscordBranding()' in source:
+                  continue
+
+              path.write_text(marker + source, encoding='utf-8')
+              changed.append(path.name)
+
+          print(f'Injected branding into {len(changed)} script(s).')
+          for name in changed:
+              print(f'- {name}')
+          PY
+
+      - name: Validate all JavaScript files
+        shell: bash
+        run: |
+          set -e
+          count=0
+          for file in *.js; do
+            node --check "$file"
+            count=$((count + 1))
+          done
+          echo "Syntax check passed for $count JavaScript files."
+
+      - name: Validate branding transformation
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const brand = require('./kings-branding');
+          const output = brand.brandDiscordPayload({
+            content: '👑 Kings Logistics test 💙 :kings_heart: :Kings_Logistics_Logo:'
+          });
+          console.log(output.content);
+          if (!output.content.includes('<:Kings_Logistics_Logo:1545254529648431124>')) process.exit(1);
+          if (!output.content.includes('<:kings_heart:1500949819110326352>')) process.exit(1);
+          if (output.content.includes(':kings_heart: :') || output.content.includes('💙') || output.content.includes('👑')) process.exit(1);
+          console.log('Branding transformation test passed.');
+          NODE
+
+      - name: Remove one-time workflow
+        if: always()
+        run: rm -f .github/workflows/one-time-branding-inject.yml
+
+      - name: Commit branding injection
+        if: always()
+        shell: bash
+        run: |
+          set -e
+          git config user.name 'Kings Logistics Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'Nothing to commit.'
+            exit 0
+          fi
+          git commit -m 'Apply Kings custom emoji branding to Discord automations'
+          git pull --rebase origin main
+          git push origin main
