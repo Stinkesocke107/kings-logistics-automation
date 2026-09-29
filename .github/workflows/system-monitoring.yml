@@ -15,6 +15,7 @@ on:
       - 'system-hardening.js'
       - 'security-audit.js'
       - 'discord-permission-audit.js'
+      - 'scripts/git-safe-push.sh'
       - '.github/workflows/system-monitoring.yml'
 
   schedule:
@@ -33,6 +34,8 @@ jobs:
     name: Monitor Kings Systems
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      KINGS_API_HEALTH_NAMESPACE: 'system-monitoring'
 
     steps:
       - name: Checkout repository
@@ -53,7 +56,12 @@ jobs:
             node --check "$file"
           done
 
-          echo "Kings Monitoring, API Resilience, Branding, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, and System Alerts engines present and syntactically valid."
+          if [ ! -f scripts/git-safe-push.sh ]; then
+            echo "ERROR: scripts/git-safe-push.sh is missing."
+            exit 1
+          fi
+
+          echo "Kings Monitoring, API Resilience, Branding, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, System Alerts, and Safe Push are present and syntactically valid."
 
       - name: Run Kings System Monitoring
         id: health
@@ -157,20 +165,25 @@ jobs:
           SYSTEM_ALERTS_CHANNEL_NAME: 'system-alerts'
         run: node system-alerts.js
 
-      - name: Save System Alert State
+      - name: Save Monitoring State
+        if: always()
         run: |
-          if git diff --quiet -- data/system-alerts-state.json && [ -z "$(git status --porcelain data/system-alerts-state.json)" ]; then
-            echo "No System Alert state changes to save."
+          if [ -z "$(git status --porcelain -- data/system-alerts-state.json data/api-health)" ]; then
+            echo "No Monitoring state changes to save."
             exit 0
           fi
 
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
+          git add -A -- data/system-alerts-state.json data/api-health
 
-          git add data/system-alerts-state.json
-          git commit -m "Update Kings System Alert state"
-          git pull --rebase origin main
-          git push origin main
+          if git diff --cached --quiet; then
+            echo "No Monitoring state changes staged."
+            exit 0
+          fi
+
+          git commit -m "Update Kings monitoring state"
+          bash scripts/git-safe-push.sh main
 
       - name: Preserve unhealthy health report
         if: steps.discord_permissions.outputs.status != 'HEALTHY'
