@@ -10,6 +10,7 @@ const REMINDER_CHANNEL_ID = process.env.DISCORD_CONVOY_REMINDER_CHANNEL_ID || nu
 const REMINDER_CHANNEL_NAME = process.env.DISCORD_CONVOY_REMINDER_CHANNEL_NAME || 'convoy-reminders';
 const DRIVER_ROLE_ID = process.env.DISCORD_DRIVER_ROLE_ID || null;
 const DRIVER_ROLE_NAME = process.env.DISCORD_DRIVER_ROLE_NAME || 'Convoy Driver';
+const DRY_RUN = ['1', 'true', 'yes'].includes(String(process.env.CONVOY_DRY_RUN || '').trim().toLowerCase());
 
 const REMINDER_24H_MARKER = '⏰ **Kings Driver Convoy Reminder — 24 Hours**';
 const REMINDER_1H_MARKER = '🚨 **Kings Driver Convoy Reminder — 1 Hour**';
@@ -30,7 +31,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Driver Convoy Reminders/1.3'
+    'User-Agent': 'Kings Logistics Driver Convoy Reminders/1.4'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -38,7 +39,8 @@ async function discord(path, options = {}) {
   const response = await fetch(`${API}${path}`, {
     method,
     headers,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined
+    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    signal: AbortSignal.timeout(15000)
   });
 
   const text = await response.text();
@@ -191,6 +193,17 @@ async function sendReminder(channelId, item, marker, title, description, botId, 
   if (existing) return { action: 'already-sent', messageId: existing.id };
 
   const content = buildReminder(item, marker, title, description, driverRoleId);
+
+  if (DRY_RUN) {
+    if (!content.includes(`<@&${driverRoleId}>`)) {
+      throw new Error('Dry-run safety check failed: Convoy Driver role mention is missing.');
+    }
+    if (/@everyone|@here/i.test(content)) {
+      throw new Error('Dry-run safety check failed: internal reminder contains a forbidden broad mention.');
+    }
+    return { action: 'dry-run', messageId: null };
+  }
+
   const sent = await discord(`/channels/${channelId}/messages`, {
     method: 'POST',
     body: {
@@ -214,9 +227,12 @@ async function main() {
 
   console.log(`Driver reminder channel: ${reminderChannel.name} (${reminderChannel.id})`);
   console.log(`Driver ping role: ${driverRole.name} (${driverRole.id})`);
+  console.log(`Convoy Driver reminder dry-run: ${DRY_RUN}`);
 
   let sent24h = 0;
   let sent1h = 0;
+  let dryRun24h = 0;
+  let dryRun1h = 0;
   let skipped = 0;
   let failed = 0;
 
@@ -255,6 +271,7 @@ async function main() {
         );
         console.log(`- ${item.name} | 1h driver reminder: ${result.action}`);
         if (result.action === 'sent') sent1h += 1;
+        if (result.action === 'dry-run') dryRun1h += 1;
         continue;
       }
 
@@ -269,6 +286,7 @@ async function main() {
       );
       console.log(`- ${item.name} | 24h driver reminder: ${result.action}`);
       if (result.action === 'sent') sent24h += 1;
+      if (result.action === 'dry-run') dryRun24h += 1;
     } catch (error) {
       failed += 1;
       console.warn(`- Driver reminder failed | ${item.name} | ${error.message}`);
@@ -276,7 +294,7 @@ async function main() {
   }
 
   console.log(
-    `Kings Driver Convoy Reminders finished. 24h sent: ${sent24h}. 1h sent: ${sent1h}. Skipped: ${skipped}. Failed: ${failed}.`
+    `Kings Driver Convoy Reminders finished. 24h sent: ${sent24h}. 1h sent: ${sent1h}. Dry-run 24h: ${dryRun24h}. Dry-run 1h: ${dryRun1h}. Skipped: ${skipped}. Failed: ${failed}.`
   );
 }
 
