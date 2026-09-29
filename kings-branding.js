@@ -1,6 +1,6 @@
 // Kings Logistics central Discord branding.
-// Keep all Kings automation messages consistent and ensure our custom Discord
-// emojis render as emojis instead of literal :emoji_name: text.
+// Custom Kings Discord emojis belong only in normal message content.
+// Discord embeds must remain untouched and use their own normal Unicode/text styling.
 
 const KINGS_LOGISTICS_LOGO = '<:Kings_Logistics_Logo:1545254529648431124>';
 const KINGS_HEART = '<:kings_heart:1500949819110326352>';
@@ -35,74 +35,35 @@ function containsKingsBrand(value) {
   );
 }
 
-function transformValue(value, key = '') {
-  if (typeof value === 'string') {
-    // Discord embed footer/author text does not consistently render custom
-    // emoji markup, so keep those text-only areas untouched rather than risk
-    // showing raw <:name:id> text.
-    if (key === 'footerText' || key === 'authorName') return value;
-    return replaceBrandText(value);
-  }
+function brandMessageContent(content) {
+  if (typeof content !== 'string') return content;
 
-  if (Array.isArray(value)) {
-    return value.map((item) => transformValue(item));
-  }
+  let output = replaceBrandText(content);
 
-  if (!value || typeof value !== 'object') return value;
-
-  const output = {};
-
-  for (const [childKey, item] of Object.entries(value)) {
-    if (childKey === 'footer' && item && typeof item === 'object') {
-      output[childKey] = {
-        ...item,
-        text: transformValue(item.text, 'footerText')
-      };
-      continue;
+  if (containsKingsBrand(output)) {
+    if (!output.includes(KINGS_LOGISTICS_LOGO) && output.length < 1930) {
+      output = `${KINGS_LOGISTICS_LOGO} ${output}`;
     }
 
-    if (childKey === 'author' && item && typeof item === 'object') {
-      output[childKey] = {
-        ...item,
-        name: transformValue(item.name, 'authorName')
-      };
-      continue;
+    if (!output.includes(KINGS_HEART) && output.length < 1930) {
+      output = `${output} ${KINGS_HEART}`;
     }
-
-    output[childKey] = transformValue(item, childKey);
   }
 
   return output;
 }
 
 function brandDiscordPayload(payload) {
-  const output = transformValue(payload);
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return payload;
 
-  if (!output || typeof output !== 'object') return output;
+  // IMPORTANT: Only normal Discord message content receives Kings custom emojis.
+  // Embeds are intentionally copied unchanged. This prevents raw/custom emoji
+  // markup from appearing inside embed titles, descriptions, fields, authors,
+  // footers, or embed-only system posts such as Kings Systems status embeds.
+  const output = { ...payload };
 
-  if (typeof output.content === 'string' && containsKingsBrand(output.content)) {
-    let content = output.content;
-
-    if (!content.includes(KINGS_LOGISTICS_LOGO) && content.length < 1930) {
-      content = `${KINGS_LOGISTICS_LOGO} ${content}`;
-    }
-
-    if (!content.includes(KINGS_HEART) && content.length < 1930) {
-      content = `${content} ${KINGS_HEART}`;
-    }
-
-    output.content = content;
-  }
-
-  // Embed-only Kings posts should still visibly carry our real custom logo and
-  // heart. Put them in normal message content where Discord reliably renders
-  // custom emojis, rather than in embed footer/author text.
-  if (
-    (output.content === undefined || output.content === null || output.content === '') &&
-    Array.isArray(output.embeds) &&
-    output.embeds.some((embed) => containsKingsBrand(JSON.stringify(embed)))
-  ) {
-    output.content = `${KINGS_LOGISTICS_LOGO} ${KINGS_HEART}`;
+  if (typeof output.content === 'string') {
+    output.content = brandMessageContent(output.content);
   }
 
   return output;
@@ -137,6 +98,8 @@ function transformBody(body) {
         )
       );
     } catch {
+      // A raw non-JSON Discord body is message-like text, so branding it is
+      // still safe. Normal Discord webhook/bot payloads are JSON/FormData.
       return replaceBrandText(body);
     }
   }
@@ -158,10 +121,8 @@ function transformBody(body) {
           )
         );
       } catch {
-        body.set(
-          'payload_json',
-          replaceBrandText(payloadJson)
-        );
+        // Do not recursively rewrite arbitrary malformed multipart data.
+        // Leave it unchanged rather than risk modifying embed-like content.
       }
     }
   }
@@ -203,6 +164,7 @@ module.exports = {
   KINGS_LOGISTICS_LOGO,
   KINGS_HEART,
   replaceBrandText,
+  brandMessageContent,
   brandDiscordPayload,
   installDiscordBranding
 };
