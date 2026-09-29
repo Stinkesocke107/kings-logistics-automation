@@ -7,6 +7,7 @@ on:
     paths:
       - 'hr-leadership.js'
       - 'hr-probation.js'
+      - 'scripts/git-safe-push.sh'
       - '.github/workflows/hr-leadership.yml'
 
   schedule:
@@ -33,6 +34,12 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Verify HR Engines
+        run: |
+          node --check hr-probation.js
+          node --check hr-leadership.js
+          test -f scripts/git-safe-push.sh
+
       - name: Sync HR Probation Reviews
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
@@ -49,7 +56,8 @@ jobs:
           HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
         run: node hr-leadership.js
 
-      - name: Save HR Probation Data
+      - name: Save HR Probation Data Safely
+        if: always()
         run: |
           if git diff --quiet -- data/hr-probation.json && [ -z "$(git status --porcelain data/hr-probation.json)" ]; then
             echo "No HR Probation data changes to save."
@@ -61,6 +69,4 @@ jobs:
 
           git add data/hr-probation.json
           git commit -m "Update Kings HR Probation state"
-
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
