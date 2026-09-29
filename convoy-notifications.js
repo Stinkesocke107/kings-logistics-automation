@@ -1,3 +1,4 @@
+require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;

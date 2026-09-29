@@ -1,3 +1,4 @@
+require('./kings-branding').installDiscordBranding();
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const SOURCE_FORUM_ID = process.env.DISCORD_KINGS_CONVOY_SOURCE_FORUM_ID || '1506133821693755502';

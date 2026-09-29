@@ -1,3 +1,4 @@
+require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const { discordTimestamp } = require('./convoy-time-utils');
 
