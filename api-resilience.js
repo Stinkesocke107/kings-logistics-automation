@@ -6,7 +6,7 @@ const DEFAULT_TIMEOUT_MS = 15000;
 const DEFAULT_BASE_DELAY_MS = 750;
 const MAX_DELAY_MS = 15000;
 
-const HEALTH_FILE = path.join(__dirname, 'data', 'api-health.json');
+const HEALTH_DIR = path.join(__dirname, 'data', 'api-health');
 const circuitState = new Map();
 
 function nowISO() {
@@ -51,7 +51,7 @@ function isRetryableStatus(status) {
   return status === 408 || status === 425 || status === 429 || status >= 500;
 }
 
-function safeReadJson(file, fallback = {}) {
+function safeReadJson(file, fallback = null) {
   try {
     if (!fs.existsSync(file)) return fallback;
     return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -60,35 +60,49 @@ function safeReadJson(file, fallback = {}) {
   }
 }
 
-function getHealthState() {
-  return safeReadJson(HEALTH_FILE, {
-    version: 1,
-    updatedAt: null,
-    services: {}
-  });
+function safeLabel(label) {
+  const normalized = String(label || 'external-api')
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 120);
+
+  return normalized || 'external-api';
+}
+
+function healthFile(label) {
+  return path.join(HEALTH_DIR, `${safeLabel(label)}.json`);
+}
+
+function readHealth(label) {
+  return safeReadJson(healthFile(label), null);
 }
 
 function writeHealth(label, patch) {
-  const current = getHealthState();
-
-  current.version = 1;
-  current.updatedAt = nowISO();
-  current.services = current.services || {};
-  current.services[label] = {
-    ...(current.services[label] || {}),
+  const file = healthFile(label);
+  const previous = readHealth(label) || {};
+  const value = {
+    version: 1,
+    service: String(label || 'external-api'),
+    ...previous,
     ...patch,
     updatedAt: nowISO()
   };
 
-  fs.mkdirSync(path.dirname(HEALTH_FILE), { recursive: true });
-  fs.writeFileSync(HEALTH_FILE, `${JSON.stringify(current, null, 2)}\n`, 'utf8');
+  fs.mkdirSync(HEALTH_DIR, { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
 function getCircuit(label) {
   if (!circuitState.has(label)) {
+    const previous = readHealth(label);
+    const openUntil = previous?.circuitOpenUntil
+      ? new Date(previous.circuitOpenUntil).getTime()
+      : 0;
+
     circuitState.set(label, {
-      failures: 0,
-      openUntil: 0
+      failures: Number(previous?.consecutiveFailures || 0),
+      openUntil: Number.isFinite(openUntil) ? openUntil : 0
     });
   }
 
@@ -100,10 +114,10 @@ function recordSuccess(label) {
   circuit.failures = 0;
   circuit.openUntil = 0;
 
-  const previous = getHealthState().services?.[label];
+  const previous = readHealth(label);
 
-  // Do not rewrite api-health.json on every successful scheduled request.
-  // Persist the first healthy state and every recovery from degraded/down.
+  // Once a service is persistently healthy, do not rewrite its file on every
+  // scheduled request. A write occurs on first initialization or recovery.
   if (
     previous?.status === 'healthy' &&
     Number(previous?.consecutiveFailures || 0) === 0 &&
@@ -116,6 +130,7 @@ function recordSuccess(label) {
     status: 'healthy',
     consecutiveFailures: 0,
     lastSuccessAt: nowISO(),
+    recoveredAt: previous && previous.status !== 'healthy' ? nowISO() : null,
     lastError: null,
     circuitOpenUntil: null
   });
@@ -123,7 +138,10 @@ function recordSuccess(label) {
 
 function recordFailure(label, error, threshold = 5, cooldownMs = 60000) {
   const circuit = getCircuit(label);
-  circuit.failures += 1;
+  const previous = readHealth(label);
+  const persistedFailures = Number(previous?.consecutiveFailures || 0);
+
+  circuit.failures = Math.max(circuit.failures + 1, persistedFailures + 1);
 
   if (circuit.failures >= threshold) {
     circuit.openUntil = Date.now() + cooldownMs;
@@ -270,6 +288,8 @@ async function resilientFetchJson(url, options = {}) {
 }
 
 module.exports = {
+  HEALTH_DIR,
+  healthFile,
   parseRetryAfter,
   retryDelay,
   isRetryableStatus,
