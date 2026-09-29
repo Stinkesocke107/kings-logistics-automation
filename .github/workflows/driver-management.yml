@@ -7,6 +7,7 @@ on:
       - 'driver-management.js'
       - 'driver-loa.js'
       - 'driver-status-alerts.js'
+      - 'scripts/git-safe-push.sh'
       - '.github/workflows/driver-management.yml'
   schedule:
     - cron: "17 * * * *"
@@ -76,6 +77,4 @@ jobs:
           git add data/driver-loa.json
 
           git commit -m "Update Kings Driver Management"
-
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
