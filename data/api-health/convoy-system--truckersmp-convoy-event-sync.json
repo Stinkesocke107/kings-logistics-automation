@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "namespace": "convoy-system",
+  "service": "truckersmp-convoy-event-sync",
+  "healthKey": "convoy-system--truckersmp-convoy-event-sync",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-29T21:46:17.611Z",
+  "recoveredAt": "2026-09-29T21:46:17.611Z",
+  "lastError": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-29T21:46:17.612Z",
+  "lastFailureAt": "2026-09-29T21:46:16.516Z"
+}

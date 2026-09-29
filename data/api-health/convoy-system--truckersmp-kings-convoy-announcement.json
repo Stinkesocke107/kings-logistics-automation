@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "namespace": "convoy-system",
+  "service": "truckersmp-kings-convoy-announcement",
+  "healthKey": "convoy-system--truckersmp-kings-convoy-announcement",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-29T21:46:35.227Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-29T21:46:35.227Z"
+}
