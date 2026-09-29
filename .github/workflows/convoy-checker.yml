@@ -16,6 +16,7 @@ on:
     paths:
       - 'convoy-*.js'
       - 'kings-convoy-announcements.js'
+      - 'convoy-e2e-dry-run.js'
       - 'api-resilience.js'
       - '.github/workflows/convoy-checker.yml'
 
@@ -62,6 +63,13 @@ jobs:
           echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
           echo "Convoy dry-run mode: $DRY_RUN"
 
+      - name: Verify convoy safety engines
+        run: |
+          node --check convoy-checker.js
+          node --check convoy-driver-reminders.js
+          node --check kings-convoy-announcements.js
+          node --check convoy-e2e-dry-run.js
+
       - name: Run convoy checker
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -101,23 +109,28 @@ jobs:
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-reminders.js
 
-      - name: Send internal Convoy Driver reminders
-        if: steps.mode.outputs.dry_run != 'true'
+      - name: Check internal Convoy Driver reminders
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_REMINDER_CHANNEL_NAME: 'convoy-reminders'
           DISCORD_DRIVER_ROLE_ID: '1476774746480709675'
+          CONVOY_DRY_RUN: ${{ steps.mode.outputs.dry_run }}
         run: node convoy-driver-reminders.js
 
-      - name: Send Kings-only convoy announcements
-        if: steps.mode.outputs.dry_run != 'true'
+      - name: Check Kings-only convoy announcements
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_KINGS_CONVOY_SOURCE_FORUM_ID: '1506133821693755502'
           DISCORD_KINGS_CONVOY_ANNOUNCEMENT_CHANNEL_ID: '1351613882791366838'
-        run: node kings-convoy-announcements.js
+          CONVOY_DRY_RUN: ${{ steps.mode.outputs.dry_run }}
+        run: |
+          if [ "$CONVOY_DRY_RUN" = "true" ]; then
+            node convoy-e2e-dry-run.js kings-convoy-announcements.js
+          else
+            node kings-convoy-announcements.js
+          fi
 
       - name: Archive finished convoy threads
         if: steps.mode.outputs.dry_run != 'true'
@@ -144,8 +157,11 @@ jobs:
       - name: Dry-run safety summary
         if: steps.mode.outputs.dry_run == 'true'
         run: |
-          echo "Convoy run completed in read-only dry-run mode."
-          echo "Discord write/sync/reminder/archive steps were blocked."
+          echo "Convoy E2E completed in read-only dry-run mode."
+          echo "Convoy checker writes were disabled."
+          echo "Driver reminders were validated without posting."
+          echo "Public 2h announcement writes were blocked at the fetch layer."
+          echo "Other mutating convoy steps were skipped."
 
       - name: Upload convoy reports
         if: always()
