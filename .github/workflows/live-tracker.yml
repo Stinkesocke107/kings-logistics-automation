@@ -3,6 +3,17 @@ name: Kings Live Systems
 on:
   workflow_dispatch:
 
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/live-tracker.yml'
+      - 'tracker.js'
+      - 'statistics.js'
+      - 'central-overview.js'
+      - 'lib/api-resilience.js'
+      - 'scripts/git-safe-push.sh'
+
   schedule:
     # Every 5 minutes, shifted away from :00 / :05 / :10...
     - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
