@@ -30,7 +30,69 @@
         "maxAgeMinutes": 45
       },
       "firstAlertedAt": "2026-09-29T04:47:11.716Z"
+    },
+    "workflow-overdue:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-09-29T04:51:47Z",
+        "ageMinutes": 54,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-09-29T05:46:27.814Z"
+    },
+    "workflow-overdue:driver-updates.yml": {
+      "severity": "critical",
+      "system": "Driver Updates",
+      "message": "Driver Updates has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-09-29T04:58:46Z",
+        "ageMinutes": 47,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-09-29T05:46:27.814Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-09-29T05:01:06Z",
+        "ageMinutes": 45,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-09-29T05:46:27.814Z"
+    },
+    "stale-data:data/live-tracker-snapshot.json": {
+      "severity": "critical",
+      "system": "Live Tracker data",
+      "message": "Live Tracker data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-09-29T05:01:26.780Z",
+        "ageMinutes": 44,
+        "maxAgeMinutes": 25
+      },
+      "firstAlertedAt": "2026-09-29T05:46:27.814Z"
+    },
+    "stale-data:data/statistics.json": {
+      "severity": "critical",
+      "system": "Statistics data",
+      "message": "Statistics data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-09-29T05:01:27.200Z",
+        "ageMinutes": 44,
+        "maxAgeMinutes": 35
+      },
+      "firstAlertedAt": "2026-09-29T05:46:27.814Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-09-29T05:46:27.814Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    }
+  }
 }
