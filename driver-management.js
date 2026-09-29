@@ -2,6 +2,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { resilientFetchJson } = require('./api-resilience');
 
 const KINGS_VTC_ID = 64284;
 const RETENTION_DAYS = 730;
@@ -97,17 +98,19 @@ function decryptState(container) {
   return JSON.parse(plaintext.toString('utf8'));
 }
 
-async function fetchJson(url, label) {
-  const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-      'User-Agent': 'Kings Logistics Driver Management/2.0'
+async function fetchJson(url, label, validateJson = null) {
+  return resilientFetchJson(url, {
+    label,
+    retries: 3,
+    timeoutMs: 15000,
+    fetchOptions: {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'Kings Logistics Driver Management/2.0'
+      }
     },
-    signal: AbortSignal.timeout(15000)
+    validateJson
   });
-
-  if (!response.ok) throw new Error(`${label}: HTTP ${response.status}`);
-  return response.json();
 }
 
 async function discord(pathname, options = {}) {
@@ -155,9 +158,12 @@ async function discord(pathname, options = {}) {
 }
 
 async function getCurrentMembers() {
-  const data = await fetchJson(MEMBERS_URL, 'TruckersMP VTC members');
-  const members = data?.response?.members;
-  if (!Array.isArray(members)) throw new Error('Invalid TruckersMP VTC members response.');
+  const data = await fetchJson(
+    MEMBERS_URL,
+    'TruckersMP VTC members',
+    (payload) => Array.isArray(payload?.response?.members)
+  );
+  const members = data.response.members;
 
   return members
     .map((member) => ({
@@ -170,10 +176,13 @@ async function getCurrentMembers() {
 }
 
 async function getOnlineKingsDrivers() {
-  const data = await fetchJson(SERVERS_URL, 'TruckersMP servers');
-  const servers = Array.isArray(data?.response)
-    ? data.response.filter((server) => server.online && Number.isFinite(Number(server.mapid)))
-    : [];
+  const data = await fetchJson(
+    SERVERS_URL,
+    'TruckersMP servers',
+    (payload) => Array.isArray(payload?.response)
+  );
+  const servers = data.response
+    .filter((server) => server.online && Number.isFinite(Number(server.mapid)));
 
   const online = new Map();
 
@@ -183,22 +192,23 @@ async function getOnlineKingsDrivers() {
       'https://tracker.ets2map.com/v3/area' +
       `?x1=-1000000&y1=1000000&x2=1000000&y2=-1000000&server=${mapId}`;
 
-    try {
-      const players = await fetchJson(url, `${server.game} ${server.name}`);
-      if (!players?.Success || !Array.isArray(players.Data)) continue;
+    // Activity state is fail-closed: if any active server cannot be inspected,
+    // abort this run instead of treating drivers on that server as offline.
+    const players = await fetchJson(
+      url,
+      'ETS2Map area',
+      (payload) => payload?.Success === true && Array.isArray(payload?.Data)
+    );
 
-      for (const player of players.Data) {
-        if (Number(player.VtcId) !== KINGS_VTC_ID) continue;
-        const tmpId = Number(player.MpId);
-        if (!Number.isFinite(tmpId)) continue;
+    for (const player of players.Data) {
+      if (Number(player.VtcId) !== KINGS_VTC_ID) continue;
+      const tmpId = Number(player.MpId);
+      if (!Number.isFinite(tmpId)) continue;
 
-        online.set(tmpId, {
-          game: String(server.game || ''),
-          server: String(server.name || '')
-        });
-      }
-    } catch (error) {
-      console.warn(`Online lookup skipped for ${server.name}: ${error.message}`);
+      online.set(tmpId, {
+        game: String(server.game || ''),
+        server: String(server.name || '')
+      });
     }
   }
 
