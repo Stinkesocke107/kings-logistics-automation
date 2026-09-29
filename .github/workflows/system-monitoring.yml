@@ -11,6 +11,7 @@ on:
       - 'system-monitor-discord.js'
       - 'api-resilience.js'
       - 'kings-branding.js'
+      - 'branding-self-test.js'
       - 'data-integrity.js'
       - 'system-hardening.js'
       - 'security-audit.js'
@@ -48,7 +49,7 @@ jobs:
 
       - name: Verify Technical Health Engines
         run: |
-          for file in system-monitoring.js system-alerts.js system-monitor-discord.js api-resilience.js kings-branding.js data-integrity.js system-hardening.js security-audit.js discord-permission-audit.js; do
+          for file in system-monitoring.js system-alerts.js system-monitor-discord.js api-resilience.js kings-branding.js branding-self-test.js data-integrity.js system-hardening.js security-audit.js discord-permission-audit.js; do
             if [ ! -f "$file" ]; then
               echo "ERROR: $file is missing."
               exit 1
@@ -56,12 +57,14 @@ jobs:
             node --check "$file"
           done
 
+          node branding-self-test.js
+
           if [ ! -f scripts/git-safe-push.sh ]; then
             echo "ERROR: scripts/git-safe-push.sh is missing."
             exit 1
           fi
 
-          echo "Kings Monitoring, API Resilience, Branding, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, System Alerts, and Safe Push are present and syntactically valid."
+          echo "Kings Monitoring, API Resilience, message-only Branding, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, System Alerts, and Safe Push are present and syntactically valid."
 
       - name: Run Kings System Monitoring
         id: health
