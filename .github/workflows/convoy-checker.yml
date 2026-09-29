@@ -2,12 +2,23 @@ name: Kings Convoy Checker
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "Manual convoy run mode"
+        required: true
+        default: "dry-run"
+        type: choice
+        options:
+          - dry-run
+          - live
+
   push:
     paths:
       - 'convoy-*.js'
       - 'kings-convoy-announcements.js'
       - 'api-resilience.js'
       - '.github/workflows/convoy-checker.yml'
+
   schedule:
     - cron: '*/15 * * * *'
 
@@ -34,21 +45,40 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Run convoy checker and sync Discord status + forum tag
+      - name: Determine convoy run mode
+        id: mode
+        shell: bash
+        env:
+          REQUESTED_MODE: ${{ inputs.mode }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+            DRY_RUN="false"
+          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$REQUESTED_MODE" = "live" ]; then
+            DRY_RUN="false"
+          else
+            DRY_RUN="true"
+          fi
+
+          echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
+          echo "Convoy dry-run mode: $DRY_RUN"
+
+      - name: Run convoy checker
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
-          DISCORD_WRITE_MODE: 'true'
+          DISCORD_WRITE_MODE: ${{ steps.mode.outputs.dry_run == 'true' && 'false' || 'true' }}
         run: node convoy-checker.js
 
       - name: Auto-fill convoy data from TruckersMP Event ID
+        if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           KINGS_VTC_NAME: 'Kings Logistics'
         run: node convoy-truckersmp-sync.js
 
       - name: Convert convoy event times to Discord timestamps
+        if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -56,6 +86,7 @@ jobs:
         run: node convoy-time-display.js
 
       - name: Send one-time convoy notifications
+        if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -63,6 +94,7 @@ jobs:
         run: node convoy-notifications.js
 
       - name: Handle post-convoy follow-up
+        if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -70,6 +102,7 @@ jobs:
         run: node convoy-reminders.js
 
       - name: Send internal Convoy Driver reminders
+        if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -78,6 +111,7 @@ jobs:
         run: node convoy-driver-reminders.js
 
       - name: Send Kings-only convoy announcements
+        if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -86,6 +120,7 @@ jobs:
         run: node kings-convoy-announcements.js
 
       - name: Archive finished convoy threads
+        if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -99,11 +134,18 @@ jobs:
         run: node convoy-overview.js
 
       - name: Sync convoy overview to Discord
+        if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_OVERVIEW_CHANNEL_ID: '1550619865805754378'
         run: node convoy-overview-discord.js
+
+      - name: Dry-run safety summary
+        if: steps.mode.outputs.dry_run == 'true'
+        run: |
+          echo "Convoy run completed in read-only dry-run mode."
+          echo "Discord write/sync/reminder/archive steps were blocked."
 
       - name: Upload convoy reports
         if: always()
@@ -118,7 +160,7 @@ jobs:
           retention-days: 14
 
       - name: Save API Health State
-        if: always()
+        if: ${{ always() && steps.mode.outputs.dry_run != 'true' }}
         run: |
           if [ ! -d data/api-health ] || [ -z "$(git status --porcelain -- data/api-health)" ]; then
             echo "No API health state changes to save."
