@@ -60,12 +60,16 @@ function safeReadJson(file, fallback = {}) {
   }
 }
 
-function writeHealth(label, patch) {
-  const current = safeReadJson(HEALTH_FILE, {
+function getHealthState() {
+  return safeReadJson(HEALTH_FILE, {
     version: 1,
     updatedAt: null,
     services: {}
   });
+}
+
+function writeHealth(label, patch) {
+  const current = getHealthState();
 
   current.version = 1;
   current.updatedAt = nowISO();
@@ -96,11 +100,24 @@ function recordSuccess(label) {
   circuit.failures = 0;
   circuit.openUntil = 0;
 
+  const previous = getHealthState().services?.[label];
+
+  // Do not rewrite api-health.json on every successful scheduled request.
+  // Persist the first healthy state and every recovery from degraded/down.
+  if (
+    previous?.status === 'healthy' &&
+    Number(previous?.consecutiveFailures || 0) === 0 &&
+    !previous?.lastError
+  ) {
+    return;
+  }
+
   writeHealth(label, {
     status: 'healthy',
     consecutiveFailures: 0,
     lastSuccessAt: nowISO(),
-    lastError: null
+    lastError: null,
+    circuitOpenUntil: null
   });
 }
 
@@ -234,9 +251,10 @@ async function resilientFetchJson(url, options = {}) {
   let data;
   try {
     data = await response.json();
-  } catch (error) {
-    recordFailure(options.label || 'external-api', new Error('Invalid JSON response.'));
-    throw new Error(`${options.label || 'external-api'}: invalid JSON response.`);
+  } catch {
+    const error = new Error(`${options.label || 'external-api'}: invalid JSON response.`);
+    recordFailure(options.label || 'external-api', error);
+    throw error;
   }
 
   if (typeof options.validateJson === 'function') {
