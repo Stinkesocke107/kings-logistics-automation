@@ -6,6 +6,7 @@ on:
   push:
     paths:
       - 'probation.js'
+      - 'scripts/git-safe-push.sh'
       - '.github/workflows/probation.yml'
 
   schedule:
@@ -39,7 +40,7 @@ jobs:
           HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
         run: node probation.js
 
-      - name: Save Probation Data
+      - name: Save Probation Data Safely
         run: |
           if git diff --quiet -- data/probation-state.json && [ -z "$(git status --porcelain data/probation-state.json)" ]; then
             echo "No Probation state changes to save."
@@ -51,6 +52,4 @@ jobs:
 
           git add data/probation-state.json
           git commit -m "Update Kings Driver Probation state"
-
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
