@@ -1,0 +1,201 @@
+name: One-time Kings System Audit
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/one-time-system-audit.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-one-time-system-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Run read-only structural audit
+        shell: bash
+        run: |
+          set +e
+          STATUS=0
+
+          echo '=========================================='
+          echo 'Kings Logistics — One-time System Audit'
+          echo '=========================================='
+
+          echo ''
+          echo '--- Git whitespace check ---'
+          git diff --check HEAD^ HEAD
+          if [ $? -ne 0 ]; then STATUS=1; fi
+
+          echo ''
+          echo '--- JavaScript syntax check ---'
+          JS_COUNT=0
+          while IFS= read -r -d '' file; do
+            JS_COUNT=$((JS_COUNT + 1))
+            node --check "$file" >/dev/null 2>&1
+            if [ $? -ne 0 ]; then
+              echo "FAIL syntax: $file"
+              node --check "$file"
+              STATUS=1
+            fi
+          done < <(find . -type f \( -name '*.js' -o -name '*.cjs' -o -name '*.mjs' \) \
+            -not -path './.git/*' -not -path './node_modules/*' -print0)
+          echo "JavaScript files checked: $JS_COUNT"
+
+          echo ''
+          echo '--- Node tests ---'
+          if compgen -G 'tests/*.test.cjs' > /dev/null; then
+            node --test tests/*.test.cjs
+            if [ $? -ne 0 ]; then STATUS=1; fi
+          else
+            echo 'No Node test files found.'
+          fi
+
+          echo ''
+          echo '--- JSON integrity ---'
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          errors = []
+          count = 0
+          for path in Path('data').rglob('*.json'):
+              count += 1
+              try:
+                  json.loads(path.read_text(encoding='utf-8'))
+              except Exception as exc:
+                  errors.append(f'{path}: {exc}')
+          print(f'JSON files checked: {count}')
+          for error in errors:
+              print(f'FAIL JSON: {error}')
+          raise SystemExit(1 if errors else 0)
+          PY
+          if [ $? -ne 0 ]; then STATUS=1; fi
+
+          echo ''
+          echo '--- Workflow script references ---'
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          missing = []
+          refs = []
+          for workflow in Path('.github/workflows').glob('*.y*ml'):
+              text = workflow.read_text(encoding='utf-8')
+              for match in re.finditer(r'\bnode\s+([A-Za-z0-9_./-]+\.(?:js|cjs|mjs))\b', text):
+                  script = match.group(1)
+                  refs.append((workflow, script))
+                  if not Path(script).is_file():
+                      missing.append((workflow, script))
+          print(f'Node script references checked: {len(refs)}')
+          for workflow, script in missing:
+              print(f'FAIL missing script: {workflow} -> {script}')
+          raise SystemExit(1 if missing else 0)
+          PY
+          if [ $? -ne 0 ]; then STATUS=1; fi
+
+          echo ''
+          echo '--- GitHub Action SHA pinning ---'
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          failures = []
+          checked = 0
+          for workflow in Path('.github/workflows').glob('*.y*ml'):
+              for lineno, line in enumerate(workflow.read_text(encoding='utf-8').splitlines(), 1):
+                  match = re.search(r'^\s*-?\s*uses:\s*([^\s#]+)', line)
+                  if not match:
+                      continue
+                  ref = match.group(1).strip('"\'')
+                  if ref.startswith('./'):
+                      continue
+                  checked += 1
+                  if '@' not in ref or not re.fullmatch(r'.+@[0-9a-fA-F]{40}', ref):
+                      failures.append((workflow, lineno, ref))
+          print(f'Remote action references checked: {checked}')
+          for workflow, lineno, ref in failures:
+              print(f'FAIL unpinned action: {workflow}:{lineno} -> {ref}')
+          raise SystemExit(1 if failures else 0)
+          PY
+          if [ $? -ne 0 ]; then STATUS=1; fi
+
+          echo ''
+          echo '--- Merge conflict markers ---'
+          MATCHES=$(grep -RInE '^(<<<<<<< |=======|>>>>>>> )' . \
+            --exclude-dir=.git --exclude-dir=node_modules --exclude='one-time-system-audit.yml' 2>/dev/null)
+          if [ -n "$MATCHES" ]; then
+            echo "$MATCHES"
+            STATUS=1
+          else
+            echo 'No unresolved merge markers found.'
+          fi
+
+          echo ''
+          echo '--- Old Kings logo reference ---'
+          OLD_LOGO=$(grep -RInE 'KingsLogisticsLogo|1394506239920177243' . \
+            --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=data --exclude='one-time-system-audit.yml' 2>/dev/null)
+          if [ -n "$OLD_LOGO" ]; then
+            echo "$OLD_LOGO"
+            STATUS=1
+          else
+            echo 'No old Kings logo references found in active system files.'
+          fi
+
+          echo ''
+          echo '--- Workflow inventory ---'
+          WORKFLOW_COUNT=$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) ! -name 'one-time-system-audit.yml' | wc -l)
+          echo "Production/manual workflow files: $WORKFLOW_COUNT"
+
+          echo "$STATUS" > /tmp/kings-system-audit-status
+          if [ "$STATUS" -eq 0 ]; then
+            echo 'STRUCTURAL AUDIT RESULT: PASS'
+          else
+            echo 'STRUCTURAL AUDIT RESULT: FAIL'
+          fi
+          exit 0
+
+      - name: Remove one-time audit workflow
+        if: always()
+        run: rm -f .github/workflows/one-time-system-audit.yml
+
+      - name: Save audit cleanup
+        if: always()
+        shell: bash
+        run: |
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo 'Nothing to commit.'
+            exit 0
+          fi
+
+          git commit -m "Complete Kings system structural audit"
+          git pull --rebase origin main
+          git push origin main
+
+      - name: Final audit result
+        if: always()
+        shell: bash
+        run: |
+          STATUS=$(cat /tmp/kings-system-audit-status 2>/dev/null || echo 1)
+          if [ "$STATUS" -ne 0 ]; then
+            echo 'Kings system structural audit found one or more problems.'
+            exit 1
+          fi
+          echo 'Kings system structural audit passed.'
