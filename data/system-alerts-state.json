@@ -74,16 +74,6 @@
       },
       "firstAlertedAt": "2026-09-29T19:16:39.487Z"
     },
-    "workflow-failed:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System latest completed run ended with failure.",
-      "details": {
-        "runId": 36634638240,
-        "completedAt": "2026-09-29T21:39:29Z"
-      },
-      "firstAlertedAt": "2026-09-29T21:40:43.051Z"
-    },
     "workflow-overdue:driver-management.yml": {
       "severity": "critical",
       "system": "Driver Management",
@@ -115,14 +105,29 @@
         "completedAt": "2026-09-29T21:38:37Z"
       },
       "firstAlertedAt": "2026-09-29T21:40:43.051Z"
+    },
+    "stale-data:data/statistics.json": {
+      "severity": "critical",
+      "system": "Statistics data",
+      "message": "Statistics data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-09-29T21:05:41.418Z",
+        "ageMinutes": 39,
+        "maxAgeMinutes": 35
+      },
+      "firstAlertedAt": "2026-09-29T21:44:48.980Z"
+    },
+    "stale-data:data/staff-management-summary.json": {
+      "severity": "warning",
+      "system": "Staff Management data",
+      "message": "Staff Management data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-09-29T11:35:02.146Z",
+        "ageMinutes": 609,
+        "maxAgeMinutes": 180
+      },
+      "firstAlertedAt": "2026-09-29T21:44:48.980Z"
     }
   },
-  "pending": {
-    "stale-data:data/staff-management-summary.json": {
-      "count": 1,
-      "firstSeenAt": "2026-09-29T21:40:43.051Z",
-      "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
-    }
-  }
+  "pending": {}
 }
