@@ -14,6 +14,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: kings-convoy-checker
+  cancel-in-progress: false
+
 jobs:
   check-convoys:
     runs-on: ubuntu-latest
