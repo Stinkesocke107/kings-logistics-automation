@@ -39,7 +39,7 @@ jobs:
           CHANGELOG_TEXT: ${{ inputs.change }}
         run: node add-changelog-entry.js
 
-      - name: Save Changelog Queue
+      - name: Save Changelog Queue Safely
         run: |
           if git diff --quiet -- data/changelog-queue.json && [ -z "$(git status --porcelain data/changelog-queue.json)" ]; then
             echo "No Changelog Queue changes to save."
@@ -51,6 +51,4 @@ jobs:
 
           git add data/changelog-queue.json
           git commit -m "Add Kings Changelog entry"
-
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
