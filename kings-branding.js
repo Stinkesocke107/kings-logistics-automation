@@ -10,15 +10,23 @@ let installed = false;
 function replaceBrandText(value) {
   if (typeof value !== 'string' || !value) return value;
 
+  // Protect already-correct custom emoji mentions before normalizing textual
+  // aliases. Without placeholders, the :name: part inside a valid
+  // <:name:id> mention could be matched a second time and corrupted.
+  const logoPlaceholder = '__KL_BRAND_LOGO__';
+  const heartPlaceholder = '__KL_BRAND_HEART__';
+
   return value
-    .replace(/<a?:Kings_Logistics_Logo:\d+>/g, KINGS_LOGISTICS_LOGO)
-    .replace(/:Kings_Logistics_Logo:/g, KINGS_LOGISTICS_LOGO)
-    .replace(/\bKings_Logistics_Logo\b/g, KINGS_LOGISTICS_LOGO)
-    .replace(/<a?:kings_heart:\d+>/g, KINGS_HEART)
-    .replace(/:kings_heart:/g, KINGS_HEART)
-    .replace(/\bkings_heart\b/g, KINGS_HEART)
-    .replace(/👑/g, KINGS_LOGISTICS_LOGO)
-    .replace(/💙/g, KINGS_HEART);
+    .replace(/<a?:Kings_Logistics_Logo:\d+>/g, logoPlaceholder)
+    .replace(/:Kings_Logistics_Logo:/g, logoPlaceholder)
+    .replace(/\bKings_Logistics_Logo\b/g, logoPlaceholder)
+    .replace(/👑/g, logoPlaceholder)
+    .replace(/<a?:kings_heart:\d+>/g, heartPlaceholder)
+    .replace(/:kings_heart:/g, heartPlaceholder)
+    .replace(/\bkings_heart\b/g, heartPlaceholder)
+    .replace(/💙/g, heartPlaceholder)
+    .replaceAll(logoPlaceholder, KINGS_LOGISTICS_LOGO)
+    .replaceAll(heartPlaceholder, KINGS_HEART);
 }
 
 function containsKingsBrand(value) {
