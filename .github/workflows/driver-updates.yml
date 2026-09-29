@@ -9,7 +9,7 @@ on:
     paths:
       - '.github/workflows/driver-updates.yml'
       - 'driver-updates.js'
-      - 'lib/api-resilience.js'
+      - 'api-resilience.js'
       - 'scripts/git-safe-push.sh'
 
   schedule:
