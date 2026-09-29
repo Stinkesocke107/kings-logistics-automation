@@ -36,14 +36,11 @@ jobs:
 
       - name: Save Driver Data
         run: |
-          if git diff --quiet -- \
+          if [ -z "$(git status --porcelain -- \
             data/driver-members.json \
             data/driver-history.json \
-            && [ -z "$(git status --porcelain \
-              data/driver-members.json \
-              data/driver-history.json)" ]; then
-
-            echo "No Driver data changes to save."
+            data/driver-change-guard.json)" ]; then
+            echo "No Driver data or change-guard changes to save."
             exit 0
           fi
 
@@ -53,7 +50,31 @@ jobs:
           git add data/driver-members.json
           git add data/driver-history.json
 
-          git commit -m "Update Kings Driver data"
+          if [ -n "$(git status --porcelain -- data/driver-change-guard.json)" ]; then
+            git add -A -- data/driver-change-guard.json
+          fi
 
+          git commit -m "Update Kings Driver data"
+          git pull --rebase origin main
+          git push origin main
+
+      - name: Save API Health State
+        if: always()
+        run: |
+          if [ ! -d data/api-health ] || [ -z "$(git status --porcelain -- data/api-health)" ]; then
+            echo "No API health state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/api-health
+
+          if git diff --cached --quiet; then
+            echo "No API health changes staged."
+            exit 0
+          fi
+
+          git commit -m "Update Kings API health state"
           git pull --rebase origin main
           git push origin main
