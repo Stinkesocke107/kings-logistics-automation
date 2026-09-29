@@ -28,7 +28,7 @@ jobs:
           CHANGELOG_DISCORD_WEBHOOK_URL: ${{ secrets.CHANGELOG_DISCORD_WEBHOOK_URL }}
         run: node changelog.js
 
-      - name: Save Changelog Data
+      - name: Save Changelog Data Safely
         run: |
           if git diff --quiet -- data/changelog-state.json data/changelog-history.json data/changelog-queue.json && [ -z "$(git status --porcelain data/changelog-state.json data/changelog-history.json data/changelog-queue.json)" ]; then
             echo "No Changelog data changes to save."
@@ -41,8 +41,5 @@ jobs:
           git add data/changelog-state.json
           git add data/changelog-history.json
           git add data/changelog-queue.json
-
           git commit -m "Publish Kings Changelog"
-
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
