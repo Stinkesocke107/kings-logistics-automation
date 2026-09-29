@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "namespace": "news",
+  "service": "truckersmp-vtc-news",
+  "healthKey": "news--truckersmp-vtc-news",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-29T22:39:57.980Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-29T22:39:57.981Z"
+}
