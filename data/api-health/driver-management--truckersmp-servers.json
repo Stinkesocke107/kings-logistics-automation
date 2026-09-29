@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "namespace": "driver-management",
+  "service": "TruckersMP servers",
+  "healthKey": "driver-management--truckersmp-servers",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-29T22:42:47.861Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-29T22:42:47.861Z"
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "namespace": "driver-management",
+  "service": "TruckersMP VTC members",
+  "healthKey": "driver-management--truckersmp-vtc-members",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-29T22:42:47.982Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-29T22:42:47.983Z"
+}
