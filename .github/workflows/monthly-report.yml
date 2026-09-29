@@ -42,7 +42,7 @@ jobs:
           MONTHLY_REPORT_PREVIEW: ${{ inputs.mode == 'preview' }}
         run: node monthly-report.js
 
-      - name: Save Monthly Report Data
+      - name: Save Monthly Report Data Safely
         run: |
           if git diff --quiet -- data/monthly-report-state.json && [ -z "$(git status --porcelain data/monthly-report-state.json)" ]; then
             echo "No Monthly Report state changes to save."
@@ -54,6 +54,4 @@ jobs:
 
           git add data/monthly-report-state.json
           git commit -m "Update Kings Monthly Report state"
-
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
