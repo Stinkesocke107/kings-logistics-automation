@@ -1,4 +1,5 @@
 require('./kings-branding').installDiscordBranding();
+const { resilientFetchJson } = require('./api-resilience');
 const fs = require('fs');
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -156,27 +157,21 @@ async function fetchTruckersMpEvent(eventId) {
   if (tmpEventCache.has(eventId)) return tmpEventCache.get(eventId);
 
   const promise = (async () => {
-    const response = await fetch(`${TMP_API_BASE}/events/${encodeURIComponent(eventId)}`, {
-      headers: {
-        Accept: 'application/json',
-        'User-Agent': 'Kings Logistics TruckersMP Convoy Sync/1.1'
-      },
-      signal: AbortSignal.timeout(12000)
-    });
-
-    const text = await response.text();
-    let payload = null;
-
-    try {
-      payload = JSON.parse(text);
-    } catch {
-      throw new Error(`TruckersMP API returned invalid JSON (${response.status}).`);
-    }
-
-    if (!response.ok || payload?.error === true) {
-      const descriptor = payload?.descriptor || payload?.message || `HTTP ${response.status}`;
-      throw new Error(`TruckersMP Event ${eventId} could not be loaded: ${String(descriptor).slice(0, 300)}`);
-    }
+    const payload = await resilientFetchJson(
+      `${TMP_API_BASE}/events/${encodeURIComponent(eventId)}`,
+      {
+        label: 'truckersmp-convoy-event-sync',
+        retries: 3,
+        timeoutMs: 12000,
+        fetchOptions: {
+          headers: {
+            Accept: 'application/json',
+            'User-Agent': 'Kings Logistics TruckersMP Convoy Sync/1.2'
+          }
+        },
+        validateJson: (data) => Boolean(data && data.error !== true)
+      }
+    );
 
     const event = unwrapEventPayload(payload);
     if (!event || !cleanText(event.id || eventId)) {
@@ -186,7 +181,10 @@ async function fetchTruckersMpEvent(eventId) {
     return event;
   })();
 
+  // Cache only within this workflow run. A rejected request is removed again so
+  // another entry with the same Event ID may retry later in the same run.
   tmpEventCache.set(eventId, promise);
+  promise.catch(() => tmpEventCache.delete(eventId));
   return promise;
 }
 
@@ -339,15 +337,21 @@ async function main() {
       );
     } catch (error) {
       failed += 1;
+      const previousSync = item.truckersmpSync || null;
       item.truckersmpSync = {
         ok: false,
         authoritative: false,
+        uncertain: true,
         reason: 'api-error',
         error: error.message,
-        syncedAt: new Date().toISOString()
+        lastKnownGoodAt: previousSync?.ok
+          ? previousSync.syncedAt || null
+          : previousSync?.lastKnownGoodAt || item.truckersmp?.updatedAtUtc || null,
+        checkedAt: new Date().toISOString()
       };
-      // Never clear existing/manual values when the external API is unavailable.
-      console.warn(`- ${item.name} | TruckersMP sync failed; existing values kept: ${error.message}`);
+      // Never clear existing/manual values or last-known-good TruckersMP data
+      // when the external API is unavailable or returns an untrusted response.
+      console.warn(`- ${item.name} | TruckersMP sync uncertain; last-known-good values kept: ${error.message}`);
     }
   }
 

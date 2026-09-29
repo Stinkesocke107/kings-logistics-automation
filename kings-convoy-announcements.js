@@ -1,4 +1,5 @@
 require('./kings-branding').installDiscordBranding();
+const { resilientFetch, resilientFetchJson } = require('./api-resilience');
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const SOURCE_FORUM_ID = process.env.DISCORD_KINGS_CONVOY_SOURCE_FORUM_ID || '1506133821693755502';
@@ -155,33 +156,38 @@ async function fetchTruckersMpEvent(eventId) {
   if (eventCache.has(eventId)) return eventCache.get(eventId);
 
   const promise = (async () => {
-    const response = await fetch(`${TMP_API_BASE}/events/${encodeURIComponent(eventId)}`, {
-      headers: {
-        Accept: 'application/json',
-        'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.1'
-      },
-      signal: AbortSignal.timeout(12000)
-    });
-
-    const text = await response.text();
-    let payload;
-    try {
-      payload = JSON.parse(text);
-    } catch {
-      throw new Error(`TruckersMP API returned invalid JSON (${response.status}).`);
-    }
-
-    if (!response.ok || payload?.error === true) {
-      const descriptor = payload?.descriptor || payload?.message || `HTTP ${response.status}`;
-      throw new Error(`TruckersMP Event ${eventId} could not be loaded: ${String(descriptor).slice(0, 300)}`);
-    }
+    const payload = await resilientFetchJson(
+      `${TMP_API_BASE}/events/${encodeURIComponent(eventId)}`,
+      {
+        label: 'truckersmp-kings-convoy-announcement',
+        retries: 3,
+        timeoutMs: 12000,
+        fetchOptions: {
+          headers: {
+            Accept: 'application/json',
+            'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.2'
+          }
+        },
+        validateJson: (data) => Boolean(data && data.error !== true)
+      }
+    );
 
     const event = unwrapEventPayload(payload);
-    if (!event) throw new Error(`TruckersMP Event ${eventId} returned no usable event object.`);
+    if (!event) {
+      throw new Error(`TruckersMP Event ${eventId} returned no usable event object.`);
+    }
+
+    // meetup_at is required for the public 2-hour timing. Never infer a meeting
+    // time from start_at when TruckersMP data is incomplete.
+    if (!event.meetup_at) {
+      throw new Error(`TruckersMP Event ${eventId} has no authoritative meetup_at.`);
+    }
+
     return event;
   })();
 
   eventCache.set(eventId, promise);
+  promise.catch(() => eventCache.delete(eventId));
   return promise;
 }
 
@@ -386,10 +392,19 @@ function safeRouteFilename(filename, contentType) {
 }
 
 async function sendAnnouncement(content, routeImage) {
-  const imageResponse = await fetch(routeImage.url, { signal: AbortSignal.timeout(15000) });
-  if (!imageResponse.ok) {
-    throw new Error(`Route image download failed with HTTP ${imageResponse.status}.`);
-  }
+  const imageResponse = await resilientFetch(
+    routeImage.url,
+    {
+      label: 'kings-convoy-route-image',
+      retries: 2,
+      timeoutMs: 15000,
+      fetchOptions: {
+        headers: {
+          'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.2'
+        }
+      }
+    }
+  );
 
   const bytes = await imageResponse.arrayBuffer();
   const contentType = routeImage.contentType || imageResponse.headers.get('content-type') || 'image/png';
@@ -491,7 +506,9 @@ async function main() {
       sent2h += 1;
     } catch (error) {
       failed += 1;
-      console.warn(`- ${entry.name} | Kings convoy announcement failed: ${error.message}`);
+      console.warn(
+        `- ${entry.name} | Kings convoy announcement safely deferred; no post/state change made: ${error.message}`
+      );
     }
   }
 
