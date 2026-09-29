@@ -56,3 +56,18 @@ jobs:
 
           git pull --rebase origin main
           git push origin main
+
+      - name: Save API Health State
+        if: always()
+        run: |
+          if [ ! -d data/api-health ] || [ -z "$(git status --porcelain -- data/api-health)" ]; then
+            echo "No API health state changes to save."
+            exit 0
+          fi
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/api-health
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Update Kings API health state"
+          git pull --rebase origin main
+          git push origin main
