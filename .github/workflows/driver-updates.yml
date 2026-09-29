@@ -18,6 +18,8 @@ jobs:
   driver-updates:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      KINGS_API_HEALTH_NAMESPACE: 'driver-updates'
 
     steps:
       - name: Checkout repository
@@ -46,7 +48,6 @@ jobs:
 
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
-
           git add data/driver-members.json
           git add data/driver-history.json
 
@@ -55,8 +56,7 @@ jobs:
           fi
 
           git commit -m "Update Kings Driver data"
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
 
       - name: Save API Health State
         if: always()
@@ -76,5 +76,4 @@ jobs:
           fi
 
           git commit -m "Update Kings API health state"
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
