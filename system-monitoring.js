@@ -40,6 +40,8 @@ const CRITICAL_FILES = [
   'core-backup.js',
   'core-recovery.js',
   'system-monitoring.js',
+  'api-resilience.js',
+  'kings-branding.js',
   '.github/workflows/live-tracker.yml',
   '.github/workflows/driver-updates.yml',
   '.github/workflows/convoy-checker.yml',
@@ -229,6 +231,114 @@ function checkFreshData(issues) {
     results.push({ file: config.file, label: config.label, ok, updatedAt, ageMinutes: Number.isFinite(age) ? age : null, maxAgeMinutes: config.maxAgeMinutes });
   }
   return results;
+}
+
+
+function checkApiHealth(issues) {
+  const directory = path.join(DATA_DIR, 'api-health');
+
+  if (!fs.existsSync(directory)) {
+    return {
+      initialized: false,
+      services: [],
+      healthy: 0,
+      degraded: 0,
+      down: 0,
+      invalid: 0
+    };
+  }
+
+  const files = fs.readdirSync(directory)
+    .filter((name) => name.toLowerCase().endsWith('.json'))
+    .sort();
+
+  const services = [];
+  let healthy = 0;
+  let degraded = 0;
+  let down = 0;
+  let invalid = 0;
+
+  for (const name of files) {
+    const relativePath = `data/api-health/${name}`;
+    const file = path.join(directory, name);
+    let data;
+
+    try {
+      data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch (error) {
+      invalid += 1;
+      issues.push(issue(
+        `api-health-invalid:${name}`,
+        'critical',
+        'API Resilience',
+        `API health state is invalid JSON: ${relativePath}`,
+        { error: String(error.message || error) }
+      ));
+      services.push({ file: relativePath, service: name.replace(/\.json$/i, ''), status: 'invalid' });
+      continue;
+    }
+
+    const service = String(data?.service || name.replace(/\.json$/i, '')).trim();
+    const status = String(data?.status || 'unknown').toLowerCase();
+    const details = {
+      service,
+      consecutiveFailures: Number(data?.consecutiveFailures || 0),
+      lastSuccessAt: data?.lastSuccessAt || null,
+      lastFailureAt: data?.lastFailureAt || null,
+      circuitOpenUntil: data?.circuitOpenUntil || null,
+      lastError: data?.lastError || null
+    };
+
+    if (status === 'healthy') {
+      healthy += 1;
+    } else if (status === 'degraded') {
+      degraded += 1;
+      issues.push(issue(
+        `api-health:${service}`,
+        'warning',
+        'API Resilience',
+        `${service} is degraded after repeated request failures.`,
+        details
+      ));
+    } else if (status === 'down') {
+      down += 1;
+      issues.push(issue(
+        `api-health:${service}`,
+        'critical',
+        'API Resilience',
+        `${service} is down or its circuit breaker is open.`,
+        details
+      ));
+    } else {
+      degraded += 1;
+      issues.push(issue(
+        `api-health:${service}`,
+        'warning',
+        'API Resilience',
+        `${service} has an unknown API health state.`,
+        details
+      ));
+    }
+
+    services.push({
+      file: relativePath,
+      service,
+      status,
+      consecutiveFailures: details.consecutiveFailures,
+      lastSuccessAt: details.lastSuccessAt,
+      lastFailureAt: details.lastFailureAt,
+      circuitOpenUntil: details.circuitOpenUntil
+    });
+  }
+
+  return {
+    initialized: files.length > 0,
+    services,
+    healthy,
+    degraded,
+    down,
+    invalid
+  };
 }
 
 function checkCrossSystemIntegrity(issues) {
@@ -424,6 +534,7 @@ function writeStepSummary(result) {
     `- Workflows checked: **${result.summary.workflowsChecked}**`,
     `- JSON files valid: **${result.summary.validJsonFiles}/${result.summary.jsonFilesChecked}**`,
     `- Critical files present: **${result.summary.criticalFilesPresent}/${result.summary.criticalFilesExpected}**`,
+    `- API services healthy: **${result.summary.apiServicesHealthy}/${result.summary.apiServicesChecked}** · Degraded: **${result.summary.apiServicesDegraded}** · Down: **${result.summary.apiServicesDown}**`,
     `- Critical issues: **${result.summary.criticalIssues}**`,
     `- Warnings: **${result.summary.warnings}**`,
     ''
@@ -453,6 +564,7 @@ async function main() {
   const json = checkJsonFiles(issues);
   const encryptedStates = checkEncryptedStates(issues);
   const freshData = checkFreshData(issues);
+  const apiHealth = checkApiHealth(issues);
   const integrity = checkCrossSystemIntegrity(issues);
   const workflows = await checkWorkflows(issues);
 
@@ -476,6 +588,10 @@ async function main() {
       encryptedStatesHealthy: encryptedStates.filter((item) => item.ok).length,
       freshDataChecks: freshData.length,
       freshDataHealthy: freshData.filter((item) => item.ok).length,
+      apiServicesChecked: apiHealth.services.length,
+      apiServicesHealthy: apiHealth.healthy,
+      apiServicesDegraded: apiHealth.degraded,
+      apiServicesDown: apiHealth.down,
       integrityChecks: integrity.length,
       integrityHealthy: integrity.filter((item) => item.ok).length,
       criticalIssues: issues.filter((item) => item.severity === 'critical').length,
@@ -485,6 +601,7 @@ async function main() {
     workflows,
     data: {
       freshness: freshData,
+      apiHealth,
       integrity,
       encryptedStates
     },
@@ -502,6 +619,7 @@ async function main() {
   console.log(`Workflow health: ${result.summary.workflowsHealthy}/${result.summary.workflowsChecked}`);
   console.log(`JSON health: ${result.summary.validJsonFiles}/${result.summary.jsonFilesChecked}`);
   console.log(`Critical files: ${result.summary.criticalFilesPresent}/${result.summary.criticalFilesExpected}`);
+  console.log(`API services: ${result.summary.apiServicesHealthy}/${result.summary.apiServicesChecked} healthy, ${result.summary.apiServicesDegraded} degraded, ${result.summary.apiServicesDown} down`);
   console.log(`Critical issues: ${result.summary.criticalIssues}`);
   console.log(`Warnings: ${result.summary.warnings}`);
 
