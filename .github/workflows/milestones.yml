@@ -3,6 +3,15 @@ name: Kings Milestone Detector
 on:
   workflow_dispatch:
 
+  push:
+    branches:
+      - main
+    paths:
+      - 'milestones.js'
+      - 'api-resilience.js'
+      - 'scripts/git-safe-push.sh'
+      - '.github/workflows/milestones.yml'
+
   schedule:
     - cron: "*/5 * * * *"
 
@@ -17,6 +26,8 @@ jobs:
   check-milestones:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      KINGS_API_HEALTH_NAMESPACE: 'milestones'
 
     steps:
       - name: Checkout repository
@@ -33,19 +44,22 @@ jobs:
           NEWS_NOTIFICATIONS_ROLE_ID: ${{ secrets.NEWS_NOTIFICATIONS_ROLE_ID }}
         run: node milestones.js
 
-      - name: Save Milestone and Changelog Data
+      - name: Save Milestone, Changelog and API Health State
+        if: always()
         run: |
-          if git diff --quiet -- data/milestones.json data/changelog-queue.json && [ -z "$(git status --porcelain data/milestones.json data/changelog-queue.json)" ]; then
-            echo "No Milestone or Changelog Queue changes to save."
+          if [ -z "$(git status --porcelain -- data/milestones.json data/changelog-queue.json data/api-health)" ]; then
+            echo "No Milestone, Changelog Queue, or API health changes to save."
             exit 0
           fi
 
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
+          git add -A -- data/milestones.json data/changelog-queue.json data/api-health
 
-          git add data/milestones.json
-          git add data/changelog-queue.json
+          if git diff --cached --quiet; then
+            echo "No Milestone state changes staged."
+            exit 0
+          fi
 
-          git commit -m "Update Kings Milestone and Changelog data"
-          git pull --rebase origin main
-          git push origin main
+          git commit -m "Update Kings Milestone state"
+          bash scripts/git-safe-push.sh main
