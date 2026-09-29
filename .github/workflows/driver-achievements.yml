@@ -35,7 +35,7 @@ jobs:
           DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
         run: node driver-achievements.js
 
-      - name: Save Driver Achievement Data
+      - name: Save Driver Achievement Data Safely
         run: |
           if git diff --quiet -- data/driver-achievements.json data/driver-achievements-summary.json && [ -z "$(git status --porcelain data/driver-achievements.json data/driver-achievements-summary.json)" ]; then
             echo "No Driver Achievement data changes to save."
@@ -48,6 +48,4 @@ jobs:
           git add data/driver-achievements.json
           git add data/driver-achievements-summary.json
           git commit -m "Update Kings Driver Achievement data"
-
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
