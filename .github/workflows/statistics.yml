@@ -34,7 +34,8 @@ jobs:
           CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
         run: node central-overview.js
 
-      - name: Save Statistics Data
+      - name: Save Statistics Data Safely
+        if: always()
         run: |
           if git diff --quiet -- data/statistics.json data/central-overview.json && [ -z "$(git status --porcelain data/statistics.json data/central-overview.json)" ]; then
             echo "No Statistics data changes to save."
@@ -47,6 +48,4 @@ jobs:
           git add data/statistics.json
           git add data/central-overview.json
           git commit -m "Update Kings Statistics"
-
-          git pull --rebase origin main
-          git push origin main
+          bash scripts/git-safe-push.sh main
