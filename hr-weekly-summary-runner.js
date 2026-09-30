@@ -22,15 +22,30 @@ async function discord(pathname) {
   const response = await fetch(`${DISCORD_API}${pathname}`, {
     headers: {
       Authorization: `Bot ${TOKEN}`,
-      'User-Agent': 'Kings Logistics HR Weekly Channel Resolver/1.0'
+      'User-Agent': 'Kings Logistics HR Weekly Channel Resolver/1.1'
     },
     signal: AbortSignal.timeout(15000)
   });
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on GET ${pathname}: ${text.slice(0, 300)}`);
+    const error = new Error(`Discord API ${response.status} on GET ${pathname}: ${text.slice(0, 300)}`);
+    error.status = response.status;
+    throw error;
   }
   return text ? JSON.parse(text) : null;
+}
+
+async function readableMessages(channel) {
+  try {
+    const value = await discord(`/channels/${channel.id}/messages?limit=100`);
+    return { channel, messages: Array.isArray(value) ? value : [] };
+  } catch (error) {
+    if (error.status === 403 || error.status === 404) {
+      console.log(`Ignoring inaccessible HR channel #${channel.name} (${channel.id}) during target resolution.`);
+      return null;
+    }
+    throw error;
+  }
 }
 
 async function resolveHrChannel() {
@@ -44,23 +59,35 @@ async function resolveHrChannel() {
   if (matches.length === 0) {
     throw new Error(`No HR Leadership channel matches "${CHANNEL_NAME}".`);
   }
-  if (matches.length === 1) return matches[0];
 
-  const historical = [];
+  const readable = [];
   for (const channel of matches) {
-    const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
-    const hasWeeklyHistory = (Array.isArray(messages) ? messages : []).some((message) =>
-      message.author?.id === bot.id &&
-      String(message.content || '').includes('Kings HR Weekly Summary')
-    );
-    if (hasWeeklyHistory) historical.push(channel);
+    const candidate = await readableMessages(channel);
+    if (candidate) readable.push(candidate);
   }
 
-  if (historical.length === 1) return historical[0];
+  if (readable.length === 0) {
+    throw new Error(`No readable HR Leadership channel matches "${CHANNEL_NAME}".`);
+  }
+  if (readable.length === 1) {
+    return { ...readable[0].channel, resolutionMethod: matches.length === 1 ? 'unique-name' : 'unique-readable-channel' };
+  }
+
+  const historical = readable.filter(({ messages }) =>
+    messages.some((message) =>
+      message.author?.id === bot.id &&
+      String(message.content || '').includes('Kings HR Weekly Summary')
+    )
+  );
+
+  if (historical.length === 1) {
+    return { ...historical[0].channel, resolutionMethod: 'weekly-history' };
+  }
 
   throw new Error(
     `HR Leadership channel resolution is ambiguous. normalizedMatches=${matches.length}, ` +
-    `matchesWithWeeklyHistory=${historical.length}. Configure HR_LEADERSHIP_CHANNEL_ID before publishing.`
+    `readableMatches=${readable.length}, matchesWithWeeklyHistory=${historical.length}. ` +
+    `Configure HR_LEADERSHIP_CHANNEL_ID before publishing.`
   );
 }
 
@@ -70,7 +97,9 @@ async function main() {
   } else {
     const channel = await resolveHrChannel();
     process.env.HR_LEADERSHIP_CHANNEL_ID = String(channel.id);
-    console.log(`Resolved HR Weekly target to #${channel.name} (${channel.id}) using existing weekly-report history.`);
+    console.log(
+      `Resolved HR Weekly target to #${channel.name} (${channel.id}) via ${channel.resolutionMethod}.`
+    );
   }
 
   const result = spawnSync(process.execPath, ['hr-weekly-summary.js'], {
