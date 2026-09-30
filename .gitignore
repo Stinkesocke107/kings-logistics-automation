@@ -29,6 +29,13 @@ restore-point.json
 backup-manifest.json
 backup-health.json
 
+# Generated monitoring / audit reports (artifact-only, not persistent state)
+data/system-health.json
+data/data-integrity.json
+data/system-hardening.json
+data/security-audit.json
+data/discord-permission-audit.json
+
 # Logs / temporary files
 *.log
 logs/
