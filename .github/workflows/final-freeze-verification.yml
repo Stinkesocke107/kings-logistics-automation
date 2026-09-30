@@ -8,15 +8,15 @@ on:
   push:
     branches: [main]
     paths:
-      - 'final-freeze-verifier.js'
-      - 'production-proof-collector.js'
-      - 'news-production-verifier.js'
-      - 'scripts/create-final-baseline-ref.js'
+      - '*.js'
+      - 'tests/**'
+      - 'scripts/**'
+      - '.gitignore'
+      - '.github/workflows/**'
       - 'data/public-convoy-live-proof.json'
       - 'data/news-live-proof.json'
       - 'data/hr-weekly-live-proof.json'
       - 'data/monthly-live-proof.json'
-      - '.github/workflows/final-freeze-verification.yml'
 
 permissions:
   contents: write
