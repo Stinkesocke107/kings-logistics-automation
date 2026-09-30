@@ -26,6 +26,8 @@ const RETRYABLE_ERROR_CODES = new Set([
   'API_INVALID_RESPONSE'
 ]);
 
+const IDEMPOTENT_METHODS = new Set(['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']);
+
 function nowISO() {
   return new Date().toISOString();
 }
@@ -89,6 +91,21 @@ function isRetryableError(error) {
   }
 
   return RETRYABLE_ERROR_CODES.has(errorCode(error));
+}
+
+function requestMethod(fetchOptions = {}) {
+  return String(fetchOptions?.method || 'GET').toUpperCase();
+}
+
+function canRetryRequest(method, error, retryUnsafeMethods = false) {
+  if (!isRetryableError(error)) return false;
+  if (retryUnsafeMethods || IDEMPOTENT_METHODS.has(method)) return true;
+
+  // A Discord-style POST may safely retry an explicit 429 because the server
+  // rejected it for rate limiting. Ambiguous timeouts, network failures and
+  // 5xx responses are NOT retried by default, preventing duplicate posts when
+  // the remote service accepted the request but the response was lost.
+  return Number(error?.status) === 429;
 }
 
 function safeReadJson(file, fallback = null) {
@@ -180,6 +197,7 @@ function recordSuccess(label) {
     lastSuccessAt: nowISO(),
     recoveredAt: previous && previous.status !== 'healthy' ? nowISO() : null,
     lastError: null,
+    lastErrorCode: null,
     circuitOpenUntil: null
   });
 }
@@ -233,13 +251,15 @@ async function resilientFetch(url, options = {}) {
     circuitCooldownMs = 60000,
     fetchOptions = {},
     validateResponse = null,
-    deferSuccess = false
+    deferSuccess = false,
+    retryUnsafeMethods = false
   } = options;
 
   assertCircuitClosed(label);
 
   let lastError = null;
   const totalAttempts = Math.max(1, Number(retries) + 1);
+  const method = requestMethod(fetchOptions);
 
   for (let attempt = 1; attempt <= totalAttempts; attempt += 1) {
     try {
@@ -261,7 +281,7 @@ async function resilientFetch(url, options = {}) {
         error.status = response.status;
         error.retryAfterMs = parseRetryAfter(response.headers.get('retry-after'));
 
-        if (!isRetryableStatus(response.status) || attempt >= totalAttempts) {
+        if (!canRetryRequest(method, error, retryUnsafeMethods) || attempt >= totalAttempts) {
           throw error;
         }
 
@@ -283,7 +303,7 @@ async function resilientFetch(url, options = {}) {
     } catch (error) {
       lastError = error;
 
-      if (!isRetryableError(error) || attempt >= totalAttempts) {
+      if (!canRetryRequest(method, error, retryUnsafeMethods) || attempt >= totalAttempts) {
         break;
       }
 
@@ -364,11 +384,13 @@ module.exports = {
   HEALTH_DIR,
   HEALTH_NAMESPACE,
   RETRYABLE_ERROR_CODES,
+  IDEMPOTENT_METHODS,
   healthFile,
   parseRetryAfter,
   retryDelay,
   isRetryableStatus,
   isRetryableError,
+  canRetryRequest,
   resilientFetch,
   resilientFetchJson
 };
