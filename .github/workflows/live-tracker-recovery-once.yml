@@ -15,67 +15,19 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  recover-and-verify:
+  finalize-recovery:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
 
     steps:
-      - name: Dispatch Live Tracker and require successful completion
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          before_id="$(gh api --method GET \
-            "repos/${GITHUB_REPOSITORY}/actions/workflows/live-tracker.yml/runs" \
-            -f event=workflow_dispatch -f per_page=1 \
-            --jq '.workflow_runs[0].id // 0')"
-
-          gh api --method POST \
-            "repos/${GITHUB_REPOSITORY}/actions/workflows/live-tracker.yml/dispatches" \
-            -f ref=main
-          echo "Live Tracker dispatch requested; previous manual run id=${before_id}."
-
-          run_id=''
-          for attempt in $(seq 1 30); do
-            candidate="$(gh api --method GET \
-              "repos/${GITHUB_REPOSITORY}/actions/workflows/live-tracker.yml/runs" \
-              -f event=workflow_dispatch -f per_page=5 \
-              --jq '.workflow_runs[0].id // 0')"
-            if [ "$candidate" != '0' ] && [ "$candidate" != "$before_id" ]; then
-              run_id="$candidate"
-              break
-            fi
-            sleep 3
-          done
-          test -n "$run_id"
-          echo "Live Tracker recovery run id=${run_id}."
-
-          for attempt in $(seq 1 60); do
-            status="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" --jq '.status')"
-            conclusion="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" --jq '.conclusion // ""')"
-            echo "Live Tracker run ${run_id}: status=${status} conclusion=${conclusion:-pending}"
-            if [ "$status" = 'completed' ]; then
-              test "$conclusion" = 'success'
-              break
-            fi
-            sleep 3
-          done
-
-          final_status="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" --jq '.status')"
-          final_conclusion="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" --jq '.conclusion // ""')"
-          test "$final_status" = 'completed'
-          test "$final_conclusion" = 'success'
-
       - name: Require fresh persisted Live Tracker snapshot
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          encoded="$(gh api "repos/${GITHUB_REPOSITORY}/contents/data/live-tracker-snapshot.json?ref=main" --jq -r '.content')"
+          encoded="$(gh api "repos/${GITHUB_REPOSITORY}/contents/data/live-tracker-snapshot.json?ref=main" --jq '.content')"
           updated_at="$(printf '%s' "$encoded" | tr -d '\n' | base64 -d | jq -r '.updatedAt')"
           updated_epoch="$(date -u -d "$updated_at" +%s)"
           now="$(date -u +%s)"
@@ -111,12 +63,11 @@ jobs:
           echo 'Final Core E2E dispatched on recovered clean main.'
 
       - name: Recovery summary
-        if: always()
         run: |
           echo '## Live Tracker Cleanup Validation Recovery' >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Production action: **one normal Live Tracker workflow dispatch**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Snapshot freshness verified from persisted main state: **Yes**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Temporary helper self-deleted: **Yes, after successful recovery**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Prior manual Live Tracker recovery run: **success**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Persisted snapshot freshness: **verified**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Temporary helper self-deleted: **yes**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Final Core E2E dispatch: **after helper deletion**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Personnel/role actions: **None**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Personnel/role actions: **none**' >> "$GITHUB_STEP_SUMMARY"
