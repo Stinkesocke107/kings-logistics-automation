@@ -38,16 +38,18 @@ jobs:
           NEWS_DISCORD_WEBHOOK_URL: ${{ secrets.NEWS_DISCORD_WEBHOOK_URL }}
         run: node news.js
 
-      - name: Save News State and API Health Together
+      - name: Save News Dedupe, Publication Evidence and API Health Together
         if: always()
+        shell: bash
         run: |
+          set -euo pipefail
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
-          for file in data/last-news.json data/api-health; do
+          for file in data/last-news.json data/news-publication-state.json data/api-health; do
             if [ -n "$(git status --porcelain -- "$file")" ]; then
               git add -A -- "$file"
             fi
           done
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m "Update Kings system and API state"
+          git commit -m "Update Kings News and API state"
           bash scripts/git-safe-push.sh main
