@@ -18,6 +18,7 @@ function sandbox(script, { files = {}, env = {}, fetch: transport } = {}) {
     },
     writeFileSync: (p, value) => state.set(key(p), String(value)),
     appendFileSync: (p, value) => state.set(key(p), (state.get(key(p)) || '') + value),
+    unlinkSync: p => state.delete(key(p)),
     mkdirSync() {},
     readdirSync: p => [...state.keys()].filter(k => path.dirname(k) === key(p)).map(k => path.basename(k))
   };
