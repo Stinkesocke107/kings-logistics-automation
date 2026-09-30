@@ -3,16 +3,20 @@ const assert = require('node:assert/strict');
 
 const {
   PERMISSIONS: P,
-  hasPermission,
   basePermissions,
   effectiveChannelPermissions,
-  missingPermissions,
   resolveTarget,
-  scopedHighRiskFindings
+  scopedHighRiskFindings,
+  parseDiscordRetryMs
 } = require('../discord-permission-audit');
 
 function value(...names) {
   return names.reduce((bits, name) => bits | P[name], 0n);
+}
+function hasPermission(valueBits, name) {
+  const bits = BigInt(valueBits || 0);
+  if ((bits & P.ADMINISTRATOR) === P.ADMINISTRATOR) return true;
+  return Boolean(P[name] && (bits & P[name]) === P[name]);
 }
 function role(id, permissions) {
   return { id: String(id), permissions: String(permissions) };
@@ -73,7 +77,9 @@ test('administrator bypass satisfies channel requirements', () => {
     overwrite(guildId, 0, 0n, value('VIEW_CHANNEL', 'SEND_MESSAGES'))
   ]);
   const effective = effectiveChannelPermissions(c, guildId, memberId, memberRoles, adminBase);
-  assert.deepEqual(missingPermissions(effective, ['VIEW_CHANNEL', 'SEND_MESSAGES', 'MANAGE_THREADS']), []);
+  for (const permission of ['VIEW_CHANNEL', 'SEND_MESSAGES', 'MANAGE_THREADS']) {
+    assert.equal(hasPermission(effective, permission), true);
+  }
 });
 
 test('duplicate normalized HR channels resolve to the single channel with required access', () => {
@@ -133,4 +139,10 @@ test('scoped high-risk permissions are accepted only on the intended target', ()
   assert.equal(findings.length, 1);
   assert.equal(findings[0].channelId, '31');
   assert.deepEqual(findings[0].permissions, ['MANAGE_THREADS']);
+});
+
+test('Discord retry timing honors retry_after and caps excessive delays', () => {
+  const response = { headers: { get: () => null } };
+  assert.equal(parseDiscordRetryMs(response, JSON.stringify({ retry_after: 9.999 }), 0), 9999);
+  assert.equal(parseDiscordRetryMs(response, JSON.stringify({ retry_after: 60 }), 0), 30000);
 });
