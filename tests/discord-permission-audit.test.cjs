@@ -122,7 +122,13 @@ test('scoped high-risk permissions are accepted only on the intended target', ()
   const findings = scopedHighRiskFindings(
     [source, other],
     targetById,
-    { guildId, memberId, memberRoleIds: memberRoles, base: elevatedBase }
+    {
+      guildId,
+      memberId,
+      memberRoleIds: memberRoles,
+      base: elevatedBase,
+      roleNames: new Map([[botRoleId, 'Kings Systems Bot']])
+    }
   );
   assert.equal(findings.length, 1);
   assert.equal(findings[0].channelId, '31');
