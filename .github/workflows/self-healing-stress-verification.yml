@@ -1,0 +1,103 @@
+name: Kings Self-Healing Stress Verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'self-healing*.js'
+      - 'workflow-recovery.js'
+      - 'api-resilience.js'
+      - '.github/workflows/self-healing-stress-verification.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: kings-self-healing-stress-verification
+  cancel-in-progress: false
+
+jobs:
+  stress:
+    if: github.ref == 'refs/heads/main'
+    name: Point 22 Controlled Failure Stress Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify stress tools syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check self-healing-state-guard.js
+          node --check self-healing-stress.js
+          node --check self-healing-stress-verifier.js
+
+      - name: Execute isolated controlled failure matrix
+        run: node self-healing-stress.js
+
+      - name: Build fresh read-only production health after stress
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          KINGS_API_HEALTH_NAMESPACE: 'self-healing-stress-final'
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node system-monitoring.js
+          node data-integrity.js
+          node system-hardening.js
+          node security-audit.js
+          node discord-permission-audit.js
+
+      - name: Verify Point 22 acceptance gates
+        run: node self-healing-stress-verifier.js
+
+      - name: Upload Point 22 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-self-healing-stress-${{ github.run_number }}
+          path: |
+            output/self-healing-stress.json
+            output/self-healing-stress-verification.json
+            data/system-health.json
+            data/data-integrity.json
+            data/system-hardening.json
+            data/security-audit.json
+            data/discord-permission-audit.json
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 9
+
+      - name: Point 22 summary
+        if: always()
+        shell: bash
+        run: |
+          echo '## Kings Self-Healing Stress Test — Point 22' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Production failure injection: **none**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- API failures: **local mock only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Personnel / Convoy live actions: **none**' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f output/self-healing-stress-verification.json ]; then
+            node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const r = require('./output/self-healing-stress-verification.json');
+          console.log(`- Acceptance: **${r.status}**`);
+          console.log(`- Checks: **${r.summary.passed}/${r.summary.checks}**`);
+          console.log(`- Stress scenarios: **${r.summary.scenarios}**`);
+          console.log(`- Final Health: **${r.summary.finalHealth}**`);
+          NODE
+          fi
