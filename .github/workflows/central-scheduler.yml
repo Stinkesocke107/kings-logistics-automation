@@ -1,0 +1,117 @@
+name: Kings Central Scheduler
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_all:
+        description: "Dispatch all managed workflows immediately"
+        required: false
+        default: true
+        type: boolean
+
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/central-scheduler.yml'
+
+  schedule:
+    # One fresh scheduler registration replaces four separate cron registrations.
+    # Runs every five minutes, offset away from the top of the hour.
+    - cron: '3-59/5 * * * *'
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: kings-central-scheduler
+  cancel-in-progress: true
+
+jobs:
+  dispatch:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Determine scheduler slot
+        id: slot
+        shell: bash
+        env:
+          FORCE_ALL_INPUT: ${{ inputs.force_all }}
+        run: |
+          set -euo pipefail
+
+          FORCE_ALL=false
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            FORCE_ALL=true
+          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "${FORCE_ALL_INPUT:-true}" = "true" ]; then
+            FORCE_ALL=true
+          fi
+
+          if [ "$FORCE_ALL" = "true" ]; then
+            echo "force_all=true" >> "$GITHUB_OUTPUT"
+            echo "phase=bootstrap" >> "$GITHUB_OUTPUT"
+            echo "Bootstrap run: dispatching all managed workflows."
+            exit 0
+          fi
+
+          minute=$((10#$(date -u +%M)))
+          # Convert a possibly delayed execution back to the most recent 5-minute slot
+          # in the 03/08/13/.../58 cadence.
+          delta=$(( (minute - 3 + 60) % 5 ))
+          slot_minute=$(( (minute - delta + 60) % 60 ))
+          phase=$(( ((slot_minute - 3 + 60) / 5) % 3 ))
+
+          echo "force_all=false" >> "$GITHUB_OUTPUT"
+          echo "phase=$phase" >> "$GITHUB_OUTPUT"
+          echo "Observed UTC minute: $minute; nominal scheduler slot: $slot_minute; phase: $phase"
+
+      - name: Verify managed workflows are active
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for workflow in convoy-checker.yml hr-leadership.yml management-overview.yml milestones.yml; do
+            state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}" --jq '.state')"
+            echo "${workflow}: ${state}"
+            test "$state" = "active"
+          done
+
+      - name: Dispatch Milestones
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/workflows/milestones.yml/dispatches" -f ref=main
+
+      - name: Dispatch Management Overview
+        if: steps.slot.outputs.force_all == 'true' || steps.slot.outputs.phase == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/workflows/management-overview.yml/dispatches" -f ref=main
+
+      - name: Dispatch HR Leadership
+        if: steps.slot.outputs.force_all == 'true' || steps.slot.outputs.phase == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/workflows/hr-leadership.yml/dispatches" -f ref=main
+
+      - name: Dispatch Convoy Checker live
+        if: steps.slot.outputs.force_all == 'true' || steps.slot.outputs.phase == '2'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method POST \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/convoy-checker.yml/dispatches" \
+            -f ref=main \
+            -f 'inputs[mode]=live'
+
+      - name: Scheduler summary
+        if: always()
+        run: |
+          echo "## Kings Central Scheduler" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Trigger: **$GITHUB_EVENT_NAME**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Milestones: **every 5 minutes**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Management / HR / Convoy: **every 15 minutes, staggered**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Convoy central dispatch mode: **live**" >> "$GITHUB_STEP_SUMMARY"
