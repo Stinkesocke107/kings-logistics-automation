@@ -10,6 +10,7 @@ on:
       - '.github/workflows/staff-management.yml'
 
   schedule:
+    # Native hourly run; Kings Central Scheduler provides a 65-minute fallback.
     - cron: "43 * * * *"
 
 permissions:
