@@ -1,4 +1,5 @@
 # Read-only final verifier for Kings weekly reporting.
+# Channel verification ignores inaccessible duplicate channel names safely.
 name: Kings Weekly Reports Verification
 
 on:
@@ -77,5 +78,5 @@ jobs:
           echo '- Mode: **read-only**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Discord writes: **none**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Verifies Driver, HR and Management weekly publication states against Discord history.' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Duplicate normalized HR channel names are resolved only by existing bot weekly-report history.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Inaccessible duplicate channel names are ignored because they cannot be valid bot targets.' >> "$GITHUB_STEP_SUMMARY"
           echo '- HR is allowed to defer only when Driver Management did not cover the complete reporting week.' >> "$GITHUB_STEP_SUMMARY"
