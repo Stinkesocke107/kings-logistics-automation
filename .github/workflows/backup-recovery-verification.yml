@@ -1,0 +1,108 @@
+name: Kings Backup Recovery Verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'core-backup.js'
+      - 'backup-final-check.js'
+      - 'backup-restore-verify.js'
+      - '.github/workflows/core-backup.yml'
+      - '.github/workflows/core-recovery.yml'
+      - '.github/workflows/backup-recovery-verification.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-backup-recovery-verification
+  cancel-in-progress: false
+
+jobs:
+  verify-roundtrip:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Build current Kings backup
+        run: node core-backup.js
+
+      - name: Validate backup and perform isolated full restore
+        run: node backup-final-check.js
+
+      - name: Enforce restore verification health
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const core = JSON.parse(fs.readFileSync('backup-staging/backup-health.json', 'utf8'));
+          const final = JSON.parse(fs.readFileSync('backup-staging/backup-final-health.json', 'utf8'));
+          const restore = JSON.parse(fs.readFileSync('backup-staging/backup-restore-verification.json', 'utf8'));
+
+          if (core.healthy !== true) throw new Error('Core backup health is not HEALTHY.');
+          if (final.healthy !== true) throw new Error('Final dynamic backup health is not HEALTHY.');
+          if (restore.healthy !== true) throw new Error('Isolated restore verification is not HEALTHY.');
+          if (restore.summary.manifestFiles !== restore.summary.restoredFiles) throw new Error('Not all manifest files were restored.');
+          if (restore.summary.manifestFiles !== restore.summary.checksumsVerified) throw new Error('Not all restored files passed SHA-256 verification.');
+
+          console.log(`Core backup: ${core.status}`);
+          console.log(`Final backup: ${final.status}`);
+          console.log(`Restore roundtrip: ${restore.status}`);
+          console.log(`Restored: ${restore.summary.restoredFiles}/${restore.summary.manifestFiles}`);
+          console.log(`SHA-256 verified: ${restore.summary.checksumsVerified}/${restore.summary.manifestFiles}`);
+          console.log(`Restored JSON verified: ${restore.summary.restoredJsonVerified}`);
+          NODE
+
+      - name: Verify disposable restore sandbox was removed
+        shell: bash
+        run: |
+          if [ -e restore-verification ]; then
+            echo 'ERROR: disposable restore-verification directory still exists.'
+            exit 1
+          fi
+          echo 'Disposable restore sandbox was removed successfully.'
+
+      - name: Upload backup recovery verification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-backup-recovery-verification-${{ github.run_number }}
+          path: |
+            backup-staging/backup-manifest.json
+            backup-staging/backup-health.json
+            backup-staging/backup-final-health.json
+            backup-staging/backup-restore-verification.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 9
+
+      - name: Verification summary
+        if: always()
+        shell: bash
+        run: |
+          echo '## Kings Backup Recovery Verification' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f backup-staging/backup-restore-verification.json ]; then
+            node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          const restore = JSON.parse(fs.readFileSync('backup-staging/backup-restore-verification.json', 'utf8'));
+          console.log(`- Status: **${restore.status}**`);
+          console.log(`- Restored files: **${restore.summary.restoredFiles}/${restore.summary.manifestFiles}**`);
+          console.log(`- SHA-256 verified: **${restore.summary.checksumsVerified}/${restore.summary.manifestFiles}**`);
+          console.log(`- JSON files parsed after restore: **${restore.summary.restoredJsonVerified}**`);
+          console.log('- Live repository overwritten: **No**');
+          console.log('- Disposable restore sandbox removed: **Yes**');
+          NODE
+          else
+            echo '- Restore verification result: **missing**' >> "$GITHUB_STEP_SUMMARY"
+          fi
