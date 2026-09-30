@@ -8,6 +8,7 @@ on:
     paths:
       - 'self-healing.js'
       - 'self-healing-verifier.js'
+      - 'self-healing-state-guard.js'
       - 'tests/self-healing.test.cjs'
       - '.github/workflows/self-healing.yml'
 
@@ -49,6 +50,7 @@ jobs:
           set -euo pipefail
           node --check self-healing.js
           node --check self-healing-verifier.js
+          node --check self-healing-state-guard.js
           node --test tests/self-healing.test.cjs tests/workflow-recovery.test.cjs
           bash -n scripts/git-safe-push.sh
 
@@ -61,6 +63,12 @@ jobs:
           else
             printf '%s\n' '{"version":1,"mode":"technical-safe-self-healing","updatedAt":null,"repairs":{}}' > /tmp/kings-self-healing-state.json
           fi
+
+      - name: Validate or safely recover persistent Self-Healing state
+        env:
+          KINGS_SELF_HEAL_STATE_FILE: '/tmp/kings-self-healing-state.json'
+          KINGS_SELF_HEAL_STATE_RECOVERY_REPORT: '/tmp/kings-self-healing-state-recovery.json'
+        run: node self-healing-state-guard.js
 
       - name: Build initial technical health snapshot
         env:
@@ -113,6 +121,9 @@ jobs:
           else
             echo 'ERROR: Self-Healing engine did not produce its report.'
             exit 1
+          fi
+          if [ -f /tmp/kings-self-healing-state-recovery.json ]; then
+            cp /tmp/kings-self-healing-state-recovery.json output/self-healing-state-recovery.json
           fi
 
           echo "Point 21 refreshed repository HEAD: $(git rev-parse HEAD)"
@@ -181,6 +192,7 @@ jobs:
           name: kings-self-healing-${{ github.run_number }}
           path: |
             output/self-healing.json
+            output/self-healing-state-recovery.json
             output/self-healing-verification.json
             data/self-healing-state.json
             data/system-health.json
@@ -203,6 +215,7 @@ jobs:
           echo '- Discord role/member mutation: **blocked**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Automatic restore / force push: **blocked**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Cooldowns + repair-attempt budgets: **enabled**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Fail-closed corrupt-state recovery guard: **enabled**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Health re-check after every repair cycle: **enabled**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Persistent technical recovery state: **enabled**' >> "$GITHUB_STEP_SUMMARY"
 
@@ -213,6 +226,13 @@ jobs:
           console.log(`- Planned repairs: **${r.planning?.planned?.length || 0}**`);
           console.log(`- Suppressed by cooldown/budget: **${r.planning?.suppressed?.length || 0}**`);
           console.log(`- Manual-only findings: **${r.planning?.unsafeOrManualOnlyIssues?.length || 0}**`);
+          NODE
+          fi
+
+          if [ -f output/self-healing-state-recovery.json ]; then
+            node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const s = require('./output/self-healing-state-recovery.json');
+          console.log(`- State guard recovered corruption: **${s.recoveredFromCorruption ? 'YES (fail-closed)' : 'NO'}**`);
           NODE
           fi
 
