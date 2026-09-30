@@ -2,49 +2,46 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-overdue:convoy-checker.yml": {
+    "workflow-overdue:driver-management.yml": {
       "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
+      "system": "Driver Management",
+      "message": "Driver Management has not run within the expected time window.",
       "details": {
-        "latestActivityAt": "2026-09-30T00:23:04Z",
-        "ageMinutes": 115,
-        "maxAgeMinutes": 45
+        "latestActivityAt": "2026-09-30T13:39:47Z",
+        "ageMinutes": 288,
+        "maxAgeMinutes": 150
       },
-      "firstAlertedAt": "2026-09-30T02:18:58.462Z"
+      "firstAlertedAt": "2026-09-30T18:28:06.116Z"
     },
-    "workflow-failed:convoy-checker.yml": {
+    "stale-data:data/driver-management-summary.json": {
       "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System latest completed run ended with failure.",
+      "system": "Driver Management data",
+      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
       "details": {
-        "runId": 36722177739,
-        "completedAt": "2026-09-30T13:31:30Z"
+        "updatedAt": "2026-09-30T13:39:39.373Z",
+        "ageMinutes": 288,
+        "maxAgeMinutes": 160
       },
-      "firstAlertedAt": "2026-09-30T13:56:24.631Z"
+      "firstAlertedAt": "2026-09-30T18:28:06.116Z"
     },
-    "workflow-overdue:management-overview.yml": {
-      "severity": "warning",
-      "system": "Management Overview",
-      "message": "Management Overview has not run within the expected time window.",
+    "workflow-overdue:staff-management.yml": {
+      "severity": "critical",
+      "system": "Staff Management",
+      "message": "Staff Management has not run within the expected time window.",
       "details": {
-        "latestActivityAt": "2026-09-30T12:58:35Z",
-        "ageMinutes": 151,
-        "maxAgeMinutes": 45
+        "latestActivityAt": "2026-09-30T14:14:50Z",
+        "ageMinutes": 253,
+        "maxAgeMinutes": 150
       },
-      "firstAlertedAt": "2026-09-30T15:30:29.729Z"
-    },
-    "workflow-overdue:milestones.yml": {
-      "severity": "warning",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-09-30T12:58:34Z",
-        "ageMinutes": 151,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-09-30T15:30:29.729Z"
+      "firstAlertedAt": "2026-09-30T18:28:06.116Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "stale-data:data/staff-management-summary.json": {
+      "count": 1,
+      "firstSeenAt": "2026-09-30T18:28:06.116Z",
+      "system": "Staff Management data",
+      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
+    }
+  }
 }
