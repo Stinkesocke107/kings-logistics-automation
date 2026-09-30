@@ -241,10 +241,10 @@ function checkStaffSummary(data, issues, checks) {
   const trackedStaff = number(staff.trackedStaffRecords);
   const driverCount = number(data.driver?.currentDrivers) ?? number(data.live?.members);
 
-  const trackedMatches = currentStaff !== null && trackedStaff !== null && currentStaff === trackedStaff;
+  const trackedMatches = currentStaff !== null && trackedStaff !== null && Number.isInteger(currentStaff) && currentStaff >= 0 && Number.isInteger(trackedStaff) && trackedStaff >= currentStaff;
   checks.push(check('staff-tracked-coverage', trackedMatches, { currentStaff, trackedStaff }));
   if (!trackedMatches) {
-    issues.push(issue('integrity-staff-coverage', 'warning', 'Staff Management', 'Tracked Staff records do not equal the current Staff count.', { currentStaff, trackedStaff }));
+    issues.push(issue('integrity-staff-coverage', 'warning', 'Staff Management', 'Tracked Staff records must cover the current Staff cohort; historical records may increase the total.', { currentStaff, trackedStaff }));
   }
 
   const plausible = currentStaff !== null && Number.isInteger(currentStaff) && currentStaff >= 0 && (driverCount === null || currentStaff <= driverCount);

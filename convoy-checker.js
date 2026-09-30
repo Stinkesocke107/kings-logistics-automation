@@ -314,6 +314,9 @@ async function getStaffStatus(messages) {
 function deriveStatus({ validation, staffStatus, starterText, duplicate }) {
   const explicitStatus = staffStatus?.status || null;
 
+  // Preserve an authorized final decision even if an old event link expires.
+  if (explicitStatus === 'Cancelled' || explicitStatus === 'Completed') return explicitStatus;
+
   if (duplicate) return 'Needs Information';
 
   if (!validation.complete) {
@@ -323,7 +326,6 @@ function deriveStatus({ validation, staffStatus, starterText, duplicate }) {
     return hasSubmissionSignal ? 'Needs Information' : 'Submitted';
   }
 
-  if (explicitStatus === 'Cancelled' || explicitStatus === 'Completed') return explicitStatus;
   if (explicitStatus === 'Needs Information') return 'Needs Information';
   if (explicitStatus === 'Scheduled') return 'Scheduled';
   return 'Ready for Approval';
@@ -745,6 +747,10 @@ async function main() {
       ? '\nDiscord write mode: bot creates/edits its own convoy status message and synchronizes existing forum status tags.'
       : '\nREAD_ONLY mode: no Discord data was changed.'
   );
+  if (actualConvoys.some((item) => item.error || item.forumTagSync?.action === 'failed' || item.discordStatusSync?.action === 'failed')) {
+    process.exitCode = 1;
+  }
+
 }
 
 main().catch((error) => {

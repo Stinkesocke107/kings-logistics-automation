@@ -206,7 +206,7 @@ function checkEncryptedStates(issues) {
   return checked;
 }
 
-function checkFreshData(issues) {
+function checkFreshData(issues, workflows = []) {
   const results = [];
   for (const config of FRESH_DATA) {
     const result = readJson(config.file);
@@ -221,7 +221,10 @@ function checkFreshData(issues) {
     }
     const updatedAt = result.data?.updatedAt || result.data?.checkedAt || null;
     const age = ageMinutes(updatedAt);
-    const ok = Number.isFinite(age) && age <= config.maxAgeMinutes;
+    const staffWorkflow = config.file === 'data/staff-management-summary.json'
+      ? workflows.find((item) => item.file === 'staff-management.yml') : null;
+    const workflowHeartbeat = Boolean(staffWorkflow?.ok);
+    const ok = workflowHeartbeat || (Number.isFinite(age) && age <= config.maxAgeMinutes);
     if (!ok) {
       issues.push(issue(
         `stale-data:${config.file}`,
@@ -231,7 +234,7 @@ function checkFreshData(issues) {
         { updatedAt, ageMinutes: Number.isFinite(age) ? age : null, maxAgeMinutes: config.maxAgeMinutes }
       ));
     }
-    results.push({ file: config.file, label: config.label, ok, updatedAt, ageMinutes: Number.isFinite(age) ? age : null, maxAgeMinutes: config.maxAgeMinutes });
+    results.push({ file: config.file, label: config.label, ok, updatedAt, freshnessBasis: workflowHeartbeat ? 'staff-management-workflow' : 'data-timestamp', ageMinutes: Number.isFinite(age) ? age : null, maxAgeMinutes: config.maxAgeMinutes });
   }
   return results;
 }
@@ -424,7 +427,12 @@ async function checkWorkflow(config, issues) {
 
   const encodedFile = encodeURIComponent(config.file);
   const data = await githubJson(`/repos/${GITHUB_REPOSITORY}/actions/workflows/${encodedFile}/runs?branch=main&per_page=10`);
-  const runs = Array.isArray(data?.workflow_runs) ? data.workflow_runs : [];
+  const allRuns = Array.isArray(data?.workflow_runs) ? data.workflow_runs : [];
+  // A validation-only convoy run cannot establish production health.
+  const runs = config.file === 'convoy-checker.yml'
+    ? allRuns.filter((run) => run.event === 'schedule' ||
+        (run.event === 'workflow_dispatch' && /\blive\b/i.test(run.display_title || '')))
+    : allRuns;
 
   if (!runs.length) {
     if (!config.optionalUntilFirstRun) {
@@ -440,7 +448,8 @@ async function checkWorkflow(config, issues) {
 
   const latest = runs[0];
   const latestCompleted = runs.find((run) => run.status === 'completed') || null;
-  const activityAt = latest.run_started_at || latest.created_at || latest.updated_at;
+  const latestSuccess = runs.find((run) => run.status === 'completed' && run.conclusion === 'success');
+  const activityAt = latestSuccess?.updated_at || latestSuccess?.run_started_at || latestSuccess?.created_at;
   const age = ageMinutes(activityAt);
   let ok = true;
   const reasons = [];
@@ -457,8 +466,7 @@ async function checkWorkflow(config, issues) {
     ));
   }
 
-  const latestIsRunning = ['queued', 'in_progress', 'waiting', 'requested', 'pending'].includes(String(latest.status));
-  if (!latestIsRunning && latestCompleted && latestCompleted.conclusion !== 'success') {
+  if (latestCompleted && latestCompleted.conclusion !== 'success') {
     ok = false;
     reasons.push(`latest-completed-${latestCompleted.conclusion || 'unknown'}`);
     issues.push(issue(
@@ -565,9 +573,9 @@ async function main() {
   const criticalFiles = checkCriticalFiles(issues);
   const json = checkJsonFiles(issues);
   const encryptedStates = checkEncryptedStates(issues);
-  const freshData = checkFreshData(issues);
-  const integrity = checkCrossSystemIntegrity(issues);
   const workflows = await checkWorkflows(issues);
+  const freshData = checkFreshData(issues, workflows);
+  const integrity = checkCrossSystemIntegrity(issues);
   // Run API-health inspection after workflow API calls so the monitoring engine's
   // own GitHub API health state is included in this same health report.
   const apiHealth = checkApiHealth(issues);

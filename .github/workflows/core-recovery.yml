@@ -33,6 +33,7 @@ concurrency:
 
 jobs:
   kings-recovery:
+    if: github.ref == 'refs/heads/main'
     name: Kings Recovery
     runs-on: ubuntu-latest
     timeout-minutes: 20

@@ -410,6 +410,8 @@ async function main() {
   console.log(
     `Kings Convoy Announcements finished. 24h created: ${announcementsCreated}. 24h updated: ${announcementsUpdated}. 24h unchanged: ${announcementsUnchanged}. Skipped: ${skipped}. Failed: ${failed}.`
   );
+  if (failed > 0) process.exitCode = 1;
+
 }
 
 main().catch((error) => {

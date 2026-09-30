@@ -192,7 +192,8 @@ async function resilientFetch(url, options = {}) {
     circuitFailureThreshold = 5,
     circuitCooldownMs = 60000,
     fetchOptions = {},
-    validateResponse = null
+    validateResponse = null,
+    deferSuccess = false
   } = options;
 
   assertCircuitClosed(label);
@@ -236,7 +237,7 @@ async function resilientFetch(url, options = {}) {
         await validateResponse(response);
       }
 
-      recordSuccess(label);
+      if (!deferSuccess) recordSuccess(label);
       return response;
     } catch (error) {
       lastError = error;
@@ -273,7 +274,7 @@ async function resilientFetch(url, options = {}) {
 }
 
 async function resilientFetchJson(url, options = {}) {
-  const response = await resilientFetch(url, options);
+  const response = await resilientFetch(url, { ...options, deferSuccess: true });
 
   let data;
   try {
@@ -293,6 +294,7 @@ async function resilientFetchJson(url, options = {}) {
     }
   }
 
+  recordSuccess(options.label || 'external-api');
   return data;
 }
 

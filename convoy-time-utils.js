@@ -19,7 +19,7 @@ function parseMeetingTime(eventDate, meetingTime) {
     const sign = numericOffset[1] === '-' ? -1 : 1;
     const hours = Number(numericOffset[2]);
     const minutes = Number(numericOffset[3] || 0);
-    if (hours > 14 || minutes > 59) return null;
+    if (hours > 14 || minutes > 59 || (hours === 14 && minutes !== 0)) return null;
     offsetMinutes = sign * (hours * 60 + minutes);
     zoneLabel = `${sign < 0 ? '-' : '+'}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   } else if (/\bCEST\b/i.test(text)) {
@@ -46,6 +46,8 @@ function parseMeetingTime(eventDate, meetingTime) {
 
   const [year, month, day] = eventDate.split('-').map(Number);
   const localMs = Date.UTC(year, month - 1, day, hour, minute, 0, 0);
+  const calendarDate = new Date(localMs);
+  if (calendarDate.getUTCFullYear() !== year || calendarDate.getUTCMonth() !== month - 1 || calendarDate.getUTCDate() !== day) return null;
   const utcMs = localMs - offsetMinutes * 60 * 1000;
 
   return {

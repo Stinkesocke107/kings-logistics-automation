@@ -72,7 +72,7 @@ function eventIdFromText(text = '') {
 }
 
 function latestEventId(messages, threadName = '') {
-  const sorted = [...(messages || [])].sort(
+  const sorted = [...(messages || [])].filter((message) => !message.author?.bot).sort(
     (a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0)
   );
 
@@ -91,7 +91,7 @@ function getFieldValue(messages, labels) {
     'i'
   );
 
-  const sorted = [...(messages || [])].sort(
+  const sorted = [...(messages || [])].filter((message) => !message.author?.bot).sort(
     (a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0)
   );
 
@@ -260,6 +260,8 @@ async function listForumEntries() {
 
   const entries = [];
   for (const thread of all.values()) {
+    if (thread.thread_metadata?.archived || thread.thread_metadata?.locked ||
+        /^\s*\[?test\]?(?:\s|[-_:])/i.test(thread.name || '') || /\btemplate\b/i.test(thread.name || '')) continue;
     const messages = await discord(`/channels/${thread.id}/messages?limit=100`);
     entries.push({
       id: thread.id,
@@ -286,6 +288,7 @@ async function listTextChannelEntries() {
 
   const entries = [];
   for (const message of messages) {
+    if (message.author?.bot || /^\s*\[?test\]?(?:\s|[-_:])/i.test(message.content || '')) continue;
     const eventId = eventIdFromText(message.content || '');
     if (!eventId) continue;
     entries.push({
@@ -350,7 +353,7 @@ async function findExistingAnnouncement(eventId, botId) {
     before = messages[messages.length - 1].id;
   }
 
-  return null;
+  throw new Error('Announcement history limit reached; duplicate protection is inconclusive.');
 }
 
 function buildContent({ eventId, name, details }) {
@@ -485,11 +488,14 @@ async function main() {
         continue;
       }
 
+      if (!details.departureUnix || details.departureUnix < details.meetingUnix ||
+          !details.server || !locationLabel(event.departure) || !locationLabel(event.arrive)) {
+        throw new Error('Public convoy requires a valid departure time, server, start and destination.');
+      }
+
       const routeImage = findRouteImage(messages);
       if (!routeImage) {
-        console.log(`- ${entry.name} | waiting: route image required (slot/booking images are ignored)`);
-        skipped += 1;
-        continue;
+        throw new Error('Route image required in the announcement window (slot/booking images are ignored).');
       }
 
       const existing = await findExistingAnnouncement(eventId, bot.id);
@@ -501,6 +507,9 @@ async function main() {
 
       const name = displayName(entry, event);
       const content = buildContent({ eventId, name, details });
+      if (require('./kings-branding').brandMessageContent(content).length > 2000) {
+        throw new Error('Public convoy announcement exceeds Discord message length.');
+      }
       const sent = await sendAnnouncement(content, routeImage);
       console.log(`- ${entry.name} | 2h Kings announcement sent: ${sent?.id || 'unknown'}`);
       sent2h += 1;
@@ -515,6 +524,8 @@ async function main() {
   console.log(
     `Kings Convoy Announcements finished. 2h sent: ${sent2h}. Skipped: ${skipped}. Failed: ${failed}.`
   );
+  if (failed > 0) process.exitCode = 1;
+
 }
 
 main().catch((error) => {

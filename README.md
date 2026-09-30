@@ -2,6 +2,12 @@
 
 Automation systems and tools for Kings Logistics.
 
+## Verification
+
+Run `node --test tests/*.test.cjs` with Node.js 24. The suite uses isolated in-memory API/Discord fixtures and temporary local Git repositories; it does not require production secrets. Pull requests run the offline verification workflow automatically.
+
+See [the system verification report](docs/system-verification-2026-09-30.md) for tested repairs, live evidence and remaining production checks.
+
 ## Current Systems
 
 - Kings Live Tracker

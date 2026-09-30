@@ -206,6 +206,7 @@ async function main() {
   const threads = (activeData.threads || []).filter((thread) => thread.parent_id === FORUM_ID);
 
   console.log('Kings Convoy Notifications started from finalized convoy report.');
+  let failed = 0;
   console.log(`Active convoy threads: ${threads.length}`);
 
   for (const thread of threads) {
@@ -263,11 +264,14 @@ async function main() {
         `- ${thread.name} | Final status: ${status || 'unknown'} | Notification: ${result.action} | Stale Needs Info removed: ${staleNeedsInfoDeleted} | Stale Ready removed: ${staleReadyDeleted}`
       );
     } catch (error) {
+      failed += 1;
       console.warn(`- FAILED | ${thread.name} | ${error.message}`);
     }
   }
 
   console.log('Kings Convoy Notifications finished.');
+  if (failed > 0) process.exitCode = 1;
+
 }
 
 main().catch((error) => {

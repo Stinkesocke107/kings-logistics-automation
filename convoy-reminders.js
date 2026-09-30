@@ -288,6 +288,7 @@ async function main() {
   const bot = await discord('/users/@me');
   const nowUnix = Math.floor(Date.now() / 1000);
   let reportChanged = false;
+  let failed = 0;
 
   console.log(`Kings Convoy Follow-up started. Test mode: ${TEST_MODE ? 'enabled' : 'disabled'}.`);
 
@@ -310,6 +311,7 @@ async function main() {
         await handleTestThread(item, messages, bot.id);
         if (beforeStatus !== item.status) reportChanged = true;
       } catch (error) {
+      failed += 1;
         console.warn(`- TEST reminder failed | ${item.name} | ${error.message}`);
       }
       continue;
@@ -339,6 +341,7 @@ async function main() {
 
       console.log(`- ${item.name} | pre-convoy source-thread reminder disabled; Convoy Driver reminders handle 24h/1h notifications`);
     } catch (error) {
+      failed += 1;
       console.warn(`- Follow-up failed | ${item.name} | ${error.message}`);
     }
   }
@@ -349,6 +352,8 @@ async function main() {
   }
 
   console.log('Kings Convoy Follow-up finished.');
+  if (failed > 0) process.exitCode = 1;
+
 }
 
 main().catch((error) => {

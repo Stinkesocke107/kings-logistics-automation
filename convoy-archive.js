@@ -86,6 +86,7 @@ async function main() {
 
   const nowUnix = Math.floor(Date.now() / 1000);
   let archivedCount = 0;
+  let failed = 0;
 
   console.log(`Kings Convoy Archive started. Delay: ${ARCHIVE_DELAY_HOURS} hours.`);
 
@@ -133,11 +134,14 @@ async function main() {
       archivedCount += 1;
       console.log(`- ${item.name} | archived automatically`);
     } catch (error) {
+      failed += 1;
       console.warn(`- Archive failed | ${item.name} | ${error.message}`);
     }
   }
 
   console.log(`Kings Convoy Archive finished. Archived this run: ${archivedCount}.`);
+  if (failed > 0) process.exitCode = 1;
+
 }
 
 main().catch((error) => {

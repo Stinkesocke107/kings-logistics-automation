@@ -31,8 +31,8 @@ function readJson(file, fallback = null) {
   if (!fs.existsSync(file)) return fallback;
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch {
-    return fallback;
+  } catch (error) {
+    throw new Error(`Invalid state ${path.basename(file)}; refusing to reset it: ${error.message}`);
   }
 }
 

@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 
   push:
+    branches: [main]
     paths:
       - 'system-monitoring.js'
       - 'system-alerts.js'
@@ -28,10 +29,11 @@ permissions:
 
 concurrency:
   group: kings-system-monitoring
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   system-monitoring:
+    if: github.ref == 'refs/heads/main'
     name: Monitor Kings Systems
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -41,6 +43,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -72,41 +76,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           node system-monitoring.js
-
-          # Staff Management is intentionally event-driven: its summary file only changes
-          # when Staff data changes. Workflow freshness is therefore the correct heartbeat.
-          node <<'NODE'
-          const fs = require('fs');
-          const file = 'data/system-health.json';
-          const health = JSON.parse(fs.readFileSync(file, 'utf8'));
-          const staffWorkflow = Array.isArray(health.workflows)
-            ? health.workflows.find((item) => item.file === 'staff-management.yml')
-            : null;
-
-          if (staffWorkflow?.ok) {
-            const staleId = 'stale-data:data/staff-management-summary.json';
-            health.issues = (health.issues || []).filter((item) => item.id !== staleId);
-
-            const freshness = health.data?.freshness;
-            if (Array.isArray(freshness)) {
-              const staffData = freshness.find((item) => item.file === 'data/staff-management-summary.json');
-              if (staffData) {
-                staffData.ok = true;
-                staffData.freshnessBasis = 'staff-management-workflow';
-              }
-              health.summary.freshDataHealthy = freshness.filter((item) => item.ok).length;
-            }
-
-            const critical = health.issues.filter((item) => item.severity === 'critical').length;
-            const warnings = health.issues.filter((item) => item.severity === 'warning').length;
-            health.summary.criticalIssues = critical;
-            health.summary.warnings = warnings;
-            health.status = critical ? 'UNHEALTHY' : warnings ? 'DEGRADED' : 'HEALTHY';
-            health.healthy = health.status === 'HEALTHY';
-            fs.writeFileSync(file, JSON.stringify(health, null, 2) + '\n');
-            console.log('Staff Management freshness normalized to workflow heartbeat.');
-          }
-          NODE
 
           node data-integrity.js
           node system-hardening.js
@@ -188,8 +157,8 @@ jobs:
           git commit -m "Update Kings monitoring state"
           bash scripts/git-safe-push.sh main
 
-      - name: Preserve unhealthy health report
-        if: steps.discord_permissions.outputs.status != 'HEALTHY'
+      - name: Preserve final health report
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: kings-system-health-${{ github.run_number }}
@@ -211,3 +180,8 @@ jobs:
           echo "### Safety" >> "$GITHUB_STEP_SUMMARY"
           echo "Kings System Monitoring, API Resilience, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
           echo "They never change Discord roles, permissions, members, Staff/Driver/HR status, bans, kicks, timeouts, promotions, demotions, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Require healthy final report
+        if: always()
+        run: |
+          node -e "const h=require('./data/system-health.json'); if(h.status !== 'HEALTHY') { console.error('Kings final health: ' + h.status); process.exit(1); }"

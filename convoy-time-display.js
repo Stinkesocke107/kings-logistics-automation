@@ -466,6 +466,7 @@ async function main() {
   }
 
   let changedReport = false;
+  let failed = 0;
 
   for (const item of report.threads || []) {
     if (item.ignored || item.error) continue;
@@ -505,6 +506,7 @@ async function main() {
         `- ${item.name} | Status: ${item.status} | Date: ${sources.eventDate?.messageId || 'existing'} | Meeting Time: ${sources.meetupTime?.messageId || 'existing'} | Route: ${sources.route?.messageId || 'existing'} | Meeting Point: ${sources.meetup?.messageId || 'existing'} | Slot: ${sources.kingsSlot?.messageId || 'existing'} | Message: ${messageResult.action} | Tag: ${tagResult.action}`
       );
     } catch (error) {
+      failed += 1;
       console.warn(`- Time/field sync failed | ${item.name} | ${error.message}`);
     }
   }
@@ -512,6 +514,8 @@ async function main() {
   refreshReportSummary(report);
   fs.writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
   console.log(`Kings Convoy Time/Field Sync finished. Report updated: ${changedReport ? 'yes' : 'no'}.`);
+  if (failed > 0) process.exitCode = 1;
+
 }
 
 main().catch((error) => {
