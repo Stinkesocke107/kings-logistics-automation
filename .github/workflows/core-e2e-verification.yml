@@ -1,0 +1,185 @@
+name: Kings Core End-to-End Verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'core-e2e-verifier.js'
+      - 'tests/**'
+      - 'scripts/**'
+      - '.github/workflows/core-e2e-verification.yml'
+      - 'api-resilience.js'
+      - 'api-resilience-verifier.js'
+      - 'git-state-hardening-verifier.js'
+      - 'system-monitoring.js'
+      - 'data-integrity.js'
+      - 'system-hardening.js'
+      - 'security-audit.js'
+      - 'discord-permission-audit.js'
+      - 'weekly-reports-verifier-v2.js'
+      - 'monthly-report-verifier.js'
+      - 'kings-convoy-announcement-verifier.js'
+      - 'core-backup.js'
+      - 'backup-final-check.js'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: kings-core-e2e-verification
+  cancel-in-progress: false
+
+jobs:
+  core-e2e:
+    if: github.ref == 'refs/heads/main'
+    name: Verify Full Kings Core Chain
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify E2E scripts and shell safety
+        shell: bash
+        run: |
+          node --check core-e2e-verifier.js
+          node --check api-resilience-verifier.js
+          node --check git-state-hardening-verifier.js
+          node --check system-monitoring.js
+          node --check data-integrity.js
+          node --check system-hardening.js
+          node --check security-audit.js
+          node --check discord-permission-audit.js
+          node --check weekly-reports-verifier-v2.js
+          node --check monthly-report-verifier.js
+          node --check kings-convoy-announcement-verifier.js
+          node --check core-backup.js
+          node --check backup-final-check.js
+          bash -n scripts/git-safe-push.sh
+
+      - name: Run complete regression and integration suite
+        run: node --test tests/*.test.cjs
+
+      - name: Build current read-only system health snapshot
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          KINGS_API_HEALTH_NAMESPACE: 'core-e2e'
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+        shell: bash
+        run: |
+          node system-monitoring.js
+          node data-integrity.js
+          node system-hardening.js
+          node security-audit.js
+          node discord-permission-audit.js
+          node - <<'NODE'
+          const h = require('./data/system-health.json');
+          if (h.status !== 'HEALTHY') throw new Error(`E2E health snapshot is ${h.status}`);
+          if (Number(h.summary?.criticalIssues || 0) !== 0) throw new Error('E2E health snapshot contains critical issues.');
+          if (Number(h.summary?.warnings || 0) !== 0) throw new Error('E2E health snapshot contains warnings.');
+          console.log(`System Health: ${h.status}; workflows ${h.summary?.workflowsHealthy}/${h.summary?.workflowsChecked}; APIs ${h.summary?.apiServicesHealthy}/${h.summary?.apiServicesChecked}`);
+          NODE
+
+      - name: Re-verify API resilience and production API states
+        run: node api-resilience-verifier.js
+
+      - name: Re-verify Git and state conflict policy
+        run: node git-state-hardening-verifier.js
+
+      - name: Verify Weekly Reports live state read-only
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
+          MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
+        run: node weekly-reports-verifier-v2.js
+
+      - name: Verify Monthly Report readiness or publication read-only
+        env:
+          MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: node monthly-report-verifier.js
+
+      - name: Verify public Convoy Announcement state read-only
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_KINGS_CONVOY_SOURCE_FORUM_ID: '1506133821693755502'
+          DISCORD_KINGS_CONVOY_ANNOUNCEMENT_CHANNEL_ID: '1351613882791366838'
+          KINGS_API_HEALTH_NAMESPACE: 'core-e2e-convoy-verifier'
+        run: node kings-convoy-announcement-verifier.js
+
+      - name: Perform isolated Backup and Recovery roundtrip
+        shell: bash
+        run: |
+          node core-backup.js
+          node backup-final-check.js
+          node - <<'NODE'
+          const fs = require('fs');
+          const core = JSON.parse(fs.readFileSync('backup-staging/backup-health.json', 'utf8'));
+          const final = JSON.parse(fs.readFileSync('backup-staging/backup-final-health.json', 'utf8'));
+          const restore = JSON.parse(fs.readFileSync('backup-staging/backup-restore-verification.json', 'utf8'));
+          if (core.healthy !== true || final.healthy !== true || restore.healthy !== true) throw new Error('Backup/recovery roundtrip is not healthy.');
+          if (restore.summary.manifestFiles !== restore.summary.restoredFiles) throw new Error('Restore file count mismatch.');
+          if (restore.summary.manifestFiles !== restore.summary.checksumsVerified) throw new Error('Restore checksum coverage mismatch.');
+          if (fs.existsSync('restore-verification')) throw new Error('Disposable restore sandbox was not removed.');
+          console.log(`Restore: ${restore.summary.restoredFiles}/${restore.summary.manifestFiles}; SHA-256: ${restore.summary.checksumsVerified}/${restore.summary.manifestFiles}`);
+          NODE
+
+      - name: Aggregate complete Point 17 proof
+        run: node core-e2e-verifier.js
+
+      - name: Upload Point 17 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-core-e2e-verification-${{ github.run_number }}
+          path: |
+            output/core-e2e-verification.json
+            output/api-resilience-verification.json
+            output/api-resilience-final-report.json
+            output/git-state-hardening-verification.json
+            output/git-state-hardening-final-report.json
+            output/weekly-reports-verification.json
+            output/monthly-report-verification.json
+            output/kings-convoy-announcement-verification.json
+            data/system-health.json
+            data/data-integrity.json
+            data/system-hardening.json
+            data/security-audit.json
+            data/discord-permission-audit.json
+            backup-staging/backup-health.json
+            backup-staging/backup-final-health.json
+            backup-staging/backup-restore-verification.json
+            backup-staging/backup-manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 9
+
+      - name: Point 17 safety summary
+        if: always()
+        shell: bash
+        run: |
+          echo '## Kings Core End-to-End Verification — Point 17' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Production Discord writes by this workflow: **none**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Discord access: **GET/read-only verification only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- API failure injection: **isolated local mock server only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Git conflict injection: **temporary local repositories only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Backup restore: **disposable isolated sandbox only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Personnel/role/permission actions: **none**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Time-bound real production proofs (Convoy/News/HR Weekly/Monthly) remain separately tracked.' >> "$GITHUB_STEP_SUMMARY"
