@@ -12,7 +12,8 @@ on:
       - '.github/workflows/hr-leadership.yml'
 
   schedule:
-    - cron: "7,22,37,52 * * * *"
+    # Keep HR away from Monitoring/Management slots and the top of the hour.
+    - cron: "10,25,40,55 * * * *"
 
 permissions:
   contents: write

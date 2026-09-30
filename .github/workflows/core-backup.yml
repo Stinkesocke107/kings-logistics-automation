@@ -19,8 +19,8 @@ on:
         type: string
 
   schedule:
-    # Daily normal backup at 03:37 UTC
-    - cron: "37 3 * * *"
+    # Daily normal backup at 03:06 UTC, away from Monitoring/News and top-of-hour congestion.
+    - cron: "6 3 * * *"
 
 permissions:
   contents: read

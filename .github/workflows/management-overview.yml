@@ -10,7 +10,8 @@ on:
       - '.github/workflows/management-overview.yml'
 
   schedule:
-    - cron: "7,22,37,52 * * * *"
+    # Quarter-hour cadence reserved for Management, separate from HR and Convoy.
+    - cron: "0,15,30,45 * * * *"
 
 permissions:
   contents: read
