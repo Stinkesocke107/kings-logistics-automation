@@ -9,6 +9,7 @@ on:
       - 'self-healing.js'
       - 'self-healing-verifier.js'
       - 'self-healing-state-guard.js'
+      - 'discord-permission-audit.js'
       - 'tests/self-healing.test.cjs'
       - '.github/workflows/self-healing.yml'
 
@@ -51,6 +52,7 @@ jobs:
           node --check self-healing.js
           node --check self-healing-verifier.js
           node --check self-healing-state-guard.js
+          node --check discord-permission-audit.js
           node --test tests/self-healing.test.cjs tests/workflow-recovery.test.cjs
           bash -n scripts/git-safe-push.sh
 
