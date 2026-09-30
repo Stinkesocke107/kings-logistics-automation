@@ -1,0 +1,66 @@
+name: Kings Monthly Report Verification
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 11 1 * *"
+  push:
+    branches:
+      - main
+    paths:
+      - 'monthly-report-v2.js'
+      - 'monthly-report-verifier.js'
+      - '.github/workflows/monthly-report.yml'
+      - '.github/workflows/monthly-report-verification.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-monthly-report-verification
+  cancel-in-progress: false
+
+jobs:
+  verify-monthly-report:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Verify Monthly Report Scripts
+        run: |
+          node --check monthly-report-v2.js
+          node --check monthly-report-verifier.js
+
+      - name: Verify Monthly Report Readiness / Publication
+        env:
+          MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: node monthly-report-verifier.js
+
+      - name: Upload Monthly Verification Report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-monthly-report-verification-${{ github.run_number }}
+          path: output/monthly-report-verification.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Verification Safety Summary
+        if: always()
+        run: |
+          echo '## Kings Monthly Report Verification' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Mode: **read-only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Discord writes: **none**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Before month close: verifies readiness and confirms no early official post/state.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- On the 1st: verifies the previous month has exactly one Discord post and a matching publication state.' >> "$GITHUB_STEP_SUMMARY"
