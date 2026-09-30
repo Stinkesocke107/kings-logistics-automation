@@ -35,18 +35,29 @@ jobs:
           test ! -f monthly-report.js
           test ! -f management-weekly-overview.js
 
-          test "$(grep -c '"'"'monthly-report.js'"'"' core-backup.js)" -eq 1
-          test "$(grep -c '"'"'management-weekly-overview.js'"'"' core-backup.js)" -eq 1
-          test "$(grep -c '"'"'monthly-report-v2.js'"'"' core-backup.js || true)" -eq 0
-          test "$(grep -c '"'"'management-weekly-overview-v3.js'"'"' core-backup.js || true)" -eq 0
+          node - <<'NODE'
+          const fs = require('fs');
+          const file = 'core-backup.js';
+          let source = fs.readFileSync(file, 'utf8');
+          const replacements = [
+            ['"monthly-report.js"', '"monthly-report-v2.js"'],
+            ['"management-weekly-overview.js"', '"management-weekly-overview-v3.js"']
+          ];
+          for (const [oldValue, newValue] of replacements) {
+            const oldCount = source.split(oldValue).length - 1;
+            const newCount = source.split(newValue).length - 1;
+            if (oldCount !== 1) throw new Error(`${oldValue} occurrence count is ${oldCount}, expected 1.`);
+            if (newCount !== 0) throw new Error(`${newValue} already occurs ${newCount} time(s); refusing ambiguous edit.`);
+            source = source.replace(oldValue, newValue);
+          }
+          for (const [oldValue, newValue] of replacements) {
+            if (source.includes(oldValue)) throw new Error(`Legacy path remains after replacement: ${oldValue}`);
+            if ((source.split(newValue).length - 1) !== 1) throw new Error(`Replacement path is not unique: ${newValue}`);
+          }
+          fs.writeFileSync(file, source, 'utf8');
+          console.log('Exact backup critical path replacement completed.');
+          NODE
 
-          sed -i 's/"monthly-report\.js"/"monthly-report-v2.js"/' core-backup.js
-          sed -i 's/"management-weekly-overview\.js"/"management-weekly-overview-v3.js"/' core-backup.js
-
-          test "$(grep -c '"'"'monthly-report-v2.js'"'"' core-backup.js)" -eq 1
-          test "$(grep -c '"'"'management-weekly-overview-v3.js'"'"' core-backup.js)" -eq 1
-          test "$(grep -c '"'"'monthly-report.js'"'"' core-backup.js || true)" -eq 0
-          test "$(grep -c '"'"'management-weekly-overview.js'"'"' core-backup.js || true)" -eq 0
           node --check core-backup.js
 
       - name: Verify backup health before commit
@@ -65,7 +76,6 @@ jobs:
           }
           if (final.healthy !== true) throw new Error('Backup final integrity is not healthy.');
           console.log(`Backup critical files: ${health.criticalFiles.present}/${health.criticalFiles.expected}`);
-          console.log(`Backup final checksums verified: ${final.summary?.checksumsVerified ?? 'see final report'}`);
           NODE
 
       - name: Commit exact backup safety alignment
