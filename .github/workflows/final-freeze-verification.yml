@@ -11,6 +11,7 @@ on:
       - 'final-freeze-verifier.js'
       - 'production-proof-collector.js'
       - 'news-production-verifier.js'
+      - 'scripts/create-final-baseline-ref.js'
       - 'data/public-convoy-live-proof.json'
       - 'data/news-live-proof.json'
       - 'data/hr-weekly-live-proof.json'
@@ -86,6 +87,7 @@ jobs:
         run: |
           set -euo pipefail
           for file in *.js tests/*.cjs; do node --check "$file"; done
+          node --check scripts/create-final-baseline-ref.js
           bash -n scripts/git-safe-push.sh
           node branding-self-test.js
           node --test tests/*.test.cjs
@@ -152,23 +154,15 @@ jobs:
             echo 'final_ready=false' >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create immutable final baseline reference branch
+      - name: Create immutable final baseline reference
         if: steps.final_gate.outputs.final_ready == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         shell: bash
         run: |
           set -euo pipefail
-          VERIFIED_HEAD="$(git rev-parse HEAD)"
-          FINAL_BRANCH='baseline/final-core-point23'
-          EXISTING="$(git ls-remote --heads origin "refs/heads/$FINAL_BRANCH" | awk '{print $1}')"
-          if [ -z "$EXISTING" ]; then
-            git push origin "$VERIFIED_HEAD:refs/heads/$FINAL_BRANCH"
-            echo "Created $FINAL_BRANCH at $VERIFIED_HEAD"
-          elif [ "$EXISTING" = "$VERIFIED_HEAD" ]; then
-            echo "$FINAL_BRANCH already points to the verified final commit."
-          else
-            echo "ERROR: $FINAL_BRANCH already exists at a different commit ($EXISTING). Refusing to rewrite a final freeze."
-            exit 1
-          fi
+          FINAL_FREEZE_COMMIT="$(git rev-parse HEAD)" node scripts/create-final-baseline-ref.js
 
       - name: Persist final freeze state
         if: steps.final_gate.outputs.final_ready == 'true'
@@ -224,6 +218,6 @@ jobs:
           console.log(`- Technical gates: **${r.technical?.passed || 0}/${r.technical?.checks || 0}**`);
           console.log(`- Live proofs: **${r.liveProofs?.items?.filter(x => x.ready).length || 0}/${r.liveProofs?.items?.length || 4}**`);
           for (const p of r.liveProofs?.items || []) console.log(`- ${p.label}: **${p.ready ? 'VERIFIED' : 'PENDING'}**`);
-          console.log(`- Final baseline branch: **${r.finalReady ? 'baseline/final-core-point23' : 'not created until every gate is verified'}**`);
+          console.log(`- Final baseline ref: **${r.finalReady ? 'baseline/final-core-point23' : 'not created until every gate is verified'}**`);
           NODE
           fi
