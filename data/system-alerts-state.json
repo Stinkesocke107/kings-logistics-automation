@@ -2,17 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "stale-data:data/live-tracker-snapshot.json": {
-      "severity": "critical",
-      "system": "Live Tracker data",
-      "message": "Live Tracker data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-09-29T22:28:52.922Z",
-        "ageMinutes": 39,
-        "maxAgeMinutes": 25
-      },
-      "firstAlertedAt": "2026-09-29T23:08:43.399Z"
-    },
     "workflow-overdue:convoy-checker.yml": {
       "severity": "critical",
       "system": "Convoy / Event System",
@@ -23,17 +12,6 @@
         "maxAgeMinutes": 45
       },
       "firstAlertedAt": "2026-09-30T02:18:58.462Z"
-    },
-    "stale-data:data/statistics.json": {
-      "severity": "critical",
-      "system": "Statistics data",
-      "message": "Statistics data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-09-30T12:26:03.914Z",
-        "ageMinutes": 46,
-        "maxAgeMinutes": 35
-      },
-      "firstAlertedAt": "2026-09-30T13:12:39.143Z"
     }
   },
   "pending": {}
