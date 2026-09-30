@@ -5,7 +5,9 @@ const {
   KINGS_LOGISTICS_LOGO,
   KINGS_HEART,
   replaceBrandText,
-  brandDiscordPayload
+  brandDiscordPayload,
+  canRetryDiscordResponse,
+  canRetryDiscordError
 } = require('../kings-branding');
 
 test('keeps valid Kings custom emoji mentions intact', () => {
@@ -66,4 +68,18 @@ test('preserves embed-only messages without injecting custom emoji content', () 
 
   assert.equal(output.content, undefined);
   assert.equal(output.embeds[0].title, 'Kings Staff Leadership Overview');
+});
+
+test('Discord POST retries explicit 429 but never ambiguous 5xx', () => {
+  assert.equal(canRetryDiscordResponse('POST', 429), true);
+  assert.equal(canRetryDiscordResponse('POST', 503), false);
+  assert.equal(canRetryDiscordResponse('POST', 408), false);
+});
+
+test('Discord idempotent writes retry transient responses and network failures', () => {
+  assert.equal(canRetryDiscordResponse('PATCH', 503), true);
+  assert.equal(canRetryDiscordResponse('DELETE', 429), true);
+  assert.equal(canRetryDiscordResponse('GET', 408), true);
+  assert.equal(canRetryDiscordError('PATCH', { cause: { code: 'ECONNRESET' } }), true);
+  assert.equal(canRetryDiscordError('POST', { cause: { code: 'ECONNRESET' } }), false);
 });
