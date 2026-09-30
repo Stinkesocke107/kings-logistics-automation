@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: kings-repository-cleanup-once
@@ -73,8 +74,6 @@ jobs:
             echo "${branch}: deleted (verified superseded head ${actual})"
           }
 
-          # These branches diverged only because the same fix was later applied or
-          # superseded on main. Exact-head guards prevent deleting any newer work.
           delete_exact_head 'fix/convoy-api-health-conflict-20260930' '93555dc1132062072385d82e6eb363b216006580'
           delete_exact_head 'fix/monitoring-trigger-health-producers-20260930' 'c7ba366a4d743923e7e553752f5245f60d17102b'
           delete_exact_head 'fix/workflow-schedule-hardening-20260930' 'e965beee3532eecbc73b5c43c9301886fb6d0ec7'
@@ -103,6 +102,18 @@ jobs:
           done
           echo 'All verified stale branches are gone.'
 
+      - name: Dispatch final Core E2E verification
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method POST \
+            -H 'Accept: application/vnd.github+json' \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/core-e2e-verification.yml/dispatches" \
+            -f ref=main
+          echo 'Final Core E2E verification dispatched on cleaned main.'
+
       - name: Safety summary
         shell: bash
         run: |
@@ -110,6 +121,8 @@ jobs:
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '- Deleted branches: **8 verified stale/superseded branches only**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Unique unmerged preview branch preserved: **codex/convoy-readonly-preview**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Obsolete main workflows removed separately: **2**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Final Core E2E dispatched: **Yes**' >> "$GITHUB_STEP_SUMMARY"
           echo '- main deleted: **No**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Production data changed: **No**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Personnel/Discord actions: **None**' >> "$GITHUB_STEP_SUMMARY"
