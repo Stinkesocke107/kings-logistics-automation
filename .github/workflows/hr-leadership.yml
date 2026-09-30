@@ -8,6 +8,8 @@ on:
     paths:
       - 'hr-leadership.js'
       - 'hr-probation.js'
+      - 'probation.js'
+      - 'data/probation-state.json'
       - 'scripts/git-safe-push.sh'
       - '.github/workflows/hr-leadership.yml'
 
