@@ -23,8 +23,8 @@ on:
       - '.github/workflows/convoy-checker.yml'
 
   schedule:
-    # Same :05/:20/:35/:50 cadence, rewritten to force GitHub to re-register the schedule trigger.
-    - cron: '5-59/15 * * * *'
+    # Shifted by one minute to force GitHub to register a genuinely new schedule trigger.
+    - cron: '6-59/15 * * * *'
 
 permissions:
   contents: write
