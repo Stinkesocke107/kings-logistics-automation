@@ -243,185 +243,191 @@ function scopedHighRiskFindings(channels, targetById, context) {
   return findings;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function parseDiscordRetryMs(response, text, attempt) {
+  let bodyRetryMs = 0;
+  try {
+    const parsed = text ? JSON.parse(text) : null;
+    const seconds = Number(parsed?.retry_after);
+    if (Number.isFinite(seconds) && seconds > 0) bodyRetryMs = Math.ceil(seconds * 1000);
+  } catch {}
+  const headerSeconds = Number(response?.headers?.get?.('retry-after'));
+  const headerRetryMs = Number.isFinite(headerSeconds) && headerSeconds > 0 ? Math.ceil(headerSeconds * 1000) : 0;
+  return Math.min(30_000, Math.max(bodyRetryMs, headerRetryMs, 750 * (2 ** attempt)));
+}
+
 async function discord(endpoint) {
   if (!DISCORD_BOT_TOKEN) throw new Error('DISCORD_BOT_TOKEN is missing.');
-  const response = await fetch(`${DISCORD_API}${endpoint}`, {
-    headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}`, 'User-Agent': 'Kings Logistics Discord Permission Audit/3.1' },
-    signal: AbortSignal.timeout(15000)
-  });
-  const text = await response.text();
-  if (!response.ok) throw new Error(`Discord API ${response.status}: ${text.slice(0, 300)}`);
-  return text ? JSON.parse(text) : null;
+  const maxAttempts = 4;
+  let lastError = null;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    try {
+      const response = await fetch(`${DISCORD_API}${endpoint}`, {
+        headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}`, 'User-Agent': 'Kings Logistics Discord Permission Audit/3.2' },
+        signal: AbortSignal.timeout(15000)
+      });
+      const text = await response.text();
+      if (response.ok) return text ? JSON.parse(text) : null;
+
+      const retryable = response.status === 429 || response.status === 408 || response.status >= 500;
+      lastError = new Error(`Discord API ${response.status}: ${text.slice(0, 300)}`);
+      if (!retryable || attempt >= maxAttempts - 1) throw lastError;
+
+      const delayMs = parseDiscordRetryMs(response, text, attempt);
+      console.warn(`Discord permission audit GET ${response.status}; retry ${attempt + 1}/${maxAttempts - 1} in ${delayMs}ms.`);
+      await sleep(delayMs);
+    } catch (error) {
+      lastError = error;
+      const retryableNetwork = error?.name === 'TimeoutError' || error?.name === 'AbortError' || /fetch failed|socket|network|timeout/i.test(String(error?.message || error));
+      if (!retryableNetwork || attempt >= maxAttempts - 1) throw error;
+      const delayMs = Math.min(15_000, 750 * (2 ** attempt));
+      console.warn(`Discord permission audit network error; retry ${attempt + 1}/${maxAttempts - 1} in ${delayMs}ms.`);
+      await sleep(delayMs);
+    }
+  }
+
+  throw lastError || new Error('Discord permission audit request failed.');
 }
 function mergeIntoHealth(result) {
   if (!fs.existsSync(HEALTH_FILE)) return false;
   let health;
   try { health = JSON.parse(fs.readFileSync(HEALTH_FILE, 'utf8')); } catch { return false; }
   const merged = new Map((Array.isArray(health.issues) ? health.issues : []).filter((x) => x?.id).map((x) => [String(x.id), x]));
-  for (const id of [...merged.keys()]) if (id.startsWith('discord-permission-')) merged.delete(id);
-  for (const item of result.issues) merged.set(item.id, item);
-  health.issues = [...merged.values()].sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
-  health.status = statusFromIssues(health.issues);
-  health.healthy = health.status === 'HEALTHY';
+  for (const [id] of [...merged]) if (id.startsWith('discord-permission:')) merged.delete(id);
+  for (const issue of result.issues || []) merged.set(issue.id, issue);
+  const issues = [...merged.values()].sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || String(a.id).localeCompare(String(b.id)));
+  health.issues = issues;
   health.summary = health.summary || {};
-  health.summary.discordPermissionChecks = result.summary.checks;
-  health.summary.discordPermissionHealthy = result.summary.healthyChecks;
-  health.summary.criticalIssues = health.issues.filter((x) => x.severity === 'critical').length;
-  health.summary.warnings = health.issues.filter((x) => x.severity === 'warning').length;
-  health.data = health.data || {};
-  health.data.discordPermissionAudit = {
-    checkedAt: result.checkedAt,
-    status: result.status,
-    summary: result.summary,
-    bot: result.bot,
-    permissions: result.permissions,
-    roleMentionPolicy: result.roleMentionPolicy,
-    channels: result.channels,
-    scopedAdvisories: result.scopedHighRiskFindings
-  };
+  health.summary.criticalIssues = issues.filter((x) => x.severity === 'critical').length;
+  health.summary.warnings = issues.filter((x) => x.severity === 'warning').length;
+  health.status = statusFromIssues(issues);
+  health.discordPermissionAudit = result.summary;
   writeJson(HEALTH_FILE, health);
   return true;
 }
-function writeSummary(result, merged) {
-  if (!STEP_SUMMARY) return;
-  const lines = [
-    '', '## 🔑 Kings Discord Permission Audit v3.1', '',
-    `**Status: ${result.status}**`,
-    `- Health checks: **${result.summary.healthyChecks}/${result.summary.checks}**`,
-    `- Target channels: **${result.summary.healthyTargets}/${result.summary.targetChannels}**`,
-    `- Critical: **${result.summary.criticalIssues}**`,
-    `- Warnings: **${result.summary.warnings}**`,
-    `- Accepted scoped least-privilege advisories: **${result.summary.scopedHighRiskFindings} channel(s)**`,
-    `- Merged into health: **${merged ? 'Yes' : 'No'}**`, ''
-  ];
-  if (result.scopedHighRiskFindings.length) {
-    lines.push('### Accepted Least-Privilege Advisories', '');
-    for (const finding of result.scopedHighRiskFindings) {
-      lines.push(`- **#${finding.channelName}** (${finding.channelId}): ${finding.permissions.join(', ')}`);
-    }
-    lines.push('');
-  }
-  lines.push('Scoped advisories remain visible but do not degrade health after explicit owner acceptance. Global high-risk permissions and missing required target permissions still fail the audit.', 'GET-only audit; no Discord role or permission changes are performed.', '');
-  fs.appendFileSync(STEP_SUMMARY, `${lines.join('\n')}\n`, 'utf8');
-}
 
 async function main() {
-  const issues = [];
-  const checks = [];
-  const [me, roles, channels] = await Promise.all([
+  if (!DISCORD_BOT_TOKEN) throw new Error('DISCORD_BOT_TOKEN is missing.');
+
+  const [me, guild, roles, channels] = await Promise.all([
     discord('/users/@me'),
+    discord(`/guilds/${DISCORD_GUILD_ID}`),
     discord(`/guilds/${DISCORD_GUILD_ID}/roles`),
     discord(`/guilds/${DISCORD_GUILD_ID}/channels`)
   ]);
-  const member = await discord(`/guilds/${DISCORD_GUILD_ID}/members/${me.id}`);
-  const memberRoleIds = Array.isArray(member?.roles) ? member.roles.map(String) : [];
-  const roleNames = new Map((roles || []).map((role) => [String(role.id), String(role.name || 'Unnamed Role')]));
+  const botMember = await discord(`/guilds/${DISCORD_GUILD_ID}/members/${me.id}`);
+  const memberRoleIds = Array.isArray(botMember.roles) ? botMember.roles.map(String) : [];
   const base = basePermissions(DISCORD_GUILD_ID, memberRoleIds, roles);
-  const baseNames = permissionNames(base);
-  const globalCritical = baseNames.filter((name) => CRITICAL.has(name));
-  const globalWarnings = baseNames.filter((name) => GLOBAL_WARNING.has(name));
-  checks.push({ check: 'bot-resolved', ok: Boolean(me?.id && member) });
-  checks.push({ check: 'no-global-critical', ok: !globalCritical.length, details: globalCritical });
-  checks.push({ check: 'no-global-high-risk', ok: !globalWarnings.length, details: globalWarnings });
-  if (globalCritical.length) issues.push({ id: 'discord-permission-global-critical', severity: 'critical', system: 'Discord Permission Security', message: `Prohibited server-wide permissions: ${globalCritical.join(', ')}`, details: globalCritical });
-  if (globalWarnings.length) issues.push({ id: 'discord-permission-global-warning', severity: 'warning', system: 'Discord Permission Security', message: `High-risk server-wide permissions should be channel-scoped: ${globalWarnings.join(', ')}`, details: globalWarnings });
-
-  const { targets, roleMentionPolicy } = targetsForGuild(roles);
+  const roleNames = new Map((roles || []).map((role) => [String(role.id), String(role.name || '')]));
   const context = { guildId: DISCORD_GUILD_ID, memberId: String(me.id), memberRoleIds, base, roleNames };
-  const channelResults = [];
+  const { targets, roleMentionPolicy } = targetsForGuild(roles);
+
+  const checks = [];
+  const issues = [];
   const targetById = new Map();
+
   for (const target of targets) {
-    const resolved = resolveTarget(target, channels, context);
-    const selected = resolved.selected;
-    channelResults.push({
+    const resolution = resolveTarget(target, channels, context);
+    const selected = resolution.selected;
+    if (selected?.channel) targetById.set(String(selected.channel.id), target);
+    const details = {
       key: target.key,
-      status: resolved.status,
-      required: target.required,
-      allowedRisk: target.allowedRisk || [],
-      candidateCount: resolved.candidates.length,
-      satisfyingCandidates: resolved.candidates.filter((x) => x.satisfies).length,
-      channel: selected ? {
+      requestedId: target.id || null,
+      requestedName: target.name || null,
+      status: resolution.status,
+      candidates: resolution.candidates.map((item) => ({
+        id: String(item.channel.id),
+        name: String(item.channel.name || ''),
+        type: Number(item.channel.type),
+        visible: item.visible,
+        satisfies: item.satisfies,
+        missing: item.missing,
+        effectivePermissions: permissionNames(item.effective)
+      })),
+      selected: selected ? {
         id: String(selected.channel.id),
         name: String(selected.channel.name || ''),
         type: Number(selected.channel.type),
-        missing: selected.missing,
-        effectivePermissions: permissionNames(selected.effective)
+        effectivePermissions: permissionNames(selected.effective),
+        missing: selected.missing
       } : null
-    });
-    checks.push({ check: `target-${target.key}`, ok: resolved.status === 'resolved' });
-    if (resolved.status === 'resolved') {
-      targetById.set(String(selected.channel.id), target);
-    } else if (resolved.status === 'ambiguous') {
-      issues.push({ id: `discord-permission-${target.key}-ambiguous`, severity: 'critical', system: 'Discord Permission Security', message: `${target.key} has multiple valid channel targets.`, details: resolved.candidates.map((x) => ({ id: String(x.channel.id), name: x.channel.name, satisfies: x.satisfies })) });
-    } else if (resolved.status === 'missing') {
-      issues.push({ id: `discord-permission-${target.key}-missing`, severity: 'critical', system: 'Discord Permission Security', message: `${target.key} channel is missing.`, details: target.id || target.name });
-    } else {
-      issues.push({ id: `discord-permission-${target.key}-insufficient`, severity: 'critical', system: 'Discord Permission Security', message: `${target.key} is missing effective permissions: ${selected.missing.join(', ')}`, details: { id: String(selected.channel.id), name: selected.channel.name, missing: selected.missing } });
+    };
+    const healthy = resolution.status === 'resolved';
+    checks.push({ name: `target:${target.key}`, healthy, details });
+    if (!healthy) {
+      issues.push({
+        id: `discord-permission:target:${target.key}`,
+        severity: 'critical',
+        system: 'Discord Permission Audit',
+        message: `${target.key} target is ${resolution.status}.`
+      });
     }
   }
 
-  const scoped = scopedHighRiskFindings(channels, targetById, context);
-  checks.push({
-    check: 'scoped-high-risk-reviewed-advisory',
-    ok: true,
-    advisory: true,
-    details: scoped
-  });
+  const globalBasePermissions = permissionNames(base).filter((name) => GLOBAL_WARNING.has(name));
+  checks.push({ name: 'global-base-high-risk', healthy: globalBasePermissions.length === 0, details: { permissions: globalBasePermissions } });
+  for (const permission of globalBasePermissions) {
+    issues.push({
+      id: `discord-permission:global:${permission.toLowerCase()}`,
+      severity: CRITICAL.has(permission) ? 'critical' : 'warning',
+      system: 'Discord Permission Audit',
+      message: `Bot has ${permission} in guild-level base permissions.`
+    });
+  }
 
-  const result = {
-    version: 3,
-    mode: 'read-only-discord-least-privilege-audit',
-    checkedAt: nowISO(),
+  const scopedFindings = scopedHighRiskFindings(channels, targetById, context);
+  checks.push({ name: 'scoped-high-risk-advisories', healthy: true, advisoryOnly: true, details: { count: scopedFindings.length } });
+
+  const summary = {
     status: statusFromIssues(issues),
-    healthy: !issues.length,
-    summary: {
-      checks: checks.length,
-      healthyChecks: checks.filter((x) => x.ok).length,
-      failedChecks: checks.filter((x) => !x.ok).length,
-      criticalIssues: issues.filter((x) => x.severity === 'critical').length,
-      warnings: issues.filter((x) => x.severity === 'warning').length,
-      guildChannelsInspected: Array.isArray(channels) ? channels.length : 0,
-      targetChannels: targets.length,
-      healthyTargets: channelResults.filter((x) => x.status === 'resolved').length,
-      scopedHighRiskFindings: scoped.length,
-      scopedHighRiskMode: 'accepted-advisory-only'
-    },
-    issues,
-    checks,
-    bot: { id: String(me.id), username: String(me.username || '') },
-    permissions: { globalCritical, globalWarnings },
-    roleMentionPolicy,
-    channels: channelResults,
-    scopedHighRiskFindings: scoped,
-    note: 'GET-only least-privilege audit. Scoped findings remain visible as accepted advisories and do not degrade health. Global critical/high-risk permissions and required channel access remain enforced. No Discord roles or permissions are changed.'
+    checkedAt: nowISO(),
+    checks: checks.length,
+    healthyChecks: checks.filter((x) => x.healthy).length,
+    targets: targets.length,
+    resolvedTargets: checks.filter((x) => x.name.startsWith('target:') && x.healthy).length,
+    guildChannelsInspected: Array.isArray(channels) ? channels.length : 0,
+    globalCritical: issues.filter((x) => x.severity === 'critical').length,
+    globalWarnings: issues.filter((x) => x.severity === 'warning').length,
+    acceptedScopedAdvisories: scopedFindings.length,
+    roleMentionPolicy
   };
+  const result = { version: 3, generatedAt: nowISO(), summary, checks, issues, scopedFindings };
   writeJson(OUTPUT_FILE, result);
   const merged = mergeIntoHealth(result);
-  writeSummary(result, merged);
-  console.log(`Kings Discord Permission Audit v3.1: ${result.status}`);
-  console.log(`Checks: ${result.summary.healthyChecks}/${result.summary.checks}`);
-  console.log(`Targets: ${result.summary.healthyTargets}/${result.summary.targetChannels}`);
-  console.log(`Guild channels inspected: ${result.summary.guildChannelsInspected}`);
-  console.log(`Global critical: ${globalCritical.length}; global warnings: ${globalWarnings.length}; accepted scoped advisories: ${scoped.length}`);
+
+  console.log(`Kings Discord Permission Audit v3.2: ${summary.status}`);
+  console.log(`Checks: ${summary.healthyChecks}/${summary.checks}`);
+  console.log(`Targets: ${summary.resolvedTargets}/${summary.targets}`);
+  console.log(`Guild channels inspected: ${summary.guildChannelsInspected}`);
+  console.log(`Global critical: ${summary.globalCritical}; global warnings: ${summary.globalWarnings}; accepted scoped advisories: ${summary.acceptedScopedAdvisories}`);
   console.log(`Role mention policy: ${JSON.stringify(roleMentionPolicy)}`);
-  for (const target of channelResults) console.log(`- ${target.key}: ${target.status}${target.channel ? ` | #${target.channel.name} (${target.channel.id})${target.channel.missing.length ? ` | missing ${target.channel.missing.join(', ')}` : ''}` : ''}`);
-  for (const finding of scoped) console.log(`[ADVISORY] #${finding.channelName} (${finding.channelId}): ${finding.permissions.join(', ')}`);
-  for (const finding of issues) console.log(`[${finding.severity.toUpperCase()}] ${finding.message}`);
+  console.log(`Merged into System Health: ${merged ? 'yes' : 'no'}`);
+
+  if (STEP_SUMMARY) {
+    fs.appendFileSync(STEP_SUMMARY, `\n### Kings Discord Permission Audit v3.2\n- Status: **${summary.status}**\n- Checks: **${summary.healthyChecks}/${summary.checks}**\n- Targets: **${summary.resolvedTargets}/${summary.targets}**\n- Global critical: **${summary.globalCritical}**\n- Global warnings: **${summary.globalWarnings}**\n- Accepted scoped advisories: **${summary.acceptedScopedAdvisories}**\n`);
+  }
+
+  if (summary.status !== 'HEALTHY') process.exitCode = 1;
 }
 
-if (require.main === module) main().catch((error) => { console.error('Kings Discord Permission Audit failed:', error.message); process.exit(1); });
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(`Kings Discord Permission Audit failed: ${error.stack || error.message}`);
+    process.exitCode = 1;
+  });
+}
+
 module.exports = {
   PERMISSIONS,
-  BASE_TARGETS,
-  normalizeChannelName,
-  permissionNames,
-  hasPermission,
   basePermissions,
   effectiveChannelPermissions,
-  missingPermissions,
   resolveTarget,
-  roleMentionRequiresPermission,
   targetsForGuild,
-  permissionGrantSources,
-  scopedHighRiskFindings
+  roleMentionRequiresPermission,
+  scopedHighRiskFindings,
+  parseDiscordRetryMs
 };
