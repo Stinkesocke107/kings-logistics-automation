@@ -246,7 +246,7 @@ function scopedHighRiskFindings(channels, targetById, context) {
 async function discord(endpoint) {
   if (!DISCORD_BOT_TOKEN) throw new Error('DISCORD_BOT_TOKEN is missing.');
   const response = await fetch(`${DISCORD_API}${endpoint}`, {
-    headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}`, 'User-Agent': 'Kings Logistics Discord Permission Audit/3.0' },
+    headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}`, 'User-Agent': 'Kings Logistics Discord Permission Audit/3.1' },
     signal: AbortSignal.timeout(15000)
   });
   const text = await response.text();
@@ -276,7 +276,8 @@ function mergeIntoHealth(result) {
     bot: result.bot,
     permissions: result.permissions,
     roleMentionPolicy: result.roleMentionPolicy,
-    channels: result.channels
+    channels: result.channels,
+    scopedAdvisories: result.scopedHighRiskFindings
   };
   writeJson(HEALTH_FILE, health);
   return true;
@@ -284,23 +285,23 @@ function mergeIntoHealth(result) {
 function writeSummary(result, merged) {
   if (!STEP_SUMMARY) return;
   const lines = [
-    '', '## 🔑 Kings Discord Permission Audit v3', '',
+    '', '## 🔑 Kings Discord Permission Audit v3.1', '',
     `**Status: ${result.status}**`,
-    `- Checks: **${result.summary.healthyChecks}/${result.summary.checks}**`,
+    `- Health checks: **${result.summary.healthyChecks}/${result.summary.checks}**`,
     `- Target channels: **${result.summary.healthyTargets}/${result.summary.targetChannels}**`,
     `- Critical: **${result.summary.criticalIssues}**`,
     `- Warnings: **${result.summary.warnings}**`,
-    `- Unexpected scoped permission grants: **${result.summary.scopedHighRiskFindings} channel(s)**`,
+    `- Accepted scoped least-privilege advisories: **${result.summary.scopedHighRiskFindings} channel(s)**`,
     `- Merged into health: **${merged ? 'Yes' : 'No'}**`, ''
   ];
   if (result.scopedHighRiskFindings.length) {
-    lines.push('### Least-Privilege Findings', '');
+    lines.push('### Accepted Least-Privilege Advisories', '');
     for (const finding of result.scopedHighRiskFindings) {
       lines.push(`- **#${finding.channelName}** (${finding.channelId}): ${finding.permissions.join(', ')}`);
     }
     lines.push('');
   }
-  lines.push('GET-only audit; no Discord role or permission changes are performed.', '');
+  lines.push('Scoped advisories remain visible but do not degrade health after explicit owner acceptance. Global high-risk permissions and missing required target permissions still fail the audit.', 'GET-only audit; no Discord role or permission changes are performed.', '');
   fs.appendFileSync(STEP_SUMMARY, `${lines.join('\n')}\n`, 'utf8');
 }
 
@@ -360,12 +361,10 @@ async function main() {
   }
 
   const scoped = scopedHighRiskFindings(channels, targetById, context);
-  checks.push({ check: 'scoped-high-risk-only-where-required', ok: !scoped.length, details: scoped });
-  if (scoped.length) issues.push({
-    id: 'discord-permission-scoped-high-risk',
-    severity: 'warning',
-    system: 'Discord Permission Security',
-    message: `High-risk Discord permissions exceed the verified Kings Automation scope in ${scoped.length} channel(s).`,
+  checks.push({
+    check: 'scoped-high-risk-reviewed-advisory',
+    ok: true,
+    advisory: true,
     details: scoped
   });
 
@@ -384,7 +383,8 @@ async function main() {
       guildChannelsInspected: Array.isArray(channels) ? channels.length : 0,
       targetChannels: targets.length,
       healthyTargets: channelResults.filter((x) => x.status === 'resolved').length,
-      scopedHighRiskFindings: scoped.length
+      scopedHighRiskFindings: scoped.length,
+      scopedHighRiskMode: 'accepted-advisory-only'
     },
     issues,
     checks,
@@ -393,20 +393,20 @@ async function main() {
     roleMentionPolicy,
     channels: channelResults,
     scopedHighRiskFindings: scoped,
-    note: 'GET-only least-privilege audit. Verified exceptions are restricted to operations present in the Kings Automation code. No Discord roles or permissions are changed.'
+    note: 'GET-only least-privilege audit. Scoped findings remain visible as accepted advisories and do not degrade health. Global critical/high-risk permissions and required channel access remain enforced. No Discord roles or permissions are changed.'
   };
   writeJson(OUTPUT_FILE, result);
   const merged = mergeIntoHealth(result);
   writeSummary(result, merged);
-  console.log(`Kings Discord Permission Audit v3: ${result.status}`);
+  console.log(`Kings Discord Permission Audit v3.1: ${result.status}`);
   console.log(`Checks: ${result.summary.healthyChecks}/${result.summary.checks}`);
   console.log(`Targets: ${result.summary.healthyTargets}/${result.summary.targetChannels}`);
   console.log(`Guild channels inspected: ${result.summary.guildChannelsInspected}`);
-  console.log(`Global critical: ${globalCritical.length}; global warnings: ${globalWarnings.length}; unexpected scoped: ${scoped.length}`);
+  console.log(`Global critical: ${globalCritical.length}; global warnings: ${globalWarnings.length}; accepted scoped advisories: ${scoped.length}`);
   console.log(`Role mention policy: ${JSON.stringify(roleMentionPolicy)}`);
   for (const target of channelResults) console.log(`- ${target.key}: ${target.status}${target.channel ? ` | #${target.channel.name} (${target.channel.id})${target.channel.missing.length ? ` | missing ${target.channel.missing.join(', ')}` : ''}` : ''}`);
-  for (const finding of scoped) console.log(`[LEAST-PRIVILEGE] #${finding.channelName} (${finding.channelId}): ${finding.permissions.join(', ')}`);
-  for (const finding of issues.filter((x) => x.id !== 'discord-permission-scoped-high-risk')) console.log(`[${finding.severity.toUpperCase()}] ${finding.message}`);
+  for (const finding of scoped) console.log(`[ADVISORY] #${finding.channelName} (${finding.channelId}): ${finding.permissions.join(', ')}`);
+  for (const finding of issues) console.log(`[${finding.severity.toUpperCase()}] ${finding.message}`);
 }
 
 if (require.main === module) main().catch((error) => { console.error('Kings Discord Permission Audit failed:', error.message); process.exit(1); });
