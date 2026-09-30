@@ -2,28 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-overdue:driver-updates.yml": {
-      "severity": "critical",
-      "system": "Driver Updates",
-      "message": "Driver Updates has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-09-29T22:28:34Z",
-        "ageMinutes": 40,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-09-29T23:08:43.399Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-09-29T22:28:45Z",
-        "ageMinutes": 39,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-09-29T23:08:43.399Z"
-    },
     "stale-data:data/live-tracker-snapshot.json": {
       "severity": "critical",
       "system": "Live Tracker data",
@@ -45,6 +23,17 @@
         "maxAgeMinutes": 45
       },
       "firstAlertedAt": "2026-09-30T02:18:58.462Z"
+    },
+    "stale-data:data/statistics.json": {
+      "severity": "critical",
+      "system": "Statistics data",
+      "message": "Statistics data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-09-30T12:26:03.914Z",
+        "ageMinutes": 46,
+        "maxAgeMinutes": 35
+      },
+      "firstAlertedAt": "2026-09-30T13:12:39.143Z"
     }
   },
   "pending": {}
