@@ -247,6 +247,7 @@ async function main() {
   let changed = false;
   let synced = 0;
   let skipped = 0;
+  let unavailable = 0;
   let failed = 0;
 
   for (const item of report.threads || []) {
@@ -336,22 +337,33 @@ async function main() {
         `- ${item.name} | TruckersMP ${item.eventId} authoritative sync | Applied: ${applied.join(', ') || 'none'} | Meeting Time: ${event.meetup_at ? 'API meetup_at' : 'manual required'}`
       );
     } catch (error) {
-      failed += 1;
+      const message = String(error?.message || error);
+      const eventNotFound = /\bHTTP 404\b/i.test(message);
       const previousSync = item.truckersmpSync || null;
+
       item.truckersmpSync = {
         ok: false,
         authoritative: false,
-        uncertain: true,
-        reason: 'api-error',
-        error: error.message,
+        uncertain: !eventNotFound,
+        reason: eventNotFound ? 'event-not-found' : 'api-error',
+        error: message,
         lastKnownGoodAt: previousSync?.ok
           ? previousSync.syncedAt || null
           : previousSync?.lastKnownGoodAt || item.truckersmp?.updatedAtUtc || null,
         checkedAt: new Date().toISOString()
       };
-      // Never clear existing/manual values or last-known-good TruckersMP data
-      // when the external API is unavailable or returns an untrusted response.
-      console.warn(`- ${item.name} | TruckersMP sync uncertain; last-known-good values kept: ${error.message}`);
+
+      // A single Event ID returning 404 is a data-level condition, not a failure
+      // of the Convoy automation itself. Keep last-known-good/manual values and
+      // surface it in the report without turning the complete scheduler run red.
+      if (eventNotFound) {
+        unavailable += 1;
+        console.warn(`- ${item.name} | TruckersMP event is no longer available (404); last-known-good values kept: ${message}`);
+      } else {
+        failed += 1;
+        // Real API/network failures remain technical failures and must stay red.
+        console.warn(`- ${item.name} | TruckersMP sync uncertain; last-known-good values kept: ${message}`);
+      }
     }
   }
 
@@ -377,16 +389,16 @@ async function main() {
   report.duplicateEventIds = duplicateEventIds;
   report.summary = report.summary || {};
   report.summary.duplicateEventIds = duplicateEventIds.length;
+  report.summary.truckersmpUnavailableEvents = unavailable;
 
-  if (changed || synced > 0 || failed > 0 || duplicateEventIds.length > 0) {
+  if (changed || synced > 0 || unavailable > 0 || failed > 0 || duplicateEventIds.length > 0) {
     fs.writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
   }
 
   console.log(
-    `Kings TruckersMP Convoy Sync finished. Synced: ${synced}. Skipped: ${skipped}. Failed: ${failed}. Report changed: ${changed ? 'yes' : 'no'}.`
+    `Kings TruckersMP Convoy Sync finished. Synced: ${synced}. Skipped: ${skipped}. Unavailable: ${unavailable}. Failed: ${failed}. Report changed: ${changed ? 'yes' : 'no'}.`
   );
   if (failed > 0) process.exitCode = 1;
-
 }
 
 main().catch((error) => {
