@@ -60,7 +60,11 @@ jobs:
           if [ -z "$(git status --porcelain -- data/public-convoy-live-proof.json data/api-health)" ]; then exit 0; fi
           git config user.name 'Kings Logistics Automation'
           git config user.email 'actions@users.noreply.github.com'
-          git add -A -- data/public-convoy-live-proof.json data/api-health
+          for path in data/public-convoy-live-proof.json data/api-health; do
+            if [ -e "$path" ] || git ls-files -- "$path" | grep -q .; then
+              git add -A -- "$path"
+            fi
+          done
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Record Kings public convoy production proof'
           bash scripts/git-safe-push.sh main
