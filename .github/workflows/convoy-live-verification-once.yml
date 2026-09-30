@@ -36,3 +36,4 @@ jobs:
         run: |
           echo "This workflow only dispatches the existing convoy-checker.yml workflow once." >> "$GITHUB_STEP_SUMMARY"
           echo "It contains no Convoy business logic of its own." >> "$GITHUB_STEP_SUMMARY"
+          echo "Verification trigger refreshed after non-fatal TruckersMP 404 handling fix." >> "$GITHUB_STEP_SUMMARY"
