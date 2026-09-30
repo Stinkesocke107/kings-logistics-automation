@@ -17,7 +17,7 @@ function fixture(t) {
   command(dir,'git',['clone','remote.git','a']);
   const a=path.join(dir,'a');
   for(const cwd of [a]) {command(cwd,'git',['config','user.email','test@invalid']);command(cwd,'git',['config','user.name','Test']);}
-  fs.writeFileSync(path.join(a,'state.json'),'base\n');
+  fs.writeFileSync(path.join(a,'state.json'),'{"value":"base"}\n');
   command(a,'git',['add','.']); command(a,'git',['commit','-m','base']); command(a,'git',['push','origin','main']);
   command(dir,'git',['clone','remote.git','b']);
   const b=path.join(dir,'b');
@@ -28,21 +28,21 @@ function commit(cwd,file,value) {fs.writeFileSync(path.join(cwd,file),value);com
 
 test('safe push rebases independent concurrent workflow updates without losing either',t=>{
   const {a,b}=fixture(t);
-  commit(a,'one.json','one');commit(b,'two.json','two');
+  commit(a,'one.json','{"value":"one"}\n');commit(b,'two.json','{"value":"two"}\n');
   command(a,'bash',[helper,'main']);command(b,'bash',[helper,'main']);
-  assert.equal(command(b,'git',['show','origin/main:one.json']).stdout,'one');
-  assert.equal(command(b,'git',['show','origin/main:two.json']).stdout,'two');
+  assert.equal(command(b,'git',['show','origin/main:one.json']).stdout,'{"value":"one"}\n');
+  assert.equal(command(b,'git',['show','origin/main:two.json']).stdout,'{"value":"two"}\n');
 });
 
 test('safe push stops on conflicting state and preserves both remote and local commits',t=>{
   const {a,b}=fixture(t);
-  commit(a,'state.json','remote\n');commit(b,'state.json','local\n');
+  commit(a,'state.json','{"value":"remote"}\n');commit(b,'state.json','{"value":"local"}\n');
   const local=command(b,'git',['rev-parse','HEAD']).stdout;
   command(a,'bash',[helper,'main']);
   assert.notEqual(command(b,'bash',[helper,'main'],false).status,0);
   assert.equal(command(b,'git',['rev-parse','HEAD']).stdout,local);
-  assert.equal(command(b,'git',['show','origin/main:state.json']).stdout,'remote\n');
-  assert.equal(fs.readFileSync(path.join(b,'state.json'),'utf8'),'local\n');
+  assert.equal(command(b,'git',['show','origin/main:state.json']).stdout,'{"value":"remote"}\n');
+  assert.equal(fs.readFileSync(path.join(b,'state.json'),'utf8'),'{"value":"local"}\n');
 });
 
 test('related API state is committed together; unrelated tracked dirt blocks safe push',t=>{
