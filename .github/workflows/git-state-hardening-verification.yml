@@ -1,0 +1,65 @@
+name: Kings Git State Hardening Verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/git-safe-push.sh'
+      - 'tests/git-state-hardening.test.cjs'
+      - 'tests/persistence.test.cjs'
+      - 'git-state-hardening-verifier.js'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-git-state-hardening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify Git hardening scripts
+        run: |
+          bash -n scripts/git-safe-push.sh
+          node --check git-state-hardening-verifier.js
+          node --check tests/git-state-hardening.test.cjs
+
+      - name: Run isolated Git and state conflict matrix
+        run: node --test tests/git-state-hardening.test.cjs
+
+      - name: Audit repository Git state policy
+        run: node git-state-hardening-verifier.js
+
+      - name: Upload Point 14 proof
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-git-state-hardening-${{ github.run_number }}
+          path: |
+            output/git-state-hardening-verification.json
+            output/git-state-hardening-final-report.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Point 14 safety summary
+        run: |
+          echo '## Kings Git / State Conflict Hardening' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Conflict/race injection: **temporary local bare repositories only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Production repository mutation by stress test: **none**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Same-file conflicts: **abort, never auto-overwrite**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Independent concurrent commits: **rebase and preserve both**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Forgotten data state: **blocked before push**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Rebased JSON state: **parsed before push**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Push races: **bounded refetch/retry**' >> "$GITHUB_STEP_SUMMARY"
