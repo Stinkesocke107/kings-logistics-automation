@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  cleanup-stale-branches:
+  finalize-cleanup:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'Run final repository cleanup'))
     runs-on: ubuntu-latest
     timeout-minutes: 8
@@ -27,64 +27,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Delete only verified stale branches
+      - name: Verify final cleanup state
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
 
-          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune
-
-          ancestor_branches=(
-            'fix/convoy-schedule-reregister-20260930'
-            'fix/kings-system-verification-20260930'
-            'fix/monitoring-recovery-20260930'
-            'fix/monitoring-state-refresh-20260930'
-            'test/convoy-live-current-main-20260930'
-          )
-
-          for branch in "${ancestor_branches[@]}"; do
-            if ! git show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
-              echo "${branch}: already absent"
-              continue
-            fi
-            if ! git merge-base --is-ancestor "origin/${branch}" origin/main; then
-              echo "ERROR: ${branch} is no longer fully contained in main; refusing deletion."
-              exit 1
-            fi
-            gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/heads/${branch}"
-            echo "${branch}: deleted (fully contained in main)"
-          done
-
-          delete_exact_head() {
-            local branch="$1"
-            local expected="$2"
-            if ! git show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
-              echo "${branch}: already absent"
-              return 0
-            fi
-            local actual
-            actual="$(git rev-parse "origin/${branch}")"
-            if [ "$actual" != "$expected" ]; then
-              echo "ERROR: ${branch} moved from verified head ${expected} to ${actual}; refusing deletion."
-              exit 1
-            fi
-            gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/heads/${branch}"
-            echo "${branch}: deleted (verified superseded head ${actual})"
-          }
-
-          delete_exact_head 'fix/convoy-api-health-conflict-20260930' '93555dc1132062072385d82e6eb363b216006580'
-          delete_exact_head 'fix/monitoring-trigger-health-producers-20260930' 'c7ba366a4d743923e7e553752f5245f60d17102b'
-          delete_exact_head 'fix/workflow-schedule-hardening-20260930' 'e965beee3532eecbc73b5c43c9301886fb6d0ec7'
-
-      - name: Verify cleanup allowlist is gone
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          branches=(
+          stale_branches=(
             'fix/convoy-api-health-conflict-20260930'
             'fix/convoy-schedule-reregister-20260930'
             'fix/kings-system-verification-20260930'
@@ -94,15 +44,47 @@ jobs:
             'fix/workflow-schedule-hardening-20260930'
             'test/convoy-live-current-main-20260930'
           )
-          for branch in "${branches[@]}"; do
+          for branch in "${stale_branches[@]}"; do
             if gh api "repos/${GITHUB_REPOSITORY}/branches/${branch}" >/dev/null 2>&1; then
               echo "ERROR: stale branch still exists: ${branch}"
               exit 1
             fi
           done
-          echo 'All verified stale branches are gone.'
 
-      - name: Dispatch final Core E2E verification
+          gh api "repos/${GITHUB_REPOSITORY}/branches/codex/convoy-readonly-preview" >/dev/null
+          echo 'Unique unmerged preview branch is preserved.'
+
+          removed_paths=(
+            '.github/workflows/convoy-live-verification-once.yml'
+            '.github/workflows/scheduler-refresh.yml'
+            'management-weekly-overview.js'
+            'monthly-report.js'
+            'weekly-reports-verifier.js'
+          )
+          for file in "${removed_paths[@]}"; do
+            if gh api "repos/${GITHUB_REPOSITORY}/contents/${file}?ref=main" >/dev/null 2>&1; then
+              echo "ERROR: obsolete file still exists: ${file}"
+              exit 1
+            fi
+          done
+          echo 'All verified obsolete files are gone.'
+
+      - name: Remove this one-time cleanup workflow from main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          path='.github/workflows/repository-cleanup-once.yml'
+          sha="$(gh api "repos/${GITHUB_REPOSITORY}/contents/${path}?ref=main" --jq '.sha')"
+          gh api --method DELETE \
+            "repos/${GITHUB_REPOSITORY}/contents/${path}" \
+            -f message='Remove completed repository cleanup helper' \
+            -f sha="$sha" \
+            -f branch='main' >/dev/null
+          echo 'Temporary repository cleanup workflow removed from main.'
+
+      - name: Dispatch final Core E2E verification on clean main
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -112,17 +94,18 @@ jobs:
             -H 'Accept: application/vnd.github+json' \
             "repos/${GITHUB_REPOSITORY}/actions/workflows/core-e2e-verification.yml/dispatches" \
             -f ref=main
-          echo 'Final Core E2E verification dispatched on cleaned main.'
+          echo 'Final Core E2E verification dispatched after self-cleanup.'
 
       - name: Safety summary
         shell: bash
         run: |
           echo '## Kings Final Repository Cleanup' >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Deleted branches: **8 verified stale/superseded branches only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Stale/superseded branches removed: **8**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Obsolete one-time workflows removed: **2**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Superseded root JavaScript implementations removed: **3**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Temporary cleanup workflow removed itself: **Yes**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Unique unmerged preview branch preserved: **codex/convoy-readonly-preview**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Obsolete main workflows removed separately: **2**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Final Core E2E dispatched: **Yes**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- main deleted: **No**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Final Core E2E dispatched on post-cleanup main: **Yes**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Production data changed: **No**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Personnel/Discord actions: **None**' >> "$GITHUB_STEP_SUMMARY"
