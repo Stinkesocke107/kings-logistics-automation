@@ -39,8 +39,7 @@ function readJson(file, fallback) {
   try {
     return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch (error) {
-    console.warn(`Could not read ${path.basename(file)}.`);
-    return fallback;
+    throw new Error(`Invalid state ${path.basename(file)}; refusing to reset it: ${error.message}`);
   }
 }
 
@@ -118,16 +117,41 @@ async function getCurrentMembers() {
     );
 }
 
+function validateState(state) {
+  if (!state || state.version !== 3 || !Array.isArray(state.notified)) {
+    throw new Error("Invalid probation-state.json schema; refusing to reset it.");
+  }
+
+  for (const item of state.notified) {
+    if (!item || !/^[a-f0-9]{64}$/i.test(String(item.key || ""))) {
+      throw new Error("Invalid probation-state.json notification key; refusing to reset it.");
+    }
+    if (item.notifiedAt !== null && normalizeDate(item.notifiedAt) === null) {
+      throw new Error("Invalid probation-state.json notification timestamp; refusing to reset it.");
+    }
+  }
+
+  if (state.initializedAt !== null && normalizeDate(state.initializedAt) === null) {
+    throw new Error("Invalid probation-state.json initializedAt; refusing to reset it.");
+  }
+  if (state.updatedAt !== null && normalizeDate(state.updatedAt) === null) {
+    throw new Error("Invalid probation-state.json updatedAt; refusing to reset it.");
+  }
+
+  return state;
+}
+
 function loadState() {
   const state = readJson(STATE_FILE, null);
-  if (state && state.version === 3 && Array.isArray(state.notified)) return state;
-
-  return {
-    version: 3,
-    initializedAt: null,
-    updatedAt: null,
-    notified: []
-  };
+  if (!state) {
+    return {
+      version: 3,
+      initializedAt: null,
+      updatedAt: null,
+      notified: []
+    };
+  }
+  return validateState(state);
 }
 
 function saveState(state) {
