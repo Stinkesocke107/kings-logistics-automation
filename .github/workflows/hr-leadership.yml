@@ -12,8 +12,8 @@ on:
       - '.github/workflows/hr-leadership.yml'
 
   schedule:
-    # Keep HR away from Monitoring/Management slots and the top of the hour.
-    - cron: "10,25,40,55 * * * *"
+    # Shifted by one minute to force GitHub to register a genuinely new schedule trigger.
+    - cron: "11,26,41,56 * * * *"
 
 permissions:
   contents: write
