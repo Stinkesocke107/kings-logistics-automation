@@ -40,7 +40,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for workflow in convoy-checker.yml hr-leadership.yml management-overview.yml milestones.yml driver-management.yml staff-management.yml; do
+          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml management-overview.yml milestones.yml driver-management.yml staff-management.yml; do
             state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}" --jq '.state')"
             echo "${workflow}: ${state}"
             test "$state" = "active"
@@ -122,6 +122,9 @@ jobs:
 
           if [ "$force_all" = "true" ]; then
             echo "Bootstrap health pass: dispatching stale managed workflows immediately."
+            # Live Tracker native cron remains preferred. The 9-minute gate only
+            # dispatches after the normal 5-minute cadence has genuinely slipped.
+            dispatch_if_due live-tracker.yml 540
             dispatch_if_due milestones.yml 240
             dispatch_if_due management-overview.yml 600
             dispatch_if_due hr-leadership.yml 600
@@ -146,6 +149,10 @@ jobs:
             minute=$((10#$(date -u +%M)))
             phase=$(( ((minute - 3 + 60) / 5) % 3 ))
             echo "Scheduler tick at UTC minute ${minute}; phase ${phase}."
+
+            # Live Tracker native cron is preferred. If no schedule/dispatch run
+            # appeared for 9 minutes, recover it here on the next 5-minute tick.
+            dispatch_if_due live-tracker.yml 540
 
             # Milestones every five minutes. The old native cron remains a
             # backup; the freshness gate prevents duplicate dispatches.
@@ -174,8 +181,9 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "- Self-sustaining scheduler chain: **enabled**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Standby successor: **queued before scheduler loop**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Live Tracker fallback: **5-minute checks with a 9-minute freshness gate behind native cron**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Milestones cadence: **5 minutes**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Management / Convoy / HR cadence: **15 minutes, staggered**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Driver / Staff fallback: **65-minute freshness gate behind native hourly cron**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Duplicate protection: **latest schedule/workflow_dispatch freshness gate**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Native GitHub cron: **emergency bootstrap only**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Native GitHub cron: **preferred producer cadence plus emergency scheduler bootstrap**" >> "$GITHUB_STEP_SUMMARY"
