@@ -127,6 +127,31 @@ jobs:
           node api-resilience-verifier.js
           node git-state-hardening-verifier.js
 
+      - name: Verify Weekly Reports read-only
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
+          MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
+        run: node weekly-reports-verifier-v2.js
+
+      - name: Verify Monthly Report read-only
+        env:
+          MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: node monthly-report-verifier.js
+
+      - name: Verify Public Convoy Announcement read-only
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_KINGS_CONVOY_SOURCE_FORUM_ID: '1506133821693755502'
+          DISCORD_KINGS_CONVOY_ANNOUNCEMENT_CHANNEL_ID: '1351613882791366838'
+          KINGS_API_HEALTH_NAMESPACE: 'final-freeze-convoy-verifier'
+        run: node kings-convoy-announcement-verifier.js
+
       - name: Verify complete Backup and Restore roundtrip
         shell: bash
         run: |
@@ -189,6 +214,9 @@ jobs:
             output/core-e2e-verification.json
             output/api-resilience-final-report.json
             output/git-state-hardening-final-report.json
+            output/weekly-reports-verification.json
+            output/monthly-report-verification.json
+            output/kings-convoy-announcement-verification.json
             data/system-health.json
             data/data-integrity.json
             data/system-hardening.json
