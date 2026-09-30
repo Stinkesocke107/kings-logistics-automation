@@ -25,6 +25,10 @@ function check(name, ok, details = null) {
   if (!entry.ok) issues.push(`${name}${details === null ? '' : `: ${typeof details === 'string' ? details : JSON.stringify(details)}`}`);
 }
 
+function sameStringSet(left, right) {
+  return JSON.stringify([...left].sort()) === JSON.stringify([...right].sort());
+}
+
 function main() {
   const report = readJson(REPORT_FILE);
   const state = readJson(STATE_FILE);
@@ -40,7 +44,7 @@ function main() {
   check('Self-Healing mode is technical-only', report.mode === 'technical-safe-self-healing' && state.mode === 'technical-safe-self-healing', { report: report.mode, state: state.mode });
   check('Allowlisted workflow set is exact', JSON.stringify(reportWorkflows) === JSON.stringify(expectedWorkflows), reportWorkflows);
   check('No allowlisted workflow matches forbidden workflow classes', expectedWorkflows.every((file) => !FORBIDDEN_WORKFLOW_PATTERN.test(file)), expectedWorkflows);
-  check('State contains only known repair IDs', stateRepairIds.every((id) => expectedRepairIds.includes(id)), stateRepairIds);
+  check('Persistent repair-state ID set is exact', sameStringSet(stateRepairIds, expectedRepairIds), { stateRepairIds, expectedRepairIds });
 
   check('Convoy live dispatch is disabled', report.safety?.convoyLiveDispatchAllowed === false, report.safety?.convoyLiveDispatchAllowed);
   check('Personnel workflow dispatch is disabled', report.safety?.personnelWorkflowDispatchAllowed === false, report.safety?.personnelWorkflowDispatchAllowed);
@@ -56,7 +60,8 @@ function main() {
 
   check('Self-Healing workflow exists', Boolean(workflowText), fs.existsSync(WORKFLOW_FILE));
   check('Self-Healing workflow is scheduled and manually dispatchable', /workflow_dispatch\s*:/.test(workflowText) && /schedule\s*:/.test(workflowText), null);
-  check('Self-Healing workflow has Actions write and Contents write only as required mutation scopes', /actions:\s*write/.test(workflowText) && /contents:\s*write/.test(workflowText), null);
+  check('Self-Healing cadence is the approved 15-minute offset schedule', /cron:\s*['"]7,22,37,52 \* \* \* \*['"]/.test(workflowText), null);
+  check('Self-Healing workflow has Actions write and Contents write mutation scopes', /actions:\s*write/.test(workflowText) && /contents:\s*write/.test(workflowText), null);
   check('Self-Healing workflow uses safe push helper', /scripts\/git-safe-push\.sh/.test(workflowText), null);
 
   check('Final System Health is HEALTHY', health.status === 'HEALTHY', health.status);
