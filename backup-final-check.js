@@ -20,6 +20,7 @@ const REQUIRED_CORE_FILES = [
   'core-backup.js',
   'core-recovery.js',
   'backup-final-check.js',
+  'backup-restore-verify.js',
   'system-monitoring.js',
   'system-alerts.js',
   '.github/workflows/core-backup.yml',
@@ -32,6 +33,7 @@ const FORBIDDEN_PREFIXES = [
   'node_modules/',
   'backup-staging/',
   'restore-source/',
+  'restore-verification/',
   'data/backups/'
 ];
 
@@ -213,6 +215,15 @@ function main() {
   for (const error of errors.slice(0, 50)) {
     console.log(`[ERROR] ${error.file}: ${error.message}`);
   }
+
+  if (!health.healthy) {
+    throw new Error('Kings Backup Final Integrity Check failed.');
+  }
 }
 
 main();
+
+// A backup is not considered final until every manifest file has also been
+// restored into an isolated disposable sandbox and verified against SHA-256.
+// backup-restore-verify.js never writes restored files into live repository paths.
+require('./backup-restore-verify.js');
