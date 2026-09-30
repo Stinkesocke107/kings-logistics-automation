@@ -6,14 +6,14 @@ on:
     branches: [main]
     paths:
       - 'kings-convoy-announcement-verifier.js'
+      - 'production-proof-collector.js'
       - '.github/workflows/convoy-announcement-verifier.yml'
   schedule:
     # Runs shortly after the native Convoy Checker cadence (06/21/36/51).
-    # This is read-only and verifies that any due public 2h announcement exists.
     - cron: '10-59/15 * * * *'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: kings-public-convoy-announcement-verification
@@ -28,14 +28,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
 
-      - name: Verify read-only announcement verifier
-        run: node --check kings-convoy-announcement-verifier.js
+      - name: Verify announcement verifier and proof collector
+        run: |
+          node --check kings-convoy-announcement-verifier.js
+          node --check production-proof-collector.js
 
       - name: Verify Kings public convoy announcement state
         env:
@@ -46,21 +50,40 @@ jobs:
           KINGS_API_HEALTH_NAMESPACE: 'convoy-announcement-verifier'
         run: node kings-convoy-announcement-verifier.js
 
+      - name: Capture durable Monthly Convoy 12 live proof
+        run: node production-proof-collector.js convoy
+
+      - name: Persist accepted Monthly Convoy 12 proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- data/public-convoy-live-proof.json data/api-health)" ]; then exit 0; fi
+          git config user.name 'Kings Logistics Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A -- data/public-convoy-live-proof.json data/api-health
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Record Kings public convoy production proof'
+          bash scripts/git-safe-push.sh main
+
       - name: Upload verification report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: kings-public-convoy-announcement-verification-${{ github.run_number }}
-          path: output/kings-convoy-announcement-verification.json
+          path: |
+            output/kings-convoy-announcement-verification.json
+            output/production-proof-convoy.json
+            data/public-convoy-live-proof.json
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 90
           compression-level: 9
 
       - name: Verification safety summary
         if: always()
         run: |
           echo '## Kings Public Convoy Announcement Verification' >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Mode: **read-only**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Discord writes: **none**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Verification rule: if a real Kings convoy is inside the 2-hour public announcement window, the bot announcement for that exact TruckersMP Event ID must already exist.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Durable proof write: **only after Event 35810 has a verified real announcement**' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f output/production-proof-convoy.json ]; then
+            node -e "const r=require('./output/production-proof-convoy.json'); console.log('- Event 35810 proof: **'+r.status+'**')" >> "$GITHUB_STEP_SUMMARY"
+          fi
