@@ -21,7 +21,8 @@ on:
       - '.github/workflows/system-monitoring.yml'
 
   schedule:
-    - cron: '7,37 * * * *'
+    # Run between the high-frequency API-state writers; Management Overview is read-only.
+    - cron: '15,45 * * * *'
 
 permissions:
   contents: write
