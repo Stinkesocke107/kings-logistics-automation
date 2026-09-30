@@ -10,11 +10,12 @@ on:
     paths:
       - 'monthly-report-v2.js'
       - 'monthly-report-verifier.js'
+      - 'production-proof-collector.js'
       - '.github/workflows/monthly-report.yml'
       - '.github/workflows/monthly-report-verification.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: kings-monthly-report-verification
@@ -29,6 +30,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -39,6 +42,7 @@ jobs:
         run: |
           node --check monthly-report-v2.js
           node --check monthly-report-verifier.js
+          node --check production-proof-collector.js
 
       - name: Verify Monthly Report Readiness / Publication
         env:
@@ -46,21 +50,38 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
         run: node monthly-report-verifier.js
 
+      - name: Capture durable September 2026 Monthly live proof
+        run: node production-proof-collector.js monthly
+
+      - name: Persist accepted September Monthly proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- data/monthly-live-proof.json)" ]; then exit 0; fi
+          git config user.name 'Kings Logistics Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A -- data/monthly-live-proof.json
+          git commit -m 'Record Kings September Monthly live production proof'
+          bash scripts/git-safe-push.sh main
+
       - name: Upload Monthly Verification Report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: kings-monthly-report-verification-${{ github.run_number }}
-          path: output/monthly-report-verification.json
+          path: |
+            output/monthly-report-verification.json
+            output/production-proof-monthly.json
+            data/monthly-live-proof.json
           if-no-files-found: warn
-          retention-days: 30
+          retention-days: 90
 
       - name: Verification Safety Summary
         if: always()
         run: |
           echo '## Kings Monthly Report Verification' >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Mode: **read-only**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Discord writes: **none**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Before month close: verifies readiness and confirms no early official post/state.' >> "$GITHUB_STEP_SUMMARY"
-          echo '- On the 1st: verifies the previous month has exactly one Discord post and a matching publication state.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Durable proof write: **only after exactly one verified September 2026 publication + matching state**' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f output/production-proof-monthly.json ]; then
+            node -e "const r=require('./output/production-proof-monthly.json'); console.log('- September live proof: **'+r.status+'**')" >> "$GITHUB_STEP_SUMMARY"
+          fi
