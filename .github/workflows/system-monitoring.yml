@@ -19,10 +19,17 @@ on:
       - 'security-audit.js'
       - 'discord-permission-audit.js'
       - 'scripts/git-safe-push.sh'
-      # Re-evaluate health immediately whenever a critical technical producer workflow changes.
+      # Re-evaluate health immediately whenever scheduler coverage or a monitored producer workflow changes.
+      - '.github/workflows/central-scheduler.yml'
       - '.github/workflows/live-tracker.yml'
       - '.github/workflows/driver-updates.yml'
       - '.github/workflows/convoy-checker.yml'
+      - '.github/workflows/driver-management.yml'
+      - '.github/workflows/hr-leadership.yml'
+      - '.github/workflows/staff-management.yml'
+      - '.github/workflows/management-overview.yml'
+      - '.github/workflows/milestones.yml'
+      - '.github/workflows/core-backup.yml'
       - '.github/workflows/system-monitoring.yml'
 
   schedule:
