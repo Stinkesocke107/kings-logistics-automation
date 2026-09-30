@@ -57,10 +57,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          if [ ! -e data/monthly-live-proof.json ]; then
+            echo 'September Monthly proof is still pending; nothing to persist.'
+            exit 0
+          fi
           if [ -z "$(git status --porcelain -- data/monthly-live-proof.json)" ]; then exit 0; fi
           git config user.name 'Kings Logistics Automation'
           git config user.email 'actions@users.noreply.github.com'
           git add -A -- data/monthly-live-proof.json
+          if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Record Kings September Monthly live production proof'
           bash scripts/git-safe-push.sh main
 
