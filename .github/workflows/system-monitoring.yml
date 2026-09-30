@@ -82,6 +82,15 @@ jobs:
           KINGS_RECOVERY_POLL_MS: '5000'
         run: node workflow-recovery.js
 
+      - name: Refresh recovered system state
+        run: |
+          # Recovery workflows can safely push fresh tracker/statistics/driver state
+          # after this job initially checked out main. Fast-forward before reading
+          # health files so monitoring never evaluates an obsolete local snapshot.
+          git fetch origin main
+          git merge --ff-only origin/main
+          echo "Monitoring state refreshed to $(git rev-parse HEAD)."
+
       - name: Run Kings System Monitoring
         id: health
         env:
