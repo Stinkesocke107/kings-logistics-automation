@@ -63,6 +63,8 @@ function main() {
   check('Self-Healing cadence is the approved 15-minute offset schedule', /cron:\s*['"]7,22,37,52 \* \* \* \*['"]/.test(workflowText), null);
   check('Self-Healing workflow has Actions write and Contents write mutation scopes', /actions:\s*write/.test(workflowText) && /contents:\s*write/.test(workflowText), null);
   check('Self-Healing workflow uses safe push helper', /scripts\/git-safe-push\.sh/.test(workflowText), null);
+  check('Self-Healing workflow executes fail-closed persistent-state guard', /node\s+self-healing-state-guard\.js/.test(workflowText), null);
+  check('Self-Healing workflow preserves state-recovery evidence', /self-healing-state-recovery\.json/.test(workflowText), null);
 
   check('Final System Health is HEALTHY', health.status === 'HEALTHY', health.status);
   check('Final System Health has 0 Critical Issues', Number(health.summary?.criticalIssues || 0) === 0, health.summary?.criticalIssues ?? null);
