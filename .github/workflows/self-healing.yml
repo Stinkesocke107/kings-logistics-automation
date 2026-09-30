@@ -1,0 +1,228 @@
+name: Kings Safe Self-Healing
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [main]
+    paths:
+      - 'self-healing.js'
+      - 'self-healing-verifier.js'
+      - 'tests/self-healing.test.cjs'
+      - '.github/workflows/self-healing.yml'
+
+  schedule:
+    # Offset from System Monitoring (:15/:45) and most producer cadences.
+    - cron: '7,22,37,52 * * * *'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: kings-safe-self-healing
+  cancel-in-progress: false
+
+jobs:
+  self-healing:
+    if: github.ref == 'refs/heads/main'
+    name: Point 21 Safe Self-Healing
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      KINGS_API_HEALTH_NAMESPACE: 'self-healing'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify Point 21 engine syntax and safety tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check self-healing.js
+          node --check self-healing-verifier.js
+          node --test tests/self-healing.test.cjs tests/workflow-recovery.test.cjs
+          bash -n scripts/git-safe-push.sh
+
+      - name: Prepare persistent Self-Healing state sandbox
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f data/self-healing-state.json ]; then
+            cp data/self-healing-state.json /tmp/kings-self-healing-state.json
+          else
+            printf '%s\n' '{"version":1,"mode":"technical-safe-self-healing","updatedAt":null,"repairs":{}}' > /tmp/kings-self-healing-state.json
+          fi
+
+      - name: Build initial technical health snapshot
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node system-monitoring.js
+          node data-integrity.js
+          node system-hardening.js
+          node security-audit.js
+          node discord-permission-audit.js
+
+          node - <<'NODE'
+          const h = require('./data/system-health.json');
+          console.log(`Initial Point 21 health: ${h.status}; Critical=${h.summary?.criticalIssues || 0}; Warnings=${h.summary?.warnings || 0}`);
+          NODE
+
+      - name: Run safe Self-Healing engine
+        id: self_heal
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          KINGS_SELF_HEAL_STATE_FILE: '/tmp/kings-self-healing-state.json'
+          KINGS_SELF_HEAL_REPORT_FILE: '/tmp/kings-self-healing.json'
+          KINGS_SELF_HEAL_WAIT_MS: '90000'
+          KINGS_SELF_HEAL_POLL_MS: '5000'
+        run: node self-healing.js
+
+      - name: Refresh runtime state after repair workflows
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Discard local generated health/API snapshots before merging any state
+          # written by a successfully recovered producer workflow.
+          git reset --hard HEAD
+          git clean -fd -- output || true
+          git fetch origin main
+          git merge --ff-only origin/main
+
+          mkdir -p data output
+          cp /tmp/kings-self-healing-state.json data/self-healing-state.json
+          if [ -f /tmp/kings-self-healing.json ]; then
+            cp /tmp/kings-self-healing.json output/self-healing.json
+          else
+            echo 'ERROR: Self-Healing engine did not produce its report.'
+            exit 1
+          fi
+
+          echo "Point 21 refreshed repository HEAD: $(git rev-parse HEAD)"
+
+      - name: Re-check complete technical health after healing
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node system-monitoring.js
+          node data-integrity.js
+          node system-hardening.js
+          node security-audit.js
+          node discord-permission-audit.js
+
+          node - <<'NODE'
+          const h = require('./data/system-health.json');
+          console.log(`Final Point 21 health: ${h.status}; Critical=${h.summary?.criticalIssues || 0}; Warnings=${h.summary?.warnings || 0}`);
+          NODE
+
+      - name: Process technical alert / recovery messages
+        if: always()
+        continue-on-error: true
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          SYSTEM_ALERTS_CHANNEL_NAME: 'system-alerts'
+        run: node system-alerts.js
+
+      - name: Verify Point 21 acceptance gates
+        id: verify
+        if: always()
+        run: node self-healing-verifier.js
+
+      - name: Persist Self-Healing technical state
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "$(git status --porcelain -- data/self-healing-state.json data/system-alerts-state.json data/api-health)" ]; then
+            echo 'No Self-Healing technical state changes to save.'
+            exit 0
+          fi
+
+          git config user.name 'Kings Logistics Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A -- data/self-healing-state.json data/system-alerts-state.json data/api-health
+
+          if git diff --cached --quiet; then
+            echo 'No Self-Healing technical state changes staged.'
+            exit 0
+          fi
+
+          git commit -m 'Update Kings self-healing state'
+          bash scripts/git-safe-push.sh main
+
+      - name: Upload Point 21 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-self-healing-${{ github.run_number }}
+          path: |
+            output/self-healing.json
+            output/self-healing-verification.json
+            data/self-healing-state.json
+            data/system-health.json
+            data/data-integrity.json
+            data/system-hardening.json
+            data/security-audit.json
+            data/discord-permission-audit.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 9
+
+      - name: Point 21 Self-Healing summary
+        if: always()
+        shell: bash
+        run: |
+          echo '## Kings Safe Self-Healing — Point 21' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Automatic repair allowlist: **Live Tracker, Driver Updates, normal Core Backup**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Convoy live / HR / Staff / Management / personnel dispatch: **blocked**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Discord role/member mutation: **blocked**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Automatic restore / force push: **blocked**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Cooldowns + repair-attempt budgets: **enabled**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Health re-check after every repair cycle: **enabled**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Persistent technical recovery state: **enabled**' >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -f output/self-healing.json ]; then
+            node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const r = require('./output/self-healing.json');
+          console.log(`- Self-Healing engine result: **${r.status || 'UNKNOWN'}**`);
+          console.log(`- Planned repairs: **${r.planning?.planned?.length || 0}**`);
+          console.log(`- Suppressed by cooldown/budget: **${r.planning?.suppressed?.length || 0}**`);
+          console.log(`- Manual-only findings: **${r.planning?.unsafeOrManualOnlyIssues?.length || 0}**`);
+          NODE
+          fi
+
+          if [ -f output/self-healing-verification.json ]; then
+            node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const v = require('./output/self-healing-verification.json');
+          console.log(`- Acceptance status: **${v.status || 'UNKNOWN'}**`);
+          console.log(`- Verification checks: **${v.summary?.passed || 0}/${v.summary?.checks || 0}**`);
+          console.log(`- Final health: **${v.summary?.finalHealth || 'UNKNOWN'}**`);
+          console.log(`- Critical Issues: **${v.summary?.criticalIssues ?? 'unknown'}**`);
+          console.log(`- Warnings: **${v.summary?.warnings ?? 'unknown'}**`);
+          NODE
+          fi
