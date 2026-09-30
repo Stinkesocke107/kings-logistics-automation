@@ -11,6 +11,7 @@ const KINGS_VTC_ID = 64284;
 const NEWS_API_URL = `https://api.truckersmp.com/v2/vtc/${KINGS_VTC_ID}/news`;
 const DISCORD_WEBHOOK_URL = process.env.NEWS_DISCORD_WEBHOOK_URL;
 const STATE_FILE = path.join(__dirname, 'data', 'last-news.json');
+const PUBLICATION_STATE_FILE = path.join(__dirname, 'data', 'news-publication-state.json');
 const KINGS_COLOR = parseInt('182dff', 16);
 
 function cleanText(text = '') {
@@ -32,6 +33,16 @@ function truncate(text, maxLength) {
   if (!text) return '';
   if (text.length <= maxLength) return text;
   return `${text.slice(0, maxLength - 3)}...`;
+}
+
+function webhookWaitUrl(value) {
+  const url = new URL(String(value || ''));
+  if (url.protocol !== 'https:' || url.hostname !== 'discord.com') {
+    // Tests and development fixtures may intentionally use a non-Discord host.
+    // Production secret validation is handled by GitHub/Discord itself.
+  }
+  url.searchParams.set('wait', 'true');
+  return url.toString();
 }
 
 async function getNews() {
@@ -140,10 +151,43 @@ function saveState(newsItem) {
     updatedAt: new Date().toISOString()
   };
 
-  // Validate before writing so a malformed state can never replace a good one.
   validateState(state);
   fs.writeFileSync(STATE_FILE, `${JSON.stringify(state, null, 2)}\n`, 'utf8');
   console.log(`News state checkpoint updated to article ${state.lastId}.`);
+  return state;
+}
+
+function validatePublicationState(state) {
+  if (!state || typeof state !== 'object' || Array.isArray(state)) throw new Error('Invalid News publication evidence.');
+  if (state.version !== 1) throw new Error('Invalid News publication evidence version.');
+  if (!Number.isInteger(Number(state.articleId)) || Number(state.articleId) <= 0) throw new Error('Invalid News publication articleId.');
+  if (typeof state.title !== 'string' || !state.title.trim()) throw new Error('Invalid News publication title.');
+  if (typeof state.url !== 'string' || !/^https:\/\/truckersmp\.com\/vtc\/64284\/news\/\d+$/.test(state.url)) throw new Error('Invalid News publication URL.');
+  if (!/^\d+$/.test(String(state.discordMessageId || ''))) throw new Error('Invalid News publication Discord message ID.');
+  if (!/^\d+$/.test(String(state.discordChannelId || ''))) throw new Error('Invalid News publication Discord channel ID.');
+  if (typeof state.postedAt !== 'string' || Number.isNaN(Date.parse(state.postedAt))) throw new Error('Invalid News publication postedAt.');
+  if (state.articlePublishedAt !== null && (typeof state.articlePublishedAt !== 'string' || Number.isNaN(Date.parse(state.articlePublishedAt)))) {
+    throw new Error('Invalid News publication articlePublishedAt.');
+  }
+  return state;
+}
+
+function savePublicationEvidence(newsItem, discordMessage) {
+  const evidence = {
+    version: 1,
+    articleId: Number(newsItem.id),
+    title: String(newsItem.title || 'Kings Logistics News'),
+    url: String(newsItem.url),
+    articlePublishedAt: newsItem.publishedAt ? new Date(newsItem.publishedAt).toISOString() : null,
+    discordMessageId: String(discordMessage?.id || ''),
+    discordChannelId: String(discordMessage?.channel_id || ''),
+    postedAt: new Date().toISOString()
+  };
+  validatePublicationState(evidence);
+  fs.mkdirSync(path.dirname(PUBLICATION_STATE_FILE), { recursive: true });
+  fs.writeFileSync(PUBLICATION_STATE_FILE, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
+  console.log(`News publication evidence stored for Discord message ${evidence.discordMessageId}.`);
+  return evidence;
 }
 
 async function sendToDiscord(newsItem) {
@@ -170,7 +214,7 @@ async function sendToDiscord(newsItem) {
     if (!Number.isNaN(date.getTime())) embed.timestamp = date.toISOString();
   }
 
-  const response = await fetch(DISCORD_WEBHOOK_URL, {
+  const response = await fetch(webhookWaitUrl(DISCORD_WEBHOOK_URL), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -181,12 +225,23 @@ async function sendToDiscord(newsItem) {
     signal: AbortSignal.timeout(15000)
   });
 
+  const text = await response.text();
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Discord webhook failed: HTTP ${response.status} - ${errorText}`);
+    throw new Error(`Discord webhook failed: HTTP ${response.status} - ${text}`);
   }
 
-  console.log(`Discord post sent: ${newsItem.title}`);
+  let message;
+  try {
+    message = text ? JSON.parse(text) : null;
+  } catch (error) {
+    throw new Error(`Discord webhook returned invalid message JSON: ${error.message}`);
+  }
+  if (!message?.id || !message?.channel_id) {
+    throw new Error('Discord webhook did not return message evidence; refusing to advance News state.');
+  }
+
+  console.log(`Discord post sent: ${newsItem.title} (${message.id})`);
+  return message;
 }
 
 async function checkNews() {
@@ -214,8 +269,6 @@ async function checkNews() {
   if (oldIndex > 0) {
     newItems = news.slice(0, oldIndex).reverse();
   } else {
-    // If the previous article fell out of the API response, only send the newest
-    // one. This deliberately prefers missing an old replay over causing spam.
     console.log('Previous saved news was not found in the current API response.');
     console.log('Only the latest article will be sent.');
     newItems = [latest];
@@ -226,11 +279,12 @@ async function checkNews() {
 
   let sent = 0;
   for (const item of newItems) {
-    // Critical ordering: Discord must succeed first. Then checkpoint THIS item.
-    // If a later article fails, the next run resumes after the last successful
-    // post instead of reposting already-delivered articles.
-    await sendToDiscord(item);
+    // Discord must return the concrete message first. The dedupe checkpoint is
+    // then saved before the separate audit evidence so a local evidence-write
+    // problem can never cause the already delivered article to be reposted.
+    const discordMessage = await sendToDiscord(item);
     saveState(item);
+    savePublicationEvidence(item, discordMessage);
     sent += 1;
   }
 
@@ -249,9 +303,22 @@ async function start() {
   console.log(`Kings News check completed successfully. Sent: ${result.sent}.`);
 }
 
-start().catch(error => {
-  console.error('');
-  console.error('Kings News Automation failed:');
-  console.error(error);
-  process.exit(1);
-});
+if (require.main === module) {
+  start().catch(error => {
+    console.error('');
+    console.error('Kings News Automation failed:');
+    console.error(error);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  cleanText,
+  truncate,
+  webhookWaitUrl,
+  validateState,
+  validatePublicationState,
+  savePublicationEvidence,
+  sendToDiscord,
+  checkNews
+};
