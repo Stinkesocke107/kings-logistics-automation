@@ -12,6 +12,7 @@ on:
       - 'scripts/git-safe-push.sh'
       - '.github/workflows/driver-management.yml'
   schedule:
+    # Native hourly run; Kings Central Scheduler provides a 65-minute fallback.
     - cron: "17 * * * *"
 
 permissions:
