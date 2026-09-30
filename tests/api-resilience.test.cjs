@@ -56,6 +56,15 @@ test('Kings API resilience failure matrix', async () => {
       return writeJson(res, 200, { ok: true, provider: 'discord' });
     }
 
+    if (key === '/post-429') {
+      if (n === 1) return writeJson(res, 429, { retry: true }, { 'retry-after': '0' });
+      return writeJson(res, 200, { ok: true, created: true });
+    }
+
+    if (key === '/post-503') {
+      return writeJson(res, 503, { error: 'ambiguous-post-failure' });
+    }
+
     if (key === '/truckersmp-500') {
       if (n <= 2) return writeJson(res, 503, { error: 'temporary' });
       return writeJson(res, 200, { ok: true, provider: 'truckersmp' });
@@ -121,6 +130,25 @@ test('Kings API resilience failure matrix', async () => {
     assert.equal(counts.get('/discord-429'), 3);
     assert.equal(readHealth('Discord API mock').status, 'healthy');
     results.push({ scenario: '429 Retry-After then recovery', passed: true, attempts: 3 });
+
+    const safePost429 = await resilientFetchJson(`${base}/post-429`, {
+      label: 'Discord POST 429 mock', retries: 3, timeoutMs: 500, baseDelayMs: 1,
+      fetchOptions: { method: 'POST', body: '{}' },
+      validateJson: (data) => data?.created === true
+    });
+    assert.equal(safePost429.created, true);
+    assert.equal(counts.get('/post-429'), 2);
+    results.push({ scenario: 'POST retries explicit 429 safely', passed: true, attempts: 2 });
+
+    await assert.rejects(
+      resilientFetchJson(`${base}/post-503`, {
+        label: 'Ambiguous POST 5xx mock', retries: 3, timeoutMs: 500, baseDelayMs: 1,
+        fetchOptions: { method: 'POST', body: '{}' }
+      }),
+      /HTTP 503/
+    );
+    assert.equal(counts.get('/post-503'), 1);
+    results.push({ scenario: 'POST 5xx fails once to prevent duplicate creation', passed: true, attempts: 1 });
 
     const tmp = await resilientFetchJson(`${base}/truckersmp-500`, {
       label: 'TruckersMP API mock', retries: 3, timeoutMs: 500, baseDelayMs: 1,
@@ -220,7 +248,7 @@ test('Kings API resilience failure matrix', async () => {
     fs.writeFileSync(
       path.join(outputDir, 'api-resilience-verification.json'),
       `${JSON.stringify({
-        version: 1,
+        version: 2,
         checkedAt: new Date().toISOString(),
         mode: 'controlled-local-failure-injection',
         externalTraffic: false,
