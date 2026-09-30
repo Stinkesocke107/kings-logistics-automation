@@ -51,31 +51,61 @@ function norm(value = '') {
 }
 async function discord(pathname) {
   const response = await fetch(`${API}${pathname}`, {
-    headers: { Authorization: `Bot ${TOKEN}`, 'User-Agent': 'Kings Logistics Weekly Reports Verifier/2.0' },
+    headers: { Authorization: `Bot ${TOKEN}`, 'User-Agent': 'Kings Logistics Weekly Reports Verifier/2.1' },
     signal: AbortSignal.timeout(15000)
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Discord API ${response.status} on GET ${pathname}: ${text.slice(0, 300)}`);
+  if (!response.ok) {
+    const error = new Error(`Discord API ${response.status} on GET ${pathname}: ${text.slice(0, 300)}`);
+    error.status = response.status;
+    throw error;
+  }
   return text ? JSON.parse(text) : null;
 }
-async function messages(channelId) {
-  const data = await discord(`/channels/${channelId}/messages?limit=100`);
-  return Array.isArray(data) ? data : [];
+async function readableMessages(channel) {
+  try {
+    const data = await discord(`/channels/${channel.id}/messages?limit=100`);
+    return { channel, messages: Array.isArray(data) ? data : [] };
+  } catch (error) {
+    if (error.status === 403 || error.status === 404) return null;
+    throw error;
+  }
 }
 async function resolveByHistory(channels, name, botId, historicalPredicate, label) {
   const matches = channels.filter((c) => [0, 5].includes(c.type) && norm(c.name) === norm(name));
   if (matches.length === 0) throw new Error(`No ${label} channel matches ${name}.`);
-  if (matches.length === 1) return { channel: matches[0], messages: await messages(matches[0].id), method: 'unique-name' };
 
-  const historical = [];
+  const readable = [];
   for (const channel of matches) {
-    const list = await messages(channel.id);
-    if (list.some((m) => m.author?.id === botId && historicalPredicate(m))) historical.push({ channel, messages: list });
+    const candidate = await readableMessages(channel);
+    if (candidate) readable.push(candidate);
   }
+
+  if (readable.length === 0) throw new Error(`No readable ${label} channel matches ${name}.`);
+  if (readable.length === 1) {
+    return {
+      ...readable[0],
+      method: matches.length === 1 ? 'unique-name' : 'unique-readable-channel',
+      normalizedMatches: matches.length,
+      readableMatches: 1
+    };
+  }
+
+  const historical = readable.filter(({ messages }) =>
+    messages.some((m) => m.author?.id === botId && historicalPredicate(m))
+  );
   if (historical.length !== 1) {
-    throw new Error(`${label} channel is ambiguous: normalizedMatches=${matches.length}, historicalMatches=${historical.length}.`);
+    throw new Error(
+      `${label} channel is ambiguous: normalizedMatches=${matches.length}, ` +
+      `readableMatches=${readable.length}, historicalMatches=${historical.length}.`
+    );
   }
-  return { ...historical[0], method: 'weekly-history' };
+  return {
+    ...historical[0],
+    method: 'weekly-history',
+    normalizedMatches: matches.length,
+    readableMatches: readable.length
+  };
 }
 function stateEntry(state, key) {
   return state?.publishedWeeks?.find((item) => item.key === key) || null;
@@ -151,8 +181,16 @@ async function main() {
   if (!staff || !Number.isFinite(Number(staff.currentStaff))) issues.push('Staff Management summary missing or invalid.');
   const nextWeekCoverageEligible = initializedAt <= period.end;
 
+  const channelSummary = (resolved) => ({
+    id: resolved.channel.id,
+    name: resolved.channel.name,
+    method: resolved.method,
+    normalizedMatches: resolved.normalizedMatches,
+    readableMatches: resolved.readableMatches
+  });
+
   const report = {
-    version: 2,
+    version: 3,
     checkedAt: new Date().toISOString(),
     mode: 'read-only',
     targetWeek: { key, start: period.start.toISOString(), end: period.end.toISOString(), shortLabel, longLabel },
@@ -163,9 +201,9 @@ async function main() {
       completeCoverageFromNextWeek: nextWeekCoverageEligible
     },
     channelResolution: {
-      driver: { id: driverResolved.channel.id, name: driverResolved.channel.name, method: driverResolved.method },
-      hr: { id: hrResolved.channel.id, name: hrResolved.channel.name, method: hrResolved.method },
-      management: { id: managementResolved.channel.id, name: managementResolved.channel.name, method: managementResolved.method }
+      driver: channelSummary(driverResolved),
+      hr: channelSummary(hrResolved),
+      management: channelSummary(managementResolved)
     },
     driverWeekly: { statePublished: Boolean(driverEntry), discordPostFound: Boolean(driverPost), messageId: driverPost?.id || null, state: driverEntry },
     hrWeekly: {
@@ -185,7 +223,10 @@ async function main() {
   fs.writeFileSync(OUTPUT, `${JSON.stringify(report, null, 2)}\n`);
   console.log(`Weekly Reports Verification — ${key}`);
   console.log(`Driver: state=${Boolean(driverEntry)} discord=${Boolean(driverPost)} channel=${driverResolved.channel.id}`);
-  console.log(`HR: expected=${coverageComplete} state=${Boolean(hrEntry)} discord=${Boolean(hrPost)} channel=${hrResolved.channel.id} resolution=${hrResolved.method}`);
+  console.log(
+    `HR: expected=${coverageComplete} state=${Boolean(hrEntry)} discord=${Boolean(hrPost)} ` +
+    `channel=${hrResolved.channel.id} resolution=${hrResolved.method}`
+  );
   console.log(`Management: state=${Boolean(managementEntry)} discord=${Boolean(managementPost)} staff=${Number(staff?.currentStaff || 0)}`);
   console.log(`Next week full-coverage eligible: ${nextWeekCoverageEligible}`);
   console.log(`Issues: ${issues.length}`);
