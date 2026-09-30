@@ -4,6 +4,7 @@ set -euo pipefail
 BRANCH="${1:-main}"
 MAX_ATTEMPTS="${GIT_SAFE_PUSH_ATTEMPTS:-6}"
 BASE_DELAY="${GIT_SAFE_PUSH_BASE_DELAY_SECONDS:-2}"
+EXPECTED_REMOTE="${GIT_SAFE_PUSH_EXPECT_REMOTE:-}"
 
 if ! [[ "$MAX_ATTEMPTS" =~ ^[1-9][0-9]*$ ]]; then
   echo "GIT_SAFE_PUSH_ATTEMPTS must be a positive integer."
@@ -12,6 +13,11 @@ fi
 
 if ! [[ "$BASE_DELAY" =~ ^[0-9]+$ ]]; then
   echo "GIT_SAFE_PUSH_BASE_DELAY_SECONDS must be a non-negative integer."
+  exit 1
+fi
+
+if [ -n "$EXPECTED_REMOTE" ] && ! [[ "$EXPECTED_REMOTE" =~ ^[0-9a-fA-F]{40}$ ]]; then
+  echo "GIT_SAFE_PUSH_EXPECT_REMOTE must be a full 40-character commit SHA when set."
   exit 1
 fi
 
@@ -85,6 +91,19 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     continue
   fi
 
+  # Recovery and other high-risk workflows may pin the exact remote commit they
+  # are allowed to update. In that mode, any branch drift is a hard stop rather
+  # than something that should be rebased automatically.
+  if [ -n "$EXPECTED_REMOTE" ]; then
+    REMOTE_HEAD="$(git rev-parse "origin/$BRANCH")"
+    if [ "$REMOTE_HEAD" != "$EXPECTED_REMOTE" ]; then
+      echo "Safe push strict-remote guard blocked branch drift."
+      echo "Expected origin/$BRANCH: $EXPECTED_REMOTE"
+      echo "Current origin/$BRANCH:  $REMOTE_HEAD"
+      exit 1
+    fi
+  fi
+
   # Never auto-resolve same-file state conflicts. Abort and leave the original
   # local commit intact so both versions remain recoverable for manual review.
   if ! git rebase "origin/$BRANCH"; then
@@ -103,6 +122,9 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     exit 0
   fi
 
+  # In strict mode a race after the fetch/pin check must never be retried via a
+  # rebase. The next loop iteration will refetch and the expected-SHA guard will
+  # stop the operation before another push attempt.
   if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
     delay="$(retry_delay "$attempt")"
     echo "Remote changed during push. Refetching and retrying in ${delay}s..."
