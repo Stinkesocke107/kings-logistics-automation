@@ -17,6 +17,18 @@ const REQUIRED_INTEGRATIONS = [
   'system-monitoring.js'
 ];
 
+const DISCORD_TRANSPORT_USERS = [
+  'tracker.js',
+  'statistics.js',
+  'central-overview.js',
+  'driver-management.js',
+  'staff-management.js',
+  'news.js',
+  'milestones.js',
+  'convoy-truckersmp-sync.js',
+  'kings-convoy-announcements.js'
+];
+
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
@@ -36,8 +48,8 @@ function main() {
   if (matrix) {
     if (matrix.healthy !== true) issues.push('Controlled failure matrix is not healthy.');
     if (Number(matrix.failed || 0) !== 0) issues.push(`Controlled failure matrix has ${matrix.failed} failed scenario(s).`);
-    if (!Array.isArray(matrix.scenarios) || matrix.scenarios.length < 10) {
-      issues.push(`Controlled failure matrix is incomplete: ${matrix.scenarios?.length || 0}/10 scenarios.`);
+    if (!Array.isArray(matrix.scenarios) || matrix.scenarios.length < 12) {
+      issues.push(`Controlled failure matrix is incomplete: ${matrix.scenarios?.length || 0}/12 scenarios.`);
     }
     if (matrix.externalTraffic !== false) {
       issues.push('Failure injection was not isolated from external services.');
@@ -45,6 +57,7 @@ function main() {
   }
 
   const resilienceSource = readText('api-resilience.js');
+  const brandingSource = readText('kings-branding.js');
   const capabilityChecks = {
     timeout: resilienceSource.includes('AbortController'),
     rateLimit429: resilienceSource.includes('status === 429'),
@@ -53,7 +66,13 @@ function main() {
     malformedResponseRetry: resilienceSource.includes('API_INVALID_RESPONSE'),
     nestedNetworkCodes: resilienceSource.includes('error?.cause?.code'),
     circuitBreaker: resilienceSource.includes('circuitOpenUntil') && resilienceSource.includes('CIRCUIT_OPEN'),
-    persistentHealth: resilienceSource.includes("data', 'api-health") || resilienceSource.includes('KINGS_API_HEALTH_DIR')
+    persistentHealth: resilienceSource.includes("data', 'api-health") || resilienceSource.includes('KINGS_API_HEALTH_DIR'),
+    methodAwareCoreRetries: resilienceSource.includes('canRetryRequest') && resilienceSource.includes('IDEMPOTENT_METHODS'),
+    duplicateSafeDiscordTransport:
+      brandingSource.includes('discordResilientFetch') &&
+      brandingSource.includes('canRetryDiscordResponse') &&
+      brandingSource.includes("status === 429") &&
+      brandingSource.includes('DISCORD_IDEMPOTENT_METHODS')
   };
 
   for (const [name, ok] of Object.entries(capabilityChecks)) {
@@ -72,6 +91,21 @@ function main() {
     const resilient = source.includes("require('./api-resilience')") || source.includes('resilientFetch');
     integration[file] = { exists: true, resilient };
     if (!resilient) issues.push(`API resilience is not wired into ${file}.`);
+  }
+
+  const discordTransport = {};
+  for (const file of DISCORD_TRANSPORT_USERS) {
+    if (!fs.existsSync(path.join(ROOT, file))) {
+      discordTransport[file] = { exists: false, centralTransport: false };
+      issues.push(`Discord transport user missing: ${file}.`);
+      continue;
+    }
+
+    const source = readText(file);
+    const centralTransport = source.includes("require('./kings-branding').installDiscordBranding()") ||
+      (source.includes("require('./kings-branding')") && source.includes('installDiscordBranding'));
+    discordTransport[file] = { exists: true, centralTransport };
+    if (!centralTransport) issues.push(`Central Discord transport hardening is not installed in ${file}.`);
   }
 
   const health = {
@@ -141,7 +175,7 @@ function main() {
   if (health.degraded > 0) issues.push(`${health.degraded} production API service(s) are degraded.`);
 
   const report = {
-    version: 1,
+    version: 2,
     checkedAt: new Date().toISOString(),
     point: 13,
     mode: 'read-only-final-verification',
@@ -155,10 +189,15 @@ function main() {
       : null,
     capabilities: capabilityChecks,
     integrations: integration,
+    discordTransport,
     productionApiHealth: health,
     falseAlertProtection: {
       isolatedHealthDirectoryForFailureInjection: matrix?.externalTraffic === false,
       productionHealthUnmodifiedByFailureMatrix: !health.services.some((item) => String(item.namespace || '').includes('point-13-test'))
+    },
+    duplicateProtection: {
+      unsafePostRetriesOnlyExplicit429: capabilityChecks.methodAwareCoreRetries && capabilityChecks.duplicateSafeDiscordTransport,
+      idempotentDiscordMethodsRetryTransientFailures: capabilityChecks.duplicateSafeDiscordTransport
     },
     issues,
     healthy: issues.length === 0
@@ -171,7 +210,8 @@ function main() {
   console.log(`Failure scenarios: ${report.controlledFailureMatrix?.passed || 0}/${report.controlledFailureMatrix?.scenarios || 0}`);
   console.log(`Production API health: ${health.healthy}/${health.total} healthy, ${health.degraded} degraded, ${health.down} down`);
   console.log(`Open production circuits: ${health.openCircuits}`);
-  console.log(`Integration files: ${Object.values(integration).filter((item) => item.resilient).length}/${REQUIRED_INTEGRATIONS.length}`);
+  console.log(`API integration files: ${Object.values(integration).filter((item) => item.resilient).length}/${REQUIRED_INTEGRATIONS.length}`);
+  console.log(`Discord transport users: ${Object.values(discordTransport).filter((item) => item.centralTransport).length}/${DISCORD_TRANSPORT_USERS.length}`);
   console.log(`Issues: ${issues.length}`);
   for (const issue of issues) console.error(`- ${issue}`);
 
