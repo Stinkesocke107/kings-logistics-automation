@@ -72,7 +72,9 @@ jobs:
       - name: Verify convoy safety engines
         run: |
           node --check convoy-checker.js
+          node --check convoy-finalize.js
           node --check convoy-driver-reminders.js
+          node --check convoy-overview-discord.js
           node --check kings-convoy-announcements.js
           node --check convoy-e2e-dry-run.js
 
@@ -83,7 +85,9 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
-          DISCORD_WRITE_MODE: ${{ steps.mode.outputs.dry_run == 'true' && 'false' || 'true' }}
+          # The first stage only reads/parses Discord. The finalizer writes one
+          # authoritative status after TruckersMP data has been loaded.
+          DISCORD_WRITE_MODE: 'false'
         run: node convoy-checker.js
 
       - name: Auto-fill convoy data from TruckersMP Event ID
@@ -95,7 +99,7 @@ jobs:
           KINGS_VTC_NAME: 'Kings Logistics'
         run: node convoy-truckersmp-sync.js
 
-      - name: Convert convoy event times to Discord timestamps
+      - name: Finalize TruckersMP data and Kings overrides
         id: convoy_stage_2
         continue-on-error: true
         if: steps.mode.outputs.dry_run != 'true'
@@ -103,7 +107,7 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
-        run: node convoy-time-display.js
+        run: node convoy-finalize.js
 
       - name: Send one-time convoy notifications
         id: convoy_stage_3
