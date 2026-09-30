@@ -11,7 +11,8 @@ on:
       - '.github/workflows/probation.yml'
 
   schedule:
-    - cron: "0 * * * *"
+    # Run hourly away from the top-of-hour scheduler peak.
+    - cron: "34 * * * *"
 
 permissions:
   contents: write
