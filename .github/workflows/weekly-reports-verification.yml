@@ -1,5 +1,4 @@
-# Read-only final verifier for Kings weekly reporting.
-# Channel verification ignores inaccessible duplicate channel names safely.
+# Read-only Discord verifier plus durable acceptance-proof checkpoint.
 name: Kings Weekly Reports Verification
 
 on:
@@ -11,6 +10,7 @@ on:
       - main
     paths:
       - 'weekly-reports-verifier-v2.js'
+      - 'production-proof-collector.js'
       - 'hr-weekly-summary-runner.js'
       - 'driver-weekly-summary.js'
       - 'hr-weekly-summary.js'
@@ -22,7 +22,7 @@ on:
       - 'data/staff-management-summary.json'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: kings-weekly-reports-verification
@@ -37,6 +37,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -50,6 +52,7 @@ jobs:
           node --check hr-weekly-summary-runner.js
           node --check management-weekly-overview-v3.js
           node --check weekly-reports-verifier-v2.js
+          node --check production-proof-collector.js
 
       - name: Verify Weekly Reports Live State
         env:
@@ -61,22 +64,38 @@ jobs:
           MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
         run: node weekly-reports-verifier-v2.js
 
+      - name: Capture durable HR Weekly live proof when eligible
+        run: node production-proof-collector.js weekly
+
+      - name: Persist accepted HR Weekly proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- data/hr-weekly-live-proof.json)" ]; then exit 0; fi
+          git config user.name 'Kings Logistics Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A -- data/hr-weekly-live-proof.json
+          git commit -m 'Record Kings HR Weekly live production proof'
+          bash scripts/git-safe-push.sh main
+
       - name: Upload Weekly Verification Report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: kings-weekly-reports-verification-${{ github.run_number }}
-          path: output/weekly-reports-verification.json
+          path: |
+            output/weekly-reports-verification.json
+            output/production-proof-weekly.json
+            data/hr-weekly-live-proof.json
           if-no-files-found: warn
-          retention-days: 30
+          retention-days: 90
 
       - name: Verification Safety Summary
         if: always()
         run: |
           echo '## Kings Weekly Reports Verification' >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Mode: **read-only**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Discord writes: **none**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Verifies Driver, HR and Management weekly publication states against Discord history.' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Inaccessible duplicate channel names are ignored because they cannot be valid bot targets.' >> "$GITHUB_STEP_SUMMARY"
-          echo '- HR is allowed to defer only when Driver Management did not cover the complete reporting week.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Durable proof write: **only after complete-coverage HR state + matching Discord post**' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f output/production-proof-weekly.json ]; then
+            node -e "const r=require('./output/production-proof-weekly.json'); console.log('- HR live proof: **'+r.status+'**')" >> "$GITHUB_STEP_SUMMARY"
+          fi
