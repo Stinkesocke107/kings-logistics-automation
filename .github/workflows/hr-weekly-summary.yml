@@ -46,7 +46,7 @@ jobs:
           DISCORD_GUILD_ID: '1114967437788577792'
           HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
           HR_WEEKLY_SUMMARY_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
-        run: node hr-weekly-summary.js
+        run: node hr-weekly-summary-runner.js
 
       - name: Save HR Weekly Summary Data Safely
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') }}
