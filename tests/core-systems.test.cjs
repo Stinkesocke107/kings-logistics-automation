@@ -40,14 +40,19 @@ test('staff history may exceed current count but cannot omit current staff', () 
   assert.equal(s.run("const missing=[];checkStaffSummary({staff:{currentStaff:5,trackedStaffRecords:4}},missing,[]);missing.length"),1);
 });
 
-test('malformed HTTP-200 API payloads accumulate failures and open the circuit', async () => {
+test('malformed HTTP-200 API payloads retry, accumulate logical failures and open the circuit', async () => {
   const s = sandbox('system-monitoring.js', { fetch: async () => json({error:true}) });
-  for (let i=0;i<5;i++) await assert.rejects(s.run("require('./api-resilience').resilientFetchJson('https://invalid.test', {label:'bad-json',validateJson:d=>!d.error})"), /validation/);
+  for (let i=0;i<5;i++) {
+    await assert.rejects(
+      s.run("require('./api-resilience').resilientFetchJson('https://invalid.test', {label:'bad-json',baseDelayMs:1,validateJson:d=>!d.error})"),
+      /validation/
+    );
+  }
   const health = JSON.parse(s.files.get('data/api-health/bad-json.json'));
   assert.equal(health.status,'down');
   assert.equal(health.consecutiveFailures,5);
   await assert.rejects(s.run("require('./api-resilience').resilientFetchJson('https://invalid.test',{label:'bad-json'})"),/circuit breaker/);
-  assert.equal(s.calls.length,5);
+  assert.equal(s.calls.length,20);
 });
 
 for (const script of ['hr-probation.js','hr-leadership.js']) {
