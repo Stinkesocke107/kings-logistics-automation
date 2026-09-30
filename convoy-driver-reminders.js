@@ -296,6 +296,8 @@ async function main() {
   console.log(
     `Kings Driver Convoy Reminders finished. 24h sent: ${sent24h}. 1h sent: ${sent1h}. Dry-run 24h: ${dryRun24h}. Dry-run 1h: ${dryRun1h}. Skipped: ${skipped}. Failed: ${failed}.`
   );
+  if (failed > 0) process.exitCode = 1;
+
 }
 
 main().catch((error) => {

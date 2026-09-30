@@ -250,7 +250,7 @@ async function main() {
   let failed = 0;
 
   for (const item of report.threads || []) {
-    if (item.ignored || item.error || isTestThread(item)) {
+    if (item.ignored || item.error || item.archived || isTestThread(item)) {
       skipped += 1;
       continue;
     }
@@ -385,6 +385,8 @@ async function main() {
   console.log(
     `Kings TruckersMP Convoy Sync finished. Synced: ${synced}. Skipped: ${skipped}. Failed: ${failed}. Report changed: ${changed ? 'yes' : 'no'}.`
   );
+  if (failed > 0) process.exitCode = 1;
+
 }
 
 main().catch((error) => {

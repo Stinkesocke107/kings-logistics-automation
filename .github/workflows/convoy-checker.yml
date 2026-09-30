@@ -1,4 +1,5 @@
 name: Kings Convoy Checker
+run-name: Kings Convoy Checker (${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'schedule' && 'live' || 'dry-run') }})
 
 on:
   workflow_dispatch:
@@ -13,6 +14,7 @@ on:
           - live
 
   push:
+    branches: [main]
     paths:
       - 'convoy-*.js'
       - 'kings-convoy-announcements.js'
@@ -32,6 +34,7 @@ concurrency:
 
 jobs:
   check-convoys:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -40,6 +43,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -71,6 +76,8 @@ jobs:
           node --check convoy-e2e-dry-run.js
 
       - name: Run convoy checker
+        id: convoy_stage_0
+        continue-on-error: true
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -79,6 +86,8 @@ jobs:
         run: node convoy-checker.js
 
       - name: Auto-fill convoy data from TruckersMP Event ID
+        id: convoy_stage_1
+        continue-on-error: true
         if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -86,6 +95,8 @@ jobs:
         run: node convoy-truckersmp-sync.js
 
       - name: Convert convoy event times to Discord timestamps
+        id: convoy_stage_2
+        continue-on-error: true
         if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -94,6 +105,8 @@ jobs:
         run: node convoy-time-display.js
 
       - name: Send one-time convoy notifications
+        id: convoy_stage_3
+        continue-on-error: true
         if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -102,6 +115,8 @@ jobs:
         run: node convoy-notifications.js
 
       - name: Handle post-convoy follow-up
+        id: convoy_stage_4
+        continue-on-error: true
         if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -110,6 +125,8 @@ jobs:
         run: node convoy-reminders.js
 
       - name: Check internal Convoy Driver reminders
+        id: convoy_stage_5
+        continue-on-error: true
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -119,6 +136,8 @@ jobs:
         run: node convoy-driver-reminders.js
 
       - name: Check Kings-only convoy announcements
+        id: convoy_stage_6
+        continue-on-error: true
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -133,6 +152,8 @@ jobs:
           fi
 
       - name: Archive finished convoy threads
+        id: convoy_stage_7
+        continue-on-error: true
         if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -141,12 +162,16 @@ jobs:
         run: node convoy-archive.js
 
       - name: Generate convoy overview statistics
+        id: convoy_stage_8
+        continue-on-error: true
         env:
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-overview.js
 
       - name: Sync convoy overview to Discord
+        id: convoy_stage_9
+        continue-on-error: true
         if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -157,7 +182,7 @@ jobs:
       - name: Dry-run safety summary
         if: steps.mode.outputs.dry_run == 'true'
         run: |
-          echo "Convoy E2E completed in read-only dry-run mode."
+          echo "Convoy read-only preflight completed; skipped stages are NOT E2E verified."
           echo "Convoy checker writes were disabled."
           echo "Driver reminders were validated without posting."
           echo "Public 2h announcement writes were blocked at the fetch layer."
@@ -188,3 +213,11 @@ jobs:
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "Update Kings API health state"
           bash scripts/git-safe-push.sh main
+
+      # Finish independent event work, then expose every failed stage to monitoring.
+      - name: Require successful convoy stages
+        if: always()
+        env:
+          STEP_OUTCOMES: ${{ join(steps.*.outcome, ',') }}
+        run: |
+          node -e "if ((process.env.STEP_OUTCOMES || '').split(',').includes('failure')) { console.error('One or more convoy stages failed; inspect the reports and logs.'); process.exit(1); }"

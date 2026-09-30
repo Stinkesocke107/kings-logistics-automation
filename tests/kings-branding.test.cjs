@@ -54,7 +54,7 @@ test('normalizes existing legacy emoji IDs to the current Kings IDs', () => {
   assert.equal(output, `${KINGS_LOGISTICS_LOGO} ${KINGS_HEART}`);
 });
 
-test('adds visible branding content to Kings embed-only messages', () => {
+test('preserves embed-only messages without injecting custom emoji content', () => {
   const output = brandDiscordPayload({
     embeds: [
       {
@@ -64,5 +64,6 @@ test('adds visible branding content to Kings embed-only messages', () => {
     ]
   });
 
-  assert.equal(output.content, `${KINGS_LOGISTICS_LOGO} ${KINGS_HEART}`);
+  assert.equal(output.content, undefined);
+  assert.equal(output.embeds[0].title, 'Kings Staff Leadership Overview');
 });

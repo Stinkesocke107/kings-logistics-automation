@@ -356,6 +356,10 @@ async function getKingsOnline() {
     `Loaded ${servers.length} online TruckersMP servers.`
   );
 
+  if (!servers.length) {
+    throw new Error("No usable online TruckersMP servers; keeping the last known good tracker state.");
+  }
+
   const kingsOnline = [];
 
   let successfulServerChecks =

@@ -21,7 +21,7 @@ function sandbox(script, queue, failSend = false) {
     writeFileSync: (p, value) => files.set(path.basename(p), value)
   };
   const ctx = vm.createContext({
-    require: name => name === 'fs' ? fakeFs : require(name),
+    require: name => name === 'fs' ? fakeFs : name === './kings-branding' ? { installDiscordBranding() {} } : name.startsWith('.') ? require(path.join(root, name)) : require(name),
     __dirname: root,
     console: { log() {}, error() {} },
     process: { env: { CHANGELOG_DISCORD_WEBHOOK_URL: 'https://invalid.test/webhook' } },

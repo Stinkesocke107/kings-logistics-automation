@@ -5,8 +5,9 @@ BRANCH="${1:-main}"
 MAX_ATTEMPTS="${GIT_SAFE_PUSH_ATTEMPTS:-6}"
 BASE_DELAY="${GIT_SAFE_PUSH_BASE_DELAY_SECONDS:-2}"
 
-if git diff --cached --quiet && git status --porcelain | grep -q .; then
-  echo "Warning: unstaged changes exist while safe push is running."
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "Safe push requires all tracked state changes to be committed together."
+  exit 1
 fi
 
 for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
