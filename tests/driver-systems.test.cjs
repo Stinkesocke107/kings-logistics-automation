@@ -193,3 +193,68 @@ test('Driver public update messages escape markdown supplied by usernames', () =
   assert.match(join, /\\\*\\\*Driver\\\*\\\*/);
   assert.match(leave, /\\_Driver\\_/);
 });
+
+test('Driver Achievements handles month-end and leap-year anniversaries', () => {
+  const s = sandbox('driver-achievements.js');
+
+  const febLeap = s.run(`earnedDate(new Date('2024-01-31T12:00:00.000Z'), ACHIEVEMENTS.find(x => x.id === '1m')).toISOString()`);
+  assert.equal(febLeap, '2024-02-29T12:00:00.000Z');
+
+  const leapYear = s.run(`earnedDate(new Date('2024-02-29T12:00:00.000Z'), ACHIEVEMENTS.find(x => x.id === '1y')).toISOString()`);
+  assert.equal(leapYear, '2025-02-28T12:00:00.000Z');
+});
+
+test('Driver Achievements baseline and rejoin logic never retroactively spams old milestones', () => {
+  const s = sandbox('driver-achievements.js');
+  const oldJoin = isoDaysAgo(400);
+  const recentJoin = isoDaysAgo(2);
+
+  const first = s.run(`(() => {
+    const state = emptyState();
+    const alerts = syncState(state, [{tmpId:31,username:'Baseline',current:true,joinDate:'${oldJoin}'}], true);
+    return {alerts, record:state.drivers[0]};
+  })()`);
+  assert.equal(first.alerts.length, 0);
+  assert.ok(first.record.achievements.length > 0);
+  assert.ok(first.record.achievements.every(item => item.retroactive === true));
+
+  const rejoin = s.run(`(() => {
+    const state = {version:1,mode:'recognition-only',drivers:[{
+      tmpId:31,
+      joinDate:'${oldJoin}',
+      current:true,
+      achievements:[{id:'1y',earnedAt:'${isoDaysAgo(35)}',recognizedAt:'${isoDaysAgo(34)}',retroactive:false}]
+    }]};
+    const alerts = syncState(state, [{tmpId:31,username:'Rejoined',current:true,joinDate:'${recentJoin}'}], false);
+    return {alerts, record:state.drivers[0]};
+  })()`);
+  assert.equal(rejoin.alerts.length, 0);
+  assert.equal(rejoin.record.achievements.length, 0);
+  assert.equal(rejoin.record.current, true);
+});
+
+test('Driver Achievements sends only genuinely newly earned milestones and summary tracks current drivers', () => {
+  const s = sandbox('driver-achievements.js');
+  const join = isoDaysAgo(40);
+
+  const result = s.run(`(() => {
+    const state = {version:1,mode:'recognition-only',drivers:[{
+      tmpId:41,
+      joinDate:'${join}',
+      current:true,
+      achievements:[]
+    }]};
+    const drivers = [{tmpId:41,username:'Milestone Driver',current:true,joinDate:'${join}'}];
+    const alerts = syncState(state, drivers, false);
+    const summary = buildSummary(state, drivers);
+    return {alerts, summary, record:state.drivers[0]};
+  })()`);
+
+  assert.equal(result.alerts.length, 1);
+  assert.equal(result.alerts[0].id, '1m');
+  assert.equal(result.record.achievements.length, 1);
+  assert.equal(result.record.achievements[0].retroactive, false);
+  assert.equal(result.summary.currentDrivers, 1);
+  assert.equal(result.summary.trackedCurrentDrivers, 1);
+  assert.equal(result.summary.counts['1m'], 1);
+});
