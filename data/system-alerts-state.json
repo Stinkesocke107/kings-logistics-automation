@@ -1,47 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-overdue:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-09-30T13:39:47Z",
-        "ageMinutes": 288,
-        "maxAgeMinutes": 150
-      },
-      "firstAlertedAt": "2026-09-30T18:28:06.116Z"
-    },
-    "stale-data:data/driver-management-summary.json": {
-      "severity": "critical",
-      "system": "Driver Management data",
-      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-09-30T13:39:39.373Z",
-        "ageMinutes": 288,
-        "maxAgeMinutes": 160
-      },
-      "firstAlertedAt": "2026-09-30T18:28:06.116Z"
-    },
-    "workflow-overdue:staff-management.yml": {
-      "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-09-30T14:14:50Z",
-        "ageMinutes": 253,
-        "maxAgeMinutes": 150
-      },
-      "firstAlertedAt": "2026-09-30T18:28:06.116Z"
-    }
-  },
-  "pending": {
-    "stale-data:data/staff-management-summary.json": {
-      "count": 1,
-      "firstSeenAt": "2026-09-30T18:28:06.116Z",
-      "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
-    }
-  }
+  "active": {},
+  "pending": {}
 }
