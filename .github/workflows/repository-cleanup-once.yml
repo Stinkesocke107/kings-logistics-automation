@@ -1,0 +1,115 @@
+name: Kings Repository Cleanup - One Time
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/repository-cleanup-once.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-repository-cleanup-once
+  cancel-in-progress: false
+
+jobs:
+  cleanup-stale-branches:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'Run final repository cleanup'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Delete only verified stale branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune
+
+          ancestor_branches=(
+            'fix/convoy-schedule-reregister-20260930'
+            'fix/kings-system-verification-20260930'
+            'fix/monitoring-recovery-20260930'
+            'fix/monitoring-state-refresh-20260930'
+            'test/convoy-live-current-main-20260930'
+          )
+
+          for branch in "${ancestor_branches[@]}"; do
+            if ! git show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
+              echo "${branch}: already absent"
+              continue
+            fi
+            if ! git merge-base --is-ancestor "origin/${branch}" origin/main; then
+              echo "ERROR: ${branch} is no longer fully contained in main; refusing deletion."
+              exit 1
+            fi
+            gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/heads/${branch}"
+            echo "${branch}: deleted (fully contained in main)"
+          done
+
+          delete_exact_head() {
+            local branch="$1"
+            local expected="$2"
+            if ! git show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
+              echo "${branch}: already absent"
+              return 0
+            fi
+            local actual
+            actual="$(git rev-parse "origin/${branch}")"
+            if [ "$actual" != "$expected" ]; then
+              echo "ERROR: ${branch} moved from verified head ${expected} to ${actual}; refusing deletion."
+              exit 1
+            fi
+            gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/heads/${branch}"
+            echo "${branch}: deleted (verified superseded head ${actual})"
+          }
+
+          # These branches diverged only because the same fix was later applied or
+          # superseded on main. Exact-head guards prevent deleting any newer work.
+          delete_exact_head 'fix/convoy-api-health-conflict-20260930' '93555dc1132062072385d82e6eb363b216006580'
+          delete_exact_head 'fix/monitoring-trigger-health-producers-20260930' 'c7ba366a4d743923e7e553752f5245f60d17102b'
+          delete_exact_head 'fix/workflow-schedule-hardening-20260930' 'e965beee3532eecbc73b5c43c9301886fb6d0ec7'
+
+      - name: Verify cleanup allowlist is gone
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          branches=(
+            'fix/convoy-api-health-conflict-20260930'
+            'fix/convoy-schedule-reregister-20260930'
+            'fix/kings-system-verification-20260930'
+            'fix/monitoring-recovery-20260930'
+            'fix/monitoring-state-refresh-20260930'
+            'fix/monitoring-trigger-health-producers-20260930'
+            'fix/workflow-schedule-hardening-20260930'
+            'test/convoy-live-current-main-20260930'
+          )
+          for branch in "${branches[@]}"; do
+            if gh api "repos/${GITHUB_REPOSITORY}/branches/${branch}" >/dev/null 2>&1; then
+              echo "ERROR: stale branch still exists: ${branch}"
+              exit 1
+            fi
+          done
+          echo 'All verified stale branches are gone.'
+
+      - name: Safety summary
+        shell: bash
+        run: |
+          echo '## Kings Final Repository Cleanup' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Deleted branches: **8 verified stale/superseded branches only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Unique unmerged preview branch preserved: **codex/convoy-readonly-preview**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- main deleted: **No**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Production data changed: **No**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Personnel/Discord actions: **None**' >> "$GITHUB_STEP_SUMMARY"
