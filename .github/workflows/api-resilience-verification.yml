@@ -1,0 +1,75 @@
+name: Kings API Resilience Verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api-resilience.js'
+      - 'api-resilience-verifier.js'
+      - 'kings-branding.js'
+      - 'tests/api-resilience.test.cjs'
+      - 'tests/core-systems.test.cjs'
+      - 'tests/kings-branding.test.cjs'
+      - '.github/workflows/api-resilience-verification.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-api-resilience-verification
+  cancel-in-progress: false
+
+jobs:
+  verify-api-resilience:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify resilience scripts
+        run: |
+          node --check api-resilience.js
+          node --check api-resilience-verifier.js
+          node --check kings-branding.js
+          node --check tests/api-resilience.test.cjs
+          node --check tests/core-systems.test.cjs
+          node --check tests/kings-branding.test.cjs
+
+      - name: Run controlled local API failure matrix
+        run: node --test tests/api-resilience.test.cjs
+
+      - name: Verify production API health and integrations
+        run: node api-resilience-verifier.js
+
+      - name: Upload Point 13 proof
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-api-resilience-verification-${{ github.run_number }}
+          path: |
+            output/api-resilience-verification.json
+            output/api-resilience-final-report.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Point 13 safety summary
+        if: always()
+        run: |
+          echo '## Kings API Resilience Verification' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Failure injection: **local mock server only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- External API disruption: **none**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Production API-health check: **read-only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Unsafe POST retry rule: **only explicit HTTP 429 by default**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Idempotent GET/PATCH/DELETE/PUT requests: **transient retry + backoff**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Circuit breaker and recovery: **verified by controlled injection**' >> "$GITHUB_STEP_SUMMARY"
