@@ -13,7 +13,8 @@ on:
       - '.github/workflows/milestones.yml'
 
   schedule:
-    - cron: "*/5 * * * *"
+    # Every 5 minutes, offset from the top of the hour to reduce scheduler congestion.
+    - cron: "4-59/5 * * * *"
 
 permissions:
   contents: write
