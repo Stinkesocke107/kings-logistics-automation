@@ -1,0 +1,99 @@
+name: Kings News Production Verification
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Shortly after the News poller so genuine publications are verified quickly.
+    - cron: '4,9,14,19,24,29,34,39,44,49,54,59 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'news.js'
+      - 'news-production-verifier.js'
+      - '.github/workflows/news.yml'
+      - '.github/workflows/news-production-verification.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-news-production-verification
+  cancel-in-progress: false
+
+jobs:
+  verify-news:
+    if: github.ref == 'refs/heads/main'
+    name: Verify genuine News publication
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KINGS_API_HEALTH_NAMESPACE: 'news-production-verifier'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify News implementation syntax and regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check news.js
+          node --check news-production-verifier.js
+          node --test tests/news-systems.test.cjs
+
+      - name: Run read-only News production verification
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          NEWS_DISCORD_WEBHOOK_URL: ${{ secrets.NEWS_DISCORD_WEBHOOK_URL }}
+        run: node news-production-verifier.js
+
+      - name: Persist accepted News live-proof state
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- data/news-live-proof.json data/api-health)" ]; then
+            echo 'No new News proof/API state to persist.'
+            exit 0
+          fi
+          git config user.name 'Kings Logistics Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A -- data/news-live-proof.json data/api-health
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Update Kings News production proof state'
+          bash scripts/git-safe-push.sh main
+
+      - name: Upload News verification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-news-production-verification-${{ github.run_number }}
+          path: |
+            output/news-production-verification.json
+            data/news-live-proof.json
+            data/news-publication-state.json
+            data/last-news.json
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 9
+
+      - name: News production proof summary
+        if: always()
+        shell: bash
+        run: |
+          echo '## Kings News Production Verification' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f output/news-production-verification.json ]; then
+            node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const r = require('./output/news-production-verification.json');
+          console.log(`- Status: **${r.status || 'UNKNOWN'}**`);
+          console.log(`- Baseline article ID: **${r.baselineArticleId || 70783}**`);
+          console.log(`- Publication article ID: **${r.evidence?.articleId || r.proof?.articleId || 'waiting'}**`);
+          console.log(`- Duplicate matches: **${r.duplicateMatches ?? r.proof?.duplicateMatches ?? 'n/a'}**`);
+          NODE
+          fi
