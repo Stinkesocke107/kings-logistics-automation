@@ -22,13 +22,13 @@ concurrency:
 jobs:
   stable-core-baseline:
     if: github.ref == 'refs/heads/main'
-    name: Verify Stable Core Baseline v1.1
+    name: Verify Stable Core Baseline v1.2
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     env:
-      KINGS_CORE_BASELINE_ID: 'KINGS-CORE-BASELINE-2026-10-01-P21'
-      KINGS_CORE_BASELINE_VERSION: '1.1'
-      KINGS_CORE_BASELINE_POINT: '21'
+      KINGS_CORE_BASELINE_ID: 'KINGS-CORE-BASELINE-2026-10-01-P22'
+      KINGS_CORE_BASELINE_VERSION: '1.2'
+      KINGS_CORE_BASELINE_POINT: '22'
 
     steps:
       - name: Checkout exact baseline candidate
@@ -80,13 +80,11 @@ jobs:
               'package-lock.json')"
 
             if [ -n "$CORE_CHANGES" ]; then
-              echo 'ERROR: protected Core files changed while the baseline gate was recovering runtime state.'
+              echo 'ERROR: protected Core files changed while the baseline gate was running.'
               echo "$CORE_CHANGES"
-              echo 'Start a fresh baseline run from the newer Core commit.'
               exit 1
             fi
 
-            echo "Only mutable/non-Core files changed on main; fast-forwarding from $BASE_SHA to $REMOTE_HEAD."
             git merge --ff-only origin/main
           fi
 
@@ -97,7 +95,7 @@ jobs:
             exit 1
           fi
 
-          echo "Post-Point-21 verification HEAD after safe runtime refresh: $(git rev-parse HEAD)"
+          echo "Post-Point-22 verification HEAD: $(git rev-parse HEAD)"
 
       - name: Verify Core syntax and safety helpers
         shell: bash
@@ -110,11 +108,14 @@ jobs:
       - name: Run complete isolated regression and integration suite
         run: node --test tests/*.test.cjs
 
+      - name: Run Point 22 controlled Self-Healing stress matrix
+        run: node self-healing-stress.js
+
       - name: Build fresh read-only production health snapshot
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          KINGS_API_HEALTH_NAMESPACE: 'core-baseline-v1-1'
+          KINGS_API_HEALTH_NAMESPACE: 'core-baseline-v1-2'
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
         shell: bash
@@ -128,11 +129,14 @@ jobs:
 
           node - <<'NODE'
           const h = require('./data/system-health.json');
-          if (h.status !== 'HEALTHY') throw new Error(`Post-Point-21 System Health is ${h.status}`);
-          if (Number(h.summary?.criticalIssues || 0) !== 0) throw new Error(`Post-Point-21 has ${h.summary?.criticalIssues} Critical Issue(s).`);
-          if (Number(h.summary?.warnings || 0) !== 0) throw new Error(`Post-Point-21 has ${h.summary?.warnings} Warning(s).`);
-          console.log(`Post-Point-21 System Health: HEALTHY; Critical=0; Warnings=0; APIs=${h.summary?.apiServicesHealthy}/${h.summary?.apiServicesChecked}`);
+          if (h.status !== 'HEALTHY') throw new Error(`Post-Point-22 System Health is ${h.status}`);
+          if (Number(h.summary?.criticalIssues || 0) !== 0) throw new Error(`Post-Point-22 has ${h.summary?.criticalIssues} Critical Issue(s).`);
+          if (Number(h.summary?.warnings || 0) !== 0) throw new Error(`Post-Point-22 has ${h.summary?.warnings} Warning(s).`);
+          console.log(`Post-Point-22 System Health: HEALTHY; Critical=0; Warnings=0; APIs=${h.summary?.apiServicesHealthy}/${h.summary?.apiServicesChecked}`);
           NODE
+
+      - name: Verify Point 22 acceptance against final health
+        run: node self-healing-stress-verifier.js
 
       - name: Verify API resilience and production API health
         run: node api-resilience-verifier.js
@@ -156,13 +160,13 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
         run: node monthly-report-verifier.js
 
-      - name: Verify Public Convoy Announcement state read-only
+      - name: Verify Public Convoy Announcement read-only
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_KINGS_CONVOY_SOURCE_FORUM_ID: '1506133821693755502'
           DISCORD_KINGS_CONVOY_ANNOUNCEMENT_CHANNEL_ID: '1351613882791366838'
-          KINGS_API_HEALTH_NAMESPACE: 'core-baseline-v1-1-convoy-verifier'
+          KINGS_API_HEALTH_NAMESPACE: 'core-baseline-v1-2-convoy-verifier'
         run: node kings-convoy-announcement-verifier.js
 
       - name: Verify complete Backup and Restore roundtrip
@@ -171,34 +175,33 @@ jobs:
           set -euo pipefail
           node core-backup.js
           node backup-final-check.js
-
           node - <<'NODE'
           const fs = require('fs');
           const core = JSON.parse(fs.readFileSync('backup-staging/backup-health.json', 'utf8'));
           const final = JSON.parse(fs.readFileSync('backup-staging/backup-final-health.json', 'utf8'));
           const restore = JSON.parse(fs.readFileSync('backup-staging/backup-restore-verification.json', 'utf8'));
-          if (core.healthy !== true || final.healthy !== true || restore.healthy !== true) {
-            throw new Error('Post-Point-21 Backup/Restore is not HEALTHY.');
-          }
-          if (restore.summary.manifestFiles !== restore.summary.restoredFiles) throw new Error('Post-Point-21 restore file count mismatch.');
-          if (restore.summary.manifestFiles !== restore.summary.checksumsVerified) throw new Error('Post-Point-21 restore checksum coverage mismatch.');
+          if (core.healthy !== true || final.healthy !== true || restore.healthy !== true) throw new Error('Post-Point-22 Backup/Restore is not HEALTHY.');
+          if (restore.summary.manifestFiles !== restore.summary.restoredFiles) throw new Error('Restore file count mismatch.');
+          if (restore.summary.manifestFiles !== restore.summary.checksumsVerified) throw new Error('Restore checksum coverage mismatch.');
           if (fs.existsSync('restore-verification')) throw new Error('Disposable restore sandbox was not removed.');
-          console.log(`Post-Point-21 Backup/Restore: HEALTHY; restored=${restore.summary.restoredFiles}/${restore.summary.manifestFiles}; sha256=${restore.summary.checksumsVerified}/${restore.summary.manifestFiles}`);
+          console.log(`Post-Point-22 Backup/Restore: HEALTHY; restored=${restore.summary.restoredFiles}/${restore.summary.manifestFiles}`);
           NODE
 
       - name: Aggregate full Core End-to-End state
         run: node core-e2e-verifier.js
 
-      - name: Create Stable Core v1.1 fingerprint
+      - name: Create Stable Core v1.2 fingerprint
         run: node core-baseline-verifier.js
 
-      - name: Upload post-Point-21 baseline evidence
+      - name: Upload post-Point-22 baseline evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: kings-stable-core-baseline-v1-1-${{ github.run_number }}
+          name: kings-stable-core-baseline-v1-2-${{ github.run_number }}
           path: |
             output/workflow-recovery.json
+            output/self-healing-stress.json
+            output/self-healing-stress-verification.json
             output/core-baseline-verification.json
             output/core-e2e-verification.json
             output/api-resilience-verification.json
@@ -222,25 +225,18 @@ jobs:
           retention-days: 90
           compression-level: 9
 
-      - name: Post-Point-21 Core Baseline summary
+      - name: Post-Point-22 Core Baseline summary
         if: always()
         shell: bash
         run: |
-          echo '## Kings Stable Core Baseline — v1.1 / Post-Point-21' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Kings Stable Core Baseline — v1.2 / Post-Point-22' >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Baseline ID: **KINGS-CORE-BASELINE-2026-10-01-P21**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Baseline version: **1.1**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Baseline ID: **KINGS-CORE-BASELINE-2026-10-01-P22**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Baseline version: **1.2**' >> "$GITHUB_STEP_SUMMARY"
           echo "- Trigger commit: **$GITHUB_SHA**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Verified repository HEAD: **$(git rev-parse HEAD)**" >> "$GITHUB_STEP_SUMMARY"
-          echo '- Freeze scope: **Core code, workflows, tests, scripts and security configuration**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Mutable runtime state (`data/**`): **excluded from the fingerprint by design**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Point 21 Self-Healing safety state: **required**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Safe producer recovery: **Driver Updates + Live Tracker only**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Production Discord writes by this verifier: **none**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- API failure injection: **local mock only**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Git conflict injection: **temporary local repositories only**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Backup restore: **disposable isolated sandbox only**' >> "$GITHUB_STEP_SUMMARY"
-
+          echo '- Point 22 controlled stress test: **required**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Production failure injection: **none**' >> "$GITHUB_STEP_SUMMARY"
           if [ -f output/core-baseline-verification.json ]; then
             node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
           const r = require('./output/core-baseline-verification.json');
@@ -253,6 +249,5 @@ jobs:
           console.log(`- API Resilience: **${r.gates?.apiHealthy ? 'HEALTHY' : 'NOT HEALTHY'}**`);
           console.log(`- Backup/Restore: **${r.gates?.backupHealthy && r.gates?.restoreHealthy ? 'HEALTHY' : 'NOT HEALTHY'}**`);
           console.log(`- Git/State: **${r.gates?.gitStateHealthy && r.gates?.trackedGitClean ? 'CLEAN' : 'NOT CLEAN'}**`);
-          console.log(`- Self-Healing safety state: **${r.gates?.selfHealingTechnicalSafe ? 'VALID' : 'INVALID'}**`);
           NODE
           fi
