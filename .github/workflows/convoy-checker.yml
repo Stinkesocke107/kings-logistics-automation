@@ -213,7 +213,17 @@ jobs:
           git add data/api-health
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "Update Kings API health state"
-          bash scripts/git-safe-push.sh main
+
+          # API-health is telemetry. If another Kings workflow has already written
+          # a newer state for the same service, never turn an otherwise healthy
+          # convoy execution red just because the telemetry commit conflicts.
+          if ! bash scripts/git-safe-push.sh main; then
+            echo "::warning::API health telemetry changed concurrently. Keeping the newer remote state and treating this persistence conflict as non-fatal."
+            git rebase --abort >/dev/null 2>&1 || true
+            git fetch origin main >/dev/null 2>&1 || true
+            git reset --hard origin/main >/dev/null 2>&1 || true
+            exit 0
+          fi
 
       # Finish independent event work, then expose every failed stage to monitoring.
       - name: Require successful convoy stages
