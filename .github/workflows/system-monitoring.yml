@@ -1,4 +1,4 @@
-# Repository security, Discord permission audits, API resilience, and the live Discord monitor are part of every Kings System Monitoring run.
+# Repository security, Discord permission audits, API resilience, safe scheduler recovery, and the live Discord monitor are part of every Kings System Monitoring run.
 name: Kings System Monitoring
 
 on:
@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - 'system-monitoring.js'
+      - 'workflow-recovery.js'
       - 'system-alerts.js'
       - 'system-monitor-discord.js'
       - 'api-resilience.js'
@@ -26,7 +27,8 @@ on:
 
 permissions:
   contents: write
-  actions: read
+  # Required only for workflow-recovery.js to dispatch the two allowlisted safe technical pollers.
+  actions: write
 
 concurrency:
   group: kings-system-monitoring
@@ -54,7 +56,7 @@ jobs:
 
       - name: Verify Technical Health Engines
         run: |
-          for file in system-monitoring.js system-alerts.js system-monitor-discord.js api-resilience.js kings-branding.js branding-self-test.js data-integrity.js system-hardening.js security-audit.js discord-permission-audit.js; do
+          for file in system-monitoring.js workflow-recovery.js system-alerts.js system-monitor-discord.js api-resilience.js kings-branding.js branding-self-test.js data-integrity.js system-hardening.js security-audit.js discord-permission-audit.js; do
             if [ ! -f "$file" ]; then
               echo "ERROR: $file is missing."
               exit 1
@@ -69,7 +71,16 @@ jobs:
             exit 1
           fi
 
-          echo "Kings Monitoring, API Resilience, message-only Branding, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, System Alerts, and Safe Push are present and syntactically valid."
+          echo "Kings Monitoring, safe Scheduler Recovery, API Resilience, message-only Branding, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, System Alerts, and Safe Push are present and syntactically valid."
+
+      - name: Recover stale safe technical workflows
+        id: recovery
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          KINGS_RECOVERY_WAIT_MS: '90000'
+          KINGS_RECOVERY_POLL_MS: '5000'
+        run: node workflow-recovery.js
 
       - name: Run Kings System Monitoring
         id: health
@@ -170,6 +181,7 @@ jobs:
             data/security-audit.json
             data/discord-permission-audit.json
             data/api-health
+            output/workflow-recovery.json
           if-no-files-found: ignore
           retention-days: 14
           compression-level: 9
@@ -180,6 +192,7 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Safety" >> "$GITHUB_STEP_SUMMARY"
           echo "Kings System Monitoring, API Resilience, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
+          echo "Scheduler Recovery is hard-limited to Driver Updates and Live Tracker; it never dispatches Convoy live, HR, Staff, Management, Probation, or personnel workflows." >> "$GITHUB_STEP_SUMMARY"
           echo "They never change Discord roles, permissions, members, Staff/Driver/HR status, bans, kicks, timeouts, promotions, demotions, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Require healthy final report
