@@ -23,7 +23,8 @@ on:
       - '.github/workflows/convoy-checker.yml'
 
   schedule:
-    - cron: '*/15 * * * *'
+    # Quarter-hour cadence offset from both top-of-hour and HR/Management slots.
+    - cron: '5,20,35,50 * * * *'
 
 permissions:
   contents: write
