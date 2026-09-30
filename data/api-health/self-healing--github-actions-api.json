@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "namespace": "self-healing",
+  "service": "GitHub Actions API",
+  "healthKey": "self-healing--github-actions-api",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-30T22:26:02.017Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "lastErrorCode": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-30T22:26:02.018Z"
+}

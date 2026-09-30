@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "mode": "technical-safe-self-healing",
+  "updatedAt": null,
+  "repairs": {
+    "live-tracker": {
+      "attempts": [],
+      "lastAttemptAt": null,
+      "lastSuccessAt": null,
+      "lastFailureAt": null
+    },
+    "driver-updates": {
+      "attempts": [],
+      "lastAttemptAt": null,
+      "lastSuccessAt": null,
+      "lastFailureAt": null
+    },
+    "core-backup": {
+      "attempts": [],
+      "lastAttemptAt": null,
+      "lastSuccessAt": null,
+      "lastFailureAt": null
+    }
+  }
+}
