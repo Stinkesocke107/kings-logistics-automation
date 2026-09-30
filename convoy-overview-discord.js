@@ -1,4 +1,5 @@
-require('./kings-branding').installDiscordBranding();
+const { installDiscordBranding, brandMessageContent } = require('./kings-branding');
+installDiscordBranding();
 const fs = require('fs');
 const { discordTimestamp } = require('./convoy-time-utils');
 
@@ -7,6 +8,7 @@ const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const CHANNEL_ID = process.env.DISCORD_CONVOY_OVERVIEW_CHANNEL_ID || '1550619865805754378';
 const OVERVIEW_PATH = 'output/convoy-overview.json';
 const MESSAGE_MARKER = '👑 **Kings Logistics | Convoy Overview**';
+const MESSAGE_TEXT = 'Kings Logistics | Convoy Overview';
 
 if (!TOKEN) {
   console.error('Missing DISCORD_BOT_TOKEN.');
@@ -24,7 +26,7 @@ async function discord(path, options = {}) {
   const method = options.method || 'GET';
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Convoy Overview Discord/2.0'
+    'User-Agent': 'Kings Logistics Convoy Overview Discord/2.1'
   };
 
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -55,6 +57,21 @@ function monthLabel(monthKey) {
     year: 'numeric',
     timeZone: 'UTC'
   }).format(new Date(Date.UTC(year, month - 1, 1)));
+}
+
+function nextMonthKey(monthKey) {
+  const [year, month] = monthKey.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month, 1));
+  return date.toISOString().slice(0, 7);
+}
+
+function convoyMonthKey(convoy) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(convoy?.eventDate || ''))) {
+    return convoy.eventDate.slice(0, 7);
+  }
+  const unix = Number(convoy?.eventUnix || 0);
+  if (!Number.isFinite(unix) || unix <= 0) return null;
+  return new Date(unix * 1000).toISOString().slice(0, 7);
 }
 
 function truncate(value, max = 58) {
@@ -103,8 +120,16 @@ function compactUpcoming(convoy) {
 function buildMessage(overview) {
   const generatedAt = new Date(overview.generatedAt || Date.now());
   const currentMonth = generatedAt.toISOString().slice(0, 7);
+  const followingMonth = nextMonthKey(currentMonth);
   const month = overview.months?.[currentMonth] || makeEmptyMonth();
-  const upcoming = [...(overview.upcomingConvoys || [])];
+
+  const upcoming = [...(overview.upcomingConvoys || [])]
+    .filter((convoy) => {
+      const key = convoyMonthKey(convoy);
+      return key === currentMonth || key === followingMonth;
+    })
+    .sort((a, b) => Number(a.eventUnix || 0) - Number(b.eventUnix || 0));
+
   const next = upcoming[0] || null;
 
   const lines = [
@@ -119,7 +144,7 @@ function buildMessage(overview) {
   ];
 
   if (!next) {
-    lines.push('No upcoming scheduled convoy with a confirmed Kings slot.');
+    lines.push('No upcoming scheduled convoy in the current or next month with a confirmed Kings slot.');
   } else {
     lines.push(
       `**${truncate(next.name, 70)}**`,
@@ -132,10 +157,10 @@ function buildMessage(overview) {
     );
   }
 
-  lines.push('', '## 📅 Upcoming Convoys');
+  lines.push('', `## 📅 Upcoming Convoys — ${monthLabel(currentMonth)} & ${monthLabel(followingMonth)}`);
   const shown = upcoming.slice(0, 5);
   if (shown.length === 0) {
-    lines.push('— No upcoming convoys currently scheduled.');
+    lines.push('— No upcoming convoys scheduled for the current or next month.');
   } else {
     for (const convoy of shown) lines.push(compactUpcoming(convoy));
     if (upcoming.length > shown.length) lines.push(`…and **${upcoming.length - shown.length}** more.`);
@@ -145,7 +170,7 @@ function buildMessage(overview) {
     '',
     '## 📋 System Overview',
     `👑 Confirmed Kings Slots: **${overview.overall?.countedConvoys || 0}**  ·  📥 Real Submissions: **${overview.overall?.realConvoySubmissions || 0}**`,
-    `🗓️ Upcoming Scheduled: **${overview.overall?.upcomingScheduledConvoys || 0}**  ·  ⚠️ Missing Date: **${overview.overall?.undatedCountedConvoys || 0}**  ·  🕒 Invalid Time: **${overview.overall?.invalidEventTimeConvoys || 0}**`,
+    `🗓️ Upcoming Scheduled (current + next month): **${upcoming.length}**  ·  ⚠️ Missing Date: **${overview.overall?.undatedCountedConvoys || 0}**  ·  🕒 Invalid Time: **${overview.overall?.invalidEventTimeConvoys || 0}**`,
     '',
     '🤖 Updated automatically every 15 minutes. Times are shown in each member’s local timezone. TEST threads are excluded.'
   );
@@ -167,38 +192,47 @@ async function main() {
   }
 
   const content = buildMessage(overview);
+  const expectedStoredContent = brandMessageContent(content);
   const messages = await discord(`/channels/${CHANNEL_ID}/messages?limit=100`);
-  const existing = (messages || []).find((message) =>
-    message.author?.id === bot.id &&
-    ((message.content || '').includes(MESSAGE_MARKER) || (message.content || '').includes('👑 **Kings Convoy Overview**'))
-  );
+  const matching = (messages || [])
+    .filter((message) =>
+      message.author?.id === bot.id &&
+      (String(message.content || '').includes(MESSAGE_TEXT) || String(message.content || '').includes('Kings Convoy Overview'))
+    )
+    .sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+
+  let existing = matching[0] || null;
 
   if (!existing) {
-    const created = await discord(`/channels/${CHANNEL_ID}/messages`, {
+    existing = await discord(`/channels/${CHANNEL_ID}/messages`, {
       method: 'POST',
       body: {
         content,
         allowed_mentions: { parse: [] }
       }
     });
-    console.log(`Created Kings Convoy Overview message: ${created?.id || 'unknown'}`);
-    return;
-  }
-
-  if ((existing.content || '').trim() === content.trim()) {
+    console.log(`Created Kings Convoy Overview message: ${existing?.id || 'unknown'}`);
+  } else if ((existing.content || '').trim() === expectedStoredContent.trim()) {
     console.log(`Kings Convoy Overview unchanged: ${existing.id}`);
-    return;
+  } else {
+    await discord(`/channels/${CHANNEL_ID}/messages/${existing.id}`, {
+      method: 'PATCH',
+      body: {
+        content,
+        allowed_mentions: { parse: [] }
+      }
+    });
+    console.log(`Updated Kings Convoy Overview message: ${existing.id}`);
   }
 
-  await discord(`/channels/${CHANNEL_ID}/messages/${existing.id}`, {
-    method: 'PATCH',
-    body: {
-      content,
-      allowed_mentions: { parse: [] }
-    }
-  });
-
-  console.log(`Updated Kings Convoy Overview message: ${existing.id}`);
+  let removedDuplicates = 0;
+  for (const duplicate of matching.slice(1)) {
+    await discord(`/channels/${CHANNEL_ID}/messages/${duplicate.id}`, { method: 'DELETE' });
+    removedDuplicates += 1;
+  }
+  if (removedDuplicates > 0) {
+    console.log(`Removed ${removedDuplicates} duplicate Kings Convoy Overview message(s).`);
+  }
 }
 
 main().catch((error) => {
