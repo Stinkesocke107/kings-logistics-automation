@@ -73,13 +73,17 @@ function issue(id, severity = 'warning', system = 'Verification') {
   };
 }
 
+function ids(items) {
+  return Array.from(items, (item) => item.id);
+}
+
 test('critical technical failure alerts immediately and becomes active', () => {
   const result = processHealth(
     health([issue('workflow-failed', 'critical', 'GitHub Actions')]),
     emptyState()
   );
 
-  assert.deepEqual(result.alerts.map((item) => item.id), ['workflow-failed']);
+  assert.deepEqual(ids(result.alerts), ['workflow-failed']);
   assert.equal(result.escalations.length, 0);
   assert.equal(result.resolved.length, 0);
   assert.equal(result.state.active['workflow-failed'].severity, 'critical');
@@ -99,7 +103,7 @@ test('warning requires two consecutive confirmations before alerting', () => {
     health([issue('data-stale', 'warning', 'Data Freshness')], '2026-09-30T20:05:00.000Z'),
     first.state
   );
-  assert.deepEqual(second.alerts.map((item) => item.id), ['data-stale']);
+  assert.deepEqual(ids(second.alerts), ['data-stale']);
   assert.equal(second.state.active['data-stale'].severity, 'warning');
   assert.equal(second.state.pending['data-stale'], undefined);
 });
@@ -131,7 +135,7 @@ test('warning escalation to critical is emitted exactly once', () => {
     health([critical], '2026-09-30T20:10:00.000Z'),
     activeWarning.state
   );
-  assert.deepEqual(escalated.escalations.map((item) => item.id), ['workflow-overdue']);
+  assert.deepEqual(ids(escalated.escalations), ['workflow-overdue']);
   assert.equal(escalated.alerts.length, 0);
   assert.equal(escalated.state.active['workflow-overdue'].severity, 'critical');
 
@@ -153,7 +157,7 @@ test('recovered active issue produces one resolved event and clears state', () =
     first.state
   );
 
-  assert.deepEqual(recovered.resolved.map((item) => item.id), ['api-down']);
+  assert.deepEqual(ids(recovered.resolved), ['api-down']);
   assert.deepEqual(Object.keys(recovered.state.active), []);
   assert.deepEqual(Object.keys(recovered.state.pending), []);
 
@@ -192,7 +196,7 @@ test('final fault matrix alerts and recovers workflow, scheduler, API and stale-
 
   const detected = processHealth(health(faults), emptyState());
   assert.deepEqual(
-    detected.alerts.map((item) => item.id).sort(),
+    ids(detected.alerts).sort(),
     ['api-down', 'data-stale', 'workflow-failed', 'workflow-overdue'].sort()
   );
   assert.equal(Object.keys(detected.state.active).length, 4);
@@ -202,7 +206,7 @@ test('final fault matrix alerts and recovers workflow, scheduler, API and stale-
     detected.state
   );
   assert.deepEqual(
-    recovered.resolved.map((item) => item.id).sort(),
+    ids(recovered.resolved).sort(),
     ['api-down', 'data-stale', 'workflow-failed', 'workflow-overdue'].sort()
   );
   assert.equal(Object.keys(recovered.state.active).length, 0);
