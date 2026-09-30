@@ -8,7 +8,8 @@ on:
     branches:
       - main
     paths:
-      - 'weekly-reports-verifier.js'
+      - 'weekly-reports-verifier-v2.js'
+      - 'hr-weekly-summary-runner.js'
       - 'driver-weekly-summary.js'
       - 'hr-weekly-summary.js'
       - 'management-weekly-overview-v3.js'
@@ -44,8 +45,9 @@ jobs:
         run: |
           node --check driver-weekly-summary.js
           node --check hr-weekly-summary.js
+          node --check hr-weekly-summary-runner.js
           node --check management-weekly-overview-v3.js
-          node --check weekly-reports-verifier.js
+          node --check weekly-reports-verifier-v2.js
 
       - name: Verify Weekly Reports Live State
         env:
@@ -55,7 +57,7 @@ jobs:
           DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
           HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
           MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
-        run: node weekly-reports-verifier.js
+        run: node weekly-reports-verifier-v2.js
 
       - name: Upload Weekly Verification Report
         if: always()
@@ -74,4 +76,5 @@ jobs:
           echo '- Mode: **read-only**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Discord writes: **none**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Verifies Driver, HR and Management weekly publication states against Discord history.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Duplicate normalized HR channel names are resolved only by existing bot weekly-report history.' >> "$GITHUB_STEP_SUMMARY"
           echo '- HR is allowed to defer only when Driver Management did not cover the complete reporting week.' >> "$GITHUB_STEP_SUMMARY"
