@@ -12,7 +12,41 @@
         "maxAgeMinutes": 45
       },
       "firstAlertedAt": "2026-09-30T02:18:58.462Z"
+    },
+    "workflow-failed:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System latest completed run ended with failure.",
+      "details": {
+        "runId": 36722177739,
+        "completedAt": "2026-09-30T13:31:30Z"
+      },
+      "firstAlertedAt": "2026-09-30T13:56:24.631Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-09-30T12:58:39Z",
+        "ageMinutes": 57,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-09-30T13:56:24.631Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:management-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-09-30T13:56:24.631Z",
+      "system": "Management Overview",
+      "message": "Management Overview has not run within the expected time window."
+    },
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-09-30T13:56:24.631Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    }
+  }
 }
