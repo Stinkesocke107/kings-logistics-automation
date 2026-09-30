@@ -26,6 +26,7 @@ jobs:
   create-monthly-report:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -38,14 +39,19 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Verify Monthly Report Script
+        run: node --check monthly-report-v2.js
+
       - name: Create Kings Monthly Report
         env:
           MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           NEWS_NOTIFICATIONS_ROLE_ID: ${{ secrets.NEWS_NOTIFICATIONS_ROLE_ID }}
-          MONTHLY_REPORT_PREVIEW: ${{ inputs.mode == 'preview' }}
-        run: node monthly-report.js
+          MONTHLY_REPORT_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
+        run: node monthly-report-v2.js
 
       - name: Save Monthly Report Data Safely
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') }}
         run: |
           if git diff --quiet -- data/monthly-report-state.json && [ -z "$(git status --porcelain data/monthly-report-state.json)" ]; then
             echo "No Monthly Report state changes to save."
@@ -58,3 +64,13 @@ jobs:
           git add data/monthly-report-state.json
           git commit -m "Update Kings Monthly Report state"
           bash scripts/git-safe-push.sh main
+
+      - name: Monthly Report Safety Summary
+        if: always()
+        run: |
+          echo '## Kings Monthly Report' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Scheduled publish: **1st day of each month at 10:00 UTC**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Calendar coverage: **every day of the reporting month is required**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Duplicate protection: **Git state + Discord webhook history**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Incomplete Driver History: **clearly omitted, never invented as zero values**' >> "$GITHUB_STEP_SUMMARY"
