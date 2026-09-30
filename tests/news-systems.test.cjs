@@ -76,7 +76,7 @@ test('News sends unseen articles oldest to newest and checkpoints after every su
       if (url === 'https://discord.test/webhook') {
         discordAttempt += 1;
         if (discordAttempt === 2) return new Response('temporary Discord failure', { status: 500 });
-        return new Response('', { status: 204 });
+        return new Response(null, { status: 204 });
       }
       throw new Error(`Unexpected network request: ${url}`);
     }
@@ -126,7 +126,7 @@ test('News missing prior API article sends only current latest to prevent replay
           newsItem(9, '2026-09-30T13:00:00Z')
         ] } });
       }
-      if (url === 'https://discord.test/webhook') return new Response('', { status: 204 });
+      if (url === 'https://discord.test/webhook') return new Response(null, { status: 204 });
       throw new Error(`Unexpected network request: ${url}`);
     }
   });
@@ -141,7 +141,7 @@ test('News formatting strips HTML, respects Discord limits and disables all ment
   const s = sandbox('news.js', {
     env: { NEWS_DISCORD_WEBHOOK_URL: 'https://discord.test/webhook' },
     fetch: async (url, options = {}) => {
-      if (url === 'https://discord.test/webhook') return new Response('', { status: 204 });
+      if (url === 'https://discord.test/webhook') return new Response(null, { status: 204 });
       throw new Error(`Unexpected network request: ${url}`);
     }
   });
