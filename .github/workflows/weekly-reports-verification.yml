@@ -1,0 +1,77 @@
+name: Kings Weekly Reports Verification
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 11 * * 1"
+  push:
+    branches:
+      - main
+    paths:
+      - 'weekly-reports-verifier.js'
+      - 'driver-weekly-summary.js'
+      - 'hr-weekly-summary.js'
+      - 'management-weekly-overview-v3.js'
+      - '.github/workflows/driver-weekly-summary.yml'
+      - '.github/workflows/hr-weekly-summary.yml'
+      - '.github/workflows/management-weekly-overview.yml'
+      - '.github/workflows/weekly-reports-verification.yml'
+      - 'data/staff-management-summary.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-weekly-reports-verification
+  cancel-in-progress: false
+
+jobs:
+  verify-weekly-reports:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify Weekly Report Scripts
+        run: |
+          node --check driver-weekly-summary.js
+          node --check hr-weekly-summary.js
+          node --check management-weekly-overview-v3.js
+          node --check weekly-reports-verifier.js
+
+      - name: Verify Weekly Reports Live State
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
+          MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
+        run: node weekly-reports-verifier.js
+
+      - name: Upload Weekly Verification Report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-weekly-reports-verification-${{ github.run_number }}
+          path: output/weekly-reports-verification.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Verification Safety Summary
+        if: always()
+        run: |
+          echo '## Kings Weekly Reports Verification' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Mode: **read-only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Discord writes: **none**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Verifies Driver, HR and Management weekly publication states against Discord history.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- HR is allowed to defer only when Driver Management did not cover the complete reporting week.' >> "$GITHUB_STEP_SUMMARY"
