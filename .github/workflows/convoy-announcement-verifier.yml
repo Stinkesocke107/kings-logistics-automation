@@ -1,0 +1,66 @@
+name: Kings Public Convoy Announcement Verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'kings-convoy-announcement-verifier.js'
+      - '.github/workflows/convoy-announcement-verifier.yml'
+  schedule:
+    # Runs shortly after the native Convoy Checker cadence (06/21/36/51).
+    # This is read-only and verifies that any due public 2h announcement exists.
+    - cron: '10-59/15 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-public-convoy-announcement-verification
+  cancel-in-progress: false
+
+jobs:
+  verify-public-convoy-announcement:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify read-only announcement verifier
+        run: node --check kings-convoy-announcement-verifier.js
+
+      - name: Verify Kings public convoy announcement state
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_KINGS_CONVOY_SOURCE_FORUM_ID: '1506133821693755502'
+          DISCORD_KINGS_CONVOY_ANNOUNCEMENT_CHANNEL_ID: '1351613882791366838'
+          KINGS_API_HEALTH_NAMESPACE: 'convoy-announcement-verifier'
+        run: node kings-convoy-announcement-verifier.js
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-public-convoy-announcement-verification-${{ github.run_number }}
+          path: output/kings-convoy-announcement-verification.json
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 9
+
+      - name: Verification safety summary
+        if: always()
+        run: |
+          echo '## Kings Public Convoy Announcement Verification' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Mode: **read-only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Discord writes: **none**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Verification rule: if a real Kings convoy is inside the 2-hour public announcement window, the bot announcement for that exact TruckersMP Event ID must already exist.' >> "$GITHUB_STEP_SUMMARY"
