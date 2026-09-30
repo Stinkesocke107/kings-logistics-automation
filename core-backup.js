@@ -69,8 +69,8 @@ const CRITICAL_FILES = [
   "milestones.js",
   "changelog.js",
   "add-changelog-entry.js",
-  "monthly-report.js",
-  "management-weekly-overview.js",
+  "monthly-report-v2.js",
+  "management-weekly-overview-v3.js",
 
   "data/last-news.json",
   "data/milestones.json",
