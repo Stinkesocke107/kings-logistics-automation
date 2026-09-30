@@ -25,6 +25,14 @@ function json(value, status = 200) {
   });
 }
 
+function discordMessage(id, channelId = '999') {
+  return json({ id: String(id), channel_id: String(channelId) });
+}
+
+function isDiscordWebhook(url) {
+  return String(url).startsWith('https://discord.test/webhook') && String(url).includes('wait=true');
+}
+
 test('News state corruption and invalid schemas fail closed without replacing dedupe state', () => {
   const badStates = [
     '{broken',
@@ -57,10 +65,11 @@ test('News first run establishes a baseline and does not replay historical posts
   assert.equal(result.baseline, true);
   const state = JSON.parse(s.files.get('data/last-news.json'));
   assert.equal(state.lastId, 2);
-  assert.equal(s.calls.filter(call => call.url === 'https://discord.test/webhook').length, 0);
+  assert.equal(s.calls.filter(call => isDiscordWebhook(call.url)).length, 0);
+  assert.equal(s.files.has('data/news-publication-state.json'), false);
 });
 
-test('News sends unseen articles oldest to newest and checkpoints after every successful Discord post', async () => {
+test('News sends unseen articles oldest to newest and checkpoints every successful Discord message', async () => {
   let discordAttempt = 0;
   const s = sandbox('news.js', {
     env: { NEWS_DISCORD_WEBHOOK_URL: 'https://discord.test/webhook' },
@@ -73,10 +82,10 @@ test('News sends unseen articles oldest to newest and checkpoints after every su
           newsItem(1, '2026-09-30T12:00:00Z')
         ] } });
       }
-      if (url === 'https://discord.test/webhook') {
+      if (isDiscordWebhook(url)) {
         discordAttempt += 1;
         if (discordAttempt === 2) return new Response('temporary Discord failure', { status: 500 });
-        return new Response(null, { status: 204 });
+        return discordMessage(discordAttempt === 1 ? '2002' : '3003', '555');
       }
       throw new Error(`Unexpected network request: ${url}`);
     }
@@ -84,13 +93,20 @@ test('News sends unseen articles oldest to newest and checkpoints after every su
 
   await assert.rejects(s.run('checkNews()'), /Discord webhook failed: HTTP 500/);
   assert.equal(JSON.parse(s.files.get('data/last-news.json')).lastId, 2);
+  let evidence = JSON.parse(s.files.get('data/news-publication-state.json'));
+  assert.equal(evidence.articleId, 2);
+  assert.equal(evidence.discordMessageId, '2002');
+  assert.equal(evidence.discordChannelId, '555');
 
   const resumed = await s.run('checkNews()');
   assert.equal(resumed.sent, 1);
   assert.equal(resumed.lastId, 3);
   assert.equal(JSON.parse(s.files.get('data/last-news.json')).lastId, 3);
+  evidence = JSON.parse(s.files.get('data/news-publication-state.json'));
+  assert.equal(evidence.articleId, 3);
+  assert.equal(evidence.discordMessageId, '3003');
 
-  const discordCalls = s.calls.filter(call => call.url === 'https://discord.test/webhook');
+  const discordCalls = s.calls.filter(call => isDiscordWebhook(call.url));
   assert.equal(discordCalls.length, 3);
   const titles = discordCalls.map(call => JSON.parse(call.options.body).embeds[0].title);
   assert.deepEqual(titles, ['News 2', 'News 3', 'News 3']);
@@ -112,7 +128,7 @@ test('News no-change run never posts to Discord or rewrites state', async () => 
   const result = await s.run('checkNews()');
   assert.equal(result.sent, 0);
   assert.equal(s.files.get('data/last-news.json'), original);
-  assert.equal(s.calls.filter(call => call.url === 'https://discord.test/webhook').length, 0);
+  assert.equal(s.calls.filter(call => isDiscordWebhook(call.url)).length, 0);
 });
 
 test('News missing prior API article sends only current latest to prevent replay spam', async () => {
@@ -126,7 +142,7 @@ test('News missing prior API article sends only current latest to prevent replay
           newsItem(9, '2026-09-30T13:00:00Z')
         ] } });
       }
-      if (url === 'https://discord.test/webhook') return new Response(null, { status: 204 });
+      if (isDiscordWebhook(url)) return discordMessage('1010', '555');
       throw new Error(`Unexpected network request: ${url}`);
     }
   });
@@ -134,22 +150,25 @@ test('News missing prior API article sends only current latest to prevent replay
   const result = await s.run('checkNews()');
   assert.equal(result.sent, 1);
   assert.equal(result.lastId, 10);
-  assert.equal(s.calls.filter(call => call.url === 'https://discord.test/webhook').length, 1);
+  assert.equal(s.calls.filter(call => isDiscordWebhook(call.url)).length, 1);
+  assert.equal(JSON.parse(s.files.get('data/news-publication-state.json')).articleId, 10);
 });
 
-test('News formatting strips HTML, respects Discord limits and disables all mentions', async () => {
+test('News formatting strips HTML, respects Discord limits, disables mentions and captures message evidence', async () => {
   const s = sandbox('news.js', {
-    env: { NEWS_DISCORD_WEBHOOK_URL: 'https://discord.test/webhook' },
+    env: { NEWS_DISCORD_WEBHOOK_URL: 'https://discord.test/webhook?existing=1' },
     fetch: async (url, options = {}) => {
-      if (url === 'https://discord.test/webhook') return new Response(null, { status: 204 });
+      if (String(url).startsWith('https://discord.test/webhook') && String(url).includes('wait=true')) return discordMessage('5555', '777');
       throw new Error(`Unexpected network request: ${url}`);
     }
   });
 
   assert.equal(s.run(`cleanText('<p>Hello<br>World &amp; &lt;Kings&gt;</p>')`), 'Hello\nWorld & <Kings>');
   assert.equal(s.run(`truncate('abcdef', 5)`), 'ab...');
+  assert.ok(s.run(`webhookWaitUrl('https://discord.test/webhook?existing=1')`).includes('existing=1'));
+  assert.ok(s.run(`webhookWaitUrl('https://discord.test/webhook?existing=1')`).includes('wait=true'));
 
-  await s.run(`sendToDiscord({
+  const message = await s.run(`sendToDiscord({
     id:55,
     title:'@everyone ' + 'T'.repeat(300),
     description:'@here ' + 'D'.repeat(5000),
@@ -157,10 +176,28 @@ test('News formatting strips HTML, respects Discord limits and disables all ment
     url:'https://truckersmp.com/vtc/64284/news/55'
   })`);
 
-  const call = s.calls.find(call => call.url === 'https://discord.test/webhook');
+  assert.equal(message.id, '5555');
+  const call = s.calls.find(call => String(call.url).includes('wait=true'));
   const body = JSON.parse(call.options.body);
   assert.deepEqual(body.allowed_mentions, { parse: [] });
   assert.ok(body.embeds[0].title.length <= 256);
   assert.ok(body.embeds[0].description.length <= 4000);
   assert.equal(body.embeds[0].timestamp, '2026-09-30T12:00:00.000Z');
+});
+
+test('News refuses to advance dedupe state when Discord does not return message evidence', async () => {
+  const original = validState(1);
+  const s = sandbox('news.js', {
+    env: { NEWS_DISCORD_WEBHOOK_URL: 'https://discord.test/webhook' },
+    files: { 'data/last-news.json': original },
+    fetch: async url => {
+      if (url.includes('/vtc/64284/news')) return json({ response: { news: [newsItem(2, '2026-09-30T13:00:00Z'), newsItem(1, '2026-09-30T12:00:00Z')] } });
+      if (isDiscordWebhook(url)) return new Response(null, { status: 204 });
+      throw new Error(`Unexpected network request: ${url}`);
+    }
+  });
+
+  await assert.rejects(s.run('checkNews()'), /did not return message evidence/);
+  assert.equal(s.files.get('data/last-news.json'), original);
+  assert.equal(s.files.has('data/news-publication-state.json'), false);
 });
