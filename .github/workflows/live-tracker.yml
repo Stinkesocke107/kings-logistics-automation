@@ -12,6 +12,7 @@ on:
       - 'statistics.js'
       - 'central-overview.js'
       - 'api-resilience.js'
+      - 'kings-branding.js'
       - 'scripts/git-safe-push.sh'
 
   schedule:
