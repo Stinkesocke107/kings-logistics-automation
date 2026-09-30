@@ -1,0 +1,229 @@
+name: Kings Final Freeze Verification
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Periodic readiness check; live-proof commits also trigger immediately below.
+    - cron: '41 */6 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'final-freeze-verifier.js'
+      - 'production-proof-collector.js'
+      - 'news-production-verifier.js'
+      - 'data/public-convoy-live-proof.json'
+      - 'data/news-live-proof.json'
+      - 'data/hr-weekly-live-proof.json'
+      - 'data/monthly-live-proof.json'
+      - '.github/workflows/final-freeze-verification.yml'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: kings-final-freeze-verification
+  cancel-in-progress: false
+
+jobs:
+  final-freeze:
+    if: github.ref == 'refs/heads/main'
+    name: Point 23 Final Freeze Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      KINGS_CORE_BASELINE_ID: 'KINGS-CORE-BASELINE-2026-10-01-P23-READINESS'
+      KINGS_CORE_BASELINE_VERSION: '1.3'
+      KINGS_CORE_BASELINE_POINT: '23'
+
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Require clean initial checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain)" || { git status --short; exit 1; }
+          echo "Point 23 candidate: $(git rev-parse HEAD)"
+
+      - name: Recover only stale safe technical producers
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          KINGS_RECOVERY_WAIT_MS: '90000'
+          KINGS_RECOVERY_POLL_MS: '5000'
+        run: node workflow-recovery.js
+
+      - name: Refresh runtime state without accepting Core drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_SHA="$GITHUB_SHA"
+          git fetch origin main
+          REMOTE_HEAD="$(git rev-parse origin/main)"
+          if [ "$REMOTE_HEAD" != "$BASE_SHA" ]; then
+            CORE_CHANGES="$(git diff --name-only "$BASE_SHA" "origin/main" -- \
+              ':(top,glob)*.js' '.github/workflows/**' 'scripts/**' 'tests/**' '.gitignore' 'package.json' 'package-lock.json')"
+            if [ -n "$CORE_CHANGES" ]; then
+              echo 'ERROR: protected Core drift occurred during Point 23 verification.'
+              echo "$CORE_CHANGES"
+              exit 1
+            fi
+            git merge --ff-only origin/main
+          fi
+          test -z "$(git status --porcelain --untracked-files=no)" || { git status --short; exit 1; }
+          echo "Point 23 verified HEAD candidate: $(git rev-parse HEAD)"
+
+      - name: Verify all Core syntax and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in *.js tests/*.cjs; do node --check "$file"; done
+          bash -n scripts/git-safe-push.sh
+          node branding-self-test.js
+          node --test tests/*.test.cjs
+
+      - name: Re-run Point 22 controlled stress matrix
+        run: node self-healing-stress.js
+
+      - name: Build final technical production health snapshot
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          KINGS_API_HEALTH_NAMESPACE: 'final-freeze'
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node system-monitoring.js
+          node data-integrity.js
+          node system-hardening.js
+          node security-audit.js
+          node discord-permission-audit.js
+          node self-healing-stress-verifier.js
+
+      - name: Process final technical alerts
+        continue-on-error: true
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          SYSTEM_ALERTS_CHANNEL_NAME: 'system-alerts'
+        run: node system-alerts.js
+
+      - name: Verify API resilience and Git/State hardening
+        shell: bash
+        run: |
+          set -euo pipefail
+          node api-resilience-verifier.js
+          node git-state-hardening-verifier.js
+
+      - name: Verify complete Backup and Restore roundtrip
+        shell: bash
+        run: |
+          set -euo pipefail
+          node core-backup.js
+          node backup-final-check.js
+
+      - name: Aggregate final Core E2E state
+        run: node core-e2e-verifier.js
+
+      - name: Create Point 23 technical Core fingerprint
+        run: node core-baseline-verifier.js
+
+      - name: Evaluate final live-proof and freeze gates
+        id: final_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          node final-freeze-verifier.js
+          STATUS="$(node -p "require('./output/final-freeze-verification.json').status")"
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          if [ "$STATUS" = 'FINAL-FREEZE-VERIFIED' ]; then
+            echo 'final_ready=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'final_ready=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create immutable final baseline reference branch
+        if: steps.final_gate.outputs.final_ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERIFIED_HEAD="$(git rev-parse HEAD)"
+          FINAL_BRANCH='baseline/final-core-point23'
+          EXISTING="$(git ls-remote --heads origin "refs/heads/$FINAL_BRANCH" | awk '{print $1}')"
+          if [ -z "$EXISTING" ]; then
+            git push origin "$VERIFIED_HEAD:refs/heads/$FINAL_BRANCH"
+            echo "Created $FINAL_BRANCH at $VERIFIED_HEAD"
+          elif [ "$EXISTING" = "$VERIFIED_HEAD" ]; then
+            echo "$FINAL_BRANCH already points to the verified final commit."
+          else
+            echo "ERROR: $FINAL_BRANCH already exists at a different commit ($EXISTING). Refusing to rewrite a final freeze."
+            exit 1
+          fi
+
+      - name: Persist final freeze state
+        if: steps.final_gate.outputs.final_ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- data/final-freeze-state.json)" ]; then exit 0; fi
+          git config user.name 'Kings Logistics Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A -- data/final-freeze-state.json
+          git commit -m 'Record Kings Core final freeze verification'
+          bash scripts/git-safe-push.sh main
+
+      - name: Upload Point 23 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-final-freeze-${{ github.run_number }}
+          path: |
+            output/final-freeze-verification.json
+            output/self-healing-stress.json
+            output/self-healing-stress-verification.json
+            output/core-baseline-verification.json
+            output/core-e2e-verification.json
+            output/api-resilience-final-report.json
+            output/git-state-hardening-final-report.json
+            data/system-health.json
+            data/data-integrity.json
+            data/system-hardening.json
+            data/security-audit.json
+            data/discord-permission-audit.json
+            data/public-convoy-live-proof.json
+            data/news-live-proof.json
+            data/hr-weekly-live-proof.json
+            data/monthly-live-proof.json
+            data/final-freeze-state.json
+            backup-staging/backup-health.json
+            backup-staging/backup-final-health.json
+            backup-staging/backup-restore-verification.json
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 9
+
+      - name: Point 23 summary
+        if: always()
+        shell: bash
+        run: |
+          echo '## Kings Final Freeze — Point 23' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f output/final-freeze-verification.json ]; then
+            node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const r = require('./output/final-freeze-verification.json');
+          console.log(`- Status: **${r.status}**`);
+          console.log(`- Technical gates: **${r.technical?.passed || 0}/${r.technical?.checks || 0}**`);
+          console.log(`- Live proofs: **${r.liveProofs?.items?.filter(x => x.ready).length || 0}/${r.liveProofs?.items?.length || 4}**`);
+          for (const p of r.liveProofs?.items || []) console.log(`- ${p.label}: **${p.ready ? 'VERIFIED' : 'PENDING'}**`);
+          console.log(`- Final baseline branch: **${r.finalReady ? 'baseline/final-core-point23' : 'not created until every gate is verified'}**`);
+          NODE
+          fi
