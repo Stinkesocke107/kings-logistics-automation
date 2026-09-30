@@ -2,5 +2,12 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {}
+  "pending": {
+    "discord-permission-scoped-high-risk": {
+      "count": 1,
+      "firstSeenAt": "2026-09-30T21:01:25.210Z",
+      "system": "Discord Permission Security",
+      "message": "High-risk Discord permissions exceed the verified Kings Automation scope in 21 channel(s)."
+    }
+  }
 }
