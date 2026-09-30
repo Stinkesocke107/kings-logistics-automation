@@ -71,10 +71,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          if [ ! -e data/hr-weekly-live-proof.json ]; then
+            echo 'HR Weekly proof is still pending; nothing to persist.'
+            exit 0
+          fi
           if [ -z "$(git status --porcelain -- data/hr-weekly-live-proof.json)" ]; then exit 0; fi
           git config user.name 'Kings Logistics Automation'
           git config user.email 'actions@users.noreply.github.com'
           git add -A -- data/hr-weekly-live-proof.json
+          if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Record Kings HR Weekly live production proof'
           bash scripts/git-safe-push.sh main
 
