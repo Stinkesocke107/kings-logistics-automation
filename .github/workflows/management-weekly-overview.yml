@@ -47,7 +47,7 @@ jobs:
           MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
           CONVOY_MANAGEMENT_FORUM_ID: '1550619824005062697'
           MANAGEMENT_WEEKLY_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
-        run: node management-weekly-overview.js
+        run: node management-weekly-overview-v3.js
 
       - name: Save Management Weekly Overview Data Safely
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') }}
