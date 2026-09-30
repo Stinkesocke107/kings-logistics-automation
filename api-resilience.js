@@ -6,9 +6,25 @@ const DEFAULT_TIMEOUT_MS = 15000;
 const DEFAULT_BASE_DELAY_MS = 750;
 const MAX_DELAY_MS = 15000;
 
-const HEALTH_DIR = path.join(__dirname, 'data', 'api-health');
+const HEALTH_DIR = process.env.KINGS_API_HEALTH_DIR
+  ? path.resolve(process.env.KINGS_API_HEALTH_DIR)
+  : path.join(__dirname, 'data', 'api-health');
 const HEALTH_NAMESPACE = String(process.env.KINGS_API_HEALTH_NAMESPACE || '').trim();
 const circuitState = new Map();
+
+const RETRYABLE_ERROR_CODES = new Set([
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_HEADERS_TIMEOUT',
+  'UND_ERR_BODY_TIMEOUT',
+  'UND_ERR_SOCKET',
+  'ECONNRESET',
+  'ECONNREFUSED',
+  'EHOSTUNREACH',
+  'ENETUNREACH',
+  'EAI_AGAIN',
+  'ETIMEDOUT',
+  'API_INVALID_RESPONSE'
+]);
 
 function nowISO() {
   return new Date().toISOString();
@@ -50,6 +66,29 @@ function retryDelay(attempt, retryAfter, baseDelayMs = DEFAULT_BASE_DELAY_MS) {
 
 function isRetryableStatus(status) {
   return status === 408 || status === 425 || status === 429 || status >= 500;
+}
+
+function errorCode(error) {
+  return String(
+    error?.code ||
+    error?.cause?.code ||
+    error?.cause?.cause?.code ||
+    ''
+  ).trim();
+}
+
+function isRetryableError(error) {
+  const status = Number(error?.status);
+  if (Number.isFinite(status) && isRetryableStatus(status)) return true;
+
+  if (
+    error?.name === 'AbortError' ||
+    error?.name === 'TimeoutError'
+  ) {
+    return true;
+  }
+
+  return RETRYABLE_ERROR_CODES.has(errorCode(error));
 }
 
 function safeReadJson(file, fallback = null) {
@@ -161,6 +200,7 @@ function recordFailure(label, error, threshold = 5, cooldownMs = 60000) {
     consecutiveFailures: circuit.failures,
     lastFailureAt: nowISO(),
     lastError: String(error?.message || error || 'Unknown API error').slice(0, 500),
+    lastErrorCode: errorCode(error) || null,
     circuitOpenUntil: circuit.openUntil
       ? new Date(circuit.openUntil).toISOString()
       : null
@@ -225,6 +265,7 @@ async function resilientFetch(url, options = {}) {
           throw error;
         }
 
+        lastError = error;
         const delay = retryDelay(attempt, error.retryAfterMs, baseDelayMs);
         console.warn(
           `${label}: HTTP ${response.status}; retry ${attempt}/${totalAttempts - 1} in ${delay}ms.`
@@ -242,22 +283,21 @@ async function resilientFetch(url, options = {}) {
     } catch (error) {
       lastError = error;
 
-      const status = Number(error?.status);
-      const retryable =
-        error?.name === 'AbortError' ||
-        error?.code === 'UND_ERR_CONNECT_TIMEOUT' ||
-        error?.code === 'ECONNRESET' ||
-        error?.code === 'ETIMEDOUT' ||
-        (Number.isFinite(status) && isRetryableStatus(status));
-
-      if (!retryable || attempt >= totalAttempts) {
+      if (!isRetryableError(error) || attempt >= totalAttempts) {
         break;
       }
 
       const delay = retryDelay(attempt, error?.retryAfterMs, baseDelayMs);
+      const code = errorCode(error);
+      const reason =
+        error?.name === 'AbortError' || error?.name === 'TimeoutError'
+          ? 'timeout'
+          : code
+            ? `${error.message} (${code})`
+            : error.message;
+
       console.warn(
-        `${label}: ${error?.name === 'AbortError' ? 'timeout' : error.message}; ` +
-        `retry ${attempt}/${totalAttempts - 1} in ${delay}ms.`
+        `${label}: ${reason}; retry ${attempt}/${totalAttempts - 1} in ${delay}ms.`
       );
       await sleep(delay);
     }
@@ -274,37 +314,61 @@ async function resilientFetch(url, options = {}) {
 }
 
 async function resilientFetchJson(url, options = {}) {
-  const response = await resilientFetch(url, { ...options, deferSuccess: true });
+  const label = options.label || 'external-api';
+  const validateJson = options.validateJson;
+  const validateResponse = options.validateResponse;
+  let parsedData;
 
-  let data;
-  try {
-    data = await response.json();
-  } catch {
-    const error = new Error(`${options.label || 'external-api'}: invalid JSON response.`);
-    recordFailure(options.label || 'external-api', error);
-    throw error;
-  }
+  await resilientFetch(url, {
+    ...options,
+    deferSuccess: true,
+    validateResponse: async (response) => {
+      if (typeof validateResponse === 'function') {
+        await validateResponse(response);
+      }
 
-  if (typeof options.validateJson === 'function') {
-    const valid = await options.validateJson(data);
-    if (valid === false) {
-      const error = new Error(`${options.label || 'external-api'}: JSON validation failed.`);
-      recordFailure(options.label || 'external-api', error);
-      throw error;
+      try {
+        parsedData = await response.clone().json();
+      } catch (cause) {
+        const error = new Error(`${label}: invalid JSON response.`);
+        error.code = 'API_INVALID_RESPONSE';
+        error.cause = cause;
+        throw error;
+      }
+
+      if (typeof validateJson === 'function') {
+        let valid;
+        try {
+          valid = await validateJson(parsedData);
+        } catch (cause) {
+          const error = new Error(`${label}: JSON validation failed.`);
+          error.code = 'API_INVALID_RESPONSE';
+          error.cause = cause;
+          throw error;
+        }
+
+        if (valid === false) {
+          const error = new Error(`${label}: JSON validation failed.`);
+          error.code = 'API_INVALID_RESPONSE';
+          throw error;
+        }
+      }
     }
-  }
+  });
 
-  recordSuccess(options.label || 'external-api');
-  return data;
+  recordSuccess(label);
+  return parsedData;
 }
 
 module.exports = {
   HEALTH_DIR,
   HEALTH_NAMESPACE,
+  RETRYABLE_ERROR_CODES,
   healthFile,
   parseRetryAfter,
   retryDelay,
   isRetryableStatus,
+  isRetryableError,
   resilientFetch,
   resilientFetchJson
 };
