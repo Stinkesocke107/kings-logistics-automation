@@ -8,7 +8,8 @@ const { execFileSync } = require('child_process');
 const ROOT = __dirname;
 const OUTPUT = path.join(ROOT, 'output', 'core-baseline-verification.json');
 const BASELINE_ID = String(process.env.KINGS_CORE_BASELINE_ID || 'KINGS-CORE-BASELINE-2026-10-01').trim();
-const BASELINE_VERSION = '1.0';
+const BASELINE_VERSION = String(process.env.KINGS_CORE_BASELINE_VERSION || '1.0').trim();
+const BASELINE_POINT = Number.parseInt(process.env.KINGS_CORE_BASELINE_POINT || '20', 10) || 20;
 
 const issues = [];
 const checks = [];
@@ -61,7 +62,6 @@ function protectedCoreFiles() {
   for (const file of walk(path.join(ROOT, '.github', 'workflows'), (absolute) => /\.ya?ml$/i.test(absolute))) {
     files.add(file);
   }
-
   for (const file of walk(path.join(ROOT, 'scripts'), () => true)) files.add(file);
   for (const file of walk(path.join(ROOT, 'tests'), (absolute) => /\.(?:cjs|js|mjs|sh)$/i.test(absolute))) files.add(file);
 
@@ -87,7 +87,6 @@ function fingerprint(files) {
     hash.update(item.sha256);
     hash.update('\n');
   }
-
   return { manifest, sha256: hash.digest('hex') };
 }
 
@@ -110,6 +109,7 @@ function main() {
   const branch = process.env.GITHUB_REF_NAME || git('rev-parse', '--abbrev-ref', 'HEAD');
 
   check('Baseline ID is defined', Boolean(BASELINE_ID), BASELINE_ID || null);
+  check('Baseline version is defined', Boolean(BASELINE_VERSION), BASELINE_VERSION || null);
   check('Baseline runs on main', branch === 'main', branch);
 
   const trackedStatus = git('status', '--porcelain', '--untracked-files=no');
@@ -165,6 +165,22 @@ function main() {
     check('Core E2E is healthy', e2e.healthy === true && Number(e2e.summary?.failed || 0) === 0, { healthy: e2e.healthy, summary: e2e.summary || null });
   }
 
+  let selfHealingState = null;
+  try {
+    selfHealingState = readJson('data/self-healing-state.json');
+    check('Point 21 Self-Healing state is technical-safe', selfHealingState.mode === 'technical-safe-self-healing', selfHealingState.mode || null);
+  } catch (error) {
+    check('Point 21 Self-Healing state exists and parses', false, error.message);
+  }
+
+  check('Point 21 Self-Healing Core files exist',
+    fs.existsSync(path.join(ROOT, 'self-healing.js')) &&
+    fs.existsSync(path.join(ROOT, 'self-healing-verifier.js')) &&
+    fs.existsSync(path.join(ROOT, 'tests', 'self-healing.test.cjs')) &&
+    fs.existsSync(path.join(ROOT, '.github', 'workflows', 'self-healing.yml')),
+    null
+  );
+
   const files = protectedCoreFiles();
   check('Protected Core scope is non-empty', files.length >= 50, files.length);
   const core = fingerprint(files);
@@ -172,7 +188,7 @@ function main() {
   const healthy = issues.length === 0;
   const report = {
     version: 1,
-    point: 20,
+    point: BASELINE_POINT,
     checkedAt: new Date().toISOString(),
     baseline: {
       id: BASELINE_ID,
@@ -208,6 +224,7 @@ function main() {
       backupHealthy: backupCore?.healthy === true && backupFinal?.healthy === true,
       restoreHealthy: restore?.healthy === true,
       coreE2EHealthy: e2e?.healthy === true,
+      selfHealingTechnicalSafe: selfHealingState?.mode === 'technical-safe-self-healing',
       trackedGitClean: trackedStatus === ''
     },
     checks,
@@ -219,8 +236,9 @@ function main() {
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
   fs.writeFileSync(OUTPUT, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 
-  console.log('Kings Stable Core Baseline Verification — Point 20');
+  console.log(`Kings Stable Core Baseline Verification — Point ${BASELINE_POINT}`);
   console.log(`Baseline ID: ${BASELINE_ID}`);
+  console.log(`Baseline version: ${BASELINE_VERSION}`);
   console.log(`Source commit: ${commit}`);
   console.log(`Protected Core files: ${core.manifest.length}`);
   console.log(`CORE_BASELINE_FINGERPRINT=${core.sha256}`);
