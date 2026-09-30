@@ -1,0 +1,118 @@
+name: Kings Backup Critical List Fix - One Time
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/backup-critical-list-fix-once.yml'
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: kings-backup-critical-list-fix-once
+  cancel-in-progress: false
+
+jobs:
+  fix-verify-cleanup:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Replace only superseded backup critical paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f monthly-report-v2.js
+          test -f management-weekly-overview-v3.js
+          test ! -f monthly-report.js
+          test ! -f management-weekly-overview.js
+
+          test "$(grep -c '"'"'monthly-report.js'"'"' core-backup.js)" -eq 1
+          test "$(grep -c '"'"'management-weekly-overview.js'"'"' core-backup.js)" -eq 1
+          test "$(grep -c '"'"'monthly-report-v2.js'"'"' core-backup.js || true)" -eq 0
+          test "$(grep -c '"'"'management-weekly-overview-v3.js'"'"' core-backup.js || true)" -eq 0
+
+          sed -i 's/"monthly-report\.js"/"monthly-report-v2.js"/' core-backup.js
+          sed -i 's/"management-weekly-overview\.js"/"management-weekly-overview-v3.js"/' core-backup.js
+
+          test "$(grep -c '"'"'monthly-report-v2.js'"'"' core-backup.js)" -eq 1
+          test "$(grep -c '"'"'management-weekly-overview-v3.js'"'"' core-backup.js)" -eq 1
+          test "$(grep -c '"'"'monthly-report.js'"'"' core-backup.js || true)" -eq 0
+          test "$(grep -c '"'"'management-weekly-overview.js'"'"' core-backup.js || true)" -eq 0
+          node --check core-backup.js
+
+      - name: Verify backup health before commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          node core-backup.js
+          node backup-final-check.js
+          node - <<'NODE'
+          const fs = require('fs');
+          const health = JSON.parse(fs.readFileSync('backup-staging/backup-health.json', 'utf8'));
+          const final = JSON.parse(fs.readFileSync('backup-staging/backup-final-health.json', 'utf8'));
+          if (health.healthy !== true) throw new Error(`Backup health is ${health.status}`);
+          if (health.criticalFiles.expected !== 38 || health.criticalFiles.present !== 38) {
+            throw new Error(`Critical file coverage is ${health.criticalFiles.present}/${health.criticalFiles.expected}, expected 38/38.`);
+          }
+          if (final.healthy !== true) throw new Error('Backup final integrity is not healthy.');
+          console.log(`Backup critical files: ${health.criticalFiles.present}/${health.criticalFiles.expected}`);
+          console.log(`Backup final checksums verified: ${final.summary?.checksumsVerified ?? 'see final report'}`);
+          NODE
+
+      - name: Commit exact backup safety alignment
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Kings Logistics Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -- core-backup.js
+          git diff --cached --check
+          git diff --cached --quiet && { echo 'Expected core-backup.js change is missing.'; exit 1; }
+          git commit -m 'Align backup critical files with active production scripts'
+          bash scripts/git-safe-push.sh main
+
+      - name: Remove this one-time helper from main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          path='.github/workflows/backup-critical-list-fix-once.yml'
+          sha="$(gh api "repos/${GITHUB_REPOSITORY}/contents/${path}?ref=main" --jq '.sha')"
+          gh api --method DELETE \
+            "repos/${GITHUB_REPOSITORY}/contents/${path}" \
+            -f message='Remove completed backup critical list helper' \
+            -f sha="$sha" \
+            -f branch=main >/dev/null
+          echo 'One-time backup critical list helper removed.'
+
+      - name: Dispatch final Core E2E on clean main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method POST \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/core-e2e-verification.yml/dispatches" \
+            -f ref=main
+          echo 'Final Core E2E dispatched after backup fix and helper deletion.'
+
+      - name: Summary
+        if: always()
+        run: |
+          echo '## Backup Safety Alignment' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Legacy critical paths replaced: **2**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Active replacements: **monthly-report-v2.js + management-weekly-overview-v3.js**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Safety threshold reduced: **No**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Expected critical coverage: **38/38**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Temporary helper self-cleanup: **enabled**' >> "$GITHUB_STEP_SUMMARY"
