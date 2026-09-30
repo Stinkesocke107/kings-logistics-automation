@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "namespace": "convoy-announcement-verifier",
+  "service": "truckersmp-kings-convoy-announcement-verifier",
+  "healthKey": "convoy-announcement-verifier--truckersmp-kings-convoy-announcement-verifier",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-09-30T23:29:22.935Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "lastErrorCode": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-09-30T23:29:22.935Z"
+}
