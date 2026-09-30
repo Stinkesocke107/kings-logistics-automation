@@ -64,7 +64,11 @@ jobs:
           fi
           git config user.name 'Kings Logistics Automation'
           git config user.email 'actions@users.noreply.github.com'
-          git add -A -- data/news-live-proof.json data/api-health
+          for path in data/news-live-proof.json data/api-health; do
+            if [ -e "$path" ] || git ls-files -- "$path" | grep -q .; then
+              git add -A -- "$path"
+            fi
+          done
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Update Kings News production proof state'
           bash scripts/git-safe-push.sh main
