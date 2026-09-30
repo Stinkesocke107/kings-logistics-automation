@@ -66,6 +66,28 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-09-29T23:34:24.949Z"
+    },
+    "workflow-overdue:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-09-30T00:23:04Z",
+        "ageMinutes": 115,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-09-30T02:18:58.462Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-09-30T00:14:55Z",
+        "ageMinutes": 123,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-09-30T02:18:58.462Z"
     }
   },
   "pending": {}
