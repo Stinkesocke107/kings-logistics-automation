@@ -19,6 +19,10 @@ on:
       - 'security-audit.js'
       - 'discord-permission-audit.js'
       - 'scripts/git-safe-push.sh'
+      # Re-evaluate health immediately whenever a critical technical producer workflow changes.
+      - '.github/workflows/live-tracker.yml'
+      - '.github/workflows/driver-updates.yml'
+      - '.github/workflows/convoy-checker.yml'
       - '.github/workflows/system-monitoring.yml'
 
   schedule:
