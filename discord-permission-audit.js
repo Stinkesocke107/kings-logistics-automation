@@ -10,6 +10,18 @@ const DISCORD_API = 'https://discord.com/api/v10';
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || '';
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 
+const CONVOY_DRIVER_ROLE_ID = '1476774746480709675';
+const CONVOY_APPROVAL_ROLE_IDS = [
+  '1378658861816217600',
+  '1363949241138941952',
+  '1492930716156166165',
+  '1492930713459364031',
+  '1199767340787703828',
+  '1433646186778329228',
+  '1492929616019718285',
+  '1114967608920395866'
+];
+
 const PERMISSIONS = {
   KICK_MEMBERS: 1n << 1n,
   BAN_MEMBERS: 1n << 2n,
@@ -47,16 +59,45 @@ const SCOPED_HIGH_RISK = new Set([
   'MANAGE_THREADS', 'MENTION_EVERYONE'
 ]);
 
-const TARGETS = [
+const BASE_TARGETS = [
   { key: 'driver-leadership', name: 'driver-leadership', types: [0, 5], required: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] },
   { key: 'staff-leadership', name: 'staff-leadership', types: [0, 5], required: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] },
   { key: 'hr-leadership', name: 'hr-leadership', types: [0, 5], required: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] },
   { key: 'management-overview', name: 'management-overview', types: [0, 5], required: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'EMBED_LINKS'] },
   { key: 'system-monitor', name: 'system-monitor', types: [0, 5], required: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] },
   { key: 'system-alerts', name: 'system-alerts', types: [0, 5], required: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'EMBED_LINKS'] },
-  { key: 'convoy-management-forum', id: '1550619824005062697', types: [15, 16], required: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY'] },
-  { key: 'kings-convoy-source-forum', id: '1506133821693755502', types: [15, 16], required: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY', 'SEND_MESSAGES_IN_THREADS', 'MANAGE_THREADS'], allowedRisk: ['MANAGE_THREADS'] },
-  { key: 'public-convoys', id: '1351613882791366838', types: [0, 5], required: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'EMBED_LINKS', 'ATTACH_FILES', 'MENTION_EVERYONE'], allowedRisk: ['MENTION_EVERYONE'] }
+  {
+    key: 'convoy-management-forum',
+    id: '1550619824005062697',
+    types: [15, 16],
+    required: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY', 'SEND_MESSAGES_IN_THREADS', 'MANAGE_THREADS'],
+    allowedRisk: ['MANAGE_THREADS']
+  },
+  {
+    key: 'kings-convoy-source-forum',
+    id: '1506133821693755502',
+    types: [15, 16],
+    required: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY']
+  },
+  {
+    key: 'public-convoys',
+    id: '1351613882791366838',
+    types: [0, 5],
+    required: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'EMBED_LINKS', 'ATTACH_FILES', 'MENTION_EVERYONE'],
+    allowedRisk: ['MENTION_EVERYONE']
+  },
+  {
+    key: 'convoy-overview',
+    id: '1550619865805754378',
+    types: [0, 5],
+    required: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY']
+  },
+  {
+    key: 'convoy-reminders',
+    id: '1550997669596631200',
+    types: [0, 5],
+    required: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY']
+  }
 ];
 
 function nowISO() { return new Date().toISOString(); }
@@ -124,15 +165,80 @@ function resolveTarget(target, channels, context) {
   if (!candidates.length) return { status: 'missing', selected: null, candidates };
   return { status: 'insufficient', selected: candidates.find((item) => item.visible) || candidates[0], candidates };
 }
+function roleById(roles, id) {
+  return (roles || []).find((role) => String(role.id) === String(id)) || null;
+}
+function roleMentionRequiresPermission(role) {
+  return Boolean(role && role.mentionable !== true);
+}
+function targetsForGuild(roles) {
+  const targets = BASE_TARGETS.map((target) => ({
+    ...target,
+    required: [...target.required],
+    allowedRisk: [...(target.allowedRisk || [])]
+  }));
+
+  const byKey = new Map(targets.map((target) => [target.key, target]));
+  const approvalRoles = CONVOY_APPROVAL_ROLE_IDS.map((id) => roleById(roles, id)).filter(Boolean);
+  const approvalNeedsMentionPermission = approvalRoles.some(roleMentionRequiresPermission);
+  if (approvalNeedsMentionPermission) {
+    byKey.get('convoy-management-forum').required.push('MENTION_EVERYONE');
+    byKey.get('convoy-management-forum').allowedRisk.push('MENTION_EVERYONE');
+  }
+
+  const driverRole = roleById(roles, CONVOY_DRIVER_ROLE_ID);
+  const driverNeedsMentionPermission = roleMentionRequiresPermission(driverRole);
+  if (driverNeedsMentionPermission) {
+    byKey.get('convoy-reminders').required.push('MENTION_EVERYONE');
+    byKey.get('convoy-reminders').allowedRisk.push('MENTION_EVERYONE');
+  }
+
+  return {
+    targets,
+    roleMentionPolicy: {
+      approvalRolesFound: approvalRoles.length,
+      approvalRolesConfigured: CONVOY_APPROVAL_ROLE_IDS.length,
+      approvalNeedsMentionPermission,
+      driverRoleFound: Boolean(driverRole),
+      driverRoleMentionable: driverRole ? Boolean(driverRole.mentionable) : null,
+      driverNeedsMentionPermission
+    }
+  };
+}
+function permissionGrantSources(channel, permissionName, context) {
+  const permission = PERMISSIONS[permissionName];
+  if (!permission) return [];
+  const relevantIds = new Set([String(context.guildId), ...context.memberRoleIds.map(String), String(context.memberId)]);
+  return (channel?.permission_overwrites || [])
+    .filter((overwrite) => relevantIds.has(String(overwrite.id)) && (bits(overwrite.allow) & permission) === permission)
+    .map((overwrite) => ({
+      id: String(overwrite.id),
+      type: Number(overwrite.type) === 1 ? 'member' : String(overwrite.id) === String(context.guildId) ? 'everyone' : 'role',
+      name: Number(overwrite.type) === 1
+        ? 'Kings Systems bot member overwrite'
+        : String(overwrite.id) === String(context.guildId)
+          ? '@everyone'
+          : context.roleNames.get(String(overwrite.id)) || 'Unknown role'
+    }));
+}
 function scopedHighRiskFindings(channels, targetById, context) {
   const findings = [];
   for (const channel of channels || []) {
     if (![0, 5, 15, 16].includes(Number(channel.type))) continue;
     const effective = effectiveChannelPermissions(channel, context.guildId, context.memberId, context.memberRoleIds, context.base);
     const detected = permissionNames(effective).filter((name) => SCOPED_HIGH_RISK.has(name));
-    const allowed = new Set(targetById.get(String(channel.id))?.allowedRisk || []);
+    const target = targetById.get(String(channel.id));
+    const allowed = new Set(target?.allowedRisk || []);
     const unexpected = detected.filter((name) => !allowed.has(name));
-    if (unexpected.length) findings.push({ channelId: String(channel.id), channelName: String(channel.name || ''), permissions: unexpected });
+    if (unexpected.length) {
+      findings.push({
+        channelId: String(channel.id),
+        channelName: String(channel.name || ''),
+        target: target?.key || null,
+        permissions: unexpected,
+        grantSources: Object.fromEntries(unexpected.map((permission) => [permission, permissionGrantSources(channel, permission, context)]))
+      });
+    }
   }
   return findings;
 }
@@ -140,7 +246,7 @@ function scopedHighRiskFindings(channels, targetById, context) {
 async function discord(endpoint) {
   if (!DISCORD_BOT_TOKEN) throw new Error('DISCORD_BOT_TOKEN is missing.');
   const response = await fetch(`${DISCORD_API}${endpoint}`, {
-    headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}`, 'User-Agent': 'Kings Logistics Discord Permission Audit/2.0' },
+    headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}`, 'User-Agent': 'Kings Logistics Discord Permission Audit/3.0' },
     signal: AbortSignal.timeout(15000)
   });
   const text = await response.text();
@@ -163,23 +269,38 @@ function mergeIntoHealth(result) {
   health.summary.criticalIssues = health.issues.filter((x) => x.severity === 'critical').length;
   health.summary.warnings = health.issues.filter((x) => x.severity === 'warning').length;
   health.data = health.data || {};
-  health.data.discordPermissionAudit = { checkedAt: result.checkedAt, status: result.status, summary: result.summary, bot: result.bot, permissions: result.permissions, channels: result.channels };
+  health.data.discordPermissionAudit = {
+    checkedAt: result.checkedAt,
+    status: result.status,
+    summary: result.summary,
+    bot: result.bot,
+    permissions: result.permissions,
+    roleMentionPolicy: result.roleMentionPolicy,
+    channels: result.channels
+  };
   writeJson(HEALTH_FILE, health);
   return true;
 }
 function writeSummary(result, merged) {
   if (!STEP_SUMMARY) return;
   const lines = [
-    '', '## 🔑 Kings Discord Permission Audit v2', '',
+    '', '## 🔑 Kings Discord Permission Audit v3', '',
     `**Status: ${result.status}**`,
     `- Checks: **${result.summary.healthyChecks}/${result.summary.checks}**`,
     `- Target channels: **${result.summary.healthyTargets}/${result.summary.targetChannels}**`,
     `- Critical: **${result.summary.criticalIssues}**`,
     `- Warnings: **${result.summary.warnings}**`,
-    `- Scoped high-risk findings: **${result.summary.scopedHighRiskFindings}**`,
-    `- Merged into health: **${merged ? 'Yes' : 'No'}**`, '',
-    'GET-only audit; no Discord role or permission changes are performed.', ''
+    `- Unexpected scoped permission grants: **${result.summary.scopedHighRiskFindings} channel(s)**`,
+    `- Merged into health: **${merged ? 'Yes' : 'No'}**`, ''
   ];
+  if (result.scopedHighRiskFindings.length) {
+    lines.push('### Least-Privilege Findings', '');
+    for (const finding of result.scopedHighRiskFindings) {
+      lines.push(`- **#${finding.channelName}** (${finding.channelId}): ${finding.permissions.join(', ')}`);
+    }
+    lines.push('');
+  }
+  lines.push('GET-only audit; no Discord role or permission changes are performed.', '');
   fs.appendFileSync(STEP_SUMMARY, `${lines.join('\n')}\n`, 'utf8');
 }
 
@@ -193,6 +314,7 @@ async function main() {
   ]);
   const member = await discord(`/guilds/${DISCORD_GUILD_ID}/members/${me.id}`);
   const memberRoleIds = Array.isArray(member?.roles) ? member.roles.map(String) : [];
+  const roleNames = new Map((roles || []).map((role) => [String(role.id), String(role.name || 'Unnamed Role')]));
   const base = basePermissions(DISCORD_GUILD_ID, memberRoleIds, roles);
   const baseNames = permissionNames(base);
   const globalCritical = baseNames.filter((name) => CRITICAL.has(name));
@@ -203,19 +325,27 @@ async function main() {
   if (globalCritical.length) issues.push({ id: 'discord-permission-global-critical', severity: 'critical', system: 'Discord Permission Security', message: `Prohibited server-wide permissions: ${globalCritical.join(', ')}`, details: globalCritical });
   if (globalWarnings.length) issues.push({ id: 'discord-permission-global-warning', severity: 'warning', system: 'Discord Permission Security', message: `High-risk server-wide permissions should be channel-scoped: ${globalWarnings.join(', ')}`, details: globalWarnings });
 
-  const context = { guildId: DISCORD_GUILD_ID, memberId: String(me.id), memberRoleIds, base };
+  const { targets, roleMentionPolicy } = targetsForGuild(roles);
+  const context = { guildId: DISCORD_GUILD_ID, memberId: String(me.id), memberRoleIds, base, roleNames };
   const channelResults = [];
   const targetById = new Map();
-  for (const target of TARGETS) {
+  for (const target of targets) {
     const resolved = resolveTarget(target, channels, context);
     const selected = resolved.selected;
     channelResults.push({
       key: target.key,
       status: resolved.status,
       required: target.required,
+      allowedRisk: target.allowedRisk || [],
       candidateCount: resolved.candidates.length,
       satisfyingCandidates: resolved.candidates.filter((x) => x.satisfies).length,
-      channel: selected ? { id: String(selected.channel.id), name: String(selected.channel.name || ''), type: Number(selected.channel.type), missing: selected.missing, effectivePermissions: permissionNames(selected.effective) } : null
+      channel: selected ? {
+        id: String(selected.channel.id),
+        name: String(selected.channel.name || ''),
+        type: Number(selected.channel.type),
+        missing: selected.missing,
+        effectivePermissions: permissionNames(selected.effective)
+      } : null
     });
     checks.push({ check: `target-${target.key}`, ok: resolved.status === 'resolved' });
     if (resolved.status === 'resolved') {
@@ -231,10 +361,16 @@ async function main() {
 
   const scoped = scopedHighRiskFindings(channels, targetById, context);
   checks.push({ check: 'scoped-high-risk-only-where-required', ok: !scoped.length, details: scoped });
-  if (scoped.length) issues.push({ id: 'discord-permission-scoped-high-risk', severity: 'warning', system: 'Discord Permission Security', message: `High-risk permissions are effective outside approved scope in ${scoped.length} channel(s).`, details: scoped });
+  if (scoped.length) issues.push({
+    id: 'discord-permission-scoped-high-risk',
+    severity: 'warning',
+    system: 'Discord Permission Security',
+    message: `High-risk Discord permissions exceed the verified Kings Automation scope in ${scoped.length} channel(s).`,
+    details: scoped
+  });
 
   const result = {
-    version: 2,
+    version: 3,
     mode: 'read-only-discord-least-privilege-audit',
     checkedAt: nowISO(),
     status: statusFromIssues(issues),
@@ -246,7 +382,7 @@ async function main() {
       criticalIssues: issues.filter((x) => x.severity === 'critical').length,
       warnings: issues.filter((x) => x.severity === 'warning').length,
       guildChannelsInspected: Array.isArray(channels) ? channels.length : 0,
-      targetChannels: TARGETS.length,
+      targetChannels: targets.length,
       healthyTargets: channelResults.filter((x) => x.status === 'resolved').length,
       scopedHighRiskFindings: scoped.length
     },
@@ -254,21 +390,38 @@ async function main() {
     checks,
     bot: { id: String(me.id), username: String(me.username || '') },
     permissions: { globalCritical, globalWarnings },
+    roleMentionPolicy,
     channels: channelResults,
     scopedHighRiskFindings: scoped,
-    note: 'GET-only least-privilege audit. No Discord roles, permissions, members, kicks, bans, timeouts, promotions, demotions, or personnel actions are changed.'
+    note: 'GET-only least-privilege audit. Verified exceptions are restricted to operations present in the Kings Automation code. No Discord roles or permissions are changed.'
   };
   writeJson(OUTPUT_FILE, result);
   const merged = mergeIntoHealth(result);
   writeSummary(result, merged);
-  console.log(`Kings Discord Permission Audit v2: ${result.status}`);
+  console.log(`Kings Discord Permission Audit v3: ${result.status}`);
   console.log(`Checks: ${result.summary.healthyChecks}/${result.summary.checks}`);
   console.log(`Targets: ${result.summary.healthyTargets}/${result.summary.targetChannels}`);
   console.log(`Guild channels inspected: ${result.summary.guildChannelsInspected}`);
-  console.log(`Global critical: ${globalCritical.length}; global warnings: ${globalWarnings.length}; scoped high-risk: ${scoped.length}`);
+  console.log(`Global critical: ${globalCritical.length}; global warnings: ${globalWarnings.length}; unexpected scoped: ${scoped.length}`);
+  console.log(`Role mention policy: ${JSON.stringify(roleMentionPolicy)}`);
   for (const target of channelResults) console.log(`- ${target.key}: ${target.status}${target.channel ? ` | #${target.channel.name} (${target.channel.id})${target.channel.missing.length ? ` | missing ${target.channel.missing.join(', ')}` : ''}` : ''}`);
-  for (const finding of issues) console.log(`[${finding.severity.toUpperCase()}] ${finding.message}`);
+  for (const finding of scoped) console.log(`[LEAST-PRIVILEGE] #${finding.channelName} (${finding.channelId}): ${finding.permissions.join(', ')}`);
+  for (const finding of issues.filter((x) => x.id !== 'discord-permission-scoped-high-risk')) console.log(`[${finding.severity.toUpperCase()}] ${finding.message}`);
 }
 
 if (require.main === module) main().catch((error) => { console.error('Kings Discord Permission Audit failed:', error.message); process.exit(1); });
-module.exports = { PERMISSIONS, TARGETS, normalizeChannelName, permissionNames, hasPermission, basePermissions, effectiveChannelPermissions, missingPermissions, resolveTarget, scopedHighRiskFindings };
+module.exports = {
+  PERMISSIONS,
+  BASE_TARGETS,
+  normalizeChannelName,
+  permissionNames,
+  hasPermission,
+  basePermissions,
+  effectiveChannelPermissions,
+  missingPermissions,
+  resolveTarget,
+  roleMentionRequiresPermission,
+  targetsForGuild,
+  permissionGrantSources,
+  scopedHighRiskFindings
+};
