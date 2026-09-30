@@ -46,6 +46,7 @@ function main() {
     rebaseLatestRemote: safePush.includes('git rebase "origin/$BRANCH"'),
     abortOnConflict: safePush.includes('git rebase --abort'),
     jsonValidationAfterRebase: safePush.includes('validate_rebased_json'),
+    strictRemoteGuard: safePush.includes('GIT_SAFE_PUSH_EXPECT_REMOTE') && safePush.includes('strict-remote guard'),
     explicitHeadPush: safePush.includes('git push origin "HEAD:$BRANCH"')
   };
 
@@ -68,13 +69,29 @@ function main() {
     const directPushes = [...source.matchAll(/\bgit\s+push\b/g)].length;
     const broadGitAdd = /(?:^|\n)\s*git\s+add\s+(?:-A\s+)?\.\s*(?:\n|$)/m.test(source);
 
+    const recoveryFetches = [...source.matchAll(/git\s+fetch\s+origin\s+main/g)].length;
+    const recoveryHeadChecks = [...source.matchAll(/REMOTE_HEAD=\$\(git rev-parse origin\/main\)/g)].length;
+    const recoveryDriftGuards = [...source.matchAll(/\[\s*"\$REMOTE_HEAD"\s*!=\s*"\$INITIAL_HEAD"\s*\]/g)].length;
+    const hasForcedPush = /git\s+push[^\n]*(?:--force|-f\b)/.test(source);
+    const strictRecoveryProtection =
+      name === 'core-recovery.yml' &&
+      hasCommit &&
+      directPushes === 1 &&
+      !hasForcedPush &&
+      recoveryFetches >= 2 &&
+      recoveryHeadChecks >= 2 &&
+      recoveryDriftGuards >= 2 &&
+      source.includes('git push origin HEAD:main');
+
+    const protectedWrite = usesSafePush || strictRecoveryProtection;
+
     if (hasCommit) {
       commitWorkflows += 1;
-      if (usesSafePush) protectedCommitWorkflows += 1;
-      else issues.push(`State-writing workflow does not use safe push: ${name}.`);
+      if (protectedWrite) protectedCommitWorkflows += 1;
+      else issues.push(`State-writing workflow lacks conflict-safe push protection: ${name}.`);
     }
 
-    if (directPushes > 0) {
+    if (directPushes > 0 && !strictRecoveryProtection) {
       issues.push(`Workflow contains direct git push instead of safe helper: ${name}.`);
     }
 
@@ -85,7 +102,13 @@ function main() {
     workflows.push({
       file: name,
       commits: hasCommit,
+      protectionMode: usesSafePush
+        ? 'safe-push-helper'
+        : strictRecoveryProtection
+          ? 'strict-recovery-drift-guard-plus-non-force-push'
+          : null,
       usesSafePush,
+      strictRecoveryProtection,
       directPushes,
       broadGitAdd
     });
@@ -93,7 +116,7 @@ function main() {
 
   if (commitWorkflows === 0) issues.push('No state-writing workflows were detected; verifier assumptions may be wrong.');
   if (protectedCommitWorkflows !== commitWorkflows) {
-    issues.push(`Only ${protectedCommitWorkflows}/${commitWorkflows} state-writing workflows use safe push.`);
+    issues.push(`Only ${protectedCommitWorkflows}/${commitWorkflows} state-writing workflows have conflict-safe push protection.`);
   }
 
   const report = {
