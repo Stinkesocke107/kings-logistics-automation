@@ -6,6 +6,7 @@ const MIN_INTERVAL_MS = 5 * 60 * 60 * 1000;
 const MAX_UPDATES_PER_DAY = 2;
 const DAY_TIME_ZONE = 'Europe/Berlin';
 const MARKER = 'Kings Driver Leadership Overview';
+const WRITE_MODE = String(process.env.DRIVER_LEADERSHIP_WRITE_MODE || 'final').trim().toLowerCase();
 
 const originalFetch = globalThis.fetch;
 let suppressedReason = null;
@@ -124,6 +125,16 @@ globalThis.fetch = async function kingsLeadershipRateLimitedFetch(input, init = 
     return originalFetch(input, init);
   }
 
+  if (WRITE_MODE === 'suppress') {
+    suppressedReason = 'base Driver Management write suppressed; final LOA stage owns Leadership Overview delivery';
+    console.log(`Driver Leadership overview skipped: ${suppressedReason}.`);
+    return syntheticSuccess();
+  }
+
+  if (WRITE_MODE === 'passthrough') {
+    return originalFetch(input, init);
+  }
+
   const now = new Date();
   const gate = eligibility(now);
 
@@ -162,6 +173,7 @@ module.exports = {
   MIN_INTERVAL_MS,
   MAX_UPDATES_PER_DAY,
   DAY_TIME_ZONE,
+  WRITE_MODE,
   berlinDayKey,
   normalizeState,
   eligibility,
