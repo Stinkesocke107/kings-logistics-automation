@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "status": "VERIFIED-LIVE-MONTHLY-2026-09",
+  "targetMonth": {
+    "key": "2026-09",
+    "label": "September 2026",
+    "start": "2026-09-01T00:00:00.000Z",
+    "end": "2026-10-01T00:00:00.000Z"
+  },
+  "discordWebhookId": "1543557172644937729",
+  "discordChannelId": "1479853315264217202",
+  "discordMessageId": "1555158837437272125",
+  "officialReportMatches": 1,
+  "stateEntry": {
+    "key": "2026-09",
+    "month": "September 2026",
+    "publishedAt": "2026-10-01T10:06:10.074Z",
+    "startMembers": 110,
+    "endMembers": 108,
+    "growth": -2,
+    "joined": null,
+    "left": null,
+    "netDriverGrowth": null,
+    "nameChanges": null,
+    "driverHistoryComplete": false,
+    "driverHistoryInitializedAt": "2026-09-17T22:19:52.000Z",
+    "peakOnline": 8,
+    "peakETS2": 8,
+    "peakATS": 1,
+    "mostUsedServer": "ETS2 — Simulation 1",
+    "milestones": [],
+    "discordMessageId": "1555158837437272125",
+    "discordChannelId": "1479853315264217202"
+  },
+  "verifiedAt": "2026-10-01T17:17:26.247Z"
+}
