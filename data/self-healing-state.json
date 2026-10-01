@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "technical-safe-self-healing",
-  "updatedAt": "2026-10-01T14:48:09.791Z",
+  "updatedAt": "2026-10-01T19:52:42.442Z",
   "repairs": {
     "live-tracker": {
       "attempts": [
@@ -49,10 +49,19 @@
           "issueIds": [
             "workflow-overdue:driver-updates.yml"
           ]
+        },
+        {
+          "at": "2026-10-01T19:52:42.442Z",
+          "outcome": "recovered",
+          "action": "dispatched",
+          "runId": 36917477760,
+          "issueIds": [
+            "workflow-overdue:driver-updates.yml"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-10-01T14:48:09.791Z",
-      "lastSuccessAt": "2026-10-01T14:48:09.791Z",
+      "lastAttemptAt": "2026-10-01T19:52:42.442Z",
+      "lastSuccessAt": "2026-10-01T19:52:42.442Z",
       "lastFailureAt": null
     },
     "core-backup": {
