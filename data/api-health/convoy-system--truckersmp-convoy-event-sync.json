@@ -5,11 +5,11 @@
   "healthKey": "convoy-system--truckersmp-convoy-event-sync",
   "status": "healthy",
   "consecutiveFailures": 0,
-  "lastSuccessAt": "2026-10-01T08:53:19.739Z",
-  "recoveredAt": "2026-10-01T08:53:19.740Z",
+  "lastSuccessAt": "2026-10-01T09:08:16.457Z",
+  "recoveredAt": "2026-10-01T09:08:16.457Z",
   "lastError": null,
   "circuitOpenUntil": null,
-  "updatedAt": "2026-10-01T08:53:19.740Z",
-  "lastFailureAt": "2026-10-01T08:53:19.068Z",
+  "updatedAt": "2026-10-01T09:08:16.457Z",
+  "lastFailureAt": "2026-10-01T09:08:16.050Z",
   "lastErrorCode": null
 }
