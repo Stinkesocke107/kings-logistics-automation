@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "createdAt": "2026-10-01T10:05:59.528Z",
+  "updatedAt": "2026-10-01T10:06:10.074Z",
+  "publishedMonths": [
+    {
+      "key": "2026-09",
+      "month": "September 2026",
+      "publishedAt": "2026-10-01T10:06:10.074Z",
+      "startMembers": 110,
+      "endMembers": 108,
+      "growth": -2,
+      "joined": null,
+      "left": null,
+      "netDriverGrowth": null,
+      "nameChanges": null,
+      "driverHistoryComplete": false,
+      "driverHistoryInitializedAt": "2026-09-17T22:19:52.000Z",
+      "peakOnline": 8,
+      "peakETS2": 8,
+      "peakATS": 1,
+      "mostUsedServer": "ETS2 — Simulation 1",
+      "milestones": [],
+      "discordMessageId": "1555158837437272125",
+      "discordChannelId": "1479853315264217202"
+    }
+  ]
+}
