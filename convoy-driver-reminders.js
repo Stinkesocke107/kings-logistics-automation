@@ -194,10 +194,8 @@ function buildReminder(item, marker, title, description, driverRoleId) {
 }
 
 async function sendReminder(channelId, item, marker, title, description, botId, driverRoleId) {
-  const existing = await findExistingReminder(channelId, item, marker, botId);
-  if (existing) return { action: 'already-sent', messageId: existing.id };
-
   const content = buildReminder(item, marker, title, description, driverRoleId);
+  const existing = await findExistingReminder(channelId, item, marker, botId);
 
   if (DRY_RUN) {
     if (!content.includes(`<@&${driverRoleId}>`)) {
@@ -206,7 +204,27 @@ async function sendReminder(channelId, item, marker, title, description, botId, 
     if (/@everyone|@here/i.test(content)) {
       throw new Error('Dry-run safety check failed: internal reminder contains a forbidden broad mention.');
     }
-    return { action: 'dry-run', messageId: null };
+    return { action: existing ? 'dry-run-update' : 'dry-run', messageId: existing?.id || null };
+  }
+
+  if (existing) {
+    const branded = require('./kings-branding').brandMessageContent(content).trim();
+    if (String(existing.content || '').trim() === branded) {
+      return { action: 'already-current', messageId: existing.id };
+    }
+
+    const updated = await discord(`/channels/${channelId}/messages/${existing.id}`, {
+      method: 'PATCH',
+      body: {
+        content,
+        allowed_mentions: {
+          parse: [],
+          roles: [driverRoleId]
+        }
+      }
+    });
+
+    return { action: 'updated', messageId: updated?.id || existing.id };
   }
 
   const sent = await discord(`/channels/${channelId}/messages`, {
