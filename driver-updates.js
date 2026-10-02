@@ -661,7 +661,6 @@ function buildJoinMessage(member) {
     `**Kings Family** ` +
     `<:Kings_Logistics_Logo:1545254529648431124> ` +
     `as a **Driver**! ` +
-    `<:Cute_kings:1465424971143708702> ` +
     `We’re happy to have you with us — enjoy your time in the Kings Family! ` +
     `<:pepe_king:1465424883679891586>`
   );
