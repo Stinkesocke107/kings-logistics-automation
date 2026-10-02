@@ -4,10 +4,16 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const SOURCE_FORUM_ID = process.env.DISCORD_KINGS_CONVOY_SOURCE_FORUM_ID || '1506133821693755502';
 const ANNOUNCEMENT_CHANNEL_ID = process.env.DISCORD_KINGS_CONVOY_ANNOUNCEMENT_CHANNEL_ID || '1351613882791366838';
+const INTERNAL_CHANNEL_ID = process.env.DISCORD_KINGS_CONVOY_INTERNAL_CHANNEL_ID || '1550997669596631200';
+const DRIVER_ROLE_ID = process.env.DISCORD_DRIVER_ROLE_ID || '1476774746480709675';
 const TMP_API_BASE = process.env.TRUCKERSMP_API_BASE || 'https://api.truckersmp.com/v2';
 
 const MARKER_2H = '📣 **Kings Convoy Announcement — 2 Hours**';
+const MARKER_NOW = '📣 **Kings Convoy Announcement — Starting Now**';
+const MARKER_INTERNAL_2H = '🚛 **Kings Convoy Internal Announcement — 2 Hours**';
+const MARKER_INTERNAL_NOW = '🚛 **Kings Convoy Internal Announcement — Starting Now**';
 const WINDOW_2H = 2 * 60 * 60;
+const RECOVERY_GRACE = 2 * 60 * 60;
 
 if (!TOKEN) {
   console.error('Missing DISCORD_BOT_TOKEN.');
@@ -329,23 +335,30 @@ function detailsFrom(event, messages) {
   };
 }
 
-function eventMarker(eventId) {
-  return `${MARKER_2H}\n🔗 **Event ID:** \`${eventId}\``;
+function eventIdMarker(eventId) {
+  return `🔗 **Event ID:** \`${eventId}\``;
 }
 
-async function findExistingAnnouncement(eventId, botId) {
-  const lookup = eventMarker(eventId);
+function eventMarker(marker, eventId) {
+  return `${marker}\n${eventIdMarker(eventId)}`;
+}
+
+async function findExistingMessage(channelId, eventId, botId, internal = false) {
+  const lookup = eventIdMarker(eventId);
+  const label = internal ? 'Kings Convoy Internal Announcement' : 'Kings Convoy Announcement';
   let before = null;
 
   for (let page = 0; page < 10; page += 1) {
     const query = new URLSearchParams({ limit: '100' });
     if (before) query.set('before', before);
 
-    const messages = await discord(`/channels/${ANNOUNCEMENT_CHANNEL_ID}/messages?${query.toString()}`);
+    const messages = await discord(`/channels/${channelId}/messages?${query.toString()}`);
     if (!Array.isArray(messages) || messages.length === 0) return null;
 
     const found = messages.find((message) =>
-      message.author?.id === botId && (message.content || '').includes(lookup)
+      message.author?.id === botId &&
+      (message.content || '').includes(lookup) &&
+      (message.content || '').includes(label)
     );
     if (found) return found;
 
@@ -356,17 +369,21 @@ async function findExistingAnnouncement(eventId, botId) {
   throw new Error('Announcement history limit reached; duplicate protection is inconclusive.');
 }
 
-function buildContent({ eventId, name, details }) {
+function buildPublicContent({ eventId, name, details, startingNow, hasRouteImage }) {
   const eventUrl = `https://truckersmp.com/events/${eventId}`;
+  const marker = startingNow ? MARKER_NOW : MARKER_2H;
+  const intro = startingNow
+    ? 'The Kings Logistics convoy Meeting Time has arrived. Join us now and get ready to hit the road! 👑🚛'
+    : 'Our Kings Logistics convoy Meeting Time is now within 2 hours. Get ready to join us on the road! 👑🚛';
 
   return [
-    eventMarker(eventId),
+    eventMarker(marker, eventId),
     '',
     '@everyone',
     '',
     `# 👑 KINGS LOGISTICS | ${name}`,
     '',
-    'Our Kings Logistics convoy Meeting Time is now within 2 hours. Get ready to join us on the road! 👑🚛',
+    intro,
     '',
     details.meetingUnix ? `📅 **Date:** <t:${details.meetingUnix}:D>` : null,
     details.meetingUnix ? `🕒 **Meeting Time:** <t:${details.meetingUnix}:t> · <t:${details.meetingUnix}:R>` : null,
@@ -378,10 +395,36 @@ function buildContent({ eventId, name, details }) {
     details.dlcs ? `🧩 **Required DLCs:** ${details.dlcs}` : null,
     '',
     `🔗 **TruckersMP Event:** ${eventUrl}`,
-    '',
-    '🗺️ **Route Map**',
+    hasRouteImage ? '' : null,
+    hasRouteImage ? '🗺️ **Route Map**' : null,
     '',
     '💙 **Kings Logistics — Connecting the world, creating friendships.**'
+  ].filter((value) => value !== null && value !== undefined).join('\n');
+}
+
+function buildInternalContent({ eventId, name, details, startingNow }) {
+  const eventUrl = `https://truckersmp.com/events/${eventId}`;
+  const marker = startingNow ? MARKER_INTERNAL_NOW : MARKER_INTERNAL_2H;
+  const intro = startingNow
+    ? 'Meeting Time has arrived. Please join the server now and be ready at the meeting point.'
+    : 'Meeting Time is within 2 hours. Please prepare and make sure you arrive before the meeting time.';
+
+  return [
+    eventMarker(marker, eventId),
+    '',
+    `<@&${DRIVER_ROLE_ID}>`,
+    '',
+    `# 🚛 ${name}`,
+    '',
+    intro,
+    '',
+    details.meetingUnix ? `🕒 **Meeting Time:** <t:${details.meetingUnix}:F> · <t:${details.meetingUnix}:R>` : null,
+    details.departureUnix ? `🕘 **Departure Time:** <t:${details.departureUnix}:t>` : null,
+    details.server ? `🎙️ **Server:** ${details.server}` : null,
+    details.route ? `📍 **Route:** ${details.route}` : null,
+    `🔗 **TruckersMP Event:** ${eventUrl}`,
+    '',
+    'Please be ready and represent Kings Logistics professionally. 💙'
   ].filter((value) => value !== null && value !== undefined).join('\n');
 }
 
@@ -394,7 +437,17 @@ function safeRouteFilename(filename, contentType) {
   return `${base}.png`;
 }
 
-async function sendAnnouncement(content, routeImage) {
+async function sendPublicAnnouncement(content, routeImage) {
+  if (!routeImage) {
+    return discord(`/channels/${ANNOUNCEMENT_CHANNEL_ID}/messages`, {
+      method: 'POST',
+      body: {
+        content,
+        allowed_mentions: { parse: ['everyone'] }
+      }
+    });
+  }
+
   const imageResponse = await resilientFetch(
     routeImage.url,
     {
@@ -403,7 +456,7 @@ async function sendAnnouncement(content, routeImage) {
       timeoutMs: 15000,
       fetchOptions: {
         headers: {
-          'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.2'
+          'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.3'
         }
       }
     }
@@ -424,7 +477,7 @@ async function sendAnnouncement(content, routeImage) {
     method: 'POST',
     headers: {
       Authorization: `Bot ${TOKEN}`,
-      'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.1'
+      'User-Agent': 'Kings Logistics Kings Convoy Announcements/1.3'
     },
     body: form,
     signal: AbortSignal.timeout(20000)
@@ -442,10 +495,24 @@ async function sendAnnouncement(content, routeImage) {
   }
 }
 
+async function sendInternalAnnouncement(content) {
+  return discord(`/channels/${INTERNAL_CHANNEL_ID}/messages`, {
+    method: 'POST',
+    body: {
+      content,
+      allowed_mentions: {
+        parse: [],
+        roles: [DRIVER_ROLE_ID]
+      }
+    }
+  });
+}
+
 async function main() {
   const bot = await discord('/users/@me');
   const sourceForum = await discord(`/channels/${SOURCE_FORUM_ID}`);
   const targetChannel = await discord(`/channels/${ANNOUNCEMENT_CHANNEL_ID}`);
+  const internalChannel = await discord(`/channels/${INTERNAL_CHANNEL_ID}`);
 
   if (sourceForum.guild_id && sourceForum.guild_id !== GUILD_ID) {
     throw new Error(`Kings convoy source forum ${SOURCE_FORUM_ID} does not belong to guild ${GUILD_ID}.`);
@@ -453,15 +520,20 @@ async function main() {
   if (targetChannel.guild_id && targetChannel.guild_id !== GUILD_ID) {
     throw new Error(`Kings convoy announcement channel ${ANNOUNCEMENT_CHANNEL_ID} does not belong to guild ${GUILD_ID}.`);
   }
+  if (internalChannel.guild_id && internalChannel.guild_id !== GUILD_ID) {
+    throw new Error(`Kings convoy internal channel ${INTERNAL_CHANNEL_ID} does not belong to guild ${GUILD_ID}.`);
+  }
 
   const entries = await listSourceEntries(sourceForum);
   const nowUnix = Math.floor(Date.now() / 1000);
-  let sent2h = 0;
+  let publicSent = 0;
+  let internalSent = 0;
   let skipped = 0;
   let failed = 0;
 
   console.log(`Kings convoy source forum: ${sourceForum.name || SOURCE_FORUM_ID} (${SOURCE_FORUM_ID})`);
-  console.log(`Kings convoy announcement channel: ${targetChannel.name || ANNOUNCEMENT_CHANNEL_ID} (${ANNOUNCEMENT_CHANNEL_ID})`);
+  console.log(`Kings convoy public channel: ${targetChannel.name || ANNOUNCEMENT_CHANNEL_ID} (${ANNOUNCEMENT_CHANNEL_ID})`);
+  console.log(`Kings convoy internal channel: ${internalChannel.name || INTERNAL_CHANNEL_ID} (${INTERNAL_CHANNEL_ID})`);
   console.log(`Kings convoy source entries found: ${entries.length}`);
 
   for (const entry of entries) {
@@ -483,49 +555,63 @@ async function main() {
       }
 
       const secondsUntilMeeting = details.meetingUnix - nowUnix;
-      if (secondsUntilMeeting <= 0 || secondsUntilMeeting > WINDOW_2H) {
+      if (secondsUntilMeeting > WINDOW_2H || secondsUntilMeeting < -RECOVERY_GRACE) {
         skipped += 1;
         continue;
       }
 
       if (!details.departureUnix || details.departureUnix < details.meetingUnix ||
           !details.server || !locationLabel(event.departure) || !locationLabel(event.arrive)) {
-        throw new Error('Public convoy requires a valid departure time, server, start and destination.');
+        throw new Error('Convoy announcement requires a valid departure time, server, start and destination.');
       }
 
+      const startingNow = secondsUntilMeeting <= 0;
       const routeImage = findRouteImage(messages);
       if (!routeImage) {
-        throw new Error('Route image required in the announcement window (slot/booking images are ignored).');
+        console.log(`- ${entry.name} | no route image found; sending verified text-only announcement.`);
       }
 
-      const existing = await findExistingAnnouncement(eventId, bot.id);
-      if (existing) {
-        console.log(`- ${entry.name} | 2h Kings announcement: already-sent`);
-        skipped += 1;
-        continue;
-      }
-
+      const existingPublic = await findExistingMessage(ANNOUNCEMENT_CHANNEL_ID, eventId, bot.id, false);
+      const existingInternal = await findExistingMessage(INTERNAL_CHANNEL_ID, eventId, bot.id, true);
       const name = displayName(entry, event);
-      const content = buildContent({ eventId, name, details });
-      if (require('./kings-branding').brandMessageContent(content).length > 2000) {
-        throw new Error('Public convoy announcement exceeds Discord message length.');
+
+      if (!existingPublic) {
+        const publicContent = buildPublicContent({ eventId, name, details, startingNow, hasRouteImage: Boolean(routeImage) });
+        if (require('./kings-branding').brandMessageContent(publicContent).length > 2000) {
+          throw new Error('Public convoy announcement exceeds Discord message length.');
+        }
+        const sent = await sendPublicAnnouncement(publicContent, routeImage);
+        console.log(`- ${entry.name} | public announcement sent: ${sent?.id || 'unknown'}`);
+        publicSent += 1;
+      } else {
+        console.log(`- ${entry.name} | public announcement: already-sent (${existingPublic.id})`);
       }
-      const sent = await sendAnnouncement(content, routeImage);
-      console.log(`- ${entry.name} | 2h Kings announcement sent: ${sent?.id || 'unknown'}`);
-      sent2h += 1;
+
+      if (!existingInternal) {
+        const internalContent = buildInternalContent({ eventId, name, details, startingNow });
+        if (require('./kings-branding').brandMessageContent(internalContent).length > 2000) {
+          throw new Error('Internal convoy announcement exceeds Discord message length.');
+        }
+        const sent = await sendInternalAnnouncement(internalContent);
+        console.log(`- ${entry.name} | internal announcement sent: ${sent?.id || 'unknown'}`);
+        internalSent += 1;
+      } else {
+        console.log(`- ${entry.name} | internal announcement: already-sent (${existingInternal.id})`);
+      }
+
+      if (existingPublic && existingInternal) skipped += 1;
     } catch (error) {
       failed += 1;
       console.warn(
-        `- ${entry.name} | Kings convoy announcement safely deferred; no post/state change made: ${error.message}`
+        `- ${entry.name} | Kings convoy announcement failed safely: ${error.message}`
       );
     }
   }
 
   console.log(
-    `Kings Convoy Announcements finished. 2h sent: ${sent2h}. Skipped: ${skipped}. Failed: ${failed}.`
+    `Kings Convoy Announcements finished. Public sent: ${publicSent}. Internal sent: ${internalSent}. Skipped: ${skipped}. Failed: ${failed}.`
   );
   if (failed > 0) process.exitCode = 1;
-
 }
 
 main().catch((error) => {
