@@ -13,7 +13,7 @@ test('convoy pipeline: submission → API sync → approval → reminder → fol
   ];
   const reminders=[];
   let nextId=300;
-  let event={id:42,meetup_at:new Date(Date.now()+1800000).toISOString(),start_at:new Date(Date.now()+3600000).toISOString(),departure:{city:'Berlin'},arrive:{city:'Prague'},server:'Simulation 1',vtc:{name:'Kings Logistics'}};
+  let event={id:42,name:'Kings Logistics Monthly Convoy #Test',meetup_at:new Date(Date.now()+1800000).toISOString(),start_at:new Date(Date.now()+3600000).toISOString(),departure:{city:'Berlin'},arrive:{city:'Prague'},server:'Simulation 1',vtc:{name:'Kings Logistics'}};
   let files={};
   const transport=async(url,opts={})=>{
     const pathname=new URL(url).pathname,method=opts.method||'GET';
@@ -58,6 +58,8 @@ test('convoy pipeline: submission → API sync → approval → reminder → fol
   await stage('convoy-driver-reminders.js');
   assert.equal(reminders.length,1);
   assert.match(reminders[0].content,/1 Hour/);
+  assert.match(reminders[0].content,/Convoy:\*\* Kings Logistics Monthly Convoy #Test/);
+  assert.match(reminders[0].content,/Kings Slot:\*\* Slot 5/);
   await stage('convoy-overview.js');
   assert.equal(JSON.parse(files['output/convoy-overview.json']).overall.upcomingScheduledConvoys,1);
   // Advance fixture event past the follow-up and archive thresholds.
