@@ -329,7 +329,9 @@ function detailsFrom(event, messages) {
     meetingUnix: unixFromDate(event?.meetup_at),
     departureUnix: unixFromDate(event?.start_at),
     server: eventServer(event) || getFieldValue(messages, ['Server', 'Event Server']),
-    route: route || getFieldValue(messages, ['Route']),
+    meetingPoint: getFieldValue(messages, ['Meeting Point', 'Meetup', 'Meeting Location']) || departure,
+    route: getFieldValue(messages, ['Route']) || route,
+    kingsSlot: getFieldValue(messages, ['Kings Slot', 'Kings Parking', 'Our Slot']),
     routeLength: getFieldValue(messages, ['Route Length', 'Distance', 'Route Distance']),
     dlcs: getFieldValue(messages, ['Required DLCs', 'DLCs', 'Required DLC'])
   };
@@ -405,26 +407,29 @@ function buildPublicContent({ eventId, name, details, startingNow, hasRouteImage
 function buildInternalContent({ eventId, name, details, startingNow }) {
   const eventUrl = `https://truckersmp.com/events/${eventId}`;
   const marker = startingNow ? MARKER_INTERNAL_NOW : MARKER_INTERNAL_2H;
+  const title = startingNow ? '🚨 Convoy Reminder — Starting Now' : '⏰ Convoy Reminder — 2 Hours';
   const intro = startingNow
-    ? 'Meeting Time has arrived. Please join the server now and be ready at the meeting point.'
-    : 'Meeting Time is within 2 hours. Please prepare and make sure you arrive before the meeting time.';
+    ? 'The convoy Meeting Time has arrived. Please join the server now and be ready at the meeting point.'
+    : 'The convoy Meeting Time is now within 2 hours. Please check the details below and make sure you are prepared.';
 
   return [
     eventMarker(marker, eventId),
     '',
     `<@&${DRIVER_ROLE_ID}>`,
     '',
-    `# 🚛 ${name}`,
+    `# ${title}`,
     '',
     intro,
     '',
+    `🚛 **Convoy:** ${name}`,
     details.meetingUnix ? `🕒 **Meeting Time:** <t:${details.meetingUnix}:F> · <t:${details.meetingUnix}:R>` : null,
-    details.departureUnix ? `🕘 **Departure Time:** <t:${details.departureUnix}:t>` : null,
     details.server ? `🎙️ **Server:** ${details.server}` : null,
-    details.route ? `📍 **Route:** ${details.route}` : null,
+    details.meetingPoint ? `📍 **Meeting Point:** ${details.meetingPoint}` : null,
+    details.route ? `🗺️ **Route:** ${details.route}` : null,
+    details.kingsSlot ? `🚚 **Kings Slot:** ${details.kingsSlot}` : null,
     `🔗 **TruckersMP Event:** ${eventUrl}`,
     '',
-    'Please be ready and represent Kings Logistics professionally. 💙'
+    'Please make sure you are ready and arrive before the meeting time. 💙'
   ].filter((value) => value !== null && value !== undefined).join('\n');
 }
 
@@ -498,6 +503,19 @@ async function sendPublicAnnouncement(content, routeImage) {
 async function sendInternalAnnouncement(content) {
   return discord(`/channels/${INTERNAL_CHANNEL_ID}/messages`, {
     method: 'POST',
+    body: {
+      content,
+      allowed_mentions: {
+        parse: [],
+        roles: [DRIVER_ROLE_ID]
+      }
+    }
+  });
+}
+
+async function updateInternalAnnouncement(messageId, content) {
+  return discord(`/channels/${INTERNAL_CHANNEL_ID}/messages/${messageId}`, {
+    method: 'PATCH',
     body: {
       content,
       allowed_mentions: {
@@ -587,16 +605,24 @@ async function main() {
         console.log(`- ${entry.name} | public announcement: already-sent (${existingPublic.id})`);
       }
 
+      if (!details.kingsSlot) {
+        throw new Error('Internal convoy reminder requires a Kings Slot; add "Kings Slot:" to the Kings convoy source entry.');
+      }
+
+      const internalContent = buildInternalContent({ eventId, name, details, startingNow });
+      if (require('./kings-branding').brandMessageContent(internalContent).length > 2000) {
+        throw new Error('Internal convoy announcement exceeds Discord message length.');
+      }
+
       if (!existingInternal) {
-        const internalContent = buildInternalContent({ eventId, name, details, startingNow });
-        if (require('./kings-branding').brandMessageContent(internalContent).length > 2000) {
-          throw new Error('Internal convoy announcement exceeds Discord message length.');
-        }
         const sent = await sendInternalAnnouncement(internalContent);
-        console.log(`- ${entry.name} | internal announcement sent: ${sent?.id || 'unknown'}`);
+        console.log(`- ${entry.name} | internal reminder sent: ${sent?.id || 'unknown'} | Kings Slot: ${details.kingsSlot}`);
         internalSent += 1;
+      } else if (String(existingInternal.content || '').trim() !== require('./kings-branding').brandMessageContent(internalContent).trim()) {
+        await updateInternalAnnouncement(existingInternal.id, internalContent);
+        console.log(`- ${entry.name} | internal reminder updated: ${existingInternal.id} | Kings Slot: ${details.kingsSlot}`);
       } else {
-        console.log(`- ${entry.name} | internal announcement: already-sent (${existingInternal.id})`);
+        console.log(`- ${entry.name} | internal reminder: already-current (${existingInternal.id})`);
       }
 
       if (existingPublic && existingInternal) skipped += 1;
