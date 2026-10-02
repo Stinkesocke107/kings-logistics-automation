@@ -9,7 +9,7 @@ const ANNOUNCEMENT_CHANNEL_ID = process.env.DISCORD_KINGS_CONVOY_ANNOUNCEMENT_CH
 const TMP_API_BASE = process.env.TRUCKERSMP_API_BASE || 'https://api.truckersmp.com/v2';
 const OUTPUT_FILE = path.join(__dirname, 'output', 'kings-convoy-announcement-verification.json');
 
-const MARKER_2H = '📣 **Kings Convoy Announcement — 2 Hours**';
+const PUBLIC_LABEL = 'Kings Convoy Announcement';
 const WINDOW_2H = 2 * 60 * 60;
 const DISCORD_API = 'https://discord.com/api/v10';
 
@@ -133,12 +133,12 @@ async function listSourceEntries(sourceChannel) {
   throw new Error(`Unsupported Kings convoy source channel type ${sourceChannel.type}.`);
 }
 
-function eventMarker(eventId) {
-  return `${MARKER_2H}\n🔗 **Event ID:** \`${eventId}\``;
+function eventIdMarker(eventId) {
+  return `🔗 **Event ID:** \`${eventId}\``;
 }
 
 async function findAnnouncement(eventId, botId) {
-  const lookup = eventMarker(eventId);
+  const lookup = eventIdMarker(eventId);
   let before = null;
 
   for (let page = 0; page < 10; page += 1) {
@@ -148,7 +148,9 @@ async function findAnnouncement(eventId, botId) {
     if (!Array.isArray(messages) || messages.length === 0) return null;
 
     const found = messages.find((message) =>
-      message.author?.id === botId && (message.content || '').includes(lookup)
+      message.author?.id === botId &&
+      (message.content || '').includes(lookup) &&
+      (message.content || '').includes(PUBLIC_LABEL)
     );
     if (found) return found;
     if (messages.length < 100) return null;
