@@ -165,7 +165,12 @@ function buildReminder(item, marker, title, description, driverRoleId) {
   const meetup = parsed.meetup || null;
   const slot = parsed.kingsSlot || null;
   const server = item.truckersmp?.server || parsed.server || null;
+  const convoyName = item.truckersmp?.name || item.name || 'Kings Convoy';
   const eventUrl = item.eventId ? `https://truckersmp.com/events/${item.eventId}` : null;
+
+  if (!slot) {
+    throw new Error('Internal Convoy Driver reminder requires a confirmed Kings Slot.');
+  }
 
   return [
     markerFor(item, marker),
@@ -176,7 +181,7 @@ function buildReminder(item, marker, title, description, driverRoleId) {
     '',
     description,
     '',
-    `🚛 **Convoy:** ${item.name || 'Kings Convoy'}`,
+    `🚛 **Convoy:** ${convoyName}`,
     `🕒 **Meeting Time:** ${discordTimestamp(item.eventUnix, 'F')} · ${discordTimestamp(item.eventUnix, 'R')}`,
     server ? `🎙️ **Server:** ${server}` : null,
     meetup ? `📍 **Meeting Point:** ${meetup}` : null,
