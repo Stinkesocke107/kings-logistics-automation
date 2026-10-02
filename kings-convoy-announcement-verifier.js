@@ -10,6 +10,7 @@ const TMP_API_BASE = process.env.TRUCKERSMP_API_BASE || 'https://api.truckersmp.
 const OUTPUT_FILE = path.join(__dirname, 'output', 'kings-convoy-announcement-verification.json');
 
 const PUBLIC_LABEL = 'Kings Convoy Announcement';
+// Recovery announcements are real production posts and are verified by Event ID + bot identity.
 const WINDOW_2H = 2 * 60 * 60;
 const DISCORD_API = 'https://discord.com/api/v10';
 
