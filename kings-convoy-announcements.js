@@ -606,7 +606,9 @@ async function main() {
       }
 
       if (!details.kingsSlot) {
-        throw new Error('Internal convoy reminder requires a Kings Slot; add "Kings Slot:" to the Kings convoy source entry.');
+        console.log(`- ${entry.name} | internal reminder deferred: Kings Slot is not available in the Kings source entry yet.`);
+        skipped += 1;
+        continue;
       }
 
       const internalContent = buildInternalContent({ eventId, name, details, startingNow });
