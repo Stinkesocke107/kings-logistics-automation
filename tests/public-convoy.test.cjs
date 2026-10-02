@@ -29,7 +29,7 @@ function publicFixture(mode='valid') {
   const messages=[{
     id:'101',
     author:{id:'1'},
-    content:'Event ID: 42\nRoute Map\nRequired DLCs: None',
+    content:'Event ID: 42\nKings Slot: Confirmed — Slot 5\nRoute Map\nRequired DLCs: None',
     timestamp:new Date().toISOString(),
     attachments:[{
       filename:mode==='slot-image'?'slot.png':'route.png',
@@ -37,7 +37,7 @@ function publicFixture(mode='valid') {
       url:'https://fixture.invalid/route.png'
     }]
   }];
-  if(mode==='slot-image') messages[0].content='Event ID: 42\nSlot Map';
+  if(mode==='slot-image') messages[0].content='Event ID: 42\nKings Slot: Confirmed — Slot 5\nSlot Map';
 
   if(mode==='duplicate') {
     publicPublished.push({
@@ -102,6 +102,8 @@ test('public and internal Kings announcements send once and suppress repeats',as
   assert.deepEqual(publicPublished[0].allowed_mentions.parse,['everyone']);
   assert.match(internalPublished[0].content,new RegExp(`<@&${driverRole}>`));
   assert.deepEqual(internalPublished[0].allowed_mentions.roles,[driverRole]);
+  assert.match(internalPublished[0].content,/Convoy:\*\* Monthly Convoy/);
+  assert.match(internalPublished[0].content,/Kings Slot:\*\* Confirmed — Slot 5/);
 
   await s.run('main()');
   assert.equal(publicPublished.length,1);
