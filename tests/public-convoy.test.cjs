@@ -85,6 +85,12 @@ function publicFixture(mode='valid') {
       return json({id:'600'});
     }
 
+    if(url.endsWith(`/channels/${internal}/messages/600`)&&method==='PATCH') {
+      const payload=JSON.parse(opts.body);
+      Object.assign(internalPublished[0],payload);
+      return json(internalPublished[0]);
+    }
+
     throw new Error(`Unexpected ${method} ${url}`);
   }});
   return {s,publicPublished,internalPublished};
