@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "namespace": "news-production-verifier",
+  "service": "truckersmp-news-proof",
+  "healthKey": "news-production-verifier--truckersmp-news-proof",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-10-03T22:15:42.600Z",
+  "recoveredAt": null,
+  "lastError": null,
+  "lastErrorCode": null,
+  "circuitOpenUntil": null,
+  "updatedAt": "2026-10-03T22:15:42.600Z"
+}
