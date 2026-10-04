@@ -12,7 +12,11 @@ const MODE = String(process.env.STAFF_PUBLIC_UPDATES_MODE || 'dry-run').trim().t
 
 const STATE_FILE = path.join(__dirname, 'data', 'staff-discord-updates.json');
 const SUMMARY_FILE = path.join(__dirname, 'data', 'staff-discord-updates-summary.json');
+const STAFF_MANAGEMENT_FILE = path.join(__dirname, 'data', 'staff-management.json');
+const LOYALTY_MAPPING_FILE = path.join(__dirname, 'data', 'driver-loyalty-roles.json');
 const STATE_DOMAIN = 'kings-staff-discord-updates-v1';
+const STAFF_MANAGEMENT_DOMAIN = 'kings-staff-management-v1';
+const LOYALTY_MAPPING_DOMAIN = 'kings-driver-loyalty-roles-v1';
 const DISCORD_API = 'https://discord.com/api/v10';
 
 const HIERARCHY = [
@@ -54,17 +58,17 @@ function writeJson(file, value) {
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
-function deriveKey() {
+function deriveKey(domain = STATE_DOMAIN) {
   return crypto
     .createHash('sha256')
-    .update(`${STATE_DOMAIN}\0`)
+    .update(`${domain}\0`)
     .update(String(STATE_KEY))
     .digest();
 }
 
 function encrypt(value) {
   const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv('aes-256-gcm', deriveKey(), iv);
+  const cipher = crypto.createCipheriv('aes-256-gcm', deriveKey(STATE_DOMAIN), iv);
   const plaintext = Buffer.from(JSON.stringify(value), 'utf8');
   const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
 
@@ -78,14 +82,14 @@ function encrypt(value) {
   };
 }
 
-function decrypt(container) {
+function decryptDomain(container, domain, label) {
   if (!container?.encrypted || container.algorithm !== 'aes-256-gcm') {
-    throw new Error('Staff Discord Updates state is not in the expected encrypted format.');
+    throw new Error(`${label} is not in the expected encrypted format.`);
   }
 
   const decipher = crypto.createDecipheriv(
     'aes-256-gcm',
-    deriveKey(),
+    deriveKey(domain),
     Buffer.from(container.iv, 'base64')
   );
   decipher.setAuthTag(Buffer.from(container.authTag, 'base64'));
@@ -98,10 +102,27 @@ function decrypt(container) {
   return JSON.parse(plaintext.toString('utf8'));
 }
 
+function decrypt(container) {
+  return decryptDomain(container, STATE_DOMAIN, 'Staff Discord Updates state');
+}
+
 function loadState() {
   const container = readJson(STATE_FILE, null);
   if (!container) return null;
   return decrypt(container);
+}
+
+function loadStaffManagementState() {
+  const container = readJson(STAFF_MANAGEMENT_FILE, null);
+  if (!container) throw new Error('TruckersMP Staff Management state is missing.');
+  return decryptDomain(container, STAFF_MANAGEMENT_DOMAIN, 'TruckersMP Staff Management state');
+}
+
+function loadLoyaltyMappings() {
+  const container = readJson(LOYALTY_MAPPING_FILE, null);
+  if (!container) return [];
+  const state = decryptDomain(container, LOYALTY_MAPPING_DOMAIN, 'Driver Loyalty mapping state');
+  return Array.isArray(state.mappings) ? state.mappings : [];
 }
 
 function normalize(value = '') {
@@ -161,6 +182,112 @@ async function listGuildMembers() {
   }
 
   return members.filter((member) => member?.user?.id && !member.user.bot);
+}
+
+function memberIdentityValues(member) {
+  return [
+    member?.nick,
+    member?.user?.global_name,
+    member?.user?.username
+  ]
+    .map(normalize)
+    .filter(Boolean);
+}
+
+function buildDiscordIdentityIndex(members) {
+  const index = new Map();
+
+  for (const member of members || []) {
+    if (!member?.user?.id || member.user.bot) continue;
+    for (const identity of new Set(memberIdentityValues(member))) {
+      const ids = index.get(identity) || new Set();
+      ids.add(String(member.user.id));
+      index.set(identity, ids);
+    }
+  }
+
+  return index;
+}
+
+function buildTruckersMpCrossCheck(staffState, loyaltyMappings, guildMembers) {
+  const currentTmpStaff = (Array.isArray(staffState?.staff) ? staffState.staff : [])
+    .filter((person) => person.currentStaff && Number.isFinite(Number(person.tmpId)));
+
+  const currentTmpIds = new Set(currentTmpStaff.map((person) => Number(person.tmpId)));
+  const guildMemberIds = new Set(
+    (guildMembers || []).map((member) => String(member?.user?.id || '')).filter(Boolean)
+  );
+  const identityIndex = buildDiscordIdentityIndex(guildMembers);
+
+  const verifiedDiscordByTmp = new Map();
+  for (const mapping of loyaltyMappings || []) {
+    const tmpId = Number(mapping?.tmpId);
+    const discordUserId = String(mapping?.discordUserId || '');
+    if (!Number.isFinite(tmpId) || !/^\d{15,22}$/.test(discordUserId)) continue;
+    if (!guildMemberIds.has(discordUserId)) continue;
+    verifiedDiscordByTmp.set(tmpId, discordUserId);
+  }
+
+  const byDiscord = new Map();
+  const unresolved = [];
+
+  for (const person of currentTmpStaff) {
+    const tmpId = Number(person.tmpId);
+    let discordUserId = verifiedDiscordByTmp.get(tmpId) || null;
+    let source = discordUserId ? 'verified-driver-mapping' : null;
+
+    if (!discordUserId) {
+      const candidates = [...(identityIndex.get(normalize(person.username)) || [])];
+      if (candidates.length === 1) {
+        discordUserId = String(candidates[0]);
+        source = 'unique-exact-name-match';
+      } else {
+        unresolved.push({
+          tmpId,
+          username: String(person.username || ''),
+          reason: candidates.length > 1 ? 'ambiguous-discord-name' : 'no-discord-match'
+        });
+        continue;
+      }
+    }
+
+    if (byDiscord.has(discordUserId)) {
+      unresolved.push({
+        tmpId,
+        username: String(person.username || ''),
+        reason: 'discord-account-already-linked-to-current-tmp-staff'
+      });
+      continue;
+    }
+
+    byDiscord.set(discordUserId, {
+      tmpId,
+      truckersmpUsername: String(person.username || ''),
+      truckersmpRoles: Array.isArray(person.roleNames) ? person.roleNames : [],
+      source
+    });
+  }
+
+  return {
+    currentTmpStaff,
+    currentTmpIds,
+    byDiscord,
+    unresolved
+  };
+}
+
+function enrichDiscordStaffWithTruckersMp(currentStaff, crossCheck) {
+  return currentStaff.map((person) => {
+    const match = crossCheck.byDiscord.get(String(person.discordUserId)) || null;
+    return {
+      ...person,
+      tmpId: match?.tmpId ?? person.tmpId ?? null,
+      truckersmpVerified: Boolean(match),
+      truckersmpUsername: match?.truckersmpUsername || person.truckersmpUsername || null,
+      truckersmpRoles: match?.truckersmpRoles || person.truckersmpRoles || [],
+      truckersmpMatchSource: match?.source || person.truckersmpMatchSource || null
+    };
+  });
 }
 
 function roleAssignmentCount(roleId, members) {
@@ -333,7 +460,7 @@ function eventKey(event) {
   ].join(':');
 }
 
-function detectChanges(previous, currentStaff) {
+function detectChanges(previous, currentStaff, currentTmpIds) {
   const previousMembers = new Map(
     (previous?.members || []).map((member) => [String(member.discordUserId), member])
   );
@@ -341,33 +468,61 @@ function detectChanges(previous, currentStaff) {
     currentStaff.map((member) => [String(member.discordUserId), member])
   );
   const changes = [];
+  const mismatches = [];
+  const nextMembers = new Map(previousMembers);
 
   for (const current of currentStaff) {
-    const old = previousMembers.get(String(current.discordUserId));
+    const id = String(current.discordUserId);
+    const old = previousMembers.get(id);
 
     if (!old || old.currentStaff === false) {
+      if (!current.truckersmpVerified) {
+        mismatches.push({
+          type: 'staff_joined',
+          discordUserId: id,
+          username: current.username,
+          reason: 'discord-staff-not-confirmed-by-truckersmp'
+        });
+        continue;
+      }
+
       changes.push({
         type: 'staff_joined',
-        discordUserId: current.discordUserId,
+        discordUserId: id,
         username: current.username,
+        tmpId: current.tmpId,
         oldHierarchyKey: null,
         oldRole: null,
         newHierarchyKey: current.hierarchyKey,
         newRole: current.primaryRole || current.hierarchyLabel
       });
+      nextMembers.set(id, current);
       continue;
     }
 
     if (Number(current.hierarchyLevel || 0) > Number(old.hierarchyLevel || 0)) {
+      if (!current.truckersmpVerified) {
+        mismatches.push({
+          type: 'staff_promoted',
+          discordUserId: id,
+          username: current.username,
+          reason: 'discord-promotion-not-confirmed-as-current-truckersmp-staff'
+        });
+        nextMembers.set(id, old);
+        continue;
+      }
+
       changes.push({
         type: 'staff_promoted',
-        discordUserId: current.discordUserId,
+        discordUserId: id,
         username: current.username,
+        tmpId: current.tmpId,
         oldHierarchyKey: old.hierarchyKey || null,
         oldRole: old.primaryRole || old.hierarchyLabel || 'Staff',
         newHierarchyKey: current.hierarchyKey,
         newRole: current.primaryRole || current.hierarchyLabel
       });
+      nextMembers.set(id, current);
       continue;
     }
 
@@ -377,23 +532,60 @@ function detectChanges(previous, currentStaff) {
         `${old.hierarchyLabel || 'Unknown'} -> ${current.hierarchyLabel || 'Unknown'} | no public promotion post`
       );
     }
+
+    if (current.truckersmpVerified) {
+      nextMembers.set(id, current);
+    } else {
+      nextMembers.set(id, { ...old, username: current.username });
+    }
   }
 
   for (const old of previousMembers.values()) {
-    if (old.currentStaff === false || currentMembers.has(String(old.discordUserId))) continue;
+    const id = String(old.discordUserId);
+    if (old.currentStaff === false || currentMembers.has(id)) continue;
+
+    const tmpId = Number(old.tmpId);
+    if (!Number.isFinite(tmpId)) {
+      mismatches.push({
+        type: 'staff_left',
+        discordUserId: id,
+        username: old.username,
+        reason: 'cannot-confirm-leave-without-truckersmp-link'
+      });
+      continue;
+    }
+
+    if (currentTmpIds.has(tmpId)) {
+      mismatches.push({
+        type: 'staff_left',
+        discordUserId: id,
+        username: old.username,
+        tmpId,
+        reason: 'discord-staff-role-removed-but-truckersmp-still-shows-current-staff'
+      });
+      continue;
+    }
 
     changes.push({
       type: 'staff_left',
-      discordUserId: String(old.discordUserId),
+      discordUserId: id,
       username: old.username,
+      tmpId,
       oldHierarchyKey: old.hierarchyKey || null,
       oldRole: old.primaryRole || old.hierarchyLabel || 'Staff',
       newHierarchyKey: null,
       newRole: null
     });
+    nextMembers.delete(id);
   }
 
-  return changes;
+  return {
+    changes,
+    mismatches,
+    nextMembers: [...nextMembers.values()]
+      .filter((member) => member?.currentStaff !== false)
+      .sort((a, b) => String(a.username || '').localeCompare(String(b.username || '')))
+  };
 }
 
 function buildPublicMessage(event) {
@@ -519,6 +711,8 @@ async function main() {
     discord(`/channels/${PUBLIC_CHANNEL_ID}`),
     discord('/users/@me')
   ]);
+  const staffManagementState = loadStaffManagementState();
+  const loyaltyMappings = loadLoyaltyMappings();
 
   if (String(channel.guild_id || '') !== String(DISCORD_GUILD_ID)) {
     throw new Error('Configured public Staff Updates channel does not belong to Kings Logistics.');
@@ -526,10 +720,12 @@ async function main() {
 
   const hierarchyRoles = resolveHierarchyRoles(roles, members);
   const roleById = new Map((roles || []).map((role) => [String(role.id), role]));
-  const currentStaff = members
+  const discordStaff = members
     .map((member) => memberStaffSnapshot(member, hierarchyRoles, roleById))
     .filter(Boolean)
     .sort((a, b) => a.username.localeCompare(b.username));
+  const crossCheck = buildTruckersMpCrossCheck(staffManagementState, loyaltyMappings, members);
+  const currentStaff = enrichDiscordStaffWithTruckersMp(discordStaff, crossCheck);
 
   console.log(`Discord members inspected: ${members.length}`);
   console.log(
@@ -540,9 +736,12 @@ async function main() {
       .join(', ')
   );
   console.log(`Current Staff detected from Discord roles: ${currentStaff.length}`);
+  console.log(`Current Staff confirmed by TruckersMP: ${crossCheck.currentTmpStaff.length}`);
+  console.log(`Discord Staff cross-confirmed with TruckersMP: ${currentStaff.filter((person) => person.truckersmpVerified).length}/${currentStaff.length}`);
+  if (crossCheck.unresolved.length) console.log(`TruckersMP Staff without a safe Discord match: ${crossCheck.unresolved.length}`);
   for (const person of currentStaff) {
     console.log(
-      `Staff member: ${person.username} | hierarchy: ${person.hierarchyLabel} | primary: ${person.primaryRole} | roles: ` +
+      `Staff member: ${person.username} | hierarchy: ${person.hierarchyLabel} | primary: ${person.primaryRole} | TMP: ${person.truckersmpVerified ? `verified ${person.tmpId}` : 'not verified'} | roles: ` +
       person.roleNames.join(' || ')
     );
   }
@@ -566,6 +765,9 @@ async function main() {
       mode: MODE,
       updatedAt: state.updatedAt,
       currentStaff: currentStaff.length,
+      truckersmpCurrentStaff: crossCheck.currentTmpStaff.length,
+      crossConfirmedStaff: currentStaff.filter((person) => person.truckersmpVerified).length,
+      sourceMismatches: crossCheck.unresolved.length,
       joined: 0,
       promotions: 0,
       left: 0,
@@ -582,7 +784,9 @@ async function main() {
     return;
   }
 
-  const changes = detectChanges(state, currentStaff);
+  const detection = detectChanges(state, currentStaff, crossCheck.currentTmpIds);
+  const changes = detection.changes;
+  const sourceMismatches = detection.mismatches;
   const delivered = new Set(Array.isArray(state.delivered) ? state.delivered.map(String) : []);
   let published = 0;
   let duplicate = 0;
@@ -608,8 +812,16 @@ async function main() {
     }
   }
 
+  if (sourceMismatches.length) {
+    for (const mismatch of sourceMismatches) {
+      console.warn(
+        `SOURCE MISMATCH: ${mismatch.type} | ${mismatch.username} | ${mismatch.reason}`
+      );
+    }
+  }
+
   if (MODE === 'live') {
-    state.members = currentStaff;
+    state.members = detection.nextMembers;
     state.updatedAt = nowISO();
     state.delivered = [...delivered].slice(-500);
     writeJson(STATE_FILE, encrypt(state));
@@ -626,6 +838,10 @@ async function main() {
     mode: MODE,
     updatedAt: nowISO(),
     currentStaff: currentStaff.length,
+    truckersmpCurrentStaff: crossCheck.currentTmpStaff.length,
+    crossConfirmedStaff: currentStaff.filter((person) => person.truckersmpVerified).length,
+    sourceMismatches: sourceMismatches.length + crossCheck.unresolved.length,
+    mismatchDetails: [...sourceMismatches, ...crossCheck.unresolved].slice(0, 50),
     ...counts,
     published,
     duplicatesSuppressed: duplicate,
@@ -640,6 +856,10 @@ async function main() {
   console.log(
     `Changes: joined ${counts.joined}, promotions ${counts.promotions}, left ${counts.left}.`
   );
+  console.log(
+    `Dual-source verification: Discord ${currentStaff.length} Staff | TruckersMP ${crossCheck.currentTmpStaff.length} Staff | cross-confirmed ${currentStaff.filter((person) => person.truckersmpVerified).length}.`
+  );
+  console.log(`Source mismatches held for review: ${sourceMismatches.length + crossCheck.unresolved.length}.`);
   console.log(
     `Published: ${published}. Duplicate-suppressed: ${duplicate}. Dry-run posts: ${dryRun}.`
   );
