@@ -16,6 +16,7 @@ const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const STAFF_CHANNEL_ID = process.env.STAFF_LEADERSHIP_CHANNEL_ID || null;
 const STAFF_CHANNEL_NAME = process.env.STAFF_LEADERSHIP_CHANNEL_NAME || 'staff-leadership';
+const STAFF_OVERVIEW_MODE = String(process.env.STAFF_LEADERSHIP_OVERVIEW_MODE || 'write').trim().toLowerCase();
 const INCLUDE_ROLE_IDS = parseIdSet(process.env.STAFF_VTC_ROLE_IDS || '');
 const EXCLUDE_ROLE_IDS = parseIdSet(process.env.STAFF_VTC_ROLE_EXCLUDE_IDS || '');
 
@@ -688,8 +689,14 @@ async function main() {
   }
 
   const summary = buildSummary(state, staffRoles);
-  const channel = await resolveStaffChannel();
-  await syncOverview(channel, buildOverviewEmbed(summary, state));
+
+  if (STAFF_OVERVIEW_MODE === 'suppress') {
+    console.log('Staff Leadership Overview write suppressed; centralized Leadership Overview pipeline owns delivery.');
+  } else {
+    const channel = await resolveStaffChannel();
+    await syncOverview(channel, buildOverviewEmbed(summary, state));
+  }
+
   if (!firstRun && changes.length) {
     console.log(
       `${changes.length} Staff change(s) detected. Detailed Welcome / Promotion / Leave updates are handled in the public Staff Updates channel.`
