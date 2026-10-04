@@ -269,9 +269,16 @@ function isStaffPositionRole(roleName) {
   return /\b(ceo|coo|recruiter|moderator|planner|coordinator|designer|specialist|developer|lead|director|management)\b/.test(name);
 }
 
+function cleanRoleDisplay(value = '') {
+  return String(value)
+    .replace(/^\s*[|｜]\s*/, '')
+    .replace(/\s*[|｜]\s*$/, '')
+    .trim();
+}
+
 function primaryStaffPosition(allRoles, highestHierarchy) {
   const candidate = (allRoles || []).find((role) => isStaffPositionRole(role.name));
-  return candidate ? String(candidate.name || '').trim() : highestHierarchy.label;
+  return candidate ? cleanRoleDisplay(candidate.name) : highestHierarchy.label;
 }
 function memberStaffSnapshot(member, hierarchyRoles, roleById) {
   const hierarchy = (member.roles || [])
