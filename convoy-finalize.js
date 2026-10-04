@@ -7,6 +7,7 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const FORUM_ID = process.env.DISCORD_CONVOY_FORUM_ID || '1550619824005062697';
 const REPORT_PATH = 'output/convoy-check-results.json';
+const WRITE_MODE = !/^(?:0|false|no|off)$/i.test(process.env.CONVOY_FINALIZE_WRITE_MODE || 'true');
 const STATUS_MESSAGE_TEXT = 'Kings Convoy Automation';
 const STATUS_MESSAGE_MARKER = '👑 **Kings Convoy Automation**';
 
@@ -410,8 +411,13 @@ async function main() {
       const result = applyFinalFields(item, messages);
       item.status = deriveStatus(item);
 
-      item.discordStatusSync = await syncStatusMessage(item, messages, bot.id);
-      item.forumTagSync = await syncStatusTag(item, thread, statusTagIds, allStatusTagIds);
+      if (WRITE_MODE) {
+        item.discordStatusSync = await syncStatusMessage(item, messages, bot.id);
+        item.forumTagSync = await syncStatusTag(item, thread, statusTagIds, allStatusTagIds);
+      } else {
+        item.discordStatusSync = { action: 'skipped', reason: 'read-only-finalize' };
+        item.forumTagSync = { action: 'skipped', reason: 'read-only-finalize' };
+      }
       item.finalizedAt = new Date().toISOString();
 
       const after = JSON.stringify({
@@ -441,7 +447,7 @@ async function main() {
 
   refreshReportSummary(report);
   report.finalization = {
-    mode: 'TRUCKERSMP_FIRST_WITH_KINGS_OVERRIDES',
+    mode: WRITE_MODE ? 'TRUCKERSMP_FIRST_WITH_KINGS_OVERRIDES' : 'READ_ONLY_TRUCKERSMP_FIRST_WITH_KINGS_OVERRIDES',
     manualRequired: ['TruckersMP Event Link', 'Responsible Staff @mention', 'Kings Slot: Confirmed — Slot [Number]'],
     optionalOverrides: ['Meeting Point', 'Meeting Time', 'Route', 'Additional Notes'],
     changed,
@@ -449,7 +455,7 @@ async function main() {
   };
 
   fs.writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
-  console.log(`Kings Convoy Finalizer finished. Changed: ${changed ? 'yes' : 'no'}. Failed: ${failed}.`);
+  console.log(`Kings Convoy Finalizer finished. Mode: ${WRITE_MODE ? 'write' : 'read-only'}. Changed: ${changed ? 'yes' : 'no'}. Failed: ${failed}.`);
   if (failed > 0) process.exitCode = 1;
 }
 
