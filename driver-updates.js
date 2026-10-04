@@ -18,6 +18,15 @@ const MEMBERS_URL =
 const DISCORD_WEBHOOK_URL =
   process.env.DRIVER_UPDATES_WEBHOOK_URL;
 
+const DISCORD_BOT_TOKEN =
+  process.env.DISCORD_BOT_TOKEN || null;
+
+const DISCORD_GUILD_ID =
+  process.env.DISCORD_GUILD_ID || '1114967437788577792';
+
+const DISCORD_API =
+  'https://discord.com/api/v10';
+
 const DRIVER_STATE_KEY =
   process.env.DRIVER_STATE_KEY;
 
@@ -29,6 +38,12 @@ const HISTORY_FILE =
 
 const CHANGE_GUARD_FILE =
   path.join(__dirname, "data", "driver-change-guard.json");
+
+const LOYALTY_MAPPING_FILE =
+  path.join(__dirname, "data", "driver-loyalty-roles.json");
+
+const DRIVER_AUTHORITY =
+  'discord-driver-role';
 
 function nowISO() {
   return new Date().toISOString();
@@ -207,6 +222,88 @@ function decryptState(container) {
   }
 }
 
+
+function getDomainEncryptionKey(domain) {
+  if (
+    !DRIVER_STATE_KEY ||
+    String(DRIVER_STATE_KEY).length < 32
+  ) {
+    throw new Error(
+      "DRIVER_STATE_KEY is missing or too short. Use at least 32 characters."
+    );
+  }
+
+  return crypto
+    .createHash("sha256")
+    .update(`${domain}\0`)
+    .update(String(DRIVER_STATE_KEY))
+    .digest();
+}
+
+function decryptDomainState(container, domain) {
+  if (
+    !container ||
+    container.encrypted !== true ||
+    container.algorithm !== "aes-256-gcm" ||
+    !container.iv ||
+    !container.authTag ||
+    !container.ciphertext
+  ) {
+    return null;
+  }
+
+  const decipher =
+    crypto.createDecipheriv(
+      "aes-256-gcm",
+      getDomainEncryptionKey(domain),
+      Buffer.from(container.iv, "base64")
+    );
+
+  decipher.setAuthTag(
+    Buffer.from(container.authTag, "base64")
+  );
+
+  const plaintext =
+    Buffer.concat([
+      decipher.update(
+        Buffer.from(container.ciphertext, "base64")
+      ),
+      decipher.final()
+    ]);
+
+  return JSON.parse(
+    plaintext.toString("utf8")
+  );
+}
+
+function loadLoyaltyMappings() {
+  const raw =
+    readJson(
+      LOYALTY_MAPPING_FILE,
+      null
+    );
+
+  if (!raw) return [];
+
+  try {
+    const state =
+      decryptDomainState(
+        raw,
+        'kings-driver-loyalty-roles-v1'
+      );
+
+    return Array.isArray(state?.mappings)
+      ? state.mappings
+      : [];
+  } catch (error) {
+    console.warn(
+      `Could not read verified Driver Loyalty mappings: ${error.message}`
+    );
+
+    return [];
+  }
+}
+
 function loadState() {
   const raw =
     readJson(
@@ -261,7 +358,9 @@ function loadState() {
 
 function saveState(members) {
   const state = {
-    version: 2,
+    version: 3,
+    authority: DRIVER_AUTHORITY,
+    truckersmpCrossCheckMode: 'advisory-only',
     updatedAt: nowISO(),
     totalMembers: members.length,
     members
@@ -453,9 +552,15 @@ function appendAnonymousEvents(
 
 function memberSnapshotFingerprint(currentMembers) {
   const stable = currentMembers
-    .map((member) => Number(member.tmpId))
-    .filter(Number.isFinite)
-    .sort((a, b) => a - b)
+    .map((member) =>
+      member.discordUserId
+        ? `discord:${member.discordUserId}`
+        : Number.isFinite(Number(member.tmpId))
+          ? `tmp:${Number(member.tmpId)}`
+          : null
+    )
+    .filter(Boolean)
+    .sort()
     .join(',');
 
   return crypto
@@ -529,6 +634,656 @@ function destructiveChangeConfirmed(oldMembers, currentMembers, changes) {
   );
 
   return false;
+}
+
+// ======================================================
+// DISCORD DRIVER AUTHORITY
+// ======================================================
+
+function normalizeIdentity(value = "") {
+  return String(value)
+    .normalize("NFKC")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function normalizeRoleName(value = "") {
+  return String(value)
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+async function discordGet(pathname) {
+  if (!DISCORD_BOT_TOKEN) {
+    throw new Error(
+      "DISCORD_BOT_TOKEN is missing for Discord-authoritative Driver Updates."
+    );
+  }
+
+  const response =
+    await fetch(
+      `${DISCORD_API}${pathname}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization:
+            `Bot ${DISCORD_BOT_TOKEN}`,
+          "User-Agent":
+            "Kings Logistics Driver Updates/3.0"
+        },
+        signal:
+          AbortSignal.timeout(15000)
+      }
+    );
+
+  const text =
+    await response.text();
+
+  if (!response.ok) {
+    throw new Error(
+      `Discord API ${response.status} on GET ${pathname}: ${text.slice(0, 500)}`
+    );
+  }
+
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
+async function listDiscordMembers() {
+  const members = [];
+  let after = null;
+
+  for (
+    let page = 0;
+    page < 20;
+    page++
+  ) {
+    const query =
+      new URLSearchParams({
+        limit: "1000"
+      });
+
+    if (after) {
+      query.set(
+        "after",
+        after
+      );
+    }
+
+    const batch =
+      await discordGet(
+        `/guilds/${DISCORD_GUILD_ID}/members?${query.toString()}`
+      );
+
+    if (!Array.isArray(batch)) {
+      throw new Error(
+        "Discord guild member response is invalid."
+      );
+    }
+
+    members.push(...batch);
+
+    if (batch.length < 1000) {
+      break;
+    }
+
+    after =
+      batch[
+        batch.length - 1
+      ]?.user?.id || null;
+
+    if (!after) {
+      throw new Error(
+        "Discord member pagination cursor is missing."
+      );
+    }
+  }
+
+  return members.filter(
+    member =>
+      member?.user?.id &&
+      !member.user.bot
+  );
+}
+
+function driverRoleScore(
+  role,
+  members
+) {
+  const assigned =
+    members.filter(
+      member =>
+        (member.roles || [])
+          .map(String)
+          .includes(
+            String(role.id)
+          )
+    ).length;
+
+  const raw =
+    String(role.name || "");
+
+  let score =
+    assigned * 100;
+
+  if (/^\s*[|｜]/.test(raw)) {
+    score += 25;
+  }
+
+  if (/[━─═]{2,}/.test(raw)) {
+    score -= 25;
+  }
+
+  return {
+    role,
+    assigned,
+    score
+  };
+}
+
+function resolveKingsDriverRole(
+  roles,
+  members
+) {
+  const candidates =
+    (roles || [])
+      .filter(role => {
+        const normalized =
+          normalizeRoleName(
+            role.name
+          );
+
+        return (
+          normalized === "kings drivers" ||
+          normalized === "kings driver"
+        );
+      })
+      .map(role =>
+        driverRoleScore(
+          role,
+          members
+        )
+      )
+      .sort(
+        (a, b) =>
+          b.score - a.score ||
+          Number(
+            b.role.position || 0
+          ) -
+            Number(
+              a.role.position || 0
+            )
+      );
+
+  if (!candidates.length) {
+    throw new Error(
+      'Could not find the Kings Driver Discord role.'
+    );
+  }
+
+  if (
+    candidates.length > 1 &&
+    candidates[0].score ===
+      candidates[1].score &&
+    candidates[0].assigned ===
+      candidates[1].assigned
+  ) {
+    throw new Error(
+      "Kings Driver Discord role is ambiguous: " +
+      candidates
+        .map(
+          item =>
+            `${item.role.name} (${item.role.id}, assignments ${item.assigned})`
+        )
+        .join(", ")
+    );
+  }
+
+  const selected =
+    candidates[0];
+
+  console.log(
+    `Discord Driver authority role: "${selected.role.name}" (${selected.role.id}) with ${selected.assigned} assignment(s).`
+  );
+
+  if (
+    candidates.length > 1
+  ) {
+    console.log(
+      "Ignored same-name Driver role candidate(s): " +
+      candidates
+        .slice(1)
+        .map(
+          item =>
+            `"${item.role.name}" (${item.role.id}, assignments ${item.assigned})`
+        )
+        .join(", ")
+    );
+  }
+
+  return selected.role;
+}
+
+function memberIdentityValues(
+  member
+) {
+  return [
+    member?.nick,
+    member?.user?.global_name,
+    member?.user?.username
+  ]
+    .map(
+      normalizeIdentity
+    )
+    .filter(Boolean);
+}
+
+function buildTmpEnrichment(
+  tmpMembers,
+  loyaltyMappings,
+  discordMembers
+) {
+  const byDiscord =
+    new Map();
+
+  const tmpById =
+    new Map(
+      tmpMembers.map(
+        member => [
+          Number(member.tmpId),
+          member
+        ]
+      )
+    );
+
+  for (
+    const mapping
+    of loyaltyMappings
+  ) {
+    const tmpId =
+      Number(
+        mapping?.tmpId
+      );
+
+    const discordUserId =
+      String(
+        mapping?.discordUserId || ""
+      );
+
+    if (
+      !Number.isFinite(tmpId) ||
+      !/^\d{15,22}$/.test(
+        discordUserId
+      ) ||
+      !tmpById.has(tmpId)
+    ) {
+      continue;
+    }
+
+    byDiscord.set(
+      discordUserId,
+      {
+        ...tmpById.get(tmpId),
+        matchSource:
+          "verified-driver-mapping"
+      }
+    );
+  }
+
+  const identityIndex =
+    new Map();
+
+  for (
+    const member
+    of discordMembers
+  ) {
+    for (
+      const identity
+      of new Set(
+        memberIdentityValues(
+          member
+        )
+      )
+    ) {
+      const ids =
+        identityIndex.get(
+          identity
+        ) ||
+        new Set();
+
+      ids.add(
+        String(
+          member.user.id
+        )
+      );
+
+      identityIndex.set(
+        identity,
+        ids
+      );
+    }
+  }
+
+  for (
+    const tmp
+    of tmpMembers
+  ) {
+    if (
+      [...byDiscord.values()]
+        .some(
+          entry =>
+            Number(entry.tmpId) ===
+            Number(tmp.tmpId)
+        )
+    ) {
+      continue;
+    }
+
+    const matches =
+      [
+        ...(
+          identityIndex.get(
+            normalizeIdentity(
+              tmp.username
+            )
+          ) ||
+          []
+        )
+      ];
+
+    if (
+      matches.length === 1 &&
+      !byDiscord.has(
+        String(
+          matches[0]
+        )
+      )
+    ) {
+      byDiscord.set(
+        String(
+          matches[0]
+        ),
+        {
+          ...tmp,
+          matchSource:
+            "unique-exact-name-match"
+        }
+      );
+    }
+  }
+
+  return byDiscord;
+}
+
+async function getDiscordAuthoritativeDrivers(
+  tmpMembers
+) {
+  const [
+    roles,
+    discordMembers
+  ] =
+    await Promise.all([
+      discordGet(
+        `/guilds/${DISCORD_GUILD_ID}/roles`
+      ),
+      listDiscordMembers()
+    ]);
+
+  const driverRole =
+    resolveKingsDriverRole(
+      roles,
+      discordMembers
+    );
+
+  const enrichment =
+    buildTmpEnrichment(
+      tmpMembers,
+      loadLoyaltyMappings(),
+      discordMembers
+    );
+
+  const drivers =
+    discordMembers
+      .filter(
+        member =>
+          (member.roles || [])
+            .map(String)
+            .includes(
+              String(
+                driverRole.id
+              )
+            )
+      )
+      .map(member => {
+        const discordUserId =
+          String(
+            member.user.id
+          );
+
+        const tmp =
+          enrichment.get(
+            discordUserId
+          ) ||
+          null;
+
+        return {
+          discordUserId,
+          username:
+            String(
+              member.nick ||
+              member.user.global_name ||
+              member.user.username ||
+              discordUserId
+            ).trim(),
+          tmpId:
+            Number.isFinite(
+              Number(
+                tmp?.tmpId
+              )
+            )
+              ? Number(
+                  tmp.tmpId
+                )
+              : null,
+          vtcMemberId:
+            Number.isFinite(
+              Number(
+                tmp?.vtcMemberId
+              )
+            )
+              ? Number(
+                  tmp.vtcMemberId
+                )
+              : null,
+          joinDate:
+            tmp?.joinDate ||
+            null,
+          truckersmpUsername:
+            tmp?.username ||
+            null,
+          truckersmpVerified:
+            Boolean(tmp),
+          truckersmpMatchSource:
+            tmp?.matchSource ||
+            null
+        };
+      })
+      .sort(
+        (a, b) =>
+          a.discordUserId.localeCompare(
+            b.discordUserId
+          )
+      );
+
+  return {
+    drivers,
+    driverRole,
+    discordMembers,
+    enrichment
+  };
+}
+
+function compareDiscordDrivers(
+  oldMembers,
+  currentMembers
+) {
+  const oldMap =
+    new Map(
+      oldMembers
+        .filter(
+          member =>
+            member.discordUserId
+        )
+        .map(
+          member => [
+            String(
+              member.discordUserId
+            ),
+            member
+          ]
+        )
+    );
+
+  const currentMap =
+    new Map(
+      currentMembers.map(
+        member => [
+          String(
+            member.discordUserId
+          ),
+          member
+        ]
+      )
+    );
+
+  const joined = [];
+  const left = [];
+  const renamed = [];
+
+  for (
+    const [
+      discordUserId,
+      member
+    ]
+    of currentMap
+  ) {
+    if (
+      !oldMap.has(
+        discordUserId
+      )
+    ) {
+      joined.push(
+        member
+      );
+      continue;
+    }
+
+    const oldMember =
+      oldMap.get(
+        discordUserId
+      );
+
+    if (
+      oldMember.username !==
+      member.username
+    ) {
+      renamed.push({
+        discordUserId,
+        oldUsername:
+          oldMember.username,
+        newUsername:
+          member.username
+      });
+    }
+  }
+
+  for (
+    const [
+      discordUserId,
+      member
+    ]
+    of oldMap
+  ) {
+    if (
+      !currentMap.has(
+        discordUserId
+      )
+    ) {
+      left.push(
+        member
+      );
+    }
+  }
+
+  return {
+    joined,
+    left,
+    renamed
+  };
+}
+
+function logTruckersMpAdvisories(
+  changes,
+  tmpMembers
+) {
+  const currentTmpIds =
+    new Set(
+      tmpMembers
+        .map(
+          member =>
+            Number(
+              member.tmpId
+            )
+        )
+        .filter(
+          Number.isFinite
+        )
+    );
+
+  for (
+    const member
+    of changes.joined
+  ) {
+    if (
+      !member.truckersmpVerified
+    ) {
+      console.warn(
+        `ADVISORY SOURCE MISMATCH: Discord-authoritative Driver join for ${member.username} is not safely matched to TruckersMP yet.`
+      );
+    }
+  }
+
+  for (
+    const member
+    of changes.left
+  ) {
+    const tmpId =
+      Number(
+        member.tmpId
+      );
+
+    if (
+      Number.isFinite(
+        tmpId
+      ) &&
+      currentTmpIds.has(
+        tmpId
+      )
+    ) {
+      console.warn(
+        `ADVISORY SOURCE MISMATCH: Discord-authoritative Driver leave for ${member.username}, while TruckersMP still lists TMP ${tmpId} as a current Kings member.`
+      );
+    }
+  }
 }
 
 // ======================================================
@@ -643,20 +1398,37 @@ function getProfileUrl(tmpId) {
   return `https://truckersmp.com/user/${tmpId}`;
 }
 
-function buildJoinMessage(member) {
-  const name =
+function driverDisplay(member) {
+  const displayName =
     escapeMarkdown(
-      member.username
+      member.truckersmpUsername ||
+      member.username ||
+      "Kings Driver"
     );
 
-  const profile =
-    getProfileUrl(
-      member.tmpId
-    );
+  if (
+    Number.isFinite(
+      Number(
+        member.tmpId
+      )
+    )
+  ) {
+    return `**[${displayName}](${getProfileUrl(Number(member.tmpId))})**`;
+  }
 
+  if (
+    member.discordUserId
+  ) {
+    return `<@${member.discordUserId}>`;
+  }
+
+  return `**${displayName}**`;
+}
+
+function buildJoinMessage(member) {
   return (
     `<:kings_arrow:1466617263699267694> ` +
-    `Please welcome **[${name}](${profile})** to the ` +
+    `Please welcome ${driverDisplay(member)} to the ` +
     `<:Kings_Logistics_Logo:1545254529648431124> ` +
     `**Kings Family** ` +
     `<:Kings_Logistics_Logo:1545254529648431124> ` +
@@ -667,19 +1439,9 @@ function buildJoinMessage(member) {
 }
 
 function buildLeaveMessage(member) {
-  const name =
-    escapeMarkdown(
-      member.username
-    );
-
-  const profile =
-    getProfileUrl(
-      member.tmpId
-    );
-
   return (
     `<:kings_arrow:1466617263699267694> ` +
-    `Please note that **[${name}](${profile})** is no longer part of ` +
+    `Please note that ${driverDisplay(member)} is no longer part of ` +
     `<:Kings_Logistics_Logo:1545254529648431124> ` +
     `**Kings Logistics** ` +
     `<:Kings_Logistics_Logo:1545254529648431124>.`
@@ -734,8 +1496,32 @@ async function sendDiscordMessage(
 // ======================================================
 
 async function checkDriverUpdates() {
-  const currentMembers =
+  const tmpMembers =
     await getCurrentMembers();
+
+  const discordAuthority =
+    await getDiscordAuthoritativeDrivers(
+      tmpMembers
+    );
+
+  const currentMembers =
+    discordAuthority.drivers;
+
+  console.log(
+    `Driver authority: Discord role "${discordAuthority.driverRole.name}" (${discordAuthority.driverRole.id}).`
+  );
+
+  console.log(
+    `Current Discord-authoritative Kings Drivers: ${currentMembers.length}`
+  );
+
+  console.log(
+    `TruckersMP advisory roster: ${tmpMembers.length}`
+  );
+
+  console.log(
+    `Discord Drivers safely matched to TruckersMP: ${currentMembers.filter(member => member.truckersmpVerified).length}/${currentMembers.length}`
+  );
 
   const loadedState =
     loadState();
@@ -748,22 +1534,35 @@ async function checkDriverUpdates() {
       currentMembers.length
     );
 
-  if (!state) {
+  if (
+    !state ||
+    state.authority !==
+      DRIVER_AUTHORITY ||
+    !state.members.every(
+      member =>
+        member.discordUserId
+    )
+  ) {
     console.log(
-      "First encrypted Driver Updates baseline run detected."
+      "Creating Discord-authoritative Driver Updates baseline."
     );
 
     saveState(
       currentMembers
     );
 
-    saveHistory(
-      history,
+    if (
+      history.currentDrivers !==
       currentMembers.length
-    );
+    ) {
+      saveHistory(
+        history,
+        currentMembers.length
+      );
+    }
 
     console.log(
-      "No public Join or Leave messages were posted."
+      "Authority migration completed. No public Join or Leave messages were posted."
     );
 
     return;
@@ -778,21 +1577,26 @@ async function checkDriverUpdates() {
   );
 
   const changes =
-    compareMembers(
+    compareDiscordDrivers(
       oldMembers,
       currentMembers
     );
 
   console.log(
-    `Joined: ${changes.joined.length}`
+    `Discord-authoritative Joined: ${changes.joined.length}`
   );
 
   console.log(
-    `Left: ${changes.left.length}`
+    `Discord-authoritative Left: ${changes.left.length}`
   );
 
   console.log(
-    `Name changes: ${changes.renamed.length}`
+    `Discord name changes: ${changes.renamed.length}`
+  );
+
+  logTruckersMpAdvisories(
+    changes,
+    tmpMembers
   );
 
   const hasChanges =
@@ -821,20 +1625,8 @@ async function checkDriverUpdates() {
       );
     }
 
-    if (
-      loadedState.needsMigration
-    ) {
-      console.log(
-        "Migrating plaintext Driver member state to encrypted storage."
-      );
-
-      saveState(
-        currentMembers
-      );
-    }
-
     console.log(
-      "No Kings Driver changes detected."
+      "No Discord-authoritative Kings Driver changes detected."
     );
 
     return;
@@ -861,11 +1653,6 @@ async function checkDriverUpdates() {
       )
     );
   }
-
-  /*
-    Permanent data is changed only after all required
-    Discord Join / Leave messages succeeded.
-  */
 
   const detectedAt =
     nowISO();
