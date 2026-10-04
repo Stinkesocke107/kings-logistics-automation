@@ -163,20 +163,63 @@ async function listGuildMembers() {
   return members.filter((member) => member?.user?.id && !member.user.bot);
 }
 
-function resolveHierarchyRoles(roles) {
+function roleAssignmentCount(roleId, members) {
+  const wanted = String(roleId);
+  return (members || []).filter((member) =>
+    (member.roles || []).map(String).includes(wanted)
+  ).length;
+}
+
+function hierarchyCandidateScore(role, members) {
+  const name = String(role.name || '');
+  let score = roleAssignmentCount(role.id, members) * 100;
+
+  if (/^\s*\|/.test(name)) score += 25;
+  if (/[━─═]{2,}/.test(name)) score -= 25;
+
+  return score;
+}
+
+function resolveHierarchyRoles(roles, members) {
   const found = new Map();
 
   for (const definition of HIERARCHY) {
     const matches = (roles || []).filter((role) => normalize(role.name) === definition.key);
-    if (matches.length > 1) {
+    if (!matches.length) continue;
+
+    const ranked = matches
+      .map((role) => ({
+        role,
+        assignments: roleAssignmentCount(role.id, members),
+        score: hierarchyCandidateScore(role, members)
+      }))
+      .sort((a, b) => b.score - a.score || Number(b.role.position || 0) - Number(a.role.position || 0));
+
+    if (ranked.length > 1 && ranked[0].score === ranked[1].score && ranked[0].assignments === ranked[1].assignments) {
       throw new Error(
-        `Multiple Discord roles match Staff hierarchy role "${definition.label}": ` +
-        matches.map((role) => `${role.name} (${role.id})`).join(', ')
+        `Ambiguous Discord Staff hierarchy role "${definition.label}": ` +
+        ranked.map((item) =>
+          `${item.role.name} (${item.role.id}, assignments ${item.assignments})`
+        ).join(', ')
       );
     }
-    if (matches.length === 1) {
-      found.set(String(matches[0].id), { ...definition, role: matches[0] });
+
+    const selected = ranked[0];
+    console.log(
+      `Hierarchy role ${definition.label}: selected "${selected.role.name}" ` +
+      `(${selected.role.id}) with ${selected.assignments} member assignment(s).`
+    );
+
+    if (ranked.length > 1) {
+      console.log(
+        '  Ignored same-name candidate(s): ' +
+        ranked.slice(1).map((item) =>
+          `"${item.role.name}" (${item.role.id}, assignments ${item.assignments})`
+        ).join(', ')
+      );
     }
+
+    found.set(String(selected.role.id), { ...definition, role: selected.role });
   }
 
   if (![...found.values()].some((entry) => entry.key === 'staff')) {
@@ -427,7 +470,7 @@ async function main() {
     throw new Error('Configured public Staff Updates channel does not belong to Kings Logistics.');
   }
 
-  const hierarchyRoles = resolveHierarchyRoles(roles);
+  const hierarchyRoles = resolveHierarchyRoles(roles, members);
   const roleById = new Map((roles || []).map((role) => [String(role.id), role]));
   const currentStaff = members
     .map((member) => memberStaffSnapshot(member, hierarchyRoles, roleById))
@@ -443,6 +486,12 @@ async function main() {
       .join(', ')
   );
   console.log(`Current Staff detected from Discord roles: ${currentStaff.length}`);
+  for (const person of currentStaff) {
+    console.log(
+      `Staff member: ${person.username} | hierarchy: ${person.hierarchyLabel} | roles: ` +
+      person.roleNames.join(' || ')
+    );
+  }
   console.log(`Public Staff Updates channel: #${channel.name} (${channel.id})`);
 
   let state = loadState();
