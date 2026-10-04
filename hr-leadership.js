@@ -118,7 +118,7 @@ async function discord(pathname, options = {}) {
   // permissions, or any other personnel setting.
   if (method !== 'GET') {
     const allowedWrite = /^\/channels\/\d+\/messages(?:\/\d+)?$/.test(pathname) &&
-      (method === 'POST' || method === 'PATCH');
+      (method === 'POST' || method === 'PATCH' || method === 'DELETE');
     if (!allowedWrite) {
       throw new Error(`Safety guard blocked Discord write: ${method} ${pathname}`);
     }
@@ -357,32 +357,40 @@ async function syncOverview(driverState, data) {
   const channel = await resolveHrChannel();
   const bot = await discord('/users/@me');
   const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
-  const existing = (messages || []).find((message) =>
+  const matches = (messages || []).filter((message) =>
     message.author?.id === bot.id &&
     String(message.content || '').includes(OVERVIEW_MARKER)
   );
+  const existing = matches[0] || null;
 
   const content = buildMessage(driverState, data);
 
   if (existing) {
     if (String(existing.content || '').trim() === content.trim()) {
       console.log(`HR Leadership overview unchanged in #${channel.name}.`);
-      return;
+    } else {
+      await discord(`/channels/${channel.id}/messages/${existing.id}`, {
+        method: 'PATCH',
+        body: { content, allowed_mentions: { parse: [] } }
+      });
+      console.log(`HR Leadership overview updated in #${channel.name}.`);
     }
-
-    await discord(`/channels/${channel.id}/messages/${existing.id}`, {
-      method: 'PATCH',
+  } else {
+    await discord(`/channels/${channel.id}/messages`, {
+      method: 'POST',
       body: { content, allowed_mentions: { parse: [] } }
     });
-    console.log(`HR Leadership overview updated in #${channel.name}.`);
-    return;
+    console.log(`HR Leadership overview created in #${channel.name}.`);
   }
 
-  await discord(`/channels/${channel.id}/messages`, {
-    method: 'POST',
-    body: { content, allowed_mentions: { parse: [] } }
-  });
-  console.log(`HR Leadership overview created in #${channel.name}.`);
+  let duplicatesRemoved = 0;
+  for (const duplicate of matches.slice(1)) {
+    await discord(`/channels/${channel.id}/messages/${duplicate.id}`, { method: 'DELETE' });
+    duplicatesRemoved += 1;
+  }
+  if (duplicatesRemoved) {
+    console.log(`HR Leadership overview duplicate cleanup: removed ${duplicatesRemoved} duplicate message(s).`);
+  }
 }
 
 async function main() {
