@@ -126,28 +126,51 @@ async function discord(pathname, options = {}) {
 
   const headers = {
     Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-    'User-Agent': 'Kings Logistics HR Leadership/1.1'
+    'User-Agent': 'Kings Logistics HR Leadership/1.2'
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
-  const response = await fetch(`${DISCORD_API}${pathname}`, {
-    method,
-    headers,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-    signal: AbortSignal.timeout(15000)
-  });
+  let lastError = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const response = await fetch(`${DISCORD_API}${pathname}`, {
+        method,
+        headers,
+        body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+        signal: AbortSignal.timeout(method === 'GET' ? 30000 : 20000)
+      });
 
-  const text = await response.text();
-  if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+      const text = await response.text();
+      if (!response.ok) {
+        throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+      }
+
+      if (!text) return null;
+      try {
+        return JSON.parse(text);
+      } catch {
+        return text;
+      }
+    } catch (error) {
+      lastError = error;
+      const retryable =
+        method === 'GET' &&
+        (
+          error?.name === 'AbortError' ||
+          error?.name === 'TimeoutError' ||
+          /timeout|aborted|fetch failed/i.test(String(error?.message || error))
+        );
+
+      if (!retryable || attempt === 3) throw error;
+
+      console.warn(
+        `HR Leadership Discord GET retry ${attempt}/3 for ${pathname}: ${error.message}`
+      );
+      await new Promise((resolve) => setTimeout(resolve, 750 * attempt));
+    }
   }
 
-  if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return text;
-  }
+  throw lastError || new Error(`Discord request failed: ${method} ${pathname}`);
 }
 
 function normalizeChannelName(value = '') {
@@ -173,14 +196,20 @@ async function resolveHrChannel() {
   const exact = textChannels.find((channel) =>
     normalizeChannelName(channel.name).replace(/^-+|-+$/g, '') === wanted
   );
-  if (exact) return exact;
+  if (exact) {
+    console.log(`HR Leadership channel resolved: #${exact.name} (${exact.id})`);
+    return exact;
+  }
 
   const fuzzy = textChannels.filter((channel) => {
     const name = normalizeChannelName(channel.name);
     return name.includes('hr') && name.includes('leadership');
   });
 
-  if (fuzzy.length === 1) return fuzzy[0];
+  if (fuzzy.length === 1) {
+    console.log(`HR Leadership channel resolved: #${fuzzy[0].name} (${fuzzy[0].id})`);
+    return fuzzy[0];
+  }
   if (fuzzy.length > 1) {
     throw new Error(`Multiple HR Leadership channels found: ${fuzzy.map((channel) => channel.name).join(', ')}`);
   }
