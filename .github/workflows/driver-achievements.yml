@@ -134,7 +134,9 @@ jobs:
           console.log(`- Current Drivers: **${s.currentDrivers}**`);
           console.log(`- Matched on Discord: **${s.matchedCurrentDrivers}**`);
           console.log(`- Eligible for Loyalty tier: **${s.eligibleForLoyaltyTier}**`);
-          console.log(`- Unmatched / ambiguous: **${s.unmatched} / ${s.ambiguous}**`);
+          console.log(`- No linked/public Discord: **${s.noLinkedDiscord}**`);
+          console.log(`- Linked Discord not on Kings server: **${s.linkedDiscordNotOnGuild}**`);
+          console.log(`- TruckersMP profile errors: **${s.truckersmpProfileErrors}**`);
           console.log(`- Role additions / removals: **${s.roleAdditions} / ${s.roleRemovals}**`);
           NODE
           fi
