@@ -8,6 +8,8 @@ const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const LEADERSHIP_CHANNEL_ID = process.env.DRIVER_LEADERSHIP_CHANNEL_ID || null;
 const LEADERSHIP_CHANNEL_NAME = process.env.DRIVER_LEADERSHIP_CHANNEL_NAME || '🚛｜driver-leadership';
+const COMMANDS_MODE = String(process.env.DRIVER_LOA_COMMANDS_MODE || 'process').trim().toLowerCase();
+const OVERVIEW_MODE = String(process.env.DRIVER_LEADERSHIP_OVERVIEW_MODE || 'write').trim().toLowerCase();
 
 const MANAGEMENT_FILE = path.join(__dirname, 'data', 'driver-management.json');
 const SUMMARY_FILE = path.join(__dirname, 'data', 'driver-management-summary.json');
@@ -695,14 +697,26 @@ async function main() {
   const managementState = readManagementState();
   const loaState = readLoaState();
 
-  const commandCount = await processCommands(channel, managementState, loaState);
+  const commandCount = COMMANDS_MODE === 'skip'
+    ? 0
+    : await processCommands(channel, managementState, loaState);
+
+  if (COMMANDS_MODE === 'skip') {
+    console.log('Driver LOA command processing skipped for Leadership Overview refresh.');
+  }
+
   pruneLeaveHistory(loaState);
   applyLeaveToManagement(managementState, loaState);
 
   writeLoaState(loaState);
   writeManagementState(managementState);
   const summary = updateSummary(managementState);
-  await syncLeadershipOverview(channel, managementState, summary);
+
+  if (OVERVIEW_MODE === 'suppress') {
+    console.log('Driver Leadership Overview write suppressed; centralized Leadership Overview pipeline owns delivery.');
+  } else {
+    await syncLeadershipOverview(channel, managementState, summary);
+  }
 
   const active = (loaState.leaves || []).filter((leave) => leaveStatus(leave) === 'active').length;
   const scheduled = (loaState.leaves || []).filter((leave) => leaveStatus(leave) === 'scheduled').length;
