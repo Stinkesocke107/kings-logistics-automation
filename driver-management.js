@@ -25,6 +25,7 @@ const NEW_DRIVER_GRACE_DAYS = 14;
 
 const DISCORD_API = 'https://discord.com/api/v10';
 const LEADERSHIP_MARKER = '👑 **Kings Driver Leadership Overview**';
+const LEADERSHIP_MESSAGE_TEXT = 'Kings Driver Leadership Overview';
 
 if (!DRIVER_STATE_KEY || String(DRIVER_STATE_KEY).length < 32) {
   console.error('DRIVER_STATE_KEY is missing or too short.');
@@ -554,7 +555,7 @@ async function syncLeadershipMessage(state, summary, changes) {
   const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
   const existing = (messages || []).find((message) =>
     message.author?.id === bot.id &&
-    String(message.content || '').includes(LEADERSHIP_MARKER)
+    String(message.content || '').includes(LEADERSHIP_MESSAGE_TEXT)
   );
 
   const content = buildLeadershipMessage(state, summary, changes);
