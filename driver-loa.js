@@ -23,6 +23,7 @@ const RETENTION_DAYS = 730;
 
 const DISCORD_API = 'https://discord.com/api/v10';
 const LEADERSHIP_MARKER = '👑 **Kings Driver Leadership Overview**';
+const LEADERSHIP_MESSAGE_TEXT = 'Kings Driver Leadership Overview';
 const SEVERITY_LEVELS = new Set(['Info', 'Attention', 'HR Review']);
 
 if (!DRIVER_STATE_KEY || String(DRIVER_STATE_KEY).length < 32) {
@@ -136,7 +137,7 @@ async function discord(pathname, options = {}) {
   // roles, kicks, bans, permissions, or any other personnel setting.
   if (method !== 'GET') {
     const allowedWrite = /^\/channels\/\d+\/messages(?:\/\d+)?$/.test(pathname) &&
-      (method === 'POST' || method === 'PATCH');
+      (method === 'POST' || method === 'PATCH' || method === 'DELETE');
     if (!allowedWrite) {
       throw new Error(`Safety guard blocked Discord write: ${method} ${pathname}`);
     }
@@ -670,11 +671,12 @@ function buildLeadershipMessage(managementState, summary) {
 async function syncLeadershipOverview(channel, managementState, summary) {
   const bot = await discord('/users/@me');
   const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
-  const existing = (messages || []).find((message) =>
+  const matches = (messages || []).filter((message) =>
     message.author?.id === bot.id &&
-    String(message.content || '').includes(LEADERSHIP_MARKER)
+    String(message.content || '').includes(LEADERSHIP_MESSAGE_TEXT)
   );
 
+  const existing = matches[0] || null;
   const content = buildLeadershipMessage(managementState, summary);
 
   if (existing) {
@@ -689,6 +691,18 @@ async function syncLeadershipOverview(channel, managementState, summary) {
       body: { content, allowed_mentions: { parse: [] } }
     });
     console.log(`Driver Leadership overview created with LOA data in #${channel.name}.`);
+  }
+
+  let duplicatesRemoved = 0;
+  for (const duplicate of matches.slice(1)) {
+    await discord(`/channels/${channel.id}/messages/${duplicate.id}`, {
+      method: 'DELETE'
+    });
+    duplicatesRemoved += 1;
+  }
+
+  if (duplicatesRemoved) {
+    console.log(`Driver Leadership overview duplicate cleanup: removed ${duplicatesRemoved} duplicate message(s).`);
   }
 }
 
