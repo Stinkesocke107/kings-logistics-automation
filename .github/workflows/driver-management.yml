@@ -2,16 +2,6 @@ name: Kings Driver Management
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'driver-management.js'
-      - 'driver-leadership-rate-limit.js'
-      - 'driver-loa.js'
-      - 'driver-status-alerts.js'
-      - 'api-resilience.js'
-      - 'scripts/git-safe-push.sh'
-      - '.github/workflows/driver-management.yml'
   schedule:
     # Driver data, LOA commands and alerts remain hourly.
     # Leadership Overview delivery is owned by the centralized 12-hour overview pipeline.
