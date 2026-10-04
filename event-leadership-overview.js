@@ -97,18 +97,26 @@ async function resolveChannel() {
 
   const channels = await discord(`/guilds/${GUILD_ID}/channels`);
   const wanted = normalizeChannelName(CHANNEL_NAME);
-  const matches = (Array.isArray(channels) ? channels : [])
+  const writableChannels = (Array.isArray(channels) ? channels : [])
+    .filter((channel) => [0, 5].includes(Number(channel.type)));
+
+  const matches = writableChannels
     .filter((channel) => normalizeChannelName(channel.name) === wanted);
 
   if (matches.length === 1) return matches[0];
 
-  const loose = (Array.isArray(channels) ? channels : [])
+  const loose = writableChannels
     .filter((channel) => normalizeChannelName(channel.name).endsWith(wanted));
 
   if (loose.length === 1) return loose[0];
 
+  const candidates = [...new Map([...matches, ...loose].map((channel) => [channel.id, channel])).values()]
+    .map((channel) => `${channel.name} (${channel.id}, type ${channel.type})`)
+    .join(', ');
+
   throw new Error(
-    `Could not uniquely resolve Event Leadership channel "${CHANNEL_NAME}". Exact: ${matches.length}; loose: ${loose.length}.`
+    `Could not uniquely resolve writable Event Leadership channel "${CHANNEL_NAME}". ` +
+    `Exact: ${matches.length}; loose: ${loose.length}; candidates: ${candidates || 'none'}.`
   );
 }
 
