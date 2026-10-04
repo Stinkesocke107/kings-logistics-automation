@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - 'staff-management.js'
+      - 'staff-discord-updates.js'
       - '.github/workflows/staff-management.yml'
 
   schedule:
@@ -39,6 +40,23 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Determine public Staff Updates mode
+        id: staff_updates_mode
+        shell: bash
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] || [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            MODE="live"
+          else
+            MODE="dry-run"
+          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "Public Staff Updates mode: $MODE"
+
+      - name: Verify Staff automation syntax
+        run: |
+          node --check staff-management.js
+          node --check staff-discord-updates.js
+
       - name: Update Staff Management
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
@@ -47,12 +65,21 @@ jobs:
           STAFF_LEADERSHIP_CHANNEL_NAME: 'staff-leadership'
         run: node staff-management.js
 
+      - name: Sync public Staff Updates
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          STAFF_PUBLIC_UPDATES_CHANNEL_ID: '1494095653096128604'
+          STAFF_PUBLIC_UPDATES_MODE: ${{ steps.staff_updates_mode.outputs.mode }}
+        run: node staff-discord-updates.js
+
       - name: Save Staff Management Data and API Health Together
         if: always()
         run: |
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
-          for file in data/staff-management.json data/staff-management-summary.json data/api-health; do
+          for file in data/staff-management.json data/staff-management-summary.json data/staff-discord-updates.json data/staff-discord-updates-summary.json data/api-health; do
             if [ -n "$(git status --porcelain -- "$file")" ]; then
               git add -A -- "$file"
             fi
