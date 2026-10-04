@@ -1,0 +1,158 @@
+name: Kings Leadership Overviews
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # Two synchronized Leadership Overview refreshes per day, exactly 12 hours apart.
+    - cron: "0 8,20 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-leadership-overviews
+  cancel-in-progress: false
+
+jobs:
+  refresh-leadership-overviews:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Verify Leadership Overview engines
+        run: |
+          node --check driver-loa.js
+          node --check hr-leadership.js
+          node --check staff-management.js
+          node --check management-overview.js
+          node --check convoy-checker.js
+          node --check convoy-truckersmp-sync.js
+          node --check convoy-finalize.js
+          node --check convoy-overview.js
+          node --check event-leadership-overview.js
+
+      - name: Refresh Driver Leadership Overview
+        id: driver_overview
+        continue-on-error: true
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
+          DRIVER_LOA_COMMANDS_MODE: 'skip'
+          DRIVER_LEADERSHIP_OVERVIEW_MODE: 'write'
+        run: node driver-loa.js
+
+      - name: Refresh HR Leadership Overview
+        id: hr_overview
+        continue-on-error: true
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
+        run: node hr-leadership.js
+
+      - name: Refresh Staff Leadership Overview
+        id: staff_overview
+        continue-on-error: true
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          STAFF_LEADERSHIP_CHANNEL_NAME: 'staff-leadership'
+          STAFF_LEADERSHIP_OVERVIEW_MODE: 'write'
+        run: node staff-management.js
+
+      - name: Refresh Management Overview
+        id: management_overview
+        continue-on-error: true
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
+          CONVOY_MANAGEMENT_FORUM_ID: '1550619824005062697'
+        run: node management-overview.js
+
+      - name: Build fresh read-only Event Leadership data
+        id: event_data
+        continue-on-error: true
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
+          DISCORD_WRITE_MODE: 'false'
+          KINGS_VTC_NAME: 'Kings Logistics'
+          CONVOY_FINALIZE_WRITE_MODE: 'false'
+        run: |
+          node convoy-checker.js
+          node convoy-truckersmp-sync.js
+          node convoy-finalize.js
+          node convoy-overview.js
+
+      - name: Refresh Event Leadership Overview
+        id: event_overview
+        continue-on-error: true
+        if: steps.event_data.outcome == 'success'
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_EVENT_LEADERSHIP_CHANNEL_ID: '1551675735633297418'
+          DISCORD_EVENT_LEADERSHIP_CHANNEL_NAME: 'event-leadership'
+          EVENT_LEADERSHIP_DRY_RUN: 'false'
+        run: node event-leadership-overview.js
+
+      - name: Leadership Overview summary
+        if: always()
+        run: |
+          {
+            echo "## Kings Leadership Overviews"
+            echo ""
+            echo "- Cadence: **08:00 UTC / 20:00 UTC (12 hours apart)**"
+            echo "- Driver Leadership: **${{ steps.driver_overview.outcome }}**"
+            echo "- HR Leadership: **${{ steps.hr_overview.outcome }}**"
+            echo "- Staff Leadership: **${{ steps.staff_overview.outcome }}**"
+            echo "- Management Overview: **${{ steps.management_overview.outcome }}**"
+            echo "- Event data refresh: **${{ steps.event_data.outcome }}**"
+            echo "- Event Leadership: **${{ steps.event_overview.outcome }}**"
+            echo ""
+            echo "Operational reminders, alerts, Live Tracker and Statistics remain on their own cadence."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Require successful Leadership Overviews
+        if: always()
+        env:
+          DRIVER: ${{ steps.driver_overview.outcome }}
+          HR: ${{ steps.hr_overview.outcome }}
+          STAFF: ${{ steps.staff_overview.outcome }}
+          MANAGEMENT: ${{ steps.management_overview.outcome }}
+          EVENT_DATA: ${{ steps.event_data.outcome }}
+          EVENT: ${{ steps.event_overview.outcome }}
+        run: |
+          node - <<'NODE'
+          const values = [
+            process.env.DRIVER,
+            process.env.HR,
+            process.env.STAFF,
+            process.env.MANAGEMENT,
+            process.env.EVENT_DATA,
+            process.env.EVENT
+          ];
+          const failed = values.filter((value) => value !== 'success');
+          if (failed.length) {
+            console.error('One or more Leadership Overview stages failed:', values.join(', '));
+            process.exit(1);
+          }
+          console.log('All Leadership Overview stages completed successfully.');
+          NODE
