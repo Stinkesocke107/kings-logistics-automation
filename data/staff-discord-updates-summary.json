@@ -1,12 +1,15 @@
 {
   "version": 1,
   "mode": "dry-run",
-  "updatedAt": "2026-10-04T17:08:16.048Z",
+  "updatedAt": "2026-10-04T17:09:39.575Z",
   "currentStaff": 12,
   "joined": 0,
   "promotions": 0,
   "left": 0,
-  "baselineCreated": true,
+  "published": 0,
+  "duplicatesSuppressed": 0,
+  "dryRunPosts": 0,
+  "baselineCreated": false,
   "publicChannelId": "1494095653096128604",
   "hierarchyRoles": [
     {
