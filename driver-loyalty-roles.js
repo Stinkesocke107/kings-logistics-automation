@@ -98,7 +98,7 @@ function encrypt(value, domain) {
     encrypted: true,
     algorithm: 'aes-256-gcm',
     iv: iv.toString('base64'),
-    authTag: cipher.getAuthTag('base64'),
+    authTag: cipher.getAuthTag().toString('base64'),
     ciphertext: ciphertext.toString('base64')
   };
 }
