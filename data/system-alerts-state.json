@@ -1,6 +1,17 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
+  "active": {
+    "integrity-history-driver-count": {
+      "severity": "critical",
+      "system": "Cross-System Integrity",
+      "message": "Driver History member total (78) differs from Driver Management (109).",
+      "details": {
+        "difference": 31,
+        "tolerance": 2
+      },
+      "firstAlertedAt": "2026-10-04T21:33:17.561Z"
+    }
+  },
   "pending": {}
 }
