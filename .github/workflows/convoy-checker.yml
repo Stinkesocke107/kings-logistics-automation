@@ -17,6 +17,7 @@ on:
     branches: [main]
     paths:
       - 'convoy-*.js'
+      - 'event-leadership-overview.js'
       - 'kings-convoy-announcements.js'
       - 'convoy-e2e-dry-run.js'
       - 'api-resilience.js'
@@ -78,6 +79,7 @@ jobs:
           node --check convoy-finalize.js
           node --check convoy-driver-reminders.js
           node --check convoy-overview-discord.js
+          node --check event-leadership-overview.js
           node --check kings-convoy-announcements.js
           node --check convoy-e2e-dry-run.js
 
@@ -178,6 +180,16 @@ jobs:
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-overview.js
+
+      - name: Sync Event Leadership Overview
+        id: convoy_stage_event_leadership
+        continue-on-error: true
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_EVENT_LEADERSHIP_CHANNEL_NAME: 'event-leadership'
+          EVENT_LEADERSHIP_DRY_RUN: ${{ steps.mode.outputs.dry_run }}
+        run: node event-leadership-overview.js
 
       - name: Sync convoy overview to Discord
         id: convoy_stage_9
