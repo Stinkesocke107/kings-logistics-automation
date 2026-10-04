@@ -40,7 +40,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml management-overview.yml milestones.yml driver-management.yml staff-management.yml; do
+          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-overviews.yml milestones.yml driver-management.yml staff-management.yml; do
             state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}" --jq '.state')"
             echo "${workflow}: ${state}"
             test "$state" = "active"
@@ -126,7 +126,7 @@ jobs:
             # dispatches after the normal 5-minute cadence has genuinely slipped.
             dispatch_if_due live-tracker.yml 540
             dispatch_if_due milestones.yml 240
-            dispatch_if_due management-overview.yml 600
+            dispatch_if_due leadership-overviews.yml 46800
             dispatch_if_due hr-leadership.yml 600
             dispatch_if_due convoy-checker.yml 600 live
             dispatch_if_due driver-management.yml 3900
@@ -158,17 +158,20 @@ jobs:
             # backup; the freshness gate prevents duplicate dispatches.
             dispatch_if_due milestones.yml 240
 
-            # Driver and Staff Management remain hourly systems. Their own native
-            # cron is preferred; the central scheduler only steps in after 65
-            # minutes without a schedule/workflow_dispatch run.
+            # Driver and Staff Management remain hourly operational systems.
+            # Their Leadership Overview messages are suppressed here and are
+            # delivered only by leadership-overviews.yml.
             dispatch_if_due driver-management.yml 3900
             dispatch_if_due staff-management.yml 3900
 
-            # Staggered 15-minute systems. These phases are intentionally placed
-            # shortly after the legacy cron times, so a healthy legacy run wins
-            # and the central scheduler only acts as failover.
+            # Leadership Overviews are synchronized twice daily by their native
+            # 08:00/20:00 UTC schedule. Recover only after a genuine 13-hour gap.
+            dispatch_if_due leadership-overviews.yml 46800
+
+            # Convoy and HR operational systems keep their own fast cadence.
+            # Their Overview messages are no longer delivered by these workflows.
             case "$phase" in
-              0) dispatch_if_due management-overview.yml 600 ;;
+              0) : ;;
               1) dispatch_if_due convoy-checker.yml 600 live ;;
               2) dispatch_if_due hr-leadership.yml 600 ;;
             esac
@@ -183,7 +186,8 @@ jobs:
           echo "- Standby successor: **queued before scheduler loop**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Live Tracker fallback: **5-minute checks with a 9-minute freshness gate behind native cron**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Milestones cadence: **5 minutes**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Management / Convoy / HR cadence: **15 minutes, staggered**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Driver / Staff fallback: **65-minute freshness gate behind native hourly cron**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Leadership Overviews: **08:00 / 20:00 UTC; 13-hour recovery gate only if a scheduled run is missed**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Convoy / HR operations: **15 minutes, staggered; overview delivery separated**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Driver / Staff operations: **65-minute freshness gate behind native hourly cron; overview delivery separated**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Duplicate protection: **latest schedule/workflow_dispatch freshness gate**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Native GitHub cron: **preferred producer cadence plus emergency scheduler bootstrap**" >> "$GITHUB_STEP_SUMMARY"
