@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const STATE_FILE = path.join(__dirname, 'data', 'driver-leadership-rate-limit.json');
-const MIN_INTERVAL_MS = 5 * 60 * 60 * 1000;
+const MIN_INTERVAL_MS = 12 * 60 * 60 * 1000;
 const MAX_UPDATES_PER_DAY = 2;
 const DAY_TIME_ZONE = 'Europe/Berlin';
 const MARKER = 'Kings Driver Leadership Overview';
@@ -103,7 +103,7 @@ function eligibility(now = new Date()) {
 
   if (ageMs < MIN_INTERVAL_MS) {
     const remainingMinutes = Math.ceil((MIN_INTERVAL_MS - ageMs) / 60000);
-    return { allowed: false, reason: `5-hour cooldown active (${remainingMinutes} min remaining)`, state };
+    return { allowed: false, reason: `12-hour cooldown active (${remainingMinutes} min remaining)`, state };
   }
 
   return { allowed: true, reason: null, state };
@@ -152,7 +152,7 @@ globalThis.fetch = async function kingsLeadershipRateLimitedFetch(input, init = 
     next.lastUpdateAt = now.toISOString();
     next.updatedAt = now.toISOString();
     writeState(next);
-    console.log(`Driver Leadership overview delivery recorded: ${next.updatesToday}/${MAX_UPDATES_PER_DAY} today; next allowed after 5 hours.`);
+    console.log(`Driver Leadership overview delivery recorded: ${next.updatesToday}/${MAX_UPDATES_PER_DAY} today; next allowed after 12 hours.`);
   }
 
   return response;
