@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "mode": "dry-run",
+  "updatedAt": "2026-10-04T17:08:16.048Z",
+  "currentStaff": 12,
+  "joined": 0,
+  "promotions": 0,
+  "left": 0,
+  "baselineCreated": true,
+  "publicChannelId": "1494095653096128604",
+  "hierarchyRoles": [
+    {
+      "key": "staff",
+      "label": "Staff",
+      "roleId": "1527770553409077359"
+    },
+    {
+      "key": "team lead",
+      "label": "Team Lead",
+      "roleId": "1378657307986235423"
+    },
+    {
+      "key": "director",
+      "label": "Director",
+      "roleId": "1527766670469238876"
+    },
+    {
+      "key": "management",
+      "label": "Management",
+      "roleId": "1243255104388206622"
+    },
+    {
+      "key": "head management",
+      "label": "Head Management",
+      "roleId": "1389816047242182760"
+    }
+  ]
+}
