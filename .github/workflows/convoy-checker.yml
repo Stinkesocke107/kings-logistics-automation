@@ -187,6 +187,7 @@ jobs:
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_EVENT_LEADERSHIP_CHANNEL_ID: '1551675735633297418'
           DISCORD_EVENT_LEADERSHIP_CHANNEL_NAME: 'event-leadership'
           EVENT_LEADERSHIP_DRY_RUN: ${{ steps.mode.outputs.dry_run }}
         run: node event-leadership-overview.js
