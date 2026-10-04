@@ -3,6 +3,17 @@ name: Kings Leadership Overviews
 on:
   workflow_dispatch:
 
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/leadership-overviews.yml'
+      - 'driver-loa.js'
+      - 'hr-leadership.js'
+      - 'staff-management.js'
+      - 'management-overview.js'
+      - 'event-leadership-overview.js'
+      - 'convoy-finalize.js'
+
   schedule:
     # Two synchronized Leadership Overview refreshes per day, exactly 12 hours apart.
     - cron: "0 8,20 * * *"
@@ -16,7 +27,9 @@ concurrency:
 
 jobs:
   refresh-leadership-overviews:
-    if: github.ref == 'refs/heads/main'
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name != 'push' || contains(github.event.head_commit.message, '[leadership-test]'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
