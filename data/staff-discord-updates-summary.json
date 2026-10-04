@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "mode": "dry-run",
-  "updatedAt": "2026-10-04T17:22:14.286Z",
+  "mode": "live",
+  "updatedAt": "2026-10-04T18:28:26.026Z",
   "currentStaff": 12,
   "truckersmpCurrentStaff": 11,
   "crossConfirmedStaff": 5,
