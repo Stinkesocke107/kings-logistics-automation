@@ -2,6 +2,21 @@ name: Kings Driver Achievements
 
 on:
   workflow_dispatch:
+    inputs:
+      role_sync_mode:
+        description: "Driver Loyalty role sync mode"
+        required: true
+        default: "dry-run"
+        type: choice
+        options:
+          - dry-run
+          - live
+
+  push:
+    branches: [main]
+    paths:
+      - 'driver-loyalty-roles.js'
+      - '.github/workflows/driver-achievements.yml'
 
   schedule:
     - cron: "20 9 * * *"
@@ -30,7 +45,31 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Determine Loyalty role sync mode
+        id: loyalty_mode
+        shell: bash
+        env:
+          REQUESTED_MODE: ${{ inputs.role_sync_mode }}
+          PUSH_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+            MODE="live"
+          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$REQUESTED_MODE" = "live" ]; then
+            MODE="live"
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && [[ "$PUSH_MESSAGE" == *"[loyalty-live]"* ]]; then
+            MODE="live"
+          else
+            MODE="dry-run"
+          fi
+
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "Driver Loyalty role sync mode: $MODE"
+
+      - name: Verify Driver Loyalty role synchronizer
+        run: node --check driver-loyalty-roles.js
+
       - name: Update Driver Achievements
+        if: github.event_name != 'push'
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -38,17 +77,64 @@ jobs:
           DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
         run: node driver-achievements.js
 
-      - name: Save Driver Achievement Data Safely
+      - name: Sync Driver Loyalty Discord roles
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LOYALTY_ROLE_MODE: ${{ steps.loyalty_mode.outputs.mode }}
+        run: node driver-loyalty-roles.js
+
+      - name: Save Driver Achievement and Loyalty data safely
+        if: github.event_name != 'push' || steps.loyalty_mode.outputs.mode == 'live'
+        shell: bash
+        env:
+          LOYALTY_MODE: ${{ steps.loyalty_mode.outputs.mode }}
         run: |
-          if git diff --quiet -- data/driver-achievements.json data/driver-achievements-summary.json && [ -z "$(git status --porcelain data/driver-achievements.json data/driver-achievements-summary.json)" ]; then
-            echo "No Driver Achievement data changes to save."
-            exit 0
-          fi
+          set -euo pipefail
 
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
 
-          git add data/driver-achievements.json
-          git add data/driver-achievements-summary.json
-          git commit -m "Update Kings Driver Achievement data"
+          if [ "$GITHUB_EVENT_NAME" != "push" ]; then
+            for file in data/driver-achievements.json data/driver-achievements-summary.json; do
+              if [ -e "$file" ] || git ls-files -- "$file" | grep -q .; then
+                git add -A -- "$file"
+              fi
+            done
+          fi
+
+          if [ "$LOYALTY_MODE" = "live" ]; then
+            for file in data/driver-loyalty-roles.json data/driver-loyalty-roles-summary.json; do
+              if [ -e "$file" ] || git ls-files -- "$file" | grep -q .; then
+                git add -A -- "$file"
+              fi
+            done
+          fi
+
+          if git diff --cached --quiet; then
+            echo "No Driver Achievement or Loyalty data changes to save."
+            exit 0
+          fi
+
+          git commit -m "Update Kings Driver Achievement and Loyalty data"
           bash scripts/git-safe-push.sh main
+
+      - name: Loyalty role sync summary
+        if: always()
+        shell: bash
+        env:
+          LOYALTY_MODE: ${{ steps.loyalty_mode.outputs.mode }}
+        run: |
+          echo "## Kings Driver Loyalty Role Sync" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Mode: **$LOYALTY_MODE**" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f data/driver-loyalty-roles-summary.json ]; then
+            node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const s = require('./data/driver-loyalty-roles-summary.json');
+          console.log(`- Current Drivers: **${s.currentDrivers}**`);
+          console.log(`- Matched on Discord: **${s.matchedCurrentDrivers}**`);
+          console.log(`- Eligible for Loyalty tier: **${s.eligibleForLoyaltyTier}**`);
+          console.log(`- Unmatched / ambiguous: **${s.unmatched} / ${s.ambiguous}**`);
+          console.log(`- Role additions / removals: **${s.roleAdditions} / ${s.roleRemovals}**`);
+          NODE
+          fi
