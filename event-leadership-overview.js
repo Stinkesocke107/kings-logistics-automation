@@ -34,23 +34,48 @@ async function discord(path, options = {}) {
 
   const headers = {
     Authorization: `Bot ${TOKEN}`,
-    'User-Agent': 'Kings Logistics Event Leadership Overview/1.0'
+    'User-Agent': 'Kings Logistics Event Leadership Overview/1.1'
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
-  const response = await fetch(`${API}${path}`, {
-    method,
-    headers,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-    signal: AbortSignal.timeout(15000)
-  });
+  let lastError = null;
 
-  const text = await response.text();
-  if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${path}: ${text.slice(0, 500)}`);
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const response = await fetch(`${API}${path}`, {
+        method,
+        headers,
+        body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+        signal: AbortSignal.timeout(method === 'GET' ? 30000 : 20000)
+      });
+
+      const text = await response.text();
+      if (!response.ok) {
+        throw new Error(`Discord API ${response.status} on ${method} ${path}: ${text.slice(0, 500)}`);
+      }
+      if (!text) return null;
+      try { return JSON.parse(text); } catch { return text; }
+    } catch (error) {
+      lastError = error;
+      const retryable =
+        method === 'GET' &&
+        (
+          error?.name === 'AbortError' ||
+          error?.name === 'TimeoutError' ||
+          /timeout|aborted|fetch failed/i.test(String(error?.message || error))
+        );
+
+      if (!retryable || attempt === 3) throw error;
+
+      const waitMs = 750 * attempt;
+      console.warn(
+        `Discord GET retry ${attempt}/3 for ${path} after: ${error.message}`
+      );
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+    }
   }
-  if (!text) return null;
-  try { return JSON.parse(text); } catch { return text; }
+
+  throw lastError || new Error(`Discord request failed: ${method} ${path}`);
 }
 
 function normalizeChannelName(value = '') {
