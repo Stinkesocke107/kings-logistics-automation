@@ -13,8 +13,8 @@ on:
       - 'scripts/git-safe-push.sh'
       - '.github/workflows/driver-management.yml'
   schedule:
-    # Driver data, LOA and alerts remain hourly. Only the final Leadership Overview
-    # Discord message is rate-limited to >=5 hours and max 2 updates/day.
+    # Driver data, LOA commands and alerts remain hourly.
+    # Leadership Overview delivery is owned by the centralized 12-hour overview pipeline.
     - cron: "17 * * * *"
 
 permissions:
@@ -54,13 +54,15 @@ jobs:
           node --check driver-leadership-rate-limit.js
           node -r ./driver-leadership-rate-limit.js driver-management.js
 
-      - name: Sync Driver LOA and Final Leadership Overview
+      - name: Sync Driver LOA Operations
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
-          DRIVER_LEADERSHIP_WRITE_MODE: 'final'
+          DRIVER_LEADERSHIP_WRITE_MODE: 'suppress'
+          DRIVER_LEADERSHIP_OVERVIEW_MODE: 'suppress'
+          DRIVER_LOA_COMMANDS_MODE: 'process'
         run: node -r ./driver-leadership-rate-limit.js driver-loa.js
 
       - name: Send Driver Status Alerts
