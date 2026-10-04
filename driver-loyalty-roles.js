@@ -151,6 +151,39 @@ function normalizeRoleName(value = '') {
     .replace(/\s+/g, ' ');
 }
 
+function normalizeIdentity(value = '') {
+  return String(value)
+    .normalize('NFKC')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function memberIdentityValues(member) {
+  return [
+    member?.nick,
+    member?.user?.global_name,
+    member?.user?.username
+  ]
+    .map(normalizeIdentity)
+    .filter(Boolean);
+}
+
+function buildIdentityIndex(members) {
+  const index = new Map();
+
+  for (const member of members || []) {
+    if (!member?.user?.id || member.user.bot) continue;
+    for (const value of new Set(memberIdentityValues(member))) {
+      const ids = index.get(value) || new Set();
+      ids.add(String(member.user.id));
+      index.set(value, ids);
+    }
+  }
+
+  return index;
+}
+
 function validSnowflake(value) {
   return /^\d{15,22}$/.test(String(value || '').trim());
 }
@@ -164,7 +197,7 @@ async function discord(pathname, options = {}) {
 
   const headers = {
     Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-    'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.2'
+    'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.3'
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
@@ -184,6 +217,60 @@ async function discord(pathname, options = {}) {
   try { return JSON.parse(text); } catch { return text; }
 }
 
+async function listGuildMembersOptional() {
+  const members = [];
+  let after = null;
+
+  try {
+    for (let page = 0; page < 20; page += 1) {
+      const query = new URLSearchParams({ limit: '1000' });
+      if (after) query.set('after', after);
+
+      const response = await fetch(
+        `${DISCORD_API}/guilds/${DISCORD_GUILD_ID}/members?${query.toString()}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+            'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.3'
+          },
+          signal: AbortSignal.timeout(15000)
+        }
+      );
+
+      const text = await response.text();
+      if (response.status === 403) {
+        console.log(
+          'Discord full member list unavailable; exact-name fallback disabled. ' +
+          'Enable Server Members Intent to cover Drivers without public TruckersMP Discord links.'
+        );
+        return { available: false, members: [] };
+      }
+      if (!response.ok) {
+        throw new Error(
+          `Discord API ${response.status} while listing guild members: ${text.slice(0, 500)}`
+        );
+      }
+
+      const batch = text ? JSON.parse(text) : [];
+      if (!Array.isArray(batch)) throw new Error('Discord guild members response is invalid.');
+
+      members.push(...batch);
+      if (batch.length < 1000) break;
+
+      after = batch[batch.length - 1]?.user?.id || null;
+      if (!after) throw new Error('Discord member pagination cursor is missing.');
+    }
+
+    return {
+      available: true,
+      members: members.filter((member) => member?.user?.id && !member.user.bot)
+    };
+  } catch (error) {
+    throw new Error(`Discord member-list fallback failed: ${error.message}`);
+  }
+}
+
 async function getGuildMemberOrNull(userId) {
   const response = await fetch(
     `${DISCORD_API}/guilds/${DISCORD_GUILD_ID}/members/${encodeURIComponent(userId)}`,
@@ -191,7 +278,7 @@ async function getGuildMemberOrNull(userId) {
       method: 'GET',
       headers: {
         Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-        'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.2'
+        'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.3'
       },
       signal: AbortSignal.timeout(15000)
     }
@@ -218,7 +305,7 @@ async function fetchPlayerProfile(tmpId) {
         method: 'GET',
         headers: {
           Accept: 'application/json',
-          'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.2'
+          'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.3'
         },
         signal: AbortSignal.timeout(12000)
       });
@@ -414,6 +501,17 @@ async function main() {
     }
   }
 
+  const guildMemberList = await listGuildMembersOptional();
+  const memberById = new Map(
+    guildMemberList.members.map((member) => [String(member.user.id), member])
+  );
+  const identityIndex = buildIdentityIndex(guildMemberList.members);
+  console.log(
+    `Discord exact-name fallback: ${guildMemberList.available
+      ? `available (${guildMemberList.members.length} members)`
+      : 'unavailable'}`
+  );
+
   let state = loadRoleState();
   const byTmpId = mappingMap(state);
   const currentIds = new Set(currentDrivers.map((driver) => Number(driver.tmpId)));
@@ -421,6 +519,7 @@ async function main() {
 
   let matched = 0;
   let newMappings = 0;
+  let nameFallbackMappings = 0;
   let noLinkedDiscord = 0;
   let notOnGuild = 0;
   let profileErrors = 0;
@@ -465,14 +564,39 @@ async function main() {
       }
     }
 
-    const discordUserId = publicLinkedId || storedVerifiedId;
+    let discordUserId = publicLinkedId || storedVerifiedId;
+    let mappingSource = publicLinkedId
+      ? 'truckersmp-discordSnowflake'
+      : storedVerifiedId
+        ? 'stored-verified-mapping'
+        : null;
+
+    if (!discordUserId && guildMemberList.available) {
+      const candidates = [...(identityIndex.get(normalizeIdentity(driver.username)) || [])]
+        .filter((id) => !claimedDiscordIds.has(String(id)));
+
+      if (candidates.length === 1) {
+        discordUserId = String(candidates[0]);
+        mappingSource = 'exact-discord-name-fallback';
+        nameFallbackMappings += 1;
+      } else if (candidates.length > 1) {
+        unresolved.push({
+          tmpId,
+          username: String(driver.username || ''),
+          reason: 'ambiguous-exact-discord-name-match'
+        });
+        continue;
+      }
+    }
 
     if (!discordUserId) {
       noLinkedDiscord += 1;
       unresolved.push({
         tmpId,
         username: String(driver.username || ''),
-        reason: 'truckersmp-discord-not-linked-or-private'
+        reason: guildMemberList.available
+          ? 'no-public-discord-link-and-no-exact-name-match'
+          : 'truckersmp-discord-not-linked-or-private'
       });
       continue;
     }
@@ -486,9 +610,9 @@ async function main() {
       continue;
     }
 
-    let member;
+    let member = memberById.get(String(discordUserId)) || null;
     try {
-      member = await getGuildMemberOrNull(discordUserId);
+      if (!member) member = await getGuildMemberOrNull(discordUserId);
     } catch (error) {
       throw new Error(
         `Could not verify Discord member for TMP ${tmpId} / Discord ${discordUserId}: ${error.message}`
@@ -517,7 +641,7 @@ async function main() {
       username: String(driver.username || ''),
       joinDate: joinDate ? joinDate.toISOString() : null,
       current: true,
-      source: publicLinkedId ? 'truckersmp-discordSnowflake' : 'stored-verified-mapping',
+      source: mappingSource || 'stored-verified-mapping',
       firstMatchedAt: record?.firstMatchedAt || nowISO(),
       lastVerifiedAt: nowISO(),
       updatedAt: nowISO()
@@ -580,6 +704,8 @@ async function main() {
     currentDrivers: currentDrivers.length,
     matchedCurrentDrivers: matched,
     newMappings,
+    nameFallbackMappings,
+    fullDiscordMemberListAvailable: guildMemberList.available,
     noLinkedDiscord,
     linkedDiscordNotOnGuild: notOnGuild,
     truckersmpProfileErrors: profileErrors,
@@ -600,8 +726,9 @@ async function main() {
     })),
     unresolved,
     safety: {
-      mappingSource: 'TruckersMP player.discordSnowflake or previously verified stored mapping',
+      mappingSource: 'TruckersMP player.discordSnowflake, stored verified mapping, or unique exact Discord name fallback',
       fullDiscordMemberListRequired: false,
+      exactNameFallbackRequiresServerMembersIntent: true,
       privateOrMissingDiscordLinksSkipped: true,
       usersNotInKingsServerSkipped: true,
       persistedDiscordIdUsedAfterFirstVerifiedMatch: true,
@@ -615,7 +742,8 @@ async function main() {
   console.log('--------------------------------------');
   console.log(`Matched current Drivers: ${matched}/${currentDrivers.length}`);
   console.log(`Eligible for a loyalty tier: ${eligible}`);
-  console.log(`No linked/public Discord: ${noLinkedDiscord}`);
+  console.log(`Exact-name fallback mappings: ${nameFallbackMappings}`);
+  console.log(`No linked/public Discord or exact fallback: ${noLinkedDiscord}`);
   console.log(`Linked Discord not on Kings server: ${notOnGuild}`);
   console.log(`TruckersMP profile errors: ${profileErrors}`);
   console.log(`Role additions: ${additions} | Role removals: ${removals}`);
