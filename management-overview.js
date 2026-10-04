@@ -183,7 +183,7 @@ async function discord(pathname, options = {}) {
   if (method !== 'GET') {
     const messagePath = pathname.match(/^\/channels\/(\d+)\/messages(?:\/(\d+))?$/);
     const allowed = messagePath && resolvedWriteChannelId && messagePath[1] === String(resolvedWriteChannelId) &&
-      (method === 'POST' || method === 'PATCH');
+      (method === 'POST' || method === 'PATCH' || method === 'DELETE');
     if (!allowed) throw new Error(`Safety guard blocked Discord write: ${method} ${pathname}`);
   }
 
@@ -394,10 +394,11 @@ function buildEmbed(driver, live, statistics, hr, events, reports, recognition, 
 async function syncOverview(channel, embed) {
   const bot = await discord('/users/@me');
   const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
-  const existing = (messages || []).find((message) =>
+  const matches = (messages || []).filter((message) =>
     message.author?.id === bot.id &&
     (message.embeds || []).some((item) => item.title === OVERVIEW_TITLE)
   );
+  const existing = matches[0] || null;
 
   const body = { embeds: [embed], allowed_mentions: { parse: [] } };
   if (existing) {
@@ -406,6 +407,15 @@ async function syncOverview(channel, embed) {
   } else {
     await discord(`/channels/${channel.id}/messages`, { method: 'POST', body });
     console.log(`Management Overview created in #${channel.name}.`);
+  }
+
+  let duplicatesRemoved = 0;
+  for (const duplicate of matches.slice(1)) {
+    await discord(`/channels/${channel.id}/messages/${duplicate.id}`, { method: 'DELETE' });
+    duplicatesRemoved += 1;
+  }
+  if (duplicatesRemoved) {
+    console.log(`Management Overview duplicate cleanup: removed ${duplicatesRemoved} duplicate message(s).`);
   }
 }
 
