@@ -1,3 +1,4 @@
+// Driver Loyalty role synchronization: TruckersMP tenure -> verified Discord member -> managed loyalty roles.
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
