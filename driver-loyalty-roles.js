@@ -46,6 +46,10 @@ function nowISO() {
   return new Date().toISOString();
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function readJson(file, fallback = null) {
   if (!fs.existsSync(file)) return fallback;
   try {
@@ -160,7 +164,7 @@ async function discord(pathname, options = {}) {
 
   const headers = {
     Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-    'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.1'
+    'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.2'
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
@@ -187,7 +191,7 @@ async function getGuildMemberOrNull(userId) {
       method: 'GET',
       headers: {
         Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-        'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.1'
+        'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.2'
       },
       signal: AbortSignal.timeout(15000)
     }
@@ -208,18 +212,36 @@ async function getGuildMemberOrNull(userId) {
 async function fetchPlayerProfile(tmpId) {
   let lastError = null;
 
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
     try {
       const response = await fetch(`${TMP_API}/player/${encodeURIComponent(tmpId)}`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
-          'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.1'
+          'User-Agent': 'Kings Logistics Driver Loyalty Roles/1.2'
         },
         signal: AbortSignal.timeout(12000)
       });
 
       const text = await response.text();
+
+      if (response.status === 429) {
+        const retryAfter = Number.parseFloat(response.headers.get('retry-after') || '');
+        const resetAfter = Number.parseFloat(response.headers.get('x-ratelimit-reset-after') || '');
+        const seconds = Number.isFinite(retryAfter) && retryAfter > 0
+          ? retryAfter
+          : Number.isFinite(resetAfter) && resetAfter > 0
+            ? resetAfter
+            : 65;
+
+        const waitMs = Math.ceil(Math.min(Math.max(seconds, 1), 90) * 1000);
+        console.warn(
+          `TruckersMP player API rate limited at TMP ${tmpId}; waiting ${Math.ceil(waitMs / 1000)}s before retry.`
+        );
+        await sleep(waitMs);
+        continue;
+      }
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${text.slice(0, 300)}`);
       }
@@ -232,9 +254,7 @@ async function fetchPlayerProfile(tmpId) {
       return payload.response;
     } catch (error) {
       lastError = error;
-      if (attempt < 3) {
-        await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
-      }
+      if (attempt < 6) await sleep(500 * attempt);
     }
   }
 
@@ -417,28 +437,35 @@ async function main() {
     const joinDate = safeDate(driver.joinDate);
     let record = byTmpId.get(tmpId) || null;
     let profile = null;
+    let publicLinkedId = null;
 
-    try {
-      profile = await fetchPlayerProfile(tmpId);
-    } catch (error) {
-      profileErrors += 1;
-      unresolved.push({
-        tmpId,
-        username: String(driver.username || ''),
-        reason: 'truckersmp-profile-error'
-      });
-      console.warn(`- ${driver.username} | TMP ${tmpId} | profile lookup failed: ${error.message}`);
-      continue;
+    const storedVerifiedId = record?.discordUserId && validSnowflake(record.discordUserId)
+      ? String(record.discordUserId)
+      : null;
+
+    if (!storedVerifiedId) {
+      try {
+        profile = await fetchPlayerProfile(tmpId);
+        publicLinkedId = validSnowflake(profile?.discordSnowflake)
+          ? String(profile.discordSnowflake)
+          : null;
+
+        // Keep first-time population comfortably below the public Player API
+        // request rate. Future runs reuse the verified Discord snowflake.
+        await sleep(1100);
+      } catch (error) {
+        profileErrors += 1;
+        unresolved.push({
+          tmpId,
+          username: String(driver.username || ''),
+          reason: 'truckersmp-profile-error'
+        });
+        console.warn(`- ${driver.username} | TMP ${tmpId} | profile lookup failed: ${error.message}`);
+        continue;
+      }
     }
 
-    const publicLinkedId = validSnowflake(profile?.discordSnowflake)
-      ? String(profile.discordSnowflake)
-      : null;
-    const discordUserId = publicLinkedId || (
-      record?.discordUserId && validSnowflake(record.discordUserId)
-        ? String(record.discordUserId)
-        : null
-    );
+    const discordUserId = publicLinkedId || storedVerifiedId;
 
     if (!discordUserId) {
       noLinkedDiscord += 1;
