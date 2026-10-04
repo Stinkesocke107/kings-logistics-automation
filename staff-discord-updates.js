@@ -18,6 +18,7 @@ const STATE_DOMAIN = 'kings-staff-discord-updates-v1';
 const STAFF_MANAGEMENT_DOMAIN = 'kings-staff-management-v1';
 const LOYALTY_MAPPING_DOMAIN = 'kings-driver-loyalty-roles-v1';
 const DISCORD_API = 'https://discord.com/api/v10';
+const TMP_API = 'https://api.truckersmp.com/v2';
 
 const HIERARCHY = [
   { key: 'staff', label: 'Staff', level: 1 },
@@ -209,7 +210,54 @@ function buildDiscordIdentityIndex(members) {
   return index;
 }
 
-function buildTruckersMpCrossCheck(staffState, loyaltyMappings, guildMembers) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function truckersMpDiscordSnowflake(tmpId) {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= 4; attempt += 1) {
+    try {
+      const response = await fetch(`${TMP_API}/player/${encodeURIComponent(tmpId)}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'Kings Logistics Staff Public Updates/1.1'
+        },
+        signal: AbortSignal.timeout(12000)
+      });
+
+      const text = await response.text();
+
+      if (response.status === 429) {
+        const retryAfter = Number.parseFloat(response.headers.get('retry-after') || '');
+        const seconds = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 15;
+        const waitMs = Math.ceil(Math.min(Math.max(seconds, 1), 60) * 1000);
+        console.warn(
+          `TruckersMP player API rate limited at TMP ${tmpId}; waiting ${Math.ceil(waitMs / 1000)}s.`
+        );
+        await sleep(waitMs);
+        continue;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${text.slice(0, 300)}`);
+      }
+
+      const payload = text ? JSON.parse(text) : null;
+      const snowflake = String(payload?.response?.discordSnowflake || '').trim();
+      return /^\d{15,22}$/.test(snowflake) ? snowflake : null;
+    } catch (error) {
+      lastError = error;
+      if (attempt < 4) await sleep(500 * attempt);
+    }
+  }
+
+  throw lastError || new Error(`TruckersMP player lookup failed for TMP ${tmpId}.`);
+}
+
+async function buildTruckersMpCrossCheck(staffState, loyaltyMappings, guildMembers) {
   const currentTmpStaff = (Array.isArray(staffState?.staff) ? staffState.staff : [])
     .filter((person) => person.currentStaff && Number.isFinite(Number(person.tmpId)));
 
@@ -230,17 +278,52 @@ function buildTruckersMpCrossCheck(staffState, loyaltyMappings, guildMembers) {
 
   const byDiscord = new Map();
   const unresolved = [];
+  const sourceCounts = {
+    truckersmpDiscordSnowflake: 0,
+    verifiedDriverMapping: 0,
+    uniqueExactNameMatch: 0
+  };
 
   for (const person of currentTmpStaff) {
     const tmpId = Number(person.tmpId);
     let discordUserId = verifiedDiscordByTmp.get(tmpId) || null;
     let source = discordUserId ? 'verified-driver-mapping' : null;
 
+    if (discordUserId) {
+      sourceCounts.verifiedDriverMapping += 1;
+    }
+
+    if (!discordUserId) {
+      try {
+        const snowflake = await truckersMpDiscordSnowflake(tmpId);
+        if (snowflake && guildMemberIds.has(snowflake)) {
+          discordUserId = snowflake;
+          source = 'truckersmp-discordSnowflake';
+          sourceCounts.truckersmpDiscordSnowflake += 1;
+        } else if (snowflake && !guildMemberIds.has(snowflake)) {
+          unresolved.push({
+            tmpId,
+            username: String(person.username || ''),
+            reason: 'truckersmp-linked-discord-not-on-kings-server'
+          });
+          await sleep(1100);
+          continue;
+        }
+
+        await sleep(1100);
+      } catch (error) {
+        console.warn(
+          `TruckersMP Discord verification failed for ${person.username} (TMP ${tmpId}): ${error.message}`
+        );
+      }
+    }
+
     if (!discordUserId) {
       const candidates = [...(identityIndex.get(normalize(person.username)) || [])];
       if (candidates.length === 1) {
         discordUserId = String(candidates[0]);
         source = 'unique-exact-name-match';
+        sourceCounts.uniqueExactNameMatch += 1;
       } else {
         unresolved.push({
           tmpId,
@@ -272,7 +355,8 @@ function buildTruckersMpCrossCheck(staffState, loyaltyMappings, guildMembers) {
     currentTmpStaff,
     currentTmpIds,
     byDiscord,
-    unresolved
+    unresolved,
+    sourceCounts
   };
 }
 
@@ -724,7 +808,7 @@ async function main() {
     .map((member) => memberStaffSnapshot(member, hierarchyRoles, roleById))
     .filter(Boolean)
     .sort((a, b) => a.username.localeCompare(b.username));
-  const crossCheck = buildTruckersMpCrossCheck(staffManagementState, loyaltyMappings, members);
+  const crossCheck = await buildTruckersMpCrossCheck(staffManagementState, loyaltyMappings, members);
   const currentStaff = enrichDiscordStaffWithTruckersMp(discordStaff, crossCheck);
 
   console.log(`Discord members inspected: ${members.length}`);
@@ -738,6 +822,11 @@ async function main() {
   console.log(`Current Staff detected from Discord roles: ${currentStaff.length}`);
   console.log(`Current Staff confirmed by TruckersMP: ${crossCheck.currentTmpStaff.length}`);
   console.log(`Discord Staff cross-confirmed with TruckersMP: ${currentStaff.filter((person) => person.truckersmpVerified).length}/${currentStaff.length}`);
+  console.log(
+    `Cross-check sources: TruckersMP Discord link ${crossCheck.sourceCounts.truckersmpDiscordSnowflake} | ` +
+    `verified Driver mapping ${crossCheck.sourceCounts.verifiedDriverMapping} | ` +
+    `exact-name fallback ${crossCheck.sourceCounts.uniqueExactNameMatch}`
+  );
   if (crossCheck.unresolved.length) console.log(`TruckersMP Staff without a safe Discord match: ${crossCheck.unresolved.length}`);
   for (const person of currentStaff) {
     console.log(
@@ -768,6 +857,7 @@ async function main() {
       truckersmpCurrentStaff: crossCheck.currentTmpStaff.length,
       crossConfirmedStaff: currentStaff.filter((person) => person.truckersmpVerified).length,
       sourceMismatches: crossCheck.unresolved.length,
+      crossCheckSources: crossCheck.sourceCounts,
       joined: 0,
       promotions: 0,
       left: 0,
@@ -841,6 +931,7 @@ async function main() {
     truckersmpCurrentStaff: crossCheck.currentTmpStaff.length,
     crossConfirmedStaff: currentStaff.filter((person) => person.truckersmpVerified).length,
     sourceMismatches: sourceMismatches.length + crossCheck.unresolved.length,
+    crossCheckSources: crossCheck.sourceCounts,
     mismatchDetails: [...sourceMismatches, ...crossCheck.unresolved].slice(0, 50),
     ...counts,
     published,
