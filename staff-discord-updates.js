@@ -229,6 +229,50 @@ function resolveHierarchyRoles(roles, members) {
   return found;
 }
 
+function isDecorativeOrNonStaffRole(roleName) {
+  const raw = String(roleName || '');
+  const name = normalize(raw);
+
+  if (!name) return true;
+  if (/[━─═]{2,}/.test(raw)) return true;
+  if (/^\s*\|\s*(staff|team lead|director|management|head management)\s*$/i.test(raw)) return true;
+
+  return [
+    'kings drivers',
+    'kings driver',
+    'kings trial',
+    'ets2 driver',
+    'ats driver',
+    'trucky driver',
+    'promods driver',
+    'convoy driver',
+    'community member',
+    'rules accepted',
+    'kings booster',
+    'kings supporter',
+    'head staff of the month',
+    'high staff of the month',
+    'staff of the month',
+    'all notifications',
+    'event notifications',
+    'news notifications',
+    'update notifications'
+  ].includes(name) ||
+    /with kings$/.test(name) ||
+    /^(english|german|dutch|polish|arabic|french|spanish|portuguese|russian|danish)$/.test(name);
+}
+
+function isStaffPositionRole(roleName) {
+  if (isDecorativeOrNonStaffRole(roleName)) return false;
+  const name = normalize(roleName);
+
+  return /\b(ceo|coo|recruiter|moderator|planner|coordinator|designer|specialist|developer|lead|director|management)\b/.test(name);
+}
+
+function primaryStaffPosition(allRoles, highestHierarchy) {
+  const candidate = (allRoles || []).find((role) => isStaffPositionRole(role.name));
+  return candidate ? String(candidate.name || '').trim() : highestHierarchy.label;
+}
 function memberStaffSnapshot(member, hierarchyRoles, roleById) {
   const hierarchy = (member.roles || [])
     .map(String)
@@ -244,6 +288,8 @@ function memberStaffSnapshot(member, hierarchyRoles, roleById) {
     .filter(Boolean)
     .sort((a, b) => Number(b.position || 0) - Number(a.position || 0));
 
+  const primaryRole = primaryStaffPosition(allRoles, highest);
+
   return {
     discordUserId: String(member.user.id),
     username: String(member.user.global_name || member.user.username || member.user.id),
@@ -252,6 +298,7 @@ function memberStaffSnapshot(member, hierarchyRoles, roleById) {
     hierarchyLevel: highest.level,
     hierarchyRoleId: String(highest.role.id),
     hierarchyRoleIds: hierarchy.map((entry) => String(entry.role.id)),
+    primaryRole,
     roleIds: allRoles.map((role) => String(role.id)),
     roleNames: allRoles.map((role) => String(role.name || '')).filter(Boolean),
     currentStaff: true
@@ -299,7 +346,7 @@ function detectChanges(previous, currentStaff) {
         oldHierarchyKey: null,
         oldRole: null,
         newHierarchyKey: current.hierarchyKey,
-        newRole: current.hierarchyLabel
+        newRole: current.primaryRole || current.hierarchyLabel
       });
       continue;
     }
@@ -310,9 +357,9 @@ function detectChanges(previous, currentStaff) {
         discordUserId: current.discordUserId,
         username: current.username,
         oldHierarchyKey: old.hierarchyKey || null,
-        oldRole: old.hierarchyLabel || 'Staff',
+        oldRole: old.primaryRole || old.hierarchyLabel || 'Staff',
         newHierarchyKey: current.hierarchyKey,
-        newRole: current.hierarchyLabel
+        newRole: current.primaryRole || current.hierarchyLabel
       });
       continue;
     }
@@ -333,7 +380,7 @@ function detectChanges(previous, currentStaff) {
       discordUserId: String(old.discordUserId),
       username: old.username,
       oldHierarchyKey: old.hierarchyKey || null,
-      oldRole: old.hierarchyLabel || 'Staff',
+      oldRole: old.primaryRole || old.hierarchyLabel || 'Staff',
       newHierarchyKey: null,
       newRole: null
     });
@@ -488,7 +535,7 @@ async function main() {
   console.log(`Current Staff detected from Discord roles: ${currentStaff.length}`);
   for (const person of currentStaff) {
     console.log(
-      `Staff member: ${person.username} | hierarchy: ${person.hierarchyLabel} | roles: ` +
+      `Staff member: ${person.username} | hierarchy: ${person.hierarchyLabel} | primary: ${person.primaryRole} | roles: ` +
       person.roleNames.join(' || ')
     );
   }
