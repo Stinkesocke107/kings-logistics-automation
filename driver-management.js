@@ -1,3 +1,4 @@
+// Operational Driver Management stays on its own cadence; Leadership Overview delivery is centralized.
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
