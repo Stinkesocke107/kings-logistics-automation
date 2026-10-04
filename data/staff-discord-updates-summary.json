@@ -1,17 +1,61 @@
 {
   "version": 1,
   "mode": "dry-run",
-  "updatedAt": "2026-10-04T17:18:59.638Z",
+  "updatedAt": "2026-10-04T17:22:14.286Z",
   "currentStaff": 12,
   "truckersmpCurrentStaff": 11,
   "crossConfirmedStaff": 5,
-  "sourceMismatches": 6,
+  "sourceMismatches": 13,
+  "authority": "discord",
+  "truckersmpCrossCheckMode": "advisory-only",
   "crossCheckSources": {
     "truckersmpDiscordSnowflake": 0,
     "verifiedDriverMapping": 5,
     "uniqueExactNameMatch": 0
   },
   "mismatchDetails": [
+    {
+      "type": "staff_present",
+      "discordUserId": "1299456550523506743",
+      "username": "Ahmad",
+      "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
+    },
+    {
+      "type": "staff_present",
+      "discordUserId": "324525596443017218",
+      "username": "Bramalam",
+      "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
+    },
+    {
+      "type": "staff_present",
+      "discordUserId": "333239475029409792",
+      "username": "Ginge",
+      "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
+    },
+    {
+      "type": "staff_present",
+      "discordUserId": "1045324853156261960",
+      "username": "K 1 T S U N 3",
+      "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
+    },
+    {
+      "type": "staff_present",
+      "discordUserId": "815907694514274346",
+      "username": "Liftfork",
+      "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
+    },
+    {
+      "type": "staff_present",
+      "discordUserId": "1300886296675225611",
+      "username": "Marie",
+      "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
+    },
+    {
+      "type": "staff_present",
+      "discordUserId": "1528848318518792203",
+      "username": "Raze",
+      "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
+    },
     {
       "tmpId": 1522731,
       "username": "FMGinge",
