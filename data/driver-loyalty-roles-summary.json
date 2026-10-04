@@ -1,0 +1,482 @@
+{
+  "version": 2,
+  "mode": "live",
+  "updatedAt": "2026-10-04T16:46:32.575Z",
+  "currentDrivers": 109,
+  "matchedCurrentDrivers": 27,
+  "newMappings": 27,
+  "nameFallbackMappings": 16,
+  "fullDiscordMemberListAvailable": true,
+  "noLinkedDiscord": 80,
+  "linkedDiscordNotOnGuild": 1,
+  "truckersmpProfileErrors": 0,
+  "eligibleForLoyaltyTier": 27,
+  "roleAdditions": 52,
+  "roleRemovals": 0,
+  "alreadyCorrect": 1,
+  "formerDriverMappingsCleaned": 0,
+  "umbrellaRole": {
+    "id": "1555009783357112400",
+    "name": "── Driver Loyalty ──"
+  },
+  "tiers": [
+    {
+      "id": "1m",
+      "label": "1 Month with Kings",
+      "discordRoleId": "1555009835806892205",
+      "discordRoleName": "| 1 Month with Kings"
+    },
+    {
+      "id": "3m",
+      "label": "3 Months with Kings",
+      "discordRoleId": "1555009834737475696",
+      "discordRoleName": "| 3 Months with Kings"
+    },
+    {
+      "id": "6m",
+      "label": "6 Months with Kings",
+      "discordRoleId": "1555009836628836452",
+      "discordRoleName": "| 6 Months with Kings"
+    },
+    {
+      "id": "1y",
+      "label": "1 Year with Kings",
+      "discordRoleId": "1555009833827311626",
+      "discordRoleName": "| 1 Year with Kings"
+    },
+    {
+      "id": "2y",
+      "label": "2 Years with Kings",
+      "discordRoleId": "1555009838235254805",
+      "discordRoleName": "| 2 Years with Kings"
+    },
+    {
+      "id": "3y",
+      "label": "3 Years with Kings",
+      "discordRoleId": "1555009833147826216",
+      "discordRoleName": "| 3 Years with Kings"
+    }
+  ],
+  "unresolved": [
+    {
+      "tmpId": 161999,
+      "username": "woody1990",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 1191879,
+      "username": "Bram_Bogg",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 1522731,
+      "username": "FMGinge",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 1843898,
+      "username": "JustBram",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 1853681,
+      "username": "Slix0",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 1937931,
+      "username": "Anthony S232",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 2435998,
+      "username": "Fischbrötchen",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 2674159,
+      "username": "Astoros",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 2852052,
+      "username": "matellog",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 3549552,
+      "username": "PMVF17976",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 3929437,
+      "username": "KMeeks",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 4519121,
+      "username": "toorob_nl",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 4643676,
+      "username": "PedroShadow",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 4731942,
+      "username": "goldenking3116",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 4758943,
+      "username": "RedDevilPanda666",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 4763967,
+      "username": "Ghost.x",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 4799914,
+      "username": "Ǩ 1 T S Ц N Э",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 4863557,
+      "username": "lasse-kröger",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5043994,
+      "username": "Rayfix09",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5070887,
+      "username": "[GER] KingBramus",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5098880,
+      "username": "linuszett",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5149875,
+      "username": "Fantango_the3rd",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5155783,
+      "username": "giudf211",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5302257,
+      "username": "TheSteelGuy8",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5318474,
+      "username": "Paul Brandt",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5334442,
+      "username": "tianp112",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5345460,
+      "username": "H O C H S T A P L E R",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5361062,
+      "username": "didi_0815",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5411849,
+      "username": "BlackSeaTransit",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5419500,
+      "username": "Magierjuwel",
+      "reason": "ambiguous-exact-discord-name-match"
+    },
+    {
+      "tmpId": 5466808,
+      "username": "kjell81",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5492147,
+      "username": "QuizzyXX",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5504138,
+      "username": "GoosiestBrother",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5596129,
+      "username": "jaym1954",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5618632,
+      "username": "DieselBoy Fluffy GER",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5636000,
+      "username": "Pentiko´s Soap :]",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5655769,
+      "username": "JackyJack",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5656707,
+      "username": "DavidWhoKnows",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5658072,
+      "username": "MaTriXx01",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5668756,
+      "username": "ICE_IURI",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5750445,
+      "username": "Jxnis15",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5758304,
+      "username": "Amsal129",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5760863,
+      "username": "cobyRobinson444",
+      "reason": "linked-discord-account-not-in-kings-server"
+    },
+    {
+      "tmpId": 5771734,
+      "username": "Razxe",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5797180,
+      "username": "felipevilla",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5798555,
+      "username": "XxMostHxtedxX",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5812929,
+      "username": "janek_nbg",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5828661,
+      "username": "Rhiley",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5939452,
+      "username": "SinisterNinja11",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5960131,
+      "username": "Jamie-Oliver",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6006380,
+      "username": "_razxe_",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6011269,
+      "username": "Timbo7247x",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6026197,
+      "username": "exreflex",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6043870,
+      "username": "Kuerbiiiii",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6046913,
+      "username": "Buroz06",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6055744,
+      "username": "Davidboss10_boss",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6057609,
+      "username": "Jae2000",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6102336,
+      "username": "jordan1709",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6150847,
+      "username": "Gepard4CZ",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6164282,
+      "username": "Ste clemo",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6176363,
+      "username": "zrku",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6176758,
+      "username": "TamtheBam",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6200970,
+      "username": "Eryniell",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6202864,
+      "username": "Harry Trotter",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6217428,
+      "username": "jxy00",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6222618,
+      "username": "versusmev",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6237689,
+      "username": "User_6237689",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6239821,
+      "username": "stridsford",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6254923,
+      "username": "KNEVITT7468",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6256308,
+      "username": "FazCarbon",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6256911,
+      "username": "Zynth4074",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6258635,
+      "username": "Weebitblue",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6259764,
+      "username": "TCHAPTCHA",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6266493,
+      "username": "Ahmad_SY",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6269537,
+      "username": "The_PerpetuallyMarkedone",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6289947,
+      "username": "aym122342",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6297195,
+      "username": "Dunny0131",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6297215,
+      "username": "User_6297215",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6299857,
+      "username": "(DE) xnickw210",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6327501,
+      "username": "Yiga",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6343406,
+      "username": "FaJoste",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6345786,
+      "username": "Maxi_274",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    }
+  ],
+  "safety": {
+    "mappingSource": "TruckersMP player.discordSnowflake, stored verified mapping, or unique exact Discord name fallback",
+    "fullDiscordMemberListRequired": false,
+    "exactNameFallbackRequiresServerMembersIntent": true,
+    "privateOrMissingDiscordLinksSkipped": true,
+    "usersNotInKingsServerSkipped": true,
+    "persistedDiscordIdUsedAfterFirstVerifiedMatch": true,
+    "roleWritesEnabled": true,
+    "roleWriteBlockReason": null
+  }
+}
