@@ -1,8 +1,43 @@
 {
   "version": 1,
   "mode": "dry-run",
-  "updatedAt": "2026-10-04T17:10:46.125Z",
+  "updatedAt": "2026-10-04T17:17:17.965Z",
   "currentStaff": 12,
+  "truckersmpCurrentStaff": 11,
+  "crossConfirmedStaff": 5,
+  "sourceMismatches": 6,
+  "mismatchDetails": [
+    {
+      "tmpId": 1522731,
+      "username": "FMGinge",
+      "reason": "no-discord-match"
+    },
+    {
+      "tmpId": 1843898,
+      "username": "JustBram",
+      "reason": "no-discord-match"
+    },
+    {
+      "tmpId": 4799914,
+      "username": "Ǩ 1 T S Ц N Э",
+      "reason": "no-discord-match"
+    },
+    {
+      "tmpId": 5345460,
+      "username": "H O C H S T A P L E R",
+      "reason": "no-discord-match"
+    },
+    {
+      "tmpId": 6006380,
+      "username": "_razxe_",
+      "reason": "no-discord-match"
+    },
+    {
+      "tmpId": 6266493,
+      "username": "Ahmad_SY",
+      "reason": "no-discord-match"
+    }
+  ],
   "joined": 0,
   "promotions": 0,
   "left": 0,
