@@ -16,6 +16,8 @@ const DISCORD_API = 'https://discord.com/api/v10';
 const TMP_API = 'https://api.truckersmp.com/v2';
 const MANAGE_ROLES = 1n << 28n;
 const ADMINISTRATOR = 1n << 3n;
+let ROLE_WRITES_ENABLED = SYNC_MODE === 'live';
+let ROLE_WRITE_BLOCK_REASON = null;
 
 const UMBRELLA_LABEL = 'Driver Loyalty';
 const TIERS = [
@@ -191,8 +193,8 @@ function validSnowflake(value) {
 async function discord(pathname, options = {}) {
   const method = String(options.method || 'GET').toUpperCase();
 
-  if (SYNC_MODE !== 'live' && method !== 'GET') {
-    throw new Error(`Dry-run safety guard blocked Discord write: ${method} ${pathname}`);
+  if (!ROLE_WRITES_ENABLED && method !== 'GET') {
+    throw new Error(`Role-write safety guard blocked Discord write: ${method} ${pathname}`);
   }
 
   const headers = {
@@ -433,7 +435,7 @@ function mappingMap(state) {
 }
 
 async function addRole(userId, roleId) {
-  if (SYNC_MODE !== 'live') return;
+  if (!ROLE_WRITES_ENABLED) return;
   await discord(
     `/guilds/${DISCORD_GUILD_ID}/members/${userId}/roles/${roleId}`,
     { method: 'PUT' }
@@ -441,7 +443,7 @@ async function addRole(userId, roleId) {
 }
 
 async function removeRole(userId, roleId) {
-  if (SYNC_MODE !== 'live') return;
+  if (!ROLE_WRITES_ENABLED) return;
   await discord(
     `/guilds/${DISCORD_GUILD_ID}/members/${userId}/roles/${roleId}`,
     { method: 'DELETE' }
@@ -495,9 +497,19 @@ async function main() {
   }
 
   if (SYNC_MODE === 'live') {
-    if (!hierarchy.hasManageRoles) throw new Error('Bot does not have Manage Roles permission.');
-    if (hierarchy.blocked.length) {
-      throw new Error(`Bot role hierarchy cannot manage: ${hierarchy.blocked.join(', ')}`);
+    if (!hierarchy.hasManageRoles) {
+      ROLE_WRITES_ENABLED = false;
+      ROLE_WRITE_BLOCK_REASON = 'missing-manage-roles';
+      console.warn(
+        'LIVE role writes blocked: Kings Systems bot is missing Manage Roles. ' +
+        'The run will remain read-only and keep verified mappings only.'
+      );
+    } else if (hierarchy.blocked.length) {
+      ROLE_WRITES_ENABLED = false;
+      ROLE_WRITE_BLOCK_REASON = 'role-hierarchy-blocked';
+      console.warn(
+        `LIVE role writes blocked by role hierarchy: ${hierarchy.blocked.join(', ')}`
+      );
     }
   }
 
@@ -670,7 +682,7 @@ async function main() {
     console.log(
       `- ${driver.username} | TMP ${tmpId} | Discord ${discordUserId} | ` +
       `Tier: ${tier?.label || 'under 1 month'} | ` +
-      `${SYNC_MODE === 'live' ? action : `would ${action}`}`
+      `${ROLE_WRITES_ENABLED ? action : `would ${action}`}`
     );
   }
 
@@ -732,7 +744,8 @@ async function main() {
       privateOrMissingDiscordLinksSkipped: true,
       usersNotInKingsServerSkipped: true,
       persistedDiscordIdUsedAfterFirstVerifiedMatch: true,
-      roleWritesEnabled: SYNC_MODE === 'live'
+      roleWritesEnabled: ROLE_WRITES_ENABLED,
+      roleWriteBlockReason: ROLE_WRITE_BLOCK_REASON
     }
   };
 
@@ -749,9 +762,11 @@ async function main() {
   console.log(`Role additions: ${additions} | Role removals: ${removals}`);
   console.log(`Former mapped Drivers cleaned: ${formerCleaned}`);
   console.log(
-    `Result: ${SYNC_MODE === 'live'
+    `Result: ${ROLE_WRITES_ENABLED
       ? 'LIVE SYNC COMPLETE'
-      : 'DRY-RUN ONLY — NO DISCORD ROLES CHANGED'}`
+      : SYNC_MODE === 'live'
+        ? `LIVE SYNC BLOCKED (${ROLE_WRITE_BLOCK_REASON || 'safety-precondition'}) — NO DISCORD ROLES CHANGED`
+        : 'DRY-RUN ONLY — NO DISCORD ROLES CHANGED'}`
   );
 }
 
