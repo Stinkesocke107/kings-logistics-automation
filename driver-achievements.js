@@ -365,7 +365,7 @@ function buildSummary(state, currentDrivers) {
     counts,
     upcoming30Days,
     achievements: ACHIEVEMENTS.map((item) => ({ id: item.id, label: item.label })),
-    note: 'Recognition only. The automation never changes roles, grants permissions, disciplines members, or makes personnel decisions.'
+    note: 'Achievement notices are recognition-only. Driver Loyalty roles are synchronized separately; no permission, disciplinary, promotion, demotion, or personnel decision is automated.'
   };
 }
 
@@ -405,7 +405,7 @@ async function sendAchievementAlerts(channel, achievements) {
         `**${definition.label}**`,
         ...lines,
         '',
-        'Recognition only — no automatic role, asset, permission or personnel change is performed.'
+        'Achievement notice only — Driver Loyalty roles are synchronized separately. No permission or personnel decision is performed.'
       ].join('\n');
 
       if (content.length > 2000) {
@@ -457,7 +457,7 @@ async function main() {
 
   console.log(`Current Drivers evaluated: ${currentDrivers.length}`);
   console.log(`New achievements: ${newAchievements.length}`);
-  console.log('Safety: recognition-only; no automatic role, asset or personnel changes.');
+  console.log('Safety: achievement notices are recognition-only; Loyalty role sync is handled separately and never makes personnel decisions.');
 }
 
 main().catch((error) => {
