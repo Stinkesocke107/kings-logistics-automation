@@ -1,11 +1,16 @@
 {
   "version": 1,
-  "mode": "live",
-  "updatedAt": "2026-10-04T17:18:18.798Z",
+  "mode": "dry-run",
+  "updatedAt": "2026-10-04T17:18:59.638Z",
   "currentStaff": 12,
   "truckersmpCurrentStaff": 11,
   "crossConfirmedStaff": 5,
   "sourceMismatches": 6,
+  "crossCheckSources": {
+    "truckersmpDiscordSnowflake": 0,
+    "verifiedDriverMapping": 5,
+    "uniqueExactNameMatch": 0
+  },
   "mismatchDetails": [
     {
       "tmpId": 1522731,
