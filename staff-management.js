@@ -690,7 +690,11 @@ async function main() {
   const summary = buildSummary(state, staffRoles);
   const channel = await resolveStaffChannel();
   await syncOverview(channel, buildOverviewEmbed(summary, state));
-  if (!firstRun) await sendChangeAlerts(channel, changes);
+  if (!firstRun && changes.length) {
+    console.log(
+      `${changes.length} Staff change(s) detected. Detailed Welcome / Promotion / Leave updates are handled in the public Staff Updates channel.`
+    );
+  }
 
   const existingSummary = readJson(SUMMARY_FILE, null);
   const summaryChanged = JSON.stringify(existingSummary) !== JSON.stringify(summary);
