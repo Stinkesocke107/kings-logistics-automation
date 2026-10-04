@@ -553,7 +553,6 @@ function detectChanges(previous, currentStaff, currentTmpIds) {
   );
   const changes = [];
   const mismatches = [];
-  const nextMembers = new Map(previousMembers);
 
   for (const current of currentStaff) {
     const id = String(current.discordUserId);
@@ -565,22 +564,20 @@ function detectChanges(previous, currentStaff, currentTmpIds) {
           type: 'staff_joined',
           discordUserId: id,
           username: current.username,
-          reason: 'discord-staff-not-confirmed-by-truckersmp'
+          reason: 'discord-authoritative-join-not-confirmed-by-truckersmp'
         });
-        continue;
       }
 
       changes.push({
         type: 'staff_joined',
         discordUserId: id,
         username: current.username,
-        tmpId: current.tmpId,
+        tmpId: current.tmpId ?? null,
         oldHierarchyKey: null,
         oldRole: null,
         newHierarchyKey: current.hierarchyKey,
         newRole: current.primaryRole || current.hierarchyLabel
       });
-      nextMembers.set(id, current);
       continue;
     }
 
@@ -590,23 +587,20 @@ function detectChanges(previous, currentStaff, currentTmpIds) {
           type: 'staff_promoted',
           discordUserId: id,
           username: current.username,
-          reason: 'discord-promotion-not-confirmed-as-current-truckersmp-staff'
+          reason: 'discord-authoritative-promotion-not-confirmed-by-truckersmp'
         });
-        nextMembers.set(id, old);
-        continue;
       }
 
       changes.push({
         type: 'staff_promoted',
         discordUserId: id,
         username: current.username,
-        tmpId: current.tmpId,
+        tmpId: current.tmpId ?? old.tmpId ?? null,
         oldHierarchyKey: old.hierarchyKey || null,
         oldRole: old.primaryRole || old.hierarchyLabel || 'Staff',
         newHierarchyKey: current.hierarchyKey,
         newRole: current.primaryRole || current.hierarchyLabel
       });
-      nextMembers.set(id, current);
       continue;
     }
 
@@ -617,10 +611,13 @@ function detectChanges(previous, currentStaff, currentTmpIds) {
       );
     }
 
-    if (current.truckersmpVerified) {
-      nextMembers.set(id, current);
-    } else {
-      nextMembers.set(id, { ...old, username: current.username });
+    if (!current.truckersmpVerified) {
+      mismatches.push({
+        type: 'staff_present',
+        discordUserId: id,
+        username: current.username,
+        reason: 'discord-authoritative-staff-not-confirmed-by-truckersmp'
+      });
     }
   }
 
@@ -634,40 +631,35 @@ function detectChanges(previous, currentStaff, currentTmpIds) {
         type: 'staff_left',
         discordUserId: id,
         username: old.username,
-        reason: 'cannot-confirm-leave-without-truckersmp-link'
+        reason: 'discord-authoritative-leave-without-truckersmp-link'
       });
-      continue;
-    }
-
-    if (currentTmpIds.has(tmpId)) {
+    } else if (currentTmpIds.has(tmpId)) {
       mismatches.push({
         type: 'staff_left',
         discordUserId: id,
         username: old.username,
         tmpId,
-        reason: 'discord-staff-role-removed-but-truckersmp-still-shows-current-staff'
+        reason: 'discord-authoritative-leave-while-truckersmp-still-shows-current-staff'
       });
-      continue;
     }
 
     changes.push({
       type: 'staff_left',
       discordUserId: id,
       username: old.username,
-      tmpId,
+      tmpId: Number.isFinite(tmpId) ? tmpId : null,
       oldHierarchyKey: old.hierarchyKey || null,
       oldRole: old.primaryRole || old.hierarchyLabel || 'Staff',
       newHierarchyKey: null,
       newRole: null
     });
-    nextMembers.delete(id);
   }
 
   return {
     changes,
     mismatches,
-    nextMembers: [...nextMembers.values()]
-      .filter((member) => member?.currentStaff !== false)
+    nextMembers: currentStaff
+      .map((member) => ({ ...member, currentStaff: true }))
       .sort((a, b) => String(a.username || '').localeCompare(String(b.username || '')))
   };
 }
@@ -857,6 +849,8 @@ async function main() {
       truckersmpCurrentStaff: crossCheck.currentTmpStaff.length,
       crossConfirmedStaff: currentStaff.filter((person) => person.truckersmpVerified).length,
       sourceMismatches: crossCheck.unresolved.length,
+      authority: 'discord',
+      truckersmpCrossCheckMode: 'advisory-only',
       crossCheckSources: crossCheck.sourceCounts,
       joined: 0,
       promotions: 0,
@@ -905,7 +899,7 @@ async function main() {
   if (sourceMismatches.length) {
     for (const mismatch of sourceMismatches) {
       console.warn(
-        `SOURCE MISMATCH: ${mismatch.type} | ${mismatch.username} | ${mismatch.reason}`
+        `ADVISORY SOURCE MISMATCH: ${mismatch.type} | ${mismatch.username} | ${mismatch.reason}`
       );
     }
   }
@@ -931,6 +925,8 @@ async function main() {
     truckersmpCurrentStaff: crossCheck.currentTmpStaff.length,
     crossConfirmedStaff: currentStaff.filter((person) => person.truckersmpVerified).length,
     sourceMismatches: sourceMismatches.length + crossCheck.unresolved.length,
+    authority: 'discord',
+    truckersmpCrossCheckMode: 'advisory-only',
     crossCheckSources: crossCheck.sourceCounts,
     mismatchDetails: [...sourceMismatches, ...crossCheck.unresolved].slice(0, 50),
     ...counts,
@@ -948,9 +944,11 @@ async function main() {
     `Changes: joined ${counts.joined}, promotions ${counts.promotions}, left ${counts.left}.`
   );
   console.log(
-    `Dual-source verification: Discord ${currentStaff.length} Staff | TruckersMP ${crossCheck.currentTmpStaff.length} Staff | cross-confirmed ${currentStaff.filter((person) => person.truckersmpVerified).length}.`
+    `Staff authority: Discord. TruckersMP is advisory-only. Discord ${currentStaff.length} Staff | ` +
+    `TruckersMP ${crossCheck.currentTmpStaff.length} Staff | cross-confirmed ` +
+    `${currentStaff.filter((person) => person.truckersmpVerified).length}.`
   );
-  console.log(`Source mismatches held for review: ${sourceMismatches.length + crossCheck.unresolved.length}.`);
+  console.log(`Advisory TruckersMP mismatches: ${sourceMismatches.length + crossCheck.unresolved.length}.`);
   console.log(
     `Published: ${published}. Duplicate-suppressed: ${duplicate}. Dry-run posts: ${dryRun}.`
   );
