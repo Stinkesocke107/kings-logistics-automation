@@ -14,6 +14,7 @@ const SOURCES = {
   achievements: 'data/driver-achievements-summary.json',
   milestones: 'data/milestones.json',
   statistics: 'data/statistics.json',
+  driverUpdates: 'data/driver-updates-summary.json',
   driverHistory: 'data/driver-history.json'
 };
 
@@ -119,11 +120,13 @@ function checkMemberConsensus(data, issues, checks) {
   const achievementCount = number(data.achievements?.currentDrivers);
   const achievementTracked = number(data.achievements?.trackedCurrentDrivers);
   const milestoneCount = number(data.milestones?.memberCountAtLastUpdate);
+  const driverUpdatesCount = number(data.driverUpdates?.currentDrivers);
   const historyCount = number(data.driverHistory?.currentDrivers);
   const statsHistory = Array.isArray(data.statistics?.history) ? data.statistics.history : [];
   const latestStats = statsHistory.length ? statsHistory[statsHistory.length - 1] : null;
   const statsCount = number(latestStats?.members);
 
+  // TruckersMP/VTC operational systems intentionally share one cohort.
   const baseline = driverCount ?? liveCount;
   const baselineLabel = driverCount !== null ? 'Driver Management' : 'Live Tracker';
 
@@ -131,8 +134,38 @@ function checkMemberConsensus(data, issues, checks) {
   addCountComparison({ checks, issues, id: 'integrity-achievement-driver-count', label: 'Achievements vs Driver Management', baselineLabel, baseline, sourceLabel: 'Driver Achievements', source: achievementCount });
   addCountComparison({ checks, issues, id: 'integrity-achievement-tracked-count', label: 'Achievement tracked drivers vs Driver Management', baselineLabel, baseline, sourceLabel: 'Achievement Tracked Drivers', source: achievementTracked });
   addCountComparison({ checks, issues, id: 'integrity-milestone-driver-count', label: 'Milestones vs Driver Management', baselineLabel, baseline, sourceLabel: 'Milestones', source: milestoneCount });
-  addCountComparison({ checks, issues, id: 'integrity-history-driver-count', label: 'Driver History vs Driver Management', baselineLabel, baseline, sourceLabel: 'Driver History', source: historyCount });
   addCountComparison({ checks, issues, id: 'integrity-statistics-driver-count', label: 'Statistics vs Driver Management', baselineLabel, baseline, sourceLabel: 'Statistics', source: statsCount });
+
+  // Driver Updates / Driver History intentionally use the Discord Driver role as
+  // their authority. They must be checked against each other, not against the
+  // TruckersMP/VTC cohort above.
+  const authorityOk = data.driverUpdates?.authority === 'discord-driver-role';
+  checks.push(check('driver-updates-authority', authorityOk, {
+    expected: 'discord-driver-role',
+    actual: data.driverUpdates?.authority || null
+  }));
+  if (!authorityOk) {
+    issues.push(issue(
+      'integrity-driver-updates-authority',
+      'critical',
+      'Driver Updates',
+      'Driver Updates summary does not declare the Discord Driver role as its authority.',
+      { authority: data.driverUpdates?.authority || null }
+    ));
+  }
+
+  addCountComparison({
+    checks,
+    issues,
+    id: 'integrity-history-driver-updates-count',
+    label: 'Driver History vs Discord Driver Updates',
+    baselineLabel: 'Discord Driver Updates',
+    baseline: driverUpdatesCount,
+    sourceLabel: 'Driver History',
+    source: historyCount,
+    warningTolerance: 0,
+    criticalDifference: 5
+  });
 }
 
 function checkLiveSnapshot(data, issues, checks) {
@@ -358,6 +391,7 @@ function checkTimestamps(data, issues, checks) {
     ['Driver Achievements', data.achievements?.updatedAt],
     ['VTC Milestones', data.milestones?.updatedAt],
     ['Statistics', data.statistics?.updatedAt],
+    ['Driver Updates', data.driverUpdates?.updatedAt],
     ['Driver History', data.driverHistory?.updatedAt]
   ];
 
@@ -372,6 +406,16 @@ function checkTimestamps(data, issues, checks) {
   }
 }
 
+function managedIntegrityIssueId(value) {
+  const id = String(value || '');
+  return (
+    id === 'driver-count-mismatch' ||
+    id === 'driver-activity-total-mismatch' ||
+    id === 'data-integrity-engine-failed' ||
+    id.startsWith('integrity-')
+  );
+}
+
 function mergeIntoHealth(result) {
   const healthResult = readJson('data/system-health.json');
   if (!healthResult.exists || healthResult.error || !healthResult.data || typeof healthResult.data !== 'object') return false;
@@ -379,7 +423,9 @@ function mergeIntoHealth(result) {
   const health = healthResult.data;
   const mergedById = new Map();
   for (const item of Array.isArray(health.issues) ? health.issues : []) {
-    if (item?.id) mergedById.set(String(item.id), item);
+    if (item?.id && !managedIntegrityIssueId(item.id)) {
+      mergedById.set(String(item.id), item);
+    }
   }
   for (const item of result.issues) {
     if (item?.id) mergedById.set(String(item.id), item);
