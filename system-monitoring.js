@@ -17,7 +17,7 @@ const WORKFLOWS = [
   { file: 'driver-management.yml', label: 'Driver Management', maxAgeMinutes: 150, severity: 'critical' },
   { file: 'hr-leadership.yml', label: 'HR Leadership', maxAgeMinutes: 45, severity: 'critical' },
   { file: 'staff-management.yml', label: 'Staff Management', maxAgeMinutes: 150, severity: 'critical' },
-  { file: 'management-overview.yml', label: 'Management Overview', maxAgeMinutes: 45, severity: 'warning' },
+  { file: 'leadership-overviews.yml', label: 'Leadership Overviews', maxAgeMinutes: 780, severity: 'warning' },
   { file: 'milestones.yml', label: 'VTC Milestones', maxAgeMinutes: 30, severity: 'warning' },
   { file: 'driver-achievements.yml', label: 'Driver Achievements', maxAgeMinutes: 2160, severity: 'warning' },
   { file: 'driver-weekly-summary.yml', label: 'Driver Weekly Summary', maxAgeMinutes: 12000, severity: 'warning', optionalUntilFirstRun: true },
@@ -50,6 +50,7 @@ const CRITICAL_FILES = [
   '.github/workflows/hr-leadership.yml',
   '.github/workflows/staff-management.yml',
   '.github/workflows/management-overview.yml',
+  '.github/workflows/leadership-overviews.yml',
   '.github/workflows/core-backup.yml',
   '.github/workflows/core-recovery.yml',
   '.github/workflows/system-monitoring.yml'
