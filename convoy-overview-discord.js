@@ -232,6 +232,7 @@ function buildMessage(overview) {
       next.meetingPoint ? `📍 **Meeting Point:** ${next.meetingPoint}` : null,
       next.route ? `🛣️ **Route:** ${next.route}` : null,
       next.kingsSlot ? `🚚 **Kings Slot:** ${next.kingsSlot}` : '🚚 **Kings Slot:** ⚠️ Not recorded yet',
+      next.slotImageMessageUrl ? `🖼️ **Kings Slot Image:** [Open original slot image](${next.slotImageMessageUrl})` : null,
       next.eventUrl ? `🔗 **TruckersMP Event:** ${next.eventUrl}` : '🔗 **TruckersMP Event:** ⚠️ Not recorded yet',
       next.legacy ? '📚 **Source:** Legacy Convoy Calendar (read-only migration)' : null
     );
