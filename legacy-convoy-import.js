@@ -405,8 +405,21 @@ function isCancelled(messages) {
   return false;
 }
 
+function loadPreviousLegacy() {
+  if (!fs.existsSync(OUTPUT)) return [];
+
+  try {
+    const data = JSON.parse(fs.readFileSync(OUTPUT, 'utf8'));
+    return Array.isArray(data?.convoys) ? data.convoys : [];
+  } catch (error) {
+    console.warn(`Previous Legacy Convoy file could not be read for preservation: ${error.message}`);
+    return [];
+  }
+}
+
 async function main() {
   const importedAt = nowISO();
+  const previousLegacy = loadPreviousLegacy();
   const today = importedAt.slice(0, 10);
   const nowUnix = Math.floor(Date.now() / 1000);
 
@@ -541,6 +554,36 @@ async function main() {
     }
   }
 
+  const currentLegacyIds = new Set(convoys.map((item) => String(item.legacyId || '')));
+  let preservedMissingSource = 0;
+
+  for (const previous of previousLegacy) {
+    const legacyId = String(previous?.legacyId || '');
+    if (!legacyId || currentLegacyIds.has(legacyId)) continue;
+
+    const previousDate = String(previous?.eventDate || '');
+    if (previousDate && previousDate < today) continue;
+
+    const preserved = {
+      ...previous,
+      sourceUnavailable: true,
+      sourceUnavailableReason: 'Previously imported old Calendar thread is no longer returned by Discord.',
+      preservedFromPreviousImport: true,
+      preservedAt: importedAt
+    };
+
+    convoys.push(preserved);
+    currentLegacyIds.add(legacyId);
+    preservedMissingSource += 1;
+
+    const label = String(previous?.sourceMonth || '');
+    if (label && monthStats[label]) {
+      monthStats[label].imported += 1;
+      monthStats[label].preservedMissingSource =
+        Number(monthStats[label].preservedMissingSource || 0) + 1;
+    }
+  }
+
   convoys.sort((a, b) => {
     const aTime = Number(a.eventUnix || 0);
     const bTime = Number(b.eventUnix || 0);
@@ -587,7 +630,8 @@ async function main() {
       withTruckersmpEventId: convoys.filter((item) => item.eventId).length,
       withKingsSlotImage: convoys.filter((item) => item.kingsSlotImage).length,
       duplicateEventIdsWithinLegacy: duplicateEventIds.length,
-      importFailures: failures.length
+      importFailures: failures.length,
+      preservedMissingSource
     },
     monthStats,
     duplicateEventIds,
@@ -615,6 +659,7 @@ async function main() {
   console.log(`TruckersMP Event ID: ${output.summary.withTruckersmpEventId}`);
   console.log(`Kings Slot Image: ${output.summary.withKingsSlotImage}`);
   console.log(`Import failures: ${output.summary.importFailures}`);
+  console.log(`Preserved missing source threads: ${output.summary.preservedMissingSource}`);
 
   for (const [month, stats] of Object.entries(monthStats)) {
     console.log(`- ${month}: ${stats.imported} imported, ${stats.pastSkipped} past/cancelled skipped from ${stats.threads} thread(s)`);
