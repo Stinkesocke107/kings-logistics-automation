@@ -74,6 +74,63 @@ function convoyMonthKey(convoy) {
   return new Date(unix * 1000).toISOString().slice(0, 7);
 }
 
+function convoyDateUnix(convoy) {
+  const unix = Number(convoy?.eventUnix || 0);
+  if (Number.isFinite(unix) && unix > 0) return unix;
+
+  const date = String(convoy?.eventDate || '');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const parsed = Math.floor(new Date(`${date}T00:00:00Z`).getTime() / 1000);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+}
+
+function convoyDateLabel(convoy) {
+  const unix = Number(convoy?.eventUnix || 0);
+  if (Number.isFinite(unix) && unix > 0) {
+    return discordTimestamp(unix, 'd');
+  }
+
+  const date = String(convoy?.eventDate || '');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const parsed = Math.floor(new Date(`${date}T12:00:00Z`).getTime() / 1000);
+    return discordTimestamp(parsed, 'd');
+  }
+
+  return 'Date unavailable';
+}
+
+function isPlannedUpcoming(convoy, today) {
+  const status = String(convoy?.status || '');
+  if (['Completed', 'Cancelled', 'Legacy Past'].includes(status)) return false;
+
+  const date = String(convoy?.eventDate || '');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return date >= today;
+  }
+
+  const unix = Number(convoy?.eventUnix || 0);
+  return Number.isFinite(unix) && unix > Math.floor(Date.now() / 1000);
+}
+
+function plannedSort(a, b) {
+  const aValue = convoyDateUnix(a);
+  const bValue = convoyDateUnix(b);
+
+  if (aValue !== null && bValue !== null && aValue !== bValue) {
+    return aValue - bValue;
+  }
+
+  const aDate = String(a?.eventDate || '9999-99-99');
+  const bDate = String(b?.eventDate || '9999-99-99');
+  const dateCompare = aDate.localeCompare(bDate);
+  if (dateCompare !== 0) return dateCompare;
+
+  return String(a?.name || '').localeCompare(String(b?.name || ''));
+}
+
 function truncate(value, max = 58) {
   const text = String(value || 'Unnamed Convoy').replace(/\s+/g, ' ').trim();
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
@@ -115,7 +172,8 @@ function convoyTimeLabel(convoy) {
 function compactUpcoming(convoy) {
   const server = convoy.server ? ` · 🎙️ ${truncate(convoy.server, 24)}` : '';
   const source = convoy.legacy ? ' 📚' : '';
-  return `${statusIcon(convoy.status)}${source} ${discordTimestamp(convoy.eventUnix, 'd')} — **${truncate(convoy.name, 42)}**${server}`;
+  const info = !convoy.eventTimeValid || !convoy.confirmedKingsSlot ? ' · ⚠️ Info pending' : '';
+  return `${statusIcon(convoy.status)}${source} ${convoyDateLabel(convoy)} — **${truncate(convoy.name, 42)}**${server}${info}`;
 }
 
 function buildMessage(overview) {
@@ -124,12 +182,19 @@ function buildMessage(overview) {
   const followingMonth = nextMonthKey(currentMonth);
   const month = overview.months?.[currentMonth] || makeEmptyMonth();
 
-  const upcoming = [...(overview.upcomingConvoys || [])]
+  const today = generatedAt.toISOString().slice(0, 10);
+
+  // Convoy Overview shows every planned convoy, even when some operational
+  // details are still pending. Reminder eligibility remains stricter elsewhere.
+  const upcoming = [...(overview.countedConvoys || [])]
     .filter((convoy) => {
       const key = convoyMonthKey(convoy);
-      return key === currentMonth || key === followingMonth;
+      return (
+        (key === currentMonth || key === followingMonth) &&
+        isPlannedUpcoming(convoy, today)
+      );
     })
-    .sort((a, b) => Number(a.eventUnix || 0) - Number(b.eventUnix || 0));
+    .sort(plannedSort);
 
   const next = upcoming[0] || null;
 
@@ -145,7 +210,7 @@ function buildMessage(overview) {
   ];
 
   if (!next) {
-    lines.push('No upcoming scheduled convoy in the current or next month with a confirmed Kings slot.');
+    lines.push('No upcoming planned convoy in the current or next month.');
   } else {
     lines.push(
       `**${truncate(next.name, 70)}**`,
@@ -153,8 +218,8 @@ function buildMessage(overview) {
       next.server ? `🎙️ **Server:** ${next.server}` : null,
       next.meetingPoint ? `📍 **Meeting Point:** ${next.meetingPoint}` : null,
       next.route ? `🛣️ **Route:** ${next.route}` : null,
-      next.kingsSlot ? `🚚 **Kings Slot:** ${next.kingsSlot}` : null,
-      next.eventUrl ? `🔗 **TruckersMP Event:** ${next.eventUrl}` : null,
+      next.kingsSlot ? `🚚 **Kings Slot:** ${next.kingsSlot}` : '🚚 **Kings Slot:** ⚠️ Not recorded yet',
+      next.eventUrl ? `🔗 **TruckersMP Event:** ${next.eventUrl}` : '🔗 **TruckersMP Event:** ⚠️ Not recorded yet',
       next.legacy ? '📚 **Source:** Legacy Convoy Calendar (read-only migration)' : null
     );
   }
@@ -173,9 +238,9 @@ function buildMessage(overview) {
     '## 📋 System Overview',
     `👑 Confirmed Kings Slots: **${overview.overall?.confirmedKingsSlots ?? overview.overall?.countedConvoys ?? 0}**  ·  📥 New Convoy Center: **${overview.overall?.realConvoySubmissions || 0}**`,
     `📚 Legacy Calendar: **${overview.overall?.legacyActiveConvoys || 0}** active · **${overview.overall?.legacyDuplicatesSuppressed || 0}** duplicate(s) suppressed`,
-    `🗓️ Upcoming Scheduled (current + next month): **${upcoming.length}**  ·  ⚠️ Missing Date: **${overview.overall?.undatedCountedConvoys || 0}**  ·  🕒 Invalid Time: **${overview.overall?.invalidEventTimeConvoys || 0}**`,
+    `🗓️ Upcoming Planned (current + next month): **${upcoming.length}**  ·  ⚠️ Missing Date: **${overview.overall?.undatedCountedConvoys || 0}**  ·  🕒 Missing/Invalid Time: **${overview.overall?.invalidEventTimeConvoys || 0}**`,
     '',
-    '🤖 Updated automatically every 15 minutes. 📚 = migrated from the old Convoy Calendar. New convoys come only from the Convoy Center.'
+    '🤖 Updated automatically every 15 minutes. 📚 = migrated from the old Convoy Calendar. ⚠️ Info pending = still planned, but some reminder-critical details are missing. New convoys come only from the Convoy Center.'
   );
 
   let content = lines.filter((value) => value !== null && value !== undefined).join('\n');
