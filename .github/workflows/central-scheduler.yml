@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       force_all:
-        description: "Dispatch all managed workflows immediately if they are stale"
+        description: "Run one immediate recovery pass"
         required: false
-        default: true
+        default: false
         type: boolean
 
   push:
@@ -14,10 +14,10 @@ on:
     paths:
       - '.github/workflows/central-scheduler.yml'
 
-  # Native cron is now only an emergency bootstrap. The running scheduler
-  # maintains its own 5-minute cadence and queues a standby successor.
+  # Short fallback/recovery pass every 5 minutes. Native workflow crons remain
+  # the preferred producers; this scheduler only fills genuine gaps.
   schedule:
-    - cron: '17,47 * * * *'
+    - cron: '3-58/5 * * * *'
 
 permissions:
   actions: write
@@ -25,13 +25,14 @@ permissions:
 
 concurrency:
   group: kings-central-scheduler
-  cancel-in-progress: false
+  # Replacing the former multi-hour scheduler must immediately free the runner.
+  cancel-in-progress: true
 
 jobs:
   scheduler-engine:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 325
+    timeout-minutes: 5
 
     steps:
       - name: Verify managed workflows are active
@@ -46,27 +47,7 @@ jobs:
             test "$state" = "active"
           done
 
-      - name: Queue standby scheduler successor
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          queued=false
-          for attempt in 1 2 3; do
-            if gh api --method POST \
-              "repos/${GITHUB_REPOSITORY}/actions/workflows/central-scheduler.yml/dispatches" \
-              -f ref=main \
-              -f 'inputs[force_all]=false'; then
-              queued=true
-              echo "Standby scheduler successor queued on attempt ${attempt}."
-              break
-            fi
-            sleep 5
-          done
-          test "$queued" = "true"
-
-      - name: Run resilient Kings scheduler loop
+      - name: Run one resilient scheduler pass
         env:
           GH_TOKEN: ${{ github.token }}
           FORCE_ALL_INPUT: ${{ inputs.force_all }}
@@ -79,12 +60,6 @@ jobs:
             gh api --method GET \
               "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/runs" \
               -f per_page=20
-          }
-
-          latest_managed_run() {
-            local workflow="$1"
-            managed_run_snapshot "$workflow" \
-              | jq -r '[.workflow_runs[] | select(.event == "schedule" or .event == "workflow_dispatch")][0].created_at // ""'
           }
 
           active_managed_run() {
@@ -106,34 +81,43 @@ jobs:
                 '
           }
 
+          latest_successful_run() {
+            local workflow="$1"
+            managed_run_snapshot "$workflow" \
+              | jq -r '
+                  [
+                    .workflow_runs[]
+                    | select(.event == "schedule" or .event == "workflow_dispatch")
+                    | select(.status == "completed" and .conclusion == "success")
+                  ][0].updated_at // ""
+                '
+          }
+
           dispatch_if_due() {
             local workflow="$1"
-            local min_age_seconds="$2"
+            local max_success_age_seconds="$2"
             local mode="${3:-}"
-            local latest latest_epoch now age active
+            local active latest_success latest_epoch now age
 
-            # Never enqueue another run while a managed run for the same workflow
-            # is already queued/running. GitHub concurrency otherwise replaces an
-            # older pending run and records it as a false workflow failure.
             active="$(active_managed_run "$workflow")"
             if [ -n "$active" ]; then
-              echo "${workflow}: active managed run ${active}; skipping duplicate dispatch."
+              echo "${workflow}: active managed run ${active}; no duplicate dispatch."
               return 0
             fi
 
-            latest="$(latest_managed_run "$workflow")"
+            latest_success="$(latest_successful_run "$workflow")"
             now="$(date -u +%s)"
 
-            if [ -n "$latest" ]; then
-              latest_epoch="$(date -u -d "$latest" +%s)"
+            if [ -n "$latest_success" ]; then
+              latest_epoch="$(date -u -d "$latest_success" +%s)"
               age=$(( now - latest_epoch ))
-              if [ "$age" -lt "$min_age_seconds" ]; then
-                echo "${workflow}: fresh managed run ${age}s ago; skipping duplicate dispatch."
+              if [ "$age" -lt "$max_success_age_seconds" ]; then
+                echo "${workflow}: last successful managed run is ${age}s old; still healthy."
                 return 0
               fi
             fi
 
-            echo "${workflow}: dispatching now."
+            echo "${workflow}: stale with no active run; dispatching recovery."
             if [ "$workflow" = "convoy-checker.yml" ]; then
               gh api --method POST \
                 "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/dispatches" \
@@ -146,81 +130,32 @@ jobs:
             fi
           }
 
-          force_all=false
-          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
-            force_all=true
-          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "${FORCE_ALL_INPUT:-false}" = "true" ]; then
-            force_all=true
-          fi
+          echo "Running short Kings scheduler recovery pass."
 
-          if [ "$force_all" = "true" ]; then
-            echo "Bootstrap health pass: dispatching stale managed workflows immediately."
-            # Live Tracker native cron remains preferred. The 9-minute gate only
-            # dispatches after the normal 5-minute cadence has genuinely slipped.
-            dispatch_if_due live-tracker.yml 540
-            dispatch_if_due milestones.yml 240
-            dispatch_if_due leadership-overviews.yml 46800
-            dispatch_if_due hr-leadership.yml 600
-            dispatch_if_due convoy-checker.yml 600 live
-            dispatch_if_due driver-management.yml 3900
-            dispatch_if_due staff-management.yml 3900
-          fi
+          # Native cadence is normally faster than these recovery thresholds.
+          dispatch_if_due live-tracker.yml 540
+          dispatch_if_due milestones.yml 540
+          dispatch_if_due convoy-checker.yml 1200 live
+          dispatch_if_due hr-leadership.yml 1200
+          dispatch_if_due driver-management.yml 4500
+          dispatch_if_due staff-management.yml 4500
+          dispatch_if_due leadership-overviews.yml 46800
 
-          # 60 aligned ticks = about five hours. A queued successor takes over
-          # after this job exits. Every tick is realigned to UTC to avoid drift.
-          for tick in $(seq 1 60); do
-            now="$(date -u +%s)"
-            # Scheduler slots are xx:03,08,13,...,58 UTC.
-            next=$(( ((now - 180 + 299) / 300) * 300 + 180 ))
-            if [ "$next" -le "$now" ]; then
-              next=$(( next + 300 ))
-            fi
-            wait=$(( next - now ))
-            echo "Tick ${tick}/60: sleeping ${wait}s until $(date -u -d "@${next}" +%H:%M:%S) UTC."
-            sleep "$wait"
+          echo "Scheduler pass complete. No long-running sleep loop remains."
 
-            minute=$((10#$(date -u +%M)))
-            phase=$(( ((minute - 3 + 60) / 5) % 3 ))
-            echo "Scheduler tick at UTC minute ${minute}; phase ${phase}."
-
-            # Live Tracker native cron is preferred. If no schedule/dispatch run
-            # appeared for 9 minutes, recover it here on the next 5-minute tick.
-            dispatch_if_due live-tracker.yml 540
-
-            # Milestones every five minutes. The old native cron remains a
-            # backup; the freshness gate prevents duplicate dispatches.
-            dispatch_if_due milestones.yml 240
-
-            # Driver and Staff Management remain hourly operational systems.
-            # Their Leadership Overview messages are suppressed here and are
-            # delivered only by leadership-overviews.yml.
-            dispatch_if_due driver-management.yml 3900
-            dispatch_if_due staff-management.yml 3900
-
-            # Leadership Overviews are synchronized twice daily by their native
-            # 08:00/20:00 UTC schedule. Recover only after a genuine 13-hour gap.
-            dispatch_if_due leadership-overviews.yml 46800
-
-            # Convoy and HR operational systems keep their own fast cadence.
-            # Their Overview messages are no longer delivered by these workflows.
-            case "$phase" in
-              0) : ;;
-              1) dispatch_if_due convoy-checker.yml 600 live ;;
-              2) dispatch_if_due hr-leadership.yml 600 ;;
-            esac
-          done
-
-      - name: Scheduler handoff summary
+      - name: Scheduler summary
         if: always()
         run: |
-          echo "## Kings Central Scheduler" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Self-sustaining scheduler chain: **enabled**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Standby successor: **queued before scheduler loop**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Live Tracker fallback: **5-minute checks with a 9-minute freshness gate behind native cron**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Milestones cadence: **5 minutes**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Leadership Overviews: **08:00 / 20:00 UTC; 13-hour recovery gate only if a scheduled run is missed**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Convoy / HR operations: **15 minutes, staggered; overview delivery separated**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Driver / Staff operations: **65-minute freshness gate behind native hourly cron; overview delivery separated**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Duplicate protection: **active-run guard + latest schedule/workflow_dispatch freshness gate**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Native GitHub cron: **preferred producer cadence plus emergency scheduler bootstrap**" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## Kings Central Scheduler"
+            echo ""
+            echo "- Architecture: **short single-pass recovery scheduler**"
+            echo "- Runtime target: **well under 5 minutes**"
+            echo "- Schedule: **every 5 minutes**"
+            echo "- Long-running 5-hour scheduler: **removed**"
+            echo "- Active-run protection: **queued / pending / in-progress workflows are never duplicated**"
+            echo "- Convoy / HR recovery threshold: **20 minutes**"
+            echo "- Driver / Staff recovery threshold: **75 minutes**"
+            echo "- Leadership Overview recovery threshold: **13 hours**"
+            echo "- Native workflow crons remain the preferred cadence."
+          } >> "$GITHUB_STEP_SUMMARY"
