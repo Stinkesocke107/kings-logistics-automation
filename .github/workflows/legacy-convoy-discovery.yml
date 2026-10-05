@@ -1,11 +1,7 @@
 name: Kings Legacy Convoy Discovery
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'legacy-convoy-discovery.js'
-      - '.github/workflows/legacy-convoy-discovery.yml'
+  # One-time migration/audit tooling. Manual use only after the 2026-10-05 migration.
   workflow_dispatch:
 
 permissions:
