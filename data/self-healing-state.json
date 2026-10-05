@@ -10,18 +10,8 @@
       "lastFailureAt": null
     },
     "driver-updates": {
-      "attempts": [
-        {
-          "at": "2026-10-04T02:32:15.322Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 37171340384,
-          "issueIds": [
-            "workflow-overdue:driver-updates.yml"
-          ]
-        }
-      ],
-      "lastAttemptAt": "2026-10-04T02:32:15.322Z",
+      "attempts": [],
+      "lastAttemptAt": null,
       "lastSuccessAt": "2026-10-04T02:32:15.322Z",
       "lastFailureAt": null
     },
