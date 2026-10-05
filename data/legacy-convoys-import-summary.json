@@ -1,21 +1,22 @@
 {
   "version": 1,
-  "importedAt": "2026-10-05T01:52:39.562Z",
+  "importedAt": "2026-10-05T02:13:29.043Z",
   "summary": {
-    "importedFutureLegacyConvoys": 115,
-    "confirmedSlot": 95,
-    "pendingSlot": 15,
-    "unknownSlot": 5,
-    "validMeetingTime": 87,
-    "withTruckersmpEventId": 89,
+    "importedFutureLegacyConvoys": 114,
+    "confirmedSlot": 110,
+    "pendingSlot": 1,
+    "unknownSlot": 3,
+    "validMeetingTime": 108,
+    "withTruckersmpEventId": 111,
+    "withKingsSlotImage": 109,
     "duplicateEventIdsWithinLegacy": 0,
     "importFailures": 0
   },
   "monthStats": {
     "October 2026": {
       "channelId": "1394466082064171020",
-      "threads": 24,
-      "imported": 24,
+      "threads": 23,
+      "imported": 23,
       "pastSkipped": 0
     },
     "November 2026": {
