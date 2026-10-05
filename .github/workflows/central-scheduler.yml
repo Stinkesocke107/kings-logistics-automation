@@ -132,6 +132,14 @@ jobs:
 
           echo "Running short Kings scheduler recovery pass."
 
+          # A scheduler-code deployment performs one immediate Driver/Staff
+          # recovery pass. Active-run protection still prevents duplicates.
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            echo "Scheduler deployment bootstrap: validating Driver and Staff Management immediately."
+            dispatch_if_due driver-management.yml 0
+            dispatch_if_due staff-management.yml 0
+          fi
+
           # Native cadence is normally faster than these recovery thresholds.
           dispatch_if_due live-tracker.yml 540
           dispatch_if_due milestones.yml 540

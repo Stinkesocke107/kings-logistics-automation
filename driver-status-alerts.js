@@ -332,13 +332,17 @@ async function main() {
   if (stateReset) writeState(state);
 
   const totalPending = Object.values(pending).reduce((sum, list) => sum + list.length, 0);
+
+  // Keep the Driver Leadership channel compact even when there is no new
+  // inactivity threshold crossing in this run.
+  const channel = await resolveLeadershipChannel();
+  await suppressRecentAlertEmbeds(channel);
+
   if (!totalPending) {
     console.log('Driver status alerts: no new alerts this run.');
     return;
   }
 
-  const channel = await resolveLeadershipChannel();
-  await suppressRecentAlertEmbeds(channel);
   let totalSent = 0;
 
   for (const type of ['Info', 'Attention', 'HR Review', 'Restored']) {

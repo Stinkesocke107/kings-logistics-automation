@@ -414,6 +414,26 @@ function checkCrossSystemIntegrity(issues) {
   return checks;
 }
 
+async function wasCancelledBeforeExecution(run) {
+  if (!run?.id || run.conclusion === 'success') return false;
+
+  try {
+    const data = await githubJson(`/repos/${GITHUB_REPOSITORY}/actions/runs/${run.id}/jobs?per_page=100`);
+    const jobs = Array.isArray(data?.jobs) ? data.jobs : [];
+    if (!jobs.length) return false;
+
+    return jobs.every((job) => {
+      const steps = Array.isArray(job.steps) ? job.steps : [];
+      return job.conclusion === 'cancelled' && steps.length === 0;
+    });
+  } catch (error) {
+    console.warn(
+      `Could not classify workflow run ${run.id} as pre-execution cancellation: ${String(error.message || error)}`
+    );
+    return false;
+  }
+}
+
 async function checkWorkflow(config, issues) {
   const localPath = workflowPath(config.file);
   if (!fs.existsSync(localPath)) {
@@ -466,6 +486,10 @@ async function checkWorkflow(config, issues) {
     latestActiveAt > latestCompletedAt
   );
 
+  const benignPreExecutionCancellation = latestCompleted
+    ? await wasCancelledBeforeExecution(latestCompleted)
+    : false;
+
   const activityAt = latestSuccess?.updated_at || latestSuccess?.run_started_at || latestSuccess?.created_at;
   const age = ageMinutes(activityAt);
   let ok = true;
@@ -486,6 +510,8 @@ async function checkWorkflow(config, issues) {
   if (latestCompleted && latestCompleted.conclusion !== 'success') {
     if (newerRecoveryActive) {
       reasons.push('recovery-in-progress');
+    } else if (benignPreExecutionCancellation) {
+      reasons.push('superseded-before-execution');
     } else {
       ok = false;
       reasons.push(`latest-completed-${latestCompleted.conclusion || 'unknown'}`);
@@ -526,7 +552,8 @@ async function checkWorkflow(config, issues) {
       status: latestActive.status,
       createdAt: latestActive.created_at
     } : null,
-    recoveryInProgress: newerRecoveryActive
+    recoveryInProgress: newerRecoveryActive,
+    benignPreExecutionCancellation
   };
 }
 
