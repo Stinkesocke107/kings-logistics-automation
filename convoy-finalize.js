@@ -70,6 +70,33 @@ function getFieldValue(text, labels) {
   return value;
 }
 
+function isImageAttachment(attachment) {
+  const type = String(attachment?.content_type || '');
+  const name = String(attachment?.filename || '');
+  return type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(name);
+}
+
+function latestHumanSlotImages(messages, threadId) {
+  return (messages || [])
+    .filter((message) => !message.author?.bot)
+    .flatMap((message) =>
+      (message.attachments || [])
+        .filter(isImageAttachment)
+        .map((attachment) => ({
+          messageId: String(message.id),
+          attachmentId: String(attachment.id || ''),
+          timestamp: message.timestamp || null,
+          filename: attachment.filename || 'slot-image',
+          contentType: attachment.content_type || null,
+          width: Number(attachment.width || 0) || null,
+          height: Number(attachment.height || 0) || null,
+          capturedUrl: attachment.url || null,
+          messageUrl: `https://discord.com/channels/${GUILD_ID}/${threadId}/${message.id}`
+        }))
+    )
+    .sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+}
+
 function latestHumanField(messages, labels) {
   const sorted = [...(messages || [])]
     .filter((message) => !message.author?.bot)
@@ -172,6 +199,8 @@ function applyFinalFields(item, messages) {
 
   const responsibleStaff = latestHumanField(messages, ['Responsible Staff', 'Responsible Person', 'Staff', 'Organizer']);
   const kingsSlot = latestHumanField(messages, ['Kings Slot', 'Slot Confirmation', 'Confirmed Slot', 'Slot Number', 'Slot']);
+  const slotImages = latestHumanSlotImages(messages, item.threadId);
+  const slotImage = slotImages[0] || null;
   const routeOverride = latestHumanField(messages, ['Route']);
   const meetupOverride = latestHumanField(messages, ['Meeting Point', 'Meeting Location', 'Meetup', 'Meetup Point']);
   const meetupTimeOverride = latestHumanField(messages, ['Meeting Time', 'Meetup Time']);
@@ -184,6 +213,18 @@ function applyFinalFields(item, messages) {
   if (kingsSlot) {
     parsed.kingsSlot = kingsSlot.value;
     sources.kingsSlot = kingsSlot;
+  }
+
+  if (slotImage) {
+    parsed.kingsSlotImage = slotImage;
+    parsed.kingsSlotImages = slotImages;
+    item.kingsSlotImage = slotImage;
+    item.kingsSlotImages = slotImages;
+    sources.kingsSlotImage = slotImage;
+
+    if (!parsed.kingsSlot) {
+      parsed.kingsSlot = 'Confirmed — Slot image';
+    }
   }
 
   const tmpOk = Boolean(item.truckersmpSync?.ok && item.truckersmpSync?.authoritative && item.truckersmp?.authoritative);
@@ -229,7 +270,7 @@ function applyFinalFields(item, messages) {
   const checks = {
     eventLink: Boolean(eventLink),
     responsibleStaff: isResponsibleStaff(parsed.responsibleStaff),
-    kingsSlotConfirmed: isConfirmedSlot(parsed.kingsSlot),
+    kingsSlotConfirmed: Boolean(slotImage) || isConfirmedSlot(parsed.kingsSlot),
     truckersmpSync: tmpOk,
     eventDate: Boolean(eventDate),
     route: Boolean(parsed.route || (parsed.start && parsed.destination)),
@@ -253,7 +294,7 @@ function applyFinalFields(item, messages) {
   item.manualRequirements = {
     eventLink: Boolean(eventLink),
     responsibleStaff: isResponsibleStaff(parsed.responsibleStaff),
-    kingsSlotConfirmed: isConfirmedSlot(parsed.kingsSlot)
+    kingsSlotConfirmed: Boolean(slotImage) || isConfirmedSlot(parsed.kingsSlot)
   };
   item.kingsOverrides = {
     route: routeOverride?.value || null,
@@ -448,7 +489,7 @@ async function main() {
   refreshReportSummary(report);
   report.finalization = {
     mode: WRITE_MODE ? 'TRUCKERSMP_FIRST_WITH_KINGS_OVERRIDES' : 'READ_ONLY_TRUCKERSMP_FIRST_WITH_KINGS_OVERRIDES',
-    manualRequired: ['TruckersMP Event Link', 'Responsible Staff @mention', 'Kings Slot: Confirmed — Slot [Number]'],
+    manualRequired: ['TruckersMP Event Link', 'Responsible Staff @mention', 'Kings Slot text OR an uploaded Kings slot image'],
     optionalOverrides: ['Meeting Point', 'Meeting Time', 'Route', 'Additional Notes'],
     changed,
     finalizedAt: new Date().toISOString()
