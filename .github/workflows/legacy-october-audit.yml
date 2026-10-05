@@ -1,11 +1,7 @@
 name: Kings October Legacy Convoy Audit
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'legacy-october-audit.js'
-      - '.github/workflows/legacy-october-audit.yml'
+  # One-time migration/audit tooling. Manual use only.
   workflow_dispatch:
 
 permissions:
