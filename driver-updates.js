@@ -36,6 +36,9 @@ const STATE_FILE =
 const HISTORY_FILE =
   path.join(__dirname, "data", "driver-history.json");
 
+const SUMMARY_FILE =
+  path.join(__dirname, "data", "driver-updates-summary.json");
+
 const CHANGE_GUARD_FILE =
   path.join(__dirname, "data", "driver-change-guard.json");
 
@@ -529,6 +532,47 @@ function saveHistory(
   console.log(
     "Public-safe Driver History saved."
   );
+}
+
+function saveDriverUpdatesSummary(currentMembers, tmpMembers, driverRole) {
+  const core = {
+    version: 1,
+    authority: DRIVER_AUTHORITY,
+    currentDrivers: currentMembers.length,
+    discordDriverRoleId: String(driverRole?.id || ''),
+    discordDriverRoleName: String(driverRole?.name || ''),
+    truckersmpAdvisoryDrivers: tmpMembers.length,
+    safelyMatchedToTruckersmp: currentMembers.filter((member) => member.truckersmpVerified).length
+  };
+
+  const previous = readJson(SUMMARY_FILE, null);
+  const previousCore = previous && typeof previous === 'object'
+    ? {
+        version: previous.version,
+        authority: previous.authority,
+        currentDrivers: previous.currentDrivers,
+        discordDriverRoleId: previous.discordDriverRoleId,
+        discordDriverRoleName: previous.discordDriverRoleName,
+        truckersmpAdvisoryDrivers: previous.truckersmpAdvisoryDrivers,
+        safelyMatchedToTruckersmp: previous.safelyMatchedToTruckersmp
+      }
+    : null;
+
+  if (previousCore && JSON.stringify(previousCore) === JSON.stringify(core)) {
+    return false;
+  }
+
+  writeJson(SUMMARY_FILE, {
+    ...core,
+    updatedAt: nowISO(),
+    note: 'Discord Driver role is authoritative for Driver Updates. TruckersMP roster is advisory/cross-check only.'
+  });
+
+  console.log(
+    `Driver Updates summary saved: Discord ${core.currentDrivers}; TruckersMP advisory ${core.truckersmpAdvisoryDrivers}; matched ${core.safelyMatchedToTruckersmp}.`
+  );
+
+  return true;
 }
 
 function appendAnonymousEvents(
@@ -1521,6 +1565,12 @@ async function checkDriverUpdates() {
 
   console.log(
     `Discord Drivers safely matched to TruckersMP: ${currentMembers.filter(member => member.truckersmpVerified).length}/${currentMembers.length}`
+  );
+
+  saveDriverUpdatesSummary(
+    currentMembers,
+    tmpMembers,
+    discordAuthority.driverRole
   );
 
   const loadedState =
