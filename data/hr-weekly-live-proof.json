@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "status": "VERIFIED-LIVE-HR-WEEKLY",
+  "targetWeek": {
+    "key": "2026-09-28",
+    "start": "2026-09-28T00:00:00.000Z",
+    "end": "2026-10-05T00:00:00.000Z",
+    "shortLabel": "28 Sept 2026 – 4 Oct 2026",
+    "longLabel": "28 September 2026 – 4 October 2026"
+  },
+  "discordChannelId": "1383508442857340969",
+  "discordMessageId": "1556615365973385346",
+  "statePublished": true,
+  "verifiedAt": "2026-10-05T19:30:31.604Z"
+}
