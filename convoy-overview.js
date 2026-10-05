@@ -1,3 +1,4 @@
+// Frozen Legacy Convoy Calendar migration is active for Overview and Driver Reminders.
 const fs = require('fs');
 
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
