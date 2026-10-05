@@ -11,14 +11,18 @@
         "tolerance": 2
       },
       "firstAlertedAt": "2026-10-04T21:33:17.561Z"
+    },
+    "workflow-overdue:management-overview.yml": {
+      "severity": "warning",
+      "system": "Management Overview",
+      "message": "Management Overview has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-04T22:48:51Z",
+        "ageMinutes": 129,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-10-05T00:58:23.236Z"
     }
   },
-  "pending": {
-    "workflow-overdue:management-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-05T00:06:36.028Z",
-      "system": "Management Overview",
-      "message": "Management Overview has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
