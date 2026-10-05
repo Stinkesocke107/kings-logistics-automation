@@ -13,5 +13,12 @@
       "firstAlertedAt": "2026-10-04T21:33:17.561Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:management-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-05T00:06:36.028Z",
+      "system": "Management Overview",
+      "message": "Management Overview has not run within the expected time window."
+    }
+  }
 }
