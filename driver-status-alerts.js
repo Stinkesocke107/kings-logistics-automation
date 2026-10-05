@@ -82,11 +82,13 @@ async function discord(pathname, options = {}) {
 
   const method = String(options.method || 'GET').toUpperCase();
 
-  // HARD SAFETY GUARD: this module may only read Discord data and POST
-  // advisory messages. It cannot modify members, roles, kicks, bans,
-  // permissions, or any other personnel settings.
+  // HARD SAFETY GUARD: this module may only read Discord data, POST advisory
+  // messages, and PATCH its own advisory messages to suppress link previews.
+  // It cannot modify members, roles, kicks, bans, permissions, or personnel.
   if (method !== 'GET') {
-    const allowedWrite = /^\/channels\/\d+\/messages$/.test(pathname) && method === 'POST';
+    const allowedPost = /^\/channels\/\d+\/messages$/.test(pathname) && method === 'POST';
+    const allowedPatch = /^\/channels\/\d+\/messages\/\d+$/.test(pathname) && method === 'PATCH';
+    const allowedWrite = allowedPost || allowedPatch;
     if (!allowedWrite) {
       throw new Error(`Safety guard blocked Discord write: ${method} ${pathname}`);
     }
@@ -232,6 +234,41 @@ function chunks(values, size) {
   return result;
 }
 
+async function suppressRecentAlertEmbeds(channel) {
+  const bot = await discord('/users/@me');
+  const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
+  const markers = [
+    'Driver Activity Info — 7 Days',
+    'Driver Attention — 14 Days',
+    'Driver HR Review — 30 Days',
+    'Driver Activity Restored'
+  ];
+
+  let updated = 0;
+  for (const message of messages || []) {
+    if (String(message.author?.id || '') !== String(bot.id)) continue;
+    const content = String(message.content || '');
+    if (!markers.some((marker) => content.includes(marker))) continue;
+
+    const flags = Number(message.flags || 0);
+    if ((flags & 4) === 4) continue;
+
+    try {
+      await discord(`/channels/${channel.id}/messages/${message.id}`, {
+        method: 'PATCH',
+        body: { flags: flags | 4 }
+      });
+      updated += 1;
+    } catch (error) {
+      console.warn(`Could not suppress existing Driver alert embeds for ${message.id}: ${error.message}`);
+    }
+  }
+
+  if (updated) {
+    console.log(`Driver Leadership cleanup: suppressed link previews on ${updated} existing alert message(s).`);
+  }
+}
+
 async function postAlertsForType(channel, state, type, drivers) {
   let sent = 0;
 
@@ -243,6 +280,7 @@ async function postAlertsForType(channel, state, type, drivers) {
         method: 'POST',
         body: {
           content,
+          flags: 4,
           allowed_mentions: { parse: [] }
         }
       });
@@ -300,6 +338,7 @@ async function main() {
   }
 
   const channel = await resolveLeadershipChannel();
+  await suppressRecentAlertEmbeds(channel);
   let totalSent = 0;
 
   for (const type of ['Info', 'Attention', 'HR Review', 'Restored']) {
