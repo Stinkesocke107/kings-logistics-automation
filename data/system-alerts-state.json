@@ -2,16 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "integrity-history-driver-count": {
-      "severity": "critical",
-      "system": "Cross-System Integrity",
-      "message": "Driver History member total (78) differs from Driver Management (109).",
-      "details": {
-        "difference": 31,
-        "tolerance": 2
-      },
-      "firstAlertedAt": "2026-10-04T21:33:17.561Z"
-    },
     "workflow-overdue:management-overview.yml": {
       "severity": "warning",
       "system": "Management Overview",
@@ -22,7 +12,30 @@
         "maxAgeMinutes": 45
       },
       "firstAlertedAt": "2026-10-05T00:58:23.236Z"
+    },
+    "integrity-driver-updates-authority": {
+      "severity": "critical",
+      "system": "Driver Updates",
+      "message": "Driver Updates summary does not declare the Discord Driver role as its authority.",
+      "details": {
+        "authority": null
+      },
+      "firstAlertedAt": "2026-10-05T01:37:36.034Z"
+    },
+    "integrity-source-missing:driverUpdates": {
+      "severity": "critical",
+      "system": "Data Integrity",
+      "message": "Required integrity source is missing: data/driver-updates-summary.json",
+      "details": null,
+      "firstAlertedAt": "2026-10-05T01:37:36.034Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "integrity-history-driver-updates-count": {
+      "count": 1,
+      "firstSeenAt": "2026-10-05T01:37:36.034Z",
+      "system": "Cross-System Integrity",
+      "message": "Driver History vs Discord Driver Updates could not be verified because one of the member totals is missing or invalid."
+    }
+  }
 }
