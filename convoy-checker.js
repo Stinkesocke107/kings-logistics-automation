@@ -84,14 +84,37 @@ function extractEventId(text = '') {
   return match ? match[1] : null;
 }
 
+function isImageAttachment(attachment) {
+  const type = String(attachment?.content_type || '');
+  const name = String(attachment?.filename || '');
+  return type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(name);
+}
+
+function kingsSlotImages(messages = [], threadId = null) {
+  return (messages || [])
+    .filter((message) => !message.author?.bot)
+    .flatMap((message) =>
+      (message.attachments || [])
+        .filter(isImageAttachment)
+        .map((attachment) => ({
+          messageId: String(message.id),
+          attachmentId: String(attachment.id || ''),
+          timestamp: message.timestamp || null,
+          filename: attachment.filename || 'slot-image',
+          contentType: attachment.content_type || null,
+          width: Number(attachment.width || 0) || null,
+          height: Number(attachment.height || 0) || null,
+          capturedUrl: attachment.url || null,
+          messageUrl: threadId
+            ? `https://discord.com/channels/${GUILD_ID}/${threadId}/${message.id}`
+            : null
+        }))
+    )
+    .sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+}
+
 function hasImage(messages = []) {
-  return messages.some((message) =>
-    (message.attachments || []).some((attachment) => {
-      const type = attachment.content_type || '';
-      const name = attachment.filename || '';
-      return type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(name);
-    })
-  );
+  return kingsSlotImages(messages).length > 0;
 }
 
 function isConfirmedSlot(value) {
@@ -205,7 +228,7 @@ function isTemplateThread(thread, tagNamesById) {
     .some((name) => /\btemplate\b/i.test(name));
 }
 
-function checkFields(starterText, messages) {
+function checkFields(starterText, messages, threadId = null) {
   const eventType = getFieldValue(starterText, ['Event Type', 'Convoy Type', 'Type']);
   const eventDateRaw = getFieldValue(starterText, ['Event Date', 'Convoy Date', 'Date']);
   const eventDate = parseEventDate(eventDateRaw);
@@ -216,21 +239,27 @@ function checkFields(starterText, messages) {
   const destination = getFieldValue(starterText, ['Destination', 'End', 'End Point']);
   const meetup = getFieldValue(starterText, ['Meeting Point', 'Meeting Location', 'Meetup', 'Meetup Point']);
   const meetupTime = getFieldValue(starterText, ['Meeting Time', 'Meetup Time', 'Departure Time', 'Time']);
+  const slotImages = kingsSlotImages(messages, threadId);
+  const slotImage = slotImages[0] || null;
+  const kingsSlotConfirmed = Boolean(slotImage) || isConfirmedSlot(kingsSlot);
+  const effectiveKingsSlot = kingsSlot || (slotImage ? 'Confirmed — Slot image' : null);
 
   const checks = {
     eventLink: /https?:\/\/(?:www\.)?truckersmp\.com\/events\/\d+/i.test(starterText),
     eventType: Boolean(eventType),
     eventDate: Boolean(eventDate),
     responsibleStaff: Boolean(responsibleStaff),
-    kingsSlotConfirmed: isConfirmedSlot(kingsSlot),
+    kingsSlotConfirmed,
     route: Boolean(route || (start && destination)),
     meetup: Boolean(meetup),
     meetupTime: Boolean(meetupTime),
-    imageProof: hasImage(messages)
+    imageProof: Boolean(slotImage)
   };
 
+  // Slot images are now a valid way to CONFIRM the Kings slot, but an image is
+  // not a separate required field when the slot is otherwise confirmed.
   const missing = Object.entries(checks)
-    .filter(([, ok]) => !ok)
+    .filter(([name, ok]) => name !== 'imageProof' && !ok)
     .map(([name]) => name);
 
   return {
@@ -242,7 +271,9 @@ function checkFields(starterText, messages) {
       eventDateRaw,
       eventDate,
       responsibleStaff,
-      kingsSlot,
+      kingsSlot: effectiveKingsSlot,
+      kingsSlotImage: slotImage,
+      kingsSlotImages: slotImages,
       route,
       start,
       destination,
@@ -554,7 +585,7 @@ async function main() {
 
       const starter = getStarterMessage(messages, thread.id);
       const starterText = normalize(starter.content || '');
-      const validation = checkFields(starterText, messages);
+      const validation = checkFields(starterText, messages, thread.id);
       const staffStatus = await getStaffStatus(messages);
 
       results.push({
