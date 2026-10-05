@@ -2,17 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-overdue:management-overview.yml": {
-      "severity": "warning",
-      "system": "Management Overview",
-      "message": "Management Overview has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-04T22:48:51Z",
-        "ageMinutes": 129,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-05T00:58:23.236Z"
-    },
     "integrity-driver-updates-authority": {
       "severity": "critical",
       "system": "Driver Updates",
@@ -28,14 +17,17 @@
       "message": "Required integrity source is missing: data/driver-updates-summary.json",
       "details": null,
       "firstAlertedAt": "2026-10-05T01:37:36.034Z"
+    },
+    "integrity-history-driver-updates-count": {
+      "severity": "warning",
+      "system": "Cross-System Integrity",
+      "message": "Driver History vs Discord Driver Updates could not be verified because one of the member totals is missing or invalid.",
+      "details": {
+        "Discord Driver Updates": null,
+        "Driver History": 78
+      },
+      "firstAlertedAt": "2026-10-05T01:38:00.808Z"
     }
   },
-  "pending": {
-    "integrity-history-driver-updates-count": {
-      "count": 1,
-      "firstSeenAt": "2026-10-05T01:37:36.034Z",
-      "system": "Cross-System Integrity",
-      "message": "Driver History vs Discord Driver Updates could not be verified because one of the member totals is missing or invalid."
-    }
-  }
+  "pending": {}
 }
