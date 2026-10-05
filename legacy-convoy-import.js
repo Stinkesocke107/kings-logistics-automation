@@ -139,14 +139,47 @@ function allMessageText(message) {
   return pieces.filter(Boolean).join('\n');
 }
 
+function componentUrls(components) {
+  const urls = [];
+
+  function walk(items) {
+    for (const item of items || []) {
+      if (item?.url) urls.push(String(item.url));
+      if (Array.isArray(item?.components)) walk(item.components);
+    }
+  }
+
+  walk(components);
+  return urls;
+}
+
+function messageUrls(message) {
+  const urls = [];
+
+  const text = allMessageText(message);
+  for (const match of text.matchAll(/https?:\/\/[^\s)\]>]+/gi)) {
+    urls.push(match[0].replace(/[.,]+$/, ''));
+  }
+
+  for (const embed of message?.embeds || []) {
+    if (embed?.url) urls.push(String(embed.url));
+  }
+
+  urls.push(...componentUrls(message?.components));
+
+  return [...new Set(urls)];
+}
+
 function eventIdFromMessages(messages) {
   const sorted = [...messages].sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
 
   for (const message of sorted) {
-    const text = allMessageText(message);
-    const url = text.match(/https?:\/\/(?:www\.)?truckersmp\.com\/events\/(\d+)/i);
-    if (url) return url[1];
+    for (const url of messageUrls(message)) {
+      const match = url.match(/truckersmp\.com\/events\/(\d+)/i);
+      if (match) return match[1];
+    }
 
+    const text = allMessageText(message);
     const labeled = text.match(/\b(?:Event\s*(?:Link|ID)?|ID)\s*[:#-]?\s*(\d{4,})\b/i);
     if (labeled) return labeled[1];
   }
@@ -155,11 +188,14 @@ function eventIdFromMessages(messages) {
 }
 
 function eventUrlFromMessages(messages, eventId) {
-  for (const message of messages) {
-    const text = allMessageText(message);
-    const match = text.match(/https?:\/\/(?:www\.)?truckersmp\.com\/events\/\d+[^\s)\]>]*/i);
-    if (match) return match[0].replace(/[.,]+$/, '');
+  const sorted = [...messages].sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+
+  for (const message of sorted) {
+    for (const url of messageUrls(message)) {
+      if (/truckersmp\.com\/events\/\d+/i.test(url)) return url;
+    }
   }
+
   return eventId ? `https://truckersmp.com/events/${eventId}` : null;
 }
 
@@ -173,6 +209,39 @@ function sourceNotes(messages) {
     }))
     .filter((item) => item.text)
     .slice(0, 30);
+}
+
+function isImageAttachment(attachment) {
+  const contentType = String(attachment?.content_type || '');
+  const filename = String(attachment?.filename || '');
+  return contentType.startsWith('image/') || /\.(?:png|jpe?g|webp|gif)$/i.test(filename);
+}
+
+function kingsSlotImages(messages, threadId) {
+  const images = [];
+
+  for (const message of messages || []) {
+    if (message?.author?.bot) continue;
+
+    for (const attachment of message?.attachments || []) {
+      if (!isImageAttachment(attachment)) continue;
+
+      images.push({
+        messageId: String(message.id),
+        timestamp: message.timestamp || null,
+        attachmentId: String(attachment.id || ''),
+        filename: String(attachment.filename || 'slot-image'),
+        contentType: attachment.content_type || null,
+        width: Number(attachment.width || 0) || null,
+        height: Number(attachment.height || 0) || null,
+        capturedUrl: attachment.url || null,
+        messageUrl: `https://discord.com/channels/${GUILD_ID}/${threadId}/${message.id}`,
+        accompanyingText: String(message.content || '').replace(/\s+/g, ' ').trim() || null
+      });
+    }
+  }
+
+  return images.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
 }
 
 function slotEvidence(messages) {
@@ -199,7 +268,11 @@ function slotEvidence(messages) {
   return matches;
 }
 
-function slotStatus(evidence) {
+function slotStatus(evidence, images) {
+  // Old Convoy Calendar rule confirmed by Kings: a normal user-uploaded image
+  // in the Calendar thread is the Kings slot/slot map and confirms the slot.
+  if (Array.isArray(images) && images.length > 0) return 'confirmed';
+
   if (!evidence.length) return 'unknown';
 
   const latest = String(evidence[0].text || '').toLowerCase();
@@ -211,17 +284,22 @@ function slotStatus(evidence) {
   return 'unknown';
 }
 
-function slotDisplay(evidence, status) {
-  if (!evidence.length) return null;
-  const text = evidence[0].text
-    .replace(/<@!?\d+>/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+function slotDisplay(evidence, status, images) {
+  const text = evidence.length
+    ? evidence[0].text
+        .replace(/<@!?\d+>/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+    : '';
 
-  if (!text) return null;
-  if (status === 'confirmed') return `Confirmed — ${text}`;
-  if (status === 'pending') return `Pending — ${text}`;
-  return text;
+  if (status === 'confirmed') {
+    if (text && images?.length) return `Confirmed — ${text} · Slot image available`;
+    if (text) return `Confirmed — ${text}`;
+    if (images?.length) return 'Confirmed — Slot image available';
+  }
+
+  if (status === 'pending' && text) return `Pending — ${text}`;
+  return text || null;
 }
 
 function parseThreadDate(threadName, month) {
@@ -352,7 +430,8 @@ async function main() {
         const eventUrl = eventUrlFromMessages(messages, eventId);
         const fallbackDate = parseThreadDate(thread.name, month);
         const slots = slotEvidence(messages);
-        const slotState = slotStatus(slots);
+        const slotImages = kingsSlotImages(messages, thread.id);
+        const slotState = slotStatus(slots, slotImages);
 
         let tmp = null;
         let tmpError = null;
@@ -422,8 +501,10 @@ async function main() {
           status: 'Scheduled',
           slotStatus: slotState,
           confirmedKingsSlot: slotState === 'confirmed',
-          kingsSlot: slotDisplay(slots, slotState),
+          kingsSlot: slotDisplay(slots, slotState, slotImages),
           slotEvidence: slots,
+          kingsSlotImage: slotImages[0] || null,
+          kingsSlotImages: slotImages,
           server: serverName(tmp),
           game: gameName(tmp),
           hostVtc: hostVtc(tmp),
@@ -504,6 +585,7 @@ async function main() {
       unknownSlot: convoys.filter((item) => item.slotStatus === 'unknown').length,
       validMeetingTime: convoys.filter((item) => item.eventTimeValid).length,
       withTruckersmpEventId: convoys.filter((item) => item.eventId).length,
+      withKingsSlotImage: convoys.filter((item) => item.kingsSlotImage).length,
       duplicateEventIdsWithinLegacy: duplicateEventIds.length,
       importFailures: failures.length
     },
@@ -531,6 +613,7 @@ async function main() {
   console.log(`Unknown slot: ${output.summary.unknownSlot}`);
   console.log(`Valid Meeting Time: ${output.summary.validMeetingTime}`);
   console.log(`TruckersMP Event ID: ${output.summary.withTruckersmpEventId}`);
+  console.log(`Kings Slot Image: ${output.summary.withKingsSlotImage}`);
   console.log(`Import failures: ${output.summary.importFailures}`);
 
   for (const [month, stats] of Object.entries(monthStats)) {
