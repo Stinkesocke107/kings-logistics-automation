@@ -1,34 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-failed:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System latest completed run ended with failure.",
-      "details": {
-        "runId": 37369392493,
-        "completedAt": "2026-10-05T20:38:11Z"
-      },
-      "firstAlertedAt": "2026-10-05T20:41:31.659Z"
-    },
-    "workflow-failed:staff-management.yml": {
-      "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management latest completed run ended with failure.",
-      "details": {
-        "runId": 37365733862,
-        "completedAt": "2026-10-05T20:03:12Z"
-      },
-      "firstAlertedAt": "2026-10-05T20:41:31.659Z"
-    }
-  },
-  "pending": {
-    "stale-data:data/staff-management-summary.json": {
-      "count": 1,
-      "firstSeenAt": "2026-10-05T20:41:31.659Z",
-      "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
-    }
-  }
+  "active": {},
+  "pending": {}
 }
