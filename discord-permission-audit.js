@@ -304,6 +304,8 @@ function mergeIntoHealth(result) {
   health.summary = health.summary || {};
   health.summary.criticalIssues = issues.filter((x) => x.severity === 'critical').length;
   health.summary.warnings = issues.filter((x) => x.severity === 'warning').length;
+  health.summary.discordPermissionChecks = Number(result.summary?.checks || 0);
+  health.summary.discordPermissionHealthy = Number(result.summary?.healthyChecks || 0);
   health.status = statusFromIssues(issues);
   health.discordPermissionAudit = result.summary;
   writeJson(HEALTH_FILE, health);
