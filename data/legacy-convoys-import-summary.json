@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "importedAt": "2026-10-05T01:52:39.562Z",
+  "summary": {
+    "importedFutureLegacyConvoys": 115,
+    "confirmedSlot": 95,
+    "pendingSlot": 15,
+    "unknownSlot": 5,
+    "validMeetingTime": 87,
+    "withTruckersmpEventId": 89,
+    "duplicateEventIdsWithinLegacy": 0,
+    "importFailures": 0
+  },
+  "monthStats": {
+    "October 2026": {
+      "channelId": "1394466082064171020",
+      "threads": 24,
+      "imported": 24,
+      "pastSkipped": 0
+    },
+    "November 2026": {
+      "channelId": "1394466122270511244",
+      "threads": 20,
+      "imported": 20,
+      "pastSkipped": 0
+    },
+    "December 2026": {
+      "channelId": "1394466158337458267",
+      "threads": 24,
+      "imported": 24,
+      "pastSkipped": 0
+    },
+    "January 2027": {
+      "channelId": "1525976885853425864",
+      "threads": 20,
+      "imported": 20,
+      "pastSkipped": 0
+    },
+    "February 2027": {
+      "channelId": "1525976942967394414",
+      "threads": 21,
+      "imported": 21,
+      "pastSkipped": 0
+    },
+    "March 2027": {
+      "channelId": "1525976979902300160",
+      "threads": 6,
+      "imported": 6,
+      "pastSkipped": 0
+    }
+  },
+  "duplicateEventIds": [],
+  "failures": []
+}
