@@ -450,6 +450,22 @@ async function checkWorkflow(config, issues) {
   const latest = runs[0];
   const latestCompleted = runs.find((run) => run.status === 'completed') || null;
   const latestSuccess = runs.find((run) => run.status === 'completed' && run.conclusion === 'success');
+  const activeStatuses = new Set(['queued', 'in_progress', 'waiting', 'pending', 'requested']);
+  const latestActive = runs.find((run) => activeStatuses.has(run.status)) || null;
+  const latestCompletedAt = latestCompleted
+    ? new Date(latestCompleted.updated_at || latestCompleted.run_started_at || latestCompleted.created_at || 0).getTime()
+    : 0;
+  const latestActiveAt = latestActive
+    ? new Date(latestActive.created_at || latestActive.run_started_at || 0).getTime()
+    : 0;
+  const newerRecoveryActive = Boolean(
+    latestCompleted &&
+    latestCompleted.conclusion !== 'success' &&
+    latestActive &&
+    Number.isFinite(latestActiveAt) &&
+    latestActiveAt > latestCompletedAt
+  );
+
   const activityAt = latestSuccess?.updated_at || latestSuccess?.run_started_at || latestSuccess?.created_at;
   const age = ageMinutes(activityAt);
   let ok = true;
@@ -468,15 +484,19 @@ async function checkWorkflow(config, issues) {
   }
 
   if (latestCompleted && latestCompleted.conclusion !== 'success') {
-    ok = false;
-    reasons.push(`latest-completed-${latestCompleted.conclusion || 'unknown'}`);
-    issues.push(issue(
-      `workflow-failed:${config.file}`,
-      config.severity,
-      config.label,
-      `${config.label} latest completed run ended with ${latestCompleted.conclusion || 'unknown'}.`,
-      { runId: latestCompleted.id, completedAt: latestCompleted.updated_at || null }
-    ));
+    if (newerRecoveryActive) {
+      reasons.push('recovery-in-progress');
+    } else {
+      ok = false;
+      reasons.push(`latest-completed-${latestCompleted.conclusion || 'unknown'}`);
+      issues.push(issue(
+        `workflow-failed:${config.file}`,
+        config.severity,
+        config.label,
+        `${config.label} latest completed run ended with ${latestCompleted.conclusion || 'unknown'}.`,
+        { runId: latestCompleted.id, completedAt: latestCompleted.updated_at || null }
+      ));
+    }
   }
 
   return {
@@ -500,7 +520,13 @@ async function checkWorkflow(config, issues) {
       id: latestCompleted.id,
       conclusion: latestCompleted.conclusion,
       updatedAt: latestCompleted.updated_at
-    } : null
+    } : null,
+    latestActive: latestActive ? {
+      id: latestActive.id,
+      status: latestActive.status,
+      createdAt: latestActive.created_at
+    } : null,
+    recoveryInProgress: newerRecoveryActive
   };
 }
 
