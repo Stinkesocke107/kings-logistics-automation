@@ -55,7 +55,7 @@ jobs:
         run: |
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
-          for file in data/driver-members.json data/driver-history.json data/driver-change-guard.json data/api-health; do
+          for file in data/driver-members.json data/driver-history.json data/driver-updates-summary.json data/driver-change-guard.json data/api-health; do
             if [ -n "$(git status --porcelain -- "$file")" ]; then
               git add -A -- "$file"
             fi
