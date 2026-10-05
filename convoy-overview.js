@@ -5,6 +5,7 @@ const FORUM_ID = process.env.DISCORD_CONVOY_FORUM_ID || '1550619824005062697';
 const REPORT_PATH = 'output/convoy-check-results.json';
 const JSON_OUTPUT = 'output/convoy-overview.json';
 const MARKDOWN_OUTPUT = 'output/convoy-overview.md';
+const LEGACY_PATH = 'data/legacy-convoys.json';
 
 if (!fs.existsSync(REPORT_PATH)) {
   console.error(`Missing ${REPORT_PATH}. Run convoy-checker.js first.`);
@@ -126,6 +127,34 @@ function appendGithubSummary(overview) {
   fs.appendFileSync(summaryPath, `${lines.join('\n')}\n`);
 }
 
+function loadLegacyConvoys() {
+  if (!fs.existsSync(LEGACY_PATH)) {
+    return { convoys: [], importedAt: null };
+  }
+
+  try {
+    const data = JSON.parse(fs.readFileSync(LEGACY_PATH, 'utf8'));
+    return {
+      convoys: Array.isArray(data?.convoys) ? data.convoys : [],
+      importedAt: data?.importedAt || null
+    };
+  } catch (error) {
+    throw new Error(`Legacy Convoy data is invalid: ${error.message}`);
+  }
+}
+
+function legacyStatus(item, nowUnix) {
+  const unix = Number(item?.eventUnix || 0);
+  const past = Number.isFinite(unix) && unix > 0
+    ? unix < nowUnix - 3 * 60 * 60
+    : item?.eventDate
+      ? item.eventDate < new Date().toISOString().slice(0, 10)
+      : false;
+
+  if (past) return 'Legacy Past';
+  return item?.confirmedKingsSlot ? 'Scheduled' : 'Needs Information';
+}
+
 function main() {
   const report = JSON.parse(fs.readFileSync(REPORT_PATH, 'utf8'));
 
@@ -145,6 +174,14 @@ function main() {
   const statusCounts = {};
   let undatedCountedConvoys = 0;
   let invalidEventTimeConvoys = 0;
+  let confirmedKingsSlots = 0;
+
+  const nowUnix = Math.floor(Date.now() / 1000);
+  const newCenterEventIds = new Set(
+    realThreads
+      .map((item) => item.eventId ? String(item.eventId) : null)
+      .filter(Boolean)
+  );
 
   for (const item of realThreads) {
     increment(statusCounts, item.status || 'Unknown');
@@ -162,6 +199,8 @@ function main() {
 
     const convoy = {
       threadId: item.threadId,
+      source: 'convoy-center',
+      legacy: false,
       name: item.name,
       eventId,
       eventUrl: item.truckersmp?.url || (eventId ? `https://truckersmp.com/events/${eventId}` : null),
@@ -169,6 +208,7 @@ function main() {
       status: item.status || 'Unknown',
       confirmedKingsSlot,
       kingsSlot: parsed.kingsSlot || null,
+      slotStatus: confirmedKingsSlot ? 'confirmed' : 'unknown',
       eventDate,
       rawEventDate,
       meetingTime,
@@ -186,6 +226,7 @@ function main() {
     };
 
     countedConvoys.push(convoy);
+    confirmedKingsSlots += 1;
 
     if (!eventTimeValid && eventDate && meetingTime) invalidEventTimeConvoys += 1;
 
@@ -202,24 +243,111 @@ function main() {
     stats.convoys.push(convoy);
   }
 
-  const nowUnix = Math.floor(Date.now() / 1000);
+  const legacy = loadLegacyConvoys();
+  let legacyDuplicatesSuppressed = 0;
+  let legacyActiveConvoys = 0;
+  let legacyConfirmedSlots = 0;
+  let legacyPendingSlots = 0;
+
+  for (const item of legacy.convoys) {
+    const eventId = item.eventId ? String(item.eventId) : null;
+
+    if (eventId && newCenterEventIds.has(eventId)) {
+      legacyDuplicatesSuppressed += 1;
+      continue;
+    }
+
+    const status = legacyStatus(item, nowUnix);
+    const eventDate = item.eventDate || null;
+    const eventUnix = Number(item.eventUnix || 0) || null;
+    const eventTimeValid = Boolean(item.eventTimeValid && eventUnix);
+    const confirmedKingsSlot = Boolean(item.confirmedKingsSlot);
+
+    const convoy = {
+      threadId: item.sourceThreadId || item.legacyId,
+      sourceThreadId: item.sourceThreadId || null,
+      sourceMonthChannelId: item.sourceMonthChannelId || null,
+      sourceMonth: item.sourceMonth || null,
+      source: 'legacy-calendar',
+      legacy: true,
+      readOnly: true,
+      name: item.name || item.sourceThreadName || 'Legacy Convoy',
+      eventId,
+      eventUrl: item.eventUrl || (eventId ? `https://truckersmp.com/events/${eventId}` : null),
+      eventType: 'Legacy Calendar',
+      status,
+      confirmedKingsSlot,
+      kingsSlot: item.kingsSlot || null,
+      slotStatus: item.slotStatus || 'unknown',
+      eventDate,
+      rawEventDate: eventDate,
+      meetingTime: item.meetingTime || null,
+      eventUnix,
+      eventTimeValid,
+      eventTimeZone: item.eventTimeZone || (eventTimeValid ? 'UTC' : null),
+      eventTimeOffsetMinutes: eventTimeValid ? 0 : null,
+      server: item.server || item.truckersmp?.server || null,
+      route: item.route || null,
+      meetingPoint: item.meetingPoint || item.start || null,
+      start: item.start || null,
+      destination: item.destination || null,
+      game: item.game || item.truckersmp?.game || null,
+      hostVtc: item.hostVtc || item.truckersmp?.hostVtc || null
+    };
+
+    countedConvoys.push(convoy);
+    if (status !== 'Legacy Past') legacyActiveConvoys += 1;
+    if (confirmedKingsSlot) {
+      confirmedKingsSlots += 1;
+      legacyConfirmedSlots += 1;
+    } else {
+      legacyPendingSlots += 1;
+    }
+
+    if (!eventTimeValid && eventDate) invalidEventTimeConvoys += 1;
+
+    const month = monthKey(eventDate);
+    if (!month) {
+      undatedCountedConvoys += 1;
+      continue;
+    }
+
+    if (!months[month]) months[month] = makeMonthStats();
+    const stats = months[month];
+    stats.countedConvoys += 1;
+    stats[statusCounterKey(convoy.status)] += 1;
+    stats.convoys.push(convoy);
+  }
+
   const upcomingConvoys = countedConvoys
-    .filter((convoy) => convoy.status === 'Scheduled' && convoy.eventTimeValid && Number(convoy.eventUnix) > nowUnix)
+    .filter((convoy) =>
+      convoy.status === 'Scheduled' &&
+      convoy.confirmedKingsSlot &&
+      convoy.eventTimeValid &&
+      Number(convoy.eventUnix) > nowUnix
+    )
     .sort((a, b) => Number(a.eventUnix) - Number(b.eventUnix));
 
   const overview = {
     generatedAt: new Date().toISOString(),
     guildId: GUILD_ID,
     forumId: FORUM_ID,
-    countingRule: 'Monthly statistics only include non-test convoy threads with a confirmed Kings slot and a validated Event Date.',
+    countingRule: 'Convoy Center confirmed-slot convoys plus the one-time frozen Legacy Calendar migration. Convoy Center Event IDs always override matching Legacy entries. Legacy pending/unknown slots stay visible as Needs Information but do not trigger Driver reminders.',
     overall: {
       realConvoySubmissions: realThreads.length,
       countedConvoys: countedConvoys.length,
+      confirmedKingsSlots,
       upcomingScheduledConvoys: upcomingConvoys.length,
       excludedTestThreads,
       undatedCountedConvoys,
       invalidEventTimeConvoys,
-      statusesAcrossRealSubmissions: statusCounts
+      statusesAcrossRealSubmissions: statusCounts,
+      legacyImportedConvoys: legacy.convoys.length,
+      legacyActiveConvoys,
+      legacyConfirmedSlots,
+      legacyPendingSlots,
+      legacyDuplicatesSuppressed,
+      legacyImportedAt: legacy.importedAt
     },
     months,
     upcomingConvoys,
@@ -233,7 +361,9 @@ function main() {
 
   console.log('Kings Convoy Overview generated successfully.');
   console.log(`Real convoy submissions: ${overview.overall.realConvoySubmissions}`);
-  console.log(`Confirmed-slot convoys: ${overview.overall.countedConvoys}`);
+  console.log(`Tracked convoys incl. Legacy: ${overview.overall.countedConvoys}`);
+  console.log(`Confirmed Kings slots: ${overview.overall.confirmedKingsSlots}`);
+  console.log(`Legacy imported: ${overview.overall.legacyImportedConvoys}; active: ${overview.overall.legacyActiveConvoys}; duplicates suppressed: ${overview.overall.legacyDuplicatesSuppressed}`);
   console.log(`Upcoming scheduled convoys: ${overview.overall.upcomingScheduledConvoys}`);
   console.log(`Excluded test threads: ${overview.overall.excludedTestThreads}`);
   console.log(`Awaiting valid Event Date: ${overview.overall.undatedCountedConvoys}`);
