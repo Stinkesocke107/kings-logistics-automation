@@ -173,7 +173,7 @@ function friendlyIssueName(issue) {
   const names = {
     eventLink: 'TruckersMP Event Link',
     responsibleStaff: 'Responsible Staff (@mention)',
-    kingsSlotConfirmed: 'Confirmed Kings Slot with slot number',
+    kingsSlotConfirmed: 'Kings Slot confirmation (uploaded slot image or confirmed slot text)',
     truckersmpSync: 'TruckersMP event data unavailable',
     eventDate: 'Event Date unavailable from TruckersMP',
     route: 'Route unavailable from TruckersMP',
