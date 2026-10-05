@@ -62,6 +62,64 @@ function isTestThread(item) {
   return /^\s*\[?test\]?(?:\s|[-_:])/i.test(item.name || '');
 }
 
+function isImageAttachment(attachment) {
+  const type = String(attachment?.content_type || '');
+  const name = String(attachment?.filename || '');
+  return type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(name);
+}
+
+function slotImageMeta(item) {
+  return (
+    item?.kingsSlotImage ||
+    item?.validation?.parsed?.kingsSlotImage ||
+    null
+  );
+}
+
+async function resolveFreshSlotImage(item) {
+  const meta = slotImageMeta(item);
+  if (!meta?.messageId || !item?.threadId) return null;
+
+  try {
+    const message = await discord(`/channels/${item.threadId}/messages/${meta.messageId}`);
+    const attachments = (message?.attachments || []).filter(isImageAttachment);
+
+    let attachment = null;
+    if (meta.attachmentId) {
+      attachment = attachments.find((entry) => String(entry.id) === String(meta.attachmentId)) || null;
+    }
+    if (!attachment) attachment = attachments[0] || null;
+
+    if (!attachment?.url) return null;
+
+    return {
+      url: attachment.url,
+      attachmentId: String(attachment.id || meta.attachmentId || ''),
+      filename: attachment.filename || meta.filename || 'slot-image'
+    };
+  } catch (error) {
+    console.warn(`Could not refresh Kings slot image for ${item.name || item.threadId}: ${error.message}`);
+
+    if (meta.capturedUrl) {
+      return {
+        url: meta.capturedUrl,
+        attachmentId: String(meta.attachmentId || ''),
+        filename: meta.filename || 'slot-image'
+      };
+    }
+
+    return null;
+  }
+}
+
+function buildSlotImageEmbed(image) {
+  if (!image?.url) return [];
+  return [{
+    title: '🚚 Kings Slot',
+    image: { url: image.url }
+  }];
+}
+
 function normalizeName(value = '') {
   return String(value)
     .toLowerCase()
@@ -153,7 +211,7 @@ function loadLegacyReminderItems(report) {
       continue;
     }
 
-    if (!legacy?.confirmedKingsSlot || !legacy?.kingsSlot || !legacy?.eventTimeValid || !legacy?.eventUnix) {
+    if (!legacy?.confirmedKingsSlot || !legacy?.kingsSlot || !legacy?.kingsSlotImage || !legacy?.eventTimeValid || !legacy?.eventUnix) {
       notReminderEligible += 1;
       continue;
     }
@@ -171,7 +229,7 @@ function loadLegacyReminderItems(report) {
       eventId,
       eventUnix: Number(legacy.eventUnix),
       eventTimeValid: true,
-      slotImageMessageUrl: legacy.kingsSlotImage?.messageUrl || null,
+      kingsSlotImage: legacy.kingsSlotImage || null,
       validation: {
         checks: { kingsSlotConfirmed: true },
         parsed: {
@@ -275,7 +333,6 @@ function buildReminder(item, marker, title, description, driverRoleId) {
     meetup ? `📍 **Meeting Point:** ${meetup}` : null,
     route ? `🛣️ **Route:** ${route}` : null,
     slot ? `🚚 **Kings Slot:** ${slot}` : null,
-    item.slotImageMessageUrl ? `🖼️ **Kings Slot Image:** [Open original slot image](${item.slotImageMessageUrl})` : null,
     eventUrl ? `🔗 **TruckersMP Event:** ${eventUrl}` : null,
     item.legacy ? '📚 **Source:** Migrated old Convoy Calendar' : null,
     '',
@@ -286,6 +343,13 @@ function buildReminder(item, marker, title, description, driverRoleId) {
 async function sendReminder(channelId, item, marker, title, description, botId, driverRoleId) {
   const content = buildReminder(item, marker, title, description, driverRoleId);
   const existing = await findExistingReminder(channelId, item, marker, botId);
+  const slotImage = await resolveFreshSlotImage(item);
+
+  if (!slotImage?.url) {
+    throw new Error('Kings Slot image is required for Driver reminders.');
+  }
+
+  const embeds = buildSlotImageEmbed(slotImage);
 
   if (DRY_RUN) {
     if (!content.includes(`<@&${driverRoleId}>`)) {
@@ -294,24 +358,42 @@ async function sendReminder(channelId, item, marker, title, description, botId, 
     if (/@everyone|@here/i.test(content)) {
       throw new Error('Dry-run safety check failed: internal reminder contains a forbidden broad mention.');
     }
-    return { action: existing ? 'dry-run-update' : 'dry-run', messageId: existing?.id || null };
+    if (!embeds[0]?.image?.url) {
+      throw new Error('Dry-run safety check failed: Kings Slot image embed is missing.');
+    }
+    return {
+      action: existing ? 'dry-run-update' : 'dry-run',
+      messageId: existing?.id || null,
+      slotImage: slotImage.filename
+    };
   }
+
+  const body = {
+    content,
+    embeds,
+    allowed_mentions: {
+      parse: [],
+      roles: [driverRoleId]
+    }
+  };
 
   if (existing) {
     const branded = require('./kings-branding').brandMessageContent(content).trim();
-    if (String(existing.content || '').trim() === branded) {
+    const existingImageUrl = existing.embeds?.[0]?.image?.url || '';
+    const sameAttachment =
+      slotImage.attachmentId &&
+      existingImageUrl.includes(slotImage.attachmentId);
+
+    if (
+      String(existing.content || '').trim() === branded &&
+      sameAttachment
+    ) {
       return { action: 'already-current', messageId: existing.id };
     }
 
     const updated = await discord(`/channels/${channelId}/messages/${existing.id}`, {
       method: 'PATCH',
-      body: {
-        content,
-        allowed_mentions: {
-          parse: [],
-          roles: [driverRoleId]
-        }
-      }
+      body
     });
 
     return { action: 'updated', messageId: updated?.id || existing.id };
@@ -319,13 +401,7 @@ async function sendReminder(channelId, item, marker, title, description, botId, 
 
   const sent = await discord(`/channels/${channelId}/messages`, {
     method: 'POST',
-    body: {
-      content,
-      allowed_mentions: {
-        parse: [],
-        roles: [driverRoleId]
-      }
-    }
+    body
   });
 
   return { action: 'sent', messageId: sent?.id || null };
