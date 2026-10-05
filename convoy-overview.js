@@ -1,3 +1,4 @@
+// October Legacy Calendar metadata audit completed; slot-image links are live.
 // Frozen Legacy Convoy Calendar migration is active for Overview and Driver Reminders.
 const fs = require('fs');
 
