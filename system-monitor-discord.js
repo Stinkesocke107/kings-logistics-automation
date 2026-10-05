@@ -7,6 +7,7 @@ const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const CHANNEL_NAME = process.env.SYSTEM_MONITOR_CHANNEL_NAME || 'system-monitor';
 const HEALTH_FILE = path.join(__dirname, 'data', 'system-health.json');
 const MARKER = '👑 **Kings Systems — Live Monitor**';
+const MESSAGE_TEXT = 'Kings Systems — Live Monitor';
 const API = 'https://discord.com/api/v10';
 
 if (!TOKEN) {
@@ -128,6 +129,7 @@ function buildMessage(health) {
     workflowLine(health, 'driver-management.yml', 'Driver Management'),
     workflowLine(health, 'hr-leadership.yml', 'HR & Probation'),
     workflowLine(health, 'staff-management.yml', 'Staff Management'),
+    workflowLine(health, 'leadership-overviews.yml', 'Leadership Overviews'),
     freshnessLine(health, 'data/statistics.json', 'Statistics'),
     workflowLine(health, 'core-backup.yml', 'Backup System'),
     recoveryLine(),
@@ -172,27 +174,38 @@ async function main() {
     return;
   }
 
-  const messages = await discord(`/channels/${channel.id}/messages?limit=50`);
-  const existing = (messages || []).find((message) =>
-    message.author?.id === bot.id && String(message.content || '').includes(MARKER)
-  );
+  const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
+  const matches = (messages || [])
+    .filter((message) =>
+      message.author?.id === bot.id &&
+      String(message.content || '').includes(MESSAGE_TEXT)
+    )
+    .sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+
+  let existing = matches[0] || null;
 
   const content = buildMessage(health);
   const body = { content, allowed_mentions: { parse: [] } };
 
   if (!existing) {
-    const created = await discord(`/channels/${channel.id}/messages`, { method: 'POST', body });
-    console.log(`Kings System Monitor created in #${channel.name} (${channel.id}); message ${created?.id || 'unknown'}.`);
-    return;
-  }
-
-  if (String(existing.content || '').trim() === content.trim()) {
+    existing = await discord(`/channels/${channel.id}/messages`, { method: 'POST', body });
+    console.log(`Kings System Monitor created in #${channel.name} (${channel.id}); message ${existing?.id || 'unknown'}.`);
+  } else if (String(existing.content || '').trim() === content.trim()) {
     console.log(`Kings System Monitor unchanged in #${channel.name} (${channel.id}).`);
-    return;
+  } else {
+    await discord(`/channels/${channel.id}/messages/${existing.id}`, { method: 'PATCH', body });
+    console.log(`Kings System Monitor updated in #${channel.name} (${channel.id}); message ${existing.id}.`);
   }
 
-  await discord(`/channels/${channel.id}/messages/${existing.id}`, { method: 'PATCH', body });
-  console.log(`Kings System Monitor updated in #${channel.name} (${channel.id}); message ${existing.id}.`);
+  let duplicatesRemoved = 0;
+  for (const duplicate of matches.slice(1)) {
+    await discord(`/channels/${channel.id}/messages/${duplicate.id}`, { method: 'DELETE' });
+    duplicatesRemoved += 1;
+  }
+
+  if (duplicatesRemoved) {
+    console.log(`Kings System Monitor duplicate cleanup: removed ${duplicatesRemoved} duplicate message(s).`);
+  }
 }
 
 main().catch((error) => {
