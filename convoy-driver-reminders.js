@@ -5,6 +5,7 @@ const { discordTimestamp } = require('./convoy-time-utils');
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const REPORT_PATH = 'output/convoy-check-results.json';
+const LEGACY_PATH = 'data/legacy-convoys.json';
 
 const REMINDER_CHANNEL_ID = process.env.DISCORD_CONVOY_REMINDER_CHANNEL_ID || null;
 const REMINDER_CHANNEL_NAME = process.env.DISCORD_CONVOY_REMINDER_CHANNEL_NAME || 'convoy-reminders';
@@ -124,6 +125,82 @@ async function resolveDriverRole() {
   throw new Error(`Could not find a Discord role matching "${DRIVER_ROLE_NAME}".`);
 }
 
+function loadLegacyReminderItems(report) {
+  if (!fs.existsSync(LEGACY_PATH)) return [];
+
+  let data;
+  try {
+    data = JSON.parse(fs.readFileSync(LEGACY_PATH, 'utf8'));
+  } catch (error) {
+    throw new Error(`Legacy Convoy data is invalid: ${error.message}`);
+  }
+
+  const centerEventIds = new Set(
+    (report.threads || [])
+      .map((item) => item?.eventId ? String(item.eventId) : null)
+      .filter(Boolean)
+  );
+
+  const items = [];
+  let duplicatesSuppressed = 0;
+  let notReminderEligible = 0;
+
+  for (const legacy of Array.isArray(data?.convoys) ? data.convoys : []) {
+    const eventId = legacy?.eventId ? String(legacy.eventId) : null;
+
+    if (eventId && centerEventIds.has(eventId)) {
+      duplicatesSuppressed += 1;
+      continue;
+    }
+
+    if (!legacy?.confirmedKingsSlot || !legacy?.kingsSlot || !legacy?.eventTimeValid || !legacy?.eventUnix) {
+      notReminderEligible += 1;
+      continue;
+    }
+
+    items.push({
+      legacy: true,
+      readOnly: true,
+      ignored: false,
+      error: null,
+      archived: false,
+      locked: false,
+      status: 'Scheduled',
+      threadId: String(legacy.sourceThreadId || legacy.legacyId),
+      name: legacy.name || legacy.sourceThreadName || 'Legacy Convoy',
+      eventId,
+      eventUnix: Number(legacy.eventUnix),
+      eventTimeValid: true,
+      validation: {
+        checks: { kingsSlotConfirmed: true },
+        parsed: {
+          eventDate: legacy.eventDate || null,
+          meetupTime: legacy.meetingTime || null,
+          meetup: legacy.meetingPoint || legacy.start || null,
+          route: legacy.route || null,
+          start: legacy.start || null,
+          destination: legacy.destination || null,
+          kingsSlot: legacy.kingsSlot || null,
+          server: legacy.server || null
+        }
+      },
+      truckersmp: {
+        name: legacy.truckersmp?.name || legacy.name || null,
+        server: legacy.truckersmp?.server || legacy.server || null,
+        game: legacy.truckersmp?.game || legacy.game || null,
+        hostVtc: legacy.truckersmp?.hostVtc || legacy.hostVtc || null,
+        url: legacy.eventUrl || (eventId ? `https://truckersmp.com/events/${eventId}` : null)
+      }
+    });
+  }
+
+  console.log(
+    `Legacy Driver reminder feed: ${items.length} eligible; ${duplicatesSuppressed} Convoy Center duplicate(s) suppressed; ${notReminderEligible} pending/incomplete legacy convoy(s) kept out of reminders.`
+  );
+
+  return items;
+}
+
 function routeLabel(item) {
   const parsed = item.validation?.parsed || {};
   if (parsed.route) return parsed.route;
@@ -132,7 +209,8 @@ function routeLabel(item) {
 }
 
 function markerFor(item, marker) {
-  return `${marker}\n🔒 **Source Thread:** \`${item.threadId}\``;
+  const sourceLabel = item.legacy ? 'Legacy Source Thread' : 'Source Thread';
+  return `${marker}\n🔒 **${sourceLabel}:** \`${item.threadId}\``;
 }
 
 async function findExistingReminder(channelId, item, marker, botId) {
@@ -146,10 +224,19 @@ async function findExistingReminder(channelId, item, marker, botId) {
     const messages = await discord(`/channels/${channelId}/messages?${query.toString()}`);
     if (!Array.isArray(messages) || messages.length === 0) return null;
 
-    const found = messages.find((message) =>
-      message.author?.id === botId &&
-      (message.content || '').includes(lookup)
-    );
+    const found = messages.find((message) => {
+      if (message.author?.id !== botId) return false;
+      const content = message.content || '';
+      if (content.includes(lookup)) return true;
+
+      if (item.eventId) {
+        const sameTier = content.includes(marker);
+        const sameEvent = content.includes(`truckersmp.com/events/${item.eventId}`);
+        if (sameTier && sameEvent) return true;
+      }
+
+      return false;
+    });
 
     if (found) return found;
     if (messages.length < 100) return null;
@@ -188,6 +275,7 @@ function buildReminder(item, marker, title, description, driverRoleId) {
     route ? `🛣️ **Route:** ${route}` : null,
     slot ? `🚚 **Kings Slot:** ${slot}` : null,
     eventUrl ? `🔗 **TruckersMP Event:** ${eventUrl}` : null,
+    item.legacy ? '📚 **Source:** Migrated old Convoy Calendar' : null,
     '',
     'Please make sure you are ready and arrive before the meeting time. 💙'
   ].filter(Boolean).join('\n');
@@ -243,6 +331,8 @@ async function sendReminder(channelId, item, marker, title, description, botId, 
 
 async function main() {
   const report = JSON.parse(fs.readFileSync(REPORT_PATH, 'utf8'));
+  const legacyItems = loadLegacyReminderItems(report);
+  const reminderItems = [...(report.threads || []), ...legacyItems];
   const bot = await discord('/users/@me');
   const reminderChannel = await resolveReminderChannel();
   const driverRole = await resolveDriverRole();
@@ -259,7 +349,7 @@ async function main() {
   let skipped = 0;
   let failed = 0;
 
-  for (const item of report.threads || []) {
+  for (const item of reminderItems) {
     if (item.ignored || item.error || isTestThread(item)) {
       skipped += 1;
       continue;
