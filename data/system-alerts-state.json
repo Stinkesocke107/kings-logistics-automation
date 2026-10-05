@@ -1,6 +1,25 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {}
+  "active": {
+    "workflow-overdue:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-05T21:14:17Z",
+        "ageMinutes": 86,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-10-05T22:40:29.004Z"
+    }
+  },
+  "pending": {
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-05T22:40:29.004Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    }
+  }
 }
