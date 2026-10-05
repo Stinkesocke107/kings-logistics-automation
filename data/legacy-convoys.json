@@ -50,23 +50,24 @@
     "driverReminders": "Legacy reminders require a valid Meeting Time and a confirmed Kings slot."
   },
   "summary": {
-    "importedFutureLegacyConvoys": 114,
-    "confirmedSlot": 110,
+    "importedFutureLegacyConvoys": 115,
+    "confirmedSlot": 111,
     "pendingSlot": 1,
     "unknownSlot": 3,
     "validMeetingTime": 108,
-    "withTruckersmpEventId": 111,
+    "withTruckersmpEventId": 112,
     "withKingsSlotImage": 109,
     "duplicateEventIdsWithinLegacy": 0,
     "importFailures": 0,
-    "preservedMissingSource": 0
+    "preservedMissingSource": 1
   },
   "monthStats": {
     "October 2026": {
       "channelId": "1394466082064171020",
       "threads": 23,
-      "imported": 23,
-      "pastSkipped": 0
+      "imported": 24,
+      "pastSkipped": 0,
+      "preservedMissingSource": 1
     },
     "November 2026": {
       "channelId": "1394466122270511244",
@@ -429,112 +430,6 @@
     {
       "legacy": true,
       "readOnly": true,
-      "legacyId": "old-calendar:1492466505751990282",
-      "source": "old-discord-convoy-calendar",
-      "sourceMonth": "October 2026",
-      "sourceMonthChannelId": "1394466082064171020",
-      "sourceThreadId": "1492466505751990282",
-      "sourceThreadName": "9. October - PPA logistics",
-      "sourceThreadArchived": false,
-      "sourceMessageIds": [
-        "1556487937913528443",
-        "1506766422930358436",
-        "1492466760463421598"
-      ],
-      "sourceNotes": [
-        {
-          "messageId": "1556487937913528443",
-          "timestamp": "2026-10-05T02:07:22.546000+00:00",
-          "text": "https://truckersmp.com/events/33946"
-        },
-        {
-          "messageId": "1506766422930358436",
-          "timestamp": "2026-05-20T21:11:49.593000+00:00",
-          "text": "Slot: 7"
-        },
-        {
-          "messageId": "1492466760463421598",
-          "timestamp": "2026-04-11T10:10:04.386000+00:00",
-          "text": "9. October - PPA logistics"
-        }
-      ],
-      "eventId": "33946",
-      "eventUrl": "https://truckersmp.com/events/33946",
-      "name": "PPA Logistics 1st Anniversary One last Drive",
-      "eventDate": "2026-10-09",
-      "meetingTime": "17:00 UTC",
-      "eventUnix": 1791565200,
-      "eventTimeValid": true,
-      "eventTimeZone": "UTC",
-      "departureUnix": 1791568800,
-      "status": "Scheduled",
-      "slotStatus": "confirmed",
-      "confirmedKingsSlot": true,
-      "kingsSlot": "Confirmed — Slot: 7 · Slot image available",
-      "slotEvidence": [
-        {
-          "messageId": "1506766422930358436",
-          "timestamp": "2026-05-20T21:11:49.593000+00:00",
-          "text": "Slot: 7"
-        }
-      ],
-      "kingsSlotImage": {
-        "messageId": "1506766422930358436",
-        "timestamp": "2026-05-20T21:11:49.593000+00:00",
-        "attachmentId": "1506766423102456009",
-        "filename": "image.png",
-        "contentType": "image/png",
-        "width": 1280,
-        "height": 720,
-        "capturedUrl": "https://cdn.discordapp.com/attachments/1492466505751990282/1506766423102456009/image.png?ex=6ac41295&is=6ac2c115&hm=e4dc46d797705b0bbad5f7d311ea7eca62f3a970a1acdcd983e77e4788bca10d&",
-        "messageUrl": "https://discord.com/channels/1114967437788577792/1492466505751990282/1506766422930358436",
-        "accompanyingText": "Slot: 7"
-      },
-      "kingsSlotImages": [
-        {
-          "messageId": "1506766422930358436",
-          "timestamp": "2026-05-20T21:11:49.593000+00:00",
-          "attachmentId": "1506766423102456009",
-          "filename": "image.png",
-          "contentType": "image/png",
-          "width": 1280,
-          "height": 720,
-          "capturedUrl": "https://cdn.discordapp.com/attachments/1492466505751990282/1506766423102456009/image.png?ex=6ac41295&is=6ac2c115&hm=e4dc46d797705b0bbad5f7d311ea7eca62f3a970a1acdcd983e77e4788bca10d&",
-          "messageUrl": "https://discord.com/channels/1114967437788577792/1492466505751990282/1506766422930358436",
-          "accompanyingText": "Slot: 7"
-        }
-      ],
-      "server": "Event Server",
-      "game": "ETS2",
-      "hostVtc": "PPA Logistics [CLOSING]",
-      "meetingPoint": "Luxembourg — Metz + Reims",
-      "start": "Luxembourg — Metz + Reims",
-      "destination": "Wrocław — Stein Bruch",
-      "route": "Luxembourg — Metz + Reims → Wrocław — Stein Bruch",
-      "truckersmp": {
-        "id": 33946,
-        "name": "PPA Logistics 1st Anniversary One last Drive",
-        "server": "Event Server",
-        "game": "ETS2",
-        "hostVtc": "PPA Logistics [CLOSING]",
-        "meetupAtUtc": "2026-10-09 17:00:00",
-        "startAtUtc": "2026-10-09 18:00:00",
-        "departure": {
-          "location": "Metz + Reims",
-          "city": "Luxembourg"
-        },
-        "arrive": {
-          "location": "Stein Bruch",
-          "city": "Wrocław"
-        },
-        "url": "https://truckersmp.com/events/33946"
-      },
-      "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:19:34.418Z"
-    },
-    {
-      "legacy": true,
-      "readOnly": true,
       "legacyId": "old-calendar:1511363460662034482",
       "source": "old-discord-convoy-calendar",
       "sourceMonth": "October 2026",
@@ -634,6 +529,112 @@
           "city": "Kiel"
         },
         "url": "https://truckersmp.com/events/35272-mt-logistica-monthly-convoy-october2026"
+      },
+      "truckersmpImportError": null,
+      "importedAt": "2026-10-05T02:19:34.418Z"
+    },
+    {
+      "legacy": true,
+      "readOnly": true,
+      "legacyId": "old-calendar:1492466505751990282",
+      "source": "old-discord-convoy-calendar",
+      "sourceMonth": "October 2026",
+      "sourceMonthChannelId": "1394466082064171020",
+      "sourceThreadId": "1492466505751990282",
+      "sourceThreadName": "9. October - PPA logistics",
+      "sourceThreadArchived": false,
+      "sourceMessageIds": [
+        "1556487937913528443",
+        "1506766422930358436",
+        "1492466760463421598"
+      ],
+      "sourceNotes": [
+        {
+          "messageId": "1556487937913528443",
+          "timestamp": "2026-10-05T02:07:22.546000+00:00",
+          "text": "https://truckersmp.com/events/33946"
+        },
+        {
+          "messageId": "1506766422930358436",
+          "timestamp": "2026-05-20T21:11:49.593000+00:00",
+          "text": "Slot: 7"
+        },
+        {
+          "messageId": "1492466760463421598",
+          "timestamp": "2026-04-11T10:10:04.386000+00:00",
+          "text": "9. October - PPA logistics"
+        }
+      ],
+      "eventId": "33946",
+      "eventUrl": "https://truckersmp.com/events/33946",
+      "name": "PPA Logistics 1st Anniversary One last Drive",
+      "eventDate": "2026-10-09",
+      "meetingTime": "17:00 UTC",
+      "eventUnix": 1791565200,
+      "eventTimeValid": true,
+      "eventTimeZone": "UTC",
+      "departureUnix": 1791568800,
+      "status": "Scheduled",
+      "slotStatus": "confirmed",
+      "confirmedKingsSlot": true,
+      "kingsSlot": "Confirmed — Slot: 7 · Slot image available",
+      "slotEvidence": [
+        {
+          "messageId": "1506766422930358436",
+          "timestamp": "2026-05-20T21:11:49.593000+00:00",
+          "text": "Slot: 7"
+        }
+      ],
+      "kingsSlotImage": {
+        "messageId": "1506766422930358436",
+        "timestamp": "2026-05-20T21:11:49.593000+00:00",
+        "attachmentId": "1506766423102456009",
+        "filename": "image.png",
+        "contentType": "image/png",
+        "width": 1280,
+        "height": 720,
+        "capturedUrl": "https://cdn.discordapp.com/attachments/1492466505751990282/1506766423102456009/image.png?ex=6ac41295&is=6ac2c115&hm=e4dc46d797705b0bbad5f7d311ea7eca62f3a970a1acdcd983e77e4788bca10d&",
+        "messageUrl": "https://discord.com/channels/1114967437788577792/1492466505751990282/1506766422930358436",
+        "accompanyingText": "Slot: 7"
+      },
+      "kingsSlotImages": [
+        {
+          "messageId": "1506766422930358436",
+          "timestamp": "2026-05-20T21:11:49.593000+00:00",
+          "attachmentId": "1506766423102456009",
+          "filename": "image.png",
+          "contentType": "image/png",
+          "width": 1280,
+          "height": 720,
+          "capturedUrl": "https://cdn.discordapp.com/attachments/1492466505751990282/1506766423102456009/image.png?ex=6ac41295&is=6ac2c115&hm=e4dc46d797705b0bbad5f7d311ea7eca62f3a970a1acdcd983e77e4788bca10d&",
+          "messageUrl": "https://discord.com/channels/1114967437788577792/1492466505751990282/1506766422930358436",
+          "accompanyingText": "Slot: 7"
+        }
+      ],
+      "server": "Event Server",
+      "game": "ETS2",
+      "hostVtc": "PPA Logistics [CLOSING]",
+      "meetingPoint": "Luxembourg — Metz + Reims",
+      "start": "Luxembourg — Metz + Reims",
+      "destination": "Wrocław — Stein Bruch",
+      "route": "Luxembourg — Metz + Reims → Wrocław — Stein Bruch",
+      "truckersmp": {
+        "id": 33946,
+        "name": "PPA Logistics 1st Anniversary One last Drive",
+        "server": "Event Server",
+        "game": "ETS2",
+        "hostVtc": "PPA Logistics [CLOSING]",
+        "meetupAtUtc": "2026-10-09 17:00:00",
+        "startAtUtc": "2026-10-09 18:00:00",
+        "departure": {
+          "location": "Metz + Reims",
+          "city": "Luxembourg"
+        },
+        "arrive": {
+          "location": "Stein Bruch",
+          "city": "Wrocław"
+        },
+        "url": "https://truckersmp.com/events/33946"
       },
       "truckersmpImportError": null,
       "importedAt": "2026-10-05T02:19:34.418Z"
@@ -1499,6 +1500,61 @@
     {
       "legacy": true,
       "readOnly": true,
+      "legacyId": "old-calendar:1525302183275401276",
+      "source": "old-discord-convoy-calendar",
+      "sourceMonth": "October 2026",
+      "sourceMonthChannelId": "1394466082064171020",
+      "sourceThreadId": "1525302183275401276",
+      "sourceThreadName": "19. Oct - Pollito pio",
+      "sourceThreadArchived": true,
+      "sourceMessageIds": [
+        "1525302183275401276"
+      ],
+      "sourceNotes": [
+        {
+          "messageId": "1525302183275401276",
+          "timestamp": "2026-07-11T00:46:19.237000+00:00",
+          "text": "slot: partner"
+        }
+      ],
+      "eventId": "36370",
+      "eventUrl": "https://truckersmp.com/events/36370",
+      "name": "19. Oct - Pollito pio",
+      "eventDate": "2026-10-19",
+      "meetingTime": null,
+      "eventUnix": null,
+      "eventTimeValid": false,
+      "eventTimeZone": null,
+      "departureUnix": null,
+      "status": "Scheduled",
+      "slotStatus": "confirmed",
+      "confirmedKingsSlot": true,
+      "kingsSlot": "Confirmed — slot: partner",
+      "slotEvidence": [
+        {
+          "messageId": "1525302183275401276",
+          "timestamp": "2026-07-11T00:46:19.237000+00:00",
+          "text": "slot: partner"
+        }
+      ],
+      "server": null,
+      "game": null,
+      "hostVtc": null,
+      "meetingPoint": null,
+      "start": null,
+      "destination": null,
+      "route": null,
+      "truckersmp": null,
+      "truckersmpImportError": "event-not-found",
+      "importedAt": "2026-10-05T01:52:39.562Z",
+      "sourceUnavailable": true,
+      "sourceUnavailableReason": "Old Discord Calendar thread was later deleted/unavailable (Discord Unknown Channel).",
+      "preservedFromPreviousImport": true,
+      "preservedAt": "2026-10-05T02:22:51.367Z"
+    },
+    {
+      "legacy": true,
+      "readOnly": true,
       "legacyId": "old-calendar:1506732273502785758",
       "source": "old-discord-convoy-calendar",
       "sourceMonth": "October 2026",
@@ -1605,6 +1661,106 @@
     {
       "legacy": true,
       "readOnly": true,
+      "legacyId": "old-calendar:1498035578921550006",
+      "source": "old-discord-convoy-calendar",
+      "sourceMonth": "October 2026",
+      "sourceMonthChannelId": "1394466082064171020",
+      "sourceThreadId": "1498035578921550006",
+      "sourceThreadName": "23. October - Egyptian Truckers Company",
+      "sourceThreadArchived": false,
+      "sourceMessageIds": [
+        "1556488086966247438",
+        "1498035578921550006"
+      ],
+      "sourceNotes": [
+        {
+          "messageId": "1556488086966247438",
+          "timestamp": "2026-10-05T02:07:58.083000+00:00",
+          "text": "https://truckersmp.com/events/34664"
+        },
+        {
+          "messageId": "1498035578921550006",
+          "timestamp": "2026-04-26T18:58:34.170000+00:00",
+          "text": "Provisinal slot: Section L(ACC)"
+        }
+      ],
+      "eventId": "34664",
+      "eventUrl": "https://truckersmp.com/events/34664",
+      "name": "🎉EGY-TRUCKERS X ARAB X ANATOLIA X PEAN X NEEDCC🎉",
+      "eventDate": "2026-10-23",
+      "meetingTime": "17:00 UTC",
+      "eventUnix": 1792774800,
+      "eventTimeValid": true,
+      "eventTimeZone": "UTC",
+      "departureUnix": 1792778400,
+      "status": "Scheduled",
+      "slotStatus": "confirmed",
+      "confirmedKingsSlot": true,
+      "kingsSlot": "Confirmed — Provisinal slot: Section L(ACC) · Slot image available",
+      "slotEvidence": [
+        {
+          "messageId": "1498035578921550006",
+          "timestamp": "2026-04-26T18:58:34.170000+00:00",
+          "text": "Provisinal slot: Section L(ACC)"
+        }
+      ],
+      "kingsSlotImage": {
+        "messageId": "1498035578921550006",
+        "timestamp": "2026-04-26T18:58:34.170000+00:00",
+        "attachmentId": "1498035579647037451",
+        "filename": "acc.png",
+        "contentType": "image/png",
+        "width": 1280,
+        "height": 720,
+        "capturedUrl": "https://cdn.discordapp.com/attachments/1498035578921550006/1498035579647037451/acc.png?ex=6ac3f35a&is=6ac2a1da&hm=d06425a24991880370ba66ee1b04d7fa779cf289afb0d149af29e8632c46d93f&",
+        "messageUrl": "https://discord.com/channels/1114967437788577792/1498035578921550006/1498035578921550006",
+        "accompanyingText": "Provisinal slot: Section L(ACC)"
+      },
+      "kingsSlotImages": [
+        {
+          "messageId": "1498035578921550006",
+          "timestamp": "2026-04-26T18:58:34.170000+00:00",
+          "attachmentId": "1498035579647037451",
+          "filename": "acc.png",
+          "contentType": "image/png",
+          "width": 1280,
+          "height": 720,
+          "capturedUrl": "https://cdn.discordapp.com/attachments/1498035578921550006/1498035579647037451/acc.png?ex=6ac3f35a&is=6ac2a1da&hm=d06425a24991880370ba66ee1b04d7fa779cf289afb0d149af29e8632c46d93f&",
+          "messageUrl": "https://discord.com/channels/1114967437788577792/1498035578921550006/1498035578921550006",
+          "accompanyingText": "Provisinal slot: Section L(ACC)"
+        }
+      ],
+      "server": "To be determined",
+      "game": "ETS2",
+      "hostVtc": "Egyptian Truckers Company",
+      "meetingPoint": "TruckersMP HQ — Slots",
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Amsterdam — Port",
+      "route": "TruckersMP HQ — Slots → Amsterdam — Port",
+      "truckersmp": {
+        "id": 34664,
+        "name": "🎉EGY-TRUCKERS X ARAB X ANATOLIA X PEAN X NEEDCC🎉",
+        "server": "To be determined",
+        "game": "ETS2",
+        "hostVtc": "Egyptian Truckers Company",
+        "meetupAtUtc": "2026-10-23 17:00:00",
+        "startAtUtc": "2026-10-23 18:00:00",
+        "departure": {
+          "location": "Slots",
+          "city": "TruckersMP HQ"
+        },
+        "arrive": {
+          "location": "Port",
+          "city": "Amsterdam"
+        },
+        "url": "https://truckersmp.com/events/34664"
+      },
+      "truckersmpImportError": null,
+      "importedAt": "2026-10-05T02:19:34.418Z"
+    },
+    {
+      "legacy": true,
+      "readOnly": true,
       "legacyId": "old-calendar:1506730930306416782",
       "source": "old-discord-convoy-calendar",
       "sourceMonth": "October 2026",
@@ -1704,106 +1860,6 @@
           "city": "Hanover"
         },
         "url": "https://truckersmp.com/events/35100"
-      },
-      "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:19:34.418Z"
-    },
-    {
-      "legacy": true,
-      "readOnly": true,
-      "legacyId": "old-calendar:1498035578921550006",
-      "source": "old-discord-convoy-calendar",
-      "sourceMonth": "October 2026",
-      "sourceMonthChannelId": "1394466082064171020",
-      "sourceThreadId": "1498035578921550006",
-      "sourceThreadName": "23. October - Egyptian Truckers Company",
-      "sourceThreadArchived": false,
-      "sourceMessageIds": [
-        "1556488086966247438",
-        "1498035578921550006"
-      ],
-      "sourceNotes": [
-        {
-          "messageId": "1556488086966247438",
-          "timestamp": "2026-10-05T02:07:58.083000+00:00",
-          "text": "https://truckersmp.com/events/34664"
-        },
-        {
-          "messageId": "1498035578921550006",
-          "timestamp": "2026-04-26T18:58:34.170000+00:00",
-          "text": "Provisinal slot: Section L(ACC)"
-        }
-      ],
-      "eventId": "34664",
-      "eventUrl": "https://truckersmp.com/events/34664",
-      "name": "🎉EGY-TRUCKERS X ARAB X ANATOLIA X PEAN X NEEDCC🎉",
-      "eventDate": "2026-10-23",
-      "meetingTime": "17:00 UTC",
-      "eventUnix": 1792774800,
-      "eventTimeValid": true,
-      "eventTimeZone": "UTC",
-      "departureUnix": 1792778400,
-      "status": "Scheduled",
-      "slotStatus": "confirmed",
-      "confirmedKingsSlot": true,
-      "kingsSlot": "Confirmed — Provisinal slot: Section L(ACC) · Slot image available",
-      "slotEvidence": [
-        {
-          "messageId": "1498035578921550006",
-          "timestamp": "2026-04-26T18:58:34.170000+00:00",
-          "text": "Provisinal slot: Section L(ACC)"
-        }
-      ],
-      "kingsSlotImage": {
-        "messageId": "1498035578921550006",
-        "timestamp": "2026-04-26T18:58:34.170000+00:00",
-        "attachmentId": "1498035579647037451",
-        "filename": "acc.png",
-        "contentType": "image/png",
-        "width": 1280,
-        "height": 720,
-        "capturedUrl": "https://cdn.discordapp.com/attachments/1498035578921550006/1498035579647037451/acc.png?ex=6ac3f35a&is=6ac2a1da&hm=d06425a24991880370ba66ee1b04d7fa779cf289afb0d149af29e8632c46d93f&",
-        "messageUrl": "https://discord.com/channels/1114967437788577792/1498035578921550006/1498035578921550006",
-        "accompanyingText": "Provisinal slot: Section L(ACC)"
-      },
-      "kingsSlotImages": [
-        {
-          "messageId": "1498035578921550006",
-          "timestamp": "2026-04-26T18:58:34.170000+00:00",
-          "attachmentId": "1498035579647037451",
-          "filename": "acc.png",
-          "contentType": "image/png",
-          "width": 1280,
-          "height": 720,
-          "capturedUrl": "https://cdn.discordapp.com/attachments/1498035578921550006/1498035579647037451/acc.png?ex=6ac3f35a&is=6ac2a1da&hm=d06425a24991880370ba66ee1b04d7fa779cf289afb0d149af29e8632c46d93f&",
-          "messageUrl": "https://discord.com/channels/1114967437788577792/1498035578921550006/1498035578921550006",
-          "accompanyingText": "Provisinal slot: Section L(ACC)"
-        }
-      ],
-      "server": "To be determined",
-      "game": "ETS2",
-      "hostVtc": "Egyptian Truckers Company",
-      "meetingPoint": "TruckersMP HQ — Slots",
-      "start": "TruckersMP HQ — Slots",
-      "destination": "Amsterdam — Port",
-      "route": "TruckersMP HQ — Slots → Amsterdam — Port",
-      "truckersmp": {
-        "id": 34664,
-        "name": "🎉EGY-TRUCKERS X ARAB X ANATOLIA X PEAN X NEEDCC🎉",
-        "server": "To be determined",
-        "game": "ETS2",
-        "hostVtc": "Egyptian Truckers Company",
-        "meetupAtUtc": "2026-10-23 17:00:00",
-        "startAtUtc": "2026-10-23 18:00:00",
-        "departure": {
-          "location": "Slots",
-          "city": "TruckersMP HQ"
-        },
-        "arrive": {
-          "location": "Port",
-          "city": "Amsterdam"
-        },
-        "url": "https://truckersmp.com/events/34664"
       },
       "truckersmpImportError": null,
       "importedAt": "2026-10-05T02:19:34.418Z"
@@ -2894,100 +2950,6 @@
     {
       "legacy": true,
       "readOnly": true,
-      "legacyId": "old-calendar:1512763992509251734",
-      "source": "old-discord-convoy-calendar",
-      "sourceMonth": "November 2026",
-      "sourceMonthChannelId": "1394466122270511244",
-      "sourceThreadId": "1512763992509251734",
-      "sourceThreadName": "6. November - Kerala",
-      "sourceThreadArchived": true,
-      "sourceMessageIds": [
-        "1512795015540248616"
-      ],
-      "sourceNotes": [
-        {
-          "messageId": "1512795015540248616",
-          "timestamp": "2026-06-06T12:27:18.077000+00:00",
-          "text": "Slot: 11"
-        }
-      ],
-      "eventId": "36002",
-      "eventUrl": "https://truckersmp.com/events/36002",
-      "name": "Kerala RoadRunners November Venture",
-      "eventDate": "2026-11-06",
-      "meetingTime": "14:00 UTC",
-      "eventUnix": 1793973600,
-      "eventTimeValid": true,
-      "eventTimeZone": "UTC",
-      "departureUnix": 1793977200,
-      "status": "Scheduled",
-      "slotStatus": "confirmed",
-      "confirmedKingsSlot": true,
-      "kingsSlot": "Confirmed — Slot: 11 · Slot image available",
-      "slotEvidence": [
-        {
-          "messageId": "1512795015540248616",
-          "timestamp": "2026-06-06T12:27:18.077000+00:00",
-          "text": "Slot: 11"
-        }
-      ],
-      "kingsSlotImage": {
-        "messageId": "1512795015540248616",
-        "timestamp": "2026-06-06T12:27:18.077000+00:00",
-        "attachmentId": "1512795014760239124",
-        "filename": "IMG-20260603-084812.png",
-        "contentType": "image/png",
-        "width": 1280,
-        "height": 721,
-        "capturedUrl": "https://cdn.discordapp.com/attachments/1512763992509251734/1512795014760239124/IMG-20260603-084812.png?ex=6ac44065&is=6ac2eee5&hm=c0c37aef74beffbacdef5d3f15215f1e8217822da32691dc02f9c73c32589b68&",
-        "messageUrl": "https://discord.com/channels/1114967437788577792/1512763992509251734/1512795015540248616",
-        "accompanyingText": "Slot: 11"
-      },
-      "kingsSlotImages": [
-        {
-          "messageId": "1512795015540248616",
-          "timestamp": "2026-06-06T12:27:18.077000+00:00",
-          "attachmentId": "1512795014760239124",
-          "filename": "IMG-20260603-084812.png",
-          "contentType": "image/png",
-          "width": 1280,
-          "height": 721,
-          "capturedUrl": "https://cdn.discordapp.com/attachments/1512763992509251734/1512795014760239124/IMG-20260603-084812.png?ex=6ac44065&is=6ac2eee5&hm=c0c37aef74beffbacdef5d3f15215f1e8217822da32691dc02f9c73c32589b68&",
-          "messageUrl": "https://discord.com/channels/1114967437788577792/1512763992509251734/1512795015540248616",
-          "accompanyingText": "Slot: 11"
-        }
-      ],
-      "server": "To be determined",
-      "game": "ETS2",
-      "hostVtc": "KERALA ROADRUNNERS",
-      "meetingPoint": "Nuremberg — Slots",
-      "start": "Nuremberg — Slots",
-      "destination": "Calais — Container port",
-      "route": "Nuremberg — Slots → Calais — Container port",
-      "truckersmp": {
-        "id": 36002,
-        "name": "Kerala RoadRunners November Venture",
-        "server": "To be determined",
-        "game": "ETS2",
-        "hostVtc": "KERALA ROADRUNNERS",
-        "meetupAtUtc": "2026-11-06 14:00:00",
-        "startAtUtc": "2026-11-06 15:00:00",
-        "departure": {
-          "location": "Slots",
-          "city": "Nuremberg"
-        },
-        "arrive": {
-          "location": "Container port",
-          "city": "Calais"
-        },
-        "url": "https://truckersmp.com/events/36002"
-      },
-      "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:19:34.418Z"
-    },
-    {
-      "legacy": true,
-      "readOnly": true,
       "legacyId": "old-calendar:1501944847290994893",
       "source": "old-discord-convoy-calendar",
       "sourceMonth": "November 2026",
@@ -3075,6 +3037,100 @@
           "city": "Dortmund"
         },
         "url": "https://truckersmp.com/events/35561"
+      },
+      "truckersmpImportError": null,
+      "importedAt": "2026-10-05T02:19:34.418Z"
+    },
+    {
+      "legacy": true,
+      "readOnly": true,
+      "legacyId": "old-calendar:1512763992509251734",
+      "source": "old-discord-convoy-calendar",
+      "sourceMonth": "November 2026",
+      "sourceMonthChannelId": "1394466122270511244",
+      "sourceThreadId": "1512763992509251734",
+      "sourceThreadName": "6. November - Kerala",
+      "sourceThreadArchived": true,
+      "sourceMessageIds": [
+        "1512795015540248616"
+      ],
+      "sourceNotes": [
+        {
+          "messageId": "1512795015540248616",
+          "timestamp": "2026-06-06T12:27:18.077000+00:00",
+          "text": "Slot: 11"
+        }
+      ],
+      "eventId": "36002",
+      "eventUrl": "https://truckersmp.com/events/36002",
+      "name": "Kerala RoadRunners November Venture",
+      "eventDate": "2026-11-06",
+      "meetingTime": "14:00 UTC",
+      "eventUnix": 1793973600,
+      "eventTimeValid": true,
+      "eventTimeZone": "UTC",
+      "departureUnix": 1793977200,
+      "status": "Scheduled",
+      "slotStatus": "confirmed",
+      "confirmedKingsSlot": true,
+      "kingsSlot": "Confirmed — Slot: 11 · Slot image available",
+      "slotEvidence": [
+        {
+          "messageId": "1512795015540248616",
+          "timestamp": "2026-06-06T12:27:18.077000+00:00",
+          "text": "Slot: 11"
+        }
+      ],
+      "kingsSlotImage": {
+        "messageId": "1512795015540248616",
+        "timestamp": "2026-06-06T12:27:18.077000+00:00",
+        "attachmentId": "1512795014760239124",
+        "filename": "IMG-20260603-084812.png",
+        "contentType": "image/png",
+        "width": 1280,
+        "height": 721,
+        "capturedUrl": "https://cdn.discordapp.com/attachments/1512763992509251734/1512795014760239124/IMG-20260603-084812.png?ex=6ac44065&is=6ac2eee5&hm=c0c37aef74beffbacdef5d3f15215f1e8217822da32691dc02f9c73c32589b68&",
+        "messageUrl": "https://discord.com/channels/1114967437788577792/1512763992509251734/1512795015540248616",
+        "accompanyingText": "Slot: 11"
+      },
+      "kingsSlotImages": [
+        {
+          "messageId": "1512795015540248616",
+          "timestamp": "2026-06-06T12:27:18.077000+00:00",
+          "attachmentId": "1512795014760239124",
+          "filename": "IMG-20260603-084812.png",
+          "contentType": "image/png",
+          "width": 1280,
+          "height": 721,
+          "capturedUrl": "https://cdn.discordapp.com/attachments/1512763992509251734/1512795014760239124/IMG-20260603-084812.png?ex=6ac44065&is=6ac2eee5&hm=c0c37aef74beffbacdef5d3f15215f1e8217822da32691dc02f9c73c32589b68&",
+          "messageUrl": "https://discord.com/channels/1114967437788577792/1512763992509251734/1512795015540248616",
+          "accompanyingText": "Slot: 11"
+        }
+      ],
+      "server": "To be determined",
+      "game": "ETS2",
+      "hostVtc": "KERALA ROADRUNNERS",
+      "meetingPoint": "Nuremberg — Slots",
+      "start": "Nuremberg — Slots",
+      "destination": "Calais — Container port",
+      "route": "Nuremberg — Slots → Calais — Container port",
+      "truckersmp": {
+        "id": 36002,
+        "name": "Kerala RoadRunners November Venture",
+        "server": "To be determined",
+        "game": "ETS2",
+        "hostVtc": "KERALA ROADRUNNERS",
+        "meetupAtUtc": "2026-11-06 14:00:00",
+        "startAtUtc": "2026-11-06 15:00:00",
+        "departure": {
+          "location": "Slots",
+          "city": "Nuremberg"
+        },
+        "arrive": {
+          "location": "Container port",
+          "city": "Calais"
+        },
+        "url": "https://truckersmp.com/events/36002"
       },
       "truckersmpImportError": null,
       "importedAt": "2026-10-05T02:19:34.418Z"
@@ -3771,6 +3827,53 @@
     {
       "legacy": true,
       "readOnly": true,
+      "legacyId": "old-calendar:1459342520256565288",
+      "source": "old-discord-convoy-calendar",
+      "sourceMonth": "November 2026",
+      "sourceMonthChannelId": "1394466122270511244",
+      "sourceThreadId": "1459342520256565288",
+      "sourceThreadName": "21. November - [P] [RO] Trans Express",
+      "sourceThreadArchived": true,
+      "sourceMessageIds": [
+        "1459342520256565288"
+      ],
+      "sourceNotes": [
+        {
+          "messageId": "1459342520256565288",
+          "timestamp": "2026-01-10T00:26:10.102000+00:00",
+          "text": "21. November - [P] [RO] Trans Express"
+        }
+      ],
+      "eventId": null,
+      "eventUrl": null,
+      "name": "21. November - [P] [RO] Trans Express",
+      "eventDate": "2026-11-21",
+      "meetingTime": null,
+      "eventUnix": null,
+      "eventTimeValid": false,
+      "eventTimeZone": null,
+      "departureUnix": null,
+      "status": "Scheduled",
+      "slotStatus": "unknown",
+      "confirmedKingsSlot": false,
+      "kingsSlot": null,
+      "slotEvidence": [],
+      "kingsSlotImage": null,
+      "kingsSlotImages": [],
+      "server": null,
+      "game": null,
+      "hostVtc": null,
+      "meetingPoint": null,
+      "start": null,
+      "destination": null,
+      "route": null,
+      "truckersmp": null,
+      "truckersmpImportError": null,
+      "importedAt": "2026-10-05T02:19:34.418Z"
+    },
+    {
+      "legacy": true,
+      "readOnly": true,
       "legacyId": "old-calendar:1507725589568819380",
       "source": "old-discord-convoy-calendar",
       "sourceMonth": "November 2026",
@@ -3871,53 +3974,6 @@
         },
         "url": "https://truckersmp.com/events/35816"
       },
-      "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:19:34.418Z"
-    },
-    {
-      "legacy": true,
-      "readOnly": true,
-      "legacyId": "old-calendar:1459342520256565288",
-      "source": "old-discord-convoy-calendar",
-      "sourceMonth": "November 2026",
-      "sourceMonthChannelId": "1394466122270511244",
-      "sourceThreadId": "1459342520256565288",
-      "sourceThreadName": "21. November - [P] [RO] Trans Express",
-      "sourceThreadArchived": true,
-      "sourceMessageIds": [
-        "1459342520256565288"
-      ],
-      "sourceNotes": [
-        {
-          "messageId": "1459342520256565288",
-          "timestamp": "2026-01-10T00:26:10.102000+00:00",
-          "text": "21. November - [P] [RO] Trans Express"
-        }
-      ],
-      "eventId": null,
-      "eventUrl": null,
-      "name": "21. November - [P] [RO] Trans Express",
-      "eventDate": "2026-11-21",
-      "meetingTime": null,
-      "eventUnix": null,
-      "eventTimeValid": false,
-      "eventTimeZone": null,
-      "departureUnix": null,
-      "status": "Scheduled",
-      "slotStatus": "unknown",
-      "confirmedKingsSlot": false,
-      "kingsSlot": null,
-      "slotEvidence": [],
-      "kingsSlotImage": null,
-      "kingsSlotImages": [],
-      "server": null,
-      "game": null,
-      "hostVtc": null,
-      "meetingPoint": null,
-      "start": null,
-      "destination": null,
-      "route": null,
-      "truckersmp": null,
       "truckersmpImportError": null,
       "importedAt": "2026-10-05T02:19:34.418Z"
     },
@@ -4506,6 +4562,53 @@
     {
       "legacy": true,
       "readOnly": true,
+      "legacyId": "old-calendar:1459342633334997085",
+      "source": "old-discord-convoy-calendar",
+      "sourceMonth": "December 2026",
+      "sourceMonthChannelId": "1394466158337458267",
+      "sourceThreadId": "1459342633334997085",
+      "sourceThreadName": "1. Dezember - [P] [RO] Trans Express",
+      "sourceThreadArchived": true,
+      "sourceMessageIds": [
+        "1459342633334997085"
+      ],
+      "sourceNotes": [
+        {
+          "messageId": "1459342633334997085",
+          "timestamp": "2026-01-10T00:26:37.062000+00:00",
+          "text": "1. Dezember - [P] [RO] Trans Express"
+        }
+      ],
+      "eventId": null,
+      "eventUrl": null,
+      "name": "1. Dezember - [P] [RO] Trans Express",
+      "eventDate": "2026-12-01",
+      "meetingTime": null,
+      "eventUnix": null,
+      "eventTimeValid": false,
+      "eventTimeZone": null,
+      "departureUnix": null,
+      "status": "Scheduled",
+      "slotStatus": "unknown",
+      "confirmedKingsSlot": false,
+      "kingsSlot": null,
+      "slotEvidence": [],
+      "kingsSlotImage": null,
+      "kingsSlotImages": [],
+      "server": null,
+      "game": null,
+      "hostVtc": null,
+      "meetingPoint": null,
+      "start": null,
+      "destination": null,
+      "route": null,
+      "truckersmp": null,
+      "truckersmpImportError": null,
+      "importedAt": "2026-10-05T02:19:34.418Z"
+    },
+    {
+      "legacy": true,
+      "readOnly": true,
       "legacyId": "old-calendar:1512761710782451822",
       "source": "old-discord-convoy-calendar",
       "sourceMonth": "December 2026",
@@ -4605,53 +4708,6 @@
         },
         "url": "https://truckersmp.com/events/35920"
       },
-      "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:19:34.418Z"
-    },
-    {
-      "legacy": true,
-      "readOnly": true,
-      "legacyId": "old-calendar:1459342633334997085",
-      "source": "old-discord-convoy-calendar",
-      "sourceMonth": "December 2026",
-      "sourceMonthChannelId": "1394466158337458267",
-      "sourceThreadId": "1459342633334997085",
-      "sourceThreadName": "1. Dezember - [P] [RO] Trans Express",
-      "sourceThreadArchived": true,
-      "sourceMessageIds": [
-        "1459342633334997085"
-      ],
-      "sourceNotes": [
-        {
-          "messageId": "1459342633334997085",
-          "timestamp": "2026-01-10T00:26:37.062000+00:00",
-          "text": "1. Dezember - [P] [RO] Trans Express"
-        }
-      ],
-      "eventId": null,
-      "eventUrl": null,
-      "name": "1. Dezember - [P] [RO] Trans Express",
-      "eventDate": "2026-12-01",
-      "meetingTime": null,
-      "eventUnix": null,
-      "eventTimeValid": false,
-      "eventTimeZone": null,
-      "departureUnix": null,
-      "status": "Scheduled",
-      "slotStatus": "unknown",
-      "confirmedKingsSlot": false,
-      "kingsSlot": null,
-      "slotEvidence": [],
-      "kingsSlotImage": null,
-      "kingsSlotImages": [],
-      "server": null,
-      "game": null,
-      "hostVtc": null,
-      "meetingPoint": null,
-      "start": null,
-      "destination": null,
-      "route": null,
-      "truckersmp": null,
       "truckersmpImportError": null,
       "importedAt": "2026-10-05T02:19:34.418Z"
     },
@@ -5332,6 +5388,100 @@
     {
       "legacy": true,
       "readOnly": true,
+      "legacyId": "old-calendar:1515356673395658932",
+      "source": "old-discord-convoy-calendar",
+      "sourceMonth": "December 2026",
+      "sourceMonthChannelId": "1394466158337458267",
+      "sourceThreadId": "1515356673395658932",
+      "sourceThreadName": "12. December - Premium events",
+      "sourceThreadArchived": true,
+      "sourceMessageIds": [
+        "1515356673395658932"
+      ],
+      "sourceNotes": [
+        {
+          "messageId": "1515356673395658932",
+          "timestamp": "2026-06-13T14:06:24.903000+00:00",
+          "text": "slot: 26"
+        }
+      ],
+      "eventId": "36227",
+      "eventUrl": "https://truckersmp.com/events/36227",
+      "name": "✨ Premium Events Version #3 ✨",
+      "eventDate": "2026-12-12",
+      "meetingTime": "18:00 UTC",
+      "eventUnix": 1797098400,
+      "eventTimeValid": true,
+      "eventTimeZone": "UTC",
+      "departureUnix": 1797102000,
+      "status": "Scheduled",
+      "slotStatus": "confirmed",
+      "confirmedKingsSlot": true,
+      "kingsSlot": "Confirmed — slot: 26 · Slot image available",
+      "slotEvidence": [
+        {
+          "messageId": "1515356673395658932",
+          "timestamp": "2026-06-13T14:06:24.903000+00:00",
+          "text": "slot: 26"
+        }
+      ],
+      "kingsSlotImage": {
+        "messageId": "1515356673395658932",
+        "timestamp": "2026-06-13T14:06:24.903000+00:00",
+        "attachmentId": "1515356673785462855",
+        "filename": "image.png",
+        "contentType": "image/png",
+        "width": 1280,
+        "height": 720,
+        "capturedUrl": "https://cdn.discordapp.com/attachments/1515356673395658932/1515356673785462855/image.png?ex=6ac457a0&is=6ac30620&hm=c94fafb409f10c1b9b8268bc93739dcb8bfc50c897996c7b3cdec2d5e6ac7d98&",
+        "messageUrl": "https://discord.com/channels/1114967437788577792/1515356673395658932/1515356673395658932",
+        "accompanyingText": "slot: 26"
+      },
+      "kingsSlotImages": [
+        {
+          "messageId": "1515356673395658932",
+          "timestamp": "2026-06-13T14:06:24.903000+00:00",
+          "attachmentId": "1515356673785462855",
+          "filename": "image.png",
+          "contentType": "image/png",
+          "width": 1280,
+          "height": 720,
+          "capturedUrl": "https://cdn.discordapp.com/attachments/1515356673395658932/1515356673785462855/image.png?ex=6ac457a0&is=6ac30620&hm=c94fafb409f10c1b9b8268bc93739dcb8bfc50c897996c7b3cdec2d5e6ac7d98&",
+          "messageUrl": "https://discord.com/channels/1114967437788577792/1515356673395658932/1515356673395658932",
+          "accompanyingText": "slot: 26"
+        }
+      ],
+      "server": "To be determined",
+      "game": "ETS2",
+      "hostVtc": "Premium Events",
+      "meetingPoint": "Florence — + Livorno Slots",
+      "start": "Florence — + Livorno Slots",
+      "destination": "Genoa — Terminal Container Port",
+      "route": "Florence — + Livorno Slots → Genoa — Terminal Container Port",
+      "truckersmp": {
+        "id": 36227,
+        "name": "✨ Premium Events Version #3 ✨",
+        "server": "To be determined",
+        "game": "ETS2",
+        "hostVtc": "Premium Events",
+        "meetupAtUtc": "2026-12-12 18:00:00",
+        "startAtUtc": "2026-12-12 19:00:00",
+        "departure": {
+          "location": "+ Livorno Slots",
+          "city": "Florence"
+        },
+        "arrive": {
+          "location": "Terminal Container Port",
+          "city": "Genoa"
+        },
+        "url": "https://truckersmp.com/events/36227"
+      },
+      "truckersmpImportError": null,
+      "importedAt": "2026-10-05T02:19:34.418Z"
+    },
+    {
+      "legacy": true,
+      "readOnly": true,
       "legacyId": "old-calendar:1515358504880443612",
       "source": "old-discord-convoy-calendar",
       "sourceMonth": "December 2026",
@@ -5525,100 +5675,6 @@
           "city": "Rotterdam"
         },
         "url": "https://truckersmp.com/events/36248"
-      },
-      "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:19:34.418Z"
-    },
-    {
-      "legacy": true,
-      "readOnly": true,
-      "legacyId": "old-calendar:1515356673395658932",
-      "source": "old-discord-convoy-calendar",
-      "sourceMonth": "December 2026",
-      "sourceMonthChannelId": "1394466158337458267",
-      "sourceThreadId": "1515356673395658932",
-      "sourceThreadName": "12. December - Premium events",
-      "sourceThreadArchived": true,
-      "sourceMessageIds": [
-        "1515356673395658932"
-      ],
-      "sourceNotes": [
-        {
-          "messageId": "1515356673395658932",
-          "timestamp": "2026-06-13T14:06:24.903000+00:00",
-          "text": "slot: 26"
-        }
-      ],
-      "eventId": "36227",
-      "eventUrl": "https://truckersmp.com/events/36227",
-      "name": "✨ Premium Events Version #3 ✨",
-      "eventDate": "2026-12-12",
-      "meetingTime": "18:00 UTC",
-      "eventUnix": 1797098400,
-      "eventTimeValid": true,
-      "eventTimeZone": "UTC",
-      "departureUnix": 1797102000,
-      "status": "Scheduled",
-      "slotStatus": "confirmed",
-      "confirmedKingsSlot": true,
-      "kingsSlot": "Confirmed — slot: 26 · Slot image available",
-      "slotEvidence": [
-        {
-          "messageId": "1515356673395658932",
-          "timestamp": "2026-06-13T14:06:24.903000+00:00",
-          "text": "slot: 26"
-        }
-      ],
-      "kingsSlotImage": {
-        "messageId": "1515356673395658932",
-        "timestamp": "2026-06-13T14:06:24.903000+00:00",
-        "attachmentId": "1515356673785462855",
-        "filename": "image.png",
-        "contentType": "image/png",
-        "width": 1280,
-        "height": 720,
-        "capturedUrl": "https://cdn.discordapp.com/attachments/1515356673395658932/1515356673785462855/image.png?ex=6ac457a0&is=6ac30620&hm=c94fafb409f10c1b9b8268bc93739dcb8bfc50c897996c7b3cdec2d5e6ac7d98&",
-        "messageUrl": "https://discord.com/channels/1114967437788577792/1515356673395658932/1515356673395658932",
-        "accompanyingText": "slot: 26"
-      },
-      "kingsSlotImages": [
-        {
-          "messageId": "1515356673395658932",
-          "timestamp": "2026-06-13T14:06:24.903000+00:00",
-          "attachmentId": "1515356673785462855",
-          "filename": "image.png",
-          "contentType": "image/png",
-          "width": 1280,
-          "height": 720,
-          "capturedUrl": "https://cdn.discordapp.com/attachments/1515356673395658932/1515356673785462855/image.png?ex=6ac457a0&is=6ac30620&hm=c94fafb409f10c1b9b8268bc93739dcb8bfc50c897996c7b3cdec2d5e6ac7d98&",
-          "messageUrl": "https://discord.com/channels/1114967437788577792/1515356673395658932/1515356673395658932",
-          "accompanyingText": "slot: 26"
-        }
-      ],
-      "server": "To be determined",
-      "game": "ETS2",
-      "hostVtc": "Premium Events",
-      "meetingPoint": "Florence — + Livorno Slots",
-      "start": "Florence — + Livorno Slots",
-      "destination": "Genoa — Terminal Container Port",
-      "route": "Florence — + Livorno Slots → Genoa — Terminal Container Port",
-      "truckersmp": {
-        "id": 36227,
-        "name": "✨ Premium Events Version #3 ✨",
-        "server": "To be determined",
-        "game": "ETS2",
-        "hostVtc": "Premium Events",
-        "meetupAtUtc": "2026-12-12 18:00:00",
-        "startAtUtc": "2026-12-12 19:00:00",
-        "departure": {
-          "location": "+ Livorno Slots",
-          "city": "Florence"
-        },
-        "arrive": {
-          "location": "Terminal Container Port",
-          "city": "Genoa"
-        },
-        "url": "https://truckersmp.com/events/36227"
       },
       "truckersmpImportError": null,
       "importedAt": "2026-10-05T02:19:34.418Z"
@@ -7518,100 +7574,6 @@
     {
       "legacy": true,
       "readOnly": true,
-      "legacyId": "old-calendar:1544945699521691718",
-      "source": "old-discord-convoy-calendar",
-      "sourceMonth": "January 2027",
-      "sourceMonthChannelId": "1525976885853425864",
-      "sourceThreadId": "1544945699521691718",
-      "sourceThreadName": "18. Jan - Tamil pasanga",
-      "sourceThreadArchived": true,
-      "sourceMessageIds": [
-        "1544945699521691718"
-      ],
-      "sourceNotes": [
-        {
-          "messageId": "1544945699521691718",
-          "timestamp": "2026-09-03T05:42:38.469000+00:00",
-          "text": "slot: 6"
-        }
-      ],
-      "eventId": "37553",
-      "eventUrl": "https://truckersmp.com/events/37553",
-      "name": "Tamil Pasanga X Drive Along Partnership Convoy JAN 2027",
-      "eventDate": "2027-01-18",
-      "meetingTime": "14:00 UTC",
-      "eventUnix": 1800280800,
-      "eventTimeValid": true,
-      "eventTimeZone": "UTC",
-      "departureUnix": 1800284400,
-      "status": "Scheduled",
-      "slotStatus": "confirmed",
-      "confirmedKingsSlot": true,
-      "kingsSlot": "Confirmed — slot: 6 · Slot image available",
-      "slotEvidence": [
-        {
-          "messageId": "1544945699521691718",
-          "timestamp": "2026-09-03T05:42:38.469000+00:00",
-          "text": "slot: 6"
-        }
-      ],
-      "kingsSlotImage": {
-        "messageId": "1544945699521691718",
-        "timestamp": "2026-09-03T05:42:38.469000+00:00",
-        "attachmentId": "1544945699987398696",
-        "filename": "xyppzim3ka5lvf3klxan.png",
-        "contentType": "image/png",
-        "width": 1916,
-        "height": 1078,
-        "capturedUrl": "https://cdn.discordapp.com/attachments/1544945699521691718/1544945699987398696/xyppzim3ka5lvf3klxan.png?ex=6ac3e18e&is=6ac2900e&hm=1ad0f13afab8569f7d9c0d37222e27e36792aaa6eac1b956509b4f1d811e44d1&",
-        "messageUrl": "https://discord.com/channels/1114967437788577792/1544945699521691718/1544945699521691718",
-        "accompanyingText": "slot: 6"
-      },
-      "kingsSlotImages": [
-        {
-          "messageId": "1544945699521691718",
-          "timestamp": "2026-09-03T05:42:38.469000+00:00",
-          "attachmentId": "1544945699987398696",
-          "filename": "xyppzim3ka5lvf3klxan.png",
-          "contentType": "image/png",
-          "width": 1916,
-          "height": 1078,
-          "capturedUrl": "https://cdn.discordapp.com/attachments/1544945699521691718/1544945699987398696/xyppzim3ka5lvf3klxan.png?ex=6ac3e18e&is=6ac2900e&hm=1ad0f13afab8569f7d9c0d37222e27e36792aaa6eac1b956509b4f1d811e44d1&",
-          "messageUrl": "https://discord.com/channels/1114967437788577792/1544945699521691718/1544945699521691718",
-          "accompanyingText": "slot: 6"
-        }
-      ],
-      "server": "To be determined",
-      "game": "ETS2",
-      "hostVtc": "TAMIL PASANGA",
-      "meetingPoint": "Newcastle upon Tyne — Newcastle Upon Tyne & Carlisle - Slots",
-      "start": "Newcastle upon Tyne — Newcastle Upon Tyne & Carlisle - Slots",
-      "destination": "Felixstowe — Felixstowe - Harbour",
-      "route": "Newcastle upon Tyne — Newcastle Upon Tyne & Carlisle - Slots → Felixstowe — Felixstowe - Harbour",
-      "truckersmp": {
-        "id": 37553,
-        "name": "Tamil Pasanga X Drive Along Partnership Convoy JAN 2027",
-        "server": "To be determined",
-        "game": "ETS2",
-        "hostVtc": "TAMIL PASANGA",
-        "meetupAtUtc": "2027-01-18 14:00:00",
-        "startAtUtc": "2027-01-18 15:00:00",
-        "departure": {
-          "location": "Newcastle Upon Tyne & Carlisle - Slots",
-          "city": "Newcastle upon Tyne"
-        },
-        "arrive": {
-          "location": "Felixstowe - Harbour",
-          "city": "Felixstowe"
-        },
-        "url": "https://truckersmp.com/events/37553"
-      },
-      "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:19:34.418Z"
-    },
-    {
-      "legacy": true,
-      "readOnly": true,
       "legacyId": "old-calendar:1551249865483223171",
       "source": "old-discord-convoy-calendar",
       "sourceMonth": "January 2027",
@@ -7699,6 +7661,100 @@
           "city": "Rijeka"
         },
         "url": "https://truckersmp.com/events/36903"
+      },
+      "truckersmpImportError": null,
+      "importedAt": "2026-10-05T02:19:34.418Z"
+    },
+    {
+      "legacy": true,
+      "readOnly": true,
+      "legacyId": "old-calendar:1544945699521691718",
+      "source": "old-discord-convoy-calendar",
+      "sourceMonth": "January 2027",
+      "sourceMonthChannelId": "1525976885853425864",
+      "sourceThreadId": "1544945699521691718",
+      "sourceThreadName": "18. Jan - Tamil pasanga",
+      "sourceThreadArchived": true,
+      "sourceMessageIds": [
+        "1544945699521691718"
+      ],
+      "sourceNotes": [
+        {
+          "messageId": "1544945699521691718",
+          "timestamp": "2026-09-03T05:42:38.469000+00:00",
+          "text": "slot: 6"
+        }
+      ],
+      "eventId": "37553",
+      "eventUrl": "https://truckersmp.com/events/37553",
+      "name": "Tamil Pasanga X Drive Along Partnership Convoy JAN 2027",
+      "eventDate": "2027-01-18",
+      "meetingTime": "14:00 UTC",
+      "eventUnix": 1800280800,
+      "eventTimeValid": true,
+      "eventTimeZone": "UTC",
+      "departureUnix": 1800284400,
+      "status": "Scheduled",
+      "slotStatus": "confirmed",
+      "confirmedKingsSlot": true,
+      "kingsSlot": "Confirmed — slot: 6 · Slot image available",
+      "slotEvidence": [
+        {
+          "messageId": "1544945699521691718",
+          "timestamp": "2026-09-03T05:42:38.469000+00:00",
+          "text": "slot: 6"
+        }
+      ],
+      "kingsSlotImage": {
+        "messageId": "1544945699521691718",
+        "timestamp": "2026-09-03T05:42:38.469000+00:00",
+        "attachmentId": "1544945699987398696",
+        "filename": "xyppzim3ka5lvf3klxan.png",
+        "contentType": "image/png",
+        "width": 1916,
+        "height": 1078,
+        "capturedUrl": "https://cdn.discordapp.com/attachments/1544945699521691718/1544945699987398696/xyppzim3ka5lvf3klxan.png?ex=6ac3e18e&is=6ac2900e&hm=1ad0f13afab8569f7d9c0d37222e27e36792aaa6eac1b956509b4f1d811e44d1&",
+        "messageUrl": "https://discord.com/channels/1114967437788577792/1544945699521691718/1544945699521691718",
+        "accompanyingText": "slot: 6"
+      },
+      "kingsSlotImages": [
+        {
+          "messageId": "1544945699521691718",
+          "timestamp": "2026-09-03T05:42:38.469000+00:00",
+          "attachmentId": "1544945699987398696",
+          "filename": "xyppzim3ka5lvf3klxan.png",
+          "contentType": "image/png",
+          "width": 1916,
+          "height": 1078,
+          "capturedUrl": "https://cdn.discordapp.com/attachments/1544945699521691718/1544945699987398696/xyppzim3ka5lvf3klxan.png?ex=6ac3e18e&is=6ac2900e&hm=1ad0f13afab8569f7d9c0d37222e27e36792aaa6eac1b956509b4f1d811e44d1&",
+          "messageUrl": "https://discord.com/channels/1114967437788577792/1544945699521691718/1544945699521691718",
+          "accompanyingText": "slot: 6"
+        }
+      ],
+      "server": "To be determined",
+      "game": "ETS2",
+      "hostVtc": "TAMIL PASANGA",
+      "meetingPoint": "Newcastle upon Tyne — Newcastle Upon Tyne & Carlisle - Slots",
+      "start": "Newcastle upon Tyne — Newcastle Upon Tyne & Carlisle - Slots",
+      "destination": "Felixstowe — Felixstowe - Harbour",
+      "route": "Newcastle upon Tyne — Newcastle Upon Tyne & Carlisle - Slots → Felixstowe — Felixstowe - Harbour",
+      "truckersmp": {
+        "id": 37553,
+        "name": "Tamil Pasanga X Drive Along Partnership Convoy JAN 2027",
+        "server": "To be determined",
+        "game": "ETS2",
+        "hostVtc": "TAMIL PASANGA",
+        "meetupAtUtc": "2027-01-18 14:00:00",
+        "startAtUtc": "2027-01-18 15:00:00",
+        "departure": {
+          "location": "Newcastle Upon Tyne & Carlisle - Slots",
+          "city": "Newcastle upon Tyne"
+        },
+        "arrive": {
+          "location": "Felixstowe - Harbour",
+          "city": "Felixstowe"
+        },
+        "url": "https://truckersmp.com/events/37553"
       },
       "truckersmpImportError": null,
       "importedAt": "2026-10-05T02:19:34.418Z"
