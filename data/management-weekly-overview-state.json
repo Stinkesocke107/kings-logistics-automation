@@ -1,7 +1,7 @@
 {
-  "version": 2,
+  "version": 3,
   "createdAt": "2026-09-07T10:42:51.005Z",
-  "updatedAt": "2026-09-28T10:38:39.027Z",
+  "updatedAt": "2026-10-05T10:41:06.926Z",
   "publishedWeeks": [
     {
       "key": "2026-08-31",
@@ -53,6 +53,29 @@
       "activeEventThreads": 8,
       "scheduledEvents": 1,
       "weeklyPeak": 3
+    },
+    {
+      "key": "2026-09-28",
+      "periodStart": "2026-09-28T00:00:00.000Z",
+      "periodEnd": "2026-10-05T00:00:00.000Z",
+      "publishedAt": "2026-10-05T10:41:06.926Z",
+      "members": 109,
+      "joined": 3,
+      "left": 1,
+      "netGrowth": 2,
+      "nameChanges": 0,
+      "probationReviewsTriggered": 1,
+      "currentOpenProbationReviews": 1,
+      "currentExtendedProbationReviews": 0,
+      "currentAttention14Days": 0,
+      "currentHrReview30Days": 0,
+      "currentStaff": 11,
+      "staffJoined30d": 0,
+      "staffRoleChanges30d": 0,
+      "staffLeft30d": 1,
+      "activeEventThreads": 6,
+      "scheduledEvents": 3,
+      "weeklyPeak": 4
     }
   ]
 }
