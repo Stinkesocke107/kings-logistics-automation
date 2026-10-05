@@ -1,20 +1,20 @@
 {
   "version": 1,
   "mode": "recognition-only",
-  "updatedAt": "2026-10-04T14:49:16.450Z",
+  "updatedAt": "2026-10-05T18:33:42.038Z",
   "currentDrivers": 109,
   "trackedCurrentDrivers": 109,
   "counts": {
     "1m": 107,
     "3m": 80,
     "6m": 57,
-    "1y": 34,
+    "1y": 35,
     "2y": 5,
     "3y": 2,
     "4y": 0,
     "5y": 0
   },
-  "upcoming30Days": 29,
+  "upcoming30Days": 30,
   "achievements": [
     {
       "id": "1m",
@@ -49,5 +49,5 @@
       "label": "5 Years with Kings"
     }
   ],
-  "note": "Recognition only. The automation never changes roles, grants permissions, disciplines members, or makes personnel decisions."
+  "note": "Achievement notices are recognition-only. Driver Loyalty roles are synchronized separately; no permission, disciplinary, promotion, demotion, or personnel decision is automated."
 }

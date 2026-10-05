@@ -1,19 +1,19 @@
 {
   "version": 2,
   "mode": "live",
-  "updatedAt": "2026-10-04T16:46:32.575Z",
+  "updatedAt": "2026-10-05T18:35:33.844Z",
   "currentDrivers": 109,
   "matchedCurrentDrivers": 27,
-  "newMappings": 27,
-  "nameFallbackMappings": 16,
+  "newMappings": 0,
+  "nameFallbackMappings": 0,
   "fullDiscordMemberListAvailable": true,
   "noLinkedDiscord": 80,
   "linkedDiscordNotOnGuild": 1,
   "truckersmpProfileErrors": 0,
   "eligibleForLoyaltyTier": 27,
-  "roleAdditions": 52,
-  "roleRemovals": 0,
-  "alreadyCorrect": 1,
+  "roleAdditions": 1,
+  "roleRemovals": 1,
+  "alreadyCorrect": 26,
   "formerDriverMappingsCleaned": 0,
   "umbrellaRole": {
     "id": "1555009783357112400",
@@ -55,6 +55,18 @@
       "label": "3 Years with Kings",
       "discordRoleId": "1555009833147826216",
       "discordRoleName": "| 3 Years with Kings"
+    },
+    {
+      "id": "4y",
+      "label": "4 Years with Kings",
+      "discordRoleId": "1556481596729860176",
+      "discordRoleName": "| 4 Years with Kings"
+    },
+    {
+      "id": "5y",
+      "label": "5 Years with Kings",
+      "discordRoleId": "1556481608654127134",
+      "discordRoleName": "| 5 Years with Kings"
     }
   ],
   "unresolved": [
