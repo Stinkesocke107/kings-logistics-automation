@@ -1,17 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-failed:leadership-overviews.yml": {
-      "severity": "warning",
-      "system": "Leadership Overviews",
-      "message": "Leadership Overviews latest completed run ended with skipped.",
-      "details": {
-        "runId": 37256214151,
-        "completedAt": "2026-10-05T02:38:57Z"
-      },
-      "firstAlertedAt": "2026-10-05T07:06:22.149Z"
-    }
-  },
+  "active": {},
   "pending": {}
 }
