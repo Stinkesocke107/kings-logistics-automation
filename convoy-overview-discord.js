@@ -205,6 +205,12 @@ function buildMessage(overview) {
 
   const next = upcoming[0] || null;
 
+  console.log(
+    next
+      ? `Convoy Overview next planned: ${next.eventDate || 'date-unknown'} | ${next.name} | source=${next.legacy ? 'legacy-calendar' : 'convoy-center'} | time=${next.eventTimeValid ? next.eventUnix : 'pending'} | slot=${next.confirmedKingsSlot ? 'confirmed' : 'pending'}`
+      : 'Convoy Overview next planned: none'
+  );
+
   const lines = [
     MESSAGE_MARKER,
     '💙 Live overview of Kings Logistics convoy operations.',
