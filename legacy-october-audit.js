@@ -2,6 +2,7 @@ const API = 'https://discord.com/api/v10';
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const OCTOBER_ID = '1394466082064171020';
+const FORCED_OCTOBER_THREADS = ['1525302183275401276'];
 
 if (!TOKEN) throw new Error('DISCORD_BOT_TOKEN missing');
 
@@ -36,6 +37,16 @@ async function threads(channelId) {
     before = batch[batch.length-1]?.thread_metadata?.archive_timestamp || null;
     if (!before) break;
   }
+  for (const threadId of FORCED_OCTOBER_THREADS) {
+    if (byId.has(String(threadId))) continue;
+    try {
+      const thread = await discord(`/channels/${threadId}`);
+      if (thread?.id) byId.set(String(thread.id), thread);
+    } catch (error) {
+      console.warn(`FORCED THREAD ${threadId} unavailable: ${error.message}`);
+    }
+  }
+
   return [...byId.values()].sort((a,b)=>String(a.name).localeCompare(String(b.name)));
 }
 
