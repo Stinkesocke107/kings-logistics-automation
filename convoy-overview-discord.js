@@ -106,13 +106,20 @@ function isPlannedUpcoming(convoy, today) {
   const status = String(convoy?.status || '');
   if (['Completed', 'Cancelled', 'Legacy Past'].includes(status)) return false;
 
-  const date = String(convoy?.eventDate || '');
-  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    return date >= today;
+  const unix = Number(convoy?.eventUnix || 0);
+  if (Number.isFinite(unix) && unix > 0) {
+    return unix > Math.floor(Date.now() / 1000);
   }
 
-  const unix = Number(convoy?.eventUnix || 0);
-  return Number.isFinite(unix) && unix > Math.floor(Date.now() / 1000);
+  const date = String(convoy?.eventDate || '');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    // A date-only convoy on the current day is ambiguous: without a reliable
+    // Meeting Time we cannot know whether it is still upcoming or already over.
+    // Keep it tracked in monthly data, but do not present it as "Next Convoy".
+    return date > today;
+  }
+
+  return false;
 }
 
 function plannedSort(a, b) {
