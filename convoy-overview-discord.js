@@ -114,7 +114,8 @@ function convoyTimeLabel(convoy) {
 
 function compactUpcoming(convoy) {
   const server = convoy.server ? ` · 🎙️ ${truncate(convoy.server, 24)}` : '';
-  return `${statusIcon(convoy.status)} ${discordTimestamp(convoy.eventUnix, 'd')} — **${truncate(convoy.name, 42)}**${server}`;
+  const source = convoy.legacy ? ' 📚' : '';
+  return `${statusIcon(convoy.status)}${source} ${discordTimestamp(convoy.eventUnix, 'd')} — **${truncate(convoy.name, 42)}**${server}`;
 }
 
 function buildMessage(overview) {
@@ -153,7 +154,8 @@ function buildMessage(overview) {
       next.meetingPoint ? `📍 **Meeting Point:** ${next.meetingPoint}` : null,
       next.route ? `🛣️ **Route:** ${next.route}` : null,
       next.kingsSlot ? `🚚 **Kings Slot:** ${next.kingsSlot}` : null,
-      next.eventUrl ? `🔗 **TruckersMP Event:** ${next.eventUrl}` : null
+      next.eventUrl ? `🔗 **TruckersMP Event:** ${next.eventUrl}` : null,
+      next.legacy ? '📚 **Source:** Legacy Convoy Calendar (read-only migration)' : null
     );
   }
 
@@ -169,10 +171,11 @@ function buildMessage(overview) {
   lines.push(
     '',
     '## 📋 System Overview',
-    `👑 Confirmed Kings Slots: **${overview.overall?.countedConvoys || 0}**  ·  📥 Real Submissions: **${overview.overall?.realConvoySubmissions || 0}**`,
+    `👑 Confirmed Kings Slots: **${overview.overall?.confirmedKingsSlots ?? overview.overall?.countedConvoys ?? 0}**  ·  📥 New Convoy Center: **${overview.overall?.realConvoySubmissions || 0}**`,
+    `📚 Legacy Calendar: **${overview.overall?.legacyActiveConvoys || 0}** active · **${overview.overall?.legacyDuplicatesSuppressed || 0}** duplicate(s) suppressed`,
     `🗓️ Upcoming Scheduled (current + next month): **${upcoming.length}**  ·  ⚠️ Missing Date: **${overview.overall?.undatedCountedConvoys || 0}**  ·  🕒 Invalid Time: **${overview.overall?.invalidEventTimeConvoys || 0}**`,
     '',
-    '🤖 Updated automatically every 15 minutes. Times are shown in each member’s local timezone. TEST threads are excluded.'
+    '🤖 Updated automatically every 15 minutes. 📚 = migrated from the old Convoy Calendar. New convoys come only from the Convoy Center.'
   );
 
   let content = lines.filter((value) => value !== null && value !== undefined).join('\n');
