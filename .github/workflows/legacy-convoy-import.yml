@@ -1,11 +1,7 @@
 name: Kings Legacy Convoy Import
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'legacy-convoy-import.js'
-      - '.github/workflows/legacy-convoy-import.yml'
+  # One-time migration/audit tooling. Manual use only after the 2026-10-05 migration.
   workflow_dispatch:
 
 permissions:
