@@ -171,6 +171,7 @@ function loadLegacyReminderItems(report) {
       eventId,
       eventUnix: Number(legacy.eventUnix),
       eventTimeValid: true,
+      slotImageMessageUrl: legacy.kingsSlotImage?.messageUrl || null,
       validation: {
         checks: { kingsSlotConfirmed: true },
         parsed: {
@@ -274,6 +275,7 @@ function buildReminder(item, marker, title, description, driverRoleId) {
     meetup ? `📍 **Meeting Point:** ${meetup}` : null,
     route ? `🛣️ **Route:** ${route}` : null,
     slot ? `🚚 **Kings Slot:** ${slot}` : null,
+    item.slotImageMessageUrl ? `🖼️ **Kings Slot Image:** [Open original slot image](${item.slotImageMessageUrl})` : null,
     eventUrl ? `🔗 **TruckersMP Event:** ${eventUrl}` : null,
     item.legacy ? '📚 **Source:** Migrated old Convoy Calendar' : null,
     '',
