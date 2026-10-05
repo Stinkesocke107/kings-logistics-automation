@@ -1,33 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "integrity-driver-updates-authority": {
-      "severity": "critical",
-      "system": "Driver Updates",
-      "message": "Driver Updates summary does not declare the Discord Driver role as its authority.",
-      "details": {
-        "authority": null
-      },
-      "firstAlertedAt": "2026-10-05T01:37:36.034Z"
-    },
-    "integrity-source-missing:driverUpdates": {
-      "severity": "critical",
-      "system": "Data Integrity",
-      "message": "Required integrity source is missing: data/driver-updates-summary.json",
-      "details": null,
-      "firstAlertedAt": "2026-10-05T01:37:36.034Z"
-    },
-    "integrity-history-driver-updates-count": {
-      "severity": "warning",
-      "system": "Cross-System Integrity",
-      "message": "Driver History vs Discord Driver Updates could not be verified because one of the member totals is missing or invalid.",
-      "details": {
-        "Discord Driver Updates": null,
-        "Driver History": 78
-      },
-      "firstAlertedAt": "2026-10-05T01:38:00.808Z"
-    }
-  },
+  "active": {},
   "pending": {}
 }
