@@ -1,3 +1,4 @@
+// Legacy refresh preservation verification: deleted source threads must remain frozen.
 const fs = require('fs');
 const path = require('path');
 
