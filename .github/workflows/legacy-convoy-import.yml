@@ -1,12 +1,8 @@
 name: Kings Legacy Convoy Import
 
 on:
+  # One-time migration/audit tooling. Manual use only.
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'legacy-convoy-import.js'
-      - '.github/workflows/legacy-convoy-import.yml'
 
 permissions:
   contents: write
