@@ -74,19 +74,52 @@ jobs:
         run: |
           set -euo pipefail
 
-          latest_managed_run() {
+          managed_run_snapshot() {
             local workflow="$1"
             gh api --method GET \
               "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/runs" \
-              -f per_page=10 \
-              --jq '[.workflow_runs[] | select(.event == "schedule" or .event == "workflow_dispatch")][0].created_at // ""'
+              -f per_page=20
+          }
+
+          latest_managed_run() {
+            local workflow="$1"
+            managed_run_snapshot "$workflow" \
+              | jq -r '[.workflow_runs[] | select(.event == "schedule" or .event == "workflow_dispatch")][0].created_at // ""'
+          }
+
+          active_managed_run() {
+            local workflow="$1"
+            managed_run_snapshot "$workflow" \
+              | jq -r '
+                  [
+                    .workflow_runs[]
+                    | select(.event == "schedule" or .event == "workflow_dispatch")
+                    | select(
+                        .status == "queued" or
+                        .status == "in_progress" or
+                        .status == "waiting" or
+                        .status == "pending" or
+                        .status == "requested"
+                      )
+                  ][0]
+                  | if . then "\(.id)|\(.status)|\(.created_at)" else "" end
+                '
           }
 
           dispatch_if_due() {
             local workflow="$1"
             local min_age_seconds="$2"
             local mode="${3:-}"
-            local latest latest_epoch now age
+            local latest latest_epoch now age active
+
+            # Never enqueue another run while a managed run for the same workflow
+            # is already queued/running. GitHub concurrency otherwise replaces an
+            # older pending run and records it as a false workflow failure.
+            active="$(active_managed_run "$workflow")"
+            if [ -n "$active" ]; then
+              echo "${workflow}: active managed run ${active}; skipping duplicate dispatch."
+              return 0
+            fi
 
             latest="$(latest_managed_run "$workflow")"
             now="$(date -u +%s)"
@@ -189,5 +222,5 @@ jobs:
           echo "- Leadership Overviews: **08:00 / 20:00 UTC; 13-hour recovery gate only if a scheduled run is missed**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Convoy / HR operations: **15 minutes, staggered; overview delivery separated**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Driver / Staff operations: **65-minute freshness gate behind native hourly cron; overview delivery separated**" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Duplicate protection: **latest schedule/workflow_dispatch freshness gate**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Duplicate protection: **active-run guard + latest schedule/workflow_dispatch freshness gate**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Native GitHub cron: **preferred producer cadence plus emergency scheduler bootstrap**" >> "$GITHUB_STEP_SUMMARY"
