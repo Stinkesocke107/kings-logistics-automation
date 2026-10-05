@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "one-time-frozen-legacy-import",
-  "importedAt": "2026-10-05T02:13:29.043Z",
+  "importedAt": "2026-10-05T02:19:34.418Z",
   "authority": "old Discord Convoy Calendar before Convoy Center",
   "readOnly": true,
   "monthChannels": [
@@ -58,7 +58,8 @@
     "withTruckersmpEventId": 111,
     "withKingsSlotImage": 109,
     "duplicateEventIdsWithinLegacy": 0,
-    "importFailures": 0
+    "importFailures": 0,
+    "preservedMissingSource": 0
   },
   "monthStats": {
     "October 2026": {
@@ -205,7 +206,7 @@
         "url": "https://truckersmp.com/events/35190-ponc-logistics%E2%80%9Csoul-of-anatolia%E2%80%9D-mc#38"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -317,7 +318,7 @@
         "url": "https://truckersmp.com/events/35226"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -423,7 +424,7 @@
         "url": "https://truckersmp.com/events/35071"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -529,7 +530,7 @@
         "url": "https://truckersmp.com/events/33946"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -635,7 +636,7 @@
         "url": "https://truckersmp.com/events/35272-mt-logistica-monthly-convoy-october2026"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -735,7 +736,7 @@
         "url": "https://truckersmp.com/events/35000"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -841,7 +842,7 @@
         "url": "https://truckersmp.com/events/35067"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -953,7 +954,7 @@
         "url": "https://truckersmp.com/events/36313-neocrime-october-convoy2026"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -1070,7 +1071,7 @@
         "url": "https://truckersmp.com/events/35288"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -1164,7 +1165,7 @@
         "url": "https://truckersmp.com/events/35900"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -1264,7 +1265,7 @@
         "url": "https://truckersmp.com/events/35113"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -1393,7 +1394,7 @@
         "url": "https://truckersmp.com/events/34935"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -1493,7 +1494,7 @@
         "url": "https://truckersmp.com/events/35252"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -1599,7 +1600,7 @@
         "url": "https://truckersmp.com/events/35649-ghost-express%7C-october-edition%2726%5Bhalloween-special%5D"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -1705,7 +1706,7 @@
         "url": "https://truckersmp.com/events/35100"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -1805,7 +1806,7 @@
         "url": "https://truckersmp.com/events/34664"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -1875,7 +1876,7 @@
         "url": "https://truckersmp.com/events/36410"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -1975,7 +1976,7 @@
         "url": "https://truckersmp.com/events/36524"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -2087,7 +2088,7 @@
         "url": "https://truckersmp.com/events/35349"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -2175,7 +2176,7 @@
         "url": "https://truckersmp.com/events/35408"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -2281,7 +2282,7 @@
         "url": "https://truckersmp.com/events/34727"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -2381,7 +2382,7 @@
         "url": "https://truckersmp.com/events/35183"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -2481,7 +2482,7 @@
         "url": "https://truckersmp.com/events/35433"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -2564,7 +2565,7 @@
       "route": null,
       "truckersmp": null,
       "truckersmpImportError": "event-not-found",
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -2688,7 +2689,7 @@
         "url": "https://truckersmp.com/events/34894"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -2788,7 +2789,7 @@
         "url": "https://truckersmp.com/events/35465"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -2888,7 +2889,7 @@
         "url": "https://truckersmp.com/events/35483"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -2982,7 +2983,7 @@
         "url": "https://truckersmp.com/events/36002"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -3076,7 +3077,7 @@
         "url": "https://truckersmp.com/events/35561"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -3176,7 +3177,7 @@
         "url": "https://truckersmp.com/events/35567"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -3270,7 +3271,7 @@
         "url": "https://truckersmp.com/events/36547"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -3370,7 +3371,7 @@
         "url": "https://truckersmp.com/events/35834"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -3470,7 +3471,7 @@
         "url": "https://truckersmp.com/events/35695"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -3553,7 +3554,7 @@
       "route": null,
       "truckersmp": null,
       "truckersmpImportError": "event-not-found",
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -3671,7 +3672,7 @@
         "url": "https://truckersmp.com/events/36153"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -3765,7 +3766,7 @@
         "url": "https://truckersmp.com/events/35786"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -3871,7 +3872,7 @@
         "url": "https://truckersmp.com/events/35816"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -3918,7 +3919,7 @@
       "route": null,
       "truckersmp": null,
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4024,7 +4025,7 @@
         "url": "https://truckersmp.com/events/35873"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4118,7 +4119,7 @@
         "url": "https://truckersmp.com/events/36557"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4230,7 +4231,7 @@
         "url": "https://truckersmp.com/events/35996"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4330,7 +4331,7 @@
         "url": "https://truckersmp.com/events/35558"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4430,7 +4431,7 @@
         "url": "https://truckersmp.com/events/35981"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4500,7 +4501,7 @@
         "url": "https://truckersmp.com/events/36135"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4605,7 +4606,7 @@
         "url": "https://truckersmp.com/events/35920"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4652,7 +4653,7 @@
       "route": null,
       "truckersmp": null,
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4758,7 +4759,7 @@
         "url": "https://truckersmp.com/events/36069"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4828,7 +4829,7 @@
         "url": "https://truckersmp.com/events/37148"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -4928,7 +4929,7 @@
         "url": "https://truckersmp.com/events/36101"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -5033,7 +5034,7 @@
         "url": "https://truckersmp.com/events/36123"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -5138,7 +5139,7 @@
         "url": "https://truckersmp.com/events/36256"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -5232,7 +5233,7 @@
         "url": "https://truckersmp.com/events/36011"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -5326,7 +5327,7 @@
         "url": "https://truckersmp.com/events/37070"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -5432,7 +5433,7 @@
         "url": "https://truckersmp.com/events/36225"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -5526,7 +5527,7 @@
         "url": "https://truckersmp.com/events/36248"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -5620,7 +5621,7 @@
         "url": "https://truckersmp.com/events/36227"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -5731,7 +5732,7 @@
         "url": "https://truckersmp.com/events/36230"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -5825,7 +5826,7 @@
         "url": "https://truckersmp.com/events/36163"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -5919,7 +5920,7 @@
         "url": "https://truckersmp.com/events/36349"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6024,7 +6025,7 @@
         "url": "https://truckersmp.com/events/36367"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6113,7 +6114,7 @@
       "route": null,
       "truckersmp": null,
       "truckersmpImportError": "event-not-found",
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6219,7 +6220,7 @@
         "url": "https://truckersmp.com/events/36352"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6325,7 +6326,7 @@
         "url": "https://truckersmp.com/events/35907"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6419,7 +6420,7 @@
         "url": "https://truckersmp.com/events/37088"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6519,7 +6520,7 @@
         "url": "https://truckersmp.com/events/36919"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6613,7 +6614,7 @@
         "url": "https://truckersmp.com/events/36126"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6707,7 +6708,7 @@
         "url": "https://truckersmp.com/events/36455"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6795,7 +6796,7 @@
         "url": "https://truckersmp.com/events/37174"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6901,7 +6902,7 @@
         "url": "https://truckersmp.com/events/37273"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -6995,7 +6996,7 @@
         "url": "https://truckersmp.com/events/36097"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -7095,7 +7096,7 @@
         "url": "https://truckersmp.com/events/37044"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -7195,7 +7196,7 @@
         "url": "https://truckersmp.com/events/37000"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -7301,7 +7302,7 @@
         "url": "https://truckersmp.com/events/36805"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -7418,7 +7419,7 @@
         "url": "https://truckersmp.com/events/36816"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -7512,7 +7513,7 @@
         "url": "https://truckersmp.com/events/36846"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -7606,7 +7607,7 @@
         "url": "https://truckersmp.com/events/37553"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -7700,7 +7701,7 @@
         "url": "https://truckersmp.com/events/36903"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -7794,7 +7795,7 @@
         "url": "https://truckersmp.com/events/36585"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -7888,7 +7889,7 @@
         "url": "https://truckersmp.com/events/36897"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -7982,7 +7983,7 @@
         "url": "https://truckersmp.com/events/36930"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -8082,7 +8083,7 @@
         "url": "https://truckersmp.com/events/36615"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -8176,7 +8177,7 @@
         "url": "https://truckersmp.com/events/36948"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -8270,7 +8271,7 @@
         "url": "https://truckersmp.com/events/36902"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -8375,7 +8376,7 @@
         "url": "https://truckersmp.com/events/37022"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -8469,7 +8470,7 @@
         "url": "https://truckersmp.com/events/36276"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -8575,7 +8576,7 @@
         "url": "https://truckersmp.com/events/37062"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -8675,7 +8676,7 @@
         "url": "https://truckersmp.com/events/37087"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -8780,7 +8781,7 @@
         "url": "https://truckersmp.com/events/37343"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -8874,7 +8875,7 @@
         "url": "https://truckersmp.com/events/37152"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -8968,7 +8969,7 @@
         "url": "https://truckersmp.com/events/37522"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -9062,7 +9063,7 @@
         "url": "https://truckersmp.com/events/37170"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -9168,7 +9169,7 @@
         "url": "https://truckersmp.com/events/37015"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -9262,7 +9263,7 @@
         "url": "https://truckersmp.com/events/36617"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -9356,7 +9357,7 @@
         "url": "https://truckersmp.com/events/37415"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -9450,7 +9451,7 @@
         "url": "https://truckersmp.com/events/37264"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -9556,7 +9557,7 @@
         "url": "https://truckersmp.com/events/37305"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -9650,7 +9651,7 @@
         "url": "https://truckersmp.com/events/37505"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -9733,7 +9734,7 @@
       "route": null,
       "truckersmp": null,
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -9838,7 +9839,7 @@
         "url": "https://truckersmp.com/events/37450"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -9932,7 +9933,7 @@
         "url": "https://truckersmp.com/events/37397"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10026,7 +10027,7 @@
         "url": "https://truckersmp.com/events/37411"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10120,7 +10121,7 @@
         "url": "https://truckersmp.com/events/37422"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10214,7 +10215,7 @@
         "url": "https://truckersmp.com/events/37405"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10308,7 +10309,7 @@
         "url": "https://truckersmp.com/events/37471"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10402,7 +10403,7 @@
         "url": "https://truckersmp.com/events/37442"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10496,7 +10497,7 @@
         "url": "https://truckersmp.com/events/37528"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10590,7 +10591,7 @@
         "url": "https://truckersmp.com/events/37502"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10684,7 +10685,7 @@
         "url": "https://truckersmp.com/events/37489"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10778,7 +10779,7 @@
         "url": "https://truckersmp.com/events/37712"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10883,7 +10884,7 @@
         "url": "https://truckersmp.com/events/37701"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -10977,7 +10978,7 @@
         "url": "https://truckersmp.com/events/37874"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -11071,7 +11072,7 @@
         "url": "https://truckersmp.com/events/37798"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -11165,7 +11166,7 @@
         "url": "https://truckersmp.com/events/37847"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     },
     {
       "legacy": true,
@@ -11271,7 +11272,7 @@
         "url": "https://truckersmp.com/events/37886"
       },
       "truckersmpImportError": null,
-      "importedAt": "2026-10-05T02:13:29.043Z"
+      "importedAt": "2026-10-05T02:19:34.418Z"
     }
   ]
 }

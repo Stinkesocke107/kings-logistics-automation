@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "importedAt": "2026-10-05T02:13:29.043Z",
+  "importedAt": "2026-10-05T02:19:34.418Z",
   "summary": {
     "importedFutureLegacyConvoys": 114,
     "confirmedSlot": 110,
@@ -10,7 +10,8 @@
     "withTruckersmpEventId": 111,
     "withKingsSlotImage": 109,
     "duplicateEventIdsWithinLegacy": 0,
-    "importFailures": 0
+    "importFailures": 0,
+    "preservedMissingSource": 0
   },
   "monthStats": {
     "October 2026": {
