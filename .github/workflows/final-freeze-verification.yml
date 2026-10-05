@@ -24,7 +24,7 @@ permissions:
 
 concurrency:
   group: kings-final-freeze-verification
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   final-freeze:

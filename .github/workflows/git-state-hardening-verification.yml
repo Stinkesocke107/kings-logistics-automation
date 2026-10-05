@@ -14,6 +14,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: kings-git-state-hardening-verification
+  cancel-in-progress: true
+
 jobs:
   verify-git-state-hardening:
     runs-on: ubuntu-latest

@@ -7,6 +7,11 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+
+concurrency:
+  group: kings-offline-system-verification
+  cancel-in-progress: true
+
 jobs:
   offline-verification:
     runs-on: ubuntu-latest

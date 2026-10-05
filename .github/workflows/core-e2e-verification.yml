@@ -29,7 +29,7 @@ permissions:
 
 concurrency:
   group: kings-core-e2e-verification
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   core-e2e:
