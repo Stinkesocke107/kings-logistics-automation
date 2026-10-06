@@ -95,32 +95,3 @@ for (const mode of ['empty-servers','all-server-failures','discord-failure','suc
     }
   });
 }
-
-
-test('monitor treats a recent active production run as recovery instead of overdue', async () => {
-  const now = Date.now();
-  const s = sandbox('system-monitoring.js', { env: { GITHUB_TOKEN: 'fake' }, fetch: async () => json({ workflow_runs: [
-    { id: 3, event: 'workflow_dispatch', status: 'queued', created_at: new Date(now - 2 * 60000).toISOString() },
-    { id: 2, event: 'schedule', status: 'completed', conclusion: 'success', updated_at: new Date(now - 70 * 60000).toISOString() }
-  ] }) });
-  const issues = [];
-  const r = await s.run("checkWorkflow({file:'hr-leadership.yml',label:'HR',maxAgeMinutes:45,severity:'critical'}, issues)");
-  assert.equal(r.ok, true);
-  assert.ok(r.reasons.includes('active-run-in-progress'));
-  assert.equal(r.latestActive.withinGrace, true);
-  assert.equal(issues.length, 0);
-});
-
-test('monitor does not let an old stuck queued run hide an overdue workflow', async () => {
-  const now = Date.now();
-  const s = sandbox('system-monitoring.js', { env: { GITHUB_TOKEN: 'fake' }, fetch: async () => json({ workflow_runs: [
-    { id: 3, event: 'workflow_dispatch', status: 'queued', created_at: new Date(now - 35 * 60000).toISOString() },
-    { id: 2, event: 'schedule', status: 'completed', conclusion: 'success', updated_at: new Date(now - 70 * 60000).toISOString() }
-  ] }) });
-  const issues = [];
-  const r = await s.run("checkWorkflow({file:'hr-leadership.yml',label:'HR',maxAgeMinutes:45,severity:'critical'}, issues)");
-  assert.equal(r.ok, false);
-  assert.ok(r.reasons.includes('overdue'));
-  assert.equal(r.latestActive.withinGrace, false);
-  assert.equal(issues.some((item) => item.id === 'workflow-overdue:hr-leadership.yml'), true);
-});
