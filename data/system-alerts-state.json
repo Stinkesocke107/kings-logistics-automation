@@ -1,13 +1,18 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-06T08:02:32.535Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
+  "active": {
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-01T05:48:16Z",
+        "ageMinutes": 7418,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-10-06T09:27:15.756Z"
     }
-  }
+  },
+  "pending": {}
 }
