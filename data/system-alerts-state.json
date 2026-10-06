@@ -3,11 +3,11 @@
   "mode": "technical-alerts-only",
   "active": {},
   "pending": {
-    "workflow-failed:leadership-overviews.yml": {
+    "workflow-overdue:milestones.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-06T02:32:06.974Z",
-      "system": "Leadership Overviews",
-      "message": "Leadership Overviews latest completed run ended with failure."
+      "firstSeenAt": "2026-10-06T08:02:32.535Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
     }
   }
 }
