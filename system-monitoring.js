@@ -11,6 +11,7 @@ const GITHUB_API = 'https://api.github.com';
 const STEP_SUMMARY = process.env.GITHUB_STEP_SUMMARY || null;
 
 const WORKFLOWS = [
+  { file: 'central-scheduler.yml', label: 'Central Scheduler', maxAgeMinutes: 20, severity: 'critical', activeGraceMinutes: 15 },
   { file: 'live-tracker.yml', label: 'Live Tracker / Statistics', maxAgeMinutes: 30, severity: 'critical' },
   { file: 'driver-updates.yml', label: 'Driver Updates', maxAgeMinutes: 30, severity: 'critical' },
   { file: 'convoy-checker.yml', label: 'Convoy / Event System', maxAgeMinutes: 45, severity: 'critical' },
@@ -43,6 +44,7 @@ const CRITICAL_FILES = [
   'system-monitoring.js',
   'api-resilience.js',
   'kings-branding.js',
+  '.github/workflows/central-scheduler.yml',
   '.github/workflows/live-tracker.yml',
   '.github/workflows/driver-updates.yml',
   '.github/workflows/convoy-checker.yml',
@@ -447,7 +449,7 @@ async function checkWorkflow(config, issues) {
   }
 
   const encodedFile = encodeURIComponent(config.file);
-  const data = await githubJson(`/repos/${GITHUB_REPOSITORY}/actions/workflows/${encodedFile}/runs?branch=main&per_page=10`);
+  const data = await githubJson(`/repos/${GITHUB_REPOSITORY}/actions/workflows/${encodedFile}/runs?branch=main&per_page=30`);
   const allRuns = Array.isArray(data?.workflow_runs) ? data.workflow_runs : [];
   // A validation-only convoy run cannot establish production health.
   const runs = config.file === 'convoy-checker.yml'
@@ -476,8 +478,19 @@ async function checkWorkflow(config, issues) {
     ? new Date(latestCompleted.updated_at || latestCompleted.run_started_at || latestCompleted.created_at || 0).getTime()
     : 0;
   const latestActiveAt = latestActive
-    ? new Date(latestActive.created_at || latestActive.run_started_at || 0).getTime()
+    ? new Date(latestActive.run_started_at || latestActive.created_at || 0).getTime()
     : 0;
+  const activeAge = latestActive
+    ? ageMinutes(latestActive.run_started_at || latestActive.created_at)
+    : Number.POSITIVE_INFINITY;
+  const activeGraceMinutes = Number.isFinite(Number(config.activeGraceMinutes))
+    ? Number(config.activeGraceMinutes)
+    : 20;
+  const recentActiveRun = Boolean(
+    latestActive &&
+    Number.isFinite(activeAge) &&
+    activeAge <= activeGraceMinutes
+  );
   const newerRecoveryActive = Boolean(
     latestCompleted &&
     latestCompleted.conclusion !== 'success' &&
@@ -496,15 +509,19 @@ async function checkWorkflow(config, issues) {
   const reasons = [];
 
   if (!Number.isFinite(age) || age > config.maxAgeMinutes) {
-    ok = false;
-    reasons.push('overdue');
-    issues.push(issue(
-      `workflow-overdue:${config.file}`,
-      config.severity,
-      config.label,
-      `${config.label} has not run within the expected time window.`,
-      { latestActivityAt: activityAt || null, ageMinutes: Number.isFinite(age) ? age : null, maxAgeMinutes: config.maxAgeMinutes }
-    ));
+    if (recentActiveRun) {
+      reasons.push('active-run-in-progress');
+    } else {
+      ok = false;
+      reasons.push('overdue');
+      issues.push(issue(
+        `workflow-overdue:${config.file}`,
+        config.severity,
+        config.label,
+        `${config.label} has not run within the expected time window.`,
+        { latestActivityAt: activityAt || null, ageMinutes: Number.isFinite(age) ? age : null, maxAgeMinutes: config.maxAgeMinutes }
+      ));
+    }
   }
 
   if (latestCompleted && latestCompleted.conclusion !== 'success') {
@@ -550,9 +567,12 @@ async function checkWorkflow(config, issues) {
     latestActive: latestActive ? {
       id: latestActive.id,
       status: latestActive.status,
-      createdAt: latestActive.created_at
+      createdAt: latestActive.created_at,
+      startedAt: latestActive.run_started_at || null,
+      ageMinutes: Number.isFinite(activeAge) ? activeAge : null,
+      withinGrace: recentActiveRun
     } : null,
-    recoveryInProgress: newerRecoveryActive,
+    recoveryInProgress: newerRecoveryActive || recentActiveRun,
     benignPreExecutionCancellation
   };
 }

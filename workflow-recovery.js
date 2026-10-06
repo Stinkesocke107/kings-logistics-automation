@@ -4,6 +4,15 @@ const fs = require('fs');
 const path = require('path');
 
 const SAFE_WORKFLOWS = Object.freeze([
+  // The Central Scheduler is technical orchestration only. Recovering it restores
+  // the normal allowlisted operational cadences without teaching Monitoring to
+  // directly run Convoy, HR, Staff, Management, or personnel workflows.
+  Object.freeze({
+    file: 'central-scheduler.yml',
+    label: 'Central Scheduler',
+    recoverAfterMinutes: 15,
+    inputs: Object.freeze({ force_all: 'true' })
+  }),
   Object.freeze({ file: 'driver-updates.yml', label: 'Driver Updates', recoverAfterMinutes: 20 }),
   Object.freeze({ file: 'live-tracker.yml', label: 'Live Tracker / Statistics', recoverAfterMinutes: 20 })
 ]);
@@ -73,7 +82,7 @@ async function githubJson(repo, token, endpoint, options = {}) {
 
 async function getRuns(repo, token, file) {
   const encoded = encodeURIComponent(file);
-  const data = await githubJson(repo, token, `/actions/workflows/${encoded}/runs?branch=main&per_page=10`);
+  const data = await githubJson(repo, token, `/actions/workflows/${encoded}/runs?branch=main&per_page=30`);
   return Array.isArray(data?.workflow_runs) ? data.workflow_runs : [];
 }
 
@@ -81,11 +90,14 @@ function latestSuccessfulRun(runs) {
   return runs.find((run) => run.status === 'completed' && run.conclusion === 'success') || null;
 }
 
-async function dispatchWorkflow(repo, token, file) {
-  const encoded = encodeURIComponent(file);
+async function dispatchWorkflow(repo, token, config) {
+  const encoded = encodeURIComponent(config.file);
+  const body = { ref: 'main' };
+  if (config.inputs) body.inputs = { ...config.inputs };
+
   await githubJson(repo, token, `/actions/workflows/${encoded}/dispatches`, {
     method: 'POST',
-    body: { ref: 'main' }
+    body
   });
 }
 
@@ -138,11 +150,14 @@ async function recoverWorkflow(repo, token, config, waitMs, pollMs) {
   }
 
   const activeRun = initialRuns.find((run) => isRecentActiveRun(run));
-  const recoveryStartMs = Date.now();
+  let recoveryStartMs = activeRun
+    ? Date.parse(activeRun.created_at || activeRun.run_started_at || '') - 10_000
+    : Date.now();
   let action = 'wait-existing';
 
   if (!activeRun) {
-    await dispatchWorkflow(repo, token, config.file);
+    recoveryStartMs = Date.now();
+    await dispatchWorkflow(repo, token, config);
     action = 'dispatched';
     console.log(`[RECOVERY] ${config.label}: dispatched safe workflow recovery.`);
   } else {
@@ -191,6 +206,7 @@ async function main() {
     generatedAt: new Date().toISOString(),
     safety: {
       allowlistedWorkflows: SAFE_WORKFLOWS.map((item) => item.file),
+      schedulerDispatchAllowed: true,
       convoyLiveDispatchAllowed: false,
       personnelWorkflowDispatchAllowed: false
     },
@@ -226,7 +242,7 @@ async function main() {
     console.log(`[RECOVERY] ${result.label}: ${result.status} (${result.action}).`);
   }
 
-  console.log('Safety: recovery can dispatch only Driver Updates and Live Tracker. Convoy live and personnel workflows are never dispatched.');
+  console.log('Safety: Monitoring may recover only the Central Scheduler, Driver Updates, and Live Tracker. Convoy live and personnel workflows are never dispatched directly by Monitoring.');
 }
 
 if (require.main === module) {

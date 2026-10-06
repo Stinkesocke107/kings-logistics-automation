@@ -38,7 +38,8 @@ on:
 
 permissions:
   contents: write
-  # Required only for workflow-recovery.js to dispatch the two allowlisted safe technical pollers.
+  # Required only for workflow-recovery.js to recover the Central Scheduler and
+  # the two allowlisted safe technical pollers.
   actions: write
 
 concurrency:
@@ -212,7 +213,7 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Safety" >> "$GITHUB_STEP_SUMMARY"
           echo "Kings System Monitoring, API Resilience, Data Integrity, Final Hardening, Repository Security Audit, Discord Permission Audit, Live Monitor, and System Alerts are technical-only." >> "$GITHUB_STEP_SUMMARY"
-          echo "Scheduler Recovery is hard-limited to Driver Updates and Live Tracker; it never dispatches Convoy live, HR, Staff, Management, Probation, or personnel workflows." >> "$GITHUB_STEP_SUMMARY"
+          echo "Scheduler Recovery is hard-limited to the Central Scheduler, Driver Updates, and Live Tracker; Monitoring never directly dispatches Convoy live, HR, Staff, Management, Probation, or personnel workflows." >> "$GITHUB_STEP_SUMMARY"
           echo "They never change Discord roles, permissions, members, Staff/Driver/HR status, bans, kicks, timeouts, promotions, demotions, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Require healthy final report

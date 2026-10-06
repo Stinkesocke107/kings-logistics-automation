@@ -11,10 +11,14 @@ const {
   parsePositiveInt
 } = require('../workflow-recovery.js');
 
-test('recovery allowlist contains only safe technical workflows', () => {
+test('recovery allowlist contains only scheduler and safe technical workflows', () => {
   assert.deepEqual(
     SAFE_WORKFLOWS.map((item) => item.file),
-    ['driver-updates.yml', 'live-tracker.yml']
+    ['central-scheduler.yml', 'driver-updates.yml', 'live-tracker.yml']
+  );
+  assert.deepEqual(
+    SAFE_WORKFLOWS.find((item) => item.file === 'central-scheduler.yml').inputs,
+    { force_all: 'true' }
   );
   assert.equal(SAFE_WORKFLOWS.some((item) => item.file.includes('convoy')), false);
   assert.equal(SAFE_WORKFLOWS.some((item) => /staff|hr|management|probation/i.test(item.file)), false);
