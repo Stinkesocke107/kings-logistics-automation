@@ -1,58 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-05T21:14:17Z",
-        "ageMinutes": 86,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-05T22:40:29.004Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-05T21:59:48Z",
-        "ageMinutes": 211,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-06T01:31:14.287Z"
-    },
-    "workflow-overdue:staff-management.yml": {
-      "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-05T22:55:38Z",
-        "ageMinutes": 155,
-        "maxAgeMinutes": 150
-      },
-      "firstAlertedAt": "2026-10-06T01:31:14.287Z"
-    },
-    "workflow-overdue:milestones.yml": {
-      "severity": "warning",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-05T22:49:36Z",
-        "ageMinutes": 161,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-10-06T01:31:14.287Z"
-    }
-  },
-  "pending": {
-    "stale-data:data/staff-management-summary.json": {
-      "count": 1,
-      "firstSeenAt": "2026-10-06T01:31:14.287Z",
-      "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
-    }
-  }
+  "active": {},
+  "pending": {}
 }
