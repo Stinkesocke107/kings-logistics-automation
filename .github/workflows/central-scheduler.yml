@@ -23,7 +23,7 @@ on:
   # scheduler even when GitHub delays this workflow's own cron.
   workflow_run:
     workflows:
-      - "Kings Live Tracker"
+      - "Kings Live Systems"
       - "Kings Driver Updates"
       - "Kings Convoy Checker"
       - "Kings HR Leadership Overview"
