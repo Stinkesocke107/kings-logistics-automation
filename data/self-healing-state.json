@@ -4,20 +4,8 @@
   "updatedAt": "2026-10-06T20:07:43.198Z",
   "repairs": {
     "live-tracker": {
-      "attempts": [
-        {
-          "at": "2026-10-06T20:07:43.198Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 37524021879,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        }
-      ],
-      "lastAttemptAt": "2026-10-06T20:07:43.198Z",
+      "attempts": [],
+      "lastAttemptAt": null,
       "lastSuccessAt": "2026-10-06T20:07:43.198Z",
       "lastFailureAt": null
     },
