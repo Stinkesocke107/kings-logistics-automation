@@ -4,8 +4,8 @@
   "currentDrivers": 78,
   "discordDriverRoleId": "1204836048845410405",
   "discordDriverRoleName": "| Kings Drivers",
-  "truckersmpAdvisoryDrivers": 109,
-  "safelyMatchedToTruckersmp": 25,
-  "updatedAt": "2026-10-05T01:38:00.382Z",
+  "truckersmpAdvisoryDrivers": 108,
+  "safelyMatchedToTruckersmp": 24,
+  "updatedAt": "2026-10-07T20:38:55.641Z",
   "note": "Discord Driver role is authoritative for Driver Updates. TruckersMP roster is advisory/cross-check only."
 }
