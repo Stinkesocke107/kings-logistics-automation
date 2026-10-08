@@ -90,14 +90,21 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-10-08T06:42:21.147Z"
+    },
+    "api-health:ETS2Map area": {
+      "severity": "critical",
+      "system": "API Resilience",
+      "message": "ETS2Map area is down or its circuit breaker is open.",
+      "details": {
+        "service": "ETS2Map area",
+        "consecutiveFailures": 6,
+        "lastSuccessAt": "2026-09-29T22:42:48.219Z",
+        "lastFailureAt": "2026-10-08T07:20:34.309Z",
+        "circuitOpenUntil": "2026-10-08T07:21:34.309Z",
+        "lastError": "ETS2Map area: HTTP 502"
+      },
+      "firstAlertedAt": "2026-10-08T07:32:03.883Z"
     }
   },
-  "pending": {
-    "api-health:ETS2Map area": {
-      "count": 1,
-      "firstSeenAt": "2026-10-08T06:42:21.147Z",
-      "system": "API Resilience",
-      "message": "ETS2Map area is degraded after repeated request failures."
-    }
-  }
+  "pending": {}
 }
