@@ -83,6 +83,27 @@
         "lastError": "ETS2Map area: HTTP 502"
       },
       "firstAlertedAt": "2026-10-08T07:32:03.883Z"
+    },
+    "workflow-failed:driver-management.yml": {
+      "severity": "critical",
+      "system": "Driver Management",
+      "message": "Driver Management latest completed run ended with failure.",
+      "details": {
+        "runId": 37794438869,
+        "completedAt": "2026-10-08T14:41:51Z"
+      },
+      "firstAlertedAt": "2026-10-08T14:51:27.388Z"
+    },
+    "workflow-overdue:driver-management.yml": {
+      "severity": "critical",
+      "system": "Driver Management",
+      "message": "Driver Management has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-08T02:17:48Z",
+        "ageMinutes": 753,
+        "maxAgeMinutes": 150
+      },
+      "firstAlertedAt": "2026-10-08T14:51:27.388Z"
     }
   },
   "pending": {}
