@@ -49,16 +49,6 @@
       },
       "firstAlertedAt": "2026-10-08T06:42:21.147Z"
     },
-    "workflow-failed:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management latest completed run ended with failure.",
-      "details": {
-        "runId": 37738831143,
-        "completedAt": "2026-10-08T06:40:35Z"
-      },
-      "firstAlertedAt": "2026-10-08T06:42:21.147Z"
-    },
     "workflow-failed:live-tracker.yml": {
       "severity": "critical",
       "system": "Live Tracker / Statistics",
@@ -66,17 +56,6 @@
       "details": {
         "runId": 37738983076,
         "completedAt": "2026-10-08T06:42:00Z"
-      },
-      "firstAlertedAt": "2026-10-08T06:42:21.147Z"
-    },
-    "workflow-overdue:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-08T02:17:48Z",
-        "ageMinutes": 264,
-        "maxAgeMinutes": 150
       },
       "firstAlertedAt": "2026-10-08T06:42:21.147Z"
     },
