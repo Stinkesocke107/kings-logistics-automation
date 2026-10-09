@@ -6,18 +6,6 @@
     "live-tracker": {
       "attempts": [
         {
-          "at": "2026-10-08T14:51:10.366Z",
-          "outcome": "failed",
-          "action": "dispatched",
-          "runId": 37795739219,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-failed:live-tracker.yml",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
-        {
           "at": "2026-10-08T20:14:44.364Z",
           "outcome": "failed",
           "action": "dispatched",
