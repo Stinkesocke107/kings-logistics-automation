@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "generatedAt": "2026-10-10T06:10:01.265Z",
+  "vtcId": "64284",
+  "maxPagesRequested": 40,
+  "pagesChecked": 1,
+  "uniqueEventIds": 0,
+  "eventIds": [],
+  "pages": [
+    {
+      "page": 1,
+      "url": "https://truckersmp.com/vtc/64284/events/attending?page=1",
+      "status": 403,
+      "finalUrl": "https://truckersmp.com/vtc/64284/events/attending?page=1",
+      "title": "Just a moment...",
+      "bytes": 5881,
+      "eventIds": [],
+      "containsKings": false,
+      "containsVtcAttending": false,
+      "htmlSample": "<!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"><meta name=\"robots\" content=\"noindex,nofollow\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><meta http-equiv=\"content-security-policy\" content=\"default-src &#39;none&#39;; script-src &#39;nonce-K04wjnoKX55aAjbmjIyryM&#39; &#39;unsafe-eval&#39; https://challenges.cloudflare.com; script-s"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "kings-convoy-history",
-  "updatedAt": "2026-10-10T05:57:59.975Z",
+  "updatedAt": "2026-10-10T06:10:01.342Z",
   "policy": {
     "publicCountRule": "Only completed convoys with participation.status=attended and participation.confidence verified or confirmed_internal count toward public attended statistics.",
     "truckersmpAttendingRule": "For Kings Logistics historical statistics, a TruckersMP VTCs Attending entry for Kings Logistics is accepted as verified evidence that Kings participated in that convoy.",
@@ -41,7 +41,7 @@
         }
       ],
       "id": "KCE-TRUCKERSMP-26666",
-      "updatedAt": "2026-10-10T05:57:59.975Z",
+      "updatedAt": "2026-10-10T06:10:01.342Z",
       "createdAt": null
     },
     {
@@ -73,7 +73,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28472",
@@ -104,7 +104,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "platform": "truckersmp",
@@ -133,7 +133,7 @@
         }
       ],
       "id": "KCE-TRUCKERSMP-24350",
-      "updatedAt": "2026-10-10T05:57:59.975Z",
+      "updatedAt": "2026-10-10T06:10:01.342Z",
       "createdAt": null
     },
     {
@@ -165,7 +165,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31164",
@@ -196,7 +196,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31165",
@@ -227,7 +227,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31166",
@@ -258,7 +258,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31876",
@@ -289,7 +289,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31877",
@@ -320,7 +320,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32992",
@@ -351,7 +351,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31921",
@@ -382,7 +382,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31923",
@@ -413,7 +413,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33777",
@@ -444,7 +444,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33826",
@@ -475,7 +475,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33776",
@@ -506,7 +506,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34957",
@@ -537,7 +537,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35810",
@@ -568,7 +568,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34819",
@@ -606,7 +606,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35000",
@@ -644,7 +644,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35067",
@@ -682,7 +682,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36313",
@@ -720,7 +720,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35288",
@@ -758,7 +758,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35900",
@@ -796,7 +796,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35113",
@@ -834,7 +834,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34935",
@@ -872,7 +872,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35252",
@@ -910,7 +910,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35649",
@@ -948,7 +948,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34664",
@@ -986,7 +986,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35100",
@@ -1024,7 +1024,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36410",
@@ -1062,7 +1062,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36524",
@@ -1100,7 +1100,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35349",
@@ -1138,7 +1138,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35408",
@@ -1176,7 +1176,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34727",
@@ -1214,7 +1214,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.341Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35183",
@@ -1252,7 +1252,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35433",
@@ -1290,7 +1290,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34894",
@@ -1328,7 +1328,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35465",
@@ -1366,7 +1366,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35483",
@@ -1404,7 +1404,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35561",
@@ -1442,7 +1442,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36002",
@@ -1480,7 +1480,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35567",
@@ -1518,7 +1518,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36547",
@@ -1556,7 +1556,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35834",
@@ -1594,7 +1594,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35695",
@@ -1632,7 +1632,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35786",
@@ -1670,7 +1670,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37799",
@@ -1708,7 +1708,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35816",
@@ -1746,7 +1746,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35873",
@@ -1784,7 +1784,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36557",
@@ -1822,7 +1822,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35558",
@@ -1860,7 +1860,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35996",
@@ -1898,7 +1898,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35981",
@@ -1936,7 +1936,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36135",
@@ -1974,7 +1974,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35920",
@@ -2012,7 +2012,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36069",
@@ -2050,7 +2050,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37148",
@@ -2088,7 +2088,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36101",
@@ -2126,7 +2126,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36123",
@@ -2164,7 +2164,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36256",
@@ -2202,7 +2202,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36011",
@@ -2240,7 +2240,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37070",
@@ -2278,7 +2278,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36225",
@@ -2316,7 +2316,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36227",
@@ -2354,7 +2354,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36248",
@@ -2392,7 +2392,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36163",
@@ -2430,7 +2430,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36230",
@@ -2468,7 +2468,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36349",
@@ -2506,7 +2506,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36367",
@@ -2544,7 +2544,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36352",
@@ -2582,7 +2582,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35907",
@@ -2620,7 +2620,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37088",
@@ -2658,7 +2658,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36126",
@@ -2696,7 +2696,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36919",
@@ -2734,7 +2734,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36455",
@@ -2772,7 +2772,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37174",
@@ -2810,7 +2810,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37273",
@@ -2848,7 +2848,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36669",
@@ -2886,7 +2886,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36097",
@@ -2924,7 +2924,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36670",
@@ -2962,7 +2962,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37044",
@@ -3000,7 +3000,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37000",
@@ -3038,7 +3038,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36816",
@@ -3076,7 +3076,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36846",
@@ -3114,7 +3114,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36903",
@@ -3152,7 +3152,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37553",
@@ -3190,7 +3190,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36585",
@@ -3228,7 +3228,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36897",
@@ -3266,7 +3266,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36930",
@@ -3304,7 +3304,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36615",
@@ -3342,7 +3342,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36941",
@@ -3380,7 +3380,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36948",
@@ -3418,7 +3418,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36902",
@@ -3456,7 +3456,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36276",
@@ -3494,7 +3494,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37022",
@@ -3532,7 +3532,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37062",
@@ -3570,7 +3570,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37087",
@@ -3608,7 +3608,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37343",
@@ -3646,7 +3646,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37152",
@@ -3684,7 +3684,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37170",
@@ -3722,7 +3722,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37522",
@@ -3760,7 +3760,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37015",
@@ -3798,7 +3798,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36617",
@@ -3836,7 +3836,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37415",
@@ -3874,7 +3874,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37264",
@@ -3912,7 +3912,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37305",
@@ -3950,7 +3950,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37505",
@@ -3988,7 +3988,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37618",
@@ -4026,7 +4026,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37450",
@@ -4064,7 +4064,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37397",
@@ -4102,7 +4102,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37411",
@@ -4140,7 +4140,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37422",
@@ -4178,7 +4178,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37405",
@@ -4216,7 +4216,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37471",
@@ -4254,7 +4254,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37442",
@@ -4292,7 +4292,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37528",
@@ -4330,7 +4330,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37502",
@@ -4368,7 +4368,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37489",
@@ -4406,7 +4406,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38240",
@@ -4444,7 +4444,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37712",
@@ -4482,7 +4482,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37701",
@@ -4520,7 +4520,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37780",
@@ -4558,7 +4558,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38072",
@@ -4596,7 +4596,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37874",
@@ -4634,7 +4634,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37798",
@@ -4672,7 +4672,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37847",
@@ -4710,7 +4710,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37886",
@@ -4748,7 +4748,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38055",
@@ -4786,7 +4786,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38211",
@@ -4824,7 +4824,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38296",
@@ -4862,7 +4862,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-10T05:57:59.975Z"
+      "updatedAt": "2026-10-10T06:10:01.342Z"
     }
   ]
 }
