@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "truckersmp-historical-candidate-discovery",
-  "generatedAt": "2026-10-10T05:54:56.386Z",
+  "generatedAt": "2026-10-10T05:57:59.916Z",
   "vtcId": "64284",
   "fromDate": "2023-01-01",
   "policy": {
@@ -29,15 +29,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/27792-kings-logistics|-convoy-for-the2nd-anniversary",
+      "eventUrl": "https://truckersmp.com/events/27792-kings-logistics|-convoy-for-the2nd-anniversary",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Prague — (Prag) (Slots will be announced via DC server)",
       "destination": "Strasbourg — Strasbourg (Quarry)",
@@ -54,15 +54,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/28472-kings-logistik|-monthly-convoy#1",
+      "eventUrl": "https://truckersmp.com/events/28472-kings-logistik|-monthly-convoy#1",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Klagenfurt am Wörthersee — Klagenfurt am Wörthersee (Slots will be announced via DC server)",
       "destination": "TruckersMP HQ — TruckersMP HQ (Quarry)",
@@ -79,15 +79,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/28476-kings-logistik|-monthly-convoy#2",
+      "eventUrl": "https://truckersmp.com/events/28476-kings-logistik|-monthly-convoy#2",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Innsbruck — Slots",
       "destination": "TruckersMP HQ — Quarry",
@@ -104,15 +104,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/31164-kings-logistics-monthly-convoy#3",
+      "eventUrl": "https://truckersmp.com/events/31164-kings-logistics-monthly-convoy#3",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Munich — Slots",
       "destination": "Hanover — Quarry",
@@ -129,15 +129,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/31165-kings-logistics-monthly-convoy#4",
+      "eventUrl": "https://truckersmp.com/events/31165-kings-logistics-monthly-convoy#4",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Manchester — Slots",
       "destination": "Dover — Ferry",
@@ -154,15 +154,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/31166-kings-logistics-monthly-convoy#5",
+      "eventUrl": "https://truckersmp.com/events/31166-kings-logistics-monthly-convoy#5",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Luxembourg — Slots",
       "destination": "Hamburg — Containerport",
@@ -179,15 +179,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/31876-kings-logistics-monthly-convoy#6",
+      "eventUrl": "https://truckersmp.com/events/31876-kings-logistics-monthly-convoy#6",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Luxembourg — Slots",
       "destination": "Mannheim — Quarry",
@@ -204,15 +204,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/31877-nova-era%E2%9C%9D-kings%E2%80%A2-a-tribute-to-our-partnership",
+      "eventUrl": "https://truckersmp.com/events/31877-nova-era%E2%9C%9D-kings%E2%80%A2-a-tribute-to-our-partnership",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Kassel — Slots",
       "destination": "Aalborg — Freyr",
@@ -229,15 +229,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/32992-kings-logistics-night-convoy#1",
+      "eventUrl": "https://truckersmp.com/events/32992-kings-logistics-night-convoy#1",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Luxembourg — Slots",
       "destination": "Bern — Charmey",
@@ -254,15 +254,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/31921-kings-logistics-monthly-convoy#8",
+      "eventUrl": "https://truckersmp.com/events/31921-kings-logistics-monthly-convoy#8",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Plymouth — Slots",
       "destination": "Birmingham — City",
@@ -279,15 +279,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/31923-kings-logistics-monthly-convoy#9",
+      "eventUrl": "https://truckersmp.com/events/31923-kings-logistics-monthly-convoy#9",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Leipzig — Slots",
       "destination": "Bremen — ContainerPort",
@@ -304,15 +304,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/33777-kings-logistics-charity-convoy#1",
+      "eventUrl": "https://truckersmp.com/events/33777-kings-logistics-charity-convoy#1",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Bremen — Slots",
       "destination": "TruckersMP HQ — Steinbruch",
@@ -329,15 +329,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/33826-kings-logistics|3rd-anniversary-convoy",
+      "eventUrl": "https://truckersmp.com/events/33826-kings-logistics|3rd-anniversary-convoy",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Bremen — Slots",
       "destination": "TruckersMP HQ — Steinbruch",
@@ -354,15 +354,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/33776-kings-logistics-monthly-convoy#10",
+      "eventUrl": "https://truckersmp.com/events/33776-kings-logistics-monthly-convoy#10",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Grimsby — Slots",
       "destination": "Swansea — Euro Acres",
@@ -379,15 +379,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/34957-kings-logistics-monthly-convoy#11",
+      "eventUrl": "https://truckersmp.com/events/34957-kings-logistics-monthly-convoy#11",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Dover — Slots",
       "destination": "Cardiff — Quarry",
@@ -404,15 +404,15 @@
       "phase": "past",
       "type": "own",
       "organizer": "Kings Logistics",
-      "eventUrl": "/events/35810-kings-logistics-monthly-convoy#12",
+      "eventUrl": "https://truckersmp.com/events/35810-kings-logistics-monthly-convoy#12",
       "sourceKind": "hosted",
       "discoveryEvidence": {
         "kind": "truckersmp-vtc-hosted-event",
         "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
       },
       "suggestedParticipation": {
-        "status": "unknown",
-        "confidence": "review_required"
+        "status": "attended",
+        "confidence": "verified"
       },
       "start": "Munich — Slots",
       "destination": "Hanover — Quarry",
@@ -429,14 +429,14 @@
       "phase": "today",
       "type": "external",
       "organizer": "- THE ORIGINAL™ -",
-      "eventUrl": "/events/34819-the-original%E2%84%A21.5-year-convoy",
+      "eventUrl": "https://truckersmp.com/events/34819-the-original%E2%84%A21.5-year-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Poland - Slots ( TruckersMP HQ - Wroclaw - Poznan - Brno )",
@@ -454,14 +454,14 @@
       "phase": "today",
       "type": "external",
       "organizer": "I FORA Logistics",
-      "eventUrl": "/events/35000-%F0%9F%8E%822nd-anniversary-i-fora-logistics%F0%9F%8E%82",
+      "eventUrl": "https://truckersmp.com/events/35000-%F0%9F%8E%822nd-anniversary-i-fora-logistics%F0%9F%8E%82",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Helsingborg — Slot",
@@ -479,14 +479,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "ASIMOV Group",
-      "eventUrl": "/events/35067-asimov-group:-october-convoy#7",
+      "eventUrl": "https://truckersmp.com/events/35067-asimov-group:-october-convoy#7",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Klagenfurt am Wörthersee — Slots",
@@ -504,14 +504,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "NeoCrime™",
-      "eventUrl": "/events/36313-neocrime-october-convoy2026",
+      "eventUrl": "https://truckersmp.com/events/36313-neocrime-october-convoy2026",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Bremen — Slots",
@@ -529,14 +529,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Dutch International Freight Masters",
-      "eventUrl": "/events/35288-difm-october-convoy",
+      "eventUrl": "https://truckersmp.com/events/35288-difm-october-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Linz — SLOTS",
@@ -554,14 +554,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "AFRICAN LOGISTICS",
-      "eventUrl": "/events/35900-african-logistics5-year-anniversary",
+      "eventUrl": "https://truckersmp.com/events/35900-african-logistics5-year-anniversary",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Bremen — Slots",
@@ -579,14 +579,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Premium Events",
-      "eventUrl": "/events/35113-%E2%9C%A8the-launch-of-premium-events%E2%9C%A8",
+      "eventUrl": "https://truckersmp.com/events/35113-%E2%9C%A8the-launch-of-premium-events%E2%9C%A8",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Milan — + Turin + Verona Slots",
@@ -604,14 +604,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Aura",
-      "eventUrl": "/events/34935-aura%27s2nd-anniversary-convoy",
+      "eventUrl": "https://truckersmp.com/events/34935-aura%27s2nd-anniversary-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Hamburg — + Bremen City",
@@ -629,14 +629,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Truck Convoy Control and Route",
-      "eventUrl": "/events/35252-%F0%9F%9A%9B%F0%9F%8E%97%EF%B8%8F-tccr-monthly#42-pink-convoy:-a-journey-for-her",
+      "eventUrl": "https://truckersmp.com/events/35252-%F0%9F%9A%9B%F0%9F%8E%97%EF%B8%8F-tccr-monthly#42-pink-convoy:-a-journey-for-her",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Calais — Slots",
@@ -654,14 +654,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Ghost Express",
-      "eventUrl": "/events/35649-ghost-express|-october-edition%2726%5Bhalloween-special%5D",
+      "eventUrl": "https://truckersmp.com/events/35649-ghost-express|-october-edition%2726%5Bhalloween-special%5D",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Munich — Slots",
@@ -679,14 +679,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Egyptian Truckers Company",
-      "eventUrl": "/events/34664-%F0%9F%8E%89egy-truckers-x-arab-x-anatolia-x-pean-x-needcc%F0%9F%8E%89",
+      "eventUrl": "https://truckersmp.com/events/34664-%F0%9F%8E%89egy-truckers-x-arab-x-anatolia-x-pean-x-needcc%F0%9F%8E%89",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -704,14 +704,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "INDIAN CARRIERS",
-      "eventUrl": "/events/35100-indian-carriers-october-public-convoy2026",
+      "eventUrl": "https://truckersmp.com/events/35100-indian-carriers-october-public-convoy2026",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -729,14 +729,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "[RO] Trans Express",
-      "eventUrl": "/events/36410-%5Bro%5D-trans-express-monthly-public-convoy",
+      "eventUrl": "https://truckersmp.com/events/36410-%5Bro%5D-trans-express-monthly-public-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Other — Tbd",
@@ -754,14 +754,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "GAAT Group",
-      "eventUrl": "/events/36524-gaat-group--road-to-halloween",
+      "eventUrl": "https://truckersmp.com/events/36524-gaat-group--road-to-halloween",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Calais — CITY SLOTS",
@@ -779,14 +779,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "TAMIL PASANGA",
-      "eventUrl": "/events/35349-tamil-pasanga-oct-public-convoy",
+      "eventUrl": "https://truckersmp.com/events/35349-tamil-pasanga-oct-public-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Geneva — Parking Slots) & Lyon (Parking Slots",
@@ -804,14 +804,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Twisted Transport",
-      "eventUrl": "/events/35408-twisted-transport--rusty%27s1st-year-remembrance-convoy",
+      "eventUrl": "https://truckersmp.com/events/35408-twisted-transport--rusty%27s1st-year-remembrance-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Kiruna — Slots",
@@ -829,14 +829,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Moonlight Express",
-      "eventUrl": "/events/34727-%E2%9C%A8%F0%9F%8E%89moonlight-express|1-year-anniversary%F0%9F%8E%89%E2%9C%A8",
+      "eventUrl": "https://truckersmp.com/events/34727-%E2%9C%A8%F0%9F%8E%89moonlight-express|1-year-anniversary%F0%9F%8E%89%E2%9C%A8",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Milan — + Turin) (Slots",
@@ -854,14 +854,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Calm Cargo",
-      "eventUrl": "/events/35183-bolt-x-calm-x-nva|-partners-convoy",
+      "eventUrl": "https://truckersmp.com/events/35183-bolt-x-calm-x-nva|-partners-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Uppsala — Stockholm + Slots",
@@ -879,14 +879,14 @@
       "phase": "future",
       "type": "external",
       "organizer": null,
-      "eventUrl": "/events/35433-saffron-line-cc--diwali-convoy%F0%9F%AA%94",
+      "eventUrl": "https://truckersmp.com/events/35433-saffron-line-cc--diwali-convoy%F0%9F%AA%94",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Prague — Slots",
@@ -904,14 +904,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "NorthStar Group",
-      "eventUrl": "/events/34894-northstar-group|-novi-farewell-convoy",
+      "eventUrl": "https://truckersmp.com/events/34894-northstar-group|-novi-farewell-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Duisburg — Slots",
@@ -929,14 +929,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "TruckersHub Community",
-      "eventUrl": "/events/35465-celebrating-diwali-with-truckershub--public-convoy",
+      "eventUrl": "https://truckersmp.com/events/35465-celebrating-diwali-with-truckershub--public-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -954,14 +954,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Vabis Transport",
-      "eventUrl": "/events/35483-vabis-transport|-november-convoy",
+      "eventUrl": "https://truckersmp.com/events/35483-vabis-transport|-november-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Munich — Slot",
@@ -979,14 +979,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Arab Transport VTC",
-      "eventUrl": "/events/35561-arab-transport7th-year-anniversary",
+      "eventUrl": "https://truckersmp.com/events/35561-arab-transport7th-year-anniversary",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Other — Bremen + Hamburg",
@@ -1004,14 +1004,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "KERALA ROADRUNNERS",
-      "eventUrl": "/events/36002-kerala-roadrunners-november-venture",
+      "eventUrl": "https://truckersmp.com/events/36002-kerala-roadrunners-november-venture",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Nuremberg — Slots",
@@ -1029,14 +1029,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Premium Events",
-      "eventUrl": "/events/35567-%E2%9C%A8-premium-events-version#2%E2%9C%A8",
+      "eventUrl": "https://truckersmp.com/events/35567-%E2%9C%A8-premium-events-version#2%E2%9C%A8",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Klagenfurt am Wörthersee — Slots",
@@ -1054,14 +1054,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "NeoCrime™",
-      "eventUrl": "/events/36547-neocrime-november-convoy2026",
+      "eventUrl": "https://truckersmp.com/events/36547-neocrime-november-convoy2026",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Venice — Slots",
@@ -1079,14 +1079,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "ASIMOV Group",
-      "eventUrl": "/events/35834-asimov-group:-remembrance-day#8",
+      "eventUrl": "https://truckersmp.com/events/35834-asimov-group:-remembrance-day#8",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Linz — Slots",
@@ -1104,14 +1104,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Pink Ribbon Virtual Trucking Company",
-      "eventUrl": "/events/35695-pink-ribbon-vtc--november-convoy",
+      "eventUrl": "https://truckersmp.com/events/35695-pink-ribbon-vtc--november-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Parma — (Slots) + Bologna (Slots | Public: Garage)",
@@ -1129,14 +1129,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Truck Club Transport",
-      "eventUrl": "/events/35786-truck-club|-november-convoy",
+      "eventUrl": "https://truckersmp.com/events/35786-truck-club|-november-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Pskov — Slots",
@@ -1154,14 +1154,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "ARNI Trans Polska",
-      "eventUrl": "/events/37799-arni-trans-polska%E2%94%82opening-convoy",
+      "eventUrl": "https://truckersmp.com/events/37799-arni-trans-polska%E2%94%82opening-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Luxembourg — Slots",
@@ -1179,14 +1179,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "TAMIL PASANGA",
-      "eventUrl": "/events/35816-tamil-pasanga-november2026-grand-convoy",
+      "eventUrl": "https://truckersmp.com/events/35816-tamil-pasanga-november2026-grand-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Lille — Lille & Calais - Slots",
@@ -1204,14 +1204,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Truck Convoy Control and Route",
-      "eventUrl": "/events/35873-tccr-monthly-convoy#43-4th-anniversary",
+      "eventUrl": "https://truckersmp.com/events/35873-tccr-monthly-convoy#43-4th-anniversary",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Katowice — Slots",
@@ -1229,14 +1229,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "TRANSCOM",
-      "eventUrl": "/events/36557-transcom1st-year-anniversary",
+      "eventUrl": "https://truckersmp.com/events/36557-transcom1st-year-anniversary",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -1254,14 +1254,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Lightning Logistics",
-      "eventUrl": "/events/35558-lightning-logistics|-public-convoy#60",
+      "eventUrl": "https://truckersmp.com/events/35558-lightning-logistics|-public-convoy#60",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Dortmund — (Slots)",
@@ -1279,14 +1279,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "INDIAN CARRIERS",
-      "eventUrl": "/events/35996-indian-carriers-november-public-convoy2026",
+      "eventUrl": "https://truckersmp.com/events/35996-indian-carriers-november-public-convoy2026",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Paris — Slots",
@@ -1304,14 +1304,14 @@
       "phase": "future",
       "type": "external",
       "organizer": null,
-      "eventUrl": "/events/35981-orgin-event%E2%84%A21st-year-anniversary-convoy",
+      "eventUrl": "https://truckersmp.com/events/35981-orgin-event%E2%84%A21st-year-anniversary-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slot's",
@@ -1329,14 +1329,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Ponc Logistics",
-      "eventUrl": "/events/36135-ponc-logistics-x-turkishline-ats-nov-convoy",
+      "eventUrl": "https://truckersmp.com/events/36135-ponc-logistics-x-turkishline-ats-nov-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Elko — Garage",
@@ -1354,14 +1354,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "INDIAN GROUP",
-      "eventUrl": "/events/35920-ats2nd-anniversary--indian-group",
+      "eventUrl": "https://truckersmp.com/events/35920-ats2nd-anniversary--indian-group",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Tucson — Slots",
@@ -1379,14 +1379,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Orvion Convoy Control",
-      "eventUrl": "/events/36069-orvion-convoy-control-happy-new-year%27s-convoy",
+      "eventUrl": "https://truckersmp.com/events/36069-orvion-convoy-control-happy-new-year%27s-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -1404,14 +1404,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Ponc Logistics",
-      "eventUrl": "/events/37148-ponc-logistics--december-bus-convoy",
+      "eventUrl": "https://truckersmp.com/events/37148-ponc-logistics--december-bus-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Oslo — Garage",
@@ -1429,14 +1429,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Pink Ribbon Virtual Trucking Company",
-      "eventUrl": "/events/36101-pink-ribbon-vtc--december-convoy",
+      "eventUrl": "https://truckersmp.com/events/36101-pink-ribbon-vtc--december-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Reims — Slots) + Paris (Slots | Public: Garage",
@@ -1454,14 +1454,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "ETERNAL TRANSPORT™",
-      "eventUrl": "/events/36123-eternal-transport|-winter-convoy2026",
+      "eventUrl": "https://truckersmp.com/events/36123-eternal-transport|-winter-convoy2026",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Aarhus — Slots",
@@ -1479,14 +1479,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Line of Energy",
-      "eventUrl": "/events/36256-%F0%9F%8E%89%E2%96%BA-loe8-year-anniversary--ats-convoy%E2%97%84%F0%9F%8E%89",
+      "eventUrl": "https://truckersmp.com/events/36256-%F0%9F%8E%89%E2%96%BA-loe8-year-anniversary--ats-convoy%E2%97%84%F0%9F%8E%89",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Phoenix — Slots",
@@ -1504,14 +1504,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Moonlight Express",
-      "eventUrl": "/events/36011-moonlight-express|-december-convoy",
+      "eventUrl": "https://truckersmp.com/events/36011-moonlight-express|-december-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Innsbruck — Slot",
@@ -1529,14 +1529,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "MT Logistica",
-      "eventUrl": "/events/37070-mt-logistica-monthly-convoy-december2026",
+      "eventUrl": "https://truckersmp.com/events/37070-mt-logistica-monthly-convoy-december2026",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Berlin — City / Slot",
@@ -1554,14 +1554,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Lirio Logistics",
-      "eventUrl": "/events/36225-%F0%9F%8E%8Alirio-logistics1st-anniversary-carnival-celebration%F0%9F%8E%8A",
+      "eventUrl": "https://truckersmp.com/events/36225-%F0%9F%8E%8Alirio-logistics1st-anniversary-carnival-celebration%F0%9F%8E%8A",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slot",
@@ -1579,14 +1579,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Premium Events",
-      "eventUrl": "/events/36227-%E2%9C%A8-premium-events-version#3%E2%9C%A8",
+      "eventUrl": "https://truckersmp.com/events/36227-%E2%9C%A8-premium-events-version#3%E2%9C%A8",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Florence — + Livorno Slots",
@@ -1604,14 +1604,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Black Pearl Trucking Logistics",
-      "eventUrl": "/events/36248-black-pearl-trucking-logistics:-the-voyage-restarts",
+      "eventUrl": "https://truckersmp.com/events/36248-black-pearl-trucking-logistics:-the-voyage-restarts",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Paris — Parking Slots",
@@ -1629,14 +1629,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "OnlyTangs Haulage",
-      "eventUrl": "/events/36163-onlytangs-haulage|-december-convoy%E2%9D%84%EF%B8%8F",
+      "eventUrl": "https://truckersmp.com/events/36163-onlytangs-haulage|-december-convoy%E2%9D%84%EF%B8%8F",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Bern — Slots",
@@ -1654,14 +1654,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Line of Energy",
-      "eventUrl": "/events/36230-%F0%9F%8E%89%E2%96%BA-loe8-year-anniversary--ets2-convoy%E2%97%84%F0%9F%8E%89",
+      "eventUrl": "https://truckersmp.com/events/36230-%F0%9F%8E%89%E2%96%BA-loe8-year-anniversary--ets2-convoy%E2%97%84%F0%9F%8E%89",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Geneva — + Munich | Slots",
@@ -1679,14 +1679,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "KERALA ROADRUNNERS",
-      "eventUrl": "/events/36349-kerala-roadrunners-arizona-special-operations",
+      "eventUrl": "https://truckersmp.com/events/36349-kerala-roadrunners-arizona-special-operations",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Phoenix — Slots",
@@ -1704,14 +1704,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Twisted Transport",
-      "eventUrl": "/events/36367-twisted-transport-christmas-convoy",
+      "eventUrl": "https://truckersmp.com/events/36367-twisted-transport-christmas-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Barcelona — Slots",
@@ -1729,14 +1729,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Pink Ribbon Virtual Trucking Company",
-      "eventUrl": "/events/36352-a-cozy-drive-in-december-with-pink-ribbon-vtc",
+      "eventUrl": "https://truckersmp.com/events/36352-a-cozy-drive-in-december-with-pink-ribbon-vtc",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Paldiski — + Tallinn (Slots | Public: Service",
@@ -1754,14 +1754,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Lightning Logistics",
-      "eventUrl": "/events/35907-lightning-logistics|-public-convoy#61&-early-christmas-convoy",
+      "eventUrl": "https://truckersmp.com/events/35907-lightning-logistics|-public-convoy#61&-early-christmas-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Algeciras — (Slots)",
@@ -1779,14 +1779,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Nova Group",
-      "eventUrl": "/events/37088-%F0%9F%9F%A1-nova-group|-december-convoy",
+      "eventUrl": "https://truckersmp.com/events/37088-%F0%9F%9F%A1-nova-group|-december-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Bucharest — Slots",
@@ -1804,14 +1804,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "KRYPTON",
-      "eventUrl": "/events/36126-krypton|-freezing-final#2",
+      "eventUrl": "https://truckersmp.com/events/36126-krypton|-freezing-final#2",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Rotterdam — Amsterdam",
@@ -1829,14 +1829,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "INDIAN CARRIERS",
-      "eventUrl": "/events/36919-indian-carriers-december-public-convoy2026",
+      "eventUrl": "https://truckersmp.com/events/36919-indian-carriers-december-public-convoy2026",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Nuremberg — Slots",
@@ -1854,14 +1854,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "NeoCrime™",
-      "eventUrl": "/events/36455-%F0%9F%8E%89-neocrime-helld4wg-birthday-convoy%F0%9F%8E%89",
+      "eventUrl": "https://truckersmp.com/events/36455-%F0%9F%8E%89-neocrime-helld4wg-birthday-convoy%F0%9F%8E%89",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -1879,14 +1879,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "NorthWind",
-      "eventUrl": "/events/37174-n%C3%B8rthwind%27s2nd-year-anniversary-convoy",
+      "eventUrl": "https://truckersmp.com/events/37174-n%C3%B8rthwind%27s2nd-year-anniversary-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -1904,14 +1904,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Global Trucking VTC",
-      "eventUrl": "/events/37273-global-trucking-january2027-convoy",
+      "eventUrl": "https://truckersmp.com/events/37273-global-trucking-january2027-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Naples — Slots",
@@ -1929,14 +1929,14 @@
       "phase": "future",
       "type": "external",
       "organizer": null,
-      "eventUrl": "/events/36669-marking-event|-new-year%27s-event2027",
+      "eventUrl": "https://truckersmp.com/events/36669-marking-event|-new-year%27s-event2027",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Hanover — Slot + Magdeburg Slot / Public in Magdeburg Garage",
@@ -1954,14 +1954,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "NovaLines",
-      "eventUrl": "/events/36097-novalines1st-anniversary-convoy",
+      "eventUrl": "https://truckersmp.com/events/36097-novalines1st-anniversary-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — + Wroclaw Slots",
@@ -1979,14 +1979,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "NeoCrime™",
-      "eventUrl": "/events/36670-%F0%9F%8E%89-neocrime1-year-anniversary%F0%9F%8E%89",
+      "eventUrl": "https://truckersmp.com/events/36670-%F0%9F%8E%89-neocrime1-year-anniversary%F0%9F%8E%89",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -2004,14 +2004,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "ETERNAL TRANSPORT™",
-      "eventUrl": "/events/37044-eternal-transport|-january-convoy",
+      "eventUrl": "https://truckersmp.com/events/37044-eternal-transport|-january-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Munich — Slots",
@@ -2029,14 +2029,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Arab Transport VTC",
-      "eventUrl": "/events/37000-arab-transport-vtc|-january-convoy",
+      "eventUrl": "https://truckersmp.com/events/37000-arab-transport-vtc|-january-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Stavanger — Slots",
@@ -2054,14 +2054,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "TruckersHub Community",
-      "eventUrl": "/events/36816-truckershub4th-anniversary-convoy",
+      "eventUrl": "https://truckersmp.com/events/36816-truckershub4th-anniversary-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Düsseldorf — & Duisburg + Dortmund (City Slot)",
@@ -2079,14 +2079,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "I FORA Logistics",
-      "eventUrl": "/events/36846-#26-ifl-convoy-january2027-%E2%9D%84%EF%B8%8Fbalkans-winter-convoy%E2%9D%84%EF%B8%8F",
+      "eventUrl": "https://truckersmp.com/events/36846-#26-ifl-convoy-january2027-%E2%9D%84%EF%B8%8Fbalkans-winter-convoy%E2%9D%84%EF%B8%8F",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Skopje — Slots",
@@ -2104,14 +2104,14 @@
       "phase": "future",
       "type": "external",
       "organizer": null,
-      "eventUrl": "/events/36903-pinkachu%27s-birthday-celebration-convoy:%F0%9F%8E%89",
+      "eventUrl": "https://truckersmp.com/events/36903-pinkachu%27s-birthday-celebration-convoy:%F0%9F%8E%89",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Munich — Slots",
@@ -2129,14 +2129,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "TAMIL PASANGA",
-      "eventUrl": "/events/37553-tamil-pasanga-x-drive-along-partnership-convoy-jan2027",
+      "eventUrl": "https://truckersmp.com/events/37553-tamil-pasanga-x-drive-along-partnership-convoy-jan2027",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Newcastle upon Tyne — Newcastle Upon Tyne & Carlisle - Slots",
@@ -2154,14 +2154,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Moonlight Express",
-      "eventUrl": "/events/36585-moonlight-express|-january-convoy",
+      "eventUrl": "https://truckersmp.com/events/36585-moonlight-express|-january-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Iași — Slot",
@@ -2179,14 +2179,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Premium Events",
-      "eventUrl": "/events/36897-%E2%9C%A8-premium-events-version#4%E2%9C%A8",
+      "eventUrl": "https://truckersmp.com/events/36897-%E2%9C%A8-premium-events-version#4%E2%9C%A8",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Amsterdam — + Rotterdam Slots",
@@ -2204,14 +2204,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Pink Ribbon Virtual Trucking Company",
-      "eventUrl": "/events/36930-%5Bbus-convoy%5D-a-cozy-drive-in-january-with-pink-ribbon-vtc",
+      "eventUrl": "https://truckersmp.com/events/36930-%5Bbus-convoy%5D-a-cozy-drive-in-january-with-pink-ribbon-vtc",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Manchester — Slots | Public: Garage",
@@ -2229,14 +2229,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Lightning Logistics",
-      "eventUrl": "/events/36615-lightning-logistics|-public-convoy#62",
+      "eventUrl": "https://truckersmp.com/events/36615-lightning-logistics|-public-convoy#62",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "İstanbul — Slots",
@@ -2254,14 +2254,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Vanguard Convoy Control",
-      "eventUrl": "/events/36941-vanguard-cc|-welcome-to2027",
+      "eventUrl": "https://truckersmp.com/events/36941-vanguard-cc|-welcome-to2027",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Oslo — Slots",
@@ -2279,14 +2279,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Ghost Express",
-      "eventUrl": "/events/36948-ghost-exp.|-january-edition%2727",
+      "eventUrl": "https://truckersmp.com/events/36948-ghost-exp.|-january-edition%2727",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Madrid — Slots",
@@ -2304,14 +2304,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "[ITVTC] INDIAN TRUCKERS",
-      "eventUrl": "/events/36902-78th-republic-day-of-india",
+      "eventUrl": "https://truckersmp.com/events/36902-78th-republic-day-of-india",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Cardiff — Slots",
@@ -2329,14 +2329,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Fast Line UA",
-      "eventUrl": "/events/36276-fast-line-ua2nd-anniversary-convoy",
+      "eventUrl": "https://truckersmp.com/events/36276-fast-line-ua2nd-anniversary-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Nuremberg — Slots",
@@ -2354,14 +2354,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "ITCC Logistics",
-      "eventUrl": "/events/37022-chinese-new-year-celebration",
+      "eventUrl": "https://truckersmp.com/events/37022-chinese-new-year-celebration",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Strasbourg — Strasbourg (slots/Mine)",
@@ -2379,14 +2379,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Egyptian Truckers Company",
-      "eventUrl": "/events/37062-egy-truckers|-january2027",
+      "eventUrl": "https://truckersmp.com/events/37062-egy-truckers|-january2027",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -2404,14 +2404,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Central Transport",
-      "eventUrl": "/events/37087-central-transport4th-anniversary-convoy",
+      "eventUrl": "https://truckersmp.com/events/37087-central-transport4th-anniversary-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Duisburg — + Dortmund (Slots)",
@@ -2429,14 +2429,14 @@
       "phase": "future",
       "type": "external",
       "organizer": null,
-      "eventUrl": "/events/37343-arab-unity-convoy%F0%9F%A4%9D",
+      "eventUrl": "https://truckersmp.com/events/37343-arab-unity-convoy%F0%9F%A4%9D",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Bremen — Slots",
@@ -2454,14 +2454,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Pink Ribbon Virtual Trucking Company",
-      "eventUrl": "/events/37152-pink-ribbon-vtc--february-convoy",
+      "eventUrl": "https://truckersmp.com/events/37152-pink-ribbon-vtc--february-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Navia — Slots + A Coruña (Slots | Public: Garage)",
@@ -2479,14 +2479,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Twisted Transport",
-      "eventUrl": "/events/37170-twisted-transport-valentines-convoy",
+      "eventUrl": "https://truckersmp.com/events/37170-twisted-transport-valentines-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Amsterdam — Slots",
@@ -2504,14 +2504,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "KERALA ROADRUNNERS",
-      "eventUrl": "/events/37522-kerala-roadrunners-february-quest",
+      "eventUrl": "https://truckersmp.com/events/37522-kerala-roadrunners-february-quest",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Bern — Slots",
@@ -2529,14 +2529,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "NeoCrime™",
-      "eventUrl": "/events/37015-neocrime-february-convoy2027",
+      "eventUrl": "https://truckersmp.com/events/37015-neocrime-february-convoy2027",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Munich — Slots",
@@ -2554,14 +2554,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Lightning Logistics",
-      "eventUrl": "/events/36617-%F0%9F%8E%89lightning-logistics6-year-convoy!%F0%9F%8E%89",
+      "eventUrl": "https://truckersmp.com/events/36617-%F0%9F%8E%89lightning-logistics6-year-convoy!%F0%9F%8E%89",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Amsterdam — Slots",
@@ -2579,14 +2579,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "҉ Fast Freight Brothers",
-      "eventUrl": "/events/37415-#19%F0%9F%9A%9B-a-view-to-the-strait-of-messina",
+      "eventUrl": "https://truckersmp.com/events/37415-#19%F0%9F%9A%9B-a-view-to-the-strait-of-messina",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Rome — Slots",
@@ -2604,14 +2604,14 @@
       "phase": "future",
       "type": "external",
       "organizer": null,
-      "eventUrl": "/events/37264-united-convoys|6-year-anniversary%F0%9F%8E%89",
+      "eventUrl": "https://truckersmp.com/events/37264-united-convoys|6-year-anniversary%F0%9F%8E%89",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Ålesund — Slots",
@@ -2629,14 +2629,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Moonlight Express",
-      "eventUrl": "/events/37305-moonlight-express|-february-convoy",
+      "eventUrl": "https://truckersmp.com/events/37305-moonlight-express|-february-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Edirne — Slot",
@@ -2654,14 +2654,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "ETERNAL TRANSPORT™",
-      "eventUrl": "/events/37505-eternal-transport|-february-convoy",
+      "eventUrl": "https://truckersmp.com/events/37505-eternal-transport|-february-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Trondheim — Slots",
@@ -2679,14 +2679,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Global Trucking VTC",
-      "eventUrl": "/events/37618-global-trucking%27s-february-convoy2027",
+      "eventUrl": "https://truckersmp.com/events/37618-global-trucking%27s-february-convoy2027",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Sheffield — Slots",
@@ -2704,14 +2704,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "I FORA Logistics",
-      "eventUrl": "/events/37450-#27-ifl-convoy-february2027--the-great-british-haul",
+      "eventUrl": "https://truckersmp.com/events/37450-#27-ifl-convoy-february2027--the-great-british-haul",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Dover — Slot",
@@ -2729,14 +2729,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Premium Events",
-      "eventUrl": "/events/37397-%E2%9C%A8premium-events-version#5%E2%9C%A8",
+      "eventUrl": "https://truckersmp.com/events/37397-%E2%9C%A8premium-events-version#5%E2%9C%A8",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Calais — + Lille Slots",
@@ -2754,14 +2754,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Pink Ribbon Virtual Trucking Company",
-      "eventUrl": "/events/37411-a-cozy-drive-in-february-with-pink-ribbon-vtc",
+      "eventUrl": "https://truckersmp.com/events/37411-a-cozy-drive-in-february-with-pink-ribbon-vtc",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Clermont-Ferrand — Slots | Public: Garage",
@@ -2779,14 +2779,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "NovaLines",
-      "eventUrl": "/events/37422-novalines-february-convoy",
+      "eventUrl": "https://truckersmp.com/events/37422-novalines-february-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Dresden — Slots",
@@ -2804,14 +2804,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "- TAMILNADU LOGISTICS -",
-      "eventUrl": "/events/37405-tamilnadu-logistics-celebrating3-years-on-the-road",
+      "eventUrl": "https://truckersmp.com/events/37405-tamilnadu-logistics-celebrating3-years-on-the-road",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Hanover — Route A) + Nuremberg (Route B",
@@ -2829,14 +2829,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Ghost Express",
-      "eventUrl": "/events/37471-ghost-express|-february-edition%2727",
+      "eventUrl": "https://truckersmp.com/events/37471-ghost-express|-february-edition%2727",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Zagreb — Slots",
@@ -2854,14 +2854,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Vabis Transport",
-      "eventUrl": "/events/37442-vabis-transport|-february-convoy",
+      "eventUrl": "https://truckersmp.com/events/37442-vabis-transport|-february-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Rostock — Slots",
@@ -2879,14 +2879,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Malkoçoğlu Logistics",
-      "eventUrl": "/events/37528-malkocoglu-logistics-february-convoy#22",
+      "eventUrl": "https://truckersmp.com/events/37528-malkocoglu-logistics-february-convoy#22",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Calais — City",
@@ -2904,14 +2904,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Egyptian Truckers Company",
-      "eventUrl": "/events/37502-egy-truckers|6th-anniversary",
+      "eventUrl": "https://truckersmp.com/events/37502-egy-truckers|6th-anniversary",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -2929,14 +2929,14 @@
       "phase": "future",
       "type": "external",
       "organizer": null,
-      "eventUrl": "/events/37489-%F0%9F%8E%89-hardik-turns20|-another-year,-another-gear",
+      "eventUrl": "https://truckersmp.com/events/37489-%F0%9F%8E%89-hardik-turns20|-another-year,-another-gear",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Dortmund — Slots",
@@ -2954,14 +2954,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Global Trucking VTC",
-      "eventUrl": "/events/38240-global-trucking%27s-march-convoy2027",
+      "eventUrl": "https://truckersmp.com/events/38240-global-trucking%27s-march-convoy2027",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slots",
@@ -2979,14 +2979,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Pink Ribbon Virtual Trucking Company",
-      "eventUrl": "/events/37712-pink-ribbon-vtc--march-convoy",
+      "eventUrl": "https://truckersmp.com/events/37712-pink-ribbon-vtc--march-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Livorno — Slots + Florence (Slots | Public: Garage)",
@@ -3004,14 +3004,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Malkoçoğlu Logistics",
-      "eventUrl": "/events/37701-malkocoglu-logistics-march-convoy#23",
+      "eventUrl": "https://truckersmp.com/events/37701-malkocoglu-logistics-march-convoy#23",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Leipzig — (City)",
@@ -3029,14 +3029,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Dolunay VTC™",
-      "eventUrl": "/events/37780-dolunay-vtc%E2%84%A2|-march-convoy",
+      "eventUrl": "https://truckersmp.com/events/37780-dolunay-vtc%E2%84%A2|-march-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "TruckersMP HQ — Slot's",
@@ -3054,14 +3054,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Northern Lights",
-      "eventUrl": "/events/38072-northern-lights2nd-anniversary",
+      "eventUrl": "https://truckersmp.com/events/38072-northern-lights2nd-anniversary",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Leipzig — Slots & Magdeburg (Slots)",
@@ -3079,14 +3079,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "NeoCrime™",
-      "eventUrl": "/events/37874-neocrime-march-convoy2027",
+      "eventUrl": "https://truckersmp.com/events/37874-neocrime-march-convoy2027",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Antwerp — + Eindhoven Slots",
@@ -3104,14 +3104,14 @@
       "phase": "future",
       "type": "external",
       "organizer": null,
-      "eventUrl": "/events/37798-orvion-cc1st-anniversary-convoy",
+      "eventUrl": "https://truckersmp.com/events/37798-orvion-cc1st-anniversary-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Nuremberg — Slots",
@@ -3129,14 +3129,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Nexon Logistics",
-      "eventUrl": "/events/37847-nexon-logistics-march-convoy#92",
+      "eventUrl": "https://truckersmp.com/events/37847-nexon-logistics-march-convoy#92",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Munich — Slots",
@@ -3154,14 +3154,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Twisted Transport",
-      "eventUrl": "/events/37886-twisted-transport-5th-year-anniversary-convoy",
+      "eventUrl": "https://truckersmp.com/events/37886-twisted-transport-5th-year-anniversary-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Osijek — SLOTS",
@@ -3179,14 +3179,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Central Transport",
-      "eventUrl": "/events/38055-central-transport-monthly-convoy#22",
+      "eventUrl": "https://truckersmp.com/events/38055-central-transport-monthly-convoy#22",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Zadar — Bihać (Slots)",
@@ -3204,14 +3204,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Pink Ribbon Virtual Trucking Company",
-      "eventUrl": "/events/38211-pink-ribbon-vtc--april-convoy",
+      "eventUrl": "https://truckersmp.com/events/38211-pink-ribbon-vtc--april-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Saint Petersburg — Slots | Public: Garage",
@@ -3229,14 +3229,14 @@
       "phase": "future",
       "type": "external",
       "organizer": "Twisted Transport",
-      "eventUrl": "/events/38296-twisted-transport-april-convoy",
+      "eventUrl": "https://truckersmp.com/events/38296-twisted-transport-april-convoy",
       "sourceKind": "attending",
       "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending-rsvp",
-        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
       },
       "suggestedParticipation": {
-        "status": "attended",
+        "status": "planned",
         "confidence": "verified"
       },
       "start": "Lamia — Slots",
