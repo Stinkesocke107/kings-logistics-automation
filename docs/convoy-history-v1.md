@@ -88,3 +88,30 @@ The generator in `convoy-history.js` already produces:
 - `output/convoy-history-statistics.md`
 
 A later Discord publisher can render All-Time, Current Year, Own vs External and Records embeds from these generated statistics without changing the history data model.
+
+## Public Discord publisher
+
+Public statistics are intended for Discord channel:
+
+- Channel ID: `1558352669071118467`
+- Recommended channel name: `📊・convoy-statistics`
+
+No manual Discord embed has to be created. The automation owns one statistics message in this channel and creates it on first publish. Later runs locate the bot's existing Kings Convoy Statistics message and update it in place instead of posting a new copy.
+
+The public message is split into three embeds for readability:
+
+1. All-Time + yearly totals
+2. Current-year + monthly totals
+3. Platform distribution + records
+
+The publisher refuses to publish a completely empty history by default. This prevents an accidental public `0 convoys` message before the historical import is ready.
+
+The bot needs permission in that channel to:
+
+- View Channel
+- Send Messages
+- Embed Links
+- Read Message History
+
+The audit workflow keeps Discord publishing opt-in. A manual workflow run must explicitly set `publish_to_discord=true`.
+
