@@ -3,6 +3,7 @@ const path = require('path');
 
 const CHUNK_DIR = process.env.KINGS_2023_CHUNK_DIR || 'data/convoy-history-2023-chunks';
 const OUTPUT = process.env.KINGS_2023_SCAN_OUTPUT || 'data/convoy-history-2023-scan.json';
+const COVERAGE_PATH = process.env.KINGS_CONVOY_HISTORY_BACKFILL || 'data/convoy-history-backfill.json';
 const EXPECTED = [
   [10000, 11999],
   [12000, 13999],
@@ -120,6 +121,29 @@ function main() {
   const merged = mergeChunks(chunks);
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
   fs.writeFileSync(OUTPUT, JSON.stringify(merged, null, 2) + '\n');
+
+  if (fs.existsSync(COVERAGE_PATH)) {
+    const coverage = JSON.parse(fs.readFileSync(COVERAGE_PATH, 'utf8'));
+    coverage.years ||= {};
+    coverage.years['2023'] ||= {};
+    coverage.years['2023'] = {
+      ...coverage.years['2023'],
+      status: merged.complete ? 'primary_api_scan_complete' : 'backfill_in_progress',
+      publicZeroAllowed: false,
+      primaryApiScan: {
+        complete: merged.complete,
+        checked: merged.stats.checked,
+        requested: merged.stats.requested,
+        kingsMatches: merged.matches.length,
+        requestErrors: merged.stats.requestErrors,
+        updatedAt: merged.generatedAt
+      },
+      notes: merged.complete
+        ? 'Primary TruckersMP Event API scan for event IDs 10000-19999 and dates 2023-07-09 through 2023-12-31 completed. Additional archived/internal sources may still add events.'
+        : 'Chunked TruckersMP historical backfill is still incomplete.'
+    };
+    fs.writeFileSync(COVERAGE_PATH, JSON.stringify(coverage, null, 2) + '\n');
+  }
 
   console.log('2023 chunk merge completed.');
   console.log('Chunks received: ' + merged.coverage.receivedChunks.length + '/5');
