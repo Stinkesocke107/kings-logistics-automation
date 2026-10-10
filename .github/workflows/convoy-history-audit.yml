@@ -1,0 +1,65 @@
+name: Kings Convoy History Audit
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - feature/convoy-history-v1
+    paths:
+      - 'convoy-history.js'
+      - 'convoy-history-truckersmp-candidates.js'
+      - 'data/convoy-history.json'
+      - 'tests/convoy-history.test.cjs'
+      - 'docs/convoy-history-v1.md'
+      - '.github/workflows/convoy-history-audit.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-convoy-history-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify convoy history scripts
+        run: |
+          node --check convoy-history.js
+          node --check convoy-history-truckersmp-candidates.js
+
+      - name: Run convoy history tests
+        run: node --test tests/convoy-history.test.cjs
+
+      - name: Generate current history statistics
+        run: node convoy-history.js
+
+      - name: Discover TruckersMP history candidates
+        env:
+          KINGS_VTC_ID: '64284'
+          KINGS_CONVOY_HISTORY_FROM: '2023-01-01'
+        run: node convoy-history-truckersmp-candidates.js
+
+      - name: Upload convoy history audit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-convoy-history-audit
+          path: |
+            output/convoy-history-statistics.json
+            output/convoy-history-statistics.md
+            output/convoy-history-truckersmp-candidates.json
+          if-no-files-found: warn
+          retention-days: 14
