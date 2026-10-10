@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "mode": "convoy-history-backfill-coverage",
+  "startYear": 2023,
+  "policy": "A missing year is never treated as zero until its historical backfill has been reviewed and marked complete.",
+  "years": {
+    "2023": {
+      "status": "backfill_in_progress",
+      "publicZeroAllowed": false,
+      "notes": "Historical TruckersMP participation must be reconstructed from old event pages and Kings-owned archives."
+    },
+    "2024": {
+      "status": "backfill_in_progress",
+      "publicZeroAllowed": false,
+      "notes": "Historical TruckersMP participation must be reconstructed from old event pages and Kings-owned archives."
+    },
+    "2025": {
+      "status": "backfill_in_progress",
+      "publicZeroAllowed": false,
+      "notes": "Some hosted and external events are already verified, but the year is not yet assumed complete."
+    },
+    "2026": {
+      "status": "active_plus_backfill",
+      "publicZeroAllowed": false,
+      "notes": "Current/future events are collected automatically; older external participation for the year still needs backfill."
+    }
+  }
+}
