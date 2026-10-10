@@ -4,5 +4,155 @@
     "text": "Introduced the Kings Central Overview, combining live member, activity, milestone and changelog information in one automatically updated Discord overview.",
     "source": "manual-1788119985145",
     "addedAt": "2026-08-30T19:59:45.144Z"
+  },
+  {
+    "category": "👑 Major Development Update",
+    "text": "Since 30 August 2026, Kings Logistics has undergone one of its largest organisation-wide improvement phases. This major update covers changes already live as well as systems now defined and being introduced step by step. The focus is a clearer, more professional and future-ready Kings Family.",
+    "source": "major-update-2026-10-11-01",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🎨 Branding & Visual Identity",
+    "text": "Refreshed the Kings visual direction, updated banners, headers and graphics, and established Kings Bright Blue (#182DFF) for a consistent Discord role-icon family. A long-term profile Asset System is being developed for Drivers, Staff, Leadership, Departments, Awards and Loyalty. Personalised profile assets are currently reserved for Leadership / High Staff.",
+    "source": "major-update-2026-10-11-02",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🌐 Supported Multiplayer Platforms",
+    "text": "Kings is being structured as a multi-platform ETS2 & ATS VTC rather than TruckersMP-only. TruckersMP and HaulMP are currently supported. General rules, information, applications and Driver systems are becoming platform-neutral, while platform-specific requirements remain where necessary.",
+    "source": "major-update-2026-10-11-03",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "📜 Community Rules",
+    "text": "Rewritten the Community Rules with clearer guidance on respect, conduct, divisive discussions, hate and prohibited content, privacy, advertising, spam, voice channels, recording, streaming, Staff and Ticket processes, consequences and reviews. The rules now address the wider Kings community.",
+    "source": "major-update-2026-10-11-04",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "👑 About Kings & Community",
+    "text": "Updated the About Kings information to reflect an international ETS2 & ATS VTC, supported multiplayer platforms and the wider Kings Family. We focus on teamwork, friendship, respect, fairness and unity, rather than fixed Driver counts or a single platform status.",
+    "source": "major-update-2026-10-11-05",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "📘 Driver Handbook",
+    "text": "Combined the former Welcome to Kings area and Driver Guidelines into one central Driver Handbook (<#1558326544001269800>). It brings together expectations, behaviour, driving rules, Kings representation, convoys, activity, media, support, responsibilities and consequences.",
+    "source": "major-update-2026-10-11-06",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🎨 Driver Branding",
+    "text": "Consolidated the Kings Player Tag, ETS2 Company Paintjob and ATS Company Paintjob guidance into one Driver Branding area (<#1558317103982055476>), making requirements easier to find and maintain.",
+    "source": "major-update-2026-10-11-07",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🚛 Driver Journey & Trial",
+    "text": "Improved messages for accepted Driver Applications, the one-week Trial, Trial completion and confirmation as a Kings Driver. Guidance now clarifies conduct, platform rules, branding, support and optional participation. Real Life First remains a priority, and Staff opportunities remain voluntary.",
+    "source": "major-update-2026-10-11-08",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🎫 Ticket System Rebuild",
+    "text": "The Galaxy Bot Ticket System is being reorganised with clearer panels, request categories and pre-ticket forms. Relevant information is collected before ticket creation to reduce repeated questions and improve handling for members and Staff. Rollout continues step by step.",
+    "source": "major-update-2026-10-11-09",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🚛 Driver Applications",
+    "text": "Structured application forms now cover personal information, games and supported platforms, platform history, activity, VTC experience and other details. TruckersMP applicants may still need the separate TruckersMP VTC application; TruckersMP is not mandatory for another officially supported platform.",
+    "source": "major-update-2026-10-11-10",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🛡️ Support Center",
+    "text": "Reorganised support into Complaint / Report, Private Support Request and Decision Review / Appeal. Each request type collects relevant information. The review process is designed so a Staff member should not review their own original decision.",
+    "source": "major-update-2026-10-11-11",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "👥 Staff Applications",
+    "text": "Developed structured Staff / High Staff and Management / Head Management application forms, considering Kings position, experience, motivation, skills, leadership, department development, availability and suitability. A 14-day Trial may be required depending on the role.",
+    "source": "major-update-2026-10-11-12",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "👑 Management Requests",
+    "text": "Created a dedicated Management Request panel for important internal, organisational, decision-related and leadership matters. The form collects the topic, details, people involved and desired outcome before a ticket opens.",
+    "source": "major-update-2026-10-11-13",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🤝 Partnership Applications",
+    "text": "Separated partnership applications from ordinary Management Requests into VTC, Convoy Control, Radio and Media / Content categories, each with its own form. The former fixed 50-member VTC minimum has been removed; applications are assessed on activity, reliability, professionalism, communication and mutual long-term value.",
+    "source": "major-update-2026-10-11-14",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🤝 Partner Area",
+    "text": "Private Partner channels and a shared Partner Area are being moved back to the Kings Logistics Main Server. The separate Partner Discord will no longer be needed after migration. Private Partner channels follow a consistent 'Emoji | partner-name' format.",
+    "source": "major-update-2026-10-11-15",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "📸 Community Applications",
+    "text": "Rebuilt structured applications for External Media and Official Streamer. These community roles allow creators to support and represent Kings without automatically receiving Staff powers, moderation permissions or confidential access.",
+    "source": "major-update-2026-10-11-16",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "💎 Supporter System",
+    "text": "Expanded Kings Supporter as the main recognition role for official financial support. Support methods can include Discord Boosts, future Kings Circle memberships, products and digital packs. Additional roles may identify Booster, Circle, Merch, Wear, Collectibles, Plushie and Digital Pack support. Recognition roles never grant Staff authority.",
+    "source": "major-update-2026-10-11-17",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "💙 Supporter Benefits & Wall",
+    "text": "Separated Supporter Benefits from the Supporter Wall. Planned or available areas may include Supporter Lounge, Suggestions, the Wall and automatic thanks. Support never grants rule exemptions, event advantages, moderation influence or Staff permissions.",
+    "source": "major-update-2026-10-11-18",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "👥 Internal Staff Development",
+    "text": "Clarified internal team responsibilities across HR, Events, Event Coordination, Design, Media, Driver Services and Development. Staff recruiting continues to focus on existing Kings Family members. Department Leadership increasingly manages its own recruitment communication.",
+    "source": "major-update-2026-10-11-19",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🚧 Event Role Responsibilities",
+    "text": "Separated Event Coordinator (external invitations, event records and participation coordination) from Event Planner (planning Kings convoys, routes, locations, slots and event preparation). This makes responsibilities and reporting clearer.",
+    "source": "major-update-2026-10-11-20",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🚛 Driver Recruiting",
+    "text": "Updated recruiting guidance for TruckersMP, HaulMP, Discord, international growth and personal invitations. Recruitment should be respectful, natural and free of spam or aggressive advertising. Poaching Drivers from other VTCs remains prohibited.",
+    "source": "major-update-2026-10-11-21",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🔊 Voice Channel Review",
+    "text": "Reviewing and simplifying voice channels to reduce unnecessary duplication while maintaining useful spaces for ETS2, ATS, gaming, driving together, Drivers, official events and Staff. Some Driver-only functions may become public where appropriate.",
+    "source": "major-update-2026-10-11-22",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🏷️ Community Recognition Roles",
+    "text": "Role Requests have become more platform-neutral, including VTC Leader, Platform Staff, Official Partner and Official Friend. Verified Staff of supported multiplayer platforms can be recognised using trustworthy profiles, websites, roles and public team information.",
+    "source": "major-update-2026-10-11-23",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🌍 International Community",
+    "text": "English remains the primary community language, but perfect English is not required. Members from all countries and time zones are welcome. Real Life First, no kilometre requirements, no mandatory convoys and no unnecessary activity pressure remain central principles.",
+    "source": "major-update-2026-10-11-24",
+    "addedAt": "2026-10-11T00:00:00.000Z"
+  },
+  {
+    "category": "🚀 Next Steps",
+    "text": "Our first priority is to complete and improve Kings Logistics before larger future Kings projects move into active development. Remaining changes are rolling out progressively. Thank you to our Drivers, Staff, Leadership, Partners and Supporters for building the Kings Family with us! <:kings_heart:1500949819110326352>",
+    "source": "major-update-2026-10-11-25",
+    "addedAt": "2026-10-11T00:00:00.000Z"
   }
 ]
