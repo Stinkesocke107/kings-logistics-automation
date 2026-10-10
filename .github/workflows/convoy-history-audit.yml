@@ -17,7 +17,6 @@ on:
       - 'convoy-history-truckersmp-candidates.js'
       - 'convoy-history-discord.js'
       - 'convoy-history-import.js'
-      - 'data/convoy-history.json'
       - 'data/convoy-history-manual-evidence.json'
       - 'tests/convoy-history.test.cjs'
       - 'docs/convoy-history-v1.md'
