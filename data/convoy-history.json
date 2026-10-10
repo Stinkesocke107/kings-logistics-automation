@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "mode": "kings-convoy-history",
+  "updatedAt": null,
+  "policy": {
+    "publicCountRule": "Only completed convoys with participation.status=attended and participation.confidence verified or confirmed_internal count toward public attended statistics.",
+    "registrationRule": "TruckersMP VTC attending/RSVP alone is stored as registered evidence and does not by itself prove physical attendance.",
+    "duplicateRule": "platform + platformEventId is authoritative when available; otherwise internal id is used.",
+    "platforms": {
+      "truckersmp": "active",
+      "haulmp": "active",
+      "tlmp": "planned",
+      "realmmp": "future"
+    }
+  },
+  "records": []
+}
