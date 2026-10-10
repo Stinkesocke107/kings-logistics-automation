@@ -33,9 +33,14 @@ A convoy counts as "attended" in the public statistics only when all of these ar
 2. participation.status = attended
 3. participation.confidence = verified OR confirmed_internal
 
-A TruckersMP "VTCs Attending" / RSVP entry is useful evidence, but by itself it proves registration rather than physical attendance. Such evidence should initially be stored as participation.status = registered unless another source confirms attendance.
+For Kings Logistics, a TruckersMP **VTCs Attending** entry for Kings Logistics is accepted as verified evidence that Kings participated in that convoy. This reflects the Kings operating rule that when the VTC was entered as attending, Kings did take part.
 
-This keeps the public statistics defensible and prevents inflated historical totals.
+Therefore a historical TruckersMP VTCs Attending record is stored as:
+
+- participation.status = attended
+- participation.confidence = verified
+
+The individual number of Kings Drivers is still separate. If the Driver count is unknown, the convoy can count as a Kings participation while attendance.count remains unknown.
 
 ## Record model
 
@@ -65,7 +70,7 @@ When available, platform + platformEventId is the authoritative duplicate key.
 
 ## Planned historical backfill
 
-The next phase should build a TruckersMP historical candidate collector. Its job is to collect possible old Kings events into a review queue, not immediately inflate public totals.
+The TruckersMP historical candidate collector gathers old Kings hosted and VTCs Attending events. VTCs Attending is accepted as verified Kings participation; uncertain metadata, duplicate conflicts or missing dates can still be routed to review before history import.
 
 Pipeline:
 
