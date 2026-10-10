@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "kings-convoy-history",
-  "updatedAt": null,
+  "updatedAt": "2026-10-10T05:57:20.532Z",
   "policy": {
     "publicCountRule": "Only completed convoys with participation.status=attended and participation.confidence verified or confirmed_internal count toward public attended statistics.",
     "truckersmpAttendingRule": "For Kings Logistics historical statistics, a TruckersMP VTCs Attending entry for Kings Logistics is accepted as verified evidence that Kings participated in that convoy.",
@@ -13,5 +13,4063 @@
       "realmmp": "future"
     }
   },
-  "records": []
+  "records": [
+    {
+      "platform": "truckersmp",
+      "platformEventId": "26666",
+      "name": "Laxis Logistics Mai Konvoi",
+      "date": "2025-05-02",
+      "type": "external",
+      "organizer": "Laxis Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/26666-laxis-logistics-mai-konvoi",
+      "evidence": [
+        {
+          "source": "truckersmp-event-page",
+          "kind": "vtcs-attending",
+          "url": "https://truckersmp.com/events/26666-laxis-logistics-mai-konvoi",
+          "note": "TruckersMP event page lists Kings Logistics under VTCs Attending."
+        }
+      ],
+      "id": "KCE-TRUCKERSMP-26666",
+      "updatedAt": "2026-10-10T05:57:20.531Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-27792",
+      "platform": "truckersmp",
+      "platformEventId": "27792",
+      "name": "Kings Logistics | Convoy for the 2nd anniversary",
+      "date": "2025-07-11",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/27792-kings-logistics|-convoy-for-the2nd-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/27792-kings-logistics|-convoy-for-the2nd-anniversary",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.493Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-28472",
+      "platform": "truckersmp",
+      "platformEventId": "28472",
+      "name": "KINGS LOGISTIK | MONTHLY CONVOY #1",
+      "date": "2025-08-30",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/28472-kings-logistik|-monthly-convoy#1",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/28472-kings-logistik|-monthly-convoy#1",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.498Z"
+    },
+    {
+      "platform": "truckersmp",
+      "platformEventId": "24350",
+      "name": "The Getaway with Pean Logistics",
+      "date": "2025-09-21",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/24350",
+      "evidence": [
+        {
+          "source": "truckersmp-event-page",
+          "kind": "vtcs-attending",
+          "url": "https://truckersmp.com/events/24350",
+          "note": "TruckersMP event page lists Kings Logistics under VTCs Attending."
+        }
+      ],
+      "id": "KCE-TRUCKERSMP-24350",
+      "updatedAt": "2026-10-10T05:57:20.531Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-28476",
+      "platform": "truckersmp",
+      "platformEventId": "28476",
+      "name": "KINGS LOGISTIK | MONTHLY CONVOY #2",
+      "date": "2025-09-27",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/28476-kings-logistik|-monthly-convoy#2",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/28476-kings-logistik|-monthly-convoy#2",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.499Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-31164",
+      "platform": "truckersmp",
+      "platformEventId": "31164",
+      "name": "Kings Logistics Monthly Convoy #3",
+      "date": "2026-01-10",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/31164-kings-logistics-monthly-convoy#3",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/31164-kings-logistics-monthly-convoy#3",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.499Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-31165",
+      "platform": "truckersmp",
+      "platformEventId": "31165",
+      "name": "Kings Logistics Monthly Convoy #4",
+      "date": "2026-02-07",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/31165-kings-logistics-monthly-convoy#4",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/31165-kings-logistics-monthly-convoy#4",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.499Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-31166",
+      "platform": "truckersmp",
+      "platformEventId": "31166",
+      "name": "Kings Logistics Monthly Convoy #5",
+      "date": "2026-03-14",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/31166-kings-logistics-monthly-convoy#5",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/31166-kings-logistics-monthly-convoy#5",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.500Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-31876",
+      "platform": "truckersmp",
+      "platformEventId": "31876",
+      "name": "Kings Logistics Monthly Convoy #6",
+      "date": "2026-04-18",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/31876-kings-logistics-monthly-convoy#6",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/31876-kings-logistics-monthly-convoy#6",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.500Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-31877",
+      "platform": "truckersmp",
+      "platformEventId": "31877",
+      "name": "NOVA ERA ✝ KINGS • A Tribute to Our Partnership",
+      "date": "2026-05-09",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/31877-nova-era%E2%9C%9D-kings%E2%80%A2-a-tribute-to-our-partnership",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/31877-nova-era%E2%9C%9D-kings%E2%80%A2-a-tribute-to-our-partnership",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.501Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-32992",
+      "platform": "truckersmp",
+      "platformEventId": "32992",
+      "name": "Kings Logistics Night Convoy #1",
+      "date": "2026-05-17",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/32992-kings-logistics-night-convoy#1",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/32992-kings-logistics-night-convoy#1",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.501Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-31921",
+      "platform": "truckersmp",
+      "platformEventId": "31921",
+      "name": "Kings Logistics Monthly Convoy #8",
+      "date": "2026-06-27",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/31921-kings-logistics-monthly-convoy#8",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/31921-kings-logistics-monthly-convoy#8",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.501Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-31923",
+      "platform": "truckersmp",
+      "platformEventId": "31923",
+      "name": "Kings Logistics Monthly Convoy #9",
+      "date": "2026-07-11",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/31923-kings-logistics-monthly-convoy#9",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/31923-kings-logistics-monthly-convoy#9",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.502Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-33777",
+      "platform": "truckersmp",
+      "platformEventId": "33777",
+      "name": "Kings Logistics Charity Convoy #1",
+      "date": "2026-07-26",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/33777-kings-logistics-charity-convoy#1",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/33777-kings-logistics-charity-convoy#1",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.502Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-33826",
+      "platform": "truckersmp",
+      "platformEventId": "33826",
+      "name": "KINGS LOGISTICS | 3rd Anniversary Convoy",
+      "date": "2026-08-22",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/33826-kings-logistics|3rd-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/33826-kings-logistics|3rd-anniversary-convoy",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.503Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-33776",
+      "platform": "truckersmp",
+      "platformEventId": "33776",
+      "name": "Kings Logistics Monthly Convoy #10",
+      "date": "2026-08-23",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/33776-kings-logistics-monthly-convoy#10",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/33776-kings-logistics-monthly-convoy#10",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.503Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-34957",
+      "platform": "truckersmp",
+      "platformEventId": "34957",
+      "name": "Kings Logistics Monthly Convoy #11",
+      "date": "2026-09-26",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/34957-kings-logistics-monthly-convoy#11",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/34957-kings-logistics-monthly-convoy#11",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.503Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35810",
+      "platform": "truckersmp",
+      "platformEventId": "35810",
+      "name": "Kings Logistics Monthly Convoy #12",
+      "date": "2026-10-02",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35810-kings-logistics-monthly-convoy#12",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-hosted-event",
+          "url": "https://truckersmp.com/events/35810-kings-logistics-monthly-convoy#12",
+          "note": "TruckersMP lists the event under Kings Logistics hosted events.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.504Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-34819",
+      "platform": "truckersmp",
+      "platformEventId": "34819",
+      "name": "THE ORIGINAL™ 1.5 YEAR CONVOY",
+      "date": "2026-10-10",
+      "type": "external",
+      "organizer": "- THE ORIGINAL™ -",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/34819-the-original%E2%84%A21.5-year-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/34819-the-original%E2%84%A21.5-year-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.504Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35000",
+      "platform": "truckersmp",
+      "platformEventId": "35000",
+      "name": "🎂2nd Anniversary I FORA Logistics🎂",
+      "date": "2026-10-10",
+      "type": "external",
+      "organizer": "I FORA Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35000-%F0%9F%8E%822nd-anniversary-i-fora-logistics%F0%9F%8E%82",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35000-%F0%9F%8E%822nd-anniversary-i-fora-logistics%F0%9F%8E%82",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.504Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35067",
+      "platform": "truckersmp",
+      "platformEventId": "35067",
+      "name": "ASIMOV Group: October Convoy #7",
+      "date": "2026-10-11",
+      "type": "external",
+      "organizer": "ASIMOV Group",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35067-asimov-group:-october-convoy#7",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35067-asimov-group:-october-convoy#7",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.504Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36313",
+      "platform": "truckersmp",
+      "platformEventId": "36313",
+      "name": "NeoCrime October Convoy 2026",
+      "date": "2026-10-12",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36313-neocrime-october-convoy2026",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36313-neocrime-october-convoy2026",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.504Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35288",
+      "platform": "truckersmp",
+      "platformEventId": "35288",
+      "name": "DIFM October Convoy",
+      "date": "2026-10-13",
+      "type": "external",
+      "organizer": "Dutch International Freight Masters",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35288-difm-october-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35288-difm-october-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.505Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35900",
+      "platform": "truckersmp",
+      "platformEventId": "35900",
+      "name": "African Logistics 5 YEAR ANNIVERSARY",
+      "date": "2026-10-14",
+      "type": "external",
+      "organizer": "AFRICAN LOGISTICS",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35900-african-logistics5-year-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35900-african-logistics5-year-anniversary",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.505Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35113",
+      "platform": "truckersmp",
+      "platformEventId": "35113",
+      "name": "✨The Launch of Premium Events ✨",
+      "date": "2026-10-16",
+      "type": "external",
+      "organizer": "Premium Events",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35113-%E2%9C%A8the-launch-of-premium-events%E2%9C%A8",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35113-%E2%9C%A8the-launch-of-premium-events%E2%9C%A8",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.505Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-34935",
+      "platform": "truckersmp",
+      "platformEventId": "34935",
+      "name": "Aura's 2nd Anniversary Convoy",
+      "date": "2026-10-17",
+      "type": "external",
+      "organizer": "Aura",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/34935-aura%27s2nd-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/34935-aura%27s2nd-anniversary-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.506Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35252",
+      "platform": "truckersmp",
+      "platformEventId": "35252",
+      "name": "🚛 🎗️ TCCR  Monthly #42 Pink Convoy: A Journey for Her",
+      "date": "2026-10-18",
+      "type": "external",
+      "organizer": "Truck Convoy Control and Route",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35252-%F0%9F%9A%9B%F0%9F%8E%97%EF%B8%8F-tccr-monthly#42-pink-convoy:-a-journey-for-her",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35252-%F0%9F%9A%9B%F0%9F%8E%97%EF%B8%8F-tccr-monthly#42-pink-convoy:-a-journey-for-her",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.506Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35649",
+      "platform": "truckersmp",
+      "platformEventId": "35649",
+      "name": "Ghost Express | October Edition '26 [Halloween Special]",
+      "date": "2026-10-19",
+      "type": "external",
+      "organizer": "Ghost Express",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35649-ghost-express|-october-edition%2726%5Bhalloween-special%5D",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35649-ghost-express|-october-edition%2726%5Bhalloween-special%5D",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.506Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-34664",
+      "platform": "truckersmp",
+      "platformEventId": "34664",
+      "name": "🎉EGY-TRUCKERS X ARAB X ANATOLIA X PEAN X NEEDCC🎉",
+      "date": "2026-10-23",
+      "type": "external",
+      "organizer": "Egyptian Truckers Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/34664-%F0%9F%8E%89egy-truckers-x-arab-x-anatolia-x-pean-x-needcc%F0%9F%8E%89",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/34664-%F0%9F%8E%89egy-truckers-x-arab-x-anatolia-x-pean-x-needcc%F0%9F%8E%89",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.507Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35100",
+      "platform": "truckersmp",
+      "platformEventId": "35100",
+      "name": "INDIAN CARRIERS OCTOBER PUBLIC CONVOY 2026",
+      "date": "2026-10-23",
+      "type": "external",
+      "organizer": "INDIAN CARRIERS",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35100-indian-carriers-october-public-convoy2026",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35100-indian-carriers-october-public-convoy2026",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.507Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36410",
+      "platform": "truckersmp",
+      "platformEventId": "36410",
+      "name": "[RO] TRANS EXPRESS MONTHLY PUBLIC CONVOY",
+      "date": "2026-10-24",
+      "type": "external",
+      "organizer": "[RO] Trans Express",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36410-%5Bro%5D-trans-express-monthly-public-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36410-%5Bro%5D-trans-express-monthly-public-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.507Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36524",
+      "platform": "truckersmp",
+      "platformEventId": "36524",
+      "name": "GAAT GROUP - ROAD TO HALLOWEEN",
+      "date": "2026-10-24",
+      "type": "external",
+      "organizer": "GAAT Group",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36524-gaat-group--road-to-halloween",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36524-gaat-group--road-to-halloween",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.507Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35349",
+      "platform": "truckersmp",
+      "platformEventId": "35349",
+      "name": "TAMIL PASANGA OCT PUBLIC CONVOY",
+      "date": "2026-10-25",
+      "type": "external",
+      "organizer": "TAMIL PASANGA",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35349-tamil-pasanga-oct-public-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35349-tamil-pasanga-oct-public-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.508Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35408",
+      "platform": "truckersmp",
+      "platformEventId": "35408",
+      "name": "Twisted Transport - Rusty's 1st Year Remembrance Convoy",
+      "date": "2026-10-26",
+      "type": "external",
+      "organizer": "Twisted Transport",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35408-twisted-transport--rusty%27s1st-year-remembrance-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35408-twisted-transport--rusty%27s1st-year-remembrance-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.508Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-34727",
+      "platform": "truckersmp",
+      "platformEventId": "34727",
+      "name": "✨🎉Moonlight Express | 1 Year Anniversary 🎉✨",
+      "date": "2026-10-28",
+      "type": "external",
+      "organizer": "Moonlight Express",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/34727-%E2%9C%A8%F0%9F%8E%89moonlight-express|1-year-anniversary%F0%9F%8E%89%E2%9C%A8",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/34727-%E2%9C%A8%F0%9F%8E%89moonlight-express|1-year-anniversary%F0%9F%8E%89%E2%9C%A8",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.508Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35183",
+      "platform": "truckersmp",
+      "platformEventId": "35183",
+      "name": "BOLT X CALM X NVA | PARTNERS CONVOY",
+      "date": "2026-10-29",
+      "type": "external",
+      "organizer": "Calm Cargo",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35183-bolt-x-calm-x-nva|-partners-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35183-bolt-x-calm-x-nva|-partners-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.508Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35433",
+      "platform": "truckersmp",
+      "platformEventId": "35433",
+      "name": "Saffron Line CC - Diwali Convoy 🪔",
+      "date": "2026-10-30",
+      "type": "external",
+      "organizer": null,
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35433-saffron-line-cc--diwali-convoy%F0%9F%AA%94",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35433-saffron-line-cc--diwali-convoy%F0%9F%AA%94",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.509Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-34894",
+      "platform": "truckersmp",
+      "platformEventId": "34894",
+      "name": "NorthStar Group | Novi Farewell Convoy",
+      "date": "2026-11-01",
+      "type": "external",
+      "organizer": "NorthStar Group",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/34894-northstar-group|-novi-farewell-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/34894-northstar-group|-novi-farewell-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.509Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35465",
+      "platform": "truckersmp",
+      "platformEventId": "35465",
+      "name": "Celebrating Diwali with TruckersHub - Public Convoy",
+      "date": "2026-11-03",
+      "type": "external",
+      "organizer": "TruckersHub Community",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35465-celebrating-diwali-with-truckershub--public-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35465-celebrating-diwali-with-truckershub--public-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.509Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35483",
+      "platform": "truckersmp",
+      "platformEventId": "35483",
+      "name": "Vabis Transport | November Convoy",
+      "date": "2026-11-05",
+      "type": "external",
+      "organizer": "Vabis Transport",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35483-vabis-transport|-november-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35483-vabis-transport|-november-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.509Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35561",
+      "platform": "truckersmp",
+      "platformEventId": "35561",
+      "name": "Arab Transport 7th Year Anniversary",
+      "date": "2026-11-06",
+      "type": "external",
+      "organizer": "Arab Transport VTC",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35561-arab-transport7th-year-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35561-arab-transport7th-year-anniversary",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.510Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36002",
+      "platform": "truckersmp",
+      "platformEventId": "36002",
+      "name": "Kerala RoadRunners November Venture",
+      "date": "2026-11-06",
+      "type": "external",
+      "organizer": "KERALA ROADRUNNERS",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36002-kerala-roadrunners-november-venture",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36002-kerala-roadrunners-november-venture",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.510Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35567",
+      "platform": "truckersmp",
+      "platformEventId": "35567",
+      "name": "✨ Premium Events Version #2 ✨",
+      "date": "2026-11-07",
+      "type": "external",
+      "organizer": "Premium Events",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35567-%E2%9C%A8-premium-events-version#2%E2%9C%A8",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35567-%E2%9C%A8-premium-events-version#2%E2%9C%A8",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.510Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36547",
+      "platform": "truckersmp",
+      "platformEventId": "36547",
+      "name": "NeoCrime November Convoy 2026",
+      "date": "2026-11-09",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36547-neocrime-november-convoy2026",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36547-neocrime-november-convoy2026",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.510Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35834",
+      "platform": "truckersmp",
+      "platformEventId": "35834",
+      "name": "ASIMOV Group: Remembrance Day #8",
+      "date": "2026-11-11",
+      "type": "external",
+      "organizer": "ASIMOV Group",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35834-asimov-group:-remembrance-day#8",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35834-asimov-group:-remembrance-day#8",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.511Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35695",
+      "platform": "truckersmp",
+      "platformEventId": "35695",
+      "name": "Pink Ribbon VTC - November Convoy",
+      "date": "2026-11-13",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35695-pink-ribbon-vtc--november-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35695-pink-ribbon-vtc--november-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.511Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35786",
+      "platform": "truckersmp",
+      "platformEventId": "35786",
+      "name": "Truck Club | November Convoy",
+      "date": "2026-11-18",
+      "type": "external",
+      "organizer": "Truck Club Transport",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35786-truck-club|-november-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35786-truck-club|-november-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.511Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37799",
+      "platform": "truckersmp",
+      "platformEventId": "37799",
+      "name": "ARNI Trans Polska│Opening Convoy",
+      "date": "2026-11-20",
+      "type": "external",
+      "organizer": "ARNI Trans Polska",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37799-arni-trans-polska%E2%94%82opening-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37799-arni-trans-polska%E2%94%82opening-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.512Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35816",
+      "platform": "truckersmp",
+      "platformEventId": "35816",
+      "name": "Tamil Pasanga November 2026 Grand Convoy",
+      "date": "2026-11-21",
+      "type": "external",
+      "organizer": "TAMIL PASANGA",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35816-tamil-pasanga-november2026-grand-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35816-tamil-pasanga-november2026-grand-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.512Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35873",
+      "platform": "truckersmp",
+      "platformEventId": "35873",
+      "name": "TCCR Monthly Convoy #43 -  4TH ANNIVERSARY",
+      "date": "2026-11-22",
+      "type": "external",
+      "organizer": "Truck Convoy Control and Route",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35873-tccr-monthly-convoy#43-4th-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35873-tccr-monthly-convoy#43-4th-anniversary",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.512Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36557",
+      "platform": "truckersmp",
+      "platformEventId": "36557",
+      "name": "TRANSCOM 1st Year Anniversary",
+      "date": "2026-11-27",
+      "type": "external",
+      "organizer": "TRANSCOM",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36557-transcom1st-year-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36557-transcom1st-year-anniversary",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.512Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35558",
+      "platform": "truckersmp",
+      "platformEventId": "35558",
+      "name": "LIGHTNING LOGISTICS | PUBLIC CONVOY #60",
+      "date": "2026-11-28",
+      "type": "external",
+      "organizer": "Lightning Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35558-lightning-logistics|-public-convoy#60",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35558-lightning-logistics|-public-convoy#60",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.513Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35996",
+      "platform": "truckersmp",
+      "platformEventId": "35996",
+      "name": "INDIAN CARRIERS NOVEMBER PUBLIC CONVOY 2026",
+      "date": "2026-11-28",
+      "type": "external",
+      "organizer": "INDIAN CARRIERS",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35996-indian-carriers-november-public-convoy2026",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35996-indian-carriers-november-public-convoy2026",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.513Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35981",
+      "platform": "truckersmp",
+      "platformEventId": "35981",
+      "name": "Orgin Event™ 1st Year Anniversary Convoy",
+      "date": "2026-11-29",
+      "type": "external",
+      "organizer": null,
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35981-orgin-event%E2%84%A21st-year-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35981-orgin-event%E2%84%A21st-year-anniversary-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.513Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36135",
+      "platform": "truckersmp",
+      "platformEventId": "36135",
+      "name": "Ponc Logistics  X  TurkishLine ATS  Nov Convoy",
+      "date": "2026-11-30",
+      "type": "external",
+      "organizer": "Ponc Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36135-ponc-logistics-x-turkishline-ats-nov-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36135-ponc-logistics-x-turkishline-ats-nov-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.513Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35920",
+      "platform": "truckersmp",
+      "platformEventId": "35920",
+      "name": "ATS 2nd Anniversary - INDIAN GROUP",
+      "date": "2026-12-01",
+      "type": "external",
+      "organizer": "INDIAN GROUP",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35920-ats2nd-anniversary--indian-group",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35920-ats2nd-anniversary--indian-group",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.513Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36069",
+      "platform": "truckersmp",
+      "platformEventId": "36069",
+      "name": "Orvion Convoy Control Happy New Year's Convoy",
+      "date": "2026-12-02",
+      "type": "external",
+      "organizer": "Orvion Convoy Control",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36069-orvion-convoy-control-happy-new-year%27s-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36069-orvion-convoy-control-happy-new-year%27s-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.514Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37148",
+      "platform": "truckersmp",
+      "platformEventId": "37148",
+      "name": "Ponc Logistics - December Bus Convoy",
+      "date": "2026-12-03",
+      "type": "external",
+      "organizer": "Ponc Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37148-ponc-logistics--december-bus-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37148-ponc-logistics--december-bus-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.514Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36101",
+      "platform": "truckersmp",
+      "platformEventId": "36101",
+      "name": "Pink Ribbon VTC - December Convoy",
+      "date": "2026-12-04",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36101-pink-ribbon-vtc--december-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36101-pink-ribbon-vtc--december-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.514Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36123",
+      "platform": "truckersmp",
+      "platformEventId": "36123",
+      "name": "Eternal Transport | Winter Convoy 2026",
+      "date": "2026-12-05",
+      "type": "external",
+      "organizer": "ETERNAL TRANSPORT™",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36123-eternal-transport|-winter-convoy2026",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36123-eternal-transport|-winter-convoy2026",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.515Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36256",
+      "platform": "truckersmp",
+      "platformEventId": "36256",
+      "name": "🎉 ► LOE 8 Year Anniversary - ATS Convoy ◄ 🎉",
+      "date": "2026-12-06",
+      "type": "external",
+      "organizer": "Line of Energy",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36256-%F0%9F%8E%89%E2%96%BA-loe8-year-anniversary--ats-convoy%E2%97%84%F0%9F%8E%89",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36256-%F0%9F%8E%89%E2%96%BA-loe8-year-anniversary--ats-convoy%E2%97%84%F0%9F%8E%89",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.515Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36011",
+      "platform": "truckersmp",
+      "platformEventId": "36011",
+      "name": "Moonlight Express | December Convoy",
+      "date": "2026-12-10",
+      "type": "external",
+      "organizer": "Moonlight Express",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36011-moonlight-express|-december-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36011-moonlight-express|-december-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.515Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37070",
+      "platform": "truckersmp",
+      "platformEventId": "37070",
+      "name": "MT Logistica Monthly Convoy December 2026",
+      "date": "2026-12-11",
+      "type": "external",
+      "organizer": "MT Logistica",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37070-mt-logistica-monthly-convoy-december2026",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37070-mt-logistica-monthly-convoy-december2026",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.515Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36225",
+      "platform": "truckersmp",
+      "platformEventId": "36225",
+      "name": "🎊Lirio Logistics 1st Anniversary Carnival Celebration🎊",
+      "date": "2026-12-12",
+      "type": "external",
+      "organizer": "Lirio Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36225-%F0%9F%8E%8Alirio-logistics1st-anniversary-carnival-celebration%F0%9F%8E%8A",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36225-%F0%9F%8E%8Alirio-logistics1st-anniversary-carnival-celebration%F0%9F%8E%8A",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.516Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36227",
+      "platform": "truckersmp",
+      "platformEventId": "36227",
+      "name": "✨ Premium Events Version #3 ✨",
+      "date": "2026-12-12",
+      "type": "external",
+      "organizer": "Premium Events",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36227-%E2%9C%A8-premium-events-version#3%E2%9C%A8",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36227-%E2%9C%A8-premium-events-version#3%E2%9C%A8",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.516Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36248",
+      "platform": "truckersmp",
+      "platformEventId": "36248",
+      "name": "Black Pearl Trucking Logistics: The Voyage Restarts",
+      "date": "2026-12-12",
+      "type": "external",
+      "organizer": "Black Pearl Trucking Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36248-black-pearl-trucking-logistics:-the-voyage-restarts",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36248-black-pearl-trucking-logistics:-the-voyage-restarts",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.516Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36163",
+      "platform": "truckersmp",
+      "platformEventId": "36163",
+      "name": "OnlyTangs Haulage | December Convoy❄️",
+      "date": "2026-12-13",
+      "type": "external",
+      "organizer": "OnlyTangs Haulage",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36163-onlytangs-haulage|-december-convoy%E2%9D%84%EF%B8%8F",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36163-onlytangs-haulage|-december-convoy%E2%9D%84%EF%B8%8F",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.516Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36230",
+      "platform": "truckersmp",
+      "platformEventId": "36230",
+      "name": "🎉 ► LOE 8 Year Anniversary - ETS2 Convoy ◄ 🎉",
+      "date": "2026-12-13",
+      "type": "external",
+      "organizer": "Line of Energy",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36230-%F0%9F%8E%89%E2%96%BA-loe8-year-anniversary--ets2-convoy%E2%97%84%F0%9F%8E%89",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36230-%F0%9F%8E%89%E2%96%BA-loe8-year-anniversary--ets2-convoy%E2%97%84%F0%9F%8E%89",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.517Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36349",
+      "platform": "truckersmp",
+      "platformEventId": "36349",
+      "name": "Kerala RoadRunners Arizona Special Operations",
+      "date": "2026-12-14",
+      "type": "external",
+      "organizer": "KERALA ROADRUNNERS",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36349-kerala-roadrunners-arizona-special-operations",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36349-kerala-roadrunners-arizona-special-operations",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.517Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36367",
+      "platform": "truckersmp",
+      "platformEventId": "36367",
+      "name": "Twisted Transport Christmas Convoy",
+      "date": "2026-12-18",
+      "type": "external",
+      "organizer": "Twisted Transport",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36367-twisted-transport-christmas-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36367-twisted-transport-christmas-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.517Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36352",
+      "platform": "truckersmp",
+      "platformEventId": "36352",
+      "name": "A Cozy Drive in December with Pink Ribbon VTC",
+      "date": "2026-12-19",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36352-a-cozy-drive-in-december-with-pink-ribbon-vtc",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36352-a-cozy-drive-in-december-with-pink-ribbon-vtc",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.517Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-35907",
+      "platform": "truckersmp",
+      "platformEventId": "35907",
+      "name": "LIGHTNING LOGISTICS | PUBLIC CONVOY #61 & Early Christmas Convoy",
+      "date": "2026-12-20",
+      "type": "external",
+      "organizer": "Lightning Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/35907-lightning-logistics|-public-convoy#61&-early-christmas-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/35907-lightning-logistics|-public-convoy#61&-early-christmas-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.518Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37088",
+      "platform": "truckersmp",
+      "platformEventId": "37088",
+      "name": "🟡 Nova Group | December Convoy",
+      "date": "2026-12-23",
+      "type": "external",
+      "organizer": "Nova Group",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37088-%F0%9F%9F%A1-nova-group|-december-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37088-%F0%9F%9F%A1-nova-group|-december-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.518Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36126",
+      "platform": "truckersmp",
+      "platformEventId": "36126",
+      "name": "KRYPTON | FREEZING FINAL #2",
+      "date": "2026-12-27",
+      "type": "external",
+      "organizer": "KRYPTON",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36126-krypton|-freezing-final#2",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36126-krypton|-freezing-final#2",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.518Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36919",
+      "platform": "truckersmp",
+      "platformEventId": "36919",
+      "name": "INDIAN CARRIERS DECEMBER PUBLIC CONVOY 2026",
+      "date": "2026-12-27",
+      "type": "external",
+      "organizer": "INDIAN CARRIERS",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36919-indian-carriers-december-public-convoy2026",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36919-indian-carriers-december-public-convoy2026",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.518Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36455",
+      "platform": "truckersmp",
+      "platformEventId": "36455",
+      "name": "🎉 NeoCrime helld4wg Birthday Convoy 🎉",
+      "date": "2026-12-30",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36455-%F0%9F%8E%89-neocrime-helld4wg-birthday-convoy%F0%9F%8E%89",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36455-%F0%9F%8E%89-neocrime-helld4wg-birthday-convoy%F0%9F%8E%89",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.519Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37174",
+      "platform": "truckersmp",
+      "platformEventId": "37174",
+      "name": "NørthWind's 2nd Year Anniversary Convoy",
+      "date": "2027-01-01",
+      "type": "external",
+      "organizer": "NorthWind",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37174-n%C3%B8rthwind%27s2nd-year-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37174-n%C3%B8rthwind%27s2nd-year-anniversary-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.519Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37273",
+      "platform": "truckersmp",
+      "platformEventId": "37273",
+      "name": "Global Trucking January 2027 Convoy",
+      "date": "2027-01-04",
+      "type": "external",
+      "organizer": "Global Trucking VTC",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37273-global-trucking-january2027-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37273-global-trucking-january2027-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.519Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36669",
+      "platform": "truckersmp",
+      "platformEventId": "36669",
+      "name": "Marking Event | New Year's Event 2027",
+      "date": "2027-01-08",
+      "type": "external",
+      "organizer": null,
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36669-marking-event|-new-year%27s-event2027",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36669-marking-event|-new-year%27s-event2027",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.519Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36097",
+      "platform": "truckersmp",
+      "platformEventId": "36097",
+      "name": "NovaLines 1st Anniversary Convoy",
+      "date": "2027-01-09",
+      "type": "external",
+      "organizer": "NovaLines",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36097-novalines1st-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36097-novalines1st-anniversary-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.520Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36670",
+      "platform": "truckersmp",
+      "platformEventId": "36670",
+      "name": "🎉 NeoCrime 1 Year Anniversary 🎉",
+      "date": "2027-01-09",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36670-%F0%9F%8E%89-neocrime1-year-anniversary%F0%9F%8E%89",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36670-%F0%9F%8E%89-neocrime1-year-anniversary%F0%9F%8E%89",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.520Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37044",
+      "platform": "truckersmp",
+      "platformEventId": "37044",
+      "name": "Eternal Transport | January Convoy",
+      "date": "2027-01-13",
+      "type": "external",
+      "organizer": "ETERNAL TRANSPORT™",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37044-eternal-transport|-january-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37044-eternal-transport|-january-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.520Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37000",
+      "platform": "truckersmp",
+      "platformEventId": "37000",
+      "name": "Arab Transport VTC | January Convoy",
+      "date": "2027-01-14",
+      "type": "external",
+      "organizer": "Arab Transport VTC",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37000-arab-transport-vtc|-january-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37000-arab-transport-vtc|-january-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.520Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36816",
+      "platform": "truckersmp",
+      "platformEventId": "36816",
+      "name": "TruckersHub 4th Anniversary Convoy",
+      "date": "2027-01-16",
+      "type": "external",
+      "organizer": "TruckersHub Community",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36816-truckershub4th-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36816-truckershub4th-anniversary-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.521Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36846",
+      "platform": "truckersmp",
+      "platformEventId": "36846",
+      "name": "#26 IFL CONVOY JANUARY 2027 - ❄️Balkans Winter Convoy ❄️",
+      "date": "2027-01-17",
+      "type": "external",
+      "organizer": "I FORA Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36846-#26-ifl-convoy-january2027-%E2%9D%84%EF%B8%8Fbalkans-winter-convoy%E2%9D%84%EF%B8%8F",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36846-#26-ifl-convoy-january2027-%E2%9D%84%EF%B8%8Fbalkans-winter-convoy%E2%9D%84%EF%B8%8F",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.521Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36903",
+      "platform": "truckersmp",
+      "platformEventId": "36903",
+      "name": "Pinkachu's Birthday Celebration Convoy :🎉",
+      "date": "2027-01-18",
+      "type": "external",
+      "organizer": null,
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36903-pinkachu%27s-birthday-celebration-convoy:%F0%9F%8E%89",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36903-pinkachu%27s-birthday-celebration-convoy:%F0%9F%8E%89",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.521Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37553",
+      "platform": "truckersmp",
+      "platformEventId": "37553",
+      "name": "Tamil Pasanga X Drive Along Partnership Convoy JAN 2027",
+      "date": "2027-01-18",
+      "type": "external",
+      "organizer": "TAMIL PASANGA",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37553-tamil-pasanga-x-drive-along-partnership-convoy-jan2027",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37553-tamil-pasanga-x-drive-along-partnership-convoy-jan2027",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.521Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36585",
+      "platform": "truckersmp",
+      "platformEventId": "36585",
+      "name": "Moonlight Express | January Convoy",
+      "date": "2027-01-21",
+      "type": "external",
+      "organizer": "Moonlight Express",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36585-moonlight-express|-january-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36585-moonlight-express|-january-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.522Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36897",
+      "platform": "truckersmp",
+      "platformEventId": "36897",
+      "name": "✨ Premium Events Version #4 ✨",
+      "date": "2027-01-22",
+      "type": "external",
+      "organizer": "Premium Events",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36897-%E2%9C%A8-premium-events-version#4%E2%9C%A8",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36897-%E2%9C%A8-premium-events-version#4%E2%9C%A8",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.522Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36930",
+      "platform": "truckersmp",
+      "platformEventId": "36930",
+      "name": "[Bus Convoy] A Cozy Drive in January with Pink Ribbon VTC",
+      "date": "2027-01-23",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36930-%5Bbus-convoy%5D-a-cozy-drive-in-january-with-pink-ribbon-vtc",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36930-%5Bbus-convoy%5D-a-cozy-drive-in-january-with-pink-ribbon-vtc",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.522Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36615",
+      "platform": "truckersmp",
+      "platformEventId": "36615",
+      "name": "LIGHTNING LOGISTICS | PUBLIC CONVOY #62",
+      "date": "2027-01-24",
+      "type": "external",
+      "organizer": "Lightning Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36615-lightning-logistics|-public-convoy#62",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36615-lightning-logistics|-public-convoy#62",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.522Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36941",
+      "platform": "truckersmp",
+      "platformEventId": "36941",
+      "name": "Vanguard CC | Welcome to 2027",
+      "date": "2027-01-24",
+      "type": "external",
+      "organizer": "Vanguard Convoy Control",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36941-vanguard-cc|-welcome-to2027",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36941-vanguard-cc|-welcome-to2027",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.522Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36948",
+      "platform": "truckersmp",
+      "platformEventId": "36948",
+      "name": "Ghost Exp. | January Edition '27",
+      "date": "2027-01-25",
+      "type": "external",
+      "organizer": "Ghost Express",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36948-ghost-exp.|-january-edition%2727",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36948-ghost-exp.|-january-edition%2727",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.523Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36902",
+      "platform": "truckersmp",
+      "platformEventId": "36902",
+      "name": "78th Republic Day of India",
+      "date": "2027-01-26",
+      "type": "external",
+      "organizer": "[ITVTC] INDIAN TRUCKERS",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36902-78th-republic-day-of-india",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36902-78th-republic-day-of-india",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.523Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36276",
+      "platform": "truckersmp",
+      "platformEventId": "36276",
+      "name": "Fast Line UA 2nd Anniversary Convoy",
+      "date": "2027-01-28",
+      "type": "external",
+      "organizer": "Fast Line UA",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36276-fast-line-ua2nd-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36276-fast-line-ua2nd-anniversary-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.523Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37022",
+      "platform": "truckersmp",
+      "platformEventId": "37022",
+      "name": "Chinese New Year celebration",
+      "date": "2027-01-28",
+      "type": "external",
+      "organizer": "ITCC Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37022-chinese-new-year-celebration",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37022-chinese-new-year-celebration",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.523Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37062",
+      "platform": "truckersmp",
+      "platformEventId": "37062",
+      "name": "EGY-TRUCKERS | JANUARY 2027",
+      "date": "2027-01-29",
+      "type": "external",
+      "organizer": "Egyptian Truckers Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37062-egy-truckers|-january2027",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37062-egy-truckers|-january2027",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.524Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37087",
+      "platform": "truckersmp",
+      "platformEventId": "37087",
+      "name": "Central Transport 4th Anniversary Convoy",
+      "date": "2027-01-31",
+      "type": "external",
+      "organizer": "Central Transport",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37087-central-transport4th-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37087-central-transport4th-anniversary-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.524Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37343",
+      "platform": "truckersmp",
+      "platformEventId": "37343",
+      "name": "Arab Unity Convoy 🤝",
+      "date": "2027-02-02",
+      "type": "external",
+      "organizer": null,
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37343-arab-unity-convoy%F0%9F%A4%9D",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37343-arab-unity-convoy%F0%9F%A4%9D",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.524Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37152",
+      "platform": "truckersmp",
+      "platformEventId": "37152",
+      "name": "Pink Ribbon VTC - February Convoy",
+      "date": "2027-02-05",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37152-pink-ribbon-vtc--february-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37152-pink-ribbon-vtc--february-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.524Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37170",
+      "platform": "truckersmp",
+      "platformEventId": "37170",
+      "name": "Twisted Transport Valentines Convoy",
+      "date": "2027-02-06",
+      "type": "external",
+      "organizer": "Twisted Transport",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37170-twisted-transport-valentines-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37170-twisted-transport-valentines-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.525Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37522",
+      "platform": "truckersmp",
+      "platformEventId": "37522",
+      "name": "Kerala Roadrunners February Quest",
+      "date": "2027-02-06",
+      "type": "external",
+      "organizer": "KERALA ROADRUNNERS",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37522-kerala-roadrunners-february-quest",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37522-kerala-roadrunners-february-quest",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.525Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37015",
+      "platform": "truckersmp",
+      "platformEventId": "37015",
+      "name": "NeoCrime February Convoy 2027",
+      "date": "2027-02-09",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37015-neocrime-february-convoy2027",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37015-neocrime-february-convoy2027",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.525Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36617",
+      "platform": "truckersmp",
+      "platformEventId": "36617",
+      "name": "🎉Lightning Logistics 6 Year Convoy!🎉",
+      "date": "2027-02-12",
+      "type": "external",
+      "organizer": "Lightning Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36617-%F0%9F%8E%89lightning-logistics6-year-convoy!%F0%9F%8E%89",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/36617-%F0%9F%8E%89lightning-logistics6-year-convoy!%F0%9F%8E%89",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.525Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37415",
+      "platform": "truckersmp",
+      "platformEventId": "37415",
+      "name": "#19 🚛 A view to the Strait of Messina",
+      "date": "2027-02-13",
+      "type": "external",
+      "organizer": "҉ Fast Freight Brothers",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37415-#19%F0%9F%9A%9B-a-view-to-the-strait-of-messina",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37415-#19%F0%9F%9A%9B-a-view-to-the-strait-of-messina",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.526Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37264",
+      "platform": "truckersmp",
+      "platformEventId": "37264",
+      "name": "United Convoys | 6 Year Anniversary 🎉",
+      "date": "2027-02-15",
+      "type": "external",
+      "organizer": null,
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37264-united-convoys|6-year-anniversary%F0%9F%8E%89",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37264-united-convoys|6-year-anniversary%F0%9F%8E%89",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.526Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37305",
+      "platform": "truckersmp",
+      "platformEventId": "37305",
+      "name": "Moonlight Express | February Convoy",
+      "date": "2027-02-16",
+      "type": "external",
+      "organizer": "Moonlight Express",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37305-moonlight-express|-february-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37305-moonlight-express|-february-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.526Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37505",
+      "platform": "truckersmp",
+      "platformEventId": "37505",
+      "name": "Eternal Transport | February Convoy",
+      "date": "2027-02-17",
+      "type": "external",
+      "organizer": "ETERNAL TRANSPORT™",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37505-eternal-transport|-february-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37505-eternal-transport|-february-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.526Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37618",
+      "platform": "truckersmp",
+      "platformEventId": "37618",
+      "name": "Global Trucking's February Convoy 2027",
+      "date": "2027-02-18",
+      "type": "external",
+      "organizer": "Global Trucking VTC",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37618-global-trucking%27s-february-convoy2027",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37618-global-trucking%27s-february-convoy2027",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.526Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37450",
+      "platform": "truckersmp",
+      "platformEventId": "37450",
+      "name": "#27 IFL CONVOY FEBRUARY 2027 - The Great British Haul",
+      "date": "2027-02-19",
+      "type": "external",
+      "organizer": "I FORA Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37450-#27-ifl-convoy-february2027--the-great-british-haul",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37450-#27-ifl-convoy-february2027--the-great-british-haul",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.527Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37397",
+      "platform": "truckersmp",
+      "platformEventId": "37397",
+      "name": "✨Premium Events Version #5 ✨",
+      "date": "2027-02-20",
+      "type": "external",
+      "organizer": "Premium Events",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37397-%E2%9C%A8premium-events-version#5%E2%9C%A8",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37397-%E2%9C%A8premium-events-version#5%E2%9C%A8",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.527Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37411",
+      "platform": "truckersmp",
+      "platformEventId": "37411",
+      "name": "A Cozy Drive in February with Pink Ribbon VTC",
+      "date": "2027-02-20",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37411-a-cozy-drive-in-february-with-pink-ribbon-vtc",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37411-a-cozy-drive-in-february-with-pink-ribbon-vtc",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.527Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37422",
+      "platform": "truckersmp",
+      "platformEventId": "37422",
+      "name": "NovaLines February Convoy",
+      "date": "2027-02-20",
+      "type": "external",
+      "organizer": "NovaLines",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37422-novalines-february-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37422-novalines-february-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.527Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37405",
+      "platform": "truckersmp",
+      "platformEventId": "37405",
+      "name": "TAMILNADU LOGISTICS celebrating 3 Years on the Road",
+      "date": "2027-02-21",
+      "type": "external",
+      "organizer": "- TAMILNADU LOGISTICS -",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37405-tamilnadu-logistics-celebrating3-years-on-the-road",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37405-tamilnadu-logistics-celebrating3-years-on-the-road",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.527Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37471",
+      "platform": "truckersmp",
+      "platformEventId": "37471",
+      "name": "Ghost Express | February Edition '27",
+      "date": "2027-02-22",
+      "type": "external",
+      "organizer": "Ghost Express",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37471-ghost-express|-february-edition%2727",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37471-ghost-express|-february-edition%2727",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.528Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37442",
+      "platform": "truckersmp",
+      "platformEventId": "37442",
+      "name": "Vabis Transport | February Convoy",
+      "date": "2027-02-23",
+      "type": "external",
+      "organizer": "Vabis Transport",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37442-vabis-transport|-february-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37442-vabis-transport|-february-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.528Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37528",
+      "platform": "truckersmp",
+      "platformEventId": "37528",
+      "name": "MALKOCOGLU LOGISTICS FEBRUARY CONVOY #22",
+      "date": "2027-02-24",
+      "type": "external",
+      "organizer": "Malkoçoğlu Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37528-malkocoglu-logistics-february-convoy#22",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37528-malkocoglu-logistics-february-convoy#22",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.528Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37502",
+      "platform": "truckersmp",
+      "platformEventId": "37502",
+      "name": "EGY-Truckers | 6th Anniversary",
+      "date": "2027-02-26",
+      "type": "external",
+      "organizer": "Egyptian Truckers Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37502-egy-truckers|6th-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37502-egy-truckers|6th-anniversary",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.528Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37489",
+      "platform": "truckersmp",
+      "platformEventId": "37489",
+      "name": "🎉 Hardik Turns 20 | Another Year, Another Gear",
+      "date": "2027-02-28",
+      "type": "external",
+      "organizer": null,
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37489-%F0%9F%8E%89-hardik-turns20|-another-year,-another-gear",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37489-%F0%9F%8E%89-hardik-turns20|-another-year,-another-gear",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.529Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-38240",
+      "platform": "truckersmp",
+      "platformEventId": "38240",
+      "name": "Global Trucking's March  Convoy 2027",
+      "date": "2027-03-04",
+      "type": "external",
+      "organizer": "Global Trucking VTC",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/38240-global-trucking%27s-march-convoy2027",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/38240-global-trucking%27s-march-convoy2027",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.529Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37712",
+      "platform": "truckersmp",
+      "platformEventId": "37712",
+      "name": "Pink Ribbon VTC - March Convoy",
+      "date": "2027-03-05",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37712-pink-ribbon-vtc--march-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37712-pink-ribbon-vtc--march-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.529Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37701",
+      "platform": "truckersmp",
+      "platformEventId": "37701",
+      "name": "MALKOCOGLU LOGISTICS MARCH CONVOY #23",
+      "date": "2027-03-06",
+      "type": "external",
+      "organizer": "Malkoçoğlu Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37701-malkocoglu-logistics-march-convoy#23",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37701-malkocoglu-logistics-march-convoy#23",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.529Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37780",
+      "platform": "truckersmp",
+      "platformEventId": "37780",
+      "name": "Dolunay VTC™ | March Convoy",
+      "date": "2027-03-07",
+      "type": "external",
+      "organizer": "Dolunay VTC™",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37780-dolunay-vtc%E2%84%A2|-march-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37780-dolunay-vtc%E2%84%A2|-march-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.530Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-38072",
+      "platform": "truckersmp",
+      "platformEventId": "38072",
+      "name": "Northern Lights 2nd Anniversary",
+      "date": "2027-03-09",
+      "type": "external",
+      "organizer": "Northern Lights",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/38072-northern-lights2nd-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/38072-northern-lights2nd-anniversary",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.530Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37874",
+      "platform": "truckersmp",
+      "platformEventId": "37874",
+      "name": "NeoCrime March Convoy 2027",
+      "date": "2027-03-10",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37874-neocrime-march-convoy2027",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37874-neocrime-march-convoy2027",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.530Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37798",
+      "platform": "truckersmp",
+      "platformEventId": "37798",
+      "name": "Orvion CC 1st Anniversary Convoy",
+      "date": "2027-03-11",
+      "type": "external",
+      "organizer": null,
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37798-orvion-cc1st-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37798-orvion-cc1st-anniversary-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.530Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37847",
+      "platform": "truckersmp",
+      "platformEventId": "37847",
+      "name": "Nexon Logistics March Convoy #92",
+      "date": "2027-03-13",
+      "type": "external",
+      "organizer": "Nexon Logistics",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37847-nexon-logistics-march-convoy#92",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37847-nexon-logistics-march-convoy#92",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.530Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37886",
+      "platform": "truckersmp",
+      "platformEventId": "37886",
+      "name": "Twisted Transport - 5th Year Anniversary Convoy",
+      "date": "2027-03-13",
+      "type": "external",
+      "organizer": "Twisted Transport",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37886-twisted-transport-5th-year-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/37886-twisted-transport-5th-year-anniversary-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.531Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-38055",
+      "platform": "truckersmp",
+      "platformEventId": "38055",
+      "name": "Central Transport Monthly Convoy #22",
+      "date": "2027-03-27",
+      "type": "external",
+      "organizer": "Central Transport",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/38055-central-transport-monthly-convoy#22",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/38055-central-transport-monthly-convoy#22",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.531Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-38211",
+      "platform": "truckersmp",
+      "platformEventId": "38211",
+      "name": "Pink Ribbon VTC - April Convoy",
+      "date": "2027-04-02",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/38211-pink-ribbon-vtc--april-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/38211-pink-ribbon-vtc--april-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.531Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-38296",
+      "platform": "truckersmp",
+      "platformEventId": "38296",
+      "name": "Twisted Transport April Convoy",
+      "date": "2027-04-03",
+      "type": "external",
+      "organizer": "Twisted Transport",
+      "status": "planned",
+      "participation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/38296-twisted-transport-april-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api",
+          "kind": "truckersmp-vtc-attending",
+          "url": "https://truckersmp.com/events/38296-twisted-transport-april-convoy",
+          "note": "TruckersMP lists Kings Logistics under VTCs Attending; Kings policy treats this as verified participation after the event date.",
+          "observedAt": "2026-10-10T05:54:56.386Z"
+        }
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-10-10T05:57:20.531Z"
+    }
+  ]
 }
