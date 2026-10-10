@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "mode": "manual-historical-evidence",
+  "policy": "Only add records where a reliable source explicitly shows Kings Logistics participating/attending.",
+  "records": [
+    {
+      "platform": "truckersmp",
+      "platformEventId": "26666",
+      "name": "Laxis Logistics Mai Konvoi",
+      "date": "2025-05-02",
+      "type": "external",
+      "organizer": "Laxis Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/26666-laxis-logistics-mai-konvoi",
+      "evidence": [
+        {
+          "source": "truckersmp-event-page",
+          "kind": "vtcs-attending",
+          "url": "https://truckersmp.com/events/26666-laxis-logistics-mai-konvoi",
+          "note": "TruckersMP event page lists Kings Logistics under VTCs Attending."
+        }
+      ]
+    },
+    {
+      "platform": "truckersmp",
+      "platformEventId": "24350",
+      "name": "The Getaway with Pean Logistics",
+      "date": "2025-09-21",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/24350",
+      "evidence": [
+        {
+          "source": "truckersmp-event-page",
+          "kind": "vtcs-attending",
+          "url": "https://truckersmp.com/events/24350",
+          "note": "TruckersMP event page lists Kings Logistics under VTCs Attending."
+        }
+      ]
+    }
+  ]
+}
