@@ -141,3 +141,37 @@ test('TruckersMP candidate dedupe gives hosted classification priority', () => {
   assert.equal(result[0].type, 'own');
 });
 
+test('Discord public convoy statistics payload includes all-time, yearly and monthly views', () => {
+  const { buildPayload } = require('../convoy-history-discord.js');
+  const payload = buildPayload({
+    generatedAt: '2026-10-10T05:30:00.000Z',
+    allTime: { total: 120, own: 20, external: 100 },
+    years: {
+      '2023': { total: 10, own: 2, external: 8 },
+      '2024': { total: 25, own: 4, external: 21 },
+      '2025': { total: 35, own: 6, external: 29 },
+      '2026': { total: 50, own: 8, external: 42 }
+    },
+    months: {
+      '2026-01': { total: 3, own: 1, external: 2 },
+      '2026-10': { total: 7, own: 1, external: 6 }
+    },
+    platforms: {
+      truckersmp: { total: 115, own: 19, external: 96 },
+      haulmp: { total: 5, own: 1, external: 4 }
+    },
+    recordsHighLevel: {
+      mostActiveYear: { year: '2026', total: 50 },
+      mostActiveMonth: { month: '2026-10', total: 7 }
+    }
+  });
+
+  assert.equal(payload.embeds.length, 3);
+  assert.match(payload.embeds[0].description, /Total Convoys Attended:\*\* 120/);
+  assert.match(payload.embeds[0].fields[0].value, /2023/);
+  assert.match(payload.embeds[1].title, /2026/);
+  assert.match(payload.embeds[1].fields[0].value, /January.*3/s);
+  assert.match(payload.embeds[2].fields[0].value, /TruckersMP.*115/s);
+  assert.match(payload.embeds[2].fields[0].value, /HaulMP.*5/s);
+});
+
