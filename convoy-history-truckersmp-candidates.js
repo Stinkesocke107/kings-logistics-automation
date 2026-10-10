@@ -30,7 +30,10 @@ function eventDate(event) {
 
 function eventUrl(event) {
   const id = eventId(event);
-  return clean(event?.url) || (id ? `https://truckersmp.com/events/${id}` : null);
+  const raw = clean(event?.url);
+  if (raw && /^https?:\/\//i.test(raw)) return raw;
+  if (raw && raw.startsWith('/')) return 'https://truckersmp.com' + raw;
+  return id ? `https://truckersmp.com/events/${id}` : null;
 }
 
 function hostVtcName(event) {
@@ -57,6 +60,11 @@ function normalizeCandidate(event, sourceKind) {
   const today = new Date().toISOString().slice(0, 10);
   const phase = !date ? 'unknown' : date < today ? 'past' : date === today ? 'today' : 'future';
 
+  const completed = phase === 'past';
+  const participation = completed
+    ? { status: 'attended', confidence: 'verified' }
+    : { status: 'planned', confidence: 'verified' };
+
   return {
     candidateKey: id ? 'truckersmp:' + id : null,
     platform: 'truckersmp',
@@ -74,12 +82,10 @@ function normalizeCandidate(event, sourceKind) {
           meaning: 'TruckersMP lists the event under Kings Logistics hosted events.'
         }
       : {
-          kind: 'truckersmp-vtc-attending-rsvp',
-          meaning: 'TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance.'
+          kind: 'truckersmp-vtc-attending',
+          meaning: 'TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed.'
         },
-    suggestedParticipation: sourceKind === 'hosted'
-      ? { status: 'unknown', confidence: 'review_required' }
-      : { status: 'attended', confidence: 'verified' },
+    suggestedParticipation: participation,
     start: locationLabel(event?.departure),
     destination: locationLabel(event?.arrive),
     server: clean(event?.server?.name || event?.server),
