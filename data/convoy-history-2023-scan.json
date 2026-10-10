@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "mode": "merged-truckersmp-2023-historical-event-scan",
+  "generatedAt": "2026-10-10T22:40:05.498Z",
+  "complete": false,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 10000,
+    "endId": 19999
+  },
+  "dateWindow": {
+    "from": "2023-07-09",
+    "to": "2023-12-31"
+  },
+  "coverage": {
+    "expectedChunks": [
+      {
+        "startId": 10000,
+        "endId": 11999
+      },
+      {
+        "startId": 12000,
+        "endId": 13999
+      },
+      {
+        "startId": 14000,
+        "endId": 15999
+      },
+      {
+        "startId": 16000,
+        "endId": 17999
+      },
+      {
+        "startId": 18000,
+        "endId": 19999
+      }
+    ],
+    "receivedChunks": [
+      {
+        "file": "chunk-10000-11999.json",
+        "startId": 10000,
+        "endId": 11999,
+        "complete": true
+      },
+      {
+        "file": "chunk-12000-13999.json",
+        "startId": 12000,
+        "endId": 13999,
+        "complete": false
+      },
+      {
+        "file": "chunk-14000-15999.json",
+        "startId": 14000,
+        "endId": 15999,
+        "complete": false
+      },
+      {
+        "file": "chunk-16000-17999.json",
+        "startId": 16000,
+        "endId": 17999,
+        "complete": true
+      },
+      {
+        "file": "chunk-18000-19999.json",
+        "startId": 18000,
+        "endId": 19999,
+        "complete": true
+      }
+    ],
+    "missing": [],
+    "incomplete": [
+      {
+        "startId": 12000,
+        "endId": 13999,
+        "checked": 2000,
+        "requested": 2000,
+        "requestErrors": 8
+      },
+      {
+        "startId": 14000,
+        "endId": 15999,
+        "checked": 2000,
+        "requested": 2000,
+        "requestErrors": 2
+      }
+    ]
+  },
+  "stats": {
+    "requested": 10000,
+    "checked": 10000,
+    "foundEvents": 4725,
+    "inDateWindow": 1445,
+    "notFound": 5265,
+    "requestErrors": 10
+  },
+  "matches": [],
+  "errors": [
+    {
+      "range": {
+        "startId": 12000,
+        "endId": 13999
+      },
+      "id": 12379,
+      "state": "http-error",
+      "status": 429
+    },
+    {
+      "range": {
+        "startId": 12000,
+        "endId": 13999
+      },
+      "id": 12448,
+      "state": "http-error",
+      "status": 429
+    },
+    {
+      "range": {
+        "startId": 12000,
+        "endId": 13999
+      },
+      "id": 12449,
+      "state": "http-error",
+      "status": 429
+    },
+    {
+      "range": {
+        "startId": 12000,
+        "endId": 13999
+      },
+      "id": 13490,
+      "state": "http-error",
+      "status": 429
+    },
+    {
+      "range": {
+        "startId": 12000,
+        "endId": 13999
+      },
+      "id": 13487,
+      "state": "http-error",
+      "status": 429
+    },
+    {
+      "range": {
+        "startId": 12000,
+        "endId": 13999
+      },
+      "id": 13555,
+      "state": "http-error",
+      "status": 429
+    },
+    {
+      "range": {
+        "startId": 12000,
+        "endId": 13999
+      },
+      "id": 13556,
+      "state": "http-error",
+      "status": 429
+    },
+    {
+      "range": {
+        "startId": 12000,
+        "endId": 13999
+      },
+      "id": 13557,
+      "state": "http-error",
+      "status": 429
+    },
+    {
+      "range": {
+        "startId": 14000,
+        "endId": 15999
+      },
+      "id": 14376,
+      "state": "http-error",
+      "status": 429
+    },
+    {
+      "range": {
+        "startId": 14000,
+        "endId": 15999
+      },
+      "id": 14510,
+      "state": "http-error",
+      "status": 429
+    }
+  ]
+}

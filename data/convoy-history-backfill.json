@@ -7,7 +7,15 @@
     "2023": {
       "status": "backfill_in_progress",
       "publicZeroAllowed": false,
-      "notes": "Historical TruckersMP participation must be reconstructed from old event pages and Kings-owned archives."
+      "notes": "Chunked TruckersMP historical backfill is still incomplete.",
+      "primaryApiScan": {
+        "complete": false,
+        "checked": 10000,
+        "requested": 10000,
+        "kingsMatches": 0,
+        "requestErrors": 10,
+        "updatedAt": "2026-10-10T22:40:05.498Z"
+      }
     },
     "2024": {
       "status": "backfill_in_progress",
