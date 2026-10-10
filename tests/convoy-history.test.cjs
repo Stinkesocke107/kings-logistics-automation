@@ -128,8 +128,8 @@ test('TruckersMP candidate collector treats VTCs Attending as verified participa
   const own = normalizeCandidate(event, 'hosted');
   assert.equal(own.type, 'own');
   assert.equal(own.organizer, 'Kings Logistics');
-  assert.equal(own.suggestedParticipation.status, 'unknown');
-  assert.equal(own.suggestedParticipation.confidence, 'review_required');
+  assert.equal(own.suggestedParticipation.status, 'attended');
+  assert.equal(own.suggestedParticipation.confidence, 'verified');
 });
 
 test('TruckersMP candidate dedupe gives hosted classification priority', () => {
@@ -175,3 +175,39 @@ test('Discord public convoy statistics payload includes all-time, yearly and mon
   assert.match(payload.embeds[2].fields[0].value, /HaulMP.*5/s);
 });
 
+
+
+test('TruckersMP future VTCs Attending stays planned until the event has passed', () => {
+  const { normalizeCandidate } = require('../convoy-history-truckersmp-candidates.js');
+  const future = normalizeCandidate({
+    id: 99999,
+    name: 'Future Convoy',
+    meetup_at: '2099-01-01T18:00:00Z',
+    vtc: { name: 'Future VTC' }
+  }, 'attending');
+
+  assert.equal(future.phase, 'future');
+  assert.equal(future.suggestedParticipation.status, 'planned');
+  assert.equal(future.suggestedParticipation.confidence, 'verified');
+  assert.match(future.eventUrl, /^https:\/\/truckersmp\.com\/events\/99999/);
+});
+
+test('history importer converts past candidates to completed attended records', () => {
+  const { candidateToRecord } = require('../convoy-history-import.js');
+  const record = candidateToRecord({
+    platform: 'truckersmp',
+    platformEventId: '26666',
+    name: 'Example',
+    date: '2025-05-02',
+    type: 'external',
+    organizer: 'Example VTC',
+    eventUrl: '/events/26666-example',
+    sourceKind: 'attending',
+    discoveryEvidence: { kind: 'truckersmp-vtc-attending', meaning: 'verified' }
+  }, new Date('2026-10-10T00:00:00Z'));
+
+  assert.equal(record.status, 'completed');
+  assert.equal(record.participation.status, 'attended');
+  assert.equal(record.participation.confidence, 'verified');
+  assert.equal(record.eventUrl, 'https://truckersmp.com/events/26666-example');
+});
