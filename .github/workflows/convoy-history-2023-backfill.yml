@@ -1,0 +1,179 @@
+name: Kings Convoy History 2023 Backfill
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - feature/convoy-history-v1
+    paths:
+      - 'convoy-history-truckersmp-2023-scan.js'
+      - 'convoy-history-truckersmp-2023-merge.js'
+      - 'convoy-history-import.js'
+      - 'data/convoy-history-backfill.json'
+      - '.github/workflows/convoy-history-2023-backfill.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-convoy-history-2023-backfill-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: Scan 2023 IDs ${{ matrix.start }}-${{ matrix.end }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - chunk: '10000-11999'
+            start: 10000
+            end: 11999
+          - chunk: '12000-13999'
+            start: 12000
+            end: 13999
+          - chunk: '14000-15999'
+            start: 14000
+            end: 15999
+          - chunk: '16000-17999'
+            start: 16000
+            end: 17999
+          - chunk: '18000-19999'
+            start: 18000
+            end: 19999
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify scanner
+        run: node --check convoy-history-truckersmp-2023-scan.js
+
+      - name: Scan chunk
+        env:
+          KINGS_VTC_ID: '64284'
+          KINGS_2023_SCAN_START_ID: '${{ matrix.start }}'
+          KINGS_2023_SCAN_END_ID: '${{ matrix.end }}'
+          KINGS_2023_FROM_DATE: '2023-07-09'
+          KINGS_2023_TO_DATE: '2023-12-31'
+          KINGS_2023_SCAN_INTERVAL_MS: '40'
+          KINGS_2023_SCAN_WORKERS: '8'
+          KINGS_2023_CHECKPOINT_EVERY: '100'
+          KINGS_2023_SCAN_OUTPUT: 'data/convoy-history-2023-chunks/chunk-${{ matrix.chunk }}.json'
+        run: node convoy-history-truckersmp-2023-scan.js
+
+      - name: Upload chunk snapshot
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-2023-${{ matrix.chunk }}
+          path: data/convoy-history-2023-chunks/chunk-${{ matrix.chunk }}.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  merge:
+    name: Merge 2023 backfill
+    if: always()
+    needs:
+      - scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Download all 2023 chunk snapshots
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: kings-2023-*
+          path: data/convoy-history-2023-chunks
+          merge-multiple: true
+
+      - name: Verify merge/import/statistics scripts
+        run: |
+          node --check convoy-history-truckersmp-2023-merge.js
+          node --check convoy-history-import.js
+          node --check convoy-history.js
+
+      - name: Merge chunk snapshots
+        run: node convoy-history-truckersmp-2023-merge.js
+
+      - name: Import complete 2023 scan into Convoy History
+        run: node convoy-history-import.js
+
+      - name: Generate convoy statistics
+        run: node convoy-history.js
+
+      - name: Show 2023 result
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const scan = JSON.parse(fs.readFileSync('data/convoy-history-2023-scan.json', 'utf8'));
+          const stats = JSON.parse(fs.readFileSync('output/convoy-history-statistics.json', 'utf8'));
+          console.log('2023 scan complete:', scan.complete);
+          console.log('IDs checked:', scan.stats.checked + '/' + scan.stats.requested);
+          console.log('API request errors:', scan.stats.requestErrors);
+          console.log('Verified Kings matches from scan:', scan.matches.length);
+          console.log('Public 2023 convoy total:', stats.years?.['2023']?.total ?? 0);
+          console.log('2023 own:', stats.years?.['2023']?.own ?? 0);
+          console.log('2023 external:', stats.years?.['2023']?.external ?? 0);
+          NODE
+
+      - name: Persist 2023 backfill results
+        shell: bash
+        run: |
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add \
+            data/convoy-history-2023-chunks \
+            data/convoy-history-2023-scan.json \
+            data/convoy-history-backfill.json \
+            data/convoy-history.json
+          if git diff --cached --quiet; then
+            echo "No 2023 backfill changes to save."
+          else
+            git commit -m "Update 2023 TruckersMP convoy history backfill"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+      - name: Upload merged 2023 audit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: kings-convoy-history-2023-merged
+          path: |
+            data/convoy-history-2023-scan.json
+            data/convoy-history-backfill.json
+            output/convoy-history-statistics.json
+            output/convoy-history-statistics.md
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Require complete 2023 primary scan
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const scan = JSON.parse(fs.readFileSync('data/convoy-history-2023-scan.json', 'utf8'));
+          if (scan.complete !== true) {
+            console.error('2023 primary scan is not complete yet.');
+            process.exit(1);
+          }
+          console.log('2023 primary scan is complete.');
+          NODE
