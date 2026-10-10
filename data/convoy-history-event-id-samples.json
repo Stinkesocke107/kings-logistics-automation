@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "generatedAt": "2026-10-10T06:13:50.852Z",
+  "start": 14000,
+  "end": 20500,
+  "step": 250,
+  "samples": [
+    {
+      "id": 14000,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 14250,
+      "found": true,
+      "date": "2023-04-30",
+      "name": "ATLAS | APRIL CONVOY",
+      "vtcId": 57201,
+      "vtcName": "Viação Couto Virtual"
+    },
+    {
+      "id": 14500,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 14750,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 15000,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 15250,
+      "found": true,
+      "date": "2023-05-13",
+      "name": "FLG Clever Convoys - Mai 2023",
+      "vtcId": 7265,
+      "vtcName": "- FoxLog-Group -"
+    },
+    {
+      "id": 15500,
+      "found": true,
+      "date": "2023-05-27",
+      "name": "CONVOY M.D.T | WEEKLY CONVOY !",
+      "vtcId": 45992,
+      "vtcName": "La Mondiale du Transport"
+    },
+    {
+      "id": 15750,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 16000,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 16250,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 16500,
+      "found": true,
+      "date": "2023-08-19",
+      "name": "Constellation Event Virgo Plan - No.40",
+      "vtcId": 3645,
+      "vtcName": "Snail Transport"
+    },
+    {
+      "id": 16750,
+      "found": true,
+      "date": "2023-10-09",
+      "name": "Dulcis Logistics | Halloween Convoy 🎃",
+      "vtcId": 55939,
+      "vtcName": "Dulcis Logistics [CLOSED]"
+    },
+    {
+      "id": 17000,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 17250,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 17500,
+      "found": true,
+      "date": "2023-12-06",
+      "name": "Twisted Transport Christmas Special",
+      "vtcId": 53248,
+      "vtcName": "Twisted Transport"
+    },
+    {
+      "id": 17750,
+      "found": true,
+      "date": "2023-09-03",
+      "name": "ÖZ DOSTLAR LOJISTIK HAFTALIK KONVOYU",
+      "vtcId": null,
+      "vtcName": null
+    },
+    {
+      "id": 18000,
+      "found": true,
+      "date": "2024-01-12",
+      "name": "Arab Transport January Convoy",
+      "vtcId": 5415,
+      "vtcName": "Arab Transport VTC"
+    },
+    {
+      "id": 18250,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 18500,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 18750,
+      "found": false,
+      "error": "truckersmp-history-sample: HTTP 404"
+    },
+    {
+      "id": 19000,
+      "found": true,
+      "date": "2023-11-25",
+      "name": "Wohnwagen Konvoi",
+      "vtcId": null,
+      "vtcName": null
+    },
+    {
+      "id": 19250,
+      "found": true,
+      "date": "2023-11-21",
+      "name": "中国狼牙运输车队第二次公开活动",
+      "vtcId": null,
+      "vtcName": null
+    },
+    {
+      "id": 19500,
+      "found": true,
+      "date": "2023-12-06",
+      "name": "ZAG-line convoglio E-1",
+      "vtcId": null,
+      "vtcName": null
+    },
+    {
+      "id": 19750,
+      "found": true,
+      "date": "2023-12-20",
+      "name": "ZAG-line convoglio #7",
+      "vtcId": null,
+      "vtcName": null
+    },
+    {
+      "id": 20000,
+      "found": true,
+      "date": "2024-04-06",
+      "name": "Melocotón birthday",
+      "vtcId": null,
+      "vtcName": null
+    },
+    {
+      "id": 20250,
+      "found": true,
+      "date": "2024-04-15",
+      "name": "Twisted Transport ATS April Monthly",
+      "vtcId": 53248,
+      "vtcName": "Twisted Transport"
+    },
+    {
+      "id": 20500,
+      "found": true,
+      "date": "2024-03-30",
+      "name": "TDHCave Logistics March Convoy",
+      "vtcId": 31484,
+      "vtcName": "TDHCave Logistics"
+    }
+  ]
+}
