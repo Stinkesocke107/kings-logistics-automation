@@ -7,7 +7,8 @@ const FROM_DATE = process.env.KINGS_2023_FROM_DATE || '2023-07-09';
 const TO_DATE = process.env.KINGS_2023_TO_DATE || '2023-12-31';
 const OUTPUT = process.env.KINGS_2023_SCAN_OUTPUT || 'data/convoy-history-2023-scan.json';
 const MIN_REQUEST_INTERVAL_MS = Number(process.env.KINGS_2023_SCAN_INTERVAL_MS || '75');
-const WORKERS = Math.max(1, Math.min(8, Number(process.env.KINGS_2023_SCAN_WORKERS || '4')));
+const WORKERS = Math.max(1, Math.min(12, Number(process.env.KINGS_2023_SCAN_WORKERS || '4')));
+const CHECKPOINT_EVERY = Math.max(50, Number(process.env.KINGS_2023_CHECKPOINT_EVERY || '100'));
 
 let nextRequestAt = 0;
 let throttleChain = Promise.resolve();
@@ -120,7 +121,7 @@ async function waitForTurn() {
 async function fetchEvent(id) {
   const url = `https://api.truckersmp.com/v2/events/${id}`;
 
-  for (let attempt = 1; attempt <= 4; attempt += 1) {
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
     await waitForTurn();
 
     let response;
@@ -133,7 +134,7 @@ async function fetchEvent(id) {
         signal: AbortSignal.timeout(12000)
       });
     } catch (error) {
-      if (attempt >= 4) return { state: 'network-error', error: error.message };
+      if (attempt >= 6) return { state: 'network-error', error: error.message };
       await sleep(500 * attempt);
       continue;
     }
@@ -143,19 +144,22 @@ async function fetchEvent(id) {
       return { state: 'not-found' };
     }
 
-    if (response.status === 429) {
+    if (response.status === 429 || response.status === 403) {
       const header = response.headers.get('retry-after');
       const seconds = Number(header);
-      const wait = Number.isFinite(seconds) && seconds >= 0 ? seconds * 1000 : 2000 * attempt;
+      const wait = Number.isFinite(seconds) && seconds >= 0 ? seconds * 1000 : 1500 * attempt;
       await response.arrayBuffer().catch(() => {});
-      await sleep(Math.min(30000, Math.max(1000, wait)));
-      continue;
+      if (attempt < 6) {
+        await sleep(Math.min(30000, Math.max(1000, wait)));
+        continue;
+      }
+      return { state: 'http-error', status: response.status };
     }
 
     if (!response.ok) {
       await response.arrayBuffer().catch(() => {});
-      if (response.status >= 500 && attempt < 4) {
-        await sleep(500 * attempt);
+      if (response.status >= 500 && attempt < 6) {
+        await sleep(750 * attempt);
         continue;
       }
       return { state: 'http-error', status: response.status };
@@ -197,6 +201,38 @@ function existingCompleteScan() {
     return null;
   }
   return null;
+}
+
+function buildOutput({ observedAt, stats, matches, errors, complete }) {
+  return {
+    version: 1,
+    mode: 'one-time-truckersmp-2023-historical-event-scan',
+    generatedAt: observedAt,
+    checkpointAt: new Date().toISOString(),
+    complete,
+    kingsVtcId: KINGS_VTC_ID,
+    range: { startId: START_ID, endId: END_ID },
+    dateWindow: { from: FROM_DATE, to: TO_DATE },
+    requestPolicy: {
+      workers: WORKERS,
+      minimumRequestStartIntervalMs: MIN_REQUEST_INTERVAL_MS,
+      retry429And5xx: true,
+      checkpointEvery: CHECKPOINT_EVERY
+    },
+    stats: { ...stats },
+    matches: [...matches].sort((a, b) =>
+      String(a.date || '').localeCompare(String(b.date || '')) ||
+      Number(a.platformEventId) - Number(b.platformEventId)
+    ),
+    errors: [...errors]
+  };
+}
+
+function persistCheckpoint(context, complete = false) {
+  const output = buildOutput({ ...context, complete });
+  fs.mkdirSync(require('path').dirname(OUTPUT), { recursive: true });
+  fs.writeFileSync(OUTPUT, JSON.stringify(output, null, 2) + '\n');
+  return output;
 }
 
 async function main() {
@@ -250,6 +286,10 @@ async function main() {
         }
       }
 
+      if (stats.checked % CHECKPOINT_EVERY === 0) {
+        persistCheckpoint({ observedAt, stats, matches, errors }, false);
+      }
+
       if (stats.checked % 500 === 0) {
         console.log(`Progress: ${stats.checked}/${stats.requested}, events=${stats.foundEvents}, 2023-window=${stats.inDateWindow}, Kings=${matches.length}, errors=${stats.requestErrors}`);
       }
@@ -258,31 +298,8 @@ async function main() {
 
   await Promise.all(Array.from({ length: WORKERS }, () => worker()));
 
-  matches.sort((a, b) =>
-    String(a.date || '').localeCompare(String(b.date || '')) ||
-    Number(a.platformEventId) - Number(b.platformEventId)
-  );
-
-  const output = {
-    version: 1,
-    mode: 'one-time-truckersmp-2023-historical-event-scan',
-    generatedAt: observedAt,
-    complete: stats.checked === stats.requested && stats.requestErrors === 0,
-    kingsVtcId: KINGS_VTC_ID,
-    range: { startId: START_ID, endId: END_ID },
-    dateWindow: { from: FROM_DATE, to: TO_DATE },
-    requestPolicy: {
-      workers: WORKERS,
-      minimumRequestStartIntervalMs: MIN_REQUEST_INTERVAL_MS,
-      retry429And5xx: true
-    },
-    stats,
-    matches,
-    errors
-  };
-
-  fs.mkdirSync('data', { recursive: true });
-  fs.writeFileSync(OUTPUT, JSON.stringify(output, null, 2) + '\n');
+  const complete = stats.checked === stats.requested && stats.requestErrors === 0;
+  const output = persistCheckpoint({ observedAt, stats, matches, errors }, complete);
 
   console.log('2023 historical TruckersMP scan finished.');
   console.log(`Kings matches: ${matches.length}`);
