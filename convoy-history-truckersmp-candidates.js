@@ -79,7 +79,7 @@ function normalizeCandidate(event, sourceKind) {
         },
     suggestedParticipation: sourceKind === 'hosted'
       ? { status: 'unknown', confidence: 'review_required' }
-      : { status: 'registered', confidence: 'verified' },
+      : { status: 'attended', confidence: 'verified' },
     start: locationLabel(event?.departure),
     destination: locationLabel(event?.arrive),
     server: clean(event?.server?.name || event?.server),
@@ -158,7 +158,7 @@ async function collect() {
     policy: {
       readOnlyDiscovery: true,
       automaticHistoryWrite: false,
-      attendingMeansRegistrationOnly: true,
+      truckersmpVtcAttendingMeansParticipation: true,
       publicStatisticsUnaffected: true
     },
     summary: {
@@ -196,7 +196,7 @@ if (require.main === module) {
       console.log('Attending endpoint records: ' + output.summary.attendingEndpointRecords);
       console.log('Unique candidates since ' + output.fromDate + ': ' + output.summary.uniqueCandidatesSinceFromDate);
       console.log('Past candidates: ' + output.summary.pastCandidates);
-      console.log('Public convoy statistics were not modified.');
+      console.log('TruckersMP VTCs Attending candidates are classified as verified Kings participation.');
     })
     .catch(error => {
       console.error('TruckersMP convoy-history candidate discovery failed:', error.message);
