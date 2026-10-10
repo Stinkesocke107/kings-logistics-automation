@@ -19,6 +19,7 @@ on:
       - 'convoy-history-import.js'
       - 'convoy-history-truckersmp-vtc-page-probe.js'
       - 'convoy-history-event-id-sampler.js'
+      - 'convoy-history-truckersmp-2023-scan.js'
       - 'data/convoy-history-manual-evidence.json'
       - 'tests/convoy-history.test.cjs'
       - 'docs/convoy-history-v1.md'
@@ -34,7 +35,7 @@ concurrency:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -53,6 +54,7 @@ jobs:
           node --check convoy-history-import.js
           node --check convoy-history-truckersmp-vtc-page-probe.js
           node --check convoy-history-event-id-sampler.js
+          node --check convoy-history-truckersmp-2023-scan.js
 
       - name: Run convoy history tests
         run: node --test tests/convoy-history.test.cjs
@@ -66,6 +68,17 @@ jobs:
 
       - name: Sample historical TruckersMP event ID/date ranges
         run: node convoy-history-event-id-sampler.js
+
+      - name: Scan TruckersMP historical events for Kings participation in 2023
+        env:
+          KINGS_VTC_ID: '64284'
+          KINGS_2023_SCAN_START_ID: '10000'
+          KINGS_2023_SCAN_END_ID: '19999'
+          KINGS_2023_FROM_DATE: '2023-07-09'
+          KINGS_2023_TO_DATE: '2023-12-31'
+          KINGS_2023_SCAN_INTERVAL_MS: '75'
+          KINGS_2023_SCAN_WORKERS: '4'
+        run: node convoy-history-truckersmp-2023-scan.js
 
       - name: Probe TruckersMP VTC attending pagination
         env:
@@ -85,7 +98,7 @@ jobs:
         run: |
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
-          git add data/convoy-history-truckersmp-candidates.json data/convoy-history.json data/convoy-history-vtc-page-probe.json data/convoy-history-event-id-samples.json
+          git add data/convoy-history-truckersmp-candidates.json data/convoy-history.json data/convoy-history-vtc-page-probe.json data/convoy-history-event-id-samples.json data/convoy-history-2023-scan.json
           if git diff --cached --quiet; then
             echo "No candidate snapshot changes to save."
             exit 0
