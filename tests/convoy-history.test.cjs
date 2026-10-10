@@ -105,3 +105,39 @@ test('statistics separate years, months, own/external and platforms', () => {
   assert.equal(stats.platforms.haulmp.total, 1);
   assert.equal(stats.attendance.totalKnownDriverAttendances, 12);
 });
+
+test('TruckersMP candidate collector distinguishes hosted from attending evidence', () => {
+  const { normalizeCandidate } = require('../convoy-history-truckersmp-candidates.js');
+
+  const event = {
+    id: 26666,
+    name: 'Laxis Logistics Mai Konvoi',
+    meetup_at: '2025-05-02T16:00:00Z',
+    start_at: '2025-05-02T17:00:00Z',
+    vtc: { name: 'Laxis Logistics' },
+    departure: { city: 'Copenhagen', location: 'Slots' },
+    arrive: { city: 'Trieste', location: 'Harbour' }
+  };
+
+  const external = normalizeCandidate(event, 'attending');
+  assert.equal(external.type, 'external');
+  assert.equal(external.suggestedParticipation.status, 'registered');
+  assert.equal(external.suggestedParticipation.confidence, 'verified');
+  assert.equal(external.candidateKey, 'truckersmp:26666');
+
+  const own = normalizeCandidate(event, 'hosted');
+  assert.equal(own.type, 'own');
+  assert.equal(own.organizer, 'Kings Logistics');
+  assert.equal(own.suggestedParticipation.status, 'unknown');
+  assert.equal(own.suggestedParticipation.confidence, 'review_required');
+});
+
+test('TruckersMP candidate dedupe gives hosted classification priority', () => {
+  const { deduplicate } = require('../convoy-history-truckersmp-candidates.js');
+  const attending = [{ candidateKey: 'truckersmp:1', platformEventId: '1', date: '2026-01-01', type: 'external' }];
+  const hosted = [{ candidateKey: 'truckersmp:1', platformEventId: '1', date: '2026-01-01', type: 'own' }];
+  const result = deduplicate(hosted, attending);
+  assert.equal(result.length, 1);
+  assert.equal(result[0].type, 'own');
+});
+
