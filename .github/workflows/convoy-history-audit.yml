@@ -2,6 +2,12 @@ name: Kings Convoy History Audit
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_to_discord:
+        description: "Publish/update the public convoy statistics message"
+        required: true
+        default: false
+        type: boolean
 
   push:
     branches:
@@ -9,6 +15,7 @@ on:
     paths:
       - 'convoy-history.js'
       - 'convoy-history-truckersmp-candidates.js'
+      - 'convoy-history-discord.js'
       - 'data/convoy-history.json'
       - 'tests/convoy-history.test.cjs'
       - 'docs/convoy-history-v1.md'
@@ -39,6 +46,7 @@ jobs:
         run: |
           node --check convoy-history.js
           node --check convoy-history-truckersmp-candidates.js
+          node --check convoy-history-discord.js
 
       - name: Run convoy history tests
         run: node --test tests/convoy-history.test.cjs
@@ -51,6 +59,13 @@ jobs:
           KINGS_VTC_ID: '64284'
           KINGS_CONVOY_HISTORY_FROM: '2023-01-01'
         run: node convoy-history-truckersmp-candidates.js
+
+      - name: Publish convoy statistics to Discord
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_to_discord == true }}
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CONVOY_STATISTICS_CHANNEL_ID: '1558352669071118467'
+        run: node convoy-history-discord.js
 
       - name: Upload convoy history audit
         if: always()
