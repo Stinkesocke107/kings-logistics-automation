@@ -106,7 +106,7 @@ test('statistics separate years, months, own/external and platforms', () => {
   assert.equal(stats.attendance.totalKnownDriverAttendances, 12);
 });
 
-test('TruckersMP candidate collector distinguishes hosted from attending evidence', () => {
+test('TruckersMP candidate collector treats VTCs Attending as verified participation', () => {
   const { normalizeCandidate } = require('../convoy-history-truckersmp-candidates.js');
 
   const event = {
@@ -121,7 +121,7 @@ test('TruckersMP candidate collector distinguishes hosted from attending evidenc
 
   const external = normalizeCandidate(event, 'attending');
   assert.equal(external.type, 'external');
-  assert.equal(external.suggestedParticipation.status, 'registered');
+  assert.equal(external.suggestedParticipation.status, 'attended');
   assert.equal(external.suggestedParticipation.confidence, 'verified');
   assert.equal(external.candidateKey, 'truckersmp:26666');
 
