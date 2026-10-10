@@ -4,7 +4,7 @@
   "updatedAt": null,
   "policy": {
     "publicCountRule": "Only completed convoys with participation.status=attended and participation.confidence verified or confirmed_internal count toward public attended statistics.",
-    "registrationRule": "TruckersMP VTC attending/RSVP alone is stored as registered evidence and does not by itself prove physical attendance.",
+    "truckersmpAttendingRule": "For Kings Logistics historical statistics, a TruckersMP VTCs Attending entry for Kings Logistics is accepted as verified evidence that Kings participated in that convoy.",
     "duplicateRule": "platform + platformEventId is authoritative when available; otherwise internal id is used.",
     "platforms": {
       "truckersmp": "active",
