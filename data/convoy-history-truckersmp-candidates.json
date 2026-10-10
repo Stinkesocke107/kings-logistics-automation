@@ -1,0 +1,3249 @@
+{
+  "version": 1,
+  "mode": "truckersmp-historical-candidate-discovery",
+  "generatedAt": "2026-10-10T05:54:56.386Z",
+  "vtcId": "64284",
+  "fromDate": "2023-01-01",
+  "policy": {
+    "readOnlyDiscovery": true,
+    "automaticHistoryWrite": false,
+    "truckersmpVtcAttendingMeansParticipation": true,
+    "publicStatisticsUnaffected": true
+  },
+  "summary": {
+    "hostedEndpointRecords": 16,
+    "attendingEndpointRecords": 113,
+    "uniqueCandidatesSinceFromDate": 129,
+    "pastCandidates": 16,
+    "futureCandidates": 111,
+    "ownCandidates": 16,
+    "externalCandidates": 113
+  },
+  "candidates": [
+    {
+      "candidateKey": "truckersmp:27792",
+      "platform": "truckersmp",
+      "platformEventId": "27792",
+      "name": "Kings Logistics | Convoy for the 2nd anniversary",
+      "date": "2025-07-11",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/27792-kings-logistics|-convoy-for-the2nd-anniversary",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Prague — (Prag) (Slots will be announced via DC server)",
+      "destination": "Strasbourg — Strasbourg (Quarry)",
+      "server": "Event Server",
+      "meetupAt": "2025-07-11 19:00:00",
+      "departureAt": "2025-07-11 20:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:28472",
+      "platform": "truckersmp",
+      "platformEventId": "28472",
+      "name": "KINGS LOGISTIK | MONTHLY CONVOY #1",
+      "date": "2025-08-30",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/28472-kings-logistik|-monthly-convoy#1",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Klagenfurt am Wörthersee — Klagenfurt am Wörthersee (Slots will be announced via DC server)",
+      "destination": "TruckersMP HQ — TruckersMP HQ (Quarry)",
+      "server": "Simulation 2",
+      "meetupAt": "2025-08-30 20:00:00",
+      "departureAt": "2025-08-30 21:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:28476",
+      "platform": "truckersmp",
+      "platformEventId": "28476",
+      "name": "KINGS LOGISTIK | MONTHLY CONVOY #2",
+      "date": "2025-09-27",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/28476-kings-logistik|-monthly-convoy#2",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Innsbruck — Slots",
+      "destination": "TruckersMP HQ — Quarry",
+      "server": "Simulation 2",
+      "meetupAt": "2025-09-27 20:00:00",
+      "departureAt": "2025-09-27 21:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:31164",
+      "platform": "truckersmp",
+      "platformEventId": "31164",
+      "name": "Kings Logistics Monthly Convoy #3",
+      "date": "2026-01-10",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/31164-kings-logistics-monthly-convoy#3",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Munich — Slots",
+      "destination": "Hanover — Quarry",
+      "server": "Simulation 2",
+      "meetupAt": "2026-01-10 19:00:00",
+      "departureAt": "2026-01-10 20:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:31165",
+      "platform": "truckersmp",
+      "platformEventId": "31165",
+      "name": "Kings Logistics Monthly Convoy #4",
+      "date": "2026-02-07",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/31165-kings-logistics-monthly-convoy#4",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Manchester — Slots",
+      "destination": "Dover — Ferry",
+      "server": "Simulation 2",
+      "meetupAt": "2026-02-07 19:00:00",
+      "departureAt": "2026-02-07 20:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:31166",
+      "platform": "truckersmp",
+      "platformEventId": "31166",
+      "name": "Kings Logistics Monthly Convoy #5",
+      "date": "2026-03-14",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/31166-kings-logistics-monthly-convoy#5",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Luxembourg — Slots",
+      "destination": "Hamburg — Containerport",
+      "server": "Simulation 2",
+      "meetupAt": "2026-03-14 19:00:00",
+      "departureAt": "2026-03-14 20:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:31876",
+      "platform": "truckersmp",
+      "platformEventId": "31876",
+      "name": "Kings Logistics Monthly Convoy #6",
+      "date": "2026-04-18",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/31876-kings-logistics-monthly-convoy#6",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Luxembourg — Slots",
+      "destination": "Mannheim — Quarry",
+      "server": "Simulation 2",
+      "meetupAt": "2026-04-18 18:00:00",
+      "departureAt": "2026-04-18 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:31877",
+      "platform": "truckersmp",
+      "platformEventId": "31877",
+      "name": "NOVA ERA ✝ KINGS • A Tribute to Our Partnership",
+      "date": "2026-05-09",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/31877-nova-era%E2%9C%9D-kings%E2%80%A2-a-tribute-to-our-partnership",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Kassel — Slots",
+      "destination": "Aalborg — Freyr",
+      "server": "Simulation 2",
+      "meetupAt": "2026-05-09 20:00:00",
+      "departureAt": "2026-05-09 21:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:32992",
+      "platform": "truckersmp",
+      "platformEventId": "32992",
+      "name": "Kings Logistics Night Convoy #1",
+      "date": "2026-05-17",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/32992-kings-logistics-night-convoy#1",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Luxembourg — Slots",
+      "destination": "Bern — Charmey",
+      "server": "Simulation 2",
+      "meetupAt": "2026-05-17 20:00:00",
+      "departureAt": "2026-05-17 21:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:31921",
+      "platform": "truckersmp",
+      "platformEventId": "31921",
+      "name": "Kings Logistics Monthly Convoy #8",
+      "date": "2026-06-27",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/31921-kings-logistics-monthly-convoy#8",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Plymouth — Slots",
+      "destination": "Birmingham — City",
+      "server": "Simulation 2",
+      "meetupAt": "2026-06-27 18:00:00",
+      "departureAt": "2026-06-27 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:31923",
+      "platform": "truckersmp",
+      "platformEventId": "31923",
+      "name": "Kings Logistics Monthly Convoy #9",
+      "date": "2026-07-11",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/31923-kings-logistics-monthly-convoy#9",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Leipzig — Slots",
+      "destination": "Bremen — ContainerPort",
+      "server": "Simulation 2",
+      "meetupAt": "2026-07-11 18:00:00",
+      "departureAt": "2026-07-11 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:33777",
+      "platform": "truckersmp",
+      "platformEventId": "33777",
+      "name": "Kings Logistics Charity Convoy #1",
+      "date": "2026-07-26",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/33777-kings-logistics-charity-convoy#1",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Bremen — Slots",
+      "destination": "TruckersMP HQ — Steinbruch",
+      "server": "Event Server",
+      "meetupAt": "2026-07-26 13:00:00",
+      "departureAt": "2026-07-26 14:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:33826",
+      "platform": "truckersmp",
+      "platformEventId": "33826",
+      "name": "KINGS LOGISTICS | 3rd Anniversary Convoy",
+      "date": "2026-08-22",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/33826-kings-logistics|3rd-anniversary-convoy",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Bremen — Slots",
+      "destination": "TruckersMP HQ — Steinbruch",
+      "server": "Event Server",
+      "meetupAt": "2026-08-22 18:00:00",
+      "departureAt": "2026-08-22 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:33776",
+      "platform": "truckersmp",
+      "platformEventId": "33776",
+      "name": "Kings Logistics Monthly Convoy #10",
+      "date": "2026-08-23",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/33776-kings-logistics-monthly-convoy#10",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Grimsby — Slots",
+      "destination": "Swansea — Euro Acres",
+      "server": "Simulation 2",
+      "meetupAt": "2026-08-23 18:00:00",
+      "departureAt": "2026-08-23 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:34957",
+      "platform": "truckersmp",
+      "platformEventId": "34957",
+      "name": "Kings Logistics Monthly Convoy #11",
+      "date": "2026-09-26",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/34957-kings-logistics-monthly-convoy#11",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Dover — Slots",
+      "destination": "Cardiff — Quarry",
+      "server": "Simulation 2",
+      "meetupAt": "2026-09-26 17:00:00",
+      "departureAt": "2026-09-26 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35810",
+      "platform": "truckersmp",
+      "platformEventId": "35810",
+      "name": "Kings Logistics Monthly Convoy #12",
+      "date": "2026-10-02",
+      "phase": "past",
+      "type": "own",
+      "organizer": "Kings Logistics",
+      "eventUrl": "/events/35810-kings-logistics-monthly-convoy#12",
+      "sourceKind": "hosted",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-hosted-event",
+        "meaning": "TruckersMP lists the event under Kings Logistics hosted events."
+      },
+      "suggestedParticipation": {
+        "status": "unknown",
+        "confidence": "review_required"
+      },
+      "start": "Munich — Slots",
+      "destination": "Hanover — Quarry",
+      "server": "Simulation 2",
+      "meetupAt": "2026-10-02 14:00:00",
+      "departureAt": "2026-10-02 15:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:34819",
+      "platform": "truckersmp",
+      "platformEventId": "34819",
+      "name": "THE ORIGINAL™ 1.5 YEAR CONVOY",
+      "date": "2026-10-10",
+      "phase": "today",
+      "type": "external",
+      "organizer": "- THE ORIGINAL™ -",
+      "eventUrl": "/events/34819-the-original%E2%84%A21.5-year-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Poland - Slots ( TruckersMP HQ - Wroclaw - Poznan - Brno )",
+      "destination": "Nuremberg — Germany - DFH",
+      "server": "Event Server",
+      "meetupAt": "2026-10-10 17:00:00",
+      "departureAt": "2026-10-10 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35000",
+      "platform": "truckersmp",
+      "platformEventId": "35000",
+      "name": "🎂2nd Anniversary I FORA Logistics🎂",
+      "date": "2026-10-10",
+      "phase": "today",
+      "type": "external",
+      "organizer": "I FORA Logistics",
+      "eventUrl": "/events/35000-%F0%9F%8E%822nd-anniversary-i-fora-logistics%F0%9F%8E%82",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Helsingborg — Slot",
+      "destination": "Esbjerg — Container Port",
+      "server": "Event Server",
+      "meetupAt": "2026-10-10 18:30:00",
+      "departureAt": "2026-10-10 19:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:35067",
+      "platform": "truckersmp",
+      "platformEventId": "35067",
+      "name": "ASIMOV Group: October Convoy #7",
+      "date": "2026-10-11",
+      "phase": "future",
+      "type": "external",
+      "organizer": "ASIMOV Group",
+      "eventUrl": "/events/35067-asimov-group:-october-convoy#7",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Klagenfurt am Wörthersee — Slots",
+      "destination": "Cologne — LKW",
+      "server": "To be determined",
+      "meetupAt": "2026-10-11 17:00:00",
+      "departureAt": "2026-10-11 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36313",
+      "platform": "truckersmp",
+      "platformEventId": "36313",
+      "name": "NeoCrime October Convoy 2026",
+      "date": "2026-10-12",
+      "phase": "future",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "eventUrl": "/events/36313-neocrime-october-convoy2026",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Bremen — Slots",
+      "destination": "Salzburg — Renat",
+      "server": "Event Server",
+      "meetupAt": "2026-10-12 17:00:00",
+      "departureAt": "2026-10-12 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35288",
+      "platform": "truckersmp",
+      "platformEventId": "35288",
+      "name": "DIFM October Convoy",
+      "date": "2026-10-13",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Dutch International Freight Masters",
+      "eventUrl": "/events/35288-difm-october-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Linz — SLOTS",
+      "destination": "Zürich — EURO ACRES",
+      "server": "Simulation 2",
+      "meetupAt": "2026-10-13 16:30:00",
+      "departureAt": "2026-10-13 17:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:35900",
+      "platform": "truckersmp",
+      "platformEventId": "35900",
+      "name": "African Logistics 5 YEAR ANNIVERSARY",
+      "date": "2026-10-14",
+      "phase": "future",
+      "type": "external",
+      "organizer": "AFRICAN LOGISTICS",
+      "eventUrl": "/events/35900-african-logistics5-year-anniversary",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Bremen — Slots",
+      "destination": "TruckersMP HQ — Big Rest Area",
+      "server": "Event Server",
+      "meetupAt": "2026-10-14 18:00:00",
+      "departureAt": "2026-10-14 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35113",
+      "platform": "truckersmp",
+      "platformEventId": "35113",
+      "name": "✨The Launch of Premium Events ✨",
+      "date": "2026-10-16",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Premium Events",
+      "eventUrl": "/events/35113-%E2%9C%A8the-launch-of-premium-events%E2%9C%A8",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Milan — + Turin + Verona Slots",
+      "destination": "Bern — Tree-ET",
+      "server": "Event Server",
+      "meetupAt": "2026-10-16 17:00:00",
+      "departureAt": "2026-10-16 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:34935",
+      "platform": "truckersmp",
+      "platformEventId": "34935",
+      "name": "Aura's 2nd Anniversary Convoy",
+      "date": "2026-10-17",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Aura",
+      "eventUrl": "/events/34935-aura%27s2nd-anniversary-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Hamburg — + Bremen City",
+      "destination": "Prague — Quarry",
+      "server": "Event Server",
+      "meetupAt": "2026-10-17 11:30:00",
+      "departureAt": "2026-10-17 12:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:35252",
+      "platform": "truckersmp",
+      "platformEventId": "35252",
+      "name": "🚛 🎗️ TCCR  Monthly #42 Pink Convoy: A Journey for Her",
+      "date": "2026-10-18",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Truck Convoy Control and Route",
+      "eventUrl": "/events/35252-%F0%9F%9A%9B%F0%9F%8E%97%EF%B8%8F-tccr-monthly#42-pink-convoy:-a-journey-for-her",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Calais — Slots",
+      "destination": "Hamburg — IA Automotive / DHF",
+      "server": "Simulation 2",
+      "meetupAt": "2026-10-18 18:30:00",
+      "departureAt": "2026-10-18 19:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:35649",
+      "platform": "truckersmp",
+      "platformEventId": "35649",
+      "name": "Ghost Express | October Edition '26 [Halloween Special]",
+      "date": "2026-10-19",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Ghost Express",
+      "eventUrl": "/events/35649-ghost-express|-october-edition%2726%5Bhalloween-special%5D",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Munich — Slots",
+      "destination": "Paris — Voitureux",
+      "server": "Event Server",
+      "meetupAt": "2026-10-19 17:00:00",
+      "departureAt": "2026-10-19 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:34664",
+      "platform": "truckersmp",
+      "platformEventId": "34664",
+      "name": "🎉EGY-TRUCKERS X ARAB X ANATOLIA X PEAN X NEEDCC🎉",
+      "date": "2026-10-23",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Egyptian Truckers Company",
+      "eventUrl": "/events/34664-%F0%9F%8E%89egy-truckers-x-arab-x-anatolia-x-pean-x-needcc%F0%9F%8E%89",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Amsterdam — Port",
+      "server": "To be determined",
+      "meetupAt": "2026-10-23 17:00:00",
+      "departureAt": "2026-10-23 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35100",
+      "platform": "truckersmp",
+      "platformEventId": "35100",
+      "name": "INDIAN CARRIERS OCTOBER PUBLIC CONVOY 2026",
+      "date": "2026-10-23",
+      "phase": "future",
+      "type": "external",
+      "organizer": "INDIAN CARRIERS",
+      "eventUrl": "/events/35100-indian-carriers-october-public-convoy2026",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Hanover — Stein Bruch",
+      "server": "To be determined",
+      "meetupAt": "2026-10-23 12:00:00",
+      "departureAt": "2026-10-23 13:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36410",
+      "platform": "truckersmp",
+      "platformEventId": "36410",
+      "name": "[RO] TRANS EXPRESS MONTHLY PUBLIC CONVOY",
+      "date": "2026-10-24",
+      "phase": "future",
+      "type": "external",
+      "organizer": "[RO] Trans Express",
+      "eventUrl": "/events/36410-%5Bro%5D-trans-express-monthly-public-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Other — Tbd",
+      "destination": "Other — Tbd",
+      "server": "Simulation 2",
+      "meetupAt": "2026-10-24 20:30:00",
+      "departureAt": "2026-10-24 21:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:36524",
+      "platform": "truckersmp",
+      "platformEventId": "36524",
+      "name": "GAAT GROUP - ROAD TO HALLOWEEN",
+      "date": "2026-10-24",
+      "phase": "future",
+      "type": "external",
+      "organizer": "GAAT Group",
+      "eventUrl": "/events/36524-gaat-group--road-to-halloween",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Calais — CITY SLOTS",
+      "destination": "Strasbourg — WGCC",
+      "server": "Simulation 2",
+      "meetupAt": "2026-10-24 23:00:00",
+      "departureAt": "2026-10-25 00:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35349",
+      "platform": "truckersmp",
+      "platformEventId": "35349",
+      "name": "TAMIL PASANGA OCT PUBLIC CONVOY",
+      "date": "2026-10-25",
+      "phase": "future",
+      "type": "external",
+      "organizer": "TAMIL PASANGA",
+      "eventUrl": "/events/35349-tamil-pasanga-oct-public-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Geneva — Parking Slots) & Lyon (Parking Slots",
+      "destination": "Trieste — Terminal Container",
+      "server": "Event Server",
+      "meetupAt": "2026-10-25 14:00:00",
+      "departureAt": "2026-10-25 15:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35408",
+      "platform": "truckersmp",
+      "platformEventId": "35408",
+      "name": "Twisted Transport - Rusty's 1st Year Remembrance Convoy",
+      "date": "2026-10-26",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Twisted Transport",
+      "eventUrl": "/events/35408-twisted-transport--rusty%27s1st-year-remembrance-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Kiruna — Slots",
+      "destination": "Trondheim — Metallis",
+      "server": "To be determined",
+      "meetupAt": "2026-10-26 18:00:00",
+      "departureAt": "2026-10-26 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:34727",
+      "platform": "truckersmp",
+      "platformEventId": "34727",
+      "name": "✨🎉Moonlight Express | 1 Year Anniversary 🎉✨",
+      "date": "2026-10-28",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Moonlight Express",
+      "eventUrl": "/events/34727-%E2%9C%A8%F0%9F%8E%89moonlight-express|1-year-anniversary%F0%9F%8E%89%E2%9C%A8",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Milan — + Turin) (Slots",
+      "destination": "Dijon — Euro Acress",
+      "server": "Event Server",
+      "meetupAt": "2026-10-28 18:00:00",
+      "departureAt": "2026-10-28 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35183",
+      "platform": "truckersmp",
+      "platformEventId": "35183",
+      "name": "BOLT X CALM X NVA | PARTNERS CONVOY",
+      "date": "2026-10-29",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Calm Cargo",
+      "eventUrl": "/events/35183-bolt-x-calm-x-nva|-partners-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Uppsala — Stockholm + Slots",
+      "destination": "Kristiansand — Björk",
+      "server": "Event Server",
+      "meetupAt": "2026-10-29 17:00:00",
+      "departureAt": "2026-10-29 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35433",
+      "platform": "truckersmp",
+      "platformEventId": "35433",
+      "name": "Saffron Line CC - Diwali Convoy 🪔",
+      "date": "2026-10-30",
+      "phase": "future",
+      "type": "external",
+      "organizer": null,
+      "eventUrl": "/events/35433-saffron-line-cc--diwali-convoy%F0%9F%AA%94",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Prague — Slots",
+      "destination": "Innsbruck — Trameri",
+      "server": "Event Server",
+      "meetupAt": "2026-10-30 14:00:00",
+      "departureAt": "2026-10-30 15:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:34894",
+      "platform": "truckersmp",
+      "platformEventId": "34894",
+      "name": "NorthStar Group | Novi Farewell Convoy",
+      "date": "2026-11-01",
+      "phase": "future",
+      "type": "external",
+      "organizer": "NorthStar Group",
+      "eventUrl": "/events/34894-northstar-group|-novi-farewell-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Duisburg — Slots",
+      "destination": "Bern — Charmey",
+      "server": "To be determined",
+      "meetupAt": "2026-11-01 16:00:00",
+      "departureAt": "2026-11-01 17:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35465",
+      "platform": "truckersmp",
+      "platformEventId": "35465",
+      "name": "Celebrating Diwali with TruckersHub - Public Convoy",
+      "date": "2026-11-03",
+      "phase": "future",
+      "type": "external",
+      "organizer": "TruckersHub Community",
+      "eventUrl": "/events/35465-celebrating-diwali-with-truckershub--public-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Strasbourg — Stein Bruch",
+      "server": "Event Server",
+      "meetupAt": "2026-11-03 16:30:00",
+      "departureAt": "2026-11-03 17:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:35483",
+      "platform": "truckersmp",
+      "platformEventId": "35483",
+      "name": "Vabis Transport | November Convoy",
+      "date": "2026-11-05",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Vabis Transport",
+      "eventUrl": "/events/35483-vabis-transport|-november-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Munich — Slot",
+      "destination": "León — Kaarfor",
+      "server": "To be determined",
+      "meetupAt": "2026-11-05 17:00:00",
+      "departureAt": "2026-11-05 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35561",
+      "platform": "truckersmp",
+      "platformEventId": "35561",
+      "name": "Arab Transport 7th Year Anniversary",
+      "date": "2026-11-06",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Arab Transport VTC",
+      "eventUrl": "/events/35561-arab-transport7th-year-anniversary",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Other — Bremen + Hamburg",
+      "destination": "Dortmund — City",
+      "server": "Event Server",
+      "meetupAt": "2026-11-06 18:00:00",
+      "departureAt": "2026-11-06 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36002",
+      "platform": "truckersmp",
+      "platformEventId": "36002",
+      "name": "Kerala RoadRunners November Venture",
+      "date": "2026-11-06",
+      "phase": "future",
+      "type": "external",
+      "organizer": "KERALA ROADRUNNERS",
+      "eventUrl": "/events/36002-kerala-roadrunners-november-venture",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Nuremberg — Slots",
+      "destination": "Calais — Container port",
+      "server": "To be determined",
+      "meetupAt": "2026-11-06 14:00:00",
+      "departureAt": "2026-11-06 15:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35567",
+      "platform": "truckersmp",
+      "platformEventId": "35567",
+      "name": "✨ Premium Events Version #2 ✨",
+      "date": "2026-11-07",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Premium Events",
+      "eventUrl": "/events/35567-%E2%9C%A8-premium-events-version#2%E2%9C%A8",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Klagenfurt am Wörthersee — Slots",
+      "destination": "Nuremberg — Tree-ET",
+      "server": "Event Server",
+      "meetupAt": "2026-11-07 11:30:00",
+      "departureAt": "2026-11-07 12:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:36547",
+      "platform": "truckersmp",
+      "platformEventId": "36547",
+      "name": "NeoCrime November Convoy 2026",
+      "date": "2026-11-09",
+      "phase": "future",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "eventUrl": "/events/36547-neocrime-november-convoy2026",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Venice — Slots",
+      "destination": "Prague — TradeAux",
+      "server": "Event Server",
+      "meetupAt": "2026-11-09 18:00:00",
+      "departureAt": "2026-11-09 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35834",
+      "platform": "truckersmp",
+      "platformEventId": "35834",
+      "name": "ASIMOV Group: Remembrance Day #8",
+      "date": "2026-11-11",
+      "phase": "future",
+      "type": "external",
+      "organizer": "ASIMOV Group",
+      "eventUrl": "/events/35834-asimov-group:-remembrance-day#8",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Linz — Slots",
+      "destination": "Hamburg — AI Automotive",
+      "server": "To be determined",
+      "meetupAt": "2026-11-11 17:00:00",
+      "departureAt": "2026-11-11 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35695",
+      "platform": "truckersmp",
+      "platformEventId": "35695",
+      "name": "Pink Ribbon VTC - November Convoy",
+      "date": "2026-11-13",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "eventUrl": "/events/35695-pink-ribbon-vtc--november-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Parma — (Slots) + Bologna (Slots | Public: Garage)",
+      "destination": "Ancona — Terminal Container",
+      "server": "Event Server",
+      "meetupAt": "2026-11-13 18:00:00",
+      "departureAt": "2026-11-13 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35786",
+      "platform": "truckersmp",
+      "platformEventId": "35786",
+      "name": "Truck Club | November Convoy",
+      "date": "2026-11-18",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Truck Club Transport",
+      "eventUrl": "/events/35786-truck-club|-november-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Pskov — Slots",
+      "destination": "Valmiera — Baltomorsk",
+      "server": "To be determined",
+      "meetupAt": "2026-11-18 18:00:00",
+      "departureAt": "2026-11-18 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37799",
+      "platform": "truckersmp",
+      "platformEventId": "37799",
+      "name": "ARNI Trans Polska│Opening Convoy",
+      "date": "2026-11-20",
+      "phase": "future",
+      "type": "external",
+      "organizer": "ARNI Trans Polska",
+      "eventUrl": "/events/37799-arni-trans-polska%E2%94%82opening-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Luxembourg — Slots",
+      "destination": "Geneva — Steibruch",
+      "server": "To be determined",
+      "meetupAt": "2026-11-20 17:00:00",
+      "departureAt": "2026-11-20 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35816",
+      "platform": "truckersmp",
+      "platformEventId": "35816",
+      "name": "Tamil Pasanga November 2026 Grand Convoy",
+      "date": "2026-11-21",
+      "phase": "future",
+      "type": "external",
+      "organizer": "TAMIL PASANGA",
+      "eventUrl": "/events/35816-tamil-pasanga-november2026-grand-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Lille — Lille & Calais - Slots",
+      "destination": "Antwerp — Antwerp - Container Port",
+      "server": "Simulation 2",
+      "meetupAt": "2026-11-21 14:00:00",
+      "departureAt": "2026-11-21 15:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35873",
+      "platform": "truckersmp",
+      "platformEventId": "35873",
+      "name": "TCCR Monthly Convoy #43 -  4TH ANNIVERSARY",
+      "date": "2026-11-22",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Truck Convoy Control and Route",
+      "eventUrl": "/events/35873-tccr-monthly-convoy#43-4th-anniversary",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Katowice — Slots",
+      "destination": "Budapest — others",
+      "server": "Event Server",
+      "meetupAt": "2026-11-22 18:30:00",
+      "departureAt": "2026-11-22 19:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:36557",
+      "platform": "truckersmp",
+      "platformEventId": "36557",
+      "name": "TRANSCOM 1st Year Anniversary",
+      "date": "2026-11-27",
+      "phase": "future",
+      "type": "external",
+      "organizer": "TRANSCOM",
+      "eventUrl": "/events/36557-transcom1st-year-anniversary",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Innsbruck — City",
+      "server": "To be determined",
+      "meetupAt": "2026-11-27 15:00:00",
+      "departureAt": "2026-11-27 16:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35558",
+      "platform": "truckersmp",
+      "platformEventId": "35558",
+      "name": "LIGHTNING LOGISTICS | PUBLIC CONVOY #60",
+      "date": "2026-11-28",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Lightning Logistics",
+      "eventUrl": "/events/35558-lightning-logistics|-public-convoy#60",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Dortmund — (Slots)",
+      "destination": "Luxembourg — ITCC",
+      "server": "Event Server",
+      "meetupAt": "2026-11-28 18:00:00",
+      "departureAt": "2026-11-28 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35996",
+      "platform": "truckersmp",
+      "platformEventId": "35996",
+      "name": "INDIAN CARRIERS NOVEMBER PUBLIC CONVOY 2026",
+      "date": "2026-11-28",
+      "phase": "future",
+      "type": "external",
+      "organizer": "INDIAN CARRIERS",
+      "eventUrl": "/events/35996-indian-carriers-november-public-convoy2026",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Paris — Slots",
+      "destination": "Innsbruck — Stein Bruch",
+      "server": "To be determined",
+      "meetupAt": "2026-11-28 12:00:00",
+      "departureAt": "2026-11-28 13:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35981",
+      "platform": "truckersmp",
+      "platformEventId": "35981",
+      "name": "Orgin Event™ 1st Year Anniversary Convoy",
+      "date": "2026-11-29",
+      "phase": "future",
+      "type": "external",
+      "organizer": null,
+      "eventUrl": "/events/35981-orgin-event%E2%84%A21st-year-anniversary-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slot's",
+      "destination": "Hamburg — Container Port & RT log",
+      "server": "Event Server",
+      "meetupAt": "2026-11-29 12:00:00",
+      "departureAt": "2026-11-29 13:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36135",
+      "platform": "truckersmp",
+      "platformEventId": "36135",
+      "name": "Ponc Logistics  X  TurkishLine ATS  Nov Convoy",
+      "date": "2026-11-30",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Ponc Logistics",
+      "eventUrl": "/events/36135-ponc-logistics-x-turkishline-ats-nov-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Elko — Garage",
+      "destination": "Hilt — Bitumen",
+      "server": "To be determined",
+      "meetupAt": "2026-11-30 17:00:00",
+      "departureAt": "2026-11-30 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35920",
+      "platform": "truckersmp",
+      "platformEventId": "35920",
+      "name": "ATS 2nd Anniversary - INDIAN GROUP",
+      "date": "2026-12-01",
+      "phase": "future",
+      "type": "external",
+      "organizer": "INDIAN GROUP",
+      "eventUrl": "/events/35920-ats2nd-anniversary--indian-group",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Tucson — Slots",
+      "destination": "Kingman — Coastline Mining",
+      "server": "To be determined",
+      "meetupAt": "2026-12-01 15:30:00",
+      "departureAt": "2026-12-01 16:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:36069",
+      "platform": "truckersmp",
+      "platformEventId": "36069",
+      "name": "Orvion Convoy Control Happy New Year's Convoy",
+      "date": "2026-12-02",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Orvion Convoy Control",
+      "eventUrl": "/events/36069-orvion-convoy-control-happy-new-year%27s-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Osnabrück — ITCC",
+      "server": "To be determined",
+      "meetupAt": "2026-12-02 17:00:00",
+      "departureAt": "2026-12-02 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37148",
+      "platform": "truckersmp",
+      "platformEventId": "37148",
+      "name": "Ponc Logistics - December Bus Convoy",
+      "date": "2026-12-03",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Ponc Logistics",
+      "eventUrl": "/events/37148-ponc-logistics--december-bus-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Oslo — Garage",
+      "destination": "Lillehammer — Freyr",
+      "server": "To be determined",
+      "meetupAt": "2026-12-03 17:00:00",
+      "departureAt": "2026-12-03 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36101",
+      "platform": "truckersmp",
+      "platformEventId": "36101",
+      "name": "Pink Ribbon VTC - December Convoy",
+      "date": "2026-12-04",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "eventUrl": "/events/36101-pink-ribbon-vtc--december-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Reims — Slots) + Paris (Slots | Public: Garage",
+      "destination": "Nantes — Kaarfor",
+      "server": "To be determined",
+      "meetupAt": "2026-12-04 18:00:00",
+      "departureAt": "2026-12-04 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36123",
+      "platform": "truckersmp",
+      "platformEventId": "36123",
+      "name": "Eternal Transport | Winter Convoy 2026",
+      "date": "2026-12-05",
+      "phase": "future",
+      "type": "external",
+      "organizer": "ETERNAL TRANSPORT™",
+      "eventUrl": "/events/36123-eternal-transport|-winter-convoy2026",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Aarhus — Slots",
+      "destination": "Jönköping — City",
+      "server": "To be determined",
+      "meetupAt": "2026-12-05 17:00:00",
+      "departureAt": "2026-12-05 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36256",
+      "platform": "truckersmp",
+      "platformEventId": "36256",
+      "name": "🎉 ► LOE 8 Year Anniversary - ATS Convoy ◄ 🎉",
+      "date": "2026-12-06",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Line of Energy",
+      "eventUrl": "/events/36256-%F0%9F%8E%89%E2%96%BA-loe8-year-anniversary--ats-convoy%E2%97%84%F0%9F%8E%89",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Phoenix — Slots",
+      "destination": "Oakland — Oakland Shippers",
+      "server": "To be determined",
+      "meetupAt": "2026-12-06 15:00:00",
+      "departureAt": "2026-12-06 16:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36011",
+      "platform": "truckersmp",
+      "platformEventId": "36011",
+      "name": "Moonlight Express | December Convoy",
+      "date": "2026-12-10",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Moonlight Express",
+      "eventUrl": "/events/36011-moonlight-express|-december-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Innsbruck — Slot",
+      "destination": "Dortmund — DFH",
+      "server": "To be determined",
+      "meetupAt": "2026-12-10 18:00:00",
+      "departureAt": "2026-12-10 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37070",
+      "platform": "truckersmp",
+      "platformEventId": "37070",
+      "name": "MT Logistica Monthly Convoy December 2026",
+      "date": "2026-12-11",
+      "phase": "future",
+      "type": "external",
+      "organizer": "MT Logistica",
+      "eventUrl": "/events/37070-mt-logistica-monthly-convoy-december2026",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Berlin — City / Slot",
+      "destination": "Stuttgart — Stokes",
+      "server": "To be determined",
+      "meetupAt": "2026-12-11 19:30:00",
+      "departureAt": "2026-12-11 20:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:36225",
+      "platform": "truckersmp",
+      "platformEventId": "36225",
+      "name": "🎊Lirio Logistics 1st Anniversary Carnival Celebration🎊",
+      "date": "2026-12-12",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Lirio Logistics",
+      "eventUrl": "/events/36225-%F0%9F%8E%8Alirio-logistics1st-anniversary-carnival-celebration%F0%9F%8E%8A",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slot",
+      "destination": "Hamburg — Container Port",
+      "server": "To be determined",
+      "meetupAt": "2026-12-12 12:00:00",
+      "departureAt": "2026-12-12 13:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36227",
+      "platform": "truckersmp",
+      "platformEventId": "36227",
+      "name": "✨ Premium Events Version #3 ✨",
+      "date": "2026-12-12",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Premium Events",
+      "eventUrl": "/events/36227-%E2%9C%A8-premium-events-version#3%E2%9C%A8",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Florence — + Livorno Slots",
+      "destination": "Genoa — Terminal Container Port",
+      "server": "To be determined",
+      "meetupAt": "2026-12-12 18:00:00",
+      "departureAt": "2026-12-12 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36248",
+      "platform": "truckersmp",
+      "platformEventId": "36248",
+      "name": "Black Pearl Trucking Logistics: The Voyage Restarts",
+      "date": "2026-12-12",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Black Pearl Trucking Logistics",
+      "eventUrl": "/events/36248-black-pearl-trucking-logistics:-the-voyage-restarts",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Paris — Parking Slots",
+      "destination": "Rotterdam — Harbour",
+      "server": "To be determined",
+      "meetupAt": "2026-12-12 15:30:00",
+      "departureAt": "2026-12-12 16:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:36163",
+      "platform": "truckersmp",
+      "platformEventId": "36163",
+      "name": "OnlyTangs Haulage | December Convoy❄️",
+      "date": "2026-12-13",
+      "phase": "future",
+      "type": "external",
+      "organizer": "OnlyTangs Haulage",
+      "eventUrl": "/events/36163-onlytangs-haulage|-december-convoy%E2%9D%84%EF%B8%8F",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Bern — Slots",
+      "destination": "Vienna — Stokes",
+      "server": "To be determined",
+      "meetupAt": "2026-12-13 18:00:00",
+      "departureAt": "2026-12-13 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36230",
+      "platform": "truckersmp",
+      "platformEventId": "36230",
+      "name": "🎉 ► LOE 8 Year Anniversary - ETS2 Convoy ◄ 🎉",
+      "date": "2026-12-13",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Line of Energy",
+      "eventUrl": "/events/36230-%F0%9F%8E%89%E2%96%BA-loe8-year-anniversary--ets2-convoy%E2%97%84%F0%9F%8E%89",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Geneva — + Munich | Slots",
+      "destination": "Strasbourg — Steinbruch | Quarry",
+      "server": "To be determined",
+      "meetupAt": "2026-12-13 15:00:00",
+      "departureAt": "2026-12-13 16:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36349",
+      "platform": "truckersmp",
+      "platformEventId": "36349",
+      "name": "Kerala RoadRunners Arizona Special Operations",
+      "date": "2026-12-14",
+      "phase": "future",
+      "type": "external",
+      "organizer": "KERALA ROADRUNNERS",
+      "eventUrl": "/events/36349-kerala-roadrunners-arizona-special-operations",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Phoenix — Slots",
+      "destination": "Show Low — Bushnell",
+      "server": "To be determined",
+      "meetupAt": "2026-12-14 14:00:00",
+      "departureAt": "2026-12-14 15:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36367",
+      "platform": "truckersmp",
+      "platformEventId": "36367",
+      "name": "Twisted Transport Christmas Convoy",
+      "date": "2026-12-18",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Twisted Transport",
+      "eventUrl": "/events/36367-twisted-transport-christmas-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Barcelona — Slots",
+      "destination": "Almería — TBC",
+      "server": "To be determined",
+      "meetupAt": "2026-12-18 19:00:00",
+      "departureAt": "2026-12-18 20:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36352",
+      "platform": "truckersmp",
+      "platformEventId": "36352",
+      "name": "A Cozy Drive in December with Pink Ribbon VTC",
+      "date": "2026-12-19",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "eventUrl": "/events/36352-a-cozy-drive-in-december-with-pink-ribbon-vtc",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Paldiski — + Tallinn (Slots | Public: Service",
+      "destination": "Kaunas — Suprema",
+      "server": "Simulation 2",
+      "meetupAt": "2026-12-19 15:00:00",
+      "departureAt": "2026-12-19 16:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:35907",
+      "platform": "truckersmp",
+      "platformEventId": "35907",
+      "name": "LIGHTNING LOGISTICS | PUBLIC CONVOY #61 & Early Christmas Convoy",
+      "date": "2026-12-20",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Lightning Logistics",
+      "eventUrl": "/events/35907-lightning-logistics|-public-convoy#61&-early-christmas-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Algeciras — (Slots)",
+      "destination": "Murcia — Canteras Del Sur",
+      "server": "To be determined",
+      "meetupAt": "2026-12-20 18:00:00",
+      "departureAt": "2026-12-20 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37088",
+      "platform": "truckersmp",
+      "platformEventId": "37088",
+      "name": "🟡 Nova Group | December Convoy",
+      "date": "2026-12-23",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Nova Group",
+      "eventUrl": "/events/37088-%F0%9F%9F%A1-nova-group|-december-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Bucharest — Slots",
+      "destination": "Târgu Mureș — Kaarfor",
+      "server": "To be determined",
+      "meetupAt": "2026-12-23 16:30:00",
+      "departureAt": "2026-12-23 17:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:36126",
+      "platform": "truckersmp",
+      "platformEventId": "36126",
+      "name": "KRYPTON | FREEZING FINAL #2",
+      "date": "2026-12-27",
+      "phase": "future",
+      "type": "external",
+      "organizer": "KRYPTON",
+      "eventUrl": "/events/36126-krypton|-freezing-final#2",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Rotterdam — Amsterdam",
+      "destination": "Reims — Steinbruch",
+      "server": "To be determined",
+      "meetupAt": "2026-12-27 17:00:00",
+      "departureAt": "2026-12-27 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36919",
+      "platform": "truckersmp",
+      "platformEventId": "36919",
+      "name": "INDIAN CARRIERS DECEMBER PUBLIC CONVOY 2026",
+      "date": "2026-12-27",
+      "phase": "future",
+      "type": "external",
+      "organizer": "INDIAN CARRIERS",
+      "eventUrl": "/events/36919-indian-carriers-december-public-convoy2026",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Nuremberg — Slots",
+      "destination": "Groningen — Euro Acers",
+      "server": "To be determined",
+      "meetupAt": "2026-12-27 13:00:00",
+      "departureAt": "2026-12-27 14:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36455",
+      "platform": "truckersmp",
+      "platformEventId": "36455",
+      "name": "🎉 NeoCrime helld4wg Birthday Convoy 🎉",
+      "date": "2026-12-30",
+      "phase": "future",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "eventUrl": "/events/36455-%F0%9F%8E%89-neocrime-helld4wg-birthday-convoy%F0%9F%8E%89",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Amsterdam — TDC Auto Terminal",
+      "server": "To be determined",
+      "meetupAt": "2026-12-30 18:00:00",
+      "departureAt": "2026-12-30 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37174",
+      "platform": "truckersmp",
+      "platformEventId": "37174",
+      "name": "NørthWind's 2nd Year Anniversary Convoy",
+      "date": "2027-01-01",
+      "phase": "future",
+      "type": "external",
+      "organizer": "NorthWind",
+      "eventUrl": "/events/37174-n%C3%B8rthwind%27s2nd-year-anniversary-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Frankfurt am Main — LKW, DOMDEPO, NSOIL",
+      "server": "To be determined",
+      "meetupAt": "2027-01-01 19:00:00",
+      "departureAt": "2027-01-01 20:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37273",
+      "platform": "truckersmp",
+      "platformEventId": "37273",
+      "name": "Global Trucking January 2027 Convoy",
+      "date": "2027-01-04",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Global Trucking VTC",
+      "eventUrl": "/events/37273-global-trucking-january2027-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Naples — Slots",
+      "destination": "Livorno — Terminal Container",
+      "server": "To be determined",
+      "meetupAt": "2027-01-04 18:00:00",
+      "departureAt": "2027-01-04 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36669",
+      "platform": "truckersmp",
+      "platformEventId": "36669",
+      "name": "Marking Event | New Year's Event 2027",
+      "date": "2027-01-08",
+      "phase": "future",
+      "type": "external",
+      "organizer": null,
+      "eventUrl": "/events/36669-marking-event|-new-year%27s-event2027",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Hanover — Slot + Magdeburg Slot / Public in Magdeburg Garage",
+      "destination": "Amsterdam — Port",
+      "server": "To be determined",
+      "meetupAt": "2027-01-08 17:00:00",
+      "departureAt": "2027-01-08 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36097",
+      "platform": "truckersmp",
+      "platformEventId": "36097",
+      "name": "NovaLines 1st Anniversary Convoy",
+      "date": "2027-01-09",
+      "phase": "future",
+      "type": "external",
+      "organizer": "NovaLines",
+      "eventUrl": "/events/36097-novalines1st-anniversary-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — + Wroclaw Slots",
+      "destination": "Bremen — TDC Main",
+      "server": "To be determined",
+      "meetupAt": "2027-01-09 17:00:00",
+      "departureAt": "2027-01-09 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36670",
+      "platform": "truckersmp",
+      "platformEventId": "36670",
+      "name": "🎉 NeoCrime 1 Year Anniversary 🎉",
+      "date": "2027-01-09",
+      "phase": "future",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "eventUrl": "/events/36670-%F0%9F%8E%89-neocrime1-year-anniversary%F0%9F%8E%89",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Mannheim — Steinbruch",
+      "server": "To be determined",
+      "meetupAt": "2027-01-09 18:00:00",
+      "departureAt": "2027-01-09 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37044",
+      "platform": "truckersmp",
+      "platformEventId": "37044",
+      "name": "Eternal Transport | January Convoy",
+      "date": "2027-01-13",
+      "phase": "future",
+      "type": "external",
+      "organizer": "ETERNAL TRANSPORT™",
+      "eventUrl": "/events/37044-eternal-transport|-january-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Munich — Slots",
+      "destination": "Erfurt — N/A",
+      "server": "To be determined",
+      "meetupAt": "2027-01-13 17:00:00",
+      "departureAt": "2027-01-13 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37000",
+      "platform": "truckersmp",
+      "platformEventId": "37000",
+      "name": "Arab Transport VTC | January Convoy",
+      "date": "2027-01-14",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Arab Transport VTC",
+      "eventUrl": "/events/37000-arab-transport-vtc|-january-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Stavanger — Slots",
+      "destination": "Kristiansand — Parking Area",
+      "server": "To be determined",
+      "meetupAt": "2027-01-14 18:00:00",
+      "departureAt": "2027-01-14 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36816",
+      "platform": "truckersmp",
+      "platformEventId": "36816",
+      "name": "TruckersHub 4th Anniversary Convoy",
+      "date": "2027-01-16",
+      "phase": "future",
+      "type": "external",
+      "organizer": "TruckersHub Community",
+      "eventUrl": "/events/36816-truckershub4th-anniversary-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Düsseldorf — & Duisburg + Dortmund (City Slot)",
+      "destination": "Salzburg — Shuttle Cola",
+      "server": "To be determined",
+      "meetupAt": "2027-01-16 16:30:00",
+      "departureAt": "2027-01-16 17:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:36846",
+      "platform": "truckersmp",
+      "platformEventId": "36846",
+      "name": "#26 IFL CONVOY JANUARY 2027 - ❄️Balkans Winter Convoy ❄️",
+      "date": "2027-01-17",
+      "phase": "future",
+      "type": "external",
+      "organizer": "I FORA Logistics",
+      "eventUrl": "/events/36846-#26-ifl-convoy-january2027-%E2%9D%84%EF%B8%8Fbalkans-winter-convoy%E2%9D%84%EF%B8%8F",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Skopje — Slots",
+      "destination": "Zadar — CNP",
+      "server": "To be determined",
+      "meetupAt": "2027-01-17 19:30:00",
+      "departureAt": "2027-01-17 20:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:36903",
+      "platform": "truckersmp",
+      "platformEventId": "36903",
+      "name": "Pinkachu's Birthday Celebration Convoy :🎉",
+      "date": "2027-01-18",
+      "phase": "future",
+      "type": "external",
+      "organizer": null,
+      "eventUrl": "/events/36903-pinkachu%27s-birthday-celebration-convoy:%F0%9F%8E%89",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Munich — Slots",
+      "destination": "Rijeka — Container Port",
+      "server": "To be determined",
+      "meetupAt": "2027-01-18 20:00:00",
+      "departureAt": "2027-01-18 21:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37553",
+      "platform": "truckersmp",
+      "platformEventId": "37553",
+      "name": "Tamil Pasanga X Drive Along Partnership Convoy JAN 2027",
+      "date": "2027-01-18",
+      "phase": "future",
+      "type": "external",
+      "organizer": "TAMIL PASANGA",
+      "eventUrl": "/events/37553-tamil-pasanga-x-drive-along-partnership-convoy-jan2027",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Newcastle upon Tyne — Newcastle Upon Tyne & Carlisle - Slots",
+      "destination": "Felixstowe — Felixstowe - Harbour",
+      "server": "To be determined",
+      "meetupAt": "2027-01-18 14:00:00",
+      "departureAt": "2027-01-18 15:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36585",
+      "platform": "truckersmp",
+      "platformEventId": "36585",
+      "name": "Moonlight Express | January Convoy",
+      "date": "2027-01-21",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Moonlight Express",
+      "eventUrl": "/events/36585-moonlight-express|-january-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Iași — Slot",
+      "destination": "Pirdop — Rock Eater",
+      "server": "To be determined",
+      "meetupAt": "2027-01-21 18:00:00",
+      "departureAt": "2027-01-21 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36897",
+      "platform": "truckersmp",
+      "platformEventId": "36897",
+      "name": "✨ Premium Events Version #4 ✨",
+      "date": "2027-01-22",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Premium Events",
+      "eventUrl": "/events/36897-%E2%9C%A8-premium-events-version#4%E2%9C%A8",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Amsterdam — + Rotterdam Slots",
+      "destination": "Eindhoven — DAF Center",
+      "server": "To be determined",
+      "meetupAt": "2027-01-22 18:00:00",
+      "departureAt": "2027-01-22 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36930",
+      "platform": "truckersmp",
+      "platformEventId": "36930",
+      "name": "[Bus Convoy] A Cozy Drive in January with Pink Ribbon VTC",
+      "date": "2027-01-23",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "eventUrl": "/events/36930-%5Bbus-convoy%5D-a-cozy-drive-in-january-with-pink-ribbon-vtc",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Manchester — Slots | Public: Garage",
+      "destination": "Glasgow — Quarry",
+      "server": "Simulation 2",
+      "meetupAt": "2027-01-23 15:00:00",
+      "departureAt": "2027-01-23 16:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36615",
+      "platform": "truckersmp",
+      "platformEventId": "36615",
+      "name": "LIGHTNING LOGISTICS | PUBLIC CONVOY #62",
+      "date": "2027-01-24",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Lightning Logistics",
+      "eventUrl": "/events/36615-lightning-logistics|-public-convoy#62",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "İstanbul — Slots",
+      "destination": "Pirdop — Rock Eater",
+      "server": "To be determined",
+      "meetupAt": "2027-01-24 18:00:00",
+      "departureAt": "2027-01-24 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36941",
+      "platform": "truckersmp",
+      "platformEventId": "36941",
+      "name": "Vanguard CC | Welcome to 2027",
+      "date": "2027-01-24",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Vanguard Convoy Control",
+      "eventUrl": "/events/36941-vanguard-cc|-welcome-to2027",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Oslo — Slots",
+      "destination": "Trelleborg — Port",
+      "server": "To be determined",
+      "meetupAt": "2027-01-24 17:00:00",
+      "departureAt": "2027-01-24 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36948",
+      "platform": "truckersmp",
+      "platformEventId": "36948",
+      "name": "Ghost Exp. | January Edition '27",
+      "date": "2027-01-25",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Ghost Express",
+      "eventUrl": "/events/36948-ghost-exp.|-january-edition%2727",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Madrid — Slots",
+      "destination": "Olhão — Epp",
+      "server": "To be determined",
+      "meetupAt": "2027-01-25 18:00:00",
+      "departureAt": "2027-01-25 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36902",
+      "platform": "truckersmp",
+      "platformEventId": "36902",
+      "name": "78th Republic Day of India",
+      "date": "2027-01-26",
+      "phase": "future",
+      "type": "external",
+      "organizer": "[ITVTC] INDIAN TRUCKERS",
+      "eventUrl": "/events/36902-78th-republic-day-of-india",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Cardiff — Slots",
+      "destination": "Dover — Port",
+      "server": "To be determined",
+      "meetupAt": "2027-01-26 15:00:00",
+      "departureAt": "2027-01-26 16:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36276",
+      "platform": "truckersmp",
+      "platformEventId": "36276",
+      "name": "Fast Line UA 2nd Anniversary Convoy",
+      "date": "2027-01-28",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Fast Line UA",
+      "eventUrl": "/events/36276-fast-line-ua2nd-anniversary-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Nuremberg — Slots",
+      "destination": "Reims — Steinbruch",
+      "server": "To be determined",
+      "meetupAt": "2027-01-28 18:00:00",
+      "departureAt": "2027-01-28 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37022",
+      "platform": "truckersmp",
+      "platformEventId": "37022",
+      "name": "Chinese New Year celebration",
+      "date": "2027-01-28",
+      "phase": "future",
+      "type": "external",
+      "organizer": "ITCC Logistics",
+      "eventUrl": "/events/37022-chinese-new-year-celebration",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Strasbourg — Strasbourg (slots/Mine)",
+      "destination": "Osnabrück — Osnabrück (ITCC)",
+      "server": "To be determined",
+      "meetupAt": "2027-01-28 12:00:00",
+      "departureAt": "2027-01-28 13:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37062",
+      "platform": "truckersmp",
+      "platformEventId": "37062",
+      "name": "EGY-TRUCKERS | JANUARY 2027",
+      "date": "2027-01-29",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Egyptian Truckers Company",
+      "eventUrl": "/events/37062-egy-truckers|-january2027",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Kassel — AI Automotive",
+      "server": "To be determined",
+      "meetupAt": "2027-01-29 17:00:00",
+      "departureAt": "2027-01-29 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37087",
+      "platform": "truckersmp",
+      "platformEventId": "37087",
+      "name": "Central Transport 4th Anniversary Convoy",
+      "date": "2027-01-31",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Central Transport",
+      "eventUrl": "/events/37087-central-transport4th-anniversary-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Duisburg — + Dortmund (Slots)",
+      "destination": "Munich — Steinbruch",
+      "server": "To be determined",
+      "meetupAt": "2027-01-31 16:00:00",
+      "departureAt": "2027-01-31 17:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37343",
+      "platform": "truckersmp",
+      "platformEventId": "37343",
+      "name": "Arab Unity Convoy 🤝",
+      "date": "2027-02-02",
+      "phase": "future",
+      "type": "external",
+      "organizer": null,
+      "eventUrl": "/events/37343-arab-unity-convoy%F0%9F%A4%9D",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Bremen — Slots",
+      "destination": "Kassel — Al Automotive",
+      "server": "To be determined",
+      "meetupAt": "2027-02-02 18:00:00",
+      "departureAt": "2027-02-02 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37152",
+      "platform": "truckersmp",
+      "platformEventId": "37152",
+      "name": "Pink Ribbon VTC - February Convoy",
+      "date": "2027-02-05",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "eventUrl": "/events/37152-pink-ribbon-vtc--february-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Navia — Slots + A Coruña (Slots | Public: Garage)",
+      "destination": "Sines — Cortiça Prima",
+      "server": "To be determined",
+      "meetupAt": "2027-02-05 18:00:00",
+      "departureAt": "2027-02-05 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37170",
+      "platform": "truckersmp",
+      "platformEventId": "37170",
+      "name": "Twisted Transport Valentines Convoy",
+      "date": "2027-02-06",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Twisted Transport",
+      "eventUrl": "/events/37170-twisted-transport-valentines-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Amsterdam — Slots",
+      "destination": "Le Havre — Port De Container",
+      "server": "To be determined",
+      "meetupAt": "2027-02-06 19:00:00",
+      "departureAt": "2027-02-06 20:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37522",
+      "platform": "truckersmp",
+      "platformEventId": "37522",
+      "name": "Kerala Roadrunners February Quest",
+      "date": "2027-02-06",
+      "phase": "future",
+      "type": "external",
+      "organizer": "KERALA ROADRUNNERS",
+      "eventUrl": "/events/37522-kerala-roadrunners-february-quest",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Bern — Slots",
+      "destination": "Verona — City",
+      "server": "To be determined",
+      "meetupAt": "2027-02-06 14:00:00",
+      "departureAt": "2027-02-06 15:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37015",
+      "platform": "truckersmp",
+      "platformEventId": "37015",
+      "name": "NeoCrime February Convoy 2027",
+      "date": "2027-02-09",
+      "phase": "future",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "eventUrl": "/events/37015-neocrime-february-convoy2027",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Munich — Slots",
+      "destination": "Liège — TREE-ET",
+      "server": "To be determined",
+      "meetupAt": "2027-02-09 17:00:00",
+      "departureAt": "2027-02-09 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:36617",
+      "platform": "truckersmp",
+      "platformEventId": "36617",
+      "name": "🎉Lightning Logistics 6 Year Convoy!🎉",
+      "date": "2027-02-12",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Lightning Logistics",
+      "eventUrl": "/events/36617-%F0%9F%8E%89lightning-logistics6-year-convoy!%F0%9F%8E%89",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Amsterdam — Slots",
+      "destination": "Luxembourg — ITCC",
+      "server": "To be determined",
+      "meetupAt": "2027-02-12 18:00:00",
+      "departureAt": "2027-02-12 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37415",
+      "platform": "truckersmp",
+      "platformEventId": "37415",
+      "name": "#19 🚛 A view to the Strait of Messina",
+      "date": "2027-02-13",
+      "phase": "future",
+      "type": "external",
+      "organizer": "҉ Fast Freight Brothers",
+      "eventUrl": "/events/37415-#19%F0%9F%9A%9B-a-view-to-the-strait-of-messina",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Rome — Slots",
+      "destination": "Villa San Giovanni — Eolo Lines",
+      "server": "To be determined",
+      "meetupAt": "2027-02-13 20:00:00",
+      "departureAt": "2027-02-13 20:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:37264",
+      "platform": "truckersmp",
+      "platformEventId": "37264",
+      "name": "United Convoys | 6 Year Anniversary 🎉",
+      "date": "2027-02-15",
+      "phase": "future",
+      "type": "external",
+      "organizer": null,
+      "eventUrl": "/events/37264-united-convoys|6-year-anniversary%F0%9F%8E%89",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Ålesund — Slots",
+      "destination": "Linköping — Bjork",
+      "server": "To be determined",
+      "meetupAt": "2027-02-15 18:00:00",
+      "departureAt": "2027-02-15 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37305",
+      "platform": "truckersmp",
+      "platformEventId": "37305",
+      "name": "Moonlight Express | February Convoy",
+      "date": "2027-02-16",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Moonlight Express",
+      "eventUrl": "/events/37305-moonlight-express|-february-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Edirne — Slot",
+      "destination": "Pirdop — Rock Eater",
+      "server": "To be determined",
+      "meetupAt": "2027-02-16 18:00:00",
+      "departureAt": "2027-02-16 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37505",
+      "platform": "truckersmp",
+      "platformEventId": "37505",
+      "name": "Eternal Transport | February Convoy",
+      "date": "2027-02-17",
+      "phase": "future",
+      "type": "external",
+      "organizer": "ETERNAL TRANSPORT™",
+      "eventUrl": "/events/37505-eternal-transport|-february-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Trondheim — Slots",
+      "destination": "Lulea — WGCC",
+      "server": "To be determined",
+      "meetupAt": "2027-02-17 17:00:00",
+      "departureAt": "2027-02-17 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37618",
+      "platform": "truckersmp",
+      "platformEventId": "37618",
+      "name": "Global Trucking's February Convoy 2027",
+      "date": "2027-02-18",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Global Trucking VTC",
+      "eventUrl": "/events/37618-global-trucking%27s-february-convoy2027",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Sheffield — Slots",
+      "destination": "Sheffield — Quarry",
+      "server": "To be determined",
+      "meetupAt": "2027-02-18 18:00:00",
+      "departureAt": "2027-02-18 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37450",
+      "platform": "truckersmp",
+      "platformEventId": "37450",
+      "name": "#27 IFL CONVOY FEBRUARY 2027 - The Great British Haul",
+      "date": "2027-02-19",
+      "phase": "future",
+      "type": "external",
+      "organizer": "I FORA Logistics",
+      "eventUrl": "/events/37450-#27-ifl-convoy-february2027--the-great-british-haul",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Dover — Slot",
+      "destination": "Newcastle upon Tyne — SanBuilders",
+      "server": "To be determined",
+      "meetupAt": "2027-02-19 19:30:00",
+      "departureAt": "2027-02-19 20:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:37397",
+      "platform": "truckersmp",
+      "platformEventId": "37397",
+      "name": "✨Premium Events Version #5 ✨",
+      "date": "2027-02-20",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Premium Events",
+      "eventUrl": "/events/37397-%E2%9C%A8premium-events-version#5%E2%9C%A8",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Calais — + Lille Slots",
+      "destination": "Strasbourg — Stein Bruch",
+      "server": "To be determined",
+      "meetupAt": "2027-02-20 11:30:00",
+      "departureAt": "2027-02-20 12:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:37411",
+      "platform": "truckersmp",
+      "platformEventId": "37411",
+      "name": "A Cozy Drive in February with Pink Ribbon VTC",
+      "date": "2027-02-20",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "eventUrl": "/events/37411-a-cozy-drive-in-february-with-pink-ribbon-vtc",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Clermont-Ferrand — Slots | Public: Garage",
+      "destination": "Bourges — Globeur",
+      "server": "Simulation 2",
+      "meetupAt": "2027-02-20 15:00:00",
+      "departureAt": "2027-02-20 16:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37422",
+      "platform": "truckersmp",
+      "platformEventId": "37422",
+      "name": "NovaLines February Convoy",
+      "date": "2027-02-20",
+      "phase": "future",
+      "type": "external",
+      "organizer": "NovaLines",
+      "eventUrl": "/events/37422-novalines-february-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Dresden — Slots",
+      "destination": "Innsbruck — Stein Bruch",
+      "server": "To be determined",
+      "meetupAt": "2027-02-20 17:00:00",
+      "departureAt": "2027-02-20 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37405",
+      "platform": "truckersmp",
+      "platformEventId": "37405",
+      "name": "TAMILNADU LOGISTICS celebrating 3 Years on the Road",
+      "date": "2027-02-21",
+      "phase": "future",
+      "type": "external",
+      "organizer": "- TAMILNADU LOGISTICS -",
+      "eventUrl": "/events/37405-tamilnadu-logistics-celebrating3-years-on-the-road",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Hanover — Route A) + Nuremberg (Route B",
+      "destination": "Dortmund — Route A -> IKA) & (Route B -> LKW and Steinbruch",
+      "server": "To be determined",
+      "meetupAt": "2027-02-21 12:30:00",
+      "departureAt": "2027-02-21 13:30:00"
+    },
+    {
+      "candidateKey": "truckersmp:37471",
+      "platform": "truckersmp",
+      "platformEventId": "37471",
+      "name": "Ghost Express | February Edition '27",
+      "date": "2027-02-22",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Ghost Express",
+      "eventUrl": "/events/37471-ghost-express|-february-edition%2727",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Zagreb — Slots",
+      "destination": "Podgorica — Rockeater",
+      "server": "To be determined",
+      "meetupAt": "2027-02-22 18:00:00",
+      "departureAt": "2027-02-22 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37442",
+      "platform": "truckersmp",
+      "platformEventId": "37442",
+      "name": "Vabis Transport | February Convoy",
+      "date": "2027-02-23",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Vabis Transport",
+      "eventUrl": "/events/37442-vabis-transport|-february-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Rostock — Slots",
+      "destination": "TruckersMP HQ — ACC",
+      "server": "To be determined",
+      "meetupAt": "2027-02-23 17:00:00",
+      "departureAt": "2027-02-23 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37528",
+      "platform": "truckersmp",
+      "platformEventId": "37528",
+      "name": "MALKOCOGLU LOGISTICS FEBRUARY CONVOY #22",
+      "date": "2027-02-24",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Malkoçoğlu Logistics",
+      "eventUrl": "/events/37528-malkocoglu-logistics-february-convoy#22",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Calais — City",
+      "destination": "Strasbourg — Stein Bruch",
+      "server": "To be determined",
+      "meetupAt": "2027-02-24 17:00:00",
+      "departureAt": "2027-02-24 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37502",
+      "platform": "truckersmp",
+      "platformEventId": "37502",
+      "name": "EGY-Truckers | 6th Anniversary",
+      "date": "2027-02-26",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Egyptian Truckers Company",
+      "eventUrl": "/events/37502-egy-truckers|6th-anniversary",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Bremen — Container Port",
+      "server": "To be determined",
+      "meetupAt": "2027-02-26 17:00:00",
+      "departureAt": "2027-02-26 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37489",
+      "platform": "truckersmp",
+      "platformEventId": "37489",
+      "name": "🎉 Hardik Turns 20 | Another Year, Another Gear",
+      "date": "2027-02-28",
+      "phase": "future",
+      "type": "external",
+      "organizer": null,
+      "eventUrl": "/events/37489-%F0%9F%8E%89-hardik-turns20|-another-year,-another-gear",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Dortmund — Slots",
+      "destination": "Stuttgart — Stein Bruch",
+      "server": "To be determined",
+      "meetupAt": "2027-02-28 13:00:00",
+      "departureAt": "2027-02-28 14:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:38240",
+      "platform": "truckersmp",
+      "platformEventId": "38240",
+      "name": "Global Trucking's March  Convoy 2027",
+      "date": "2027-03-04",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Global Trucking VTC",
+      "eventUrl": "/events/38240-global-trucking%27s-march-convoy2027",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slots",
+      "destination": "Nuremberg — CNP & RT Log",
+      "server": "To be determined",
+      "meetupAt": "2027-03-04 18:00:00",
+      "departureAt": "2027-03-04 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37712",
+      "platform": "truckersmp",
+      "platformEventId": "37712",
+      "name": "Pink Ribbon VTC - March Convoy",
+      "date": "2027-03-05",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "eventUrl": "/events/37712-pink-ribbon-vtc--march-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Livorno — Slots + Florence (Slots | Public: Garage)",
+      "destination": "Bern — SellPlan + Charmeys",
+      "server": "To be determined",
+      "meetupAt": "2027-03-05 18:00:00",
+      "departureAt": "2027-03-05 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37701",
+      "platform": "truckersmp",
+      "platformEventId": "37701",
+      "name": "MALKOCOGLU LOGISTICS MARCH CONVOY #23",
+      "date": "2027-03-06",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Malkoçoğlu Logistics",
+      "eventUrl": "/events/37701-malkocoglu-logistics-march-convoy#23",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Leipzig — (City)",
+      "destination": "Munich — Parking Area",
+      "server": "To be determined",
+      "meetupAt": "2027-03-06 17:00:00",
+      "departureAt": "2027-03-06 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37780",
+      "platform": "truckersmp",
+      "platformEventId": "37780",
+      "name": "Dolunay VTC™ | March Convoy",
+      "date": "2027-03-07",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Dolunay VTC™",
+      "eventUrl": "/events/37780-dolunay-vtc%E2%84%A2|-march-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "TruckersMP HQ — Slot's",
+      "destination": "Rostock — DFH",
+      "server": "To be determined",
+      "meetupAt": "2027-03-07 17:00:00",
+      "departureAt": "2027-03-07 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:38072",
+      "platform": "truckersmp",
+      "platformEventId": "38072",
+      "name": "Northern Lights 2nd Anniversary",
+      "date": "2027-03-09",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Northern Lights",
+      "eventUrl": "/events/38072-northern-lights2nd-anniversary",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Leipzig — Slots & Magdeburg (Slots)",
+      "destination": "Eindhoven — DAF Trucks",
+      "server": "To be determined",
+      "meetupAt": "2027-03-09 17:00:00",
+      "departureAt": "2027-03-09 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37874",
+      "platform": "truckersmp",
+      "platformEventId": "37874",
+      "name": "NeoCrime March Convoy 2027",
+      "date": "2027-03-10",
+      "phase": "future",
+      "type": "external",
+      "organizer": "NeoCrime™",
+      "eventUrl": "/events/37874-neocrime-march-convoy2027",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Antwerp — + Eindhoven Slots",
+      "destination": "Bern — SellPlan & Charmey",
+      "server": "To be determined",
+      "meetupAt": "2027-03-10 17:00:00",
+      "departureAt": "2027-03-10 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37798",
+      "platform": "truckersmp",
+      "platformEventId": "37798",
+      "name": "Orvion CC 1st Anniversary Convoy",
+      "date": "2027-03-11",
+      "phase": "future",
+      "type": "external",
+      "organizer": null,
+      "eventUrl": "/events/37798-orvion-cc1st-anniversary-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Nuremberg — Slots",
+      "destination": "Prague — Stein Bruch",
+      "server": "To be determined",
+      "meetupAt": "2027-03-11 17:00:00",
+      "departureAt": "2027-03-11 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37847",
+      "platform": "truckersmp",
+      "platformEventId": "37847",
+      "name": "Nexon Logistics March Convoy #92",
+      "date": "2027-03-13",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Nexon Logistics",
+      "eventUrl": "/events/37847-nexon-logistics-march-convoy#92",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Munich — Slots",
+      "destination": "Milan — City",
+      "server": "To be determined",
+      "meetupAt": "2027-03-13 13:00:00",
+      "departureAt": "2027-03-13 14:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:37886",
+      "platform": "truckersmp",
+      "platformEventId": "37886",
+      "name": "Twisted Transport - 5th Year Anniversary Convoy",
+      "date": "2027-03-13",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Twisted Transport",
+      "eventUrl": "/events/37886-twisted-transport-5th-year-anniversary-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Osijek — SLOTS",
+      "destination": "Rijeka — CONTAINER PORT",
+      "server": "To be determined",
+      "meetupAt": "2027-03-13 18:00:00",
+      "departureAt": "2027-03-13 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:38055",
+      "platform": "truckersmp",
+      "platformEventId": "38055",
+      "name": "Central Transport Monthly Convoy #22",
+      "date": "2027-03-27",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Central Transport",
+      "eventUrl": "/events/38055-central-transport-monthly-convoy#22",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Zadar — Bihać (Slots)",
+      "destination": "Bijelo Polje — Villco",
+      "server": "To be determined",
+      "meetupAt": "2027-03-27 17:00:00",
+      "departureAt": "2027-03-27 18:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:38211",
+      "platform": "truckersmp",
+      "platformEventId": "38211",
+      "name": "Pink Ribbon VTC - April Convoy",
+      "date": "2027-04-02",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "eventUrl": "/events/38211-pink-ribbon-vtc--april-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Saint Petersburg — Slots | Public: Garage",
+      "destination": "Vaasa — Byggpro",
+      "server": "To be determined",
+      "meetupAt": "2027-04-02 18:00:00",
+      "departureAt": "2027-04-02 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:38296",
+      "platform": "truckersmp",
+      "platformEventId": "38296",
+      "name": "Twisted Transport April Convoy",
+      "date": "2027-04-03",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Twisted Transport",
+      "eventUrl": "/events/38296-twisted-transport-april-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending-rsvp",
+        "meaning": "TruckersMP lists Kings Logistics as attending/registered. This is candidate evidence, not proof of physical attendance."
+      },
+      "suggestedParticipation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "start": "Lamia — Slots",
+      "destination": "Durrës — Container Port",
+      "server": "To be determined",
+      "meetupAt": "2027-04-03 18:00:00",
+      "departureAt": "2027-04-03 19:00:00"
+    }
+  ]
+}
