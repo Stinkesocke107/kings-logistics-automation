@@ -22,7 +22,7 @@ on:
       - '.github/workflows/convoy-history-audit.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: kings-convoy-history-audit-${{ github.ref }}
@@ -58,7 +58,22 @@ jobs:
         env:
           KINGS_VTC_ID: '64284'
           KINGS_CONVOY_HISTORY_FROM: '2023-01-01'
+          KINGS_CONVOY_HISTORY_CANDIDATES: 'data/convoy-history-truckersmp-candidates.json'
         run: node convoy-history-truckersmp-candidates.js
+
+      - name: Persist TruckersMP candidate snapshot on development branch
+        if: ${{ github.event_name == 'push' }}
+        shell: bash
+        run: |
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/convoy-history-truckersmp-candidates.json
+          if git diff --cached --quiet; then
+            echo "No candidate snapshot changes to save."
+            exit 0
+          fi
+          git commit -m "Update TruckersMP convoy history candidate snapshot"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Publish convoy statistics to Discord
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_to_discord == true }}
