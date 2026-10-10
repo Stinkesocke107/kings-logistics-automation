@@ -35,7 +35,7 @@ concurrency:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
 
     steps:
       - name: Checkout repository
@@ -72,12 +72,12 @@ jobs:
       - name: Scan TruckersMP historical events for Kings participation in 2023
         env:
           KINGS_VTC_ID: '64284'
-          KINGS_2023_SCAN_START_ID: '10000'
+          KINGS_2023_SCAN_START_ID: '14000'
           KINGS_2023_SCAN_END_ID: '19999'
           KINGS_2023_FROM_DATE: '2023-07-09'
           KINGS_2023_TO_DATE: '2023-12-31'
-          KINGS_2023_SCAN_INTERVAL_MS: '75'
-          KINGS_2023_SCAN_WORKERS: '4'
+          KINGS_2023_SCAN_INTERVAL_MS: '25'
+          KINGS_2023_SCAN_WORKERS: '12'
         run: node convoy-history-truckersmp-2023-scan.js
 
       - name: Probe TruckersMP VTC attending pagination
