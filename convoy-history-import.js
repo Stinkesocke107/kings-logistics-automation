@@ -5,6 +5,7 @@ const CANDIDATES_PATH = process.env.KINGS_CONVOY_HISTORY_CANDIDATES || 'data/con
 const MANUAL_PATH = process.env.KINGS_CONVOY_HISTORY_MANUAL || 'data/convoy-history-manual-evidence.json';
 const SCAN_2023_PATH = process.env.KINGS_CONVOY_HISTORY_2023_SCAN || 'data/convoy-history-2023-scan.json';
 const SCAN_2024_PATH = process.env.KINGS_CONVOY_HISTORY_2024_SCAN || 'data/convoy-history-2024-scan.json';
+const SCAN_2025_PATH = process.env.KINGS_CONVOY_HISTORY_2025_SCAN || 'data/convoy-history-2025-scan.json';
 
 function readJson(path, fallback = null) {
   if (!fs.existsSync(path)) return fallback;
@@ -142,6 +143,7 @@ function main() {
   const manualData = readJson(MANUAL_PATH, { records: [] });
   const scan2023 = readJson(SCAN_2023_PATH, null);
   const scan2024 = readJson(SCAN_2024_PATH, null);
+  const scan2025 = readJson(SCAN_2025_PATH, null);
 
   const candidateRecords = (candidateData.candidates || []).map(candidate => candidateToRecord(candidate));
   const manualRecords = (manualData.records || []).map(normalizeManual);
@@ -151,6 +153,9 @@ function main() {
   const scan2024Records = scan2024?.complete === true && Array.isArray(scan2024.matches)
     ? scan2024.matches.map(normalizeManual)
     : [];
+  const scan2025Records = scan2025?.complete === true && Array.isArray(scan2025.matches)
+    ? scan2025.matches.map(normalizeManual)
+    : [];
 
   if (scan2023 && scan2023.complete !== true) {
     console.warn('2023 scan exists but is incomplete; its matches are not imported.');
@@ -158,8 +163,11 @@ function main() {
   if (scan2024 && scan2024.complete !== true) {
     console.warn('2024 scan exists but is incomplete; its matches are not imported.');
   }
+  if (scan2025 && scan2025.complete !== true) {
+    console.warn('2025 scan exists but is incomplete; its matches are not imported.');
+  }
 
-  const result = mergeHistory(history, [...candidateRecords, ...manualRecords, ...scan2023Records, ...scan2024Records]);
+  const result = mergeHistory(history, [...candidateRecords, ...manualRecords, ...scan2023Records, ...scan2024Records, ...scan2025Records]);
 
   fs.writeFileSync(HISTORY_PATH, JSON.stringify(result.history, null, 2) + '\n');
 
@@ -168,6 +176,7 @@ function main() {
   console.log('Manual verified records: ' + manualRecords.length);
   console.log('2023 API-scan verified records: ' + scan2023Records.length);
   console.log('2024 API-scan verified records: ' + scan2024Records.length);
+  console.log('2025 API-scan verified records: ' + scan2025Records.length);
   console.log('Added: ' + result.added + ' | Updated: ' + result.updated);
   console.log('History records: ' + result.history.records.length);
 }
