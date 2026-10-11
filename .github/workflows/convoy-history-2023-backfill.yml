@@ -27,24 +27,15 @@ jobs:
     timeout-minutes: 75
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 1
       matrix:
         include:
-          - chunk: '10000-11999'
-            start: 10000
-            end: 11999
           - chunk: '12000-13999'
             start: 12000
             end: 13999
           - chunk: '14000-15999'
             start: 14000
             end: 15999
-          - chunk: '16000-17999'
-            start: 16000
-            end: 17999
-          - chunk: '18000-19999'
-            start: 18000
-            end: 19999
 
     steps:
       - name: Checkout repository
@@ -65,8 +56,8 @@ jobs:
           KINGS_2023_SCAN_END_ID: '${{ matrix.end }}'
           KINGS_2023_FROM_DATE: '2023-07-09'
           KINGS_2023_TO_DATE: '2023-12-31'
-          KINGS_2023_SCAN_INTERVAL_MS: '40'
-          KINGS_2023_SCAN_WORKERS: '8'
+          KINGS_2023_SCAN_INTERVAL_MS: '150'
+          KINGS_2023_SCAN_WORKERS: '3'
           KINGS_2023_CHECKPOINT_EVERY: '100'
           KINGS_2023_SCAN_OUTPUT: 'data/convoy-history-2023-chunks/chunk-${{ matrix.chunk }}.json'
         run: node convoy-history-truckersmp-2023-scan.js
