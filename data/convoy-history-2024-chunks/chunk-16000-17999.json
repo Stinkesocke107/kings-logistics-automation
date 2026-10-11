@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "mode": "one-time-truckersmp-2024-historical-event-scan",
+  "generatedAt": "2026-10-11T02:03:24.241Z",
+  "checkpointAt": "2026-10-11T02:50:04.463Z",
+  "complete": false,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 16000,
+    "endId": 17999
+  },
+  "dateWindow": {
+    "from": "2024-01-01",
+    "to": "2024-12-31"
+  },
+  "requestPolicy": {
+    "workers": 4,
+    "minimumRequestStartIntervalMs": 100,
+    "retry429And5xx": true,
+    "checkpointEvery": 100
+  },
+  "stats": {
+    "requested": 2000,
+    "checked": 2000,
+    "foundEvents": 940,
+    "inDateWindow": 115,
+    "notFound": 1059,
+    "requestErrors": 1
+  },
+  "matches": [
+    {
+      "id": "KCE-TRUCKERSMP-17531",
+      "platform": "truckersmp",
+      "platformEventId": "17531",
+      "name": "ECL | Connect Convoy Juni",
+      "date": "2024-06-01",
+      "type": "external",
+      "organizer": "EuroCityLogistik",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/17531-ecl|-connect-convoy-juni",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/17531-ecl|-connect-convoy-juni",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:03:24.241Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 17531,
+        "confirmedVtcCount": 9,
+        "start": "Oslo — Slots",
+        "destination": "Magdeburg — SellPlan",
+        "meetupAt": "2024-06-01 18:00:00",
+        "departureAt": "2024-06-01 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:03:24.241Z"
+    }
+  ],
+  "errors": [
+    {
+      "id": 16376,
+      "state": "http-error",
+      "status": 429
+    }
+  ]
+}

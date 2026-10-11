@@ -1,0 +1,941 @@
+{
+  "version": 1,
+  "mode": "merged-truckersmp-2024-historical-event-scan",
+  "generatedAt": "2026-10-11T04:00:17.500Z",
+  "complete": false,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 14000,
+    "endId": 26999
+  },
+  "dateWindow": {
+    "from": "2024-01-01",
+    "to": "2024-12-31"
+  },
+  "coverage": {
+    "expectedChunks": [
+      {
+        "startId": 14000,
+        "endId": 15999
+      },
+      {
+        "startId": 16000,
+        "endId": 17999
+      },
+      {
+        "startId": 18000,
+        "endId": 19999
+      },
+      {
+        "startId": 20000,
+        "endId": 21999
+      },
+      {
+        "startId": 22000,
+        "endId": 23999
+      },
+      {
+        "startId": 24000,
+        "endId": 25999
+      },
+      {
+        "startId": 26000,
+        "endId": 26999
+      }
+    ],
+    "receivedChunks": [
+      {
+        "file": "chunk-14000-15999.json",
+        "startId": 14000,
+        "endId": 15999,
+        "complete": true
+      },
+      {
+        "file": "chunk-16000-17999.json",
+        "startId": 16000,
+        "endId": 17999,
+        "complete": false
+      },
+      {
+        "file": "chunk-18000-19999.json",
+        "startId": 18000,
+        "endId": 19999,
+        "complete": true
+      },
+      {
+        "file": "chunk-20000-21999.json",
+        "startId": 20000,
+        "endId": 21999,
+        "complete": true
+      },
+      {
+        "file": "chunk-22000-23999.json",
+        "startId": 22000,
+        "endId": 23999,
+        "complete": true
+      },
+      {
+        "file": "chunk-24000-25999.json",
+        "startId": 24000,
+        "endId": 25999,
+        "complete": true
+      },
+      {
+        "file": "chunk-26000-26999.json",
+        "startId": 26000,
+        "endId": 26999,
+        "complete": true
+      }
+    ],
+    "missing": [],
+    "incomplete": [
+      {
+        "startId": 16000,
+        "endId": 17999,
+        "checked": 2000,
+        "requested": 2000,
+        "requestErrors": 1
+      }
+    ]
+  },
+  "stats": {
+    "requested": 13000,
+    "checked": 13000,
+    "foundEvents": 6324,
+    "inDateWindow": 3094,
+    "notFound": 6675,
+    "requestErrors": 1
+  },
+  "matches": [
+    {
+      "id": "KCE-TRUCKERSMP-19735",
+      "platform": "truckersmp",
+      "platformEventId": "19735",
+      "name": "AFTER-WORK-KONVOI JANUAR '24",
+      "date": "2024-01-10",
+      "type": "external",
+      "organizer": "InterTrans Spedition [closed]",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/19735-after-work-konvoi-januar%2724",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/19735-after-work-konvoi-januar%2724",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:03:22.618Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 19735,
+        "confirmedVtcCount": 3,
+        "start": "Munich — München (siehe Slotübersicht)",
+        "destination": "Catanzaro — Hotel in Catanzaro",
+        "meetupAt": "2024-01-10 18:30:00",
+        "departureAt": "2024-01-10 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:03:22.618Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-20798",
+      "platform": "truckersmp",
+      "platformEventId": "20798",
+      "name": "Geburtstagskonvoi | 7 Jahre simulator1",
+      "date": "2024-03-10",
+      "type": "external",
+      "organizer": "DieserRalph",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/20798-geburtstagskonvoi|7-jahre-simulator1",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/20798-geburtstagskonvoi|7-jahre-simulator1",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:12.287Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 20798,
+        "confirmedVtcCount": 4,
+        "start": "Gdańsk — LKW Log",
+        "destination": "Other — Parking lot on the border between Poland and Lithuania",
+        "meetupAt": "2024-03-10 15:00:00",
+        "departureAt": "2024-03-10 15:15:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:12.287Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-18427",
+      "platform": "truckersmp",
+      "platformEventId": "18427",
+      "name": "!!!!! ABGESAGT!!!!!!!2 Jahre OstHarz-Logistik!!!!!",
+      "date": "2024-04-27",
+      "type": "external",
+      "organizer": "Harz Thermo-Liner (HTL)",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/18427-!!!!!-abgesagt!!!!!!!2-jahre-ostharz-logistik!!!!!",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/18427-!!!!!-abgesagt!!!!!!!2-jahre-ostharz-logistik!!!!!",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:03:22.618Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 18427,
+        "confirmedVtcCount": 13,
+        "start": "Rostock — Ganzes Hafen Gebiet ( RTLOG, Vita Power, DFH, SUBSE)",
+        "destination": "Riga — Eviksi ZS",
+        "meetupAt": null,
+        "departureAt": "2024-04-27 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:03:22.618Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-22039",
+      "platform": "truckersmp",
+      "platformEventId": "22039",
+      "name": "April Konvoi von Laxis Logistics",
+      "date": "2024-04-27",
+      "type": "external",
+      "organizer": "Dennis Zockt [GER]",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/22039-april-konvoi-von-laxis-logistics",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/22039-april-konvoi-von-laxis-logistics",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:25.574Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 22039,
+        "confirmedVtcCount": 4,
+        "start": "Strasbourg — WGCC",
+        "destination": "Brno — LkwLogGmbH",
+        "meetupAt": "2024-04-27 17:00:00",
+        "departureAt": "2024-04-27 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:25.574Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-22040",
+      "platform": "truckersmp",
+      "platformEventId": "22040",
+      "name": "Husky Logistik Mai Fahrt",
+      "date": "2024-05-11",
+      "type": "external",
+      "organizer": "husky_sven ( TTV-Live )",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/22040-husky-logistik-mai-fahrt",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/22040-husky-logistik-mai-fahrt",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:25.574Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 22040,
+        "confirmedVtcCount": 15,
+        "start": "Cluj-Napoca — dom depot",
+        "destination": "Pirdop — rock eat",
+        "meetupAt": "2024-05-11 17:00:00",
+        "departureAt": "2024-05-11 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:25.574Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-20304",
+      "platform": "truckersmp",
+      "platformEventId": "20304",
+      "name": "LIGHTNING LOGISTICS |PUBLIC CONVOY #32",
+      "date": "2024-05-17",
+      "type": "external",
+      "organizer": "Lightning Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/20304-lightning-logistics|public-convoy#32",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/20304-lightning-logistics|public-convoy#32",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:12.287Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 20304,
+        "confirmedVtcCount": 13,
+        "start": "Glasgow — Slots - Public - Ownable Garage",
+        "destination": "Birmingham — SanBuilders",
+        "meetupAt": "2024-05-17 17:00:00",
+        "departureAt": "2024-05-17 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:12.287Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-17531",
+      "platform": "truckersmp",
+      "platformEventId": "17531",
+      "name": "ECL | Connect Convoy Juni",
+      "date": "2024-06-01",
+      "type": "external",
+      "organizer": "EuroCityLogistik",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/17531-ecl|-connect-convoy-juni",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/17531-ecl|-connect-convoy-juni",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:03:24.241Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 17531,
+        "confirmedVtcCount": 9,
+        "start": "Oslo — Slots",
+        "destination": "Magdeburg — SellPlan",
+        "meetupAt": "2024-06-01 18:00:00",
+        "departureAt": "2024-06-01 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:03:24.241Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-21661",
+      "platform": "truckersmp",
+      "platformEventId": "21661",
+      "name": "Dream Events Monthly Convoy #002",
+      "date": "2024-06-14",
+      "type": "external",
+      "organizer": "[Dream] Network",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/21661-dream-events-monthly-convoy#002",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/21661-dream-events-monthly-convoy#002",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:12.287Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 21661,
+        "confirmedVtcCount": 9,
+        "start": "Linz — Slot #8 Public",
+        "destination": "Nuremberg — CNP",
+        "meetupAt": "2024-06-14 17:30:00",
+        "departureAt": "2024-06-14 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:12.287Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-22500",
+      "platform": "truckersmp",
+      "platformEventId": "22500",
+      "name": "ETS2MCG 8th Anniversary Convoy",
+      "date": "2024-08-04",
+      "type": "external",
+      "organizer": "ETS2MCG",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/22500-ets2mcg8th-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/22500-ets2mcg8th-anniversary-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:25.574Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 22500,
+        "confirmedVtcCount": 55,
+        "start": "Mannheim — City",
+        "destination": "Hamburg — Port",
+        "meetupAt": "2024-08-04 11:30:00",
+        "departureAt": "2024-08-04 12:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:25.574Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-23660",
+      "platform": "truckersmp",
+      "platformEventId": "23660",
+      "name": "Eröffnungskonvoi der Aquila Logistics",
+      "date": "2024-08-09",
+      "type": "external",
+      "organizer": "InterXpress Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/23660-er%C3%B6ffnungskonvoi-der-aquila-logistics",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/23660-er%C3%B6ffnungskonvoi-der-aquila-logistics",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:25.574Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 23660,
+        "confirmedVtcCount": 5,
+        "start": "Hanover — Primel | Tradeaux",
+        "destination": "Klagenfurt am Wörthersee — Kathode",
+        "meetupAt": "2024-08-09 18:00:00",
+        "departureAt": "2024-08-09 18:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:25.574Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-19202",
+      "platform": "truckersmp",
+      "platformEventId": "19202",
+      "name": "FBTC - COMBOIO PÚBLICO DE AGOSTO",
+      "date": "2024-08-10",
+      "type": "external",
+      "organizer": "Família Brazil Truck Club - FBTC",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/19202-fbtc--comboio-p%C3%BAblico-de-agosto",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/19202-fbtc--comboio-p%C3%BAblico-de-agosto",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:03:22.618Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 19202,
+        "confirmedVtcCount": 14,
+        "start": "Manchester — WGCC",
+        "destination": "Dover — LKW",
+        "meetupAt": "2024-08-10 23:30:00",
+        "departureAt": "2024-08-11 00:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:03:22.618Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-23966",
+      "platform": "truckersmp",
+      "platformEventId": "23966",
+      "name": "Freitag  Abend Convoy",
+      "date": "2024-08-30",
+      "type": "external",
+      "organizer": "HighwayMaik",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/23966-freitag-abend-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/23966-freitag-abend-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:25.574Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 23966,
+        "confirmedVtcCount": 5,
+        "start": "Hanover — (Slots)",
+        "destination": "Liverpool — (NBFC)",
+        "meetupAt": "2024-08-30 16:00:00",
+        "departureAt": "2024-08-30 16:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:25.574Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-23993",
+      "platform": "truckersmp",
+      "platformEventId": "23993",
+      "name": "Isar Transport | 1 nd Anniversary",
+      "date": "2024-10-11",
+      "type": "external",
+      "organizer": "- Alpen Express -",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/23993-isar-transport|1-nd-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/23993-isar-transport|1-nd-anniversary",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:25.574Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 23993,
+        "confirmedVtcCount": 12,
+        "start": "Munich — Slots",
+        "destination": "Hamburg — DFH",
+        "meetupAt": "2024-10-11 17:00:00",
+        "departureAt": "2024-10-11 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:25.574Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-24399",
+      "platform": "truckersmp",
+      "platformEventId": "24399",
+      "name": "HERBSTKONVOI 24",
+      "date": "2024-10-19",
+      "type": "external",
+      "organizer": "Fuchs Transporte",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/24399-herbstkonvoi24",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/24399-herbstkonvoi24",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:20.228Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 24399,
+        "confirmedVtcCount": 7,
+        "start": "Klagenfurt am Wörthersee — Slots!",
+        "destination": "Novovolynsk — Black Red White & Krono Span",
+        "meetupAt": "2024-10-19 18:00:00",
+        "departureAt": "2024-10-19 18:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:20.228Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-20919",
+      "platform": "truckersmp",
+      "platformEventId": "20919",
+      "name": "The Spookiest October with Pean Logistics!",
+      "date": "2024-10-27",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/20919-the-spookiest-october-with-pean-logistics!",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/20919-the-spookiest-october-with-pean-logistics!",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:12.287Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 20919,
+        "confirmedVtcCount": 35,
+        "start": "Lyon — Slots",
+        "destination": "Paris — Tradeaux",
+        "meetupAt": "2024-10-27 18:00:00",
+        "departureAt": "2024-10-27 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:12.287Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-24356",
+      "platform": "truckersmp",
+      "platformEventId": "24356",
+      "name": "ECL | Connect Convoy November",
+      "date": "2024-11-03",
+      "type": "external",
+      "organizer": "EuroCityLogistik",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/24356-ecl|-connect-convoy-november",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/24356-ecl|-connect-convoy-november",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:20.228Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 24356,
+        "confirmedVtcCount": 9,
+        "start": "Limoges — Slots",
+        "destination": "Port de Sagunt — TDC",
+        "meetupAt": "2024-11-03 15:30:00",
+        "departureAt": "2024-11-03 16:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:20.228Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-20921",
+      "platform": "truckersmp",
+      "platformEventId": "20921",
+      "name": "A Nippy November with Pean Logistics!",
+      "date": "2024-11-16",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/20921-a-nippy-november-with-pean-logistics!",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/20921-a-nippy-november-with-pean-logistics!",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:12.287Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 20921,
+        "confirmedVtcCount": 35,
+        "start": "Luxembourg — City",
+        "destination": "Hanover — Quarry",
+        "meetupAt": "2024-11-16 18:00:00",
+        "departureAt": "2024-11-16 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:12.287Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-24357",
+      "platform": "truckersmp",
+      "platformEventId": "24357",
+      "name": "ECL | Connect Convoy Dezember",
+      "date": "2024-12-01",
+      "type": "external",
+      "organizer": "EuroCityLogistik",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/24357-ecl|-connect-convoy-dezember",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/24357-ecl|-connect-convoy-dezember",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:20.228Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 24357,
+        "confirmedVtcCount": 7,
+        "start": "Port de Sagunt — Slots",
+        "destination": "A Coruña — CNP",
+        "meetupAt": "2024-12-01 16:00:00",
+        "departureAt": "2024-12-01 16:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:20.228Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-21164",
+      "platform": "truckersmp",
+      "platformEventId": "21164",
+      "name": "Winterkonvoi der Black Dynasty Logistic",
+      "date": "2024-12-07",
+      "type": "external",
+      "organizer": "Black Dynasty Logistic",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/21164-winterkonvoi-der-black-dynasty-logistic",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/21164-winterkonvoi-der-black-dynasty-logistic",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:12.287Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 21164,
+        "confirmedVtcCount": 7,
+        "start": "Murcia — CDS/ Canteras Del Sur",
+        "destination": "Huelva — CNP",
+        "meetupAt": "2024-12-07 18:00:00",
+        "departureAt": "2024-12-07 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:12.287Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-23299",
+      "platform": "truckersmp",
+      "platformEventId": "23299",
+      "name": "CONVOY INTER.SHIPEADOS LOGISTICA DICEMBRE",
+      "date": "2024-12-07",
+      "type": "external",
+      "organizer": "Inter Shipeados Logística",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/23299-convoy-inter.shipeados-logistica-dicembre",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/23299-convoy-inter.shipeados-logistica-dicembre",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:25.574Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 23299,
+        "confirmedVtcCount": 19,
+        "start": "Bialystok — Slots",
+        "destination": "Leipzig — TREE-ET",
+        "meetupAt": "2024-12-07 00:00:00",
+        "departureAt": "2024-12-07 01:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:25.574Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-21674",
+      "platform": "truckersmp",
+      "platformEventId": "21674",
+      "name": "REAL OPS V2.0 TCCR VTC FEAT NET",
+      "date": "2024-12-14",
+      "type": "external",
+      "organizer": "Truck Convoy Control and Route",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/21674-real-ops-v2.0-tccr-vtc-feat-net",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/21674-real-ops-v2.0-tccr-vtc-feat-net",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:50:12.287Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 21674,
+        "confirmedVtcCount": 26,
+        "start": "Olsztyn — other",
+        "destination": "Dresden — other",
+        "meetupAt": "2024-12-14 18:00:00",
+        "departureAt": "2024-12-14 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:50:12.287Z"
+    }
+  ],
+  "errors": [
+    {
+      "range": {
+        "startId": 16000,
+        "endId": 17999
+      },
+      "id": 16376,
+      "state": "http-error",
+      "status": 429
+    }
+  ]
+}

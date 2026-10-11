@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "mode": "one-time-truckersmp-2024-historical-event-scan",
+  "generatedAt": "2026-10-11T02:03:22.618Z",
+  "checkpointAt": "2026-10-11T02:50:07.478Z",
+  "complete": true,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 18000,
+    "endId": 19999
+  },
+  "dateWindow": {
+    "from": "2024-01-01",
+    "to": "2024-12-31"
+  },
+  "requestPolicy": {
+    "workers": 4,
+    "minimumRequestStartIntervalMs": 100,
+    "retry429And5xx": true,
+    "checkpointEvery": 100
+  },
+  "stats": {
+    "requested": 2000,
+    "checked": 2000,
+    "foundEvents": 1030,
+    "inDateWindow": 529,
+    "notFound": 970,
+    "requestErrors": 0
+  },
+  "matches": [
+    {
+      "id": "KCE-TRUCKERSMP-19735",
+      "platform": "truckersmp",
+      "platformEventId": "19735",
+      "name": "AFTER-WORK-KONVOI JANUAR '24",
+      "date": "2024-01-10",
+      "type": "external",
+      "organizer": "InterTrans Spedition [closed]",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/19735-after-work-konvoi-januar%2724",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/19735-after-work-konvoi-januar%2724",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:03:22.618Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 19735,
+        "confirmedVtcCount": 3,
+        "start": "Munich — München (siehe Slotübersicht)",
+        "destination": "Catanzaro — Hotel in Catanzaro",
+        "meetupAt": "2024-01-10 18:30:00",
+        "departureAt": "2024-01-10 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:03:22.618Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-18427",
+      "platform": "truckersmp",
+      "platformEventId": "18427",
+      "name": "!!!!! ABGESAGT!!!!!!!2 Jahre OstHarz-Logistik!!!!!",
+      "date": "2024-04-27",
+      "type": "external",
+      "organizer": "Harz Thermo-Liner (HTL)",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/18427-!!!!!-abgesagt!!!!!!!2-jahre-ostharz-logistik!!!!!",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/18427-!!!!!-abgesagt!!!!!!!2-jahre-ostharz-logistik!!!!!",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:03:22.618Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 18427,
+        "confirmedVtcCount": 13,
+        "start": "Rostock — Ganzes Hafen Gebiet ( RTLOG, Vita Power, DFH, SUBSE)",
+        "destination": "Riga — Eviksi ZS",
+        "meetupAt": null,
+        "departureAt": "2024-04-27 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:03:22.618Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-19202",
+      "platform": "truckersmp",
+      "platformEventId": "19202",
+      "name": "FBTC - COMBOIO PÚBLICO DE AGOSTO",
+      "date": "2024-08-10",
+      "type": "external",
+      "organizer": "Família Brazil Truck Club - FBTC",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/19202-fbtc--comboio-p%C3%BAblico-de-agosto",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/19202-fbtc--comboio-p%C3%BAblico-de-agosto",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T02:03:22.618Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 19202,
+        "confirmedVtcCount": 14,
+        "start": "Manchester — WGCC",
+        "destination": "Dover — LKW",
+        "meetupAt": "2024-08-10 23:30:00",
+        "departureAt": "2024-08-11 00:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T02:03:22.618Z"
+    }
+  ],
+  "errors": []
+}

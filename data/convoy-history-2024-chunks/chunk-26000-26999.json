@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "mode": "one-time-truckersmp-2024-historical-event-scan",
+  "generatedAt": "2026-10-11T03:37:12.627Z",
+  "checkpointAt": "2026-10-11T04:00:07.149Z",
+  "complete": true,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 26000,
+    "endId": 26999
+  },
+  "dateWindow": {
+    "from": "2024-01-01",
+    "to": "2024-12-31"
+  },
+  "requestPolicy": {
+    "workers": 4,
+    "minimumRequestStartIntervalMs": 100,
+    "retry429And5xx": true,
+    "checkpointEvery": 100
+  },
+  "stats": {
+    "requested": 1000,
+    "checked": 1000,
+    "foundEvents": 466,
+    "inDateWindow": 90,
+    "notFound": 534,
+    "requestErrors": 0
+  },
+  "matches": [],
+  "errors": []
+}
