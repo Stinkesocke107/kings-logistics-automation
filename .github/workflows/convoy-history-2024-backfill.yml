@@ -1,0 +1,190 @@
+name: Kings Convoy History 2024 Backfill
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - feature/convoy-history-v1
+    paths:
+      - 'convoy-history-truckersmp-2023-scan.js'
+      - 'convoy-history-truckersmp-2024-scan.js'
+      - 'convoy-history-truckersmp-2024-merge.js'
+      - '.github/workflows/convoy-history-2024-backfill.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-convoy-history-2024-backfill-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: Scan 2024 IDs ${{ matrix.start }}-${{ matrix.end }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - chunk: '14000-15999'
+            start: 14000
+            end: 15999
+          - chunk: '16000-17999'
+            start: 16000
+            end: 17999
+          - chunk: '18000-19999'
+            start: 18000
+            end: 19999
+          - chunk: '20000-21999'
+            start: 20000
+            end: 21999
+          - chunk: '22000-23999'
+            start: 22000
+            end: 23999
+          - chunk: '24000-25999'
+            start: 24000
+            end: 25999
+          - chunk: '26000-26999'
+            start: 26000
+            end: 26999
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Verify 2024 scanner
+        run: |
+          node --check convoy-history-truckersmp-2023-scan.js
+          node --check convoy-history-truckersmp-2024-scan.js
+
+      - name: Scan chunk
+        env:
+          KINGS_VTC_ID: '64284'
+          KINGS_HISTORY_SCAN_YEAR: '2024'
+          KINGS_HISTORY_SCAN_START_ID: '${{ matrix.start }}'
+          KINGS_HISTORY_SCAN_END_ID: '${{ matrix.end }}'
+          KINGS_HISTORY_FROM_DATE: '2024-01-01'
+          KINGS_HISTORY_TO_DATE: '2024-12-31'
+          KINGS_HISTORY_SCAN_INTERVAL_MS: '100'
+          KINGS_HISTORY_SCAN_WORKERS: '4'
+          KINGS_HISTORY_CHECKPOINT_EVERY: '100'
+          KINGS_HISTORY_SCAN_OUTPUT: 'data/convoy-history-2024-chunks/chunk-${{ matrix.chunk }}.json'
+        run: node convoy-history-truckersmp-2024-scan.js
+
+      - name: Upload chunk snapshot
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kings-2024-${{ matrix.chunk }}
+          path: data/convoy-history-2024-chunks/chunk-${{ matrix.chunk }}.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  merge:
+    name: Merge 2024 backfill
+    if: always()
+    needs:
+      - scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Download all 2024 chunk snapshots
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: kings-2024-*
+          path: data/convoy-history-2024-chunks
+          merge-multiple: true
+
+      - name: Verify merge/import/statistics scripts
+        run: |
+          node --check convoy-history-truckersmp-2024-merge.js
+          node --check convoy-history-import.js
+          node --check convoy-history.js
+
+      - name: Merge chunk snapshots
+        run: node convoy-history-truckersmp-2024-merge.js
+
+      - name: Import complete 2024 scan
+        run: node convoy-history-import.js
+
+      - name: Generate convoy statistics
+        run: node convoy-history.js
+
+      - name: Show 2024 result
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const scan = JSON.parse(fs.readFileSync('data/convoy-history-2024-scan.json', 'utf8'));
+          const stats = JSON.parse(fs.readFileSync('output/convoy-history-statistics.json', 'utf8'));
+          console.log('2024 scan complete:', scan.complete);
+          console.log('IDs checked:', scan.stats.checked + '/' + scan.stats.requested);
+          console.log('API request errors:', scan.stats.requestErrors);
+          console.log('Verified Kings matches from scan:', scan.matches.length);
+          for (const item of scan.matches) {
+            console.log('MATCH', item.platformEventId, item.date, item.type, item.name);
+          }
+          console.log('Public 2024 convoy total:', stats.years?.['2024']?.total ?? 0);
+          console.log('2024 own:', stats.years?.['2024']?.own ?? 0);
+          console.log('2024 external:', stats.years?.['2024']?.external ?? 0);
+          NODE
+
+      - name: Persist 2024 backfill results
+        shell: bash
+        run: |
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add \
+            data/convoy-history-2024-chunks \
+            data/convoy-history-2024-scan.json \
+            data/convoy-history-backfill.json \
+            data/convoy-history.json
+          if git diff --cached --quiet; then
+            echo "No 2024 backfill changes to save."
+          else
+            git commit -m "Update 2024 TruckersMP convoy history backfill"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+      - name: Upload merged 2024 audit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kings-convoy-history-2024-merged
+          path: |
+            data/convoy-history-2024-scan.json
+            data/convoy-history-backfill.json
+            output/convoy-history-statistics.json
+            output/convoy-history-statistics.md
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Require complete 2024 primary scan
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const scan = JSON.parse(fs.readFileSync('data/convoy-history-2024-scan.json', 'utf8'));
+          if (scan.complete !== true) {
+            console.error('2024 primary scan is not complete yet.');
+            process.exit(1);
+          }
+          console.log('2024 primary scan is complete.');
+          NODE
