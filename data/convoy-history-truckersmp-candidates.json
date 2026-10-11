@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "truckersmp-historical-candidate-discovery",
-  "generatedAt": "2026-10-10T06:13:43.844Z",
+  "generatedAt": "2026-10-11T02:02:50.674Z",
   "vtcId": "64284",
   "fromDate": "2023-01-01",
   "policy": {
@@ -12,12 +12,12 @@
   },
   "summary": {
     "hostedEndpointRecords": 16,
-    "attendingEndpointRecords": 113,
-    "uniqueCandidatesSinceFromDate": 129,
+    "attendingEndpointRecords": 111,
+    "uniqueCandidatesSinceFromDate": 127,
     "pastCandidates": 16,
-    "futureCandidates": 111,
+    "futureCandidates": 110,
     "ownCandidates": 16,
-    "externalCandidates": 113
+    "externalCandidates": 111
   },
   "candidates": [
     {
@@ -421,62 +421,12 @@
       "departureAt": "2026-10-02 15:00:00"
     },
     {
-      "candidateKey": "truckersmp:34819",
-      "platform": "truckersmp",
-      "platformEventId": "34819",
-      "name": "THE ORIGINAL™ 1.5 YEAR CONVOY",
-      "date": "2026-10-10",
-      "phase": "today",
-      "type": "external",
-      "organizer": "- THE ORIGINAL™ -",
-      "eventUrl": "https://truckersmp.com/events/34819-the-original%E2%84%A21.5-year-convoy",
-      "sourceKind": "attending",
-      "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending",
-        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
-      },
-      "suggestedParticipation": {
-        "status": "planned",
-        "confidence": "verified"
-      },
-      "start": "TruckersMP HQ — Poland - Slots ( TruckersMP HQ - Wroclaw - Poznan - Brno )",
-      "destination": "Nuremberg — Germany - DFH",
-      "server": "Event Server",
-      "meetupAt": "2026-10-10 17:00:00",
-      "departureAt": "2026-10-10 18:00:00"
-    },
-    {
-      "candidateKey": "truckersmp:35000",
-      "platform": "truckersmp",
-      "platformEventId": "35000",
-      "name": "🎂2nd Anniversary I FORA Logistics🎂",
-      "date": "2026-10-10",
-      "phase": "today",
-      "type": "external",
-      "organizer": "I FORA Logistics",
-      "eventUrl": "https://truckersmp.com/events/35000-%F0%9F%8E%822nd-anniversary-i-fora-logistics%F0%9F%8E%82",
-      "sourceKind": "attending",
-      "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending",
-        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
-      },
-      "suggestedParticipation": {
-        "status": "planned",
-        "confidence": "verified"
-      },
-      "start": "Helsingborg — Slot",
-      "destination": "Esbjerg — Container Port",
-      "server": "Event Server",
-      "meetupAt": "2026-10-10 18:30:00",
-      "departureAt": "2026-10-10 19:30:00"
-    },
-    {
       "candidateKey": "truckersmp:35067",
       "platform": "truckersmp",
       "platformEventId": "35067",
       "name": "ASIMOV Group: October Convoy #7",
       "date": "2026-10-11",
-      "phase": "future",
+      "phase": "today",
       "type": "external",
       "organizer": "ASIMOV Group",
       "eventUrl": "https://truckersmp.com/events/35067-asimov-group:-october-convoy#7",
