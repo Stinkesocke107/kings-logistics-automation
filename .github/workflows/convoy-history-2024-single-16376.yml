@@ -1,0 +1,61 @@
+name: Kings 2024 Single Event Check 16376
+
+on:
+  push:
+    branches:
+      - feature/convoy-history-v1
+    paths:
+      - '.github/workflows/convoy-history-2024-single-16376.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Check TruckersMP event 16376
+        env:
+          KINGS_VTC_ID: '64284'
+          KINGS_HISTORY_SCAN_YEAR: '2024'
+          KINGS_HISTORY_SCAN_START_ID: '16376'
+          KINGS_HISTORY_SCAN_END_ID: '16376'
+          KINGS_HISTORY_FROM_DATE: '2024-01-01'
+          KINGS_HISTORY_TO_DATE: '2024-12-31'
+          KINGS_HISTORY_SCAN_INTERVAL_MS: '2000'
+          KINGS_HISTORY_SCAN_WORKERS: '1'
+          KINGS_HISTORY_SCAN_OUTPUT: 'data/convoy-history-2024-event-16376.json'
+        run: node convoy-history-truckersmp-2024-scan.js
+
+      - name: Print result
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const d = JSON.parse(fs.readFileSync('data/convoy-history-2024-event-16376.json', 'utf8'));
+          console.log('Complete:', d.complete);
+          console.log('Found events:', d.stats.foundEvents);
+          console.log('Not found:', d.stats.notFound);
+          console.log('Request errors:', d.stats.requestErrors);
+          console.log('Kings matches:', d.matches.length);
+          for (const m of d.matches) {
+            console.log('MATCH', m.platformEventId, m.date, m.type, m.name, m.organizer);
+          }
+          console.log('Errors:', JSON.stringify(d.errors));
+          NODE
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kings-2024-event-16376
+          path: data/convoy-history-2024-event-16376.json
+          if-no-files-found: warn
+          retention-days: 7
