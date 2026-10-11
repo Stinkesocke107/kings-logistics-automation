@@ -26,6 +26,21 @@ jobs:
       max-parallel: 2
       matrix:
         include:
+          - chunk: '1-1999'
+            start: 1
+            end: 1999
+          - chunk: '2000-3999'
+            start: 2000
+            end: 3999
+          - chunk: '4000-5999'
+            start: 4000
+            end: 5999
+          - chunk: '6000-7999'
+            start: 6000
+            end: 7999
+          - chunk: '8000-9999'
+            start: 8000
+            end: 9999
           - chunk: '10000-11999'
             start: 10000
             end: 11999
@@ -59,9 +74,18 @@ jobs:
           - chunk: '30000-31999'
             start: 30000
             end: 31999
-          - chunk: '32000-32999'
+          - chunk: '32000-33999'
             start: 32000
-            end: 32999
+            end: 33999
+          - chunk: '34000-35999'
+            start: 34000
+            end: 35999
+          - chunk: '36000-37999'
+            start: 36000
+            end: 37999
+          - chunk: '38000-38999'
+            start: 38000
+            end: 38999
 
     steps:
       - name: Checkout repository
