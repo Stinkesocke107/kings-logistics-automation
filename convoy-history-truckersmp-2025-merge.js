@@ -5,6 +5,11 @@ const CHUNK_DIR = process.env.KINGS_2025_CHUNK_DIR || 'data/convoy-history-2025-
 const OUTPUT = process.env.KINGS_2025_SCAN_OUTPUT || 'data/convoy-history-2025-scan.json';
 const COVERAGE_PATH = process.env.KINGS_CONVOY_HISTORY_BACKFILL || 'data/convoy-history-backfill.json';
 const EXPECTED = [
+  [1, 1999],
+  [2000, 3999],
+  [4000, 5999],
+  [6000, 7999],
+  [8000, 9999],
   [10000, 11999],
   [12000, 13999],
   [14000, 15999],
@@ -16,7 +21,10 @@ const EXPECTED = [
   [26000, 27999],
   [28000, 29999],
   [30000, 31999],
-  [32000, 32999]
+  [32000, 33999],
+  [34000, 35999],
+  [36000, 37999],
+  [38000, 38999]
 ];
 
 function readChunks(dir = CHUNK_DIR) {
@@ -103,7 +111,7 @@ function mergeChunks(chunks) {
     generatedAt: new Date().toISOString(),
     complete,
     kingsVtcId: 64284,
-    range: { startId: 10000, endId: 32999 },
+    range: { startId: 1, endId: 38999 },
     dateWindow: { from: '2025-01-01', to: '2025-12-31' },
     coverage: {
       expectedChunks: EXPECTED.map(([startId, endId]) => ({ startId, endId })),
@@ -149,14 +157,14 @@ function main() {
         updatedAt: merged.generatedAt
       },
       notes: merged.complete
-        ? 'Primary TruckersMP Event API scan for event IDs 10000-32999 and dates 2025-01-01 through 2025-12-31 completed. Additional archived/internal sources may still add events.'
+        ? 'Primary TruckersMP Event API scan for event IDs 1-38999 and dates 2025-01-01 through 2025-12-31 completed. Additional archived/internal sources may still add events.'
         : 'Chunked TruckersMP historical backfill for 2025 is still incomplete.'
     };
     fs.writeFileSync(COVERAGE_PATH, JSON.stringify(coverage, null, 2) + '\n');
   }
 
   console.log('2025 chunk merge completed.');
-  console.log('Chunks received: ' + merged.coverage.receivedChunks.length + '/12');
+  console.log('Chunks received: ' + merged.coverage.receivedChunks.length + '/20');
   console.log('Checked: ' + merged.stats.checked + '/' + merged.stats.requested);
   console.log('Kings matches: ' + merged.matches.length);
   console.log('Request errors: ' + merged.stats.requestErrors);
