@@ -1,14 +1,15 @@
 const fs = require('fs');
 
 const KINGS_VTC_ID = Number(process.env.KINGS_VTC_ID || '64284');
-const START_ID = Number(process.env.KINGS_2023_SCAN_START_ID || '10000');
-const END_ID = Number(process.env.KINGS_2023_SCAN_END_ID || '19999');
-const FROM_DATE = process.env.KINGS_2023_FROM_DATE || '2023-07-09';
-const TO_DATE = process.env.KINGS_2023_TO_DATE || '2023-12-31';
-const OUTPUT = process.env.KINGS_2023_SCAN_OUTPUT || 'data/convoy-history-2023-scan.json';
-const MIN_REQUEST_INTERVAL_MS = Number(process.env.KINGS_2023_SCAN_INTERVAL_MS || '75');
-const WORKERS = Math.max(1, Math.min(12, Number(process.env.KINGS_2023_SCAN_WORKERS || '4')));
-const CHECKPOINT_EVERY = Math.max(50, Number(process.env.KINGS_2023_CHECKPOINT_EVERY || '100'));
+const START_ID = Number(process.env.KINGS_HISTORY_SCAN_START_ID || process.env.KINGS_2023_SCAN_START_ID || '10000');
+const END_ID = Number(process.env.KINGS_HISTORY_SCAN_END_ID || process.env.KINGS_2023_SCAN_END_ID || '19999');
+const FROM_DATE = process.env.KINGS_HISTORY_FROM_DATE || process.env.KINGS_2023_FROM_DATE || '2023-07-09';
+const TO_DATE = process.env.KINGS_HISTORY_TO_DATE || process.env.KINGS_2023_TO_DATE || '2023-12-31';
+const SCAN_YEAR = String(process.env.KINGS_HISTORY_SCAN_YEAR || FROM_DATE.slice(0, 4) || 'history');
+const OUTPUT = process.env.KINGS_HISTORY_SCAN_OUTPUT || process.env.KINGS_2023_SCAN_OUTPUT || `data/convoy-history-${SCAN_YEAR}-scan.json`;
+const MIN_REQUEST_INTERVAL_MS = Number(process.env.KINGS_HISTORY_SCAN_INTERVAL_MS || process.env.KINGS_2023_SCAN_INTERVAL_MS || '75');
+const WORKERS = Math.max(1, Math.min(12, Number(process.env.KINGS_HISTORY_SCAN_WORKERS || process.env.KINGS_2023_SCAN_WORKERS || '4')));
+const CHECKPOINT_EVERY = Math.max(50, Number(process.env.KINGS_HISTORY_CHECKPOINT_EVERY || process.env.KINGS_2023_CHECKPOINT_EVERY || '100'));
 
 let nextRequestAt = 0;
 let throttleChain = Promise.resolve();
@@ -183,7 +184,7 @@ async function fetchEvent(id) {
 }
 
 function existingCompleteScan() {
-  if (/^(?:1|true|yes)$/i.test(process.env.KINGS_RESCAN_2023 || '')) return null;
+  if (/^(?:1|true|yes)$/i.test(process.env.KINGS_HISTORY_RESCAN || process.env.KINGS_RESCAN_2023 || '')) return null;
   if (!fs.existsSync(OUTPUT)) return null;
 
   try {
@@ -206,7 +207,7 @@ function existingCompleteScan() {
 function buildOutput({ observedAt, stats, matches, errors, complete }) {
   return {
     version: 1,
-    mode: 'one-time-truckersmp-2023-historical-event-scan',
+    mode: `one-time-truckersmp-${SCAN_YEAR}-historical-event-scan`,
     generatedAt: observedAt,
     checkpointAt: new Date().toISOString(),
     complete,
@@ -238,7 +239,7 @@ function persistCheckpoint(context, complete = false) {
 async function main() {
   const existing = existingCompleteScan();
   if (existing) {
-    console.log(`2023 historical scan already complete: ${existing.matches?.length || 0} Kings events.`);
+    console.log(`${SCAN_YEAR} historical scan already complete: ${existing.matches?.length || 0} Kings events.`);
     return;
   }
 
@@ -291,7 +292,7 @@ async function main() {
       }
 
       if (stats.checked % 500 === 0) {
-        console.log(`Progress: ${stats.checked}/${stats.requested}, events=${stats.foundEvents}, 2023-window=${stats.inDateWindow}, Kings=${matches.length}, errors=${stats.requestErrors}`);
+        console.log(`Progress: ${stats.checked}/${stats.requested}, events=${stats.foundEvents}, ${SCAN_YEAR}-window=${stats.inDateWindow}, Kings=${matches.length}, errors=${stats.requestErrors}`);
       }
     }
   }
@@ -301,7 +302,7 @@ async function main() {
   const complete = stats.checked === stats.requested && stats.requestErrors === 0;
   const output = persistCheckpoint({ observedAt, stats, matches, errors }, complete);
 
-  console.log('2023 historical TruckersMP scan finished.');
+  console.log(`${SCAN_YEAR} historical TruckersMP scan finished.`);
   console.log(`Kings matches: ${matches.length}`);
   console.log(`Complete: ${output.complete}`);
 
@@ -312,9 +313,9 @@ async function main() {
 
 if (require.main === module) {
   main().catch(error => {
-    console.error('2023 historical convoy scan failed:', error.message);
+    console.error(`${SCAN_YEAR} historical convoy scan failed:`, error.message);
     process.exit(1);
   });
 }
 
-module.exports = { isoDate, kingsIsConfirmed, toHistoryRecord };
+module.exports = { isoDate, kingsIsConfirmed, toHistoryRecord, main };
