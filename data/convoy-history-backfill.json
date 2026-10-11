@@ -5,16 +5,16 @@
   "policy": "A missing year is never treated as zero until its historical backfill has been reviewed and marked complete.",
   "years": {
     "2023": {
-      "status": "backfill_in_progress",
+      "status": "primary_api_scan_complete",
       "publicZeroAllowed": false,
-      "notes": "Chunked TruckersMP historical backfill is still incomplete.",
+      "notes": "Primary TruckersMP Event API scan for event IDs 10000-19999 and dates 2023-07-09 through 2023-12-31 completed. Additional archived/internal sources may still add events.",
       "primaryApiScan": {
-        "complete": false,
+        "complete": true,
         "checked": 10000,
         "requested": 10000,
         "kingsMatches": 0,
-        "requestErrors": 10,
-        "updatedAt": "2026-10-10T22:40:05.498Z"
+        "requestErrors": 0,
+        "updatedAt": "2026-10-11T01:42:35.152Z"
       }
     },
     "2024": {

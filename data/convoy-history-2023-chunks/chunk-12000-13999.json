@@ -1,9 +1,9 @@
 {
   "version": 1,
   "mode": "one-time-truckersmp-2023-historical-event-scan",
-  "generatedAt": "2026-10-10T21:11:43.687Z",
-  "checkpointAt": "2026-10-10T21:57:37.149Z",
-  "complete": false,
+  "generatedAt": "2026-10-11T00:06:33.507Z",
+  "checkpointAt": "2026-10-11T00:54:01.046Z",
+  "complete": true,
   "kingsVtcId": 64284,
   "range": {
     "startId": 12000,
@@ -14,60 +14,19 @@
     "to": "2023-12-31"
   },
   "requestPolicy": {
-    "workers": 8,
-    "minimumRequestStartIntervalMs": 40,
+    "workers": 3,
+    "minimumRequestStartIntervalMs": 150,
     "retry429And5xx": true,
     "checkpointEvery": 100
   },
   "stats": {
     "requested": 2000,
     "checked": 2000,
-    "foundEvents": 955,
+    "foundEvents": 957,
     "inDateWindow": 123,
-    "notFound": 1037,
-    "requestErrors": 8
+    "notFound": 1043,
+    "requestErrors": 0
   },
   "matches": [],
-  "errors": [
-    {
-      "id": 12379,
-      "state": "http-error",
-      "status": 429
-    },
-    {
-      "id": 12448,
-      "state": "http-error",
-      "status": 429
-    },
-    {
-      "id": 12449,
-      "state": "http-error",
-      "status": 429
-    },
-    {
-      "id": 13490,
-      "state": "http-error",
-      "status": 429
-    },
-    {
-      "id": 13487,
-      "state": "http-error",
-      "status": 429
-    },
-    {
-      "id": 13555,
-      "state": "http-error",
-      "status": 429
-    },
-    {
-      "id": 13556,
-      "state": "http-error",
-      "status": 429
-    },
-    {
-      "id": 13557,
-      "state": "http-error",
-      "status": 429
-    }
-  ]
+  "errors": []
 }
