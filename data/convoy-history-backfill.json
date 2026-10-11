@@ -31,9 +31,17 @@
       }
     },
     "2025": {
-      "status": "backfill_in_progress",
+      "status": "primary_api_scan_complete",
       "publicZeroAllowed": false,
-      "notes": "Some hosted and external events are already verified, but the year is not yet assumed complete."
+      "notes": "Primary TruckersMP Event API scan for event IDs 1-38999 and dates 2025-01-01 through 2025-12-31 completed. Additional archived/internal sources may still add events.",
+      "primaryApiScan": {
+        "complete": true,
+        "checked": 38999,
+        "requested": 38999,
+        "kingsMatches": 122,
+        "requestErrors": 0,
+        "updatedAt": "2026-10-11T12:40:52.664Z"
+      }
     },
     "2026": {
       "status": "active_plus_backfill",

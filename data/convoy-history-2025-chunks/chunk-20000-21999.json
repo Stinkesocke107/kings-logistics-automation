@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "mode": "one-time-truckersmp-2025-historical-event-scan",
+  "generatedAt": "2026-10-11T08:40:01.383Z",
+  "checkpointAt": "2026-10-11T09:28:02.508Z",
+  "complete": true,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 20000,
+    "endId": 21999
+  },
+  "dateWindow": {
+    "from": "2025-01-01",
+    "to": "2025-12-31"
+  },
+  "requestPolicy": {
+    "workers": 4,
+    "minimumRequestStartIntervalMs": 150,
+    "retry429And5xx": true,
+    "checkpointEvery": 100
+  },
+  "stats": {
+    "requested": 2000,
+    "checked": 2000,
+    "foundEvents": 1056,
+    "inDateWindow": 25,
+    "notFound": 944,
+    "requestErrors": 0
+  },
+  "matches": [
+    {
+      "id": "KCE-TRUCKERSMP-21955",
+      "platform": "truckersmp",
+      "platformEventId": "21955",
+      "name": "Castores Trucking |Monthly Event",
+      "date": "2025-07-14",
+      "type": "external",
+      "organizer": "Castores Trucking",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/21955-castores-trucking|monthly-event",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/21955-castores-trucking|monthly-event",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T08:40:01.383Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 21955,
+        "confirmedVtcCount": 22,
+        "start": "Szczecin — Slot + Publico",
+        "destination": "Frankfurt am Main — FLE",
+        "meetupAt": "2025-07-14 00:00:00",
+        "departureAt": "2025-07-14 01:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T08:40:01.383Z"
+    }
+  ],
+  "errors": []
+}

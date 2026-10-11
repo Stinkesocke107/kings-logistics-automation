@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "mode": "one-time-truckersmp-2025-historical-event-scan",
+  "generatedAt": "2026-10-11T07:51:35.817Z",
+  "checkpointAt": "2026-10-11T08:39:52.421Z",
+  "complete": true,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 16000,
+    "endId": 17999
+  },
+  "dateWindow": {
+    "from": "2025-01-01",
+    "to": "2025-12-31"
+  },
+  "requestPolicy": {
+    "workers": 4,
+    "minimumRequestStartIntervalMs": 150,
+    "retry429And5xx": true,
+    "checkpointEvery": 100
+  },
+  "stats": {
+    "requested": 2000,
+    "checked": 2000,
+    "foundEvents": 940,
+    "inDateWindow": 4,
+    "notFound": 1060,
+    "requestErrors": 0
+  },
+  "matches": [
+    {
+      "id": "KCE-TRUCKERSMP-17272",
+      "platform": "truckersmp",
+      "platformEventId": "17272",
+      "name": "Los Andes Public Convoy - 4th anniversary",
+      "date": "2025-02-23",
+      "type": "external",
+      "organizer": "Los Andes Unidos VTC",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/17272-los-andes-public-convoy-4th-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/17272-los-andes-public-convoy-4th-anniversary",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T07:51:35.817Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 17272,
+        "confirmedVtcCount": 21,
+        "start": "TruckersMP HQ — Slots",
+        "destination": "Hamburg — Puerto | Port",
+        "meetupAt": "2025-02-23 00:00:00",
+        "departureAt": "2025-02-23 01:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T07:51:35.817Z"
+    }
+  ],
+  "errors": []
+}

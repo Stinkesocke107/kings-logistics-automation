@@ -1,0 +1,228 @@
+{
+  "version": 1,
+  "mode": "one-time-truckersmp-2025-historical-event-scan",
+  "generatedAt": "2026-10-11T08:42:38.566Z",
+  "checkpointAt": "2026-10-11T09:30:53.031Z",
+  "complete": true,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 22000,
+    "endId": 23999
+  },
+  "dateWindow": {
+    "from": "2025-01-01",
+    "to": "2025-12-31"
+  },
+  "requestPolicy": {
+    "workers": 4,
+    "minimumRequestStartIntervalMs": 150,
+    "retry429And5xx": true,
+    "checkpointEvery": 100
+  },
+  "stats": {
+    "requested": 2000,
+    "checked": 2000,
+    "foundEvents": 966,
+    "inDateWindow": 123,
+    "notFound": 1034,
+    "requestErrors": 0
+  },
+  "matches": [
+    {
+      "id": "KCE-TRUCKERSMP-23821",
+      "platform": "truckersmp",
+      "platformEventId": "23821",
+      "name": "Another Year with Pean Logistics",
+      "date": "2025-01-11",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/23821-another-year-with-pean-logistics",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/23821-another-year-with-pean-logistics",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T08:42:38.566Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 23821,
+        "confirmedVtcCount": 56,
+        "start": "Luxembourg — Slots",
+        "destination": "Innsbruck — Quarry",
+        "meetupAt": "2025-01-11 16:00:00",
+        "departureAt": "2025-01-11 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T08:42:38.566Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-23825",
+      "platform": "truckersmp",
+      "platformEventId": "23825",
+      "name": "Chilly Drive with Pean Logistics",
+      "date": "2025-02-15",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/23825-chilly-drive-with-pean-logistics",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/23825-chilly-drive-with-pean-logistics",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T08:42:38.566Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 23825,
+        "confirmedVtcCount": 34,
+        "start": "Cologne — Slots",
+        "destination": "TruckersMP HQ — Quarry",
+        "meetupAt": "2025-02-15 16:00:00",
+        "departureAt": "2025-02-15 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T08:42:38.566Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-23824",
+      "platform": "truckersmp",
+      "platformEventId": "23824",
+      "name": "Chestnut Trucking with Pean Logistics",
+      "date": "2025-03-15",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/23824-chestnut-trucking-with-pean-logistics",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/23824-chestnut-trucking-with-pean-logistics",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T08:42:38.566Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 23824,
+        "confirmedVtcCount": 48,
+        "start": "Munich — Slots",
+        "destination": "Mannheim — Tree-ET",
+        "meetupAt": "2025-03-15 16:00:00",
+        "departureAt": "2025-03-15 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T08:42:38.566Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-23827",
+      "platform": "truckersmp",
+      "platformEventId": "23827",
+      "name": "Nutty Trucking with Pean Logistics",
+      "date": "2025-05-17",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/23827-nutty-trucking-with-pean-logistics",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/23827-nutty-trucking-with-pean-logistics",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T08:42:38.566Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 23827,
+        "confirmedVtcCount": 41,
+        "start": "Salzburg — Slots",
+        "destination": "Bratislava — WGCC",
+        "meetupAt": "2025-05-17 17:00:00",
+        "departureAt": "2025-05-17 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T08:42:38.566Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-23828",
+      "platform": "truckersmp",
+      "platformEventId": "23828",
+      "name": "Pean Logistics 2 Year Anniversary",
+      "date": "2025-06-23",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/23828-pean-logistics2-year-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/23828-pean-logistics2-year-anniversary",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T08:42:38.566Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 23828,
+        "confirmedVtcCount": 109,
+        "start": "Trelleborg — + Malmo + Helsingborg Slots",
+        "destination": "Kapellskär — Polaris Lines + Rest Area",
+        "meetupAt": "2025-06-23 17:00:00",
+        "departureAt": "2025-06-23 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T08:42:38.566Z"
+    }
+  ],
+  "errors": []
+}

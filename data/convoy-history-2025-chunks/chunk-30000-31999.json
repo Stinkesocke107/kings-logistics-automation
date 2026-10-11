@@ -1,0 +1,267 @@
+{
+  "version": 1,
+  "mode": "one-time-truckersmp-2025-historical-event-scan",
+  "generatedAt": "2026-10-11T10:20:33.750Z",
+  "checkpointAt": "2026-10-11T11:08:27.887Z",
+  "complete": true,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 30000,
+    "endId": 31999
+  },
+  "dateWindow": {
+    "from": "2025-01-01",
+    "to": "2025-12-31"
+  },
+  "requestPolicy": {
+    "workers": 4,
+    "minimumRequestStartIntervalMs": 150,
+    "retry429And5xx": true,
+    "checkpointEvery": 100
+  },
+  "stats": {
+    "requested": 2000,
+    "checked": 2000,
+    "foundEvents": 929,
+    "inDateWindow": 564,
+    "notFound": 1071,
+    "requestErrors": 0
+  },
+  "matches": [
+    {
+      "id": "KCE-TRUCKERSMP-30621",
+      "platform": "truckersmp",
+      "platformEventId": "30621",
+      "name": "TCCR SEPTEMBER MONTHLY CONVOY",
+      "date": "2025-09-27",
+      "type": "external",
+      "organizer": "Truck Convoy Control and Route",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/30621-tccr-september-monthly-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/30621-tccr-september-monthly-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T10:20:33.750Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 30621,
+        "confirmedVtcCount": 7,
+        "start": "Amsterdam — LKW",
+        "destination": "Kiel — Ocean Solutions",
+        "meetupAt": "2025-09-27 01:30:00",
+        "departureAt": "2025-09-27 02:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T10:20:33.750Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-30487",
+      "platform": "truckersmp",
+      "platformEventId": "30487",
+      "name": "Unofficial Convoy of Mileage Riot",
+      "date": "2025-10-31",
+      "type": "external",
+      "organizer": "Mileage Riot",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/30487-unofficial-convoy-of-mileage-riot",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/30487-unofficial-convoy-of-mileage-riot",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T10:20:33.750Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 30487,
+        "confirmedVtcCount": 2,
+        "start": "Billings — Truck Stop",
+        "destination": "Sierra Vista — Coastline Mining",
+        "meetupAt": "2025-10-31 16:00:00",
+        "departureAt": "2025-10-31 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T10:20:33.750Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-30490",
+      "platform": "truckersmp",
+      "platformEventId": "30490",
+      "name": "Unofficial Convoy of Mileage Riot",
+      "date": "2025-11-07",
+      "type": "external",
+      "organizer": "Mileage Riot",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/30490-unofficial-convoy-of-mileage-riot",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/30490-unofficial-convoy-of-mileage-riot",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T10:20:33.750Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 30490,
+        "confirmedVtcCount": 2,
+        "start": "Twin Falls — Truck Stop",
+        "destination": "Rolla — Namiq",
+        "meetupAt": "2025-11-07 16:00:00",
+        "departureAt": "2025-11-07 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T10:20:33.750Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-30892",
+      "platform": "truckersmp",
+      "platformEventId": "30892",
+      "name": "UwU Café: 3rd anniversary TCCR events",
+      "date": "2025-11-11",
+      "type": "external",
+      "organizer": "Truck Convoy Control and Route",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/30892-uwu-caf%C3%A9:3rd-anniversary-tccr-events",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/30892-uwu-caf%C3%A9:3rd-anniversary-tccr-events",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T10:20:33.750Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 30892,
+        "confirmedVtcCount": 13,
+        "start": "Pori — Container Port",
+        "destination": "Helsinki — MAATILA EGRES",
+        "meetupAt": "2025-11-11 01:00:00",
+        "departureAt": "2025-11-11 01:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T10:20:33.750Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-30491",
+      "platform": "truckersmp",
+      "platformEventId": "30491",
+      "name": "Unofficial Convoy of Mileage Riot",
+      "date": "2025-12-05",
+      "type": "external",
+      "organizer": "Mileage Riot",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/30491-unofficial-convoy-of-mileage-riot",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/30491-unofficial-convoy-of-mileage-riot",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T10:20:33.750Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 30491,
+        "confirmedVtcCount": 2,
+        "start": "Laredo — Truck Stop",
+        "destination": "Casper — Rail Export",
+        "meetupAt": "2025-12-05 16:00:00",
+        "departureAt": "2025-12-05 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T10:20:33.750Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-31898",
+      "platform": "truckersmp",
+      "platformEventId": "31898",
+      "name": "Merry Christmas Convoy",
+      "date": "2025-12-21",
+      "type": "external",
+      "organizer": "Titanes World Trucks",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/31898-merry-christmas-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/31898-merry-christmas-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-11T10:20:33.750Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 31898,
+        "confirmedVtcCount": 13,
+        "start": "Budapest — Slots + Public",
+        "destination": "Zadar — Adrica",
+        "meetupAt": "2025-12-21 12:00:00",
+        "departureAt": "2025-12-22 01:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-11T10:20:33.750Z"
+    }
+  ],
+  "errors": []
+}
