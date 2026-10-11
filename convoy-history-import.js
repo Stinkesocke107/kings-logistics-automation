@@ -4,6 +4,7 @@ const HISTORY_PATH = process.env.KINGS_CONVOY_HISTORY_PATH || 'data/convoy-histo
 const CANDIDATES_PATH = process.env.KINGS_CONVOY_HISTORY_CANDIDATES || 'data/convoy-history-truckersmp-candidates.json';
 const MANUAL_PATH = process.env.KINGS_CONVOY_HISTORY_MANUAL || 'data/convoy-history-manual-evidence.json';
 const SCAN_2023_PATH = process.env.KINGS_CONVOY_HISTORY_2023_SCAN || 'data/convoy-history-2023-scan.json';
+const SCAN_2024_PATH = process.env.KINGS_CONVOY_HISTORY_2024_SCAN || 'data/convoy-history-2024-scan.json';
 
 function readJson(path, fallback = null) {
   if (!fs.existsSync(path)) return fallback;
@@ -140,18 +141,25 @@ function main() {
   const candidateData = readJson(CANDIDATES_PATH, { candidates: [] });
   const manualData = readJson(MANUAL_PATH, { records: [] });
   const scan2023 = readJson(SCAN_2023_PATH, null);
+  const scan2024 = readJson(SCAN_2024_PATH, null);
 
   const candidateRecords = (candidateData.candidates || []).map(candidate => candidateToRecord(candidate));
   const manualRecords = (manualData.records || []).map(normalizeManual);
   const scan2023Records = scan2023?.complete === true && Array.isArray(scan2023.matches)
     ? scan2023.matches.map(normalizeManual)
     : [];
+  const scan2024Records = scan2024?.complete === true && Array.isArray(scan2024.matches)
+    ? scan2024.matches.map(normalizeManual)
+    : [];
 
   if (scan2023 && scan2023.complete !== true) {
     console.warn('2023 scan exists but is incomplete; its matches are not imported.');
   }
+  if (scan2024 && scan2024.complete !== true) {
+    console.warn('2024 scan exists but is incomplete; its matches are not imported.');
+  }
 
-  const result = mergeHistory(history, [...candidateRecords, ...manualRecords, ...scan2023Records]);
+  const result = mergeHistory(history, [...candidateRecords, ...manualRecords, ...scan2023Records, ...scan2024Records]);
 
   fs.writeFileSync(HISTORY_PATH, JSON.stringify(result.history, null, 2) + '\n');
 
@@ -159,6 +167,7 @@ function main() {
   console.log('Candidate records: ' + candidateRecords.length);
   console.log('Manual verified records: ' + manualRecords.length);
   console.log('2023 API-scan verified records: ' + scan2023Records.length);
+  console.log('2024 API-scan verified records: ' + scan2024Records.length);
   console.log('Added: ' + result.added + ' | Updated: ' + result.updated);
   console.log('History records: ' + result.history.records.length);
 }
