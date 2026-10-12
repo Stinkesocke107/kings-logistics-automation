@@ -1,0 +1,384 @@
+{
+  "version": 1,
+  "mode": "one-time-truckersmp-2026-historical-event-scan",
+  "generatedAt": "2026-10-12T02:45:46.072Z",
+  "checkpointAt": "2026-10-12T03:33:48.751Z",
+  "complete": true,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 28000,
+    "endId": 29999
+  },
+  "dateWindow": {
+    "from": "2026-01-01",
+    "to": "2026-10-10"
+  },
+  "requestPolicy": {
+    "workers": 4,
+    "minimumRequestStartIntervalMs": 150,
+    "retry429And5xx": true,
+    "checkpointEvery": 100
+  },
+  "stats": {
+    "requested": 2000,
+    "checked": 2000,
+    "foundEvents": 920,
+    "inDateWindow": 44,
+    "notFound": 1080,
+    "requestErrors": 0
+  },
+  "matches": [
+    {
+      "id": "KCE-TRUCKERSMP-29044",
+      "platform": "truckersmp",
+      "platformEventId": "29044",
+      "name": "NørthWind's 1st Year Anniversary Convoy",
+      "date": "2026-01-01",
+      "type": "external",
+      "organizer": "NorthWind",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/29044-n%C3%B8rthwind%27s1st-year-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/29044-n%C3%B8rthwind%27s1st-year-anniversary-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T02:45:46.072Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 29044,
+        "confirmedVtcCount": 38,
+        "start": "Dortmund — + Duisburg (Slots",
+        "destination": "Düsseldorf — City",
+        "meetupAt": "2026-01-01 18:00:00",
+        "departureAt": "2026-01-01 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T02:45:46.072Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-29575",
+      "platform": "truckersmp",
+      "platformEventId": "29575",
+      "name": "Muguang Logistics 9th Public Convoy",
+      "date": "2026-01-03",
+      "type": "external",
+      "organizer": "沐光物流丨Muguang Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/29575-muguang-logistics9th-public-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/29575-muguang-logistics9th-public-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T02:45:46.072Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 29575,
+        "confirmedVtcCount": 24,
+        "start": "Cologne — Slots",
+        "destination": "Amsterdam — LKW",
+        "meetupAt": "2026-01-03 13:00:00",
+        "departureAt": "2026-01-03 14:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T02:45:46.072Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-29634",
+      "platform": "truckersmp",
+      "platformEventId": "29634",
+      "name": "Welcome to 2026 with NEEDCC",
+      "date": "2026-01-06",
+      "type": "external",
+      "organizer": "Need Convoy Control",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/29634-welcome-to2026-with-needcc",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/29634-welcome-to2026-with-needcc",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T02:45:46.072Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 29634,
+        "confirmedVtcCount": 46,
+        "start": "Bremen — Slots, Public: Service Station",
+        "destination": "Dresden — DFH - Deutsche Frachthäfen",
+        "meetupAt": "2026-01-06 18:00:00",
+        "departureAt": "2026-01-06 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T02:45:46.072Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-29695",
+      "platform": "truckersmp",
+      "platformEventId": "29695",
+      "name": "Eastern Run with Pean Logistics",
+      "date": "2026-01-11",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/29695-eastern-run-with-pean-logistics",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/29695-eastern-run-with-pean-logistics",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T02:45:46.072Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 29695,
+        "confirmedVtcCount": 30,
+        "start": "Rostock — Slots",
+        "destination": "Warsaw — Stokes",
+        "meetupAt": "2026-01-11 17:00:00",
+        "departureAt": "2026-01-11 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T02:45:46.072Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-29778",
+      "platform": "truckersmp",
+      "platformEventId": "29778",
+      "name": "Hazmat Works with Pean Logistics",
+      "date": "2026-01-17",
+      "type": "external",
+      "organizer": "Pean Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/29778-hazmat-works-with-pean-logistics",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/29778-hazmat-works-with-pean-logistics",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T02:45:46.072Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 29778,
+        "confirmedVtcCount": 52,
+        "start": "Dresden — + Leipzig Slots",
+        "destination": "Luxembourg — Stein Bruch",
+        "meetupAt": "2026-01-17 12:30:00",
+        "departureAt": "2026-01-17 13:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T02:45:46.072Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-29926",
+      "platform": "truckersmp",
+      "platformEventId": "29926",
+      "name": "Pink Ribbon VTC x Hej! Logistics - Wings of Teddy",
+      "date": "2026-01-24",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/29926-pink-ribbon-vtc-x-hej!-logistics--wings-of-teddy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/29926-pink-ribbon-vtc-x-hej!-logistics--wings-of-teddy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T02:45:46.072Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 29926,
+        "confirmedVtcCount": 58,
+        "start": "Novi Sad — Slots | Public: Garage",
+        "destination": "Pristina — Parking area next to Sanbuilders",
+        "meetupAt": "2026-01-24 18:00:00",
+        "departureAt": "2026-01-24 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T02:45:46.072Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-29907",
+      "platform": "truckersmp",
+      "platformEventId": "29907",
+      "name": "SFM Purple Dragons Logistics 1 Year Anniversary Convoy",
+      "date": "2026-01-27",
+      "type": "external",
+      "organizer": "Purple Dragons Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/29907-sfm-purple-dragons-logistics1-year-anniversary-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/29907-sfm-purple-dragons-logistics1-year-anniversary-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T02:45:46.072Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 29907,
+        "confirmedVtcCount": 36,
+        "start": "Swansea — Slots",
+        "destination": "Aberdeen — City",
+        "meetupAt": "2026-01-27 16:00:00",
+        "departureAt": "2026-01-27 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T02:45:46.072Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-29807",
+      "platform": "truckersmp",
+      "platformEventId": "29807",
+      "name": "RSL 10 Years Anniversary",
+      "date": "2026-01-30",
+      "type": "external",
+      "organizer": "- Reamonn Spedition und Lagerung -",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/29807-rsl10-years-anniversary",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/29807-rsl10-years-anniversary",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T02:45:46.072Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 29807,
+        "confirmedVtcCount": 88,
+        "start": "Dresden — + Leipzig & Erfurt, Booked Slots",
+        "destination": "Salzburg — City",
+        "meetupAt": "2026-01-30 18:00:00",
+        "departureAt": "2026-01-30 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T02:45:46.072Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-28071",
+      "platform": "truckersmp",
+      "platformEventId": "28071",
+      "name": "THE ORIGINAL™ 1ST YEAR CONVOY",
+      "date": "2026-03-08",
+      "type": "external",
+      "organizer": "- THE ORIGINAL™ -",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/28071-the-original%E2%84%A21st-year-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/28071-the-original%E2%84%A21st-year-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T02:45:46.072Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 28071,
+        "confirmedVtcCount": 81,
+        "start": "TruckersMP HQ — Slots",
+        "destination": "Bremen — TDC",
+        "meetupAt": "2026-03-08 17:15:00",
+        "departureAt": "2026-03-08 18:15:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T02:45:46.072Z"
+    }
+  ],
+  "errors": []
+}

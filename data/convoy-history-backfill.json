@@ -44,9 +44,18 @@
       }
     },
     "2026": {
-      "status": "active_plus_backfill",
+      "status": "backfill_in_progress",
       "publicZeroAllowed": false,
-      "notes": "Current/future events are collected automatically; older external participation for the year still needs backfill."
+      "notes": "Chunked TruckersMP historical backfill for 2026 is still incomplete.",
+      "primaryApiScan": {
+        "complete": false,
+        "checked": 39999,
+        "requested": 39999,
+        "kingsMatches": 250,
+        "requestErrors": 4,
+        "throughDate": "2026-10-10",
+        "updatedAt": "2026-10-12T05:44:32.583Z"
+      }
     }
   }
 }

@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "mode": "one-time-truckersmp-2026-historical-event-scan",
+  "generatedAt": "2026-10-12T02:30:36.490Z",
+  "checkpointAt": "2026-10-12T03:17:44.342Z",
+  "complete": true,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 26000,
+    "endId": 27999
+  },
+  "dateWindow": {
+    "from": "2026-01-01",
+    "to": "2026-10-10"
+  },
+  "requestPolicy": {
+    "workers": 4,
+    "minimumRequestStartIntervalMs": 150,
+    "retry429And5xx": true,
+    "checkpointEvery": 100
+  },
+  "stats": {
+    "requested": 2000,
+    "checked": 2000,
+    "foundEvents": 982,
+    "inDateWindow": 7,
+    "notFound": 1018,
+    "requestErrors": 0
+  },
+  "matches": [
+    {
+      "id": "KCE-TRUCKERSMP-26101",
+      "platform": "truckersmp",
+      "platformEventId": "26101",
+      "name": "Baltic to Bohemia Run — with INDIAN GROUP",
+      "date": "2026-08-22",
+      "type": "external",
+      "organizer": "INDIAN GROUP",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/26101-baltic-to-bohemia-run%E2%80%94-with-indian-group",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/26101-baltic-to-bohemia-run%E2%80%94-with-indian-group",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T02:30:36.490Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 26101,
+        "confirmedVtcCount": 33,
+        "start": "Other — Szczecin & Rostock (Slots)",
+        "destination": "Prague — Stein Bruch",
+        "meetupAt": "2026-08-22 14:00:00",
+        "departureAt": "2026-08-22 15:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T02:30:36.490Z"
+    }
+  ],
+  "errors": []
+}

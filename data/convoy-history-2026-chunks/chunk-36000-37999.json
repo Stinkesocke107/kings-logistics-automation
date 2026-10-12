@@ -1,0 +1,501 @@
+{
+  "version": 1,
+  "mode": "one-time-truckersmp-2026-historical-event-scan",
+  "generatedAt": "2026-10-12T04:22:23.449Z",
+  "checkpointAt": "2026-10-12T05:10:39.450Z",
+  "complete": true,
+  "kingsVtcId": 64284,
+  "range": {
+    "startId": 36000,
+    "endId": 37999
+  },
+  "dateWindow": {
+    "from": "2026-01-01",
+    "to": "2026-10-10"
+  },
+  "requestPolicy": {
+    "workers": 4,
+    "minimumRequestStartIntervalMs": 150,
+    "retry429And5xx": true,
+    "checkpointEvery": 100
+  },
+  "stats": {
+    "requested": 2000,
+    "checked": 2000,
+    "foundEvents": 1220,
+    "inDateWindow": 716,
+    "notFound": 780,
+    "requestErrors": 0
+  },
+  "matches": [
+    {
+      "id": "KCE-TRUCKERSMP-36435",
+      "platform": "truckersmp",
+      "platformEventId": "36435",
+      "name": "Evento de apertura RC-L VTC",
+      "date": "2026-07-12",
+      "type": "external",
+      "organizer": "Reyes del Camino Logistics",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36435-evento-de-apertura-rc-l-vtc",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/36435-evento-de-apertura-rc-l-vtc",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 36435,
+        "confirmedVtcCount": 15,
+        "start": "Zürich — Slot",
+        "destination": "Bern — Stein bruch",
+        "meetupAt": "2026-07-12 00:00:00",
+        "departureAt": "2026-07-12 01:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36439",
+      "platform": "truckersmp",
+      "platformEventId": "36439",
+      "name": "NeoCrime ATS Night Convoy",
+      "date": "2026-07-12",
+      "type": "external",
+      "organizer": "- NeoCrime Group -",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36439-neocrime-ats-night-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/36439-neocrime-ats-night-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 36439,
+        "confirmedVtcCount": 4,
+        "start": "Los Angeles — Service Station",
+        "destination": "Clifton — Coastune Mining",
+        "meetupAt": "2026-07-12 18:00:00",
+        "departureAt": "2026-07-12 19:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36544",
+      "platform": "truckersmp",
+      "platformEventId": "36544",
+      "name": "MR | Open Convoy #43 - July",
+      "date": "2026-07-17",
+      "type": "external",
+      "organizer": "Mileage Riot",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36544-mr|-open-convoy#43--july",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/36544-mr|-open-convoy#43--july",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 36544,
+        "confirmedVtcCount": 2,
+        "start": "Kalamata — Icaria",
+        "destination": "Fier — CNP",
+        "meetupAt": "2026-07-17 16:00:00",
+        "departureAt": "2026-07-17 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36194",
+      "platform": "truckersmp",
+      "platformEventId": "36194",
+      "name": "POLLITO PIO  #2 Convoy Mensual",
+      "date": "2026-07-24",
+      "type": "external",
+      "organizer": "POLLITO PIO VTC",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36194-pollito-pio#2-convoy-mensual",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/36194-pollito-pio#2-convoy-mensual",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 36194,
+        "confirmedVtcCount": 20,
+        "start": "Klagenfurt am Wörthersee — Slot publico Taller",
+        "destination": "Prague — TradeAux",
+        "meetupAt": "2026-07-24 01:00:00",
+        "departureAt": "2026-07-24 01:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36071",
+      "platform": "truckersmp",
+      "platformEventId": "36071",
+      "name": "COMBOIO PÚBLICO DE JULHO",
+      "date": "2026-07-31",
+      "type": "external",
+      "organizer": "TGS Express - Trucks's Gamer Simulation",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36071-comboio-p%C3%BAblico-de-julho",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/36071-comboio-p%C3%BAblico-de-julho",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 36071,
+        "confirmedVtcCount": 15,
+        "start": "Poznań — slot+público",
+        "destination": "Travemünde — RT Log",
+        "meetupAt": "2026-07-31 23:00:00",
+        "departureAt": "2026-08-01 00:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36294",
+      "platform": "truckersmp",
+      "platformEventId": "36294",
+      "name": "POLLITO PIO  #3 CONVOY MENSUAL",
+      "date": "2026-08-22",
+      "type": "external",
+      "organizer": "POLLITO PIO VTC",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36294-pollito-pio#3-convoy-mensual",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/36294-pollito-pio#3-convoy-mensual",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 36294,
+        "confirmedVtcCount": 26,
+        "start": "Milan — Slot",
+        "destination": "Stuttgart — BCP",
+        "meetupAt": "2026-08-22 01:00:00",
+        "departureAt": "2026-08-22 01:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36053",
+      "platform": "truckersmp",
+      "platformEventId": "36053",
+      "name": "NeoCrime August Convoy 2026",
+      "date": "2026-08-26",
+      "type": "external",
+      "organizer": "- NeoCrime Group -",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36053-neocrime-august-convoy2026",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/36053-neocrime-august-convoy2026",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 36053,
+        "confirmedVtcCount": 27,
+        "start": "Linz — Slots",
+        "destination": "Rostock — RTLog",
+        "meetupAt": "2026-08-26 16:00:00",
+        "departureAt": "2026-08-26 17:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37345",
+      "platform": "truckersmp",
+      "platformEventId": "37345",
+      "name": "Monthly ATS Convoy",
+      "date": "2026-09-04",
+      "type": "external",
+      "organizer": "Mileage Riot",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37345-monthly-ats-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/37345-monthly-ats-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 37345,
+        "confirmedVtcCount": 4,
+        "start": "Montrose — Deepgrove",
+        "destination": "Sterling — Home Store",
+        "meetupAt": "2026-09-04 17:00:00",
+        "departureAt": "2026-09-04 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36369",
+      "platform": "truckersmp",
+      "platformEventId": "36369",
+      "name": "POLLITO PIO  #4 CONVOY MENSUAL",
+      "date": "2026-09-06",
+      "type": "external",
+      "organizer": "POLLITO PIO VTC",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36369-pollito-pio#4-convoy-mensual",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/36369-pollito-pio#4-convoy-mensual",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 36369,
+        "confirmedVtcCount": 22,
+        "start": "Berlin — + Slot public",
+        "destination": "Graz — EURO ACRES",
+        "meetupAt": "2026-09-06 23:30:00",
+        "departureAt": "2026-09-07 00:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-36971",
+      "platform": "truckersmp",
+      "platformEventId": "36971",
+      "name": "Logis 2.0 | September Monthly Convoy",
+      "date": "2026-09-17",
+      "type": "external",
+      "organizer": "Logis 2.0",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/36971-logis2.0|-september-monthly-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/36971-logis2.0|-september-monthly-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 36971,
+        "confirmedVtcCount": 11,
+        "start": "Karesuando — slot",
+        "destination": "Hamar — Nutri Molle",
+        "meetupAt": "2026-09-17 19:00:00",
+        "departureAt": "2026-09-17 19:30:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37346",
+      "platform": "truckersmp",
+      "platformEventId": "37346",
+      "name": "MR | Open Convoy #45 - September",
+      "date": "2026-09-18",
+      "type": "external",
+      "organizer": "Mileage Riot",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37346-mr|-open-convoy#45--september",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/37346-mr|-open-convoy#45--september",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 37346,
+        "confirmedVtcCount": 7,
+        "start": "Kuusamo — Lintukainen - city",
+        "destination": "Tromsø — Norrfood",
+        "meetupAt": "2026-09-18 17:00:00",
+        "departureAt": "2026-09-18 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    },
+    {
+      "id": "KCE-TRUCKERSMP-37688",
+      "platform": "truckersmp",
+      "platformEventId": "37688",
+      "name": "Path of Freedom | September convoy",
+      "date": "2026-09-28",
+      "type": "external",
+      "organizer": "Guiding Line Auto",
+      "status": "completed",
+      "participation": {
+        "status": "attended",
+        "confidence": "verified"
+      },
+      "attendance": {
+        "known": false,
+        "count": null,
+        "driverIds": []
+      },
+      "eventUrl": "https://truckersmp.com/events/37688-path-of-freedom|-september-convoy",
+      "evidence": [
+        {
+          "source": "truckersmp-api-event-scan",
+          "kind": "truckersmp-confirmed-vtc-attendance",
+          "url": "https://truckersmp.com/events/37688-path-of-freedom|-september-convoy",
+          "note": "TruckersMP Event API confirmed_vtcs contains Kings Logistics (VTC 64284).",
+          "observedAt": "2026-10-12T04:22:23.449Z"
+        }
+      ],
+      "sourceDetails": {
+        "scanEventId": 37688,
+        "confirmedVtcCount": 10,
+        "start": "Prague — Slots",
+        "destination": "Lyon — TradeAux",
+        "meetupAt": "2026-09-28 17:00:00",
+        "departureAt": "2026-09-28 18:00:00"
+      },
+      "createdAt": null,
+      "updatedAt": "2026-10-12T04:22:23.449Z"
+    }
+  ],
+  "errors": []
+}
