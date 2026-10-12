@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-11T02:02:58.449Z",
+  "generatedAt": "2026-10-12T12:41:44.608Z",
   "vtcId": "64284",
   "maxPagesRequested": 40,
   "pagesChecked": 1,
@@ -17,7 +17,7 @@
       "eventIds": [],
       "containsKings": false,
       "containsVtcAttending": false,
-      "htmlSample": "<!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"><meta name=\"robots\" content=\"noindex,nofollow\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><meta http-equiv=\"content-security-policy\" content=\"default-src &#39;none&#39;; script-src &#39;nonce-sur4P4hrDRK2tq9IimyDyL&#39; &#39;unsafe-eval&#39; https://challenges.cloudflare.com; script-s"
+      "htmlSample": "<!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"><meta name=\"robots\" content=\"noindex,nofollow\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><meta http-equiv=\"content-security-policy\" content=\"default-src &#39;none&#39;; script-src &#39;nonce-VXAAfZSMpCfgphwUWetRyG&#39; &#39;unsafe-eval&#39; https://challenges.cloudflare.com; script-s"
     }
   ]
 }

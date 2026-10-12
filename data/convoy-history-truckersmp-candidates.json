@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "truckersmp-historical-candidate-discovery",
-  "generatedAt": "2026-10-11T02:02:50.674Z",
+  "generatedAt": "2026-10-12T12:41:37.381Z",
   "vtcId": "64284",
   "fromDate": "2023-01-01",
   "policy": {
@@ -12,12 +12,12 @@
   },
   "summary": {
     "hostedEndpointRecords": 16,
-    "attendingEndpointRecords": 111,
-    "uniqueCandidatesSinceFromDate": 127,
+    "attendingEndpointRecords": 112,
+    "uniqueCandidatesSinceFromDate": 128,
     "pastCandidates": 16,
-    "futureCandidates": 110,
+    "futureCandidates": 111,
     "ownCandidates": 16,
-    "externalCandidates": 111
+    "externalCandidates": 112
   },
   "candidates": [
     {
@@ -421,39 +421,14 @@
       "departureAt": "2026-10-02 15:00:00"
     },
     {
-      "candidateKey": "truckersmp:35067",
-      "platform": "truckersmp",
-      "platformEventId": "35067",
-      "name": "ASIMOV Group: October Convoy #7",
-      "date": "2026-10-11",
-      "phase": "today",
-      "type": "external",
-      "organizer": "ASIMOV Group",
-      "eventUrl": "https://truckersmp.com/events/35067-asimov-group:-october-convoy#7",
-      "sourceKind": "attending",
-      "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending",
-        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
-      },
-      "suggestedParticipation": {
-        "status": "planned",
-        "confidence": "verified"
-      },
-      "start": "Klagenfurt am Wörthersee — Slots",
-      "destination": "Cologne — LKW",
-      "server": "To be determined",
-      "meetupAt": "2026-10-11 17:00:00",
-      "departureAt": "2026-10-11 18:00:00"
-    },
-    {
       "candidateKey": "truckersmp:36313",
       "platform": "truckersmp",
       "platformEventId": "36313",
       "name": "NeoCrime October Convoy 2026",
       "date": "2026-10-12",
-      "phase": "future",
+      "phase": "today",
       "type": "external",
-      "organizer": "NeoCrime™",
+      "organizer": "- NeoCrime Group -",
       "eventUrl": "https://truckersmp.com/events/36313-neocrime-october-convoy2026",
       "sourceKind": "attending",
       "discoveryEvidence": {
@@ -966,7 +941,7 @@
       },
       "start": "Nuremberg — Slots",
       "destination": "Calais — Container port",
-      "server": "To be determined",
+      "server": "Event Server",
       "meetupAt": "2026-11-06 14:00:00",
       "departureAt": "2026-11-06 15:00:00"
     },
@@ -1003,7 +978,7 @@
       "date": "2026-11-09",
       "phase": "future",
       "type": "external",
-      "organizer": "NeoCrime™",
+      "organizer": "- NeoCrime Group -",
       "eventUrl": "https://truckersmp.com/events/36547-neocrime-november-convoy2026",
       "sourceKind": "attending",
       "discoveryEvidence": {
@@ -1803,7 +1778,7 @@
       "date": "2026-12-30",
       "phase": "future",
       "type": "external",
-      "organizer": "NeoCrime™",
+      "organizer": "- NeoCrime Group -",
       "eventUrl": "https://truckersmp.com/events/36455-%F0%9F%8E%89-neocrime-helld4wg-birthday-convoy%F0%9F%8E%89",
       "sourceKind": "attending",
       "discoveryEvidence": {
@@ -1928,7 +1903,7 @@
       "date": "2027-01-09",
       "phase": "future",
       "type": "external",
-      "organizer": "NeoCrime™",
+      "organizer": "- NeoCrime Group -",
       "eventUrl": "https://truckersmp.com/events/36670-%F0%9F%8E%89-neocrime1-year-anniversary%F0%9F%8E%89",
       "sourceKind": "attending",
       "discoveryEvidence": {
@@ -1944,6 +1919,31 @@
       "server": "To be determined",
       "meetupAt": "2027-01-09 18:00:00",
       "departureAt": "2027-01-09 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:38186",
+      "platform": "truckersmp",
+      "platformEventId": "38186",
+      "name": "African Logistics MONTHLY CONVOY",
+      "date": "2027-01-12",
+      "phase": "future",
+      "type": "external",
+      "organizer": "AFRICAN LOGISTICS",
+      "eventUrl": "https://truckersmp.com/events/38186-african-logistics-monthly-convoy",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
+      },
+      "suggestedParticipation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "start": "Kassel — Slots",
+      "destination": "Dijon — EUROACRESS",
+      "server": "To be determined",
+      "meetupAt": "2027-01-12 18:00:00",
+      "departureAt": "2027-01-12 19:00:00"
     },
     {
       "candidateKey": "truckersmp:37044",
@@ -2478,7 +2478,7 @@
       "date": "2027-02-09",
       "phase": "future",
       "type": "external",
-      "organizer": "NeoCrime™",
+      "organizer": "- NeoCrime Group -",
       "eventUrl": "https://truckersmp.com/events/37015-neocrime-february-convoy2027",
       "sourceKind": "attending",
       "discoveryEvidence": {
@@ -3028,7 +3028,7 @@
       "date": "2027-03-10",
       "phase": "future",
       "type": "external",
-      "organizer": "NeoCrime™",
+      "organizer": "- NeoCrime Group -",
       "eventUrl": "https://truckersmp.com/events/37874-neocrime-march-convoy2027",
       "sourceKind": "attending",
       "discoveryEvidence": {
@@ -3194,6 +3194,31 @@
       "server": "To be determined",
       "meetupAt": "2027-04-03 18:00:00",
       "departureAt": "2027-04-03 19:00:00"
+    },
+    {
+      "candidateKey": "truckersmp:38346",
+      "platform": "truckersmp",
+      "platformEventId": "38346",
+      "name": "A Cozy Drive in April with Pink Ribbon VTC",
+      "date": "2027-04-10",
+      "phase": "future",
+      "type": "external",
+      "organizer": "Pink Ribbon Virtual Trucking Company",
+      "eventUrl": "https://truckersmp.com/events/38346-a-cozy-drive-in-april-with-pink-ribbon-vtc",
+      "sourceKind": "attending",
+      "discoveryEvidence": {
+        "kind": "truckersmp-vtc-attending",
+        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
+      },
+      "suggestedParticipation": {
+        "status": "planned",
+        "confidence": "verified"
+      },
+      "start": "Varna — Slots | Public: Garage",
+      "destination": "Pirdop — Rock Eater Quarry",
+      "server": "Simulation 2",
+      "meetupAt": "2027-04-10 14:00:00",
+      "departureAt": "2027-04-10 15:00:00"
     }
   ]
 }
