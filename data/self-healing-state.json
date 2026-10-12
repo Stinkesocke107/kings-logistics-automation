@@ -23,15 +23,6 @@
     "driver-updates": {
       "attempts": [
         {
-          "at": "2026-10-11T18:47:44.631Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 38165291563,
-          "issueIds": [
-            "workflow-overdue:driver-updates.yml"
-          ]
-        },
-        {
           "at": "2026-10-12T17:44:24.806Z",
           "outcome": "recovered",
           "action": "dispatched",
