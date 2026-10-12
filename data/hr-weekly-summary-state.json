@@ -1,7 +1,7 @@
 {
   "version": 2,
   "createdAt": "2026-09-07T10:30:07.723Z",
-  "updatedAt": "2026-10-05T10:33:43.853Z",
+  "updatedAt": "2026-10-12T19:48:53.687Z",
   "publishedWeeks": [
     {
       "key": "2026-08-31",
@@ -39,6 +39,23 @@
       "probationOpened": 1,
       "probationCompleted": 0,
       "openProbation": 1,
+      "extendedProbation": 0,
+      "hrReviews30d": 0,
+      "activeLoa": 0,
+      "scheduledLoa": 0
+    },
+    {
+      "key": "2026-10-05",
+      "periodStart": "2026-10-05T00:00:00.000Z",
+      "periodEnd": "2026-10-12T00:00:00.000Z",
+      "publishedAt": "2026-10-12T19:48:53.687Z",
+      "currentDrivers": 108,
+      "joined": 0,
+      "left": 1,
+      "netGrowth": -1,
+      "probationOpened": 1,
+      "probationCompleted": 0,
+      "openProbation": 2,
       "extendedProbation": 0,
       "hrReviews30d": 0,
       "activeLoa": 0,
