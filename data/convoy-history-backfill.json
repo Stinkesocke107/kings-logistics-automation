@@ -44,17 +44,17 @@
       }
     },
     "2026": {
-      "status": "backfill_in_progress",
+      "status": "active_plus_backfill",
       "publicZeroAllowed": false,
-      "notes": "Chunked TruckersMP historical backfill for 2026 is still incomplete.",
+      "notes": "TruckersMP Event API historical scan is complete through 2026-10-10 for event IDs 1-39999. Current and future 2026 events remain handled by the active collection pipeline.",
       "primaryApiScan": {
-        "complete": false,
+        "complete": true,
         "checked": 39999,
         "requested": 39999,
         "kingsMatches": 250,
-        "requestErrors": 4,
+        "requestErrors": 0,
         "throughDate": "2026-10-10",
-        "updatedAt": "2026-10-12T05:44:32.583Z"
+        "updatedAt": "2026-10-12T07:36:51.185Z"
       }
     }
   }
