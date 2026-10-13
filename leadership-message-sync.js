@@ -92,12 +92,12 @@ async function syncTextMessage({
   const existing = matches[0] || null;
 
   let action;
-  let messageId;
+  let resolvedMessageId;
 
   if (existing) {
     if (String(existing.content || '').trim() === String(content || '').trim()) {
       action = 'unchanged';
-      messageId = existing.id;
+      resolvedMessageId = existing.id;
     } else {
       const updated = await api(
         token,
@@ -106,7 +106,7 @@ async function syncTextMessage({
         userAgent
       );
       action = 'updated';
-      messageId = updated?.id || existing.id;
+      resolvedMessageId = updated?.id || existing.id;
     }
   } else {
     const created = await api(
@@ -116,7 +116,7 @@ async function syncTextMessage({
       userAgent
     );
     action = 'created';
-    messageId = created?.id || null;
+    resolvedMessageId = created?.id || null;
   }
 
   let duplicatesRemoved = 0;
@@ -130,7 +130,7 @@ async function syncTextMessage({
     duplicatesRemoved += 1;
   }
 
-  return { action, messageId, duplicatesRemoved };
+  return { action, messageId: resolvedMessageId, duplicatesRemoved };
 }
 
 async function syncEmbedMessage({
