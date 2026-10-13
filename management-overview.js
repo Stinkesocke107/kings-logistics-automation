@@ -317,7 +317,7 @@ function buildEmbed(driver, live, statistics, hr, events, reports, recognition, 
 
   return {
     title: OVERVIEW_TITLE,
-    description: `${overall}\nAggregate leadership view only — detailed cases remain in their department channels.`,
+    description: `🔵 **LIVE / CURRENT OVERVIEW**\n${overall}\nAggregate leadership view only — detailed cases remain in their department channels.`,
     color: managementAttention > 0 ? 0xf0a500 : 0x182dff,
     fields: [
       {
