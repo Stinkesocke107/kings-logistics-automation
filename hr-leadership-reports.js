@@ -3,6 +3,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { syncTextMessage } = require('./leadership-message-sync');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
@@ -495,22 +496,7 @@ async function post(channel, content) {
 async function runDaily(driverState, hrState, loaState, reportState) {
   const end = new Date();
   const key = end.toISOString().slice(0, 10);
-
-  if (!PREVIEW && reportState.publishedDailyKeys.includes(key)) {
-    console.log(`HR Daily Changes ${key} already published.`);
-    return;
-  }
-
   const data = buildDailyData(driverState, hrState, loaState, end);
-  if (!data.changed) {
-    console.log('HR Daily Changes: no meaningful changes in the last 24 hours; no Discord message sent.');
-    if (!PREVIEW) {
-      reportState.publishedDailyKeys.push(key);
-      saveReportState(reportState);
-    }
-    return;
-  }
-
   const channel = await resolveChannel();
   const content = buildDailyMessage(data);
 
@@ -519,22 +505,23 @@ async function runDaily(driverState, hrState, loaState, reportState) {
     return;
   }
 
-  await post(channel, content);
-  reportState.publishedDailyKeys.push(key);
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '🟢 **Kings HR Leadership — Daily Changes**',
+    content,
+    userAgent: 'Kings Logistics HR Leadership Reports/2.0'
+  });
+
+  if (!reportState.publishedDailyKeys.includes(key)) reportState.publishedDailyKeys.push(key);
   saveReportState(reportState);
-  console.log(`HR Daily Changes ${key} published to #${channel.name}.`);
+  console.log(`HR Daily dashboard ${result.action} in #${channel.name}; changes in last 24h: ${data.changed}.`);
 }
 
 async function runMonthly(driverState, hrState, loaState, reportState) {
   const period = previousCompletedMonth();
-
-  if (!PREVIEW && reportState.publishedMonthlyKeys.includes(period.key)) {
-    console.log(`HR Monthly Report ${period.key} already published.`);
-    return;
-  }
-
   const data = buildMonthlyData(driverState, hrState, loaState, period);
-  const previous = reportState.monthlyReports.at(-1) || null;
+  const previous = reportState.monthlyReports.filter((item) => item.key !== period.key).at(-1) || null;
   const content = buildMonthlyMessage(data, previous);
   const channel = await resolveChannel();
 
@@ -543,10 +530,15 @@ async function runMonthly(driverState, hrState, loaState, reportState) {
     return;
   }
 
-  await post(channel, content);
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '👑 **Kings HR Leadership — Monthly Report**',
+    content,
+    userAgent: 'Kings Logistics HR Leadership Reports/2.0'
+  });
 
-  reportState.publishedMonthlyKeys.push(period.key);
-  reportState.monthlyReports.push({
+  const record = {
     key: period.key,
     publishedAt: nowISO(),
     completeCoverage: data.completeCoverage,
@@ -562,12 +554,16 @@ async function runMonthly(driverState, hrState, loaState, reportState) {
     extendedProbation: data.snapshot.extendedProbation.length,
     hrReviews: data.snapshot.hrReviews.length,
     activeLoa: data.snapshot.activeLoa.length
-  });
+  };
+
+  const index = reportState.monthlyReports.findIndex((item) => item.key === period.key);
+  if (index >= 0) reportState.monthlyReports[index] = record;
+  else reportState.monthlyReports.push(record);
+  if (!reportState.publishedMonthlyKeys.includes(period.key)) reportState.publishedMonthlyKeys.push(period.key);
   saveReportState(reportState);
 
-  console.log(`HR Monthly Report ${period.key} published to #${channel.name}.`);
+  console.log(`HR Monthly dashboard ${result.action} for ${period.key} in #${channel.name}.`);
 }
-
 async function main() {
   const driverState = loadEncrypted(DRIVER_FILE, 'kings-driver-management-v1', null);
   if (!driverState) throw new Error('Driver Management state is missing.');
