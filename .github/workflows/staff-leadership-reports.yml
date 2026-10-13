@@ -1,0 +1,125 @@
+name: Kings Staff Leadership Reports
+
+on:
+  workflow_dispatch:
+    inputs:
+      report:
+        description: "Staff Leadership report to run"
+        required: true
+        default: "daily-preview"
+        type: choice
+        options:
+          - daily-preview
+          - daily-publish
+          - weekly-preview
+          - weekly-publish
+          - monthly-preview
+          - monthly-publish
+
+  push:
+    branches:
+      - main
+    paths:
+      - 'staff-leadership-reports.js'
+      - '.github/workflows/staff-leadership-reports.yml'
+
+  schedule:
+    - cron: "0 19 * * *"
+    - cron: "25 10 * * 1"
+    - cron: "0 10 1 * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-staff-leadership-reports
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Verify Staff Leadership reports
+        run: node --check staff-leadership-reports.js
+
+  report:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Resolve Staff report mode
+        id: mode
+        shell: bash
+        env:
+          INPUT_REPORT: ${{ inputs.report }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            MODE="${INPUT_REPORT%-preview}"
+            MODE="${MODE%-publish}"
+            PREVIEW=false
+            case "$INPUT_REPORT" in
+              *-preview) PREVIEW=true ;;
+            esac
+          elif [ "$EVENT_SCHEDULE" = "0 19 * * *" ]; then
+            MODE=daily
+            PREVIEW=false
+          elif [ "$EVENT_SCHEDULE" = "25 10 * * 1" ]; then
+            MODE=weekly
+            PREVIEW=false
+          else
+            MODE=monthly
+            PREVIEW=false
+          fi
+
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "preview=$PREVIEW" >> "$GITHUB_OUTPUT"
+
+      - name: Create Staff Leadership report
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          STAFF_LEADERSHIP_CHANNEL_NAME: 'staff-leadership'
+          STAFF_LEADERSHIP_REPORT_MODE: ${{ steps.mode.outputs.mode }}
+          STAFF_LEADERSHIP_REPORT_PREVIEW: ${{ steps.mode.outputs.preview }}
+        run: node staff-leadership-reports.js
+
+      - name: Save Staff Leadership report state
+        if: ${{ steps.mode.outputs.preview == 'false' }}
+        run: |
+          if git diff --quiet -- data/staff-leadership-report-state.json && [ -z "$(git status --porcelain data/staff-leadership-report-state.json)" ]; then
+            echo "No Staff Leadership report state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/staff-leadership-report-state.json
+          git commit -m "Update Staff Leadership report state"
+          bash scripts/git-safe-push.sh main
