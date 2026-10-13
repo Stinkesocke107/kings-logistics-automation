@@ -1,0 +1,52 @@
+name: Kings Leadership Dashboard Verification
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'leadership-message-sync.js'
+      - 'driver-leadership-reports.js'
+      - 'driver-weekly-summary.js'
+      - 'hr-leadership-reports.js'
+      - 'hr-weekly-summary.js'
+      - 'staff-leadership-reports.js'
+      - 'event-leadership-reports.js'
+      - 'management-weekly-overview-v3.js'
+      - 'management-monthly-report.js'
+      - 'weekly-reports-verifier-v2.js'
+      - '.github/workflows/leadership-dashboard-verification.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-leadership-dashboard-verification
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Verify Leadership dashboard scripts
+        run: |
+          node --check leadership-message-sync.js
+          node --check driver-leadership-reports.js
+          node --check driver-weekly-summary.js
+          node --check hr-leadership-reports.js
+          node --check hr-weekly-summary.js
+          node --check staff-leadership-reports.js
+          node --check event-leadership-reports.js
+          node --check management-weekly-overview-v3.js
+          node --check management-monthly-report.js
+          node --check weekly-reports-verifier-v2.js
