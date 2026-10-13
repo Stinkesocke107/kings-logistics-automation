@@ -1,12 +1,45 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:20:00.000Z",
-  "updatedAt": "2026-10-13T05:20:00.000Z",
+  "updatedAt": "2026-10-13T05:44:20.517Z",
   "publishedDailyKeys": [
     "2026-10-13"
   ],
-  "publishedWeeklyKeys": [],
-  "publishedMonthlyKeys": [],
-  "weeklyReports": [],
-  "monthlyReports": []
+  "publishedWeeklyKeys": [
+    "2026-10-05"
+  ],
+  "publishedMonthlyKeys": [
+    "2026-09"
+  ],
+  "weeklyReports": [
+    {
+      "key": "2026-10-05",
+      "publishedAt": "2026-10-13T05:44:19.935Z",
+      "completeCoverage": true,
+      "startStaff": 11,
+      "endStaff": 11,
+      "joined": 0,
+      "left": 0,
+      "roleChanges": 0,
+      "netGrowth": 0
+    }
+  ],
+  "monthlyReports": [
+    {
+      "key": "2026-09",
+      "publishedAt": "2026-10-13T05:44:20.517Z",
+      "completeCoverage": false,
+      "startStaff": 12,
+      "endStaff": 11,
+      "joined": 0,
+      "left": 1,
+      "roleChanges": 0,
+      "netGrowth": -1
+    }
+  ],
+  "messageIds": {
+    "daily": "1559441637086597123",
+    "weekly": "1559441639271956581",
+    "monthly": "1559441641453125684"
+  }
 }

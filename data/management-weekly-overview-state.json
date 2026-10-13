@@ -1,7 +1,7 @@
 {
   "version": 3,
   "createdAt": "2026-09-07T10:42:51.005Z",
-  "updatedAt": "2026-10-12T19:54:02.096Z",
+  "updatedAt": "2026-10-13T05:44:24.128Z",
   "publishedWeeks": [
     {
       "key": "2026-08-31",
@@ -81,7 +81,7 @@
       "key": "2026-10-05",
       "periodStart": "2026-10-05T00:00:00.000Z",
       "periodEnd": "2026-10-12T00:00:00.000Z",
-      "publishedAt": "2026-10-12T19:54:02.096Z",
+      "publishedAt": "2026-10-13T05:44:24.127Z",
       "members": 108,
       "joined": 1,
       "left": 1,
@@ -100,5 +100,6 @@
       "scheduledEvents": 6,
       "weeklyPeak": 2
     }
-  ]
+  ],
+  "messageId": "1559441656942690395"
 }

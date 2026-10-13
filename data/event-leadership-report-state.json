@@ -1,12 +1,172 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-10-13T05:30:00.000Z",
-  "lastSnapshot": null,
+  "updatedAt": "2026-10-13T05:44:23.386Z",
+  "lastSnapshot": [
+    {
+      "threadId": "1551261117630648542",
+      "name": "18. January, Pinkachu",
+      "eventId": "36903",
+      "status": "Scheduled",
+      "eventDate": "2027-01-18",
+      "meetupTime": "20:00 UTC",
+      "responsibleStaff": "<@1299456550523506743>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1800302400
+    },
+    {
+      "threadId": "1553101648635756544",
+      "name": "20. November - ARNI Trans Polska",
+      "eventId": "37799",
+      "status": "Needs Information",
+      "eventDate": "2026-11-20",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@935991067969470485>",
+      "kingsSlot": "ITCC complex (#2)",
+      "missing": [
+        "eventLink"
+      ],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1795194000
+    },
+    {
+      "threadId": "1554134962146648205",
+      "name": "9. March - Northern Lights",
+      "eventId": "38072",
+      "status": "Scheduled",
+      "eventDate": "2027-03-09",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed - Slot H - FLE",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1804611600
+    },
+    {
+      "threadId": "1556232587725512724",
+      "name": "02. April - Pink Ribbon VTC",
+      "eventId": "38211",
+      "status": "Needs Information",
+      "eventDate": "2027-04-02",
+      "meetupTime": "18:00 UTC",
+      "responsibleStaff": "@[ECO] Ginge",
+      "kingsSlot": "Confirmed — 9",
+      "missing": [
+        "responsibleStaff"
+      ],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1806688800
+    },
+    {
+      "threadId": "1556286126573092965",
+      "name": "27. March - Central Transport",
+      "eventId": "38055",
+      "status": "Scheduled",
+      "eventDate": "2027-03-27",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot 7",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1806166800
+    },
+    {
+      "threadId": "1557647681600626718",
+      "name": "04. March - Global Trucking VTC",
+      "eventId": "38240",
+      "status": "Scheduled",
+      "eventDate": "2027-03-04",
+      "meetupTime": "18:00 UTC",
+      "responsibleStaff": "<@1299456550523506743>",
+      "kingsSlot": "TruckersMP Quarry (slot 9)",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1804183200
+    },
+    {
+      "threadId": "1558157376786403389",
+      "name": "03. April - (P) Twisted Transport",
+      "eventId": "38296",
+      "status": "Scheduled",
+      "eventDate": "2027-04-03",
+      "meetupTime": "18:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot Area B (Partner)",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1806775200
+    },
+    {
+      "threadId": "1558158179131588730",
+      "name": "10. October - - THE ORIGINAL™ -",
+      "eventId": "34819",
+      "status": "Completed",
+      "eventDate": "2026-10-10",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@1299456550523506743>",
+      "kingsSlot": "Section T - TruckersMP HQ Euro Acress",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1791651600
+    },
+    {
+      "threadId": "1558780071039213649",
+      "name": "10. April (F) Pink Robbon VTC",
+      "eventId": "38346",
+      "status": "Scheduled",
+      "eventDate": "2027-04-10",
+      "meetupTime": "14:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot Section E",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1807365600
+    }
+  ],
   "changeLog": [],
-  "publishedDailyKeys": [],
-  "publishedWeeklyKeys": [],
-  "publishedMonthlyKeys": [],
-  "weeklyReports": [],
-  "monthlyReports": []
+  "publishedDailyKeys": [
+    "2026-10-13"
+  ],
+  "publishedWeeklyKeys": [
+    "2026-10-05"
+  ],
+  "publishedMonthlyKeys": [
+    "2026-09"
+  ],
+  "weeklyReports": [
+    {
+      "key": "2026-10-05",
+      "publishedAt": "2026-10-13T05:44:22.445Z",
+      "realConvoys": 9,
+      "scheduled": 6,
+      "ready": 0,
+      "needsInfo": 2,
+      "changes": 0
+    }
+  ],
+  "monthlyReports": [
+    {
+      "key": "2026-09",
+      "publishedAt": "2026-10-13T05:44:23.386Z",
+      "counted": 0,
+      "scheduled": 0,
+      "completed": 0,
+      "cancelled": 0,
+      "needsInfo": 0,
+      "ready": 0,
+      "changes": 0,
+      "realConvoys": 9
+    }
+  ]
 }
