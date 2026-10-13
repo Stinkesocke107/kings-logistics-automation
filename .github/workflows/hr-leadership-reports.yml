@@ -27,6 +27,9 @@ on:
     # Monthly HR report for the completed month.
     - cron: "45 9 1 * *"
 
+env:
+  LEADERSHIP_CONSOLIDATED_ONLY: 'true'
+
 permissions:
   contents: write
 
