@@ -3,6 +3,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { syncTextMessage } = require('./leadership-message-sync');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
@@ -514,23 +515,7 @@ async function postMessage(channel, content) {
 async function runDaily(managementState, loaState, reportState) {
   const end = new Date();
   const key = end.toISOString().slice(0, 10);
-
-  if (!PREVIEW && reportState.publishedDailyKeys.includes(key)) {
-    console.log(`Driver Daily Changes ${key} already published.`);
-    return;
-  }
-
   const data = buildDailyData(managementState, loaState, end);
-
-  if (!data.changed) {
-    console.log('Driver Daily Changes: no meaningful changes in the last 24 hours; no Discord message sent.');
-    if (!PREVIEW) {
-      reportState.publishedDailyKeys.push(key);
-      saveReportState(reportState);
-    }
-    return;
-  }
-
   const content = buildDailyMessage(data);
   const channel = await resolveLeadershipChannel();
 
@@ -539,22 +524,28 @@ async function runDaily(managementState, loaState, reportState) {
     return;
   }
 
-  await postMessage(channel, content);
-  reportState.publishedDailyKeys.push(key);
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '🟢 **Kings Driver Leadership — Daily Changes**',
+    content,
+    userAgent: 'Kings Logistics Driver Leadership Reports/2.0'
+  });
+
+  if (!reportState.publishedDailyKeys.includes(key)) {
+    reportState.publishedDailyKeys.push(key);
+  }
   saveReportState(reportState);
-  console.log(`Driver Daily Changes ${key} published to #${channel.name}.`);
+
+  console.log(`Driver Daily dashboard ${result.action} in #${channel.name}; changes in last 24h: ${data.changed}.`);
 }
 
 async function runMonthly(managementState, loaState, reportState) {
   const period = previousCompletedMonth();
-
-  if (!PREVIEW && reportState.publishedMonthlyKeys.includes(period.key)) {
-    console.log(`Driver Monthly Report ${period.key} already published.`);
-    return;
-  }
-
   const data = buildMonthlyData(managementState, loaState, period);
-  const previousReport = reportState.monthlyReports.at(-1) || null;
+  const previousReport = reportState.monthlyReports
+    .filter((item) => item.key !== period.key)
+    .at(-1) || null;
   const content = buildMonthlyMessage(data, previousReport);
   const channel = await resolveLeadershipChannel();
 
@@ -563,10 +554,15 @@ async function runMonthly(managementState, loaState, reportState) {
     return;
   }
 
-  await postMessage(channel, content);
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '👑 **Kings Driver Leadership — Monthly Report**',
+    content,
+    userAgent: 'Kings Logistics Driver Leadership Reports/2.0'
+  });
 
-  reportState.publishedMonthlyKeys.push(period.key);
-  reportState.monthlyReports.push({
+  const record = {
     key: period.key,
     publishedAt: nowISO(),
     completeCoverage: data.completeCoverage,
@@ -579,10 +575,18 @@ async function runMonthly(managementState, loaState, reportState) {
     openReviews: data.openReviews,
     activeLoa: data.activeLoa.length,
     averageTenureDays: data.tenure.averageDays
-  });
+  };
+
+  const index = reportState.monthlyReports.findIndex((item) => item.key === period.key);
+  if (index >= 0) reportState.monthlyReports[index] = record;
+  else reportState.monthlyReports.push(record);
+
+  if (!reportState.publishedMonthlyKeys.includes(period.key)) {
+    reportState.publishedMonthlyKeys.push(period.key);
+  }
   saveReportState(reportState);
 
-  console.log(`Driver Monthly Report ${period.key} published to #${channel.name}.`);
+  console.log(`Driver Monthly dashboard ${result.action} for ${period.key} in #${channel.name}.`);
 }
 
 async function main() {
