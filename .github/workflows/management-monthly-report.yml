@@ -1,0 +1,87 @@
+name: Kings Management Monthly Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Management monthly report mode"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - publish
+
+  push:
+    branches:
+      - main
+    paths:
+      - 'management-monthly-report.js'
+      - '.github/workflows/management-monthly-report.yml'
+
+  schedule:
+    # Retry on the first three days so delayed source reports do not block the month.
+    - cron: "30 11 1-3 * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-management-monthly-report
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Verify Management monthly report
+        run: node --check management-monthly-report.js
+
+  monthly:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Create Management Monthly Report
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
+          MANAGEMENT_MONTHLY_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
+        run: node management-monthly-report.js
+
+      - name: Save Management Monthly Report state
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') }}
+        run: |
+          if git diff --quiet -- data/management-monthly-overview-state.json && [ -z "$(git status --porcelain data/management-monthly-overview-state.json)" ]; then
+            echo "No Management monthly report state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/management-monthly-overview-state.json
+          git commit -m "Update Management monthly report state"
+          bash scripts/git-safe-push.sh main
