@@ -28,6 +28,9 @@ on:
     - cron: "25 10 * * 1"
     - cron: "0 10 1 * *"
 
+env:
+  LEADERSHIP_CONSOLIDATED_ONLY: 'true'
+
 permissions:
   contents: write
 
