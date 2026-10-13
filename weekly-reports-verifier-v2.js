@@ -135,29 +135,29 @@ async function main() {
 
   const driverResolved = await resolveByHistory(
     textChannels, DRIVER_NAME, bot.id,
-    (m) => String(m.content || '').includes('Kings Driver Leadership Weekly Summary'),
+    (m) => /Kings Driver Leadership (?:Weekly Summary|— Weekly Review)/.test(String(m.content || '')),
     'Driver Leadership'
   );
   const hrResolved = await resolveByHistory(
     textChannels, HR_NAME, bot.id,
-    (m) => String(m.content || '').includes('Kings HR Weekly Summary'),
+    (m) => /Kings HR (?:Weekly Summary|Leadership — Weekly Review)/.test(String(m.content || '')),
     'HR Leadership'
   );
   const managementResolved = await resolveByHistory(
     textChannels, MANAGEMENT_NAME, bot.id,
-    (m) => (m.embeds || []).some((e) => String(e.title || '').includes('Kings Weekly Management Overview')),
+    (m) => (m.embeds || []).some((e) => /Kings (?:Weekly Management Overview|Management Weekly Review)/.test(String(e.title || ''))),
     'Management Overview'
   );
 
   const driverPost = driverResolved.messages.find((m) =>
-    m.author?.id === bot.id && String(m.content || '').includes('Kings Driver Leadership Weekly Summary') && String(m.content || '').includes(shortLabel)
+    m.author?.id === bot.id && /Kings Driver Leadership (?:Weekly Summary|— Weekly Review)/.test(String(m.content || '')) && String(m.content || '').includes(shortLabel)
   ) || null;
   const hrPost = hrResolved.messages.find((m) =>
-    m.author?.id === bot.id && String(m.content || '').includes('Kings HR Weekly Summary') && !String(m.content || '').includes('TEST') && String(m.content || '').includes(shortLabel)
+    m.author?.id === bot.id && /Kings HR (?:Weekly Summary|Leadership — Weekly Review)/.test(String(m.content || '')) && !String(m.content || '').includes('TEST') && String(m.content || '').includes(shortLabel)
   ) || null;
   const managementPost = managementResolved.messages.find((m) =>
     m.author?.id === bot.id && (m.embeds || []).some((e) =>
-      String(e.title || '').includes('Kings Weekly Management Overview') && !String(e.title || '').includes('TEST') && String(e.description || '').includes(longLabel)
+      /Kings (?:Weekly Management Overview|Management Weekly Review)/.test(String(e.title || '')) && !String(e.title || '').includes('TEST') && String(e.description || '').includes(longLabel)
     )
   ) || null;
 
