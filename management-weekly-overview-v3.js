@@ -150,9 +150,10 @@ function loadHrState() {
 function loadState() {
   const state = readJson(STATE_FILE, null);
   if (!state || !Array.isArray(state.publishedWeeks)) {
-    return { version: 3, createdAt: nowISO(), updatedAt: nowISO(), publishedWeeks: [] };
+    return { version: 3, createdAt: nowISO(), updatedAt: nowISO(), publishedWeeks: [], messageId: null };
   }
   state.version = 3;
+  state.messageId = state.messageId || null;
   return state;
 }
 function saveState(state) {
@@ -190,10 +191,8 @@ function normalizeChannelName(value = '') {
 }
 async function resolveManagementChannel() {
   if (MANAGEMENT_CHANNEL_ID) {
-    const channel = await discord(`/channels/${MANAGEMENT_CHANNEL_ID}`);
-    if (channel.guild_id && channel.guild_id !== DISCORD_GUILD_ID) throw new Error('Configured Management channel is in the wrong guild.');
-    resolvedWriteChannelId = String(channel.id);
-    return channel;
+    resolvedWriteChannelId = String(MANAGEMENT_CHANNEL_ID);
+    return { id: String(MANAGEMENT_CHANNEL_ID), name: MANAGEMENT_CHANNEL_NAME };
   }
   const channels = await discord(`/guilds/${DISCORD_GUILD_ID}/channels`);
   const textChannels = (channels || []).filter((channel) => [0, 5].includes(channel.type));
@@ -321,8 +320,11 @@ async function createOverview() {
     channelId: channel.id,
     marker: '🟣 Kings Management Weekly Review',
     embed,
-    userAgent: 'Kings Logistics Management Weekly/4.0'
+    userAgent: 'Kings Logistics Management Weekly/4.1',
+    messageId: state.messageId,
+    createWithoutDiscovery: true
   });
+  state.messageId = result.messageId || state.messageId;
 
   const record = {
     key: period.key,
