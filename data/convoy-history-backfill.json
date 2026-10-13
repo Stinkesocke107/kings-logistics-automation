@@ -18,16 +18,16 @@
       }
     },
     "2024": {
-      "status": "backfill_in_progress",
+      "status": "primary_api_scan_complete",
       "publicZeroAllowed": false,
-      "notes": "Chunked TruckersMP historical backfill for 2024 is still incomplete.",
+      "notes": "Primary TruckersMP Event API scan for event IDs 14000-26999 and dates 2024-01-01 through 2024-12-31 completed. Event 16376 was individually rechecked and resolved as not found. Additional archived/internal sources may still add events.",
       "primaryApiScan": {
-        "complete": false,
+        "complete": true,
         "checked": 13000,
         "requested": 13000,
         "kingsMatches": 21,
-        "requestErrors": 1,
-        "updatedAt": "2026-10-11T04:00:17.500Z"
+        "requestErrors": 0,
+        "updatedAt": "2026-10-13T04:35:00.000Z"
       }
     },
     "2025": {
