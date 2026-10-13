@@ -185,6 +185,7 @@ function buildMessage(report, overview) {
 
   const lines = [
     MESSAGE_MARKER,
+    '🔵 **LIVE / CURRENT OVERVIEW**',
     '',
     'Live leadership view of Kings convoy operations. Normal Driver reminders and public announcements are not repeated here.',
     '',
@@ -259,6 +260,7 @@ function buildMessage(report, overview) {
   if (content.length > 2000) {
     content = [
       MESSAGE_MARKER,
+      '🔵 **LIVE / CURRENT OVERVIEW**',
       '',
       'Live leadership view of Kings convoy operations.',
       '',
