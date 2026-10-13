@@ -78,6 +78,51 @@ function normalizeManual(record) {
   };
 }
 
+function refreshElapsedVerifiedPlans(history, now = new Date()) {
+  const today = now.toISOString().slice(0, 10);
+  const autoEvidenceKinds = new Set([
+    'truckersmp-vtc-attending',
+    'truckersmp-vtc-hosted-event'
+  ]);
+  let transitioned = 0;
+
+  const records = (history.records || []).map(record => {
+    const date = String(record?.date || '');
+    const participation = record?.participation || {};
+    const evidence = Array.isArray(record?.evidence) ? record.evidence : [];
+    const hasVerifiedPlatformEvidence = evidence.some(item =>
+      autoEvidenceKinds.has(String(item?.kind || ''))
+    );
+
+    const shouldComplete =
+      /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+      date < today &&
+      record?.status === 'planned' &&
+      participation.status === 'planned' &&
+      participation.confidence === 'verified' &&
+      hasVerifiedPlatformEvidence;
+
+    if (!shouldComplete) return record;
+
+    transitioned += 1;
+    return {
+      ...record,
+      status: 'completed',
+      participation: {
+        ...participation,
+        status: 'attended',
+        confidence: 'verified'
+      },
+      updatedAt: new Date().toISOString()
+    };
+  });
+
+  return {
+    history: { ...history, records },
+    transitioned
+  };
+}
+
 function mergeHistory(history, incoming) {
   const map = new Map();
 
@@ -175,7 +220,8 @@ function main() {
     console.warn('2026 scan exists but is incomplete; its matches are not imported.');
   }
 
-  const result = mergeHistory(history, [...candidateRecords, ...manualRecords, ...scan2023Records, ...scan2024Records, ...scan2025Records, ...scan2026Records]);
+  const refreshed = refreshElapsedVerifiedPlans(history);
+  const result = mergeHistory(refreshed.history, [...candidateRecords, ...manualRecords, ...scan2023Records, ...scan2024Records, ...scan2025Records, ...scan2026Records]);
 
   fs.writeFileSync(HISTORY_PATH, JSON.stringify(result.history, null, 2) + '\n');
 
@@ -186,11 +232,12 @@ function main() {
   console.log('2024 API-scan verified records: ' + scan2024Records.length);
   console.log('2025 API-scan verified records: ' + scan2025Records.length);
   console.log('2026 API-scan verified records: ' + scan2026Records.length);
+  console.log('Automatically completed elapsed planned events: ' + refreshed.transitioned);
   console.log('Added: ' + result.added + ' | Updated: ' + result.updated);
   console.log('History records: ' + result.history.records.length);
 }
 
-module.exports = { absoluteTruckersMpUrl, keyOf, idFor, candidateToRecord, mergeHistory };
+module.exports = { absoluteTruckersMpUrl, keyOf, idFor, candidateToRecord, refreshElapsedVerifiedPlans, mergeHistory };
 
 if (require.main === module) {
   try {
