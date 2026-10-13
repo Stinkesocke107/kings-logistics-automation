@@ -1,5 +1,9 @@
 const DISCORD_API = 'https://discord.com/api/v10';
 
+function consolidatedOnly() {
+  return /^(?:1|true|yes|on)$/i.test(String(process.env.LEADERSHIP_CONSOLIDATED_ONLY || ''));
+}
+
 async function api(token, pathname, options = {}, userAgent = 'Kings Logistics Leadership Message Sync/1.0') {
   const method = String(options.method || 'GET').toUpperCase();
   const allowed =
@@ -49,6 +53,7 @@ async function syncTextMessage({
   messageId = null,
   createWithoutDiscovery = false
 }) {
+  if (consolidatedOnly()) return { action: 'suppressed', messageId: messageId || null, duplicatesRemoved: 0 };
   if (!token) throw new Error('Missing Discord bot token.');
   if (!/^\d+$/.test(String(channelId || ''))) throw new Error('Invalid Discord channel ID.');
   if (!marker) throw new Error('Missing Leadership message marker.');
@@ -142,6 +147,7 @@ async function syncEmbedMessage({
   messageId = null,
   createWithoutDiscovery = false
 }) {
+  if (consolidatedOnly()) return { action: 'suppressed', messageId: messageId || null, duplicatesRemoved: 0 };
   if (!token) throw new Error('Missing Discord bot token.');
   if (!/^\d+$/.test(String(channelId || ''))) throw new Error('Invalid Discord channel ID.');
   if (!marker) throw new Error('Missing Leadership embed marker.');
