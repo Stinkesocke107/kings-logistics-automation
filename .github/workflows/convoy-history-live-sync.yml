@@ -21,6 +21,8 @@ on:
       - 'convoy-history-import.js'
       - 'convoy-history-truckersmp-candidates.js'
       - 'tests/convoy-history.test.cjs'
+      - 'data/convoy-history-2024-scan.json'
+      - 'data/convoy-history-backfill.json'
       - '.github/workflows/convoy-history-live-sync.yml'
 
 permissions:
@@ -99,7 +101,7 @@ jobs:
           fi
 
       - name: Publish/update Discord convoy statistics
-        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_discord == true) }}
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_discord == true) }}
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_CONVOY_STATISTICS_CHANNEL_ID: '1558352669071118467'
