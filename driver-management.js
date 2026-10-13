@@ -224,6 +224,61 @@ function ageDays(value, now = Date.now()) {
   return Math.max(0, Math.floor((now - time) / 86400000));
 }
 
+function membershipDays(driver, now = Date.now()) {
+  return ageDays(driver?.joinDate || driver?.firstObservedAt, now);
+}
+
+function buildTenureSummary(drivers, now = Date.now()) {
+  const buckets = {
+    under1Month: 0,
+    oneToThreeMonths: 0,
+    threeToSixMonths: 0,
+    sixToTwelveMonths: 0,
+    oneToTwoYears: 0,
+    twoToThreeYears: 0,
+    threeYearsPlus: 0,
+    unknown: 0
+  };
+
+  const known = [];
+  for (const driver of drivers || []) {
+    const days = membershipDays(driver, now);
+    if (days === null) {
+      buckets.unknown += 1;
+      continue;
+    }
+
+    known.push({ driver, days });
+
+    if (days < 30) buckets.under1Month += 1;
+    else if (days < 90) buckets.oneToThreeMonths += 1;
+    else if (days < 180) buckets.threeToSixMonths += 1;
+    else if (days < 365) buckets.sixToTwelveMonths += 1;
+    else if (days < 730) buckets.oneToTwoYears += 1;
+    else if (days < 1095) buckets.twoToThreeYears += 1;
+    else buckets.threeYearsPlus += 1;
+  }
+
+  known.sort((a, b) => b.days - a.days || String(a.driver.username).localeCompare(String(b.driver.username)));
+
+  const toSummaryDriver = ({ driver, days }) => ({
+    tmpId: driver.tmpId,
+    username: driver.username,
+    joinDate: driver.joinDate || driver.firstObservedAt || null,
+    tenureDays: days
+  });
+
+  return {
+    known: known.length,
+    ...buckets,
+    longestServing: known.slice(0, 5).map(toSummaryDriver),
+    newestDrivers: [...known]
+      .sort((a, b) => a.days - b.days || String(a.driver.username).localeCompare(String(b.driver.username)))
+      .slice(0, 5)
+      .map(toSummaryDriver)
+  };
+}
+
 function updateState(previous, currentMembers, onlineMap) {
   const now = nowISO();
   const previousDrivers = Array.isArray(previous?.drivers) ? previous.drivers : [];
@@ -297,7 +352,7 @@ function updateState(previous, currentMembers, onlineMap) {
     .sort((a, b) => Number(a.tmpId) - Number(b.tmpId));
 
   return {
-    version: 2,
+    version: 3,
     mode: 'advisory-only',
     initializedAt: previous?.initializedAt || now,
     updatedAt: now,
@@ -427,6 +482,7 @@ function buildSummary(state, onlineMap) {
       hrReview30Days: levels['HR Review'],
       unknown: levels.Unknown
     },
+    tenure: buildTenureSummary(current, now),
     rules: {
       infoDays: INFO_DAYS,
       attentionDays: ATTENTION_DAYS,
