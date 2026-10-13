@@ -252,6 +252,7 @@ function buildWeeklyData(managementState, loaState, period) {
     activeLoa,
     scheduledLoa,
     openReviews: info.length + attention.length + hrReview.length,
+    tenure: buildTenureSummary(current, period.end.getTime()),
     completeCoverage,
     initializedAt
   };
@@ -261,7 +262,48 @@ function formatSigned(value) {
   return value > 0 ? `+${value}` : String(value);
 }
 
-function buildMessage(period, data) {
+function membershipDays(driver, now = Date.now()) {
+  const source = driver?.joinDate || driver?.firstObservedAt;
+  const date = normalizeDate(source);
+  if (!date) return null;
+  return Math.max(0, Math.floor((now - date.getTime()) / DAY_MS));
+}
+
+function buildTenureSummary(drivers, now = Date.now()) {
+  const result = {
+    under1Month: 0,
+    oneToThreeMonths: 0,
+    threeToSixMonths: 0,
+    sixToTwelveMonths: 0,
+    oneToTwoYears: 0,
+    twoToThreeYears: 0,
+    threeYearsPlus: 0
+  };
+
+  for (const driver of drivers || []) {
+    const days = membershipDays(driver, now);
+    if (days === null) continue;
+    if (days < 30) result.under1Month += 1;
+    else if (days < 90) result.oneToThreeMonths += 1;
+    else if (days < 180) result.threeToSixMonths += 1;
+    else if (days < 365) result.sixToTwelveMonths += 1;
+    else if (days < 730) result.oneToTwoYears += 1;
+    else if (days < 1095) result.twoToThreeYears += 1;
+    else result.threeYearsPlus += 1;
+  }
+
+  return result;
+}
+
+function comparisonLine(data, previous) {
+  if (!previous) return null;
+  const drivers = data.currentDrivers - Number(previous.currentDrivers || 0);
+  const reviews = data.openReviews - Number(previous.openReviews || 0);
+  const loa = data.activeLoa.length - Number(previous.activeLoa || 0);
+  return `Drivers **${formatSigned(drivers)}** · Open Reviews **${formatSigned(reviews)}** · Active LOA **${formatSigned(loa)}**`;
+}
+
+function buildMessage(period, data, previous = null) {
   const coverageLine = data.completeCoverage
     ? '✅ Full tracking coverage for this reporting period.'
     : data.initializedAt
@@ -291,6 +333,11 @@ function buildMessage(period, data) {
     `⚠️ 14d Attention: **${data.attention.length}** — ${compactList(data.attention)}`,
     `👥 30d HR Review: **${data.hrReview.length}** — ${compactList(data.hrReview)}`,
     `Open review signals: **${data.openReviews}**`,
+    '',
+    '### 🕒 Membership Snapshot',
+    `<1m **${data.tenure.under1Month}** · 1–3m **${data.tenure.oneToThreeMonths}** · 3–6m **${data.tenure.threeToSixMonths}** · 6–12m **${data.tenure.sixToTwelveMonths}**`,
+    `1–2y **${data.tenure.oneToTwoYears}** · 2–3y **${data.tenure.twoToThreeYears}** · 3y+ **${data.tenure.threeYearsPlus}**`,
+    ...(comparisonLine(data, previous) ? ['', '### 📈 Compared with Previous Week', comparisonLine(data, previous)] : []),
     '',
     '### 🔄 This Week',
     `New Drivers: ${compactList(data.joined)}`,
@@ -378,7 +425,8 @@ async function main() {
   }
 
   const data = buildWeeklyData(managementState, loaState, period);
-  const content = buildMessage(period, data);
+  const previous = summaryState.publishedWeeks.at(-1) || null;
+  const content = buildMessage(period, data, previous);
 
   if (content.length > 1950) {
     throw new Error(`Weekly Summary is too long for Discord (${content.length} characters).`);
