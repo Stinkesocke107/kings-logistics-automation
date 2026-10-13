@@ -321,6 +321,7 @@ function buildMessage(driverState, data) {
 
   return [
     OVERVIEW_MARKER,
+    '🔵 **LIVE / CURRENT OVERVIEW**',
     '',
     '# 👥 HR & Probation',
     '',
