@@ -1,36 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "stale-data:data/live-tracker-snapshot.json": {
-      "severity": "critical",
-      "system": "Live Tracker data",
-      "message": "Live Tracker data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-10-13T11:04:32.861Z",
-        "ageMinutes": 34,
-        "maxAgeMinutes": 25
-      },
-      "firstAlertedAt": "2026-10-13T11:38:39.850Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-13T11:13:10Z",
-        "ageMinutes": 25,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-10-13T11:38:39.850Z"
-    }
-  },
-  "pending": {
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-13T11:38:39.850Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    }
-  }
+  "active": {},
+  "pending": {}
 }
