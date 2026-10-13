@@ -312,7 +312,7 @@ function buildMessage(period, data, previous = null) {
 
   const title = PREVIEW_MODE
     ? '🧪 **Kings Driver Leadership Weekly Summary — TEST**'
-    : '👑 **Kings Driver Leadership Weekly Summary**';
+    : '🟣 **Kings Driver Leadership — Weekly Review**';
 
   return [
     title,
