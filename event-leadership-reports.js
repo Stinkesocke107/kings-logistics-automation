@@ -2,6 +2,7 @@ require('./kings-branding').installDiscordBranding();
 
 const fs = require('fs');
 const path = require('path');
+const { syncTextMessage } = require('./leadership-message-sync');
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -422,59 +423,41 @@ async function post(channel, content) {
 
 async function runDaily(report, overview, state) {
   const key = new Date().toISOString().slice(0, 10);
-  if (!PREVIEW && state.publishedDailyKeys.includes(key)) {
-    console.log(`Event Daily Changes ${key} already processed.`);
-    return;
-  }
-
   const current = snapshotOf(report);
-  if (!Array.isArray(state.lastSnapshot)) {
-    console.log('Event Daily Changes baseline initialized; no historical changes were posted.');
-    if (!PREVIEW) {
-      state.lastSnapshot = current;
-      state.publishedDailyKeys.push(key);
-      saveState(state);
-    }
-    return;
-  }
-
-  const changes = diffSnapshots(state.lastSnapshot, current);
   const snapshot = operationalSnapshot(report, overview);
-
-  if (!PREVIEW) {
-    state.lastSnapshot = current;
-    state.changeLog.push(...changes);
-    state.publishedDailyKeys.push(key);
-  }
-
-  if (!changes.length) {
-    console.log('Event Daily Changes: no meaningful changes; no Discord message sent.');
-    if (!PREVIEW) saveState(state);
-    return;
-  }
+  const changes = Array.isArray(state.lastSnapshot)
+    ? diffSnapshots(state.lastSnapshot, current)
+    : [];
 
   const channel = await resolveChannel();
   const content = buildDailyMessage(changes, snapshot);
+
   if (PREVIEW) {
     console.log(`PREVIEW Event Daily Changes for #${channel.name}:\n${content}`);
     return;
   }
 
-  await post(channel, content);
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '🟢 **Kings Event Leadership — Daily Changes**',
+    content,
+    userAgent: 'Kings Logistics Event Leadership Reports/2.0'
+  });
+
+  state.lastSnapshot = current;
+  state.changeLog.push(...changes);
+  if (!state.publishedDailyKeys.includes(key)) state.publishedDailyKeys.push(key);
   saveState(state);
-  console.log(`Event Daily Changes ${key} published to #${channel.name}.`);
+
+  console.log(`Event Daily dashboard ${result.action} in #${channel.name}; changes since last snapshot: ${changes.length}.`);
 }
 
 async function runWeekly(report, overview, state) {
   const period = previousCompletedWeek();
-  if (!PREVIEW && state.publishedWeeklyKeys.includes(period.key)) {
-    console.log(`Event Weekly Review ${period.key} already published.`);
-    return;
-  }
-
   const changes = changesInPeriod(state, period);
   const snapshot = operationalSnapshot(report, overview);
-  const previous = state.weeklyReports.at(-1) || null;
+  const previous = state.weeklyReports.filter((item) => item.key !== period.key).at(-1) || null;
   const content = buildWeeklyMessage(period, changes, snapshot, previous);
   const channel = await resolveChannel();
 
@@ -483,9 +466,15 @@ async function runWeekly(report, overview, state) {
     return;
   }
 
-  await post(channel, content);
-  state.publishedWeeklyKeys.push(period.key);
-  state.weeklyReports.push({
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '🟣 **Kings Event Leadership — Weekly Review**',
+    content,
+    userAgent: 'Kings Logistics Event Leadership Reports/2.0'
+  });
+
+  const record = {
     key: period.key,
     publishedAt: nowISO(),
     realConvoys: snapshot.realConvoys,
@@ -493,22 +482,22 @@ async function runWeekly(report, overview, state) {
     ready: snapshot.ready,
     needsInfo: snapshot.needsInfo,
     changes: changes.length
-  });
+  };
+  const index = state.weeklyReports.findIndex((item) => item.key === period.key);
+  if (index >= 0) state.weeklyReports[index] = record;
+  else state.weeklyReports.push(record);
+  if (!state.publishedWeeklyKeys.includes(period.key)) state.publishedWeeklyKeys.push(period.key);
   saveState(state);
-  console.log(`Event Weekly Review ${period.key} published to #${channel.name}.`);
+
+  console.log(`Event Weekly dashboard ${result.action} for ${period.key} in #${channel.name}.`);
 }
 
 async function runMonthly(report, overview, state) {
   const period = previousCompletedMonth();
-  if (!PREVIEW && state.publishedMonthlyKeys.includes(period.key)) {
-    console.log(`Event Monthly Report ${period.key} already published.`);
-    return;
-  }
-
   const stats = monthStats(overview, period.key);
   const changes = changesInPeriod(state, period);
   const snapshot = operationalSnapshot(report, overview);
-  const previous = state.monthlyReports.at(-1) || null;
+  const previous = state.monthlyReports.filter((item) => item.key !== period.key).at(-1) || null;
   const content = buildMonthlyMessage(period, stats, changes, snapshot, previous);
   const channel = await resolveChannel();
 
@@ -517,19 +506,29 @@ async function runMonthly(report, overview, state) {
     return;
   }
 
-  await post(channel, content);
-  state.publishedMonthlyKeys.push(period.key);
-  state.monthlyReports.push({
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '👑 **Kings Event Leadership — Monthly Report**',
+    content,
+    userAgent: 'Kings Logistics Event Leadership Reports/2.0'
+  });
+
+  const record = {
     key: period.key,
     publishedAt: nowISO(),
     ...stats,
     changes: changes.length,
     realConvoys: snapshot.realConvoys
-  });
+  };
+  const index = state.monthlyReports.findIndex((item) => item.key === period.key);
+  if (index >= 0) state.monthlyReports[index] = record;
+  else state.monthlyReports.push(record);
+  if (!state.publishedMonthlyKeys.includes(period.key)) state.publishedMonthlyKeys.push(period.key);
   saveState(state);
-  console.log(`Event Monthly Report ${period.key} published to #${channel.name}.`);
-}
 
+  console.log(`Event Monthly dashboard ${result.action} for ${period.key} in #${channel.name}.`);
+}
 async function main() {
   const report = readJson(REPORT_PATH, null);
   const overview = readJson(OVERVIEW_PATH, null);
