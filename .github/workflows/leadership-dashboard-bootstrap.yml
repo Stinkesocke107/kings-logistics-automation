@@ -1,5 +1,6 @@
 name: Kings Leadership Dashboard Bootstrap
 
+# Rebuilds the fixed dashboard messages if Discord history was cleared.
 on:
   workflow_dispatch:
 
