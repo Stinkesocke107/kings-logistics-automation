@@ -3,6 +3,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { syncTextMessage } = require('./leadership-message-sync');
 
 const STATE_KEY = process.env.STAFF_STATE_KEY || process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
@@ -426,44 +427,32 @@ async function post(channel, content) {
 
 async function runDaily(state, reportState) {
   const period = last24Hours();
-
-  if (!PREVIEW && reportState.publishedDailyKeys.includes(period.key)) {
-    console.log(`Staff Daily Changes ${period.key} already published.`);
-    return;
-  }
-
   const data = buildPeriodData(state, period);
-  if (!data.events.length) {
-    console.log('Staff Daily Changes: no Staff changes in the last 24 hours; no Discord message sent.');
-    if (!PREVIEW) {
-      reportState.publishedDailyKeys.push(period.key);
-      saveReportState(reportState);
-    }
-    return;
-  }
-
   const channel = await resolveChannel();
   const content = buildDailyMessage(data);
+
   if (PREVIEW) {
     console.log(`PREVIEW Staff Daily Changes for #${channel.name}:\n${content}`);
     return;
   }
 
-  await post(channel, content);
-  reportState.publishedDailyKeys.push(period.key);
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '🟢 **Kings Staff Leadership — Daily Changes**',
+    content,
+    userAgent: 'Kings Logistics Staff Leadership Reports/2.0'
+  });
+
+  if (!reportState.publishedDailyKeys.includes(period.key)) reportState.publishedDailyKeys.push(period.key);
   saveReportState(reportState);
-  console.log(`Staff Daily Changes ${period.key} published to #${channel.name}.`);
+  console.log(`Staff Daily dashboard ${result.action} in #${channel.name}; changes: ${data.events.length}.`);
 }
 
 async function runWeekly(state, reportState) {
   const period = previousCompletedWeek();
-  if (!PREVIEW && reportState.publishedWeeklyKeys.includes(period.key)) {
-    console.log(`Staff Weekly Review ${period.key} already published.`);
-    return;
-  }
-
   const data = buildPeriodData(state, period);
-  const previous = reportState.weeklyReports.at(-1) || null;
+  const previous = reportState.weeklyReports.filter((item) => item.key !== period.key).at(-1) || null;
   const content = buildWeeklyMessage(data, previous);
   const channel = await resolveChannel();
 
@@ -472,9 +461,15 @@ async function runWeekly(state, reportState) {
     return;
   }
 
-  await post(channel, content);
-  reportState.publishedWeeklyKeys.push(period.key);
-  reportState.weeklyReports.push({
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '🟣 **Kings Staff Leadership — Weekly Review**',
+    content,
+    userAgent: 'Kings Logistics Staff Leadership Reports/2.0'
+  });
+
+  const record = {
     key: period.key,
     publishedAt: nowISO(),
     completeCoverage: data.completeCoverage,
@@ -484,20 +479,20 @@ async function runWeekly(state, reportState) {
     left: data.left.length,
     roleChanges: data.roleChanges.length,
     netGrowth: data.netGrowth
-  });
+  };
+  const index = reportState.weeklyReports.findIndex((item) => item.key === period.key);
+  if (index >= 0) reportState.weeklyReports[index] = record;
+  else reportState.weeklyReports.push(record);
+  if (!reportState.publishedWeeklyKeys.includes(period.key)) reportState.publishedWeeklyKeys.push(period.key);
   saveReportState(reportState);
-  console.log(`Staff Weekly Review ${period.key} published to #${channel.name}.`);
+
+  console.log(`Staff Weekly dashboard ${result.action} for ${period.key} in #${channel.name}.`);
 }
 
 async function runMonthly(state, reportState) {
   const period = previousCompletedMonth();
-  if (!PREVIEW && reportState.publishedMonthlyKeys.includes(period.key)) {
-    console.log(`Staff Monthly Report ${period.key} already published.`);
-    return;
-  }
-
   const data = buildPeriodData(state, period);
-  const previous = reportState.monthlyReports.at(-1) || null;
+  const previous = reportState.monthlyReports.filter((item) => item.key !== period.key).at(-1) || null;
   const content = buildMonthlyMessage(data, previous);
   const channel = await resolveChannel();
 
@@ -506,9 +501,15 @@ async function runMonthly(state, reportState) {
     return;
   }
 
-  await post(channel, content);
-  reportState.publishedMonthlyKeys.push(period.key);
-  reportState.monthlyReports.push({
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '👑 **Kings Staff Leadership — Monthly Report**',
+    content,
+    userAgent: 'Kings Logistics Staff Leadership Reports/2.0'
+  });
+
+  const record = {
     key: period.key,
     publishedAt: nowISO(),
     completeCoverage: data.completeCoverage,
@@ -518,11 +519,15 @@ async function runMonthly(state, reportState) {
     left: data.left.length,
     roleChanges: data.roleChanges.length,
     netGrowth: data.netGrowth
-  });
+  };
+  const index = reportState.monthlyReports.findIndex((item) => item.key === period.key);
+  if (index >= 0) reportState.monthlyReports[index] = record;
+  else reportState.monthlyReports.push(record);
+  if (!reportState.publishedMonthlyKeys.includes(period.key)) reportState.publishedMonthlyKeys.push(period.key);
   saveReportState(reportState);
-  console.log(`Staff Monthly Report ${period.key} published to #${channel.name}.`);
-}
 
+  console.log(`Staff Monthly dashboard ${result.action} for ${period.key} in #${channel.name}.`);
+}
 async function main() {
   const state = readStaffState();
   const reportState = readReportState();
