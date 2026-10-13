@@ -23,6 +23,9 @@ on:
     # Retry on the first three days so delayed source reports do not block the month.
     - cron: "30 11 1-3 * *"
 
+env:
+  LEADERSHIP_CONSOLIDATED_ONLY: 'true'
+
 permissions:
   contents: write
 
