@@ -466,6 +466,85 @@ function ageDays(value, now = Date.now()) {
   return Math.max(0, Math.floor((now - time) / 86400000));
 }
 
+function membershipDays(driver, now = Date.now()) {
+  return ageDays(driver?.joinDate || driver?.firstObservedAt, now);
+}
+
+function tenureLabel(days) {
+  if (!Number.isFinite(days)) return 'unknown';
+  const years = Math.floor(days / 365);
+  const months = Math.floor((days % 365) / 30);
+  const remainingDays = Math.max(0, days - years * 365 - months * 30);
+
+  if (years > 0) return months > 0 ? `${years}y ${months}m` : `${years}y`;
+  if (months > 0) return remainingDays > 0 ? `${months}m ${remainingDays}d` : `${months}m`;
+  return `${days}d`;
+}
+
+function buildTenureSummary(drivers, now = Date.now()) {
+  const buckets = {
+    under1Month: 0,
+    oneToThreeMonths: 0,
+    threeToSixMonths: 0,
+    sixToTwelveMonths: 0,
+    oneToTwoYears: 0,
+    twoToThreeYears: 0,
+    threeYearsPlus: 0,
+    unknown: 0
+  };
+
+  const known = [];
+  for (const driver of drivers || []) {
+    const days = membershipDays(driver, now);
+    if (days === null) {
+      buckets.unknown += 1;
+      continue;
+    }
+
+    known.push({ driver, days });
+
+    if (days < 30) buckets.under1Month += 1;
+    else if (days < 90) buckets.oneToThreeMonths += 1;
+    else if (days < 180) buckets.threeToSixMonths += 1;
+    else if (days < 365) buckets.sixToTwelveMonths += 1;
+    else if (days < 730) buckets.oneToTwoYears += 1;
+    else if (days < 1095) buckets.twoToThreeYears += 1;
+    else buckets.threeYearsPlus += 1;
+  }
+
+  const mapDriver = ({ driver, days }) => ({
+    tmpId: driver.tmpId,
+    username: driver.username,
+    joinDate: driver.joinDate || driver.firstObservedAt || null,
+    tenureDays: days
+  });
+
+  const longestServing = [...known]
+    .sort((a, b) => b.days - a.days || String(a.driver.username).localeCompare(String(b.driver.username)))
+    .slice(0, 5)
+    .map(mapDriver);
+
+  const newestDrivers = [...known]
+    .sort((a, b) => a.days - b.days || String(a.driver.username).localeCompare(String(b.driver.username)))
+    .slice(0, 5)
+    .map(mapDriver);
+
+  return {
+    known: known.length,
+    ...buckets,
+    longestServing,
+    newestDrivers
+  };
+}
+
+function tenureLine(driver) {
+  const joined = driver.joinDate ? new Date(driver.joinDate).getTime() : NaN;
+  const joinedText = Number.isFinite(joined)
+    ? ` · joined <t:${Math.floor(joined / 1000)}:D>`
+    : '';
+  return `• [${escapeMarkdown(driver.username || `TMP ${driver.tmpId}`)}](${profileUrl(driver.tmpId)}) — **${tenureLabel(driver.tenureDays)}**${joinedText}`;
+}
+
 function mergedLeaveCreditMs(leaves, tmpId, basisMs, now) {
   const intervals = [];
 
@@ -605,6 +684,7 @@ function updateSummary(managementState) {
     hrReview30Days: count('HR Review'),
     unknown: count('Unknown')
   };
+  summary.tenure = buildTenureSummary(current);
   summary.rules = {
     ...(summary.rules || {}),
     infoDays: INFO_DAYS,
@@ -643,29 +723,69 @@ function buildLeadershipMessage(managementState, summary) {
   const hrReview = current.filter((driver) => driver.activityLevel === 'HR Review');
   const leave = current.filter((driver) => driver.activityLevel === 'Approved Leave');
   const timestamp = Math.floor(new Date(managementState.updatedAt || Date.now()).getTime() / 1000);
+  const tenure = summary.tenure || buildTenureSummary(current);
+  const openReviews = info.length + attention.length + hrReview.length;
 
-  return [
+  const lines = [
     LEADERSHIP_MARKER,
     '',
-    '# 🚛 Driver Management',
+    'Live leadership view of Kings Driver operations, membership and internal review signals.',
     '',
-    `**Current Drivers:** ${summary.currentDrivers}`,
-    `**Online now:** ${summary.onlineNow ?? 0}`,
-    `**Grace:** ${summary.activity?.grace ?? 0}`,
-    `**Active:** ${summary.activity?.active ?? 0}`,
-    `**Approved Leave:** ${summary.activity?.approvedLeave ?? 0}`,
-    `**7d Info:** ${summary.activity?.info7Days ?? 0}`,
-    `**14d Attention:** ${summary.activity?.attention14Days ?? 0}`,
-    `**30d HR Review:** ${summary.activity?.hrReview30Days ?? 0}`,
+    '## 📊 Current Status',
+    `🚛 Drivers: **${summary.currentDrivers}** · 🟢 Online: **${summary.onlineNow ?? 0}** · 🛡️ LOA: **${summary.activity?.approvedLeave ?? 0}** · 🆕 Grace: **${summary.activity?.grace ?? 0}**`,
+    `🚨 Open Activity Reviews: **${openReviews}** · ℹ️ 7d: **${info.length}** · ⚠️ 14d: **${attention.length}** · 👥 30d: **${hrReview.length}**`,
+    '',
+    '## 🕒 Membership & Tenure',
+    `<1m **${tenure.under1Month ?? 0}** · 1–3m **${tenure.oneToThreeMonths ?? 0}** · 3–6m **${tenure.threeToSixMonths ?? 0}** · 6–12m **${tenure.sixToTwelveMonths ?? 0}**`,
+    `1–2y **${tenure.oneToTwoYears ?? 0}** · 2–3y **${tenure.twoToThreeYears ?? 0}** · 3y+ **${tenure.threeYearsPlus ?? 0}**`,
+    '',
+    '### 👑 Longest Serving',
+    ...(tenure.longestServing?.length ? tenure.longestServing.slice(0, 3).map(tenureLine) : ['• No tenure data available.']),
+    '',
+    '### 🆕 Newest Drivers',
+    ...(tenure.newestDrivers?.length ? tenure.newestDrivers.slice(0, 3).map(tenureLine) : ['• No tenure data available.']),
     ...compactSection('## 🛡️ Approved Leave', leave, leaveLine),
     ...compactSection('## ℹ️ 7 Days — Information', info, statusLine),
     ...compactSection('## ⚠️ 14 Days — Attention', attention, statusLine),
     ...compactSection('## 👥 30 Days — HR Review', hrReview, statusLine),
     '',
-    '🛡️ **Advisory only:** Approved leave pauses inactivity counting. Kings Systems never removes, kicks, bans, disciplines, or changes roles for any Driver.',
+    '🛡️ **Advisory only:** Kings Systems provides internal information only. No Driver is removed, kicked, banned, disciplined or role-changed automatically.',
     '',
-    `Last updated <t:${timestamp}:R>`
-  ].join('\n').slice(0, 1990);
+    `🕒 Updated: <t:${timestamp}:R>`
+  ];
+
+  let content = lines.join('\n');
+
+  if (content.length > 1990) {
+    content = [
+      LEADERSHIP_MARKER,
+      '',
+      '## 📊 Current Status',
+      `🚛 Drivers: **${summary.currentDrivers}** · 🟢 Online: **${summary.onlineNow ?? 0}** · 🛡️ LOA: **${summary.activity?.approvedLeave ?? 0}** · 🚨 Reviews: **${openReviews}**`,
+      '',
+      '## 🕒 Membership & Tenure',
+      `<1m **${tenure.under1Month ?? 0}** · 1–3m **${tenure.oneToThreeMonths ?? 0}** · 3–6m **${tenure.threeToSixMonths ?? 0}** · 6–12m **${tenure.sixToTwelveMonths ?? 0}**`,
+      `1–2y **${tenure.oneToTwoYears ?? 0}** · 2–3y **${tenure.twoToThreeYears ?? 0}** · 3y+ **${tenure.threeYearsPlus ?? 0}**`,
+      '',
+      '### 👑 Longest Serving',
+      ...(tenure.longestServing?.length ? tenure.longestServing.slice(0, 2).map(tenureLine) : ['• No tenure data available.']),
+      '',
+      '### 🆕 Newest Drivers',
+      ...(tenure.newestDrivers?.length ? tenure.newestDrivers.slice(0, 2).map(tenureLine) : ['• No tenure data available.']),
+      '',
+      '## 🚨 Leadership Attention',
+      `ℹ️ 7d Info: **${info.length}** · ⚠️ 14d Attention: **${attention.length}** · 👥 30d HR Review: **${hrReview.length}**`,
+      '',
+      '🛡️ **Advisory only:** Human Leadership / HR always decides any personnel action.',
+      `🕒 Updated: <t:${timestamp}:R>`
+    ].join('\n');
+  }
+
+  if (content.length > 2000) {
+    throw new Error(`Driver Leadership Overview exceeds Discord limit: ${content.length}`);
+  }
+
+  return content;
 }
 
 async function syncLeadershipOverview(channel, managementState, summary) {
