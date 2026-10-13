@@ -403,11 +403,7 @@ function normalizeChannelName(value = '') {
 
 async function resolveChannel() {
   if (STAFF_CHANNEL_ID) {
-    const channel = await discord(`/channels/${STAFF_CHANNEL_ID}`);
-    if (channel.guild_id && String(channel.guild_id) !== String(DISCORD_GUILD_ID)) {
-      throw new Error('Configured Staff Leadership channel is not in the configured guild.');
-    }
-    return channel;
+    return { id: String(STAFF_CHANNEL_ID), name: STAFF_CHANNEL_NAME };
   }
 
   const channels = await discord(`/guilds/${DISCORD_GUILD_ID}/channels`);
