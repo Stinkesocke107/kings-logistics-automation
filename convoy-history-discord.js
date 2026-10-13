@@ -4,6 +4,7 @@ const { installDiscordBranding } = require('./kings-branding');
 const STATS_PATH = process.env.KINGS_CONVOY_HISTORY_STATS_JSON || 'output/convoy-history-statistics.json';
 const CHANNEL_ID = process.env.DISCORD_CONVOY_STATISTICS_CHANNEL_ID || '1558352669071118467';
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
+const STATE_PATH = process.env.KINGS_CONVOY_DISCORD_STATE || 'data/convoy-history-discord-state.json';
 const MARKER = '📊 **Kings Logistics | Convoy Statistics**';
 const API = 'https://discord.com/api/v10';
 const COLOR = parseInt('182DFF', 16);
@@ -127,6 +128,25 @@ async function discord(path, options = {}) {
   return text ? JSON.parse(text) : null;
 }
 
+function readState() {
+  try {
+    if (!fs.existsSync(STATE_PATH)) return {};
+    return JSON.parse(fs.readFileSync(STATE_PATH, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+function writeState(messageId) {
+  fs.mkdirSync(require('path').dirname(STATE_PATH), { recursive: true });
+  fs.writeFileSync(STATE_PATH, JSON.stringify({
+    version: 1,
+    channelId: CHANNEL_ID,
+    messageId: String(messageId),
+    updatedAt: new Date().toISOString()
+  }, null, 2) + '\n');
+}
+
 async function findExistingMessage(botId) {
   let before = null;
   for (let page = 0; page < 10; page += 1) {
@@ -160,21 +180,44 @@ async function publish(stats) {
   installDiscordBranding();
   const me = await discord('/users/@me');
   const payload = buildPayload(stats);
-  const existing = await findExistingMessage(String(me.id));
+  const state = readState();
+
+  if (state.messageId && String(state.channelId || '') === CHANNEL_ID) {
+    try {
+      await discord(`/channels/${CHANNEL_ID}/messages/${state.messageId}`, {
+        method: 'PATCH',
+        body: payload
+      });
+      writeState(state.messageId);
+      return { action: 'updated', messageId: state.messageId, source: 'state' };
+    } catch (error) {
+      console.warn('Stored Discord statistics message could not be updated; rediscovering it: ' + error.message);
+    }
+  }
+
+  let existing = null;
+  try {
+    existing = await findExistingMessage(String(me.id));
+  } catch (error) {
+    if (!/Discord API 403/.test(String(error?.message || ''))) throw error;
+    console.warn('Discord message history is not readable; trying to create the statistics message directly.');
+  }
 
   if (existing) {
     await discord(`/channels/${CHANNEL_ID}/messages/${existing.id}`, {
       method: 'PATCH',
       body: payload
     });
-    return { action: 'updated', messageId: existing.id };
+    writeState(existing.id);
+    return { action: 'updated', messageId: existing.id, source: 'discovery' };
   }
 
   const created = await discord(`/channels/${CHANNEL_ID}/messages`, {
     method: 'POST',
     body: payload
   });
-  return { action: 'created', messageId: created?.id || null };
+  if (created?.id) writeState(created.id);
+  return { action: 'created', messageId: created?.id || null, source: 'created' };
 }
 
 async function main() {
@@ -184,7 +227,7 @@ async function main() {
   console.log(`Convoy statistics Discord message ${result.action}: ${result.messageId || 'unknown'}`);
 }
 
-module.exports = { buildPayload, publish, currentYearFrom, currentMonthFrom, platformLabel };
+module.exports = { buildPayload, publish, currentYearFrom, currentMonthFrom, platformLabel, readState, writeState };
 
 if (require.main === module) {
   main().catch(error => {
