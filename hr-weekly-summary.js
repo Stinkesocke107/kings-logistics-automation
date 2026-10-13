@@ -264,10 +264,18 @@ function buildWeeklyData(driverState, hrProbationState, loaState, period) {
   };
 }
 
-function buildMessage(period, data) {
+function comparisonLine(data, previous) {
+  if (!previous) return null;
+  const drivers = data.currentDrivers - Number(previous.currentDrivers || 0);
+  const probation = data.openProbationDrivers.length - Number(previous.openProbation || 0);
+  const hrReviews = data.hrReviews.length - Number(previous.hrReviews30d || 0);
+  return `Drivers **${formatSigned(drivers)}** · Open Probation **${formatSigned(probation)}** · HR Reviews **${formatSigned(hrReviews)}**`;
+}
+
+function buildMessage(period, data, previous = null) {
   const heading = PREVIEW_MODE
-    ? '👥 **Kings HR Weekly Summary • TEST**'
-    : '👥 **Kings HR Weekly Summary**';
+    ? '🧪 **Kings HR Weekly Review — TEST**'
+    : '🟣 **Kings HR Leadership — Weekly Review**';
 
   const openText = compactList(
     data.openProbationDrivers,
@@ -308,6 +316,7 @@ function buildMessage(period, data) {
     `**Net Growth:** ${formatSigned(data.netGrowth)}`,
     `**Probation Reviews Opened:** ${data.probationOpened.length}`,
     `**Probation Reviews Completed:** ${data.probationCompleted.length}`,
+    ...(comparisonLine(data, previous) ? ['', '## 📈 Compared with Previous Week', comparisonLine(data, previous)] : []),
     '',
     '## 📋 Open Probation Reviews',
     openText,
@@ -389,12 +398,12 @@ async function resolveHrChannel() {
   throw new Error(`Could not find HR Leadership channel "${HR_LEADERSHIP_CHANNEL_NAME}".`);
 }
 
-async function sendSummary(period, data) {
+async function sendSummary(period, data, previous = null) {
   const channel = await resolveHrChannel();
   await discord(`/channels/${channel.id}/messages`, {
     method: 'POST',
     body: {
-      content: buildMessage(period, data),
+      content: buildMessage(period, data, previous),
       allowed_mentions: { parse: [] }
     }
   });
@@ -442,7 +451,8 @@ async function createWeeklySummary() {
     return;
   }
 
-  await sendSummary(period, data);
+  const previous = summaryState.publishedWeeks.at(-1) || null;
+  await sendSummary(period, data, previous);
 
   if (PREVIEW_MODE) return;
 
