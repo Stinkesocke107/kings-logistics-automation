@@ -45,11 +45,43 @@ async function syncTextMessage({
   marker,
   content,
   suppressEmbeds = true,
-  userAgent
+  userAgent,
+  messageId = null,
+  createWithoutDiscovery = false
 }) {
   if (!token) throw new Error('Missing Discord bot token.');
   if (!/^\d+$/.test(String(channelId || ''))) throw new Error('Invalid Discord channel ID.');
   if (!marker) throw new Error('Missing Leadership message marker.');
+
+  const body = {
+    content,
+    allowed_mentions: { parse: [] },
+    ...(suppressEmbeds ? { flags: 4 } : {})
+  };
+
+  if (messageId) {
+    try {
+      const updated = await api(
+        token,
+        `/channels/${channelId}/messages/${messageId}`,
+        { method: 'PATCH', body },
+        userAgent
+      );
+      return { action: 'updated', messageId: updated?.id || messageId, duplicatesRemoved: 0 };
+    } catch (error) {
+      if (!/Discord API (403|404)/.test(String(error?.message || ''))) throw error;
+    }
+  }
+
+  if (createWithoutDiscovery) {
+    const created = await api(
+      token,
+      `/channels/${channelId}/messages`,
+      { method: 'POST', body },
+      userAgent
+    );
+    return { action: 'created', messageId: created?.id || null, duplicatesRemoved: 0 };
+  }
 
   const matches = await findBotMessages(
     token,
@@ -58,11 +90,6 @@ async function syncTextMessage({
     userAgent
   );
   const existing = matches[0] || null;
-  const body = {
-    content,
-    allowed_mentions: { parse: [] },
-    ...(suppressEmbeds ? { flags: 4 } : {})
-  };
 
   let action;
   let messageId;
