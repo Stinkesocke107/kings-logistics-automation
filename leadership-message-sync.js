@@ -184,7 +184,7 @@ async function syncEmbedMessage({
   const existing = matches[0] || null;
 
   let action;
-  let messageId;
+  let resolvedMessageId;
 
   if (existing) {
     const updated = await api(
@@ -194,7 +194,7 @@ async function syncEmbedMessage({
       userAgent
     );
     action = 'updated';
-    messageId = updated?.id || existing.id;
+    resolvedMessageId = updated?.id || existing.id;
   } else {
     const created = await api(
       token,
@@ -203,7 +203,7 @@ async function syncEmbedMessage({
       userAgent
     );
     action = 'created';
-    messageId = created?.id || null;
+    resolvedMessageId = created?.id || null;
   }
 
   let duplicatesRemoved = 0;
@@ -217,7 +217,7 @@ async function syncEmbedMessage({
     duplicatesRemoved += 1;
   }
 
-  return { action, messageId, duplicatesRemoved };
+  return { action, messageId: resolvedMessageId, duplicatesRemoved };
 }
 
 module.exports = { syncTextMessage, syncEmbedMessage };
