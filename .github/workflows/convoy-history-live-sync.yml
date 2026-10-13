@@ -96,8 +96,12 @@ jobs:
             echo "No live convoy history changes to save."
           else
             git commit -m "Update live convoy history"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
+            if ! git pull --rebase origin "${GITHUB_REF_NAME}"; then
+              echo "Live history persistence hit a concurrent branch update; aborting rebase and continuing with the already generated statistics."
+              git rebase --abort || true
+            else
+              git push origin "HEAD:${GITHUB_REF_NAME}" || echo "Live history push raced another update; a later sync will persist it."
+            fi
           fi
 
       - name: Publish/update Discord convoy statistics
@@ -128,8 +132,12 @@ jobs:
             echo "Discord message state unchanged."
           else
             git commit -m "Save convoy statistics Discord message state"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
+            if ! git pull --rebase origin "${GITHUB_REF_NAME}"; then
+              echo "Discord state persistence hit a concurrent branch update; aborting rebase."
+              git rebase --abort || true
+            else
+              git push origin "HEAD:${GITHUB_REF_NAME}" || echo "Discord state push raced another update; a later sync will rediscover/persist it."
+            fi
           fi
 
       - name: Upload live statistics audit
