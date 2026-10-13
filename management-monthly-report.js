@@ -2,6 +2,7 @@ require('./kings-branding').installDiscordBranding();
 
 const fs = require('fs');
 const path = require('path');
+const { syncEmbedMessage } = require('./leadership-message-sync');
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -221,11 +222,6 @@ async function main() {
   const period = previousCompletedMonth();
   const state = loadState();
 
-  if (!PREVIEW && state.publishedMonths.includes(period.key)) {
-    console.log(`Management Monthly Report ${period.key} already published.`);
-    return;
-  }
-
   const reports = {
     driver: monthlyReport(DRIVER_REPORTS, period.key),
     hr: monthlyReport(HR_REPORTS, period.key),
@@ -236,11 +232,11 @@ async function main() {
   const missing = Object.entries(reports).filter(([, value]) => !value).map(([name]) => name);
   if (missing.length) {
     console.log(`Management Monthly Report waiting for source reports: ${missing.join(', ')}.`);
-    console.log('No Management report posted; the next scheduled retry can complete it.');
+    console.log('No Management dashboard update posted; the next scheduled retry can complete it.');
     return;
   }
 
-  const previous = state.monthlyReports.at(-1) || null;
+  const previous = state.monthlyReports.filter((item) => item.key !== period.key).at(-1) || null;
   const embed = buildEmbed(period, reports, previous);
   const channel = await resolveChannel();
 
@@ -249,13 +245,15 @@ async function main() {
     return;
   }
 
-  await discord(`/channels/${channel.id}/messages`, {
-    method: 'POST',
-    body: { embeds: [embed], allowed_mentions: { parse: [] } }
+  const result = await syncEmbedMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '👑 Kings Management — Monthly Report',
+    embed,
+    userAgent: 'Kings Logistics Management Monthly/2.0'
   });
 
-  state.publishedMonths.push(period.key);
-  state.monthlyReports.push({
+  const record = {
     key: period.key,
     publishedAt: nowISO(),
     drivers: number(reports.driver.endDrivers),
@@ -265,12 +263,16 @@ async function main() {
     driverNetGrowth: number(reports.driver.netGrowth),
     staffNetGrowth: number(reports.staff.netGrowth),
     eventCompleted: number(reports.event.completed)
-  });
+  };
+
+  const index = state.monthlyReports.findIndex((item) => item.key === period.key);
+  if (index >= 0) state.monthlyReports[index] = record;
+  else state.monthlyReports.push(record);
+  if (!state.publishedMonths.includes(period.key)) state.publishedMonths.push(period.key);
   saveState(state);
 
-  console.log(`Management Monthly Report ${period.key} published to #${channel.name}.`);
+  console.log(`Management Monthly dashboard ${result.action} for ${period.key} in #${channel.name}.`);
 }
-
 if (require.main === module) {
   main().catch((error) => {
     console.error('Kings Management Monthly Report failed:', error.message);
