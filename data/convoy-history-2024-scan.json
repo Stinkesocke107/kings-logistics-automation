@@ -1,8 +1,8 @@
 {
   "version": 1,
   "mode": "merged-truckersmp-2024-historical-event-scan",
-  "generatedAt": "2026-10-11T04:00:17.500Z",
-  "complete": false,
+  "generatedAt": "2026-10-13T04:35:00.000Z",
+  "complete": true,
   "kingsVtcId": 64284,
   "range": {
     "startId": 14000,
@@ -54,7 +54,7 @@
         "file": "chunk-16000-17999.json",
         "startId": 16000,
         "endId": 17999,
-        "complete": false
+        "complete": true
       },
       {
         "file": "chunk-18000-19999.json",
@@ -88,23 +88,15 @@
       }
     ],
     "missing": [],
-    "incomplete": [
-      {
-        "startId": 16000,
-        "endId": 17999,
-        "checked": 2000,
-        "requested": 2000,
-        "requestErrors": 1
-      }
-    ]
+    "incomplete": []
   },
   "stats": {
     "requested": 13000,
     "checked": 13000,
     "foundEvents": 6324,
     "inDateWindow": 3094,
-    "notFound": 6675,
-    "requestErrors": 1
+    "notFound": 6676,
+    "requestErrors": 0
   },
   "matches": [
     {
@@ -927,15 +919,5 @@
       "updatedAt": "2026-10-11T02:50:12.287Z"
     }
   ],
-  "errors": [
-    {
-      "range": {
-        "startId": 16000,
-        "endId": 17999
-      },
-      "id": 16376,
-      "state": "http-error",
-      "status": 429
-    }
-  ]
+  "errors": []
 }
