@@ -153,7 +153,8 @@ function defaultReportState() {
     publishedWeeklyKeys: [],
     publishedMonthlyKeys: [],
     weeklyReports: [],
-    monthlyReports: []
+    monthlyReports: [],
+    messageIds: { daily: null, weekly: null, monthly: null }
   };
 }
 
@@ -168,7 +169,12 @@ function readReportState() {
     publishedWeeklyKeys: Array.isArray(state.publishedWeeklyKeys) ? state.publishedWeeklyKeys : [],
     publishedMonthlyKeys: Array.isArray(state.publishedMonthlyKeys) ? state.publishedMonthlyKeys : [],
     weeklyReports: Array.isArray(state.weeklyReports) ? state.weeklyReports : [],
-    monthlyReports: Array.isArray(state.monthlyReports) ? state.monthlyReports : []
+    monthlyReports: Array.isArray(state.monthlyReports) ? state.monthlyReports : [],
+    messageIds: {
+      daily: state?.messageIds?.daily || null,
+      weekly: state?.messageIds?.weekly || null,
+      monthly: state?.messageIds?.monthly || null
+    }
   };
 }
 
@@ -441,8 +447,11 @@ async function runDaily(state, reportState) {
     channelId: channel.id,
     marker: '🟢 **Kings Staff Leadership — Daily Changes**',
     content,
-    userAgent: 'Kings Logistics Staff Leadership Reports/2.0'
+    userAgent: 'Kings Logistics Staff Leadership Reports/2.1',
+    messageId: reportState.messageIds.daily,
+    createWithoutDiscovery: true
   });
+  reportState.messageIds.daily = result.messageId || reportState.messageIds.daily;
 
   if (!reportState.publishedDailyKeys.includes(period.key)) reportState.publishedDailyKeys.push(period.key);
   saveReportState(reportState);
@@ -466,8 +475,11 @@ async function runWeekly(state, reportState) {
     channelId: channel.id,
     marker: '🟣 **Kings Staff Leadership — Weekly Review**',
     content,
-    userAgent: 'Kings Logistics Staff Leadership Reports/2.0'
+    userAgent: 'Kings Logistics Staff Leadership Reports/2.1',
+    messageId: reportState.messageIds.weekly,
+    createWithoutDiscovery: true
   });
+  reportState.messageIds.weekly = result.messageId || reportState.messageIds.weekly;
 
   const record = {
     key: period.key,
@@ -506,8 +518,11 @@ async function runMonthly(state, reportState) {
     channelId: channel.id,
     marker: '👑 **Kings Staff Leadership — Monthly Report**',
     content,
-    userAgent: 'Kings Logistics Staff Leadership Reports/2.0'
+    userAgent: 'Kings Logistics Staff Leadership Reports/2.1',
+    messageId: reportState.messageIds.monthly,
+    createWithoutDiscovery: true
   });
+  reportState.messageIds.monthly = result.messageId || reportState.messageIds.monthly;
 
   const record = {
     key: period.key,
