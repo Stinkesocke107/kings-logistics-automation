@@ -124,7 +124,9 @@ async function discord(path, options = {}) {
     body: options.body === undefined ? undefined : JSON.stringify(options.body)
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Discord API ${response.status}: ${text.slice(0, 500)}`);
+  if (!response.ok) {
+    throw new Error(`Discord API ${options.method || 'GET'} ${path} ${response.status}: ${text.slice(0, 500)}`);
+  }
   return text ? JSON.parse(text) : null;
 }
 
