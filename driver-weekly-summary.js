@@ -2,6 +2,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { syncTextMessage } = require('./leadership-message-sync');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
@@ -416,16 +417,10 @@ async function main() {
   const summaryState = loadSummaryState();
   const period = PREVIEW_MODE ? getPreviewPeriod() : getPreviousCompletedWeek();
 
-  if (!PREVIEW_MODE) {
-    const alreadyPublished = summaryState.publishedWeeks.some((item) => item.key === period.key);
-    if (alreadyPublished) {
-      console.log(`Driver Weekly Summary ${period.key} was already published.`);
-      return;
-    }
-  }
-
   const data = buildWeeklyData(managementState, loaState, period);
-  const previous = summaryState.publishedWeeks.at(-1) || null;
+  const previous = summaryState.publishedWeeks
+    .filter((item) => item.key !== period.key)
+    .at(-1) || null;
   const content = buildMessage(period, data, previous);
 
   if (content.length > 1950) {
@@ -433,20 +428,21 @@ async function main() {
   }
 
   const channel = await resolveLeadershipChannel();
-  await discord(`/channels/${channel.id}/messages`, {
-    method: 'POST',
-    body: {
-      content,
-      allowed_mentions: { parse: [] }
-    }
-  });
 
   if (PREVIEW_MODE) {
-    console.log(`TEST Driver Weekly Summary sent to #${channel.name}.`);
+    console.log(`TEST Driver Weekly Summary for #${channel.name}:\n${content}`);
     return;
   }
 
-  summaryState.publishedWeeks.push({
+  const result = await syncTextMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '🟣 **Kings Driver Leadership — Weekly Review**',
+    content,
+    userAgent: 'Kings Logistics Driver Weekly Summary/2.0'
+  });
+
+  const record = {
     key: period.key,
     periodStart: period.start.toISOString(),
     periodEnd: period.end.toISOString(),
@@ -463,12 +459,15 @@ async function main() {
     hrReview: data.hrReview.length,
     restored: data.restored.length,
     openReviews: data.openReviews
-  });
+  };
+
+  const index = summaryState.publishedWeeks.findIndex((item) => item.key === period.key);
+  if (index >= 0) summaryState.publishedWeeks[index] = record;
+  else summaryState.publishedWeeks.push(record);
   saveSummaryState(summaryState);
 
-  console.log(`Driver Weekly Summary ${period.key} published to #${channel.name}.`);
+  console.log(`Driver Weekly dashboard ${result.action} for ${period.key} in #${channel.name}.`);
 }
-
 main().catch((error) => {
   console.error('Kings Driver Weekly Summary failed:', error.message);
   process.exit(1);
