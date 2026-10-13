@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "truckersmp-historical-candidate-discovery",
-  "generatedAt": "2026-10-12T12:41:37.381Z",
+  "generatedAt": "2026-10-13T04:29:45.168Z",
   "vtcId": "64284",
   "fromDate": "2023-01-01",
   "policy": {
@@ -12,12 +12,12 @@
   },
   "summary": {
     "hostedEndpointRecords": 16,
-    "attendingEndpointRecords": 112,
-    "uniqueCandidatesSinceFromDate": 128,
+    "attendingEndpointRecords": 111,
+    "uniqueCandidatesSinceFromDate": 127,
     "pastCandidates": 16,
-    "futureCandidates": 111,
+    "futureCandidates": 110,
     "ownCandidates": 16,
-    "externalCandidates": 112
+    "externalCandidates": 111
   },
   "candidates": [
     {
@@ -421,37 +421,12 @@
       "departureAt": "2026-10-02 15:00:00"
     },
     {
-      "candidateKey": "truckersmp:36313",
-      "platform": "truckersmp",
-      "platformEventId": "36313",
-      "name": "NeoCrime October Convoy 2026",
-      "date": "2026-10-12",
-      "phase": "today",
-      "type": "external",
-      "organizer": "- NeoCrime Group -",
-      "eventUrl": "https://truckersmp.com/events/36313-neocrime-october-convoy2026",
-      "sourceKind": "attending",
-      "discoveryEvidence": {
-        "kind": "truckersmp-vtc-attending",
-        "meaning": "TruckersMP lists Kings Logistics under VTCs Attending. By Kings policy, this is verified Kings participation once the event date has passed."
-      },
-      "suggestedParticipation": {
-        "status": "planned",
-        "confidence": "verified"
-      },
-      "start": "Bremen — Slots",
-      "destination": "Salzburg — Renat",
-      "server": "Event Server",
-      "meetupAt": "2026-10-12 17:00:00",
-      "departureAt": "2026-10-12 18:00:00"
-    },
-    {
       "candidateKey": "truckersmp:35288",
       "platform": "truckersmp",
       "platformEventId": "35288",
       "name": "DIFM October Convoy",
       "date": "2026-10-13",
-      "phase": "future",
+      "phase": "today",
       "type": "external",
       "organizer": "Dutch International Freight Masters",
       "eventUrl": "https://truckersmp.com/events/35288-difm-october-convoy",
@@ -1366,7 +1341,7 @@
       },
       "start": "Reims — Slots) + Paris (Slots | Public: Garage",
       "destination": "Nantes — Kaarfor",
-      "server": "To be determined",
+      "server": "Event Server",
       "meetupAt": "2026-12-04 18:00:00",
       "departureAt": "2026-12-04 19:00:00"
     },

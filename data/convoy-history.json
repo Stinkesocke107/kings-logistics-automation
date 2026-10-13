@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "kings-convoy-history",
-  "updatedAt": "2026-10-12T12:41:44.683Z",
+  "updatedAt": "2026-10-13T04:29:45.258Z",
   "policy": {
     "publicCountRule": "Only completed convoys with participation.status=attended and participation.confidence verified or confirmed_internal count toward public attended statistics.",
     "truckersmpAttendingRule": "For Kings Logistics historical statistics, a TruckersMP VTCs Attending entry for Kings Logistics is accepted as verified evidence that Kings participated in that convoy.",
@@ -51,7 +51,7 @@
         "departureAt": "2025-01-08 00:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-23821",
@@ -90,7 +90,7 @@
         "departureAt": "2025-01-11 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24451",
@@ -129,7 +129,7 @@
         "departureAt": "2025-01-11 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24624",
@@ -168,7 +168,7 @@
         "departureAt": "2025-01-24 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24315",
@@ -207,7 +207,7 @@
         "departureAt": "2025-01-25 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24268",
@@ -246,7 +246,7 @@
         "departureAt": "2025-01-26 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24429",
@@ -285,7 +285,7 @@
         "departureAt": "2025-02-04 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24625",
@@ -324,7 +324,7 @@
         "departureAt": "2025-02-12 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-23825",
@@ -363,7 +363,7 @@
         "departureAt": "2025-02-15 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24330",
@@ -402,7 +402,7 @@
         "departureAt": "2025-02-16 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-17272",
@@ -441,7 +441,7 @@
         "departureAt": "2025-02-23 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24996",
@@ -480,7 +480,7 @@
         "departureAt": "2025-03-07 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25282",
@@ -519,7 +519,7 @@
         "departureAt": "2025-03-14 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-23824",
@@ -558,7 +558,7 @@
         "departureAt": "2025-03-15 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25658",
@@ -597,7 +597,7 @@
         "departureAt": "2025-03-15 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25977",
@@ -636,7 +636,7 @@
         "departureAt": "2025-03-18 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24334",
@@ -675,7 +675,7 @@
         "departureAt": "2025-03-22 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24984",
@@ -714,7 +714,7 @@
         "departureAt": "2025-04-03 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24333",
@@ -753,7 +753,7 @@
         "departureAt": "2025-04-06 12:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27162",
@@ -792,7 +792,7 @@
         "departureAt": "2025-04-11 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26161",
@@ -831,7 +831,7 @@
         "departureAt": "2025-04-12 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27312",
@@ -870,7 +870,7 @@
         "departureAt": "2025-04-15 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27603",
@@ -909,7 +909,7 @@
         "departureAt": "2025-04-19 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24343",
@@ -948,7 +948,7 @@
         "departureAt": "2025-04-26 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27285",
@@ -987,7 +987,7 @@
         "departureAt": "2025-04-27 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "platform": "truckersmp",
@@ -1023,7 +1023,7 @@
         }
       ],
       "id": "KCE-TRUCKERSMP-26666",
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.257Z",
       "createdAt": null,
       "sourceDetails": {
         "scanEventId": 26666,
@@ -1071,7 +1071,7 @@
         "departureAt": "2025-05-02 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27765",
@@ -1110,7 +1110,7 @@
         "departureAt": "2025-05-13 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26532",
@@ -1149,7 +1149,7 @@
         "departureAt": "2025-05-16 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-23827",
@@ -1188,7 +1188,7 @@
         "departureAt": "2025-05-17 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27604",
@@ -1227,7 +1227,7 @@
         "departureAt": "2025-05-17 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24943",
@@ -1266,7 +1266,7 @@
         "departureAt": "2025-05-18 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25982",
@@ -1305,7 +1305,7 @@
         "departureAt": "2025-05-20 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25284",
@@ -1344,7 +1344,7 @@
         "departureAt": "2025-05-23 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28015",
@@ -1383,7 +1383,7 @@
         "departureAt": "2025-05-23 14:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28549",
@@ -1422,7 +1422,7 @@
         "departureAt": "2025-05-24 02:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24345",
@@ -1461,7 +1461,7 @@
         "departureAt": "2025-05-31 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26976",
@@ -1500,7 +1500,7 @@
         "departureAt": "2025-05-30 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27508",
@@ -1539,7 +1539,7 @@
         "departureAt": "2025-05-31 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24985",
@@ -1578,7 +1578,7 @@
         "departureAt": "2025-06-04 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27169",
@@ -1617,7 +1617,7 @@
         "departureAt": "2025-06-08 13:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28644",
@@ -1656,7 +1656,7 @@
         "departureAt": "2025-06-12 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25285",
@@ -1695,7 +1695,7 @@
         "departureAt": "2025-06-20 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-23828",
@@ -1734,7 +1734,7 @@
         "departureAt": "2025-06-23 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27286",
@@ -1773,7 +1773,7 @@
         "departureAt": "2025-06-23 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28584",
@@ -1812,7 +1812,7 @@
         "departureAt": "2025-06-24 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27737",
@@ -1851,7 +1851,7 @@
         "departureAt": "2025-06-27 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28982",
@@ -1890,7 +1890,7 @@
         "departureAt": "2025-06-27 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25286",
@@ -1929,7 +1929,7 @@
         "departureAt": "2025-07-04 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27792",
@@ -1967,7 +1967,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.257Z",
       "sourceDetails": {
         "scanEventId": 27792,
         "confirmedVtcCount": 35,
@@ -2014,7 +2014,7 @@
         "departureAt": "2025-07-12 02:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27993",
@@ -2053,7 +2053,7 @@
         "departureAt": "2025-07-13 13:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-21955",
@@ -2092,7 +2092,7 @@
         "departureAt": "2025-07-14 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26099",
@@ -2131,7 +2131,7 @@
         "departureAt": "2025-07-16 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28301",
@@ -2170,7 +2170,7 @@
         "departureAt": "2025-07-18 12:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27875",
@@ -2209,7 +2209,7 @@
         "departureAt": "2025-07-19 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24194",
@@ -2248,7 +2248,7 @@
         "departureAt": "2025-07-20 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27957",
@@ -2287,7 +2287,7 @@
         "departureAt": "2025-07-23 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28983",
@@ -2326,7 +2326,7 @@
         "departureAt": "2025-07-25 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24347",
@@ -2365,7 +2365,7 @@
         "departureAt": "2025-07-26 23:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26644",
@@ -2404,7 +2404,7 @@
         "departureAt": "2025-07-26 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24332",
@@ -2443,7 +2443,7 @@
         "departureAt": "2025-07-27 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27997",
@@ -2482,7 +2482,7 @@
         "departureAt": "2025-07-30 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27813",
@@ -2521,7 +2521,7 @@
         "departureAt": "2025-08-01 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-27427",
@@ -2560,7 +2560,7 @@
         "departureAt": "2025-08-04 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24986",
@@ -2599,7 +2599,7 @@
         "departureAt": "2025-08-05 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24348",
@@ -2638,7 +2638,7 @@
         "departureAt": "2025-08-09 12:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28553",
@@ -2677,7 +2677,7 @@
         "departureAt": "2025-08-11 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25287",
@@ -2716,7 +2716,7 @@
         "departureAt": "2025-08-15 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24602",
@@ -2755,7 +2755,7 @@
         "departureAt": "2025-08-17 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29034",
@@ -2794,7 +2794,7 @@
         "departureAt": "2025-08-18 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24201",
@@ -2833,7 +2833,7 @@
         "departureAt": "2025-08-22 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28111",
@@ -2872,7 +2872,7 @@
         "departureAt": "2025-08-26 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28472",
@@ -2910,7 +2910,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.257Z",
       "sourceDetails": {
         "scanEventId": 28472,
         "confirmedVtcCount": 9,
@@ -2957,7 +2957,7 @@
         "departureAt": "2025-09-07 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25288",
@@ -2996,7 +2996,7 @@
         "departureAt": "2025-09-12 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29581",
@@ -3035,7 +3035,7 @@
         "departureAt": "2025-09-19 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "platform": "truckersmp",
@@ -3071,7 +3071,7 @@
         }
       ],
       "id": "KCE-TRUCKERSMP-24350",
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.257Z",
       "createdAt": null,
       "sourceDetails": {
         "scanEventId": 24350,
@@ -3119,7 +3119,7 @@
         "departureAt": "2025-09-21 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28476",
@@ -3157,7 +3157,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.257Z",
       "sourceDetails": {
         "scanEventId": 28476,
         "confirmedVtcCount": 9,
@@ -3204,7 +3204,7 @@
         "departureAt": "2025-09-27 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30621",
@@ -3243,7 +3243,7 @@
         "departureAt": "2025-09-27 02:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24202",
@@ -3282,7 +3282,7 @@
         "departureAt": "2025-09-28 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28161",
@@ -3321,7 +3321,7 @@
         "departureAt": "2025-10-04 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28499",
@@ -3360,7 +3360,7 @@
         "departureAt": "2025-10-05 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28699",
@@ -3399,7 +3399,7 @@
         "departureAt": "2025-10-09 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24404",
@@ -3438,7 +3438,7 @@
         "departureAt": "2025-10-11 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29583",
@@ -3477,7 +3477,7 @@
         "departureAt": "2025-10-10 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26430",
@@ -3516,7 +3516,7 @@
         "departureAt": "2025-10-11 18:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28327",
@@ -3555,7 +3555,7 @@
         "departureAt": "2025-10-12 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26835",
@@ -3594,7 +3594,7 @@
         "departureAt": "2025-10-17 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28639",
@@ -3633,7 +3633,7 @@
         "departureAt": "2025-10-17 23:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24203",
@@ -3672,7 +3672,7 @@
         "departureAt": "2025-10-18 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28377",
@@ -3711,7 +3711,7 @@
         "departureAt": "2025-10-18 14:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28557",
@@ -3750,7 +3750,7 @@
         "departureAt": "2025-10-20 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29977",
@@ -3789,7 +3789,7 @@
         "departureAt": "2025-10-25 21:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-24403",
@@ -3828,7 +3828,7 @@
         "departureAt": "2025-10-26 12:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26501",
@@ -3867,7 +3867,7 @@
         "departureAt": "2025-10-31 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30487",
@@ -3906,7 +3906,7 @@
         "departureAt": "2025-10-31 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28466",
@@ -3945,7 +3945,7 @@
         "departureAt": "2025-11-01 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25502",
@@ -3984,7 +3984,7 @@
         "departureAt": "2025-11-06 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28680",
@@ -4023,7 +4023,7 @@
         "departureAt": "2025-11-07 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30490",
@@ -4062,7 +4062,7 @@
         "departureAt": "2025-11-07 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30892",
@@ -4101,7 +4101,7 @@
         "departureAt": "2025-11-11 01:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26431",
@@ -4140,7 +4140,7 @@
         "departureAt": "2025-11-15 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28825",
@@ -4179,7 +4179,7 @@
         "departureAt": "2025-11-17 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25935",
@@ -4218,7 +4218,7 @@
         "departureAt": "2025-11-18 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29639",
@@ -4257,7 +4257,7 @@
         "departureAt": "2025-11-19 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29584",
@@ -4296,7 +4296,7 @@
         "departureAt": "2025-11-21 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-25576",
@@ -4335,7 +4335,7 @@
         "departureAt": "2025-11-23 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28966",
@@ -4374,7 +4374,7 @@
         "departureAt": "2025-11-30 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29938",
@@ -4413,7 +4413,7 @@
         "departureAt": "2025-11-29 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26432",
@@ -4452,7 +4452,7 @@
         "departureAt": "2025-12-01 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29721",
@@ -4491,7 +4491,7 @@
         "departureAt": "2025-12-06 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30491",
@@ -4530,7 +4530,7 @@
         "departureAt": "2025-12-05 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26056",
@@ -4569,7 +4569,7 @@
         "departureAt": "2025-12-06 20:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29216",
@@ -4608,7 +4608,7 @@
         "departureAt": "2025-12-08 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26837",
@@ -4647,7 +4647,7 @@
         "departureAt": "2025-12-12 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29247",
@@ -4686,7 +4686,7 @@
         "departureAt": "2025-12-13 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29266",
@@ -4725,7 +4725,7 @@
         "departureAt": "2025-12-14 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31898",
@@ -4764,7 +4764,7 @@
         "departureAt": "2025-12-22 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29459",
@@ -4803,7 +4803,7 @@
         "departureAt": "2025-12-27 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29044",
@@ -4842,7 +4842,7 @@
         "departureAt": "2026-01-01 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29575",
@@ -4881,7 +4881,7 @@
         "departureAt": "2026-01-03 14:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30722",
@@ -4920,7 +4920,7 @@
         "departureAt": "2026-01-04 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29634",
@@ -4959,7 +4959,7 @@
         "departureAt": "2026-01-06 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31102",
@@ -4998,7 +4998,7 @@
         "departureAt": "2026-01-09 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31164",
@@ -5036,7 +5036,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.257Z",
       "sourceDetails": {
         "scanEventId": 31164,
         "confirmedVtcCount": 18,
@@ -5083,7 +5083,7 @@
         "departureAt": "2026-01-11 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30299",
@@ -5122,7 +5122,7 @@
         "departureAt": "2026-01-16 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29778",
@@ -5161,7 +5161,7 @@
         "departureAt": "2026-01-17 13:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31217",
@@ -5200,7 +5200,7 @@
         "departureAt": "2026-01-17 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30220",
@@ -5239,7 +5239,7 @@
         "departureAt": "2026-01-20 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30576",
@@ -5278,7 +5278,7 @@
         "departureAt": "2026-01-22 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33012",
@@ -5317,7 +5317,7 @@
         "departureAt": "2026-01-23 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29926",
@@ -5356,7 +5356,7 @@
         "departureAt": "2026-01-24 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29907",
@@ -5395,7 +5395,7 @@
         "departureAt": "2026-01-27 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31252",
@@ -5434,7 +5434,7 @@
         "departureAt": "2026-01-28 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-29807",
@@ -5473,7 +5473,7 @@
         "departureAt": "2026-01-30 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30843",
@@ -5512,7 +5512,7 @@
         "departureAt": "2026-01-31 01:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30996",
@@ -5551,7 +5551,7 @@
         "departureAt": "2026-02-01 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32377",
@@ -5590,7 +5590,7 @@
         "departureAt": "2026-01-31 20:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30219",
@@ -5629,7 +5629,7 @@
         "departureAt": "2026-02-06 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31165",
@@ -5667,7 +5667,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.257Z",
       "sourceDetails": {
         "scanEventId": 31165,
         "confirmedVtcCount": 24,
@@ -5714,7 +5714,7 @@
         "departureAt": "2026-02-10 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30493",
@@ -5753,7 +5753,7 @@
         "departureAt": "2026-02-11 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30217",
@@ -5792,7 +5792,7 @@
         "departureAt": "2026-02-14 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31086",
@@ -5831,7 +5831,7 @@
         "departureAt": "2026-02-14 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30385",
@@ -5870,7 +5870,7 @@
         "departureAt": "2026-02-15 12:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30390",
@@ -5909,7 +5909,7 @@
         "departureAt": "2026-02-15 14:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30780",
@@ -5948,7 +5948,7 @@
         "departureAt": "2026-02-16 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30458",
@@ -5987,7 +5987,7 @@
         "departureAt": "2026-02-18 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30495",
@@ -6026,7 +6026,7 @@
         "departureAt": "2026-02-20 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31254",
@@ -6065,7 +6065,7 @@
         "departureAt": "2026-02-21 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33037",
@@ -6104,7 +6104,7 @@
         "departureAt": "2026-02-21 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30724",
@@ -6143,7 +6143,7 @@
         "departureAt": "2026-02-22 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33784",
@@ -6182,7 +6182,7 @@
         "departureAt": "2026-02-23 23:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30738",
@@ -6221,7 +6221,7 @@
         "departureAt": "2026-02-24 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30670",
@@ -6260,7 +6260,7 @@
         "departureAt": "2026-02-25 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33785",
@@ -6299,7 +6299,7 @@
         "departureAt": "2026-02-25 23:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34055",
@@ -6338,7 +6338,7 @@
         "departureAt": "2026-02-26 00:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30997",
@@ -6377,7 +6377,7 @@
         "departureAt": "2026-03-01 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31138",
@@ -6416,7 +6416,7 @@
         "departureAt": "2026-02-28 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31218",
@@ -6455,7 +6455,7 @@
         "departureAt": "2026-02-28 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31952",
@@ -6494,7 +6494,7 @@
         "departureAt": "2026-03-05 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31101",
@@ -6533,7 +6533,7 @@
         "departureAt": "2026-03-07 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31110",
@@ -6572,7 +6572,7 @@
         "departureAt": "2026-03-06 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30810",
@@ -6611,7 +6611,7 @@
         "departureAt": "2026-03-07 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-28071",
@@ -6650,7 +6650,7 @@
         "departureAt": "2026-03-08 18:15:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30885",
@@ -6689,7 +6689,7 @@
         "departureAt": "2026-03-13 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31166",
@@ -6727,7 +6727,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 31166,
         "confirmedVtcCount": 31,
@@ -6774,7 +6774,7 @@
         "departureAt": "2026-03-15 20:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33420",
@@ -6813,7 +6813,7 @@
         "departureAt": "2026-03-15 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31271",
@@ -6852,7 +6852,7 @@
         "departureAt": "2026-03-20 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30924",
@@ -6891,7 +6891,7 @@
         "departureAt": "2026-03-21 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30725",
@@ -6930,7 +6930,7 @@
         "departureAt": "2026-03-22 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31149",
@@ -6969,7 +6969,7 @@
         "departureAt": "2026-03-26 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33040",
@@ -7008,7 +7008,7 @@
         "departureAt": "2026-03-27 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31219",
@@ -7047,7 +7047,7 @@
         "departureAt": "2026-03-28 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31848",
@@ -7086,7 +7086,7 @@
         "departureAt": "2026-03-28 16:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31193",
@@ -7125,7 +7125,7 @@
         "departureAt": "2026-03-29 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31227",
@@ -7164,7 +7164,7 @@
         "departureAt": "2026-03-29 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32629",
@@ -7203,7 +7203,7 @@
         "departureAt": "2026-03-29 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31819",
@@ -7242,7 +7242,7 @@
         "departureAt": "2026-03-30 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33629",
@@ -7281,7 +7281,7 @@
         "departureAt": "2026-04-02 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31413",
@@ -7320,7 +7320,7 @@
         "departureAt": "2026-04-04 13:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33041",
@@ -7359,7 +7359,7 @@
         "departureAt": "2026-04-04 18:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33272",
@@ -7398,7 +7398,7 @@
         "departureAt": "2026-04-05 04:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33836",
@@ -7437,7 +7437,7 @@
         "departureAt": "2026-04-06 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31654",
@@ -7476,7 +7476,7 @@
         "departureAt": "2026-04-10 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33316",
@@ -7515,7 +7515,7 @@
         "departureAt": "2026-04-09 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31850",
@@ -7554,7 +7554,7 @@
         "departureAt": "2026-04-11 16:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31816",
@@ -7593,7 +7593,7 @@
         "departureAt": "2026-04-12 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31881",
@@ -7632,7 +7632,7 @@
         "departureAt": "2026-04-12 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31582",
@@ -7671,7 +7671,7 @@
         "departureAt": "2026-04-13 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32447",
@@ -7710,7 +7710,7 @@
         "departureAt": "2026-04-13 14:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31818",
@@ -7749,7 +7749,7 @@
         "departureAt": "2026-04-14 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31876",
@@ -7787,7 +7787,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 31876,
         "confirmedVtcCount": 18,
@@ -7834,7 +7834,7 @@
         "departureAt": "2026-04-19 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31658",
@@ -7873,7 +7873,7 @@
         "departureAt": "2026-04-20 01:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31672",
@@ -7912,7 +7912,7 @@
         "departureAt": "2026-04-21 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31813",
@@ -7951,7 +7951,7 @@
         "departureAt": "2026-04-22 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33421",
@@ -7990,7 +7990,7 @@
         "departureAt": "2026-04-23 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31668",
@@ -8029,7 +8029,7 @@
         "departureAt": "2026-04-24 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31308",
@@ -8068,7 +8068,7 @@
         "departureAt": "2026-04-25 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31409",
@@ -8107,7 +8107,7 @@
         "departureAt": "2026-04-25 13:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31688",
@@ -8146,7 +8146,7 @@
         "departureAt": "2026-04-25 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34811",
@@ -8185,7 +8185,7 @@
         "departureAt": "2026-04-25 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31760",
@@ -8224,7 +8224,7 @@
         "departureAt": "2026-04-26 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31784",
@@ -8263,7 +8263,7 @@
         "departureAt": "2026-04-27 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32865",
@@ -8302,7 +8302,7 @@
         "departureAt": "2026-04-28 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34069",
@@ -8341,7 +8341,7 @@
         "departureAt": "2026-04-28 16:11:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35386",
@@ -8380,7 +8380,7 @@
         "departureAt": "2026-04-30 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30957",
@@ -8419,7 +8419,7 @@
         "departureAt": "2026-05-02 12:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35390",
@@ -8458,7 +8458,7 @@
         "departureAt": "2026-05-02 01:45:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35121",
@@ -8497,7 +8497,7 @@
         "departureAt": "2026-05-03 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31747",
@@ -8536,7 +8536,7 @@
         "departureAt": "2026-05-04 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32099",
@@ -8575,7 +8575,7 @@
         "departureAt": "2026-05-05 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32488",
@@ -8614,7 +8614,7 @@
         "departureAt": "2026-05-06 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32314",
@@ -8653,7 +8653,7 @@
         "departureAt": "2026-05-08 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31948",
@@ -8692,7 +8692,7 @@
         "departureAt": "2026-05-08 13:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31877",
@@ -8730,7 +8730,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 31877,
         "confirmedVtcCount": 17,
@@ -8777,7 +8777,7 @@
         "departureAt": "2026-05-09 18:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31954",
@@ -8816,7 +8816,7 @@
         "departureAt": "2026-05-10 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33461",
@@ -8855,7 +8855,7 @@
         "departureAt": "2026-05-13 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32055",
@@ -8894,7 +8894,7 @@
         "departureAt": "2026-05-14 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32066",
@@ -8933,7 +8933,7 @@
         "departureAt": "2026-05-15 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32623",
@@ -8972,7 +8972,7 @@
         "departureAt": "2026-05-15 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32117",
@@ -9011,7 +9011,7 @@
         "departureAt": "2026-05-17 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32137",
@@ -9050,7 +9050,7 @@
         "departureAt": "2026-05-17 23:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32992",
@@ -9088,7 +9088,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 32992,
         "confirmedVtcCount": 16,
@@ -9135,7 +9135,7 @@
         "departureAt": "2026-05-20 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33127",
@@ -9174,7 +9174,7 @@
         "departureAt": "2026-05-22 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34584",
@@ -9213,7 +9213,7 @@
         "departureAt": "2026-05-22 14:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31884",
@@ -9252,7 +9252,7 @@
         "departureAt": "2026-05-23 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32189",
@@ -9291,7 +9291,7 @@
         "departureAt": "2026-05-23 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30812",
@@ -9330,7 +9330,7 @@
         "departureAt": "2026-05-24 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33222",
@@ -9369,7 +9369,7 @@
         "departureAt": "2026-05-25 01:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35089",
@@ -9408,7 +9408,7 @@
         "departureAt": "2026-05-28 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33734",
@@ -9447,7 +9447,7 @@
         "departureAt": "2026-05-30 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35014",
@@ -9486,7 +9486,7 @@
         "departureAt": "2026-05-30 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32333",
@@ -9525,7 +9525,7 @@
         "departureAt": "2026-05-31 14:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32364",
@@ -9564,7 +9564,7 @@
         "departureAt": "2026-05-31 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32469",
@@ -9603,7 +9603,7 @@
         "departureAt": "2026-05-31 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32455",
@@ -9642,7 +9642,7 @@
         "departureAt": "2026-06-01 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32417",
@@ -9681,7 +9681,7 @@
         "departureAt": "2026-06-05 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32365",
@@ -9720,7 +9720,7 @@
         "departureAt": "2026-06-06 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33195",
@@ -9759,7 +9759,7 @@
         "departureAt": "2026-06-08 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34945",
@@ -9798,7 +9798,7 @@
         "departureAt": "2026-06-08 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32404",
@@ -9837,7 +9837,7 @@
         "departureAt": "2026-06-11 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32520",
@@ -9876,7 +9876,7 @@
         "departureAt": "2026-06-13 13:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34624",
@@ -9915,7 +9915,7 @@
         "departureAt": "2026-06-13 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32625",
@@ -9954,7 +9954,7 @@
         "departureAt": "2026-06-16 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33844",
@@ -9993,7 +9993,7 @@
         "departureAt": "2026-06-17 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32939",
@@ -10032,7 +10032,7 @@
         "departureAt": "2026-06-19 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33592",
@@ -10071,7 +10071,7 @@
         "departureAt": "2026-06-19 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32656",
@@ -10110,7 +10110,7 @@
         "departureAt": "2026-06-20 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33055",
@@ -10149,7 +10149,7 @@
         "departureAt": "2026-06-20 18:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32687",
@@ -10188,7 +10188,7 @@
         "departureAt": "2026-06-21 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33223",
@@ -10227,7 +10227,7 @@
         "departureAt": "2026-06-21 01:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33234",
@@ -10266,7 +10266,7 @@
         "departureAt": "2026-06-22 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32835",
@@ -10305,7 +10305,7 @@
         "departureAt": "2026-06-23 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33462",
@@ -10344,7 +10344,7 @@
         "departureAt": "2026-06-24 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32976",
@@ -10383,7 +10383,7 @@
         "departureAt": "2026-06-25 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32551",
@@ -10422,7 +10422,7 @@
         "departureAt": "2026-06-26 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31921",
@@ -10460,7 +10460,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 31921,
         "confirmedVtcCount": 7,
@@ -10507,7 +10507,7 @@
         "departureAt": "2026-06-27 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33571",
@@ -10546,7 +10546,7 @@
         "departureAt": "2026-06-30 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33191",
@@ -10585,7 +10585,7 @@
         "departureAt": "2026-07-01 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35061",
@@ -10624,7 +10624,7 @@
         "departureAt": "2026-07-02 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32957",
@@ -10663,7 +10663,7 @@
         "departureAt": "2026-07-03 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33320",
@@ -10702,7 +10702,7 @@
         "departureAt": "2026-07-04 14:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35791",
@@ -10741,7 +10741,7 @@
         "departureAt": "2026-07-04 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33078",
@@ -10780,7 +10780,7 @@
         "departureAt": "2026-07-05 13:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33075",
@@ -10819,7 +10819,7 @@
         "departureAt": "2026-07-07 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34515",
@@ -10858,7 +10858,7 @@
         "departureAt": "2026-07-08 17:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33228",
@@ -10897,7 +10897,7 @@
         "departureAt": "2026-07-09 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34095",
@@ -10936,7 +10936,7 @@
         "departureAt": "2026-07-10 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-31923",
@@ -10974,7 +10974,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 31923,
         "confirmedVtcCount": 8,
@@ -11021,7 +11021,7 @@
         "departureAt": "2026-07-12 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36439",
@@ -11060,7 +11060,7 @@
         "departureAt": "2026-07-12 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33381",
@@ -11099,7 +11099,7 @@
         "departureAt": "2026-07-13 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34106",
@@ -11138,7 +11138,7 @@
         "departureAt": "2026-07-14 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33765",
@@ -11177,7 +11177,7 @@
         "departureAt": "2026-07-15 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32921",
@@ -11216,7 +11216,7 @@
         "departureAt": "2026-07-16 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36544",
@@ -11255,7 +11255,7 @@
         "departureAt": "2026-07-17 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33284",
@@ -11294,7 +11294,7 @@
         "departureAt": "2026-07-18 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33652",
@@ -11333,7 +11333,7 @@
         "departureAt": "2026-07-18 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34252",
@@ -11372,7 +11372,7 @@
         "departureAt": "2026-07-19 02:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33370",
@@ -11411,7 +11411,7 @@
         "departureAt": "2026-07-20 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33570",
@@ -11450,7 +11450,7 @@
         "departureAt": "2026-07-21 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34924",
@@ -11489,7 +11489,7 @@
         "departureAt": "2026-07-23 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33418",
@@ -11528,7 +11528,7 @@
         "departureAt": "2026-07-24 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36194",
@@ -11567,7 +11567,7 @@
         "departureAt": "2026-07-24 01:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-32304",
@@ -11606,7 +11606,7 @@
         "departureAt": "2026-07-25 13:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33472",
@@ -11645,7 +11645,7 @@
         "departureAt": "2026-07-25 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33778",
@@ -11684,7 +11684,7 @@
         "departureAt": "2026-07-25 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35546",
@@ -11723,7 +11723,7 @@
         "departureAt": "2026-07-25 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-30999",
@@ -11762,7 +11762,7 @@
         "departureAt": "2026-07-26 01:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33777",
@@ -11800,7 +11800,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 33777,
         "confirmedVtcCount": 25,
@@ -11847,7 +11847,7 @@
         "departureAt": "2026-07-27 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34813",
@@ -11886,7 +11886,7 @@
         "departureAt": "2026-07-27 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33717",
@@ -11925,7 +11925,7 @@
         "departureAt": "2026-07-28 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33273",
@@ -11964,7 +11964,7 @@
         "departureAt": "2026-07-30 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36071",
@@ -12003,7 +12003,7 @@
         "departureAt": "2026-08-01 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34024",
@@ -12042,7 +12042,7 @@
         "departureAt": "2026-08-01 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34141",
@@ -12081,7 +12081,7 @@
         "departureAt": "2026-08-01 12:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34635",
@@ -12120,7 +12120,7 @@
         "departureAt": "2026-08-04 12:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33690",
@@ -12159,7 +12159,7 @@
         "departureAt": "2026-08-05 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33736",
@@ -12198,7 +12198,7 @@
         "departureAt": "2026-08-07 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34366",
@@ -12237,7 +12237,7 @@
         "departureAt": "2026-08-07 13:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34950",
@@ -12276,7 +12276,7 @@
         "departureAt": "2026-08-08 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33485",
@@ -12315,7 +12315,7 @@
         "departureAt": "2026-08-09 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33912",
@@ -12354,7 +12354,7 @@
         "departureAt": "2026-08-10 16:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33839",
@@ -12393,7 +12393,7 @@
         "departureAt": "2026-08-11 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34142",
@@ -12432,7 +12432,7 @@
         "departureAt": "2026-08-16 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33878",
@@ -12471,7 +12471,7 @@
         "departureAt": "2026-08-16 16:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34417",
@@ -12510,7 +12510,7 @@
         "departureAt": "2026-08-17 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-26101",
@@ -12549,7 +12549,7 @@
         "departureAt": "2026-08-22 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33826",
@@ -12587,7 +12587,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 33826,
         "confirmedVtcCount": 64,
@@ -12634,7 +12634,7 @@
         "departureAt": "2026-08-22 01:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33776",
@@ -12672,7 +12672,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 33776,
         "confirmedVtcCount": 9,
@@ -12719,7 +12719,7 @@
         "departureAt": "2026-08-23 14:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34253",
@@ -12758,7 +12758,7 @@
         "departureAt": "2026-08-23 02:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34629",
@@ -12797,7 +12797,7 @@
         "departureAt": "2026-08-24 00:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34196",
@@ -12836,7 +12836,7 @@
         "departureAt": "2026-08-24 01:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34322",
@@ -12875,7 +12875,7 @@
         "departureAt": "2026-08-24 20:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34144",
@@ -12914,7 +12914,7 @@
         "departureAt": "2026-08-25 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36053",
@@ -12953,7 +12953,7 @@
         "departureAt": "2026-08-26 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34749",
@@ -12992,7 +12992,7 @@
         "departureAt": "2026-08-27 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34231",
@@ -13031,7 +13031,7 @@
         "departureAt": "2026-08-29 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34936",
@@ -13070,7 +13070,7 @@
         "departureAt": "2026-08-30 01:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34967",
@@ -13109,7 +13109,7 @@
         "departureAt": "2026-09-02 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34451",
@@ -13148,7 +13148,7 @@
         "departureAt": "2026-09-03 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34299",
@@ -13187,7 +13187,7 @@
         "departureAt": "2026-09-04 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37345",
@@ -13226,7 +13226,7 @@
         "departureAt": "2026-09-04 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36369",
@@ -13265,7 +13265,7 @@
         "departureAt": "2026-09-07 00:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34383",
@@ -13304,7 +13304,7 @@
         "departureAt": "2026-09-10 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34384",
@@ -13343,7 +13343,7 @@
         "departureAt": "2026-09-11 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34740",
@@ -13382,7 +13382,7 @@
         "departureAt": "2026-09-12 13:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35664",
@@ -13421,7 +13421,7 @@
         "departureAt": "2026-09-12 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34356",
@@ -13460,7 +13460,7 @@
         "departureAt": "2026-09-13 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34468",
@@ -13499,7 +13499,7 @@
         "departureAt": "2026-09-13 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34765",
@@ -13538,7 +13538,7 @@
         "departureAt": "2026-09-14 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34526",
@@ -13577,7 +13577,7 @@
         "departureAt": "2026-09-16 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36971",
@@ -13616,7 +13616,7 @@
         "departureAt": "2026-09-17 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34665",
@@ -13655,7 +13655,7 @@
         "departureAt": "2026-09-18 13:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37346",
@@ -13694,7 +13694,7 @@
         "departureAt": "2026-09-18 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34594",
@@ -13733,7 +13733,7 @@
         "departureAt": "2026-09-19 15:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34530",
@@ -13772,7 +13772,7 @@
         "departureAt": "2026-09-20 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34592",
@@ -13811,7 +13811,7 @@
         "departureAt": "2026-09-20 13:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34596",
@@ -13850,7 +13850,7 @@
         "departureAt": "2026-09-20 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34750",
@@ -13889,7 +13889,7 @@
         "departureAt": "2026-09-22 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35496",
@@ -13928,7 +13928,7 @@
         "departureAt": "2026-09-23 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35062",
@@ -13967,7 +13967,7 @@
         "departureAt": "2026-09-24 17:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35643",
@@ -14006,7 +14006,7 @@
         "departureAt": "2026-09-25 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34957",
@@ -14044,7 +14044,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 34957,
         "confirmedVtcCount": 11,
@@ -14091,7 +14091,7 @@
         "departureAt": "2026-09-28 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35192",
@@ -14130,7 +14130,7 @@
         "departureAt": "2026-09-29 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34855",
@@ -14169,7 +14169,7 @@
         "departureAt": "2026-09-30 17:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34773",
@@ -14208,7 +14208,7 @@
         "departureAt": "2026-10-01 13:15:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34856",
@@ -14247,7 +14247,7 @@
         "departureAt": "2026-10-02 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35810",
@@ -14285,7 +14285,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 35810,
         "confirmedVtcCount": 7,
@@ -14332,7 +14332,7 @@
         "departureAt": "2026-10-03 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35114",
@@ -14371,7 +14371,7 @@
         "departureAt": "2026-10-04 19:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35190",
@@ -14410,7 +14410,7 @@
         "departureAt": "2026-10-05 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35226",
@@ -14449,7 +14449,7 @@
         "departureAt": "2026-10-06 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35071",
@@ -14488,7 +14488,7 @@
         "departureAt": "2026-10-08 15:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-33946",
@@ -14527,7 +14527,7 @@
         "departureAt": "2026-10-09 18:00:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35272",
@@ -14566,7 +14566,7 @@
         "departureAt": "2026-10-09 19:30:00"
       },
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.258Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34819",
@@ -14611,7 +14611,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 34819,
         "confirmedVtcCount": 56,
@@ -14664,7 +14664,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z",
+      "updatedAt": "2026-10-13T04:29:45.258Z",
       "sourceDetails": {
         "scanEventId": 35000,
         "confirmedVtcCount": 39,
@@ -14682,9 +14682,9 @@
       "date": "2026-10-11",
       "type": "external",
       "organizer": "ASIMOV Group",
-      "status": "planned",
+      "status": "completed",
       "participation": {
-        "status": "planned",
+        "status": "attended",
         "confidence": "verified"
       },
       "attendance": {
@@ -14710,7 +14710,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-11T12:40:52.748Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36313",
@@ -14720,9 +14720,9 @@
       "date": "2026-10-12",
       "type": "external",
       "organizer": "- NeoCrime Group -",
-      "status": "planned",
+      "status": "completed",
       "participation": {
-        "status": "planned",
+        "status": "attended",
         "confidence": "verified"
       },
       "attendance": {
@@ -14748,7 +14748,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35288",
@@ -14786,7 +14786,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35900",
@@ -14824,7 +14824,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35113",
@@ -14862,7 +14862,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34935",
@@ -14900,7 +14900,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35252",
@@ -14938,7 +14938,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35649",
@@ -14976,7 +14976,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34664",
@@ -15014,7 +15014,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35100",
@@ -15052,7 +15052,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36410",
@@ -15090,7 +15090,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36524",
@@ -15128,7 +15128,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35349",
@@ -15166,7 +15166,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35408",
@@ -15204,7 +15204,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34727",
@@ -15242,7 +15242,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35183",
@@ -15280,7 +15280,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35433",
@@ -15318,7 +15318,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-34894",
@@ -15356,7 +15356,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35465",
@@ -15394,7 +15394,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35483",
@@ -15432,7 +15432,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35561",
@@ -15470,7 +15470,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36002",
@@ -15508,7 +15508,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35567",
@@ -15546,7 +15546,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36547",
@@ -15584,7 +15584,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35834",
@@ -15622,7 +15622,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35695",
@@ -15660,7 +15660,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35786",
@@ -15698,7 +15698,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37799",
@@ -15736,7 +15736,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35816",
@@ -15774,7 +15774,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35873",
@@ -15812,7 +15812,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36557",
@@ -15850,7 +15850,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35558",
@@ -15888,7 +15888,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35996",
@@ -15926,7 +15926,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35981",
@@ -15964,7 +15964,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36135",
@@ -16002,7 +16002,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35920",
@@ -16040,7 +16040,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36069",
@@ -16078,7 +16078,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37148",
@@ -16116,7 +16116,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36101",
@@ -16154,7 +16154,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36123",
@@ -16192,7 +16192,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36256",
@@ -16230,7 +16230,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36011",
@@ -16268,7 +16268,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37070",
@@ -16306,7 +16306,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36225",
@@ -16344,7 +16344,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36227",
@@ -16382,7 +16382,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36248",
@@ -16420,7 +16420,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36163",
@@ -16458,7 +16458,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36230",
@@ -16496,7 +16496,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36349",
@@ -16534,7 +16534,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36367",
@@ -16572,7 +16572,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36352",
@@ -16610,7 +16610,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-35907",
@@ -16648,7 +16648,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37088",
@@ -16686,7 +16686,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36126",
@@ -16724,7 +16724,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36919",
@@ -16762,7 +16762,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36455",
@@ -16800,7 +16800,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37174",
@@ -16838,7 +16838,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37273",
@@ -16876,7 +16876,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36669",
@@ -16914,7 +16914,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36097",
@@ -16952,7 +16952,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36670",
@@ -16990,7 +16990,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38186",
@@ -17021,7 +17021,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37044",
@@ -17059,7 +17059,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37000",
@@ -17097,7 +17097,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.682Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36816",
@@ -17135,7 +17135,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36846",
@@ -17173,7 +17173,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36903",
@@ -17211,7 +17211,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37553",
@@ -17249,7 +17249,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36585",
@@ -17287,7 +17287,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36897",
@@ -17325,7 +17325,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36930",
@@ -17363,7 +17363,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36615",
@@ -17401,7 +17401,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.256Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36941",
@@ -17439,7 +17439,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36948",
@@ -17477,7 +17477,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36902",
@@ -17515,7 +17515,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36276",
@@ -17553,7 +17553,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37022",
@@ -17591,7 +17591,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37062",
@@ -17629,7 +17629,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37087",
@@ -17667,7 +17667,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37343",
@@ -17705,7 +17705,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37152",
@@ -17743,7 +17743,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37170",
@@ -17781,7 +17781,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37522",
@@ -17819,7 +17819,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37015",
@@ -17857,7 +17857,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-36617",
@@ -17895,7 +17895,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37415",
@@ -17933,7 +17933,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37264",
@@ -17971,7 +17971,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37305",
@@ -18009,7 +18009,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37505",
@@ -18047,7 +18047,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37618",
@@ -18085,7 +18085,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37450",
@@ -18123,7 +18123,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37397",
@@ -18161,7 +18161,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37411",
@@ -18199,7 +18199,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37422",
@@ -18237,7 +18237,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37405",
@@ -18275,7 +18275,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37471",
@@ -18313,7 +18313,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37442",
@@ -18351,7 +18351,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37528",
@@ -18389,7 +18389,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37502",
@@ -18427,7 +18427,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37489",
@@ -18465,7 +18465,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38240",
@@ -18503,7 +18503,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37712",
@@ -18541,7 +18541,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37701",
@@ -18579,7 +18579,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37780",
@@ -18617,7 +18617,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38072",
@@ -18655,7 +18655,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37874",
@@ -18693,7 +18693,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37798",
@@ -18731,7 +18731,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37847",
@@ -18769,7 +18769,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-37886",
@@ -18807,7 +18807,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38055",
@@ -18845,7 +18845,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38211",
@@ -18883,7 +18883,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38296",
@@ -18921,7 +18921,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.683Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     },
     {
       "id": "KCE-TRUCKERSMP-38346",
@@ -18952,7 +18952,7 @@
         }
       ],
       "createdAt": null,
-      "updatedAt": "2026-10-12T12:41:44.679Z"
+      "updatedAt": "2026-10-13T04:29:45.257Z"
     }
   ]
 }
