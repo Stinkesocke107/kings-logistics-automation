@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-13T04:42:26.605Z",
+  "updatedAt": "2026-10-13T05:32:36.009Z",
   "currentDrivers": 108,
   "onlineNow": 0,
   "joinedLast7Days": 0,
@@ -16,6 +16,81 @@
     "attention14Days": 91,
     "hrReview30Days": 0,
     "unknown": 0
+  },
+  "tenure": {
+    "known": 108,
+    "under1Month": 2,
+    "oneToThreeMonths": 23,
+    "threeToSixMonths": 24,
+    "sixToTwelveMonths": 24,
+    "oneToTwoYears": 31,
+    "twoToThreeYears": 3,
+    "threeYearsPlus": 1,
+    "unknown": 0,
+    "longestServing": [
+      {
+        "tmpId": 4891248,
+        "username": "Stinkesocke107",
+        "joinDate": "2023-07-09T19:25:36.000Z",
+        "tenureDays": 1191
+      },
+      {
+        "tmpId": 5419500,
+        "username": "Magierjuwel",
+        "joinDate": "2024-03-19T21:42:42.000Z",
+        "tenureDays": 937
+      },
+      {
+        "tmpId": 5318474,
+        "username": "Paul Brandt",
+        "joinDate": "2024-04-22T19:19:44.000Z",
+        "tenureDays": 903
+      },
+      {
+        "tmpId": 5358213,
+        "username": "Taser00700",
+        "joinDate": "2024-06-25T21:42:19.000Z",
+        "tenureDays": 839
+      },
+      {
+        "tmpId": 5655769,
+        "username": "JackyJack",
+        "joinDate": "2024-10-19T21:14:31.000Z",
+        "tenureDays": 723
+      }
+    ],
+    "newestDrivers": [
+      {
+        "tmpId": 5504138,
+        "username": "GoosiestBrother",
+        "joinDate": "2026-10-02T14:03:55.000Z",
+        "tenureDays": 10
+      },
+      {
+        "tmpId": 5155783,
+        "username": "giudf211",
+        "joinDate": "2026-09-27T20:31:21.000Z",
+        "tenureDays": 15
+      },
+      {
+        "tmpId": 6345786,
+        "username": "Maxi_274",
+        "joinDate": "2026-08-29T19:21:08.000Z",
+        "tenureDays": 44
+      },
+      {
+        "tmpId": 6347683,
+        "username": "Ari_C4",
+        "joinDate": "2026-08-23T23:43:40.000Z",
+        "tenureDays": 50
+      },
+      {
+        "tmpId": 6343406,
+        "username": "FaJoste",
+        "joinDate": "2026-08-22T18:02:47.000Z",
+        "tenureDays": 51
+      }
+    ]
   },
   "rules": {
     "infoDays": 7,
