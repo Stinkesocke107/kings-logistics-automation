@@ -1,0 +1,137 @@
+name: Kings Event Leadership Reports
+
+on:
+  workflow_dispatch:
+    inputs:
+      report:
+        description: "Event Leadership report to run"
+        required: true
+        default: "daily-preview"
+        type: choice
+        options:
+          - daily-preview
+          - daily-publish
+          - weekly-preview
+          - weekly-publish
+          - monthly-preview
+          - monthly-publish
+
+  push:
+    branches:
+      - main
+    paths:
+      - 'event-leadership-reports.js'
+      - '.github/workflows/event-leadership-reports.yml'
+
+  schedule:
+    - cron: "15 19 * * *"
+    - cron: "35 10 * * 1"
+    - cron: "15 10 1 * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-event-leadership-reports
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Verify Event Leadership reports
+        run: node --check event-leadership-reports.js
+
+  report:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Resolve Event report mode
+        id: mode
+        shell: bash
+        env:
+          INPUT_REPORT: ${{ inputs.report }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            MODE="${INPUT_REPORT%-preview}"
+            MODE="${MODE%-publish}"
+            PREVIEW=false
+            case "$INPUT_REPORT" in
+              *-preview) PREVIEW=true ;;
+            esac
+          elif [ "$EVENT_SCHEDULE" = "15 19 * * *" ]; then
+            MODE=daily
+            PREVIEW=false
+          elif [ "$EVENT_SCHEDULE" = "35 10 * * 1" ]; then
+            MODE=weekly
+            PREVIEW=false
+          else
+            MODE=monthly
+            PREVIEW=false
+          fi
+
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "preview=$PREVIEW" >> "$GITHUB_OUTPUT"
+
+      - name: Build fresh read-only Event Leadership data
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
+          DISCORD_WRITE_MODE: 'false'
+          KINGS_VTC_NAME: 'Kings Logistics'
+          CONVOY_FINALIZE_WRITE_MODE: 'false'
+        run: |
+          node convoy-checker.js
+          node convoy-truckersmp-sync.js
+          node convoy-finalize.js
+          node convoy-overview.js
+
+      - name: Create Event Leadership report
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_EVENT_LEADERSHIP_CHANNEL_ID: '1551675735633297418'
+          DISCORD_EVENT_LEADERSHIP_CHANNEL_NAME: 'event-leadership'
+          EVENT_LEADERSHIP_REPORT_MODE: ${{ steps.mode.outputs.mode }}
+          EVENT_LEADERSHIP_REPORT_PREVIEW: ${{ steps.mode.outputs.preview }}
+        run: node event-leadership-reports.js
+
+      - name: Save Event Leadership report state
+        if: ${{ steps.mode.outputs.preview == 'false' }}
+        run: |
+          if git diff --quiet -- data/event-leadership-report-state.json && [ -z "$(git status --porcelain data/event-leadership-report-state.json)" ]; then
+            echo "No Event Leadership report state changes to save."
+            exit 0
+          fi
+
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/event-leadership-report-state.json
+          git commit -m "Update Event Leadership report state"
+          bash scripts/git-safe-push.sh main
