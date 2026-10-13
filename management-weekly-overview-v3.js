@@ -240,7 +240,7 @@ function buildEmbed(period, periodStats, movement, probationTriggered, driver, h
   const open = reviews.filter((review) => review.status === 'open').length;
   const extended = reviews.filter((review) => review.status === 'extended').length;
   return {
-    title: PREVIEW_MODE ? '👑 Kings Weekly Management Overview • TEST' : '👑 Kings Weekly Management Overview',
+    title: PREVIEW_MODE ? '🧪 Kings Management Weekly Review • TEST' : '🟣 Kings Management Weekly Review',
     description: `${PREVIEW_MODE ? 'Preview using' : 'Management summary for'} **${period.label}**.\nCurrent pipeline figures are live snapshots; movement/activity peaks cover the reporting period.`,
     color: KINGS_BLUE,
     fields: [
