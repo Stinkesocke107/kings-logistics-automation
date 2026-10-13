@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-10-13T05:44:23.386Z",
+  "updatedAt": "2026-10-13T23:15:54.182Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -110,14 +110,20 @@
       "name": "10. October - - THE ORIGINAL™ -",
       "eventId": "34819",
       "status": "Completed",
-      "eventDate": "2026-10-10",
-      "meetupTime": "17:00 UTC",
+      "eventDate": null,
+      "meetupTime": null,
       "responsibleStaff": "<@1299456550523506743>",
       "kingsSlot": "Section T - TruckersMP HQ Euro Acress",
-      "missing": [],
+      "missing": [
+        "eventDate",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1791651600
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1558780071039213649",
@@ -134,7 +140,53 @@
       "eventUnix": 1807365600
     }
   ],
-  "changeLog": [],
+  "changeLog": [
+    {
+      "type": "event_changed",
+      "at": "2026-10-13T23:15:53.964Z",
+      "threadId": "1558158179131588730",
+      "name": "10. October - - THE ORIGINAL™ -",
+      "fields": [
+        "eventDate",
+        "meetupTime",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1558158179131588730",
+        "name": "10. October - - THE ORIGINAL™ -",
+        "eventId": "34819",
+        "status": "Completed",
+        "eventDate": "2026-10-10",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@1299456550523506743>",
+        "kingsSlot": "Section T - TruckersMP HQ Euro Acress",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1791651600
+      },
+      "current": {
+        "threadId": "1558158179131588730",
+        "name": "10. October - - THE ORIGINAL™ -",
+        "eventId": "34819",
+        "status": "Completed",
+        "eventDate": null,
+        "meetupTime": null,
+        "responsibleStaff": "<@1299456550523506743>",
+        "kingsSlot": "Section T - TruckersMP HQ Euro Acress",
+        "missing": [
+          "eventDate",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    }
+  ],
   "publishedDailyKeys": [
     "2026-10-13"
   ],
