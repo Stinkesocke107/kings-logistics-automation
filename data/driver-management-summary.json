@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-13T22:41:12.589Z",
+  "updatedAt": "2026-10-13T23:58:55.029Z",
   "currentDrivers": 108,
   "onlineNow": 1,
   "joinedLast7Days": 0,
@@ -10,9 +10,9 @@
   "leftLast30Days": 3,
   "activity": {
     "grace": 1,
-    "active": 6,
+    "active": 7,
     "approvedLeave": 0,
-    "info7Days": 10,
+    "info7Days": 9,
     "attention14Days": 91,
     "hrReview30Days": 0,
     "unknown": 0
@@ -82,7 +82,7 @@
         "tmpId": 6347683,
         "username": "Ari_C4",
         "joinDate": "2026-08-23T23:43:40.000Z",
-        "tenureDays": 50
+        "tenureDays": 51
       },
       {
         "tmpId": 6343406,
