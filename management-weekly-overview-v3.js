@@ -2,6 +2,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { syncEmbedMessage } = require('./leadership-message-sync');
 
 const KINGS_BLUE = 0x182dff;
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
@@ -297,11 +298,6 @@ async function createOverview() {
   }
 
   const state = loadState();
-  if (!PREVIEW_MODE && state.publishedWeeks.some((item) => item.key === period.key)) {
-    console.log(`Management Overview ${period.key} was already published.`);
-    return;
-  }
-
   const movement = getDriverMovement(driverHistory, period);
   const probationTriggered = getProbationTriggered(period);
   const driver = readJson(DRIVER_SUMMARY_FILE, {});
@@ -312,19 +308,23 @@ async function createOverview() {
   const hr = loadHrState();
   const channel = await resolveManagementChannel();
   const events = await getEventStatus();
+  const previous = state.publishedWeeks.filter((item) => item.key !== period.key).at(-1) || null;
   const embed = buildEmbed(period, periodStats, movement, probationTriggered, driver, hr, events, staff);
 
-  await discord(`/channels/${channel.id}/messages`, {
-    method: 'POST',
-    body: { embeds: [embed], allowed_mentions: { parse: [] } }
-  });
-
   if (PREVIEW_MODE) {
-    console.log(`Management Weekly Overview TEST sent to #${channel.name}.`);
+    console.log(`Management Weekly Review TEST ready for #${channel.name}.`);
     return;
   }
 
-  state.publishedWeeks.push({
+  const result = await syncEmbedMessage({
+    token: DISCORD_BOT_TOKEN,
+    channelId: channel.id,
+    marker: '🟣 Kings Management Weekly Review',
+    embed,
+    userAgent: 'Kings Logistics Management Weekly/4.0'
+  });
+
+  const record = {
     key: period.key,
     periodStart: period.start.toISOString(),
     periodEnd: period.end.toISOString(),
@@ -346,9 +346,14 @@ async function createOverview() {
     activeEventThreads: events.active,
     scheduledEvents: events.scheduled,
     weeklyPeak: periodStats.weeklyPeak
-  });
+  };
+
+  const index = state.publishedWeeks.findIndex((item) => item.key === period.key);
+  if (index >= 0) state.publishedWeeks[index] = record;
+  else state.publishedWeeks.push(record);
   saveState(state);
-  console.log(`Management Weekly Overview ${period.key} published to #${channel.name}.`);
+
+  console.log(`Management Weekly dashboard ${result.action} for ${period.key} in #${channel.name}.`);
 }
 
 createOverview().then(() => {
