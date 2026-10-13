@@ -9,8 +9,6 @@ on:
     paths:
       - 'convoy-history-truckersmp-2023-scan.js'
       - 'convoy-history-truckersmp-2023-merge.js'
-      - 'convoy-history-import.js'
-      - 'data/convoy-history-backfill.json'
       - '.github/workflows/convoy-history-2023-backfill.yml'
 
 permissions:
