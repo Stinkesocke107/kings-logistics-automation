@@ -62,13 +62,17 @@ function monthlyReport(file, key) {
 
 function loadState() {
   const state = readJson(STATE_FILE, null);
-  if (state && Array.isArray(state.publishedMonths) && Array.isArray(state.monthlyReports)) return state;
+  if (state && Array.isArray(state.publishedMonths) && Array.isArray(state.monthlyReports)) {
+    state.messageId = state.messageId || null;
+    return state;
+  }
   return {
     version: 1,
     createdAt: nowISO(),
     updatedAt: nowISO(),
     publishedMonths: [],
-    monthlyReports: []
+    monthlyReports: [],
+    messageId: null
   };
 }
 
@@ -196,11 +200,7 @@ function normalizeChannelName(value = '') {
 
 async function resolveChannel() {
   if (CHANNEL_ID) {
-    const channel = await discord(`/channels/${CHANNEL_ID}`);
-    if (channel.guild_id && String(channel.guild_id) !== String(DISCORD_GUILD_ID)) {
-      throw new Error('Configured Management Overview channel is not in the configured guild.');
-    }
-    return channel;
+    return { id: String(CHANNEL_ID), name: CHANNEL_NAME };
   }
 
   const channels = await discord(`/guilds/${DISCORD_GUILD_ID}/channels`);
@@ -250,8 +250,11 @@ async function main() {
     channelId: channel.id,
     marker: '👑 Kings Management — Monthly Report',
     embed,
-    userAgent: 'Kings Logistics Management Monthly/2.0'
+    userAgent: 'Kings Logistics Management Monthly/2.1',
+    messageId: state.messageId,
+    createWithoutDiscovery: true
   });
+  state.messageId = result.messageId || state.messageId;
 
   const record = {
     key: period.key,
