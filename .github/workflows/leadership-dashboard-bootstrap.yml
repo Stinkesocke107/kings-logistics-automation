@@ -1,0 +1,237 @@
+name: Kings Leadership Dashboard Bootstrap
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/leadership-dashboard-bootstrap.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-leadership-dashboard-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Verify dashboard engines
+        run: |
+          node --check leadership-message-sync.js
+          node --check driver-loa.js
+          node --check hr-leadership.js
+          node --check staff-management.js
+          node --check management-overview.js
+          node --check event-leadership-overview.js
+          node --check driver-leadership-reports.js
+          node --check driver-weekly-summary.js
+          node --check hr-leadership-reports.js
+          node --check hr-weekly-summary.js
+          node --check staff-leadership-reports.js
+          node --check event-leadership-reports.js
+          node --check management-weekly-overview-v3.js
+          node --check management-monthly-report.js
+
+      - name: Build fresh read-only Event data
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
+          DISCORD_WRITE_MODE: 'false'
+          KINGS_VTC_NAME: 'Kings Logistics'
+          CONVOY_FINALIZE_WRITE_MODE: 'false'
+        run: |
+          node convoy-checker.js
+          node convoy-truckersmp-sync.js
+          node convoy-finalize.js
+          node convoy-overview.js
+
+      - name: Recreate Driver Live Overview
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
+          DRIVER_LOA_COMMANDS_MODE: 'skip'
+          DRIVER_LEADERSHIP_OVERVIEW_MODE: 'write'
+        run: node driver-loa.js
+
+      - name: Recreate HR Live Overview
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
+        run: node hr-leadership.js
+
+      - name: Recreate Staff Live Overview
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          STAFF_LEADERSHIP_CHANNEL_NAME: 'staff-leadership'
+          STAFF_LEADERSHIP_OVERVIEW_MODE: 'write'
+        run: node staff-management.js
+
+      - name: Recreate Event Live Overview
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_EVENT_LEADERSHIP_CHANNEL_ID: '1551675735633297418'
+          DISCORD_EVENT_LEADERSHIP_CHANNEL_NAME: 'event-leadership'
+          EVENT_LEADERSHIP_DRY_RUN: 'false'
+        run: node event-leadership-overview.js
+
+      - name: Recreate Management Live Overview
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
+          CONVOY_MANAGEMENT_FORUM_ID: '1550619824005062697'
+        run: node management-overview.js
+
+      - name: Recreate Driver Daily dashboard
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
+          DRIVER_LEADERSHIP_REPORT_MODE: 'daily'
+          DRIVER_LEADERSHIP_REPORT_PREVIEW: 'false'
+        run: node driver-leadership-reports.js
+
+      - name: Recreate Driver Weekly dashboard
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
+          DRIVER_WEEKLY_SUMMARY_PREVIEW: 'false'
+        run: node driver-weekly-summary.js
+
+      - name: Recreate Driver Monthly dashboard
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
+          DRIVER_LEADERSHIP_REPORT_MODE: 'monthly'
+          DRIVER_LEADERSHIP_REPORT_PREVIEW: 'false'
+        run: node driver-leadership-reports.js
+
+      - name: Recreate HR Daily dashboard
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
+          HR_LEADERSHIP_REPORT_MODE: 'daily'
+          HR_LEADERSHIP_REPORT_PREVIEW: 'false'
+        run: node hr-leadership-reports.js
+
+      - name: Recreate HR Weekly dashboard
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
+          HR_WEEKLY_SUMMARY_PREVIEW: 'false'
+        run: node hr-weekly-summary-runner.js
+
+      - name: Recreate HR Monthly dashboard
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          HR_LEADERSHIP_CHANNEL_NAME: 'hr-leadership'
+          HR_LEADERSHIP_REPORT_MODE: 'monthly'
+          HR_LEADERSHIP_REPORT_PREVIEW: 'false'
+        run: node hr-leadership-reports.js
+
+      - name: Recreate Staff dashboards
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          STAFF_LEADERSHIP_CHANNEL_NAME: 'staff-leadership'
+          STAFF_LEADERSHIP_REPORT_PREVIEW: 'false'
+        run: |
+          STAFF_LEADERSHIP_REPORT_MODE=daily node staff-leadership-reports.js
+          STAFF_LEADERSHIP_REPORT_MODE=weekly node staff-leadership-reports.js
+          STAFF_LEADERSHIP_REPORT_MODE=monthly node staff-leadership-reports.js
+
+      - name: Recreate Event dashboards
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_EVENT_LEADERSHIP_CHANNEL_ID: '1551675735633297418'
+          DISCORD_EVENT_LEADERSHIP_CHANNEL_NAME: 'event-leadership'
+          EVENT_LEADERSHIP_REPORT_PREVIEW: 'false'
+        run: |
+          EVENT_LEADERSHIP_REPORT_MODE=daily node event-leadership-reports.js
+          EVENT_LEADERSHIP_REPORT_MODE=weekly node event-leadership-reports.js
+          EVENT_LEADERSHIP_REPORT_MODE=monthly node event-leadership-reports.js
+
+      - name: Recreate Management Weekly dashboard
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
+          CONVOY_MANAGEMENT_FORUM_ID: '1550619824005062697'
+          MANAGEMENT_WEEKLY_OVERVIEW_PREVIEW: 'false'
+        run: node management-weekly-overview-v3.js
+
+      - name: Recreate Management Monthly dashboard
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
+          MANAGEMENT_MONTHLY_PREVIEW: 'false'
+        run: node management-monthly-report.js
+
+      - name: Persist dashboard history/state
+        shell: bash
+        run: |
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add             data/driver-leadership-report-state.json             data/driver-weekly-summary-state.json             data/hr-leadership-report-state.json             data/hr-weekly-summary-state.json             data/staff-leadership-report-state.json             data/event-leadership-report-state.json             data/management-weekly-overview-state.json             data/management-monthly-overview-state.json
+
+          if git diff --cached --quiet; then
+            echo "No dashboard state changes to persist."
+            exit 0
+          fi
+
+          git commit -m "Persist recreated Leadership dashboard state"
+          bash scripts/git-safe-push.sh main
+
+      - name: Bootstrap summary
+        if: always()
+        run: |
+          {
+            echo "## Kings Leadership Dashboard Bootstrap"
+            echo ""
+            echo "Recreated the fixed Live, Daily, Weekly and Monthly dashboard messages after the previous Discord messages were deleted."
+            echo ""
+            echo "Future runs update these dashboard messages in place; internal report history remains stored in repository state."
+          } >> "$GITHUB_STEP_SUMMARY"
