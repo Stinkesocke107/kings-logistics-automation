@@ -728,6 +728,7 @@ function buildLeadershipMessage(managementState, summary) {
 
   const lines = [
     LEADERSHIP_MARKER,
+    '🔵 **LIVE / CURRENT OVERVIEW**',
     '',
     'Live leadership view of Kings Driver operations, membership and internal review signals.',
     '',
@@ -759,6 +760,7 @@ function buildLeadershipMessage(managementState, summary) {
   if (content.length > 1990) {
     content = [
       LEADERSHIP_MARKER,
+      '🔵 **LIVE / CURRENT OVERVIEW**',
       '',
       '## 📊 Current Status',
       `🚛 Drivers: **${summary.currentDrivers}** · 🟢 Online: **${summary.onlineNow ?? 0}** · 🛡️ LOA: **${summary.activity?.approvedLeave ?? 0}** · 🚨 Reviews: **${openReviews}**`,
