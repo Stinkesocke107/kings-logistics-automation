@@ -180,6 +180,7 @@ jobs:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
+          STAFF_LEADERSHIP_CHANNEL_ID: '1551675877178474526'
           STAFF_LEADERSHIP_CHANNEL_NAME: 'staff-leadership'
           STAFF_LEADERSHIP_REPORT_PREVIEW: 'false'
         run: |
@@ -206,6 +207,7 @@ jobs:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
+          MANAGEMENT_OVERVIEW_CHANNEL_ID: '1492936683304517792'
           MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
           CONVOY_MANAGEMENT_FORUM_ID: '1550619824005062697'
           MANAGEMENT_WEEKLY_OVERVIEW_PREVIEW: 'false'
@@ -216,6 +218,7 @@ jobs:
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
+          MANAGEMENT_OVERVIEW_CHANNEL_ID: '1492936683304517792'
           MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
           MANAGEMENT_MONTHLY_PREVIEW: 'false'
         run: node management-monthly-report.js
@@ -235,6 +238,7 @@ jobs:
           fi
 
           git commit -m "Persist recreated Leadership dashboard state"
+          git restore --worktree .
           bash scripts/git-safe-push.sh main
 
       - name: Bootstrap summary
