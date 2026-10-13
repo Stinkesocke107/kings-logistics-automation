@@ -170,7 +170,8 @@ test('Discord public convoy statistics payload includes all-time, yearly and mon
   assert.match(payload.embeds[0].description, /Total Convoys Attended:\*\* 120/);
   assert.match(payload.embeds[0].fields[0].value, /2023/);
   assert.match(payload.embeds[1].title, /2026/);
-  assert.match(payload.embeds[1].fields[0].value, /January.*3/s);
+  assert.match(payload.embeds[1].fields[0].value, /January.*3 total.*1 Kings.*2 external/s);
+  assert.match(payload.embeds[1].fields[0].value, /October.*7 total.*1 Kings.*6 external/s);
   assert.match(payload.embeds[2].fields[0].value, /TruckersMP.*115/s);
   assert.match(payload.embeds[2].fields[0].value, /HaulMP.*5/s);
 });
@@ -210,4 +211,62 @@ test('history importer converts past candidates to completed attended records', 
   assert.equal(record.participation.status, 'attended');
   assert.equal(record.participation.confidence, 'verified');
   assert.equal(record.eventUrl, 'https://truckersmp.com/events/26666-example');
+});
+
+
+test('elapsed verified planned TruckersMP events automatically become completed attendance', () => {
+  const { refreshElapsedVerifiedPlans } = require('../convoy-history-import.js');
+  const planned = {
+    id: 'KCE-TRUCKERSMP-99999',
+    platform: 'truckersmp',
+    platformEventId: '99999',
+    name: 'Previously planned convoy',
+    date: '2026-10-12',
+    type: 'external',
+    organizer: 'Example VTC',
+    status: 'planned',
+    participation: { status: 'planned', confidence: 'verified' },
+    attendance: { known: false, count: null, driverIds: [] },
+    evidence: [{
+      source: 'truckersmp-api',
+      kind: 'truckersmp-vtc-attending',
+      url: 'https://truckersmp.com/events/99999',
+      note: 'Kings was listed under VTCs Attending.',
+      observedAt: null
+    }]
+  };
+
+  const result = refreshElapsedVerifiedPlans(
+    { version: 1, records: [planned] },
+    new Date('2026-10-13T00:00:00Z')
+  );
+
+  assert.equal(result.transitioned, 1);
+  assert.equal(result.history.records[0].status, 'completed');
+  assert.equal(result.history.records[0].participation.status, 'attended');
+  assert.equal(result.history.records[0].participation.confidence, 'verified');
+});
+
+test('elapsed planned events without verified TruckersMP participation evidence stay planned', () => {
+  const { refreshElapsedVerifiedPlans } = require('../convoy-history-import.js');
+  const planned = {
+    id: 'KCE-UNKNOWN-1',
+    platform: 'truckersmp',
+    platformEventId: '99998',
+    name: 'Unverified plan',
+    date: '2026-10-12',
+    type: 'external',
+    status: 'planned',
+    participation: { status: 'planned', confidence: 'verified' },
+    evidence: []
+  };
+
+  const result = refreshElapsedVerifiedPlans(
+    { version: 1, records: [planned] },
+    new Date('2026-10-13T00:00:00Z')
+  );
+
+  assert.equal(result.transitioned, 0);
+  assert.equal(result.history.records[0].status, 'planned');
+  assert.equal(result.history.records[0].participation.status, 'planned');
 });
