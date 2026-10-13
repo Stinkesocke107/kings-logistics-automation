@@ -18,6 +18,11 @@ function currentYearFrom(stats) {
   return Number.isNaN(parsed.getTime()) ? new Date().getUTCFullYear() : parsed.getUTCFullYear();
 }
 
+function currentMonthFrom(stats) {
+  const parsed = new Date(stats?.generatedAt || Date.now());
+  return Number.isNaN(parsed.getTime()) ? new Date().getUTCMonth() + 1 : parsed.getUTCMonth() + 1;
+}
+
 function platformLabel(key) {
   const map = {
     truckersmp: 'TruckersMP',
@@ -35,16 +40,19 @@ function buildPayload(stats) {
   const yearLines = years.length
     ? years.map(y => {
         const s = stats.years[y];
-        return `**${y}** — ${s.total} total · ${s.own} own · ${s.external} external`;
+        return `**${y}** — ${s.total} total · ${s.own} Kings · ${s.external} external`;
       }).join('\n')
     : 'No completed convoy history stored yet.';
 
   const currentYear = stats?.years?.[String(year)] || { total: 0, own: 0, external: 0 };
+  const currentMonth = currentMonthFrom(stats);
   const monthLines = [];
-  for (let month = 1; month <= 12; month += 1) {
+  for (let month = 1; month <= currentMonth; month += 1) {
     const key = `${year}-${String(month).padStart(2, '0')}`;
-    const value = stats?.months?.[key]?.total || 0;
-    monthLines.push(`**${monthName(month)}** — ${value}`);
+    const value = stats?.months?.[key] || { total: 0, own: 0, external: 0 };
+    monthLines.push(
+      `**${monthName(month)}** — ${value.total} total · ${value.own} Kings · ${value.external} external`
+    );
   }
 
   const platformEntries = Object.entries(stats?.platforms || {})
@@ -68,7 +76,7 @@ function buildPayload(stats) {
         description:
           'Official convoy history and participation statistics for Kings Logistics.\n\n' +
           `**Total Convoys Attended:** ${stats?.allTime?.total || 0}\n` +
-          `**Kings Hosted Convoys:** ${stats?.allTime?.own || 0}\n` +
+          `**Kings Convoys:** ${stats?.allTime?.own || 0}\n` +
           `**External Convoys Attended:** ${stats?.allTime?.external || 0}`,
         color: COLOR,
         fields: [
@@ -81,7 +89,7 @@ function buildPayload(stats) {
         title: `Convoy Statistics — ${year}`,
         description:
           `**Total:** ${currentYear.total}\n` +
-          `**Own:** ${currentYear.own}\n` +
+          `**Kings:** ${currentYear.own}\n` +
           `**External:** ${currentYear.external}`,
         color: COLOR,
         fields: [
@@ -176,7 +184,7 @@ async function main() {
   console.log(`Convoy statistics Discord message ${result.action}: ${result.messageId || 'unknown'}`);
 }
 
-module.exports = { buildPayload, publish, currentYearFrom, platformLabel };
+module.exports = { buildPayload, publish, currentYearFrom, currentMonthFrom, platformLabel };
 
 if (require.main === module) {
   main().catch(error => {
