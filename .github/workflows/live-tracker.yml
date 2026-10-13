@@ -16,7 +16,9 @@ on:
       - 'scripts/git-safe-push.sh'
 
   schedule:
-    # Every 5 minutes, shifted away from :00 / :05 / :10...
+    # GitHub Actions schedules have a 5-minute minimum. The job therefore runs
+    # the Live Tracker twice per 5-minute window, 150 seconds apart, for an
+    # effective target refresh cadence of about 2.5 minutes.
     - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
 
 permissions:
@@ -24,13 +26,14 @@ permissions:
 
 concurrency:
   group: kings-live-systems
-  cancel-in-progress: false
+  # A delayed run must never build a stale queue behind the newest live data.
+  cancel-in-progress: true
 
 jobs:
   update-live-systems:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       KINGS_API_HEALTH_NAMESPACE: 'live-systems'
 
@@ -45,7 +48,15 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Update Kings Live Tracker
+      - name: Update Kings Live Tracker — Pass 1
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: node tracker.js
+
+      - name: Wait for second Live Tracker refresh
+        run: sleep 150
+
+      - name: Update Kings Live Tracker — Pass 2
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: node tracker.js
@@ -57,8 +68,8 @@ jobs:
           node statistics.js
 
           # statistics.json stores historical/hourly data and therefore may not
-          # otherwise change on every 5-minute run. Keep updatedAt as a health
-          # heartbeat for the last successful Statistics processing run.
+          # otherwise change on every 5-minute workflow run. Keep updatedAt as a
+          # health heartbeat for the last successful Statistics processing run.
           node - <<'NODE'
           const fs = require('fs');
           const file = 'data/statistics.json';
