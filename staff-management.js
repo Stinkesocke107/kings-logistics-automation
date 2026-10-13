@@ -555,7 +555,7 @@ function buildOverviewEmbed(summary, state) {
 
   return {
     title: OVERVIEW_TITLE,
-    description: 'Read-only Staff roster monitoring based on Kings Logistics TruckersMP VTC roles.',
+    description: '🔵 LIVE / CURRENT OVERVIEW\nRead-only Staff roster monitoring based on Kings Logistics TruckersMP VTC roles.',
     color: 0x182dff,
     fields: [
       {
