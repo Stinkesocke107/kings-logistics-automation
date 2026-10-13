@@ -111,6 +111,7 @@ jobs:
         run: node management-overview.js
 
       - name: Recreate Driver Daily dashboard
+        continue-on-error: true
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -121,6 +122,7 @@ jobs:
         run: node driver-leadership-reports.js
 
       - name: Recreate Driver Weekly dashboard
+        continue-on-error: true
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -130,6 +132,7 @@ jobs:
         run: node driver-weekly-summary.js
 
       - name: Recreate Driver Monthly dashboard
+        continue-on-error: true
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -140,6 +143,7 @@ jobs:
         run: node driver-leadership-reports.js
 
       - name: Recreate HR Daily dashboard
+        continue-on-error: true
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -150,6 +154,7 @@ jobs:
         run: node hr-leadership-reports.js
 
       - name: Recreate HR Weekly dashboard
+        continue-on-error: true
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -159,6 +164,7 @@ jobs:
         run: node hr-weekly-summary-runner.js
 
       - name: Recreate HR Monthly dashboard
+        continue-on-error: true
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -169,6 +175,7 @@ jobs:
         run: node hr-leadership-reports.js
 
       - name: Recreate Staff dashboards
+        continue-on-error: true
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -181,6 +188,7 @@ jobs:
           STAFF_LEADERSHIP_REPORT_MODE=monthly node staff-leadership-reports.js
 
       - name: Recreate Event dashboards
+        continue-on-error: true
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -193,6 +201,7 @@ jobs:
           EVENT_LEADERSHIP_REPORT_MODE=monthly node event-leadership-reports.js
 
       - name: Recreate Management Weekly dashboard
+        continue-on-error: true
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -203,6 +212,7 @@ jobs:
         run: node management-weekly-overview-v3.js
 
       - name: Recreate Management Monthly dashboard
+        continue-on-error: true
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -211,6 +221,7 @@ jobs:
         run: node management-monthly-report.js
 
       - name: Persist dashboard history/state
+        if: always()
         shell: bash
         run: |
           git config user.name "Kings Logistics Automation"
