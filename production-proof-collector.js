@@ -33,6 +33,8 @@ function collectWeekly() {
     report.hrWeekly?.expectedForTargetWeek === true &&
     report.hrWeekly?.statePublished === true &&
     report.hrWeekly?.discordPostFound === true &&
+    report.hrWeekly?.verificationMode === 'historical-period-visible' &&
+    report.legacyWeeklySuppressed?.hr !== true &&
     report.hrWeekly?.messageId
   );
   if (!ready) return {
