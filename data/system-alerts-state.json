@@ -23,20 +23,6 @@
       "details": null,
       "firstAlertedAt": "2026-10-14T06:15:34.269Z"
     },
-    "discord-permission:global:manage_threads": {
-      "severity": "warning",
-      "system": "Discord Permission Audit",
-      "message": "Bot has MANAGE_THREADS in guild-level base permissions.",
-      "details": null,
-      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
-    },
-    "discord-permission:global:mention_everyone": {
-      "severity": "warning",
-      "system": "Discord Permission Audit",
-      "message": "Bot has MENTION_EVERYONE in guild-level base permissions.",
-      "details": null,
-      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
-    },
     "discord-permission:global:mute_members": {
       "severity": "warning",
       "system": "Discord Permission Audit",
