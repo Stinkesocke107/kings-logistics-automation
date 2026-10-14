@@ -1,6 +1,28 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
+  "active": {
+    "workflow-failed:staff-management.yml": {
+      "severity": "critical",
+      "system": "Staff Management",
+      "message": "Staff Management latest completed run ended with failure.",
+      "details": {
+        "runId": 38512989695,
+        "completedAt": "2026-10-14T04:45:21Z"
+      },
+      "firstAlertedAt": "2026-10-14T04:57:55.235Z"
+    },
+    "workflow-overdue:staff-management.yml": {
+      "severity": "critical",
+      "system": "Staff Management",
+      "message": "Staff Management has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-14T02:10:56Z",
+        "ageMinutes": 166,
+        "maxAgeMinutes": 150
+      },
+      "firstAlertedAt": "2026-10-14T04:57:55.235Z"
+    }
+  },
   "pending": {}
 }
