@@ -402,6 +402,7 @@ async function cleanupOld(key, keepId, botId) {
 async function main() {
   const data = loadAll();
   const state = dashboardState();
+  const originalIds = JSON.stringify(state.messageIds);
   const self = await discord('/users/@me');
   if (!self?.id) throw new Error('Cannot verify Kings Bot identity; refusing cleanup.');
 
@@ -428,8 +429,12 @@ async function main() {
     console.log(`${key}: ${result.action}; kept ${state.messageIds[key]}; removed ${removed} old dashboard messages.`);
   }
 
-  state.updatedAt = nowISO();
-  writeJson(FILES.dashboardState, state);
+  // Persist stable message IDs only when they change. Updating a heartbeat on
+  // every run causes harmless simultaneous dashboard refreshes to conflict.
+  if (JSON.stringify(state.messageIds) !== originalIds) {
+    state.updatedAt = nowISO();
+    writeJson(FILES.dashboardState, state);
+  }
   console.log('All Kings Leadership channels now use one consolidated dashboard message each.');
 }
 
