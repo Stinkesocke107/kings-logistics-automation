@@ -46,7 +46,7 @@ const LOYALTY_MAPPING_FILE =
   path.join(__dirname, "data", "driver-loyalty-roles.json");
 
 const DRIVER_AUTHORITY =
-  'discord-driver-role';
+  'discord-driver-and-trial-role-v2';
 
 function nowISO() {
   return new Date().toISOString();
@@ -1088,6 +1088,12 @@ async function getDiscordAuthoritativeDrivers(
       discordMembers
     );
 
+  const trialCandidates = roles.filter(role => normalizeRoleName(role.name) === 'kings trial').map(role => driverRoleScore(role, discordMembers)).sort((a,b) => b.score - a.score);
+  if (!trialCandidates.length || (trialCandidates.length > 1 && trialCandidates[0].score === trialCandidates[1].score)) {
+    throw new Error('Kings Trial role missing or ambiguous; refusing to sync.');
+  }
+  const trialRole = trialCandidates[0].role;
+
   const enrichment =
     buildTmpEnrichment(
       tmpMembers,
@@ -1097,16 +1103,7 @@ async function getDiscordAuthoritativeDrivers(
 
   const drivers =
     discordMembers
-      .filter(
-        member =>
-          (member.roles || [])
-            .map(String)
-            .includes(
-              String(
-                driverRole.id
-              )
-            )
-      )
+      .filter(member => (member.roles || []).map(String).some(id => id === String(driverRole.id) || id === String(trialRole.id)))
       .map(member => {
         const discordUserId =
           String(
@@ -1121,6 +1118,7 @@ async function getDiscordAuthoritativeDrivers(
 
         return {
           discordUserId,
+          membershipRole: (member.roles || []).map(String).includes(String(driverRole.id)) ? 'driver' : 'trial',
           username:
             String(
               member.nick ||
@@ -1171,6 +1169,7 @@ async function getDiscordAuthoritativeDrivers(
   return {
     drivers,
     driverRole,
+    trialRole,
     discordMembers,
     enrichment
   };
@@ -1212,6 +1211,7 @@ function compareDiscordDrivers(
   const joined = [];
   const left = [];
   const renamed = [];
+  const transitions = [];
 
   for (
     const [
@@ -1235,6 +1235,10 @@ function compareDiscordDrivers(
       oldMap.get(
         discordUserId
       );
+
+    if (oldMember.membershipRole && oldMember.membershipRole !== member.membershipRole) {
+      transitions.push({ ...member, oldMembershipRole: oldMember.membershipRole });
+    }
 
     if (
       oldMember.username !==
@@ -1271,7 +1275,8 @@ function compareDiscordDrivers(
   return {
     joined,
     left,
-    renamed
+    renamed,
+    transitions
   };
 }
 
@@ -1476,13 +1481,16 @@ function buildJoinMessage(member) {
     `<:Kings_Logistics_Logo:1545254529648431124> ` +
     `**Kings Family** ` +
     `<:Kings_Logistics_Logo:1545254529648431124> ` +
-    `as a **Driver**! ` +
+    `as a **${member.membershipRole === 'trial' ? 'Trial Driver' : 'Driver'}**! ` +
     `We’re happy to have you with us — enjoy your time in the Kings Family! ` +
     `<:pepe_king:1465424883679891586>`
   );
 }
 
 function buildLeaveMessage(member) {
+  if (member.remainsOnServer) {
+    return `<:kings_arrow:1466617263699267694> Please note that ${driverDisplay(member)} no longer holds a **Kings ${member.membershipRole === 'trial' ? 'Trial' : 'Driver'}** role. They remain on our Discord server.`;
+  }
   return (
     `<:kings_arrow:1466617263699267694> ` +
     `Please note that ${driverDisplay(member)} is no longer part of ` +
@@ -1631,6 +1639,8 @@ async function checkDriverUpdates() {
       oldMembers,
       currentMembers
     );
+  const activeGuildIds = new Set(discordAuthority.discordMembers.map(m => String(m.user.id)));
+  for (const member of changes.left) member.remainsOnServer = activeGuildIds.has(String(member.discordUserId));
 
   console.log(
     `Discord-authoritative Joined: ${changes.joined.length}`
@@ -1652,7 +1662,8 @@ async function checkDriverUpdates() {
   const hasChanges =
     changes.joined.length > 0 ||
     changes.left.length > 0 ||
-    changes.renamed.length > 0;
+    changes.renamed.length > 0 ||
+    changes.transitions.length > 0;
 
   if (
     !destructiveChangeConfirmed(
@@ -1693,6 +1704,10 @@ async function checkDriverUpdates() {
     );
   }
 
+  for (const member of changes.transitions) {
+    await sendDiscordMessage(`<:kings_arrow:1466617263699267694> ${driverDisplay(member)} has moved from **Kings ${member.oldMembershipRole === 'trial' ? 'Trial' : 'Driver'}** to **Kings ${member.membershipRole === 'trial' ? 'Trial' : 'Driver'}**.`);
+  }
+
   for (
     const member
     of changes.left
@@ -1727,6 +1742,7 @@ async function checkDriverUpdates() {
     changes.renamed.length,
     detectedAt
   );
+  appendAnonymousEvents(history, "role_transition", changes.transitions.length, detectedAt);
 
   saveHistory(
     history,
