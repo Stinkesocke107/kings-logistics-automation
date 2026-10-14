@@ -1,19 +1,19 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-14T18:34:35.818Z",
+  "updatedAt": "2026-10-14T20:14:49.791Z",
   "currentDrivers": 109,
-  "onlineNow": 1,
+  "onlineNow": 0,
   "joinedLast7Days": 1,
   "joinedLast30Days": 3,
   "leftLast7Days": 1,
   "leftLast30Days": 3,
   "activity": {
     "grace": 2,
-    "active": 7,
+    "active": 6,
     "approvedLeave": 0,
     "info7Days": 9,
-    "attention14Days": 91,
+    "attention14Days": 92,
     "hrReview30Days": 0,
     "unknown": 0
   },
@@ -32,7 +32,7 @@
         "tmpId": 4891248,
         "username": "Stinkesocke107",
         "joinDate": "2023-07-09T19:25:36.000Z",
-        "tenureDays": 1192
+        "tenureDays": 1193
       },
       {
         "tmpId": 5419500,
@@ -44,7 +44,7 @@
         "tmpId": 5318474,
         "username": "Paul Brandt",
         "joinDate": "2024-04-22T19:19:44.000Z",
-        "tenureDays": 904
+        "tenureDays": 905
       },
       {
         "tmpId": 5358213,
@@ -82,7 +82,7 @@
         "tmpId": 6345786,
         "username": "Maxi_274",
         "joinDate": "2026-08-29T19:21:08.000Z",
-        "tenureDays": 45
+        "tenureDays": 46
       },
       {
         "tmpId": 6347683,
