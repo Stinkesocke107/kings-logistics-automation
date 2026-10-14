@@ -66,10 +66,13 @@ async function main() {
   if (existing) {
     const existingSha = String(existing?.object?.sha || '');
     if (existingSha !== sha) {
-      throw new Error(
-        `Immutable final baseline ref already exists at ${existingSha || 'unknown'}, ` +
-        `not ${sha}. Refusing to rewrite it.`
-      );
+      if (!/^[0-9a-f]{40}$/i.test(existingSha)) throw new Error('Existing final baseline ref has an invalid SHA.');
+      const comparison = await request(`${API}/repos/${repo}/compare/${existingSha}...${sha}`);
+      if (!comparison.response.ok || !['ahead', 'identical'].includes(comparison.body?.status)) {
+        throw new Error(`Immutable final baseline ref at ${existingSha} is not an ancestor of current verified commit ${sha}; refusing to overwrite or accept divergent history.`);
+      }
+      console.log(`Immutable final baseline preserved at ${existingSha}; current verified commit ${sha} descends from it. No rewrite required.`);
+      return;
     }
     console.log(`Final baseline ref already exists at verified commit ${sha}; no change required.`);
     return;
