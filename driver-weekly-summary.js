@@ -442,6 +442,12 @@ async function main() {
     userAgent: 'Kings Logistics Driver Weekly Summary/2.0'
   });
 
+  if (result.action === 'suppressed') {
+    console.log('Legacy Driver Weekly publication intentionally suppressed; no published state recorded.');
+    return;
+  }
+  if (!result.messageId) throw new Error('Driver Weekly Discord message ID missing; refusing to record publication.');
+
   const record = {
     key: period.key,
     periodStart: period.start.toISOString(),
