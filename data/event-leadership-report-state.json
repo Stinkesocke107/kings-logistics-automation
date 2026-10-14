@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-10-13T23:15:54.182Z",
+  "updatedAt": "2026-10-14T22:16:10.522Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -138,6 +138,64 @@
       "duplicateEventId": false,
       "archived": false,
       "eventUnix": 1807365600
+    },
+    {
+      "threadId": "1559823814534242364",
+      "name": "20. October - Pollito Pio VTC",
+      "eventId": "37627",
+      "status": "Scheduled",
+      "eventDate": "2026-10-20",
+      "meetupTime": "00:00 UTC",
+      "responsibleStaff": "<@935991067969470485>",
+      "kingsSlot": "Confirmed — Slot ITCC & LKW",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1792454400
+    },
+    {
+      "threadId": "1559824475870986281",
+      "name": "24. March - Arab Transport VTC",
+      "eventId": "38069",
+      "status": "Scheduled",
+      "eventDate": "2027-03-24",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@935991067969470485>",
+      "kingsSlot": "Confirmed — Slot     LKW (Partners)",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1805907600
+    },
+    {
+      "threadId": "1559825103636668446",
+      "name": "30. October - Mileage Riot",
+      "eventId": "37926",
+      "status": "Scheduled",
+      "eventDate": "2026-10-30",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@935991067969470485>",
+      "kingsSlot": "Confirmed — Slot  Taylor Construction Group",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1793379600
+    },
+    {
+      "threadId": "1559917674442658012",
+      "name": "9. November - THE ORIGINAL",
+      "eventId": "33246",
+      "status": "Needs Information",
+      "eventDate": "2026-11-09",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@1299456550523506743>",
+      "kingsSlot": null,
+      "missing": [
+        "kingsSlotConfirmed"
+      ],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1794243600
     }
   ],
   "changeLog": [
@@ -185,10 +243,93 @@
         "archived": true,
         "eventUnix": null
       }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-14T22:16:10.276Z",
+      "threadId": "1559823814534242364",
+      "name": "20. October - Pollito Pio VTC",
+      "current": {
+        "threadId": "1559823814534242364",
+        "name": "20. October - Pollito Pio VTC",
+        "eventId": "37627",
+        "status": "Scheduled",
+        "eventDate": "2026-10-20",
+        "meetupTime": "00:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "Confirmed — Slot ITCC & LKW",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1792454400
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-14T22:16:10.276Z",
+      "threadId": "1559824475870986281",
+      "name": "24. March - Arab Transport VTC",
+      "current": {
+        "threadId": "1559824475870986281",
+        "name": "24. March - Arab Transport VTC",
+        "eventId": "38069",
+        "status": "Scheduled",
+        "eventDate": "2027-03-24",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "Confirmed — Slot     LKW (Partners)",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1805907600
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-14T22:16:10.276Z",
+      "threadId": "1559825103636668446",
+      "name": "30. October - Mileage Riot",
+      "current": {
+        "threadId": "1559825103636668446",
+        "name": "30. October - Mileage Riot",
+        "eventId": "37926",
+        "status": "Scheduled",
+        "eventDate": "2026-10-30",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "Confirmed — Slot  Taylor Construction Group",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1793379600
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-14T22:16:10.276Z",
+      "threadId": "1559917674442658012",
+      "name": "9. November - THE ORIGINAL",
+      "current": {
+        "threadId": "1559917674442658012",
+        "name": "9. November - THE ORIGINAL",
+        "eventId": "33246",
+        "status": "Needs Information",
+        "eventDate": "2026-11-09",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@1299456550523506743>",
+        "kingsSlot": null,
+        "missing": [
+          "kingsSlotConfirmed"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1794243600
+      }
     }
   ],
   "publishedDailyKeys": [
-    "2026-10-13"
+    "2026-10-13",
+    "2026-10-14"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05"
