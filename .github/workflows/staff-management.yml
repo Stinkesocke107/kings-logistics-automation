@@ -40,6 +40,7 @@ jobs:
         with:
           node-version: "24"
 
+      # Manual recovery trigger: post the pending public Staff departure after permissions were granted.
       - name: Determine public Staff Updates mode
         id: staff_updates_mode
         shell: bash
