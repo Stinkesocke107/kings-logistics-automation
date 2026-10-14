@@ -1,35 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "discord-permission:global:manage_events": {
-      "severity": "warning",
-      "system": "Discord Permission Audit",
-      "message": "Bot has MANAGE_EVENTS in guild-level base permissions.",
-      "details": null,
-      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
-    },
-    "discord-permission:global:manage_messages": {
-      "severity": "warning",
-      "system": "Discord Permission Audit",
-      "message": "Bot has MANAGE_MESSAGES in guild-level base permissions.",
-      "details": null,
-      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
-    },
-    "discord-permission:global:manage_nicknames": {
-      "severity": "warning",
-      "system": "Discord Permission Audit",
-      "message": "Bot has MANAGE_NICKNAMES in guild-level base permissions.",
-      "details": null,
-      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
-    },
-    "discord-permission:global:mute_members": {
-      "severity": "warning",
-      "system": "Discord Permission Audit",
-      "message": "Bot has MUTE_MEMBERS in guild-level base permissions.",
-      "details": null,
-      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
-    }
-  },
+  "active": {},
   "pending": {}
 }
