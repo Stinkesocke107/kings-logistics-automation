@@ -141,64 +141,69 @@
       "order": 26
     },
     {
+      "id": 272717,
+      "name": "Driver Operations Team Lead",
+      "order": 27
+    },
+    {
       "id": 262018,
       "name": "Add-On Team Lead",
-      "order": 27
+      "order": 28
     },
     {
       "id": 258224,
       "name": "Staff",
-      "order": 28
+      "order": 29
     },
     {
       "id": 259117,
       "name": "HR Recruiter",
-      "order": 29
+      "order": 30
     },
     {
       "id": 233120,
       "name": "Community Support Moderator",
-      "order": 30
+      "order": 31
     },
     {
       "id": 233116,
       "name": "Event Planner",
-      "order": 31
+      "order": 32
     },
     {
       "id": 233115,
       "name": "Event Coordinator",
-      "order": 32
+      "order": 33
     },
     {
       "id": 233112,
       "name": "Media Specialist",
-      "order": 33
+      "order": 34
     },
     {
       "id": 233113,
       "name": "Designer",
-      "order": 34
+      "order": 35
     },
     {
       "id": 233111,
       "name": "Developer",
-      "order": 35
-    },
-    {
-      "id": 250464,
-      "name": "Add-On Specialist",
       "order": 36
-    },
-    {
-      "id": 272717,
-      "name": "Driver Operations Team Lead",
-      "order": 40
     },
     {
       "id": 272718,
       "name": "Driver Operations Specialist",
-      "order": 41
+      "order": 37
+    },
+    {
+      "id": 250464,
+      "name": "Add-On Specialist",
+      "order": 38
+    },
+    {
+      "id": 275001,
+      "name": "Official Streamer",
+      "order": 39
     }
   ],
   "roleCounts": {
