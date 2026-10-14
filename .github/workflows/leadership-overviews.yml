@@ -62,4 +62,10 @@ jobs:
           git commit -m "Update consolidated Leadership dashboard state"
           git restore --worktree .
           rm -f data/api-health/truckersmp-vtc-members.json data/api-health/truckersmp-vtc-roles.json
-          bash scripts/git-safe-push.sh main
+          if ! bash scripts/git-safe-push.sh main; then
+            echo "::warning::State changed concurrently. Keeping the newer remote state and treating this persistence conflict as non-fatal."
+            git rebase --abort >/dev/null 2>&1 || true
+            git fetch origin main >/dev/null 2>&1 || true
+            git reset --hard origin/main >/dev/null 2>&1 || true
+            exit 0
+          fi
