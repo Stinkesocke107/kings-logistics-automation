@@ -505,6 +505,11 @@ async function checkWorkflow(config, issues) {
 
   const activityAt = latestSuccess?.updated_at || latestSuccess?.run_started_at || latestSuccess?.created_at;
   const age = ageMinutes(activityAt);
+  const cancelledWithFreshSuccess = Boolean(
+    latestCompleted?.conclusion === 'cancelled' &&
+    Number.isFinite(age) &&
+    age <= config.maxAgeMinutes
+  );
   let ok = true;
   const reasons = [];
 
@@ -527,6 +532,8 @@ async function checkWorkflow(config, issues) {
   if (latestCompleted && latestCompleted.conclusion !== 'success') {
     if (newerRecoveryActive) {
       reasons.push('recovery-in-progress');
+    } else if (cancelledWithFreshSuccess) {
+      reasons.push('cancelled-but-fresh-success-exists');
     } else if (benignPreExecutionCancellation) {
       reasons.push('superseded-before-execution');
     } else {
