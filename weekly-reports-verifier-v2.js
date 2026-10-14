@@ -193,7 +193,7 @@ async function main() {
     management: '.github/workflows/management-weekly-overview.yml'
   };
   const suppressed = Object.fromEntries(Object.entries(legacyWorkflows).map(([name, file]) => [
-    name, /LEADERSHIP_CONSOLIDATED_ONLY:\\s*['"]true['"]/.test(
+    name, /LEADERSHIP_CONSOLIDATED_ONLY:\s*['"]true['"]/.test(
       fs.readFileSync(path.join(__dirname, file), 'utf8'))
   ]));
   if (!suppressed.driver) {
