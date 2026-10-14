@@ -538,7 +538,9 @@ function saveDriverUpdatesSummary(currentMembers, tmpMembers, driverRole) {
   const core = {
     version: 1,
     authority: DRIVER_AUTHORITY,
-    currentDrivers: currentMembers.length,
+    currentDrivers: currentMembers.length, // compatibility: total Driver + Trial memberships
+    currentFullDrivers: currentMembers.filter((member) => member.membershipRole === 'driver').length,
+    currentTrialDrivers: currentMembers.filter((member) => member.membershipRole === 'trial').length,
     discordDriverRoleId: String(driverRole?.id || ''),
     discordDriverRoleName: String(driverRole?.name || ''),
     truckersmpAdvisoryDrivers: tmpMembers.length,
@@ -551,6 +553,8 @@ function saveDriverUpdatesSummary(currentMembers, tmpMembers, driverRole) {
         version: previous.version,
         authority: previous.authority,
         currentDrivers: previous.currentDrivers,
+        currentFullDrivers: previous.currentFullDrivers,
+        currentTrialDrivers: previous.currentTrialDrivers,
         discordDriverRoleId: previous.discordDriverRoleId,
         discordDriverRoleName: previous.discordDriverRoleName,
         truckersmpAdvisoryDrivers: previous.truckersmpAdvisoryDrivers,
@@ -565,7 +569,7 @@ function saveDriverUpdatesSummary(currentMembers, tmpMembers, driverRole) {
   writeJson(SUMMARY_FILE, {
     ...core,
     updatedAt: nowISO(),
-    note: 'Discord Driver role is authoritative for Driver Updates. TruckersMP roster is advisory/cross-check only.'
+    note: 'Discord Kings Driver and Kings Trial roles are authoritative. currentDrivers is the combined total; TruckersMP roster is advisory only.'
   });
 
   console.log(
