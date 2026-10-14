@@ -115,7 +115,9 @@ async function waitForFreshSuccess(repo, token, file, notBeforeMs, waitMs, pollM
     if (freshSuccess) return freshSuccess;
 
     const freshFailure = runs.find((run) => {
-      if (run.status !== 'completed' || run.conclusion === 'success') return false;
+      // Cancelled runs are often superseded by newer scheduled runs.
+      // Do not fail recovery until a genuine failed run or the wait deadline.
+      if (run.status !== 'completed' || !['failure', 'timed_out', 'action_required'].includes(run.conclusion)) return false;
       const created = Date.parse(run.created_at || run.run_started_at || '');
       return Number.isFinite(created) && created >= notBeforeMs - 10_000;
     });
