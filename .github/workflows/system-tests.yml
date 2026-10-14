@@ -25,5 +25,8 @@ jobs:
         run: |
           for file in *.js tests/*.cjs; do node --check "$file"; done
           bash -n scripts/git-safe-push.sh
+      - name: Verify Driver and Integrity authority agreement
+        run: |
+          node -e "const fs=require('fs');const d=fs.readFileSync('driver-updates.js','utf8');const i=fs.readFileSync('data-integrity.js','utf8');const a=d.match(/const DRIVER_AUTHORITY\\s*=\\s*'([^']+)'/);const b=i.match(/const authorityOk = data\\.driverUpdates\\?\\.authority === '([^']+)'/);if(!a||!b||a[1]!==b[1]){console.error('Driver authority mismatch between publisher and monitoring');process.exit(1)}"
       - name: Run isolated regression and integration tests
         run: node --test tests/*.test.cjs
