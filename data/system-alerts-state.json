@@ -2,52 +2,48 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "integrity-driver-updates-authority": {
-      "severity": "critical",
-      "system": "Driver Updates",
-      "message": "Driver Updates summary does not declare the Discord Driver role as its authority.",
-      "details": {
-        "authority": "discord-driver-and-trial-role-v2"
-      },
-      "firstAlertedAt": "2026-10-14T05:57:13.633Z"
-    }
-  },
-  "pending": {
     "discord-permission:global:manage_events": {
-      "count": 1,
-      "firstSeenAt": "2026-10-14T05:57:13.633Z",
+      "severity": "warning",
       "system": "Discord Permission Audit",
-      "message": "Bot has MANAGE_EVENTS in guild-level base permissions."
+      "message": "Bot has MANAGE_EVENTS in guild-level base permissions.",
+      "details": null,
+      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
     },
     "discord-permission:global:manage_messages": {
-      "count": 1,
-      "firstSeenAt": "2026-10-14T05:57:13.633Z",
+      "severity": "warning",
       "system": "Discord Permission Audit",
-      "message": "Bot has MANAGE_MESSAGES in guild-level base permissions."
+      "message": "Bot has MANAGE_MESSAGES in guild-level base permissions.",
+      "details": null,
+      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
     },
     "discord-permission:global:manage_nicknames": {
-      "count": 1,
-      "firstSeenAt": "2026-10-14T05:57:13.633Z",
+      "severity": "warning",
       "system": "Discord Permission Audit",
-      "message": "Bot has MANAGE_NICKNAMES in guild-level base permissions."
+      "message": "Bot has MANAGE_NICKNAMES in guild-level base permissions.",
+      "details": null,
+      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
     },
     "discord-permission:global:manage_threads": {
-      "count": 1,
-      "firstSeenAt": "2026-10-14T05:57:13.633Z",
+      "severity": "warning",
       "system": "Discord Permission Audit",
-      "message": "Bot has MANAGE_THREADS in guild-level base permissions."
+      "message": "Bot has MANAGE_THREADS in guild-level base permissions.",
+      "details": null,
+      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
     },
     "discord-permission:global:mention_everyone": {
-      "count": 1,
-      "firstSeenAt": "2026-10-14T05:57:13.633Z",
+      "severity": "warning",
       "system": "Discord Permission Audit",
-      "message": "Bot has MENTION_EVERYONE in guild-level base permissions."
+      "message": "Bot has MENTION_EVERYONE in guild-level base permissions.",
+      "details": null,
+      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
     },
     "discord-permission:global:mute_members": {
-      "count": 1,
-      "firstSeenAt": "2026-10-14T05:57:13.633Z",
+      "severity": "warning",
       "system": "Discord Permission Audit",
-      "message": "Bot has MUTE_MEMBERS in guild-level base permissions."
+      "message": "Bot has MUTE_MEMBERS in guild-level base permissions.",
+      "details": null,
+      "firstAlertedAt": "2026-10-14T06:15:34.269Z"
     }
-  }
+  },
+  "pending": {}
 }
