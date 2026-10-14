@@ -22,16 +22,6 @@
       },
       "firstAlertedAt": "2026-10-14T05:33:41.560Z"
     },
-    "workflow-failed:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership latest completed run ended with failure.",
-      "details": {
-        "runId": 38517154417,
-        "completedAt": "2026-10-14T05:32:28Z"
-      },
-      "firstAlertedAt": "2026-10-14T05:33:41.560Z"
-    },
     "workflow-failed:live-tracker.yml": {
       "severity": "critical",
       "system": "Live Tracker / Statistics",
@@ -41,14 +31,17 @@
         "completedAt": "2026-10-14T05:31:55Z"
       },
       "firstAlertedAt": "2026-10-14T05:33:41.560Z"
+    },
+    "workflow-failed:leadership-overviews.yml": {
+      "severity": "warning",
+      "system": "Leadership Overviews",
+      "message": "Leadership Overviews latest completed run ended with failure.",
+      "details": {
+        "runId": 38517171961,
+        "completedAt": "2026-10-14T05:32:47Z"
+      },
+      "firstAlertedAt": "2026-10-14T05:36:10.934Z"
     }
   },
-  "pending": {
-    "workflow-failed:leadership-overviews.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-14T05:33:41.560Z",
-      "system": "Leadership Overviews",
-      "message": "Leadership Overviews latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
