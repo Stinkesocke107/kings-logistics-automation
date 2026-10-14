@@ -184,16 +184,33 @@ async function main() {
   const managementEvidence = dashboardEvidence(managementEntry, managementPost, managementResolved, managementState,
     m => (m.embeds || []).some(e => /Kings (?:Weekly Management Overview|Management Weekly Review)/.test(String(e.title || ''))));
 
-  if (!driverEntry) issues.push(`Driver Weekly state missing ${key}.`);
-  if (!driverEvidence.found) issues.push(`Driver Weekly dashboard publication could not be verified for ${key}.`);
-  if (!managementEntry) issues.push(`Management Weekly state missing ${key}.`);
-  if (!managementEvidence.found) issues.push(`Management Weekly dashboard publication could not be verified for ${key}.`);
-
-  if (coverageComplete) {
-    if (!hrEntry) issues.push(`HR Weekly state missing ${key} despite complete coverage.`);
-    if (!hrEvidence.found) issues.push(`HR Weekly dashboard publication could not be verified for ${key} despite complete coverage.`);
-  } else if (hrEntry || hrPost) {
-    issues.push(`HR Weekly ${key} should have been deferred because coverage was partial.`);
+  // The three legacy weekly producer workflows are intentionally configured
+  // to suppress individual posts when a consolidated Leadership dashboard owns them.
+  // Historical state may predate the suppression guard and cannot prove Discord delivery.
+  const legacyWorkflows = {
+    driver: '.github/workflows/driver-weekly-summary.yml',
+    hr: '.github/workflows/hr-weekly-summary.yml',
+    management: '.github/workflows/management-weekly-overview.yml'
+  };
+  const suppressed = Object.fromEntries(Object.entries(legacyWorkflows).map(([name, file]) => [
+    name, /LEADERSHIP_CONSOLIDATED_ONLY:\\s*['"]true['"]/.test(
+      fs.readFileSync(path.join(__dirname, file), 'utf8'))
+  ]));
+  if (!suppressed.driver) {
+    if (!driverEntry) issues.push(`Driver Weekly state missing ${key}.`);
+    if (!driverEvidence.found) issues.push(`Driver Weekly dashboard publication could not be verified for ${key}.`);
+  }
+  if (!suppressed.management) {
+    if (!managementEntry) issues.push(`Management Weekly state missing ${key}.`);
+    if (!managementEvidence.found) issues.push(`Management Weekly dashboard publication could not be verified for ${key}.`);
+  }
+  if (!suppressed.hr) {
+    if (coverageComplete) {
+      if (!hrEntry) issues.push(`HR Weekly state missing ${key} despite complete coverage.`);
+      if (!hrEvidence.found) issues.push(`HR Weekly dashboard publication could not be verified for ${key} despite complete coverage.`);
+    } else if (hrEntry || hrPost) {
+      issues.push(`HR Weekly ${key} should have been deferred because coverage was partial.`);
+    }
   }
 
   if (!staff || !Number.isFinite(Number(staff.currentStaff))) issues.push('Staff Management summary missing or invalid.');
@@ -218,6 +235,8 @@ async function main() {
       nextWeekStart: period.end.toISOString(),
       completeCoverageFromNextWeek: nextWeekCoverageEligible
     },
+    legacyWeeklySuppressed: suppressed,
+    legacyPublicationEvidence: 'Historical records made by suppressed publishers are not accepted as proof of a Discord post.',
     channelResolution: {
       driver: channelSummary(driverResolved),
       hr: channelSummary(hrResolved),
