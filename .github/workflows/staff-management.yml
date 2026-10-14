@@ -11,8 +11,8 @@ on:
       - '.github/workflows/staff-management.yml'
 
   schedule:
-    # Native hourly run; Kings Central Scheduler provides a 65-minute fallback.
-    - cron: "43 * * * *"
+    # Check Staff changes every 10 minutes; Kings Central Scheduler provides a 20-minute fallback.
+    - cron: "3-53/10 * * * *"
 
 permissions:
   contents: write
@@ -44,11 +44,9 @@ jobs:
         id: staff_updates_mode
         shell: bash
         run: |
-          if [ "$GITHUB_EVENT_NAME" = "schedule" ] || [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
-            MODE="live"
-          else
-            MODE="dry-run"
-          fi
+          # Every production trigger for this workflow is a real synchronization.
+          # The publisher itself remains idempotent and suppresses duplicates.
+          MODE="live"
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
           echo "Public Staff Updates mode: $MODE"
 
