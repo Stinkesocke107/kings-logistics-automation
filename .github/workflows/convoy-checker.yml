@@ -1,4 +1,5 @@
 name: Kings Convoy Checker
+# Core Event health excludes transient Driver reminder delivery failures.
 run-name: Kings Convoy Checker (${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'schedule' && 'live' || 'dry-run') }})
 
 on:
