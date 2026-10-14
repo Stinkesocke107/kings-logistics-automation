@@ -453,8 +453,10 @@ async function checkWorkflow(config, issues) {
   const allRuns = Array.isArray(data?.workflow_runs) ? data.workflow_runs : [];
   // A validation-only convoy run cannot establish production health.
   const runs = config.file === 'convoy-checker.yml'
-    ? allRuns.filter((run) => run.event === 'schedule' ||
-        (run.event === 'workflow_dispatch' && /\blive\b/i.test(run.display_title || '')))
+    ? allRuns.filter((run) =>
+        run.event === 'schedule' ||
+        ((run.event === 'workflow_dispatch' || run.event === 'push') && /\blive\b/i.test(run.display_title || ''))
+      )
     : allRuns;
 
   if (!runs.length) {
