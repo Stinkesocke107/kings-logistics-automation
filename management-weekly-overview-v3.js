@@ -324,6 +324,11 @@ async function createOverview() {
     messageId: state.messageId,
     createWithoutDiscovery: true
   });
+  if (result.action === 'suppressed') {
+    console.log('Legacy Management Weekly publication intentionally suppressed; no published state recorded.');
+    return;
+  }
+  if (!result.messageId) throw new Error('Management Weekly Discord message ID missing; refusing to record publication.');
   state.messageId = result.messageId || state.messageId;
 
   const record = {
