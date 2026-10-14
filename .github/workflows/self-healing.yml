@@ -100,7 +100,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           KINGS_SELF_HEAL_STATE_FILE: '/tmp/kings-self-healing-state.json'
           KINGS_SELF_HEAL_REPORT_FILE: '/tmp/kings-self-healing.json'
-          KINGS_SELF_HEAL_WAIT_MS: '90000'
+          KINGS_SELF_HEAL_WAIT_MS: '150000'
           KINGS_SELF_HEAL_POLL_MS: '5000'
         run: node self-healing.js
 
