@@ -68,4 +68,10 @@ jobs:
 
           git add data/hr-probation.json
           git commit -m "Update Kings HR Probation state"
-          bash scripts/git-safe-push.sh main
+          if ! bash scripts/git-safe-push.sh main; then
+            echo "::warning::State changed concurrently. Keeping the newer remote state and treating this persistence conflict as non-fatal."
+            git rebase --abort >/dev/null 2>&1 || true
+            git fetch origin main >/dev/null 2>&1 || true
+            git reset --hard origin/main >/dev/null 2>&1 || true
+            exit 0
+          fi
