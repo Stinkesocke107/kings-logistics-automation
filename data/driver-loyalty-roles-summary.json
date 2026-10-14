@@ -1,7 +1,7 @@
 {
   "version": 2,
   "mode": "live",
-  "updatedAt": "2026-10-13T17:01:48.451Z",
+  "updatedAt": "2026-10-14T14:35:19.506Z",
   "currentDrivers": 108,
   "matchedCurrentDrivers": 26,
   "newMappings": 0,
@@ -488,7 +488,7 @@
     "privateOrMissingDiscordLinksSkipped": true,
     "usersNotInKingsServerSkipped": true,
     "persistedDiscordIdUsedAfterFirstVerifiedMatch": true,
-    "roleWritesEnabled": true,
-    "roleWriteBlockReason": null
+    "roleWritesEnabled": false,
+    "roleWriteBlockReason": "missing-manage-roles"
   }
 }
