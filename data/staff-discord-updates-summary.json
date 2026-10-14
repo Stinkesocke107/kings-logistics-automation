@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "live",
-  "updatedAt": "2026-10-14T10:15:29.262Z",
+  "updatedAt": "2026-10-14T10:40:09.589Z",
   "currentStaff": 11,
   "truckersmpCurrentStaff": 10,
   "crossConfirmedStaff": 5,
@@ -76,10 +76,10 @@
       "reason": "no-discord-match"
     }
   ],
-  "joined": 1,
+  "joined": 0,
   "promotions": 0,
   "left": 0,
-  "published": 1,
+  "published": 0,
   "duplicatesSuppressed": 0,
   "dryRunPosts": 0,
   "baselineCreated": false,
