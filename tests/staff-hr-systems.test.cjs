@@ -70,7 +70,9 @@ test('Probation baseline stores only keyed memberships and sends no historical r
   assert.match(state.notified[0].key, /^[a-f0-9]{64}$/);
   const persisted = s.files.get('data/probation-state.json');
   assert.equal(persisted.includes('Baseline Driver'), false);
-  assert.equal(persisted.includes('123'), false);
+  assert.equal(Object.hasOwn(state.notified[0], 'tmpId'), false);
+  assert.equal(Object.hasOwn(state.notified[0], 'username'), false);
+  assert.deepEqual(Object.keys(state.notified[0]).sort(), ['key', 'notifiedAt']);
   assert.equal(s.calls.length, 1);
 });
 
