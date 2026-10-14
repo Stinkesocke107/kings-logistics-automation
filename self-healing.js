@@ -340,6 +340,13 @@ async function executeRepair(repo, token, config, waitMs, pollMs) {
   }
 
   const waited = await waitForResult(repo, token, config.workflow, notBeforeMs, waitMs, pollMs);
+  if (waited.status === 'recovered' && config.id === 'live-tracker') {
+    const latest = await githubJson(repo, token, '/commits?path=data/live-tracker-snapshot.json&per_page=1');
+    const changed = Date.parse(latest?.[0]?.commit?.committer?.date || '');
+    if (!Number.isFinite(changed) || changed < notBeforeMs - 15000) {
+      waited.status = 'verification-failed';
+    }
+  }
   return {
     id: config.id,
     label: config.label,
