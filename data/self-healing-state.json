@@ -4,35 +4,14 @@
   "updatedAt": "2026-10-13T11:38:25.642Z",
   "repairs": {
     "live-tracker": {
-      "attempts": [
-        {
-          "at": "2026-10-13T11:38:05.603Z",
-          "outcome": "pending-timeout",
-          "action": "dispatched",
-          "runId": null,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        }
-      ],
-      "lastAttemptAt": "2026-10-13T11:38:05.603Z",
+      "attempts": [],
+      "lastAttemptAt": null,
       "lastSuccessAt": "2026-10-12T08:04:22.805Z",
       "lastFailureAt": "2026-10-13T11:38:05.603Z"
     },
     "driver-updates": {
-      "attempts": [
-        {
-          "at": "2026-10-13T11:38:25.642Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 38391573417,
-          "issueIds": [
-            "workflow-overdue:driver-updates.yml"
-          ]
-        }
-      ],
-      "lastAttemptAt": "2026-10-13T11:38:25.642Z",
+      "attempts": [],
+      "lastAttemptAt": null,
       "lastSuccessAt": "2026-10-13T11:38:25.642Z",
       "lastFailureAt": null
     },
