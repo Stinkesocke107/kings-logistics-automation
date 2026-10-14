@@ -2,27 +2,53 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-failed:staff-management.yml": {
+    "workflow-failed:convoy-checker.yml": {
       "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management latest completed run ended with failure.",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System latest completed run ended with failure.",
       "details": {
-        "runId": 38512989695,
-        "completedAt": "2026-10-14T04:45:21Z"
+        "runId": 38517148164,
+        "completedAt": "2026-10-14T05:33:21Z"
       },
-      "firstAlertedAt": "2026-10-14T04:57:55.235Z"
+      "firstAlertedAt": "2026-10-14T05:33:41.560Z"
     },
-    "workflow-overdue:staff-management.yml": {
+    "workflow-failed:driver-management.yml": {
       "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management has not run within the expected time window.",
+      "system": "Driver Management",
+      "message": "Driver Management latest completed run ended with cancelled.",
       "details": {
-        "latestActivityAt": "2026-10-14T02:10:56Z",
-        "ageMinutes": 166,
-        "maxAgeMinutes": 150
+        "runId": 38517160807,
+        "completedAt": "2026-10-14T05:32:15Z"
       },
-      "firstAlertedAt": "2026-10-14T04:57:55.235Z"
+      "firstAlertedAt": "2026-10-14T05:33:41.560Z"
+    },
+    "workflow-failed:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership latest completed run ended with failure.",
+      "details": {
+        "runId": 38517154417,
+        "completedAt": "2026-10-14T05:32:28Z"
+      },
+      "firstAlertedAt": "2026-10-14T05:33:41.560Z"
+    },
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with cancelled.",
+      "details": {
+        "runId": 38517130823,
+        "completedAt": "2026-10-14T05:31:55Z"
+      },
+      "firstAlertedAt": "2026-10-14T05:33:41.560Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:leadership-overviews.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-14T05:33:41.560Z",
+      "system": "Leadership Overviews",
+      "message": "Leadership Overviews latest completed run ended with failure."
+    }
+  }
 }
