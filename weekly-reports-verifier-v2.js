@@ -166,14 +166,32 @@ async function main() {
   const managementEntry = stateEntry(managementState, key);
   const issues = [];
 
+  // Weekly dashboards intentionally replace the previous week's message.
+  // Historical state proves a prior publication was recorded; the latest
+  // on-screen dashboard cannot prove which older period it once displayed.
+  function dashboardEvidence(entry, post, resolved, state, currentPredicate) {
+    if (post) return { found: true, mode: 'historical-period-visible', messageId: post.id };
+    if (!entry) return { found: false, mode: 'missing-state', messageId: null };
+    const latest = (state?.publishedWeeks || []).at(-1);
+    if (!latest || latest.key === key) return { found: false, mode: 'missing-current-message', messageId: null };
+    const active = resolved.messages.find(m => m.author?.id === bot.id && currentPredicate(m));
+    return { found: Boolean(active), mode: active ? 'latest-dashboard-visible-historical-state-recorded' : 'missing-current-message', messageId: active?.id || null };
+  }
+  const driverEvidence = dashboardEvidence(driverEntry, driverPost, driverResolved, driverState,
+    m => /Kings Driver Leadership (?:Weekly Summary|— Weekly Review)/.test(String(m.content || '')));
+  const hrEvidence = dashboardEvidence(hrEntry, hrPost, hrResolved, hrState,
+    m => /Kings HR (?:Weekly Summary|Leadership — Weekly Review)/.test(String(m.content || '')) && !String(m.content || '').includes('TEST'));
+  const managementEvidence = dashboardEvidence(managementEntry, managementPost, managementResolved, managementState,
+    m => (m.embeds || []).some(e => /Kings (?:Weekly Management Overview|Management Weekly Review)/.test(String(e.title || ''))));
+
   if (!driverEntry) issues.push(`Driver Weekly state missing ${key}.`);
-  if (!driverPost) issues.push(`Driver Weekly Discord post missing ${key}.`);
+  if (!driverEvidence.found) issues.push(`Driver Weekly dashboard publication could not be verified for ${key}.`);
   if (!managementEntry) issues.push(`Management Weekly state missing ${key}.`);
-  if (!managementPost) issues.push(`Management Weekly Discord post missing ${key}.`);
+  if (!managementEvidence.found) issues.push(`Management Weekly dashboard publication could not be verified for ${key}.`);
 
   if (coverageComplete) {
     if (!hrEntry) issues.push(`HR Weekly state missing ${key} despite complete coverage.`);
-    if (!hrPost) issues.push(`HR Weekly Discord post missing ${key} despite complete coverage.`);
+    if (!hrEvidence.found) issues.push(`HR Weekly dashboard publication could not be verified for ${key} despite complete coverage.`);
   } else if (hrEntry || hrPost) {
     issues.push(`HR Weekly ${key} should have been deferred because coverage was partial.`);
   }
@@ -205,14 +223,14 @@ async function main() {
       hr: channelSummary(hrResolved),
       management: channelSummary(managementResolved)
     },
-    driverWeekly: { statePublished: Boolean(driverEntry), discordPostFound: Boolean(driverPost), messageId: driverPost?.id || null, state: driverEntry },
+    driverWeekly: { statePublished: Boolean(driverEntry), discordPostFound: driverEvidence.found, verificationMode: driverEvidence.mode, messageId: driverEvidence.messageId, state: driverEntry },
     hrWeekly: {
       expectedForTargetWeek: coverageComplete,
       expectedDeferredReason: coverageComplete ? null : 'Driver Management did not cover the complete reporting week.',
-      statePublished: Boolean(hrEntry), discordPostFound: Boolean(hrPost), messageId: hrPost?.id || null, state: hrEntry
+      statePublished: Boolean(hrEntry), discordPostFound: hrEvidence.found, verificationMode: hrEvidence.mode, messageId: hrEvidence.messageId, state: hrEntry
     },
     managementWeekly: {
-      statePublished: Boolean(managementEntry), discordPostFound: Boolean(managementPost), messageId: managementPost?.id || null,
+      statePublished: Boolean(managementEntry), discordPostFound: managementEvidence.found, verificationMode: managementEvidence.mode, messageId: managementEvidence.messageId,
       state: managementEntry, staffSummaryAvailable: Boolean(staff), currentStaff: Number(staff?.currentStaff || 0)
     },
     issues,
@@ -222,12 +240,12 @@ async function main() {
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
   fs.writeFileSync(OUTPUT, `${JSON.stringify(report, null, 2)}\n`);
   console.log(`Weekly Reports Verification — ${key}`);
-  console.log(`Driver: state=${Boolean(driverEntry)} discord=${Boolean(driverPost)} channel=${driverResolved.channel.id}`);
+  console.log(`Driver: state=${Boolean(driverEntry)} discord=${driverEvidence.found} channel=${driverResolved.channel.id}`);
   console.log(
-    `HR: expected=${coverageComplete} state=${Boolean(hrEntry)} discord=${Boolean(hrPost)} ` +
+    `HR: expected=${coverageComplete} state=${Boolean(hrEntry)} discord=${hrEvidence.found} ` +
     `channel=${hrResolved.channel.id} resolution=${hrResolved.method}`
   );
-  console.log(`Management: state=${Boolean(managementEntry)} discord=${Boolean(managementPost)} staff=${Number(staff?.currentStaff || 0)}`);
+  console.log(`Management: state=${Boolean(managementEntry)} discord=${managementEvidence.found} staff=${Number(staff?.currentStaff || 0)}`);
   console.log(`Next week full-coverage eligible: ${nextWeekCoverageEligible}`);
   console.log(`Issues: ${issues.length}`);
   for (const issue of issues) console.error(`- ${issue}`);
