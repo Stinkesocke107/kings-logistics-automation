@@ -1,3 +1,4 @@
+# Fresh permission verification after guild role changes.
 # Repository security, Discord permission audits, API resilience, safe scheduler recovery, and the live Discord monitor are part of every Kings System Monitoring run.
 name: Kings System Monitoring
 
