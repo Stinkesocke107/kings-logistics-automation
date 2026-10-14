@@ -452,7 +452,12 @@ async function createWeeklySummary() {
   const previous = summaryState.publishedWeeks
     .filter((item) => item.key !== period.key)
     .at(-1) || null;
-  await sendSummary(period, data, previous);
+  const publishResult = await sendSummary(period, data, previous);
+  if (!PREVIEW_MODE && publishResult.action === 'suppressed') {
+    console.log('Legacy HR Weekly publication intentionally suppressed; no published state recorded.');
+    return;
+  }
+  if (!PREVIEW_MODE && !publishResult.messageId) throw new Error('HR Weekly Discord message ID missing; refusing to record publication.');
 
   if (PREVIEW_MODE) return;
 
