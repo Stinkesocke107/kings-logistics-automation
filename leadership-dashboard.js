@@ -385,11 +385,13 @@ function messageHasMarker(message, markers) {
   });
 }
 
-async function cleanupOld(key, keepId) {
+async function cleanupOld(key, keepId, botId) {
   const messages = await discord(`/channels/${CHANNELS[key]}/messages?limit=100`);
   let removed = 0;
   for (const message of messages || []) {
     if (String(message.id) === String(keepId)) continue;
+    // Never delete staff/member/other-bot messages based solely on marker text.
+    if (String(message.author?.id || '') !== String(botId)) continue;
     if (!messageHasMarker(message, OLD_MARKERS[key])) continue;
     await discord(`/channels/${CHANNELS[key]}/messages/${message.id}`, { method: 'DELETE' });
     removed++;
@@ -400,6 +402,8 @@ async function cleanupOld(key, keepId) {
 async function main() {
   const data = loadAll();
   const state = dashboardState();
+  const self = await discord('/users/@me');
+  if (!self?.id) throw new Error('Cannot verify Kings Bot identity; refusing cleanup.');
 
   const dashboards = {
     driver: buildDriver(data),
@@ -420,7 +424,7 @@ async function main() {
       createWithoutDiscovery: true
     });
     state.messageIds[key] = result.messageId || state.messageIds[key];
-    const removed = await cleanupOld(key, state.messageIds[key]);
+    const removed = await cleanupOld(key, state.messageIds[key], self.id);
     console.log(`${key}: ${result.action}; kept ${state.messageIds[key]}; removed ${removed} old dashboard messages.`);
   }
 
