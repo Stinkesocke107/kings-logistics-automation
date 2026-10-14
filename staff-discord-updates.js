@@ -702,6 +702,15 @@ function buildPublicMessage(event) {
   }
 
   if (event.type === 'staff_left') {
+    if (event.remainsKingsDriver) {
+      return [
+        `Please note that ${mention} is no longer part of the <:Kings_Logistics_Logo:1545254529648431124> **Kings Staff**.`,
+        '',
+        'They remain part of **Kings Logistics** as a **Kings Driver**.',
+        'Thank you for the time, effort, and support you contributed as part of the Staff Team. :kings_heart:'
+      ].join('\n');
+    }
+
     return [
       `Please note that ${mention} is no longer part of the <:Kings_Logistics_Logo:1545254529648431124> **Kings Staff**.`,
       '',
@@ -871,6 +880,19 @@ async function main() {
   const detection = detectChanges(state, currentStaff, crossCheck.currentTmpIds);
   const changes = detection.changes;
   const sourceMismatches = detection.mismatches;
+
+  const guildMemberById = new Map(
+    members.map((member) => [String(member?.user?.id || ''), member]).filter(([id]) => id)
+  );
+  for (const event of changes) {
+    if (event.type !== 'staff_left') continue;
+    const guildMember = guildMemberById.get(String(event.discordUserId));
+    const roleNames = (guildMember?.roles || [])
+      .map((roleId) => roleById.get(String(roleId))?.name || '')
+      .map(normalize)
+      .filter(Boolean);
+    event.remainsKingsDriver = roleNames.includes('kings driver') || roleNames.includes('kings drivers');
+  }
   const delivered = new Set(Array.isArray(state.delivered) ? state.delivered.map(String) : []);
   let published = 0;
   let duplicate = 0;
