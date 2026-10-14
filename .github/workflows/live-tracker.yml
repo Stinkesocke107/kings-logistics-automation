@@ -16,9 +16,8 @@ on:
       - 'scripts/git-safe-push.sh'
 
   schedule:
-    # GitHub Actions schedules have a 5-minute minimum. The job therefore runs
-    # the Live Tracker twice per 5-minute window, 150 seconds apart, for an
-    # effective target refresh cadence of about 2.5 minutes.
+    # One complete live-state refresh per 5-minute schedule.
+    # Do not delay state persistence by holding a run open for 150 seconds.
     - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
 
 permissions:
@@ -48,15 +47,7 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Update Kings Live Tracker — Pass 1
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: node tracker.js
-
-      - name: Wait for second Live Tracker refresh
-        run: sleep 150
-
-      - name: Update Kings Live Tracker — Pass 2
+      - name: Update Kings Live Tracker
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: node tracker.js
