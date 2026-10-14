@@ -1,11 +1,11 @@
 {
   "version": 1,
   "mode": "live",
-  "updatedAt": "2026-10-14T09:09:34.864Z",
-  "currentStaff": 11,
+  "updatedAt": "2026-10-14T09:47:06.440Z",
+  "currentStaff": 10,
   "truckersmpCurrentStaff": 10,
-  "crossConfirmedStaff": 5,
-  "sourceMismatches": 11,
+  "crossConfirmedStaff": 4,
+  "sourceMismatches": 12,
   "authority": "discord",
   "truckersmpCrossCheckMode": "advisory-only",
   "crossCheckSources": {
@@ -51,6 +51,13 @@
       "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
     },
     {
+      "type": "staff_left",
+      "discordUserId": "935991067969470485",
+      "username": "Stinkesocke107",
+      "tmpId": 4891248,
+      "reason": "discord-authoritative-leave-while-truckersmp-still-shows-current-staff"
+    },
+    {
       "tmpId": 1522731,
       "username": "FMGinge",
       "reason": "no-discord-match"
@@ -78,8 +85,8 @@
   ],
   "joined": 0,
   "promotions": 0,
-  "left": 0,
-  "published": 0,
+  "left": 1,
+  "published": 1,
   "duplicatesSuppressed": 0,
   "dryRunPosts": 0,
   "baselineCreated": false,
