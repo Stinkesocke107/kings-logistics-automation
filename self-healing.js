@@ -347,11 +347,30 @@ async function executeRepair(repo, token, config, waitMs, pollMs) {
       waited.status = 'verification-failed';
     }
   }
+  let verification = config.id === 'live-tracker' ? 'tracker-snapshot-freshness' : null;
+  if (waited.status === 'recovered' && config.id === 'driver-updates') {
+    const encoded = '/contents/data/driver-members.json?ref=main';
+    const state = await githubJson(repo, token, encoded);
+    const valid = Boolean(state?.sha && Number(state?.size) > 100);
+    verification = valid ? 'encrypted-driver-baseline-present' : 'driver-baseline-missing';
+    if (!valid) waited.status = 'verification-failed';
+  }
+  if (waited.status === 'recovered' && config.id === 'core-backup') {
+    const artifacts = await githubJson(repo, token,
+      '/actions/runs/' + waited.run.id + '/artifacts?per_page=100');
+    const valid = Array.isArray(artifacts?.artifacts) && artifacts.artifacts.some(
+      item => !item.expired && Number(item.size_in_bytes) > 0 &&
+        String(item.name || '').startsWith('kings-automation-backup-')
+    );
+    verification = valid ? 'backup-artifact-upload-confirmed' : 'backup-artifact-missing';
+    if (!valid) waited.status = 'verification-failed';
+  }
   return {
     id: config.id,
     label: config.label,
     workflow: config.workflow,
     action,
+    verification,
     status: waited.status,
     runId: waited.run?.id || null,
     conclusion: waited.run?.conclusion || null,
