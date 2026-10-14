@@ -8,7 +8,7 @@ test('convoy pipeline: submission → API sync → approval → reminder → fol
   const tags=['Scheduled','Completed','Cancelled','Needs Information','Ready for Approval'].map((name,i)=>({id:String(200+i),name}));
   const thread={id:threadId,name:'Integration convoy',guild_id:guild,parent_id:forum,applied_tags:[],thread_metadata:{archived:false}};
   const messages=[
-    {id:'101',author:{id:'human'},timestamp:new Date().toISOString(),content:'https://truckersmp.com/events/42\nResponsible Staff: Staff\nKings Slot: Slot 5\nMeeting Point: Berlin',attachments:[{filename:'route.png',content_type:'image/png'}]},
+    {id:'101',author:{id:'human'},timestamp:new Date().toISOString(),content:'https://truckersmp.com/events/42\nResponsible Staff: Staff\nKings Slot: Slot 5\nMeeting Point: Berlin',attachments:[{id:'501',filename:'route.png',content_type:'image/png',url:'https://cdn.discordapp.com/attachments/101/501/route.png'}]},
     {id:'102',author:{id:'staff'},member:{roles:['1114967608920395866']},timestamp:new Date(Date.now()+1).toISOString(),content:'Approved'}
   ];
   const reminders=[];
@@ -31,7 +31,7 @@ test('convoy pipeline: submission → API sync → approval → reminder → fol
     const match=pathname.match(/\/channels\/(101|500)\/messages(?:\/(\d+))?$/);
     if(match) {
       const list=match[1]==='101'?messages:reminders;
-      if(method==='GET') return json(list);
+      if(method==='GET') return json(match[2] ? (list.find(m=>m.id===match[2]) || {}) : list);
       const payload=opts.body?JSON.parse(opts.body):{};
       if(method==='POST') {const m={id:String(nextId++),author:{id:'bot',bot:true},timestamp:new Date().toISOString(),...payload};list.push(m);return json(m);}
       if(method==='PATCH') {const m=list.find(m=>m.id===match[2]);Object.assign(m,payload);return json(m);}
