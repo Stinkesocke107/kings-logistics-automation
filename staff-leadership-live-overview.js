@@ -54,7 +54,8 @@ function makeEmbed(members, roles) {
   return {title:'👔 '+MARKER,description:'Current Staff structure based on **live Discord roles**. Members holding multiple hierarchy roles are counted once in the total, but once per assigned role.',color:0x182DFF,fields:[{name:'Total unique Staff members',value:'**'+total+'**',inline:false},...fields],footer:{text:'Kings Logistics • Live Discord role snapshot • Read-only'},timestamp:new Date().toISOString()};
 }
 async function main() {
-  const [members,roles,target]=await Promise.all([allMembers(),discord('/guilds/'+GUILD+'/roles'),channel()]);
+  const [members,roles,target,bot]=await Promise.all([allMembers(),discord('/guilds/'+GUILD+'/roles'),channel(),discord('/users/@me')]);
+  if (!bot?.id) throw Error('Cannot verify Kings Bot identity; refusing dashboard write');
   const embed=makeEmbed(members,roles);
   let stored=null;
   if(fs.existsSync(STATE)) { try {stored=JSON.parse(fs.readFileSync(STATE,'utf8'));}catch {throw Error('Corrupt live overview state; refusing to reset');} }
@@ -63,12 +64,12 @@ async function main() {
   if(messageId) {
     try {
       const old=await discord('/channels/'+target.id+'/messages/'+messageId);
-      if(!old?.embeds?.some(e=>e.title?.includes(MARKER))) throw Error('Stored message does not belong to live overview');
+      if(String(old?.author?.id||'')!==String(bot.id) || !old?.embeds?.some(e=>e.title?.includes(MARKER))) throw Error('Stored message does not belong to Kings Bot live overview');
     } catch(error) { if(!String(error.message).includes('Discord 404 ')) throw error; messageId=null; }
   }
   if(!messageId) {
     const recent=await discord('/channels/'+target.id+'/messages?limit=100');
-    const own=recent.find(m=>m.author?.bot && m.embeds?.some(e=>e.title?.includes(MARKER)));
+    const own=recent.find(m=>String(m.author?.id||'')===String(bot.id) && m.embeds?.some(e=>e.title?.includes(MARKER)));
     messageId=own?.id||null;
   }
   const sent=await discord('/channels/'+target.id+'/messages'+(messageId?'/'+messageId:''),messageId?'PATCH':'POST',payload);
