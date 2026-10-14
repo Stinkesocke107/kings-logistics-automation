@@ -1,4 +1,4 @@
-# Fresh permission verification after guild role changes.
+# Fresh permission verification after guild role changes. Recheck 2026-10-14.
 # Repository security, Discord permission audits, API resilience, safe scheduler recovery, and the live Discord monitor are part of every Kings System Monitoring run.
 name: Kings System Monitoring
 
