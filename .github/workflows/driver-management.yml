@@ -2,6 +2,10 @@ name: Kings Driver Management
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/driver-management.yml'
   schedule:
     # Driver data, LOA commands and alerts remain hourly.
     # Leadership Overview delivery is owned by the centralized 12-hour overview pipeline.
