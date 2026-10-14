@@ -136,12 +136,12 @@ function checkMemberConsensus(data, issues, checks) {
   addCountComparison({ checks, issues, id: 'integrity-milestone-driver-count', label: 'Milestones vs Driver Management', baselineLabel, baseline, sourceLabel: 'Milestones', source: milestoneCount });
   addCountComparison({ checks, issues, id: 'integrity-statistics-driver-count', label: 'Statistics vs Driver Management', baselineLabel, baseline, sourceLabel: 'Statistics', source: statsCount });
 
-  // Driver Updates / Driver History intentionally use the Discord Driver role as
+  // Driver Updates / Driver History intentionally use Discord Driver and Trial roles as
   // their authority. They must be checked against each other, not against the
   // TruckersMP/VTC cohort above.
-  const authorityOk = data.driverUpdates?.authority === 'discord-driver-role';
+  const authorityOk = data.driverUpdates?.authority === 'discord-driver-and-trial-role-v2';
   checks.push(check('driver-updates-authority', authorityOk, {
-    expected: 'discord-driver-role',
+    expected: 'discord-driver-and-trial-role-v2',
     actual: data.driverUpdates?.authority || null
   }));
   if (!authorityOk) {
@@ -149,7 +149,7 @@ function checkMemberConsensus(data, issues, checks) {
       'integrity-driver-updates-authority',
       'critical',
       'Driver Updates',
-      'Driver Updates summary does not declare the Discord Driver role as its authority.',
+      'Driver Updates summary does not declare Discord Driver and Trial roles as its authority.',
       { authority: data.driverUpdates?.authority || null }
     ));
   }
