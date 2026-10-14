@@ -67,6 +67,8 @@ jobs:
         run: node staff-management.js
 
       - name: Sync public Staff Updates
+        id: public_staff_updates
+        continue-on-error: true
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -74,6 +76,11 @@ jobs:
           STAFF_PUBLIC_UPDATES_CHANNEL_ID: '1494095653096128604'
           STAFF_PUBLIC_UPDATES_MODE: ${{ steps.staff_updates_mode.outputs.mode }}
         run: node staff-discord-updates.js
+
+      - name: Public Staff Updates warning
+        if: steps.public_staff_updates.outcome == 'failure'
+        run: |
+          echo "::warning::Public Staff Updates could not be posted. Core Staff Management completed successfully; this auxiliary Discord publishing failure is non-critical."
 
       - name: Save Staff Management Data and API Health Together
         if: always()
