@@ -184,7 +184,7 @@ jobs:
             dispatch_if_due convoy-checker.yml 1200 live
             dispatch_if_due hr-leadership.yml 1200
             dispatch_if_due driver-management.yml 4500
-            dispatch_if_due staff-management.yml 4500
+            dispatch_if_due staff-management.yml 1200
             dispatch_if_due leadership-overviews.yml 46800
           fi
 
@@ -203,7 +203,8 @@ jobs:
             echo "- Scheduler queue starvation protection: **no self-concurrency replacement**"
             echo "- Active-run protection: **recent queued / pending / in-progress workflows are not duplicated; stuck runs expire after 20 minutes**"
             echo "- Convoy / HR recovery threshold: **20 minutes**"
-            echo "- Driver / Staff recovery threshold: **75 minutes**"
+            echo "- Driver recovery threshold: **75 minutes**"
+            echo "- Staff recovery threshold: **20 minutes**"
             echo "- Leadership Overview recovery threshold: **13 hours**"
             echo "- Native workflow crons remain the preferred cadence."
           } >> "$GITHUB_STEP_SUMMARY"
