@@ -365,8 +365,9 @@ function enrichDiscordStaffWithTruckersMp(currentStaff, crossCheck) {
     const match = crossCheck.byDiscord.get(String(person.discordUserId)) || null;
     return {
       ...person,
-      tmpId: match?.tmpId ?? person.tmpId ?? null,
-      truckersmpVerified: Boolean(match),
+      tmpId: match && match.source !== 'unique-exact-name-match' ? match.tmpId : (person.tmpId ?? null),
+      // A matching display name is a candidate, not verified account ownership.
+      truckersmpVerified: Boolean(match && match.source !== 'unique-exact-name-match'),
       truckersmpUsername: match?.truckersmpUsername || person.truckersmpUsername || null,
       truckersmpRoles: match?.truckersmpRoles || person.truckersmpRoles || [],
       truckersmpMatchSource: match?.source || person.truckersmpMatchSource || null
