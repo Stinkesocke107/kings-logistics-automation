@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "mode": "live",
-  "updatedAt": "2026-10-14T02:10:51.790Z",
-  "currentStaff": 12,
-  "truckersmpCurrentStaff": 11,
+  "mode": "dry-run",
+  "updatedAt": "2026-10-14T05:31:49.331Z",
+  "currentStaff": 11,
+  "truckersmpCurrentStaff": 10,
   "crossConfirmedStaff": 5,
-  "sourceMismatches": 13,
+  "sourceMismatches": 11,
   "authority": "discord",
   "truckersmpCrossCheckMode": "advisory-only",
   "crossCheckSources": {
@@ -51,12 +51,6 @@
       "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
     },
     {
-      "type": "staff_present",
-      "discordUserId": "1528848318518792203",
-      "username": "Raze",
-      "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
-    },
-    {
       "tmpId": 1522731,
       "username": "FMGinge",
       "reason": "no-discord-match"
@@ -77,11 +71,6 @@
       "reason": "no-discord-match"
     },
     {
-      "tmpId": 6006380,
-      "username": "_razxe_",
-      "reason": "no-discord-match"
-    },
-    {
       "tmpId": 6266493,
       "username": "Ahmad_SY",
       "reason": "no-discord-match"
@@ -89,10 +78,10 @@
   ],
   "joined": 0,
   "promotions": 0,
-  "left": 0,
+  "left": 1,
   "published": 0,
   "duplicatesSuppressed": 0,
-  "dryRunPosts": 0,
+  "dryRunPosts": 1,
   "baselineCreated": false,
   "publicChannelId": "1494095653096128604",
   "hierarchyRoles": [
