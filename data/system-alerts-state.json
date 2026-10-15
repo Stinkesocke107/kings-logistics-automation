@@ -1,18 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-14T23:26:21Z",
-        "ageMinutes": 22,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-10-14T23:48:53.573Z"
-    }
-  },
+  "active": {},
   "pending": {}
 }
