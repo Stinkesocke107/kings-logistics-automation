@@ -1,25 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-15T12:08:36Z",
-        "ageMinutes": 32,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-10-15T12:41:45.973Z"
-    }
-  },
-  "pending": {
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-15T12:41:45.973Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    }
-  }
+  "active": {},
+  "pending": {}
 }
