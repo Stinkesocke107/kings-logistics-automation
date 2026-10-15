@@ -1,13 +1,13 @@
 {
   "version": 2,
   "mode": "live",
-  "updatedAt": "2026-10-14T14:35:19.506Z",
-  "currentDrivers": 108,
+  "updatedAt": "2026-10-15T14:15:10.109Z",
+  "currentDrivers": 109,
   "matchedCurrentDrivers": 26,
   "newMappings": 0,
   "nameFallbackMappings": 0,
   "fullDiscordMemberListAvailable": true,
-  "noLinkedDiscord": 80,
+  "noLinkedDiscord": 81,
   "linkedDiscordNotOnGuild": 1,
   "truckersmpProfileErrors": 0,
   "eligibleForLoyaltyTier": 26,
@@ -478,6 +478,11 @@
     {
       "tmpId": 6345786,
       "username": "Maxi_274",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 6383526,
+      "username": "AmeristarTruckingCo",
       "reason": "no-public-discord-link-and-no-exact-name-match"
     }
   ],
