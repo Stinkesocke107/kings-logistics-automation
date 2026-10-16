@@ -1,20 +1,10 @@
 {
   "version": 1,
   "mode": "technical-safe-self-healing",
-  "updatedAt": "2026-10-16T01:25:12.273Z",
+  "updatedAt": "2026-10-16T15:29:53.327Z",
   "repairs": {
     "live-tracker": {
       "attempts": [
-        {
-          "at": "2026-10-15T12:41:19.285Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 38736517169,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
         {
           "at": "2026-10-16T01:24:51.966Z",
           "outcome": "recovered",
@@ -24,23 +14,25 @@
             "stale-data:data/live-tracker-snapshot.json",
             "workflow-overdue:live-tracker.yml"
           ]
+        },
+        {
+          "at": "2026-10-16T15:29:33.762Z",
+          "outcome": "recovered",
+          "action": "dispatched",
+          "runId": 38924300269,
+          "issueIds": [
+            "stale-data:data/live-tracker-snapshot.json",
+            "stale-data:data/statistics.json",
+            "workflow-overdue:live-tracker.yml"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-10-16T01:24:51.966Z",
-      "lastSuccessAt": "2026-10-16T01:24:51.966Z",
+      "lastAttemptAt": "2026-10-16T15:29:33.762Z",
+      "lastSuccessAt": "2026-10-16T15:29:33.762Z",
       "lastFailureAt": "2026-10-13T11:38:05.603Z"
     },
     "driver-updates": {
       "attempts": [
-        {
-          "at": "2026-10-15T12:41:32.981Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 38736559355,
-          "issueIds": [
-            "workflow-overdue:driver-updates.yml"
-          ]
-        },
         {
           "at": "2026-10-15T20:30:08.849Z",
           "outcome": "recovered",
@@ -67,10 +59,19 @@
           "issueIds": [
             "workflow-overdue:driver-updates.yml"
           ]
+        },
+        {
+          "at": "2026-10-16T15:29:53.327Z",
+          "outcome": "recovered",
+          "action": "dispatched",
+          "runId": 38924366597,
+          "issueIds": [
+            "workflow-overdue:driver-updates.yml"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-10-16T01:25:12.273Z",
-      "lastSuccessAt": "2026-10-16T01:25:12.273Z",
+      "lastAttemptAt": "2026-10-16T15:29:53.327Z",
+      "lastSuccessAt": "2026-10-16T15:29:53.327Z",
       "lastFailureAt": null
     },
     "core-backup": {
