@@ -1,18 +1,18 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-16T22:04:04.617Z",
+  "updatedAt": "2026-10-16T23:24:57.655Z",
   "currentDrivers": 109,
-  "onlineNow": 0,
+  "onlineNow": 1,
   "joinedLast7Days": 1,
   "joinedLast30Days": 3,
   "leftLast7Days": 0,
   "leftLast30Days": 3,
   "activity": {
     "grace": 1,
-    "active": 10,
+    "active": 11,
     "approvedLeave": 0,
-    "info7Days": 6,
+    "info7Days": 5,
     "attention14Days": 92,
     "hrReview30Days": 0,
     "unknown": 0
