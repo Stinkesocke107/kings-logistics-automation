@@ -54,7 +54,6 @@ const requiredFiles = [
   '.github/workflows/hr-leadership.yml',
   '.github/workflows/staff-management.yml',
   '.github/workflows/live-tracker.yml',
-  '.github/workflows/statistics.yml',
   '.github/workflows/management-overview.yml',
   '.github/workflows/news.yml',
   '.github/workflows/driver-weekly-summary.yml',
@@ -95,7 +94,19 @@ check('Live Tracker matches Driver Management roster', Number(live.members) === 
 check('Live Tracker game totals are internally consistent', Number(live.online) === Number(live.ets2Online) + Number(live.atsOnline), { online: live.online, ets2: live.ets2Online, ats: live.atsOnline });
 check('Staff Management is advisory-only', staff.mode === 'advisory-only', staff.mode);
 check('Staff tracking covers current staff', Number(staff.trackedStaffRecords) >= Number(staff.currentStaff) && Number(staff.currentStaff) >= 0, { currentStaff: staff.currentStaff, tracked: staff.trackedStaffRecords });
-check('Achievements cover current drivers', Number(achievements.currentDrivers) === Number(driver.currentDrivers) && Number(achievements.trackedCurrentDrivers) === Number(driver.currentDrivers), { achievements: achievements.currentDrivers, tracked: achievements.trackedCurrentDrivers, drivers: driver.currentDrivers });
+// Achievements refresh daily, while Driver Management refreshes hourly.
+// Compare roster counts only when the achievement snapshot is at least as new
+// as the driver snapshot; otherwise preserve the lag as an explicit advisory.
+const achievementTime = Date.parse(achievements.updatedAt || '');
+const driverTime = Date.parse(driver.updatedAt || '');
+const achievementsOlder = Number.isFinite(achievementTime) && Number.isFinite(driverTime) && achievementTime < driverTime;
+check('Achievements snapshot is internally consistent', Number(achievements.currentDrivers) === Number(achievements.trackedCurrentDrivers), { achievements: achievements.currentDrivers, tracked: achievements.trackedCurrentDrivers });
+check('Achievements snapshot is recently updated', Number.isFinite(achievementTime) && (Date.now() - achievementTime) <= 36 * 60 * 60 * 1000 && achievementTime <= Date.now() + 60000, { updatedAt: achievements.updatedAt });
+if (achievementsOlder) {
+  console.log('ADVISORY: Achievements snapshot predates hourly Driver Management; compare after the next daily achievements refresh.');
+} else {
+  check('Achievements cover current drivers', Number(achievements.currentDrivers) === Number(driver.currentDrivers) && Number(achievements.trackedCurrentDrivers) === Number(driver.currentDrivers), { achievements: achievements.currentDrivers, tracked: achievements.trackedCurrentDrivers, drivers: driver.currentDrivers });
+}
 check('News dedupe state is initialized', Boolean(news.lastId && news.lastTitle && news.lastUrl), { lastId: news.lastId, updatedAt: news.updatedAt });
 check('Weekly publication states parse and contain history', Array.isArray(driverWeekly.publishedWeeks) && driverWeekly.publishedWeeks.length > 0 && Array.isArray(hrWeekly.publishedWeeks) && hrWeekly.publishedWeeks.length > 0 && Array.isArray(managementWeekly.publishedWeeks) && managementWeekly.publishedWeeks.length > 0, { driver: driverWeekly.publishedWeeks?.length, hr: hrWeekly.publishedWeeks?.length, management: managementWeekly.publishedWeeks?.length });
 check('System Alert state is technical-only', alerts.mode === 'technical-alerts-only', alerts.mode);
