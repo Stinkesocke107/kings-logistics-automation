@@ -5,7 +5,7 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 const REPORT='output/convoy-planning-limits.json';
 const STATE='data/convoy-planning-alert-state.json';
-function keyOf(w){return crypto.createHash('sha256').update(JSON.stringify(w)).digest('hex').slice(0,24);}
+function keyOf(w){const stable=w.code==='external-month-threshold'?[w.code,w.period,w.threshold]:w.code==='departure-under-two-hours'?[w.code,...[w.first,w.second].sort()]:[w.code,w.period];return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex').slice(0,24);}
 function pending(warnings,state){
   const sent=new Set(Array.isArray(state?.sent)?state.sent:[]);
   return (warnings||[]).map(w=>({key:keyOf(w),warning:w})).filter(x=>!sent.has(x.key));
