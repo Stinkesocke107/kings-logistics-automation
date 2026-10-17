@@ -76,6 +76,12 @@ function latestHumanEventId(messages, fallback = null) {
   return fallback || null;
 }
 
+function publicCancelled(event) {
+  const raw = event?.status;
+  const status = String(typeof raw === 'object' && raw ? (raw.name || raw.status || raw.key || '') : (raw || '')).trim();
+  return event?.cancelled === true || event?.canceled === true || /^(cancelled|canceled)$/i.test(status);
+}
+
 function cleanText(value) {
   const text = String(value ?? '').trim();
   return text || null;
@@ -255,7 +261,7 @@ async function main() {
   let failed = 0;
 
   for (const item of report.threads || []) {
-    if (item.ignored || item.error || item.archived || isTestThread(item)) {
+    if (item.ignored || item.error || isTestThread(item) || (item.archived && ['Cancelled', 'Completed'].includes(item.status))) {
       skipped += 1;
       continue;
     }
@@ -314,6 +320,7 @@ async function main() {
         meetupAtUtc: cleanText(event.meetup_at),
         startAtUtc: cleanText(event.start_at),
         hostVtc,
+        publicCancelled: publicCancelled(event),
         url: cleanText(event.url) || `https://truckersmp.com/events/${eventId}`,
         updatedAtUtc: cleanText(event.updated_at),
         authoritative
