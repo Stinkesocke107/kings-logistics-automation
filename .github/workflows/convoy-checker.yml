@@ -174,6 +174,22 @@ jobs:
           CONVOY_ARCHIVE_DELAY_HOURS: '72'
         run: node convoy-archive.js
 
+      - name: Verify convoy completeness
+        id: convoy_completeness
+        continue-on-error: true
+        run: node convoy-completeness.js
+
+      - name: Persist healthy convoy count baseline
+        if: steps.mode.outputs.dry_run != 'true' && steps.convoy_completeness.outcome == 'success'
+        run: |
+          if [ -n "$(git status --porcelain -- data/convoy-completeness-state.json)" ]; then
+            git config user.name "Kings Logistics Automation"
+            git config user.email "actions@users.noreply.github.com"
+            git add data/convoy-completeness-state.json
+            git commit -m "Record healthy Convoy Center snapshot"
+            bash scripts/git-safe-push.sh main
+          fi
+
       - name: Generate convoy overview statistics
         id: convoy_stage_8
         continue-on-error: true
@@ -235,6 +251,7 @@ jobs:
             output/convoy-check-results.json
             output/convoy-overview.json
             output/convoy-planning-limits.json
+            output/convoy-completeness.json
             output/convoy-overview.md
           if-no-files-found: ignore
           retention-days: 14
@@ -274,6 +291,16 @@ jobs:
         run: |
           if [ "$ALERT_OUTCOME" != "success" ] || [ "$STATE_OUTCOME" != "success" ]; then
             echo "::error::Convoy planning alerts or durable state persistence failed."
+            exit 1
+          fi
+
+      - name: Require convoy completeness
+        if: always()
+        env:
+          COMPLETENESS_OUTCOME: ${{ steps.convoy_completeness.outcome }}
+        run: |
+          if [ "$COMPLETENESS_OUTCOME" != "success" ]; then
+            echo "::error::Convoy completeness check did not pass."
             exit 1
           fi
 
