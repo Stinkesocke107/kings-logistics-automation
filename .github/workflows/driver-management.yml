@@ -6,6 +6,10 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/driver-management.yml'
+      - 'driver-loa.js'
+      - 'driver-management.js'
+      - 'driver-status-alerts.js'
+      - 'driver-leadership-rate-limit.js'
   schedule:
     # Driver data, LOA commands and alerts remain hourly.
     # Leadership Overview delivery is owned by the centralized 12-hour overview pipeline.
