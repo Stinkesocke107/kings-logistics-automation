@@ -8,7 +8,7 @@ test('convoy pipeline: submission → API sync → approval → reminder → fol
   const tags=['Scheduled','Completed','Cancelled','Needs Information','Ready for Approval'].map((name,i)=>({id:String(200+i),name}));
   const thread={id:threadId,name:'Integration convoy',guild_id:guild,parent_id:forum,applied_tags:[],thread_metadata:{archived:false}};
   const messages=[
-    {id:'101',author:{id:'human'},timestamp:new Date().toISOString(),content:'https://truckersmp.com/events/42\nResponsible Staff: Staff\nKings Slot: Slot 5\nMeeting Point: Berlin',attachments:[{id:'501',filename:'route.png',content_type:'image/png',url:'https://cdn.discordapp.com/attachments/101/501/route.png'}]},
+    {id:'101',author:{id:'human'},timestamp:new Date().toISOString(),content:'https://truckersmp.com/events/42\nEvent Type: External Convoy\nResponsible Staff: Staff\nKings Slot: Slot 5\nMeeting Point: Berlin',attachments:[{id:'501',filename:'route.png',content_type:'image/png',url:'https://cdn.discordapp.com/attachments/101/501/route.png'}]},
     {id:'102',author:{id:'staff'},member:{roles:['1114967608920395866']},timestamp:new Date(Date.now()+1).toISOString(),content:'Approved'}
   ];
   const reminders=[];
@@ -52,6 +52,8 @@ test('convoy pipeline: submission → API sync → approval → reminder → fol
   report=await stage('convoy-time-display.js');
   assert.equal(report.threads[0].status,'Scheduled');
   assert.equal(report.threads[0].validation.parsed.kingsSlot,'Slot 5');
+  assert.equal(report.threads[0].validation.parsed.eventType,'External Convoy');
+  assert.ok(report.threads[0].validation.parsed.departureAtUtc);
   assert.equal(report.threads[0].eventTimeValid,true);
   await stage('convoy-notifications.js');
   await stage('convoy-driver-reminders.js');
