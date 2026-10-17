@@ -44,7 +44,7 @@ function evaluate(input) {
   }
   const timed = records.filter(r => r.departureMs !== null).sort((a,b)=>a.departureMs-b.departureMs);
   for (let i=0;i<timed.length;i++) for (let j=i+1;j<timed.length && timed[j].departureMs-timed[i].departureMs<LIMITS.separationMinutes*60000;j++) {
-    warnings.push({ code: 'departure-under-two-hours', first: timed[i].id, second: timed[j].id, minutesApart: Math.round((timed[j].departureMs-timed[i].departureMs)/60000) });
+    warnings.push({ code: 'departure-under-two-hours', period: timed[i].date, first: timed[i].id, second: timed[j].id, minutesApart: Math.round((timed[j].departureMs-timed[i].departureMs)/60000) });
   }
   return { version:1, mode:'advisory-only', limits:LIMITS, months, days, warnings, unknownTypes, missingDepartures, counted:records.length };
 }
