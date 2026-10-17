@@ -230,7 +230,7 @@ function buildMessage(overview) {
     `🚛 External: **${overview.planning?.months?.[currentMonth]?.external ?? 0}/20** · 🤝 Partner: **${overview.planning?.months?.[currentMonth]?.partner ?? 0}** · 👑 Kings: **${overview.planning?.months?.[currentMonth]?.kings ?? 0}**`,
     `📅 Today: External **${overview.planning?.days?.[today]?.external ?? 0}/2** · Partner **${overview.planning?.days?.[today]?.partner ?? 0}/3** · Kings **${overview.planning?.days?.[today]?.kings ?? 0}**`,
     `⚠️ Planning alerts: **${monthWarnings.length}** · Daily limits: **${dailyWarnings.length}** · Departure conflicts: **${departureWarnings.length}**`,
-    `🔎 Unclassified: **${unresolvedTypes.length}** · Departure time missing: **${unknownDeparture.length}**`,
+    `🔎 Unclassified: **${unresolvedTypes.length}** · Departure time missing: **${unknownDeparture.length}** · Read errors: **${overview.overall?.convoyReadErrors ?? 0}**`,
     monthWarnings.length ? `⚠️ **Needs review:** ${monthWarnings.slice(0, 2).map(w => w.code === 'departure-under-two-hours' ? 'Departure <2h' : w.code === 'external-month-threshold' ? 'External '+w.threshold+'/20' : w.code.replace(/-/g, ' ')).join(' · ')}${monthWarnings.length > 2 ? ' · +' + (monthWarnings.length - 2) + ' more' : ''}` : '✅ No current-month planning alerts',
     '',
     '## ⏭️ Next Convoy'
