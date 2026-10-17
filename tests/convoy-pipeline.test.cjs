@@ -64,6 +64,16 @@ test('convoy pipeline: submission → API sync → approval → reminder → fol
   assert.match(reminders[0].content,/Kings Slot:\*\* Slot 5/);
   await stage('convoy-overview.js');
   assert.equal(JSON.parse(files['output/convoy-overview.json']).overall.upcomingScheduledConvoys,1);
+  // Public cancellation must flow into the status without cancelling a real event.
+  event={...event,cancelled:true};
+  await stage('convoy-truckersmp-sync.js');
+  report=await stage('convoy-time-display.js');
+  assert.equal(report.threads[0].truckersmp.publicCancelled,true);
+  assert.equal(report.threads[0].status,'Cancelled');
+  event={...event,cancelled:false};
+  await stage('convoy-truckersmp-sync.js');
+  report=await stage('convoy-time-display.js');
+  assert.equal(report.threads[0].status,'Scheduled');
   // Advance fixture event past the follow-up and archive thresholds.
   event={...event,meetup_at:new Date(Date.now()-80*3600000).toISOString(),start_at:new Date(Date.now()-79*3600000).toISOString()};
   await stage('convoy-truckersmp-sync.js');await stage('convoy-time-display.js');
