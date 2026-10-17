@@ -363,6 +363,12 @@ function main() {
   };
 
   fs.mkdirSync('output', { recursive: true });
+  // Planning checks are advisory only; no Discord approval/cancellation side effects.
+  const { evaluate } = require('./convoy-planning-limits');
+  const planning = evaluate(realThreads);
+  overview.planning = planning;
+  fs.writeFileSync('output/convoy-planning-limits.json', JSON.stringify(planning, null, 2));
+  console.log('Convoy planning advisory: ' + planning.warnings.length + ' warnings; ' + planning.unknownTypes.length + ' unknown event types; ' + planning.missingDepartures.length + ' missing departure times.');
   fs.writeFileSync(JSON_OUTPUT, JSON.stringify(overview, null, 2));
   fs.writeFileSync(MARKDOWN_OUTPUT, buildMarkdown(overview));
   appendGithubSummary(overview);
