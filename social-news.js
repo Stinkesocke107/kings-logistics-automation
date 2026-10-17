@@ -8,12 +8,19 @@ const NEWS_CHANNEL = process.env.NEWS_DISCORD_CHANNEL_ID || '1479853315264217202
 const COLOR = 0x182dff;
 const MAX_SEEN = 1500;
 const MARKER = 'Kings Social News: ';
+const OFFICIAL_PROFILES = Object.freeze({
+  tiktok: 'https://www.tiktok.com/@kings__logistics',
+  instagram: 'https://www.instagram.com/kings___logistics/',
+  youtube: 'https://www.youtube.com/channel/UCB6vBqCWktsZnAyrITC6E-Q'
+});
+const YOUTUBE_CHANNEL_ID = 'UCB6vBqCWktsZnAyrITC6E-Q';
+const YOUTUBE_FEED_URL = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + YOUTUBE_CHANNEL_ID;
 
 function validDate(value) { return typeof value === 'string' && Number.isFinite(Date.parse(value)); }
 function validateState(state) {
   if (!state || state.version !== 1 || !state.platforms || typeof state.platforms !== 'object') throw Error('Invalid social news state: refusing to reset deduplication.');
   for (const [key, p] of Object.entries(state.platforms)) {
-    if (!['tiktok', 'instagram'].includes(key) || !p || !validDate(p.startedAt) || !Array.isArray(p.seen) || p.seen.some(v => typeof v !== 'string' || !v)) {
+    if (!['tiktok', 'instagram', 'youtube'].includes(key) || !p || !validDate(p.startedAt) || !Array.isArray(p.seen) || p.seen.some(v => typeof v !== 'string' || !v)) {
       throw Error('Invalid ' + key + ' state: refusing to reset deduplication.');
     }
   }
@@ -108,6 +115,76 @@ async function fetchInstagram(token) {
   }
   throw Error('Instagram has more than 250 unread media items. Refusing to silently skip any.');
 }
+
+function xmlText(value) {
+  // Decode only the five XML entities and numeric character references.
+  // Untrusted RSS text is never interpreted as HTML or code.
+  return String(value || '').replace(/&(#x[0-9a-f]+|#[0-9]+|amp|lt|gt|quot|apos);/gi, (whole, code) => {
+    const named = {amp: '&', lt: '<', gt: '>', quot: '"', apos: "'"};
+    if (named[code.toLowerCase()] !== undefined) return named[code.toLowerCase()];
+    const number = code.toLowerCase().startsWith('#x')
+      ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
+    return number > 0 && number <= 0x10ffff && !(number >= 0xd800 && number <= 0xdfff)
+      ? String.fromCodePoint(number) : whole;
+  });
+}
+function youtubeFeedEntry(xml) {
+  const id = xml.match(/<yt:videoId>\s*([a-zA-Z0-9_-]{11})\s*<\/yt:videoId>/)?.[1];
+  const channelId = xml.match(/<yt:channelId>\s*([^<]+)\s*<\/yt:channelId>/)?.[1]?.trim();
+  const title = xml.match(/<title>([\s\S]*?)<\/title>/)?.[1];
+  const published = xml.match(/<published>\s*([^<]+)\s*<\/published>/)?.[1];
+  if (!id || channelId !== YOUTUBE_CHANNEL_ID || !title || !published) {
+    throw Error('YouTube feed entry missing valid ID, Kings channel, title, or publication date');
+  }
+  const date = new Date(published);
+  if (!Number.isFinite(date.getTime())) throw Error('Invalid YouTube publish time for video ' + id);
+  return {
+    platform: 'youtube', id,
+    url: 'https://www.youtube.com/watch?v=' + id,
+    date: date.toISOString(), caption: limitText(xmlText(title), 1200),
+    // The uploads feed covers public videos/Shorts, but does not reliably
+    // identify which entries are Shorts without extra metadata.
+    type: 'Upload'
+  };
+}
+function parseYouTubeFeed(xml) {
+  if (typeof xml !== 'string' || xml.length > 1000000 ||
+      !/<feed\b[^>]*xmlns:yt=["']http:\/\/www\.youtube\.com\/xml\/schemas\/2015["']/.test(xml)) {
+    throw Error('Invalid or oversized official YouTube XML feed');
+  }
+  const root = xml.split('<entry>')[0];
+  const channelId = root.match(/<yt:channelId>\s*([^<]+)\s*<\/yt:channelId>/)?.[1]?.trim();
+  if (channelId !== YOUTUBE_CHANNEL_ID) throw Error('YouTube feed does not belong to official Kings Logistics channel');
+  const entries = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)];
+  if (entries.length === 0) throw Error('YouTube feed returned no entries; refusing to baseline an empty/unverified feed');
+  return entries.map(match => youtubeFeedEntry(match[1]));
+}
+async function fetchYouTube() {
+  // Official channel RSS is public and read-only: no account token is needed.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let response;
+    try {
+      response = await fetch(YOUTUBE_FEED_URL, {
+        headers: {Accept: 'application/atom+xml, application/xml', 'User-Agent': 'Kings Logistics Social News/1.0'},
+        signal: AbortSignal.timeout(20000)
+      });
+    } catch (error) {
+      if (attempt === 2) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1200 * (attempt + 1)));
+      continue;
+    }
+    const xml = await response.text();
+    if (response.ok) return parseYouTubeFeed(xml);
+    if ((response.status === 429 || response.status >= 500) && attempt < 2) {
+      const seconds = Number(response.headers.get('retry-after'));
+      const delay = Math.min(60000, Math.max(1500, Number.isFinite(seconds) ? seconds * 1000 : 2000 * (attempt + 1)));
+      await new Promise(resolve => setTimeout(resolve, delay));
+      continue;
+    }
+    throw Error('Official YouTube feed returned HTTP ' + response.status);
+  }
+}
+
 function marker(item) { return MARKER + item.platform + ':' + item.id; }
 async function alreadyOnDiscord(item, token) {
   let before = null;
@@ -126,7 +203,7 @@ async function alreadyOnDiscord(item, token) {
 async function post(item, webhook) {
   const url = new URL(webhook);
   url.searchParams.set('wait', 'true');
-  const label = item.platform === 'tiktok' ? 'TikTok' : 'Instagram';
+  const label = item.platform === 'tiktok' ? 'TikTok' : item.platform === 'instagram' ? 'Instagram' : 'YouTube';
   const payload = {
     content: '🎬 **New Kings Logistics ' + label + ' ' + item.type + '!**\n' + item.url,
     embeds: [{
@@ -184,10 +261,11 @@ async function main() {
   const state = loadState();
   const accounts = [
     ['tiktok', process.env.SOCIAL_TIKTOK_ACCESS_TOKEN, fetchTikTok],
-    ['instagram', process.env.SOCIAL_INSTAGRAM_ACCESS_TOKEN, fetchInstagram]
+    ['instagram', process.env.SOCIAL_INSTAGRAM_ACCESS_TOKEN, fetchInstagram],
+    ['youtube', true, fetchYouTube]
   ];
-  const enabled = accounts.filter(([, token]) => Boolean(token));
-  if (!enabled.length) { console.log('Kings Social News inactive: connect authorized TikTok/Instagram accounts using GitHub Secrets.'); return; }
+  // TikTok/Instagram require authorized app tokens; YouTube's public RSS is enabled.
+  const enabled = accounts.filter(([, credential]) => Boolean(credential));
   const webhook = process.env.NEWS_DISCORD_WEBHOOK_URL;
   const botToken = process.env.DISCORD_BOT_TOKEN;
   if (!webhook || !botToken) throw Error('Missing NEWS_DISCORD_WEBHOOK_URL or DISCORD_BOT_TOKEN. Refusing unsafe publication.');
@@ -205,4 +283,4 @@ async function main() {
   if (failures.length) throw Error('Social News checks failed for: ' + failures.join(', '));
 }
 if (require.main === module) main().catch(e => {console.error('Kings Social News failed: ' + e.message);process.exitCode = 1;});
-module.exports = {normalize, unseen, marker, validateState, processFeed, fetchTikTok, fetchInstagram, main};
+module.exports = {normalize, unseen, marker, validateState, processFeed, fetchTikTok, fetchInstagram, fetchYouTube, parseYouTubeFeed, main, OFFICIAL_PROFILES, YOUTUBE_CHANNEL_ID};
