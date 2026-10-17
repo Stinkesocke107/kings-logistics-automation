@@ -9,7 +9,7 @@ Adds **official TikTok videos**, **Instagram Reels/videos** and **YouTube upload
 - **YouTube:** https://www.youtube.com/channel/UCB6vBqCWktsZnAyrITC6E-Q
 - **YouTube channel RSS:** https://www.youtube.com/feeds/videos.xml?channel_id=UCB6vBqCWktsZnAyrITC6E-Q
 
-The YouTube RSS feed is public and does not require an API token. It contains recent public uploads, including eligible Shorts. The RSS does not reliably distinguish a Short from a regular video, so announcements say **YouTube Upload**.
+The YouTube RSS feed is public and does not require an API token. Live diagnosis on 2026-10-17 confirmed that the public XML currently omits the leading `UC` from its internal `<yt:channelId>`, although the root still links to the official full `UC...` channel URL. The parser accepts this observed form **only with** the exact canonical Kings channel URL, preserving strict channel verification. It contains recent public uploads, including eligible Shorts. The RSS does not reliably distinguish a Short from a regular video, so announcements say **YouTube Upload**.
 
 ## Publishing policy
 

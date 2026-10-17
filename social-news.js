@@ -128,12 +128,18 @@ function xmlText(value) {
       ? String.fromCodePoint(number) : whole;
   });
 }
+// YouTube's public Atom feed can omit the leading "UC" in its internal channel IDs.
+// Accept that observed form only when the feed root also links to the exact
+// configured canonical Kings channel URL. Never accept other channel identities.
+function matchesKingsYouTubeInternalId(id) {
+  return id === YOUTUBE_CHANNEL_ID || id === YOUTUBE_CHANNEL_ID.slice(2);
+}
 function youtubeFeedEntry(xml) {
   const id = xml.match(/<yt:videoId>\s*([a-zA-Z0-9_-]{11})\s*<\/yt:videoId>/)?.[1];
   const channelId = xml.match(/<yt:channelId>\s*([^<]+)\s*<\/yt:channelId>/)?.[1]?.trim();
   const title = xml.match(/<title>([\s\S]*?)<\/title>/)?.[1];
   const published = xml.match(/<published>\s*([^<]+)\s*<\/published>/)?.[1];
-  if (!id || channelId !== YOUTUBE_CHANNEL_ID || !title || !published) {
+  if (!id || !matchesKingsYouTubeInternalId(channelId) || !title || !published) {
     throw Error('YouTube feed entry missing valid ID, Kings channel, title, or publication date');
   }
   const date = new Date(published);
@@ -154,7 +160,12 @@ function parseYouTubeFeed(xml) {
   }
   const root = xml.split('<entry>')[0];
   const channelId = root.match(/<yt:channelId>\s*([^<]+)\s*<\/yt:channelId>/)?.[1]?.trim();
-  if (channelId !== YOUTUBE_CHANNEL_ID) throw Error('YouTube feed does not belong to official Kings Logistics channel');
+  const canonicalKingsChannelLink = 'href="https://www.youtube.com/channel/' + YOUTUBE_CHANNEL_ID + '"';
+  const identityMatches = matchesKingsYouTubeInternalId(channelId);
+  if (!identityMatches ||
+      (channelId !== YOUTUBE_CHANNEL_ID && !root.includes(canonicalKingsChannelLink))) {
+    throw Error('YouTube feed does not belong to official Kings Logistics channel');
+  }
   const entries = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)];
   if (entries.length === 0) throw Error('YouTube feed returned no entries; refusing to baseline an empty/unverified feed');
   return entries.map(match => youtubeFeedEntry(match[1]));

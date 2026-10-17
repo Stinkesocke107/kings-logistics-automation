@@ -238,3 +238,20 @@ test('failed one-time live post never marks the proof as complete', async () => 
   assert.equal(data.platforms.youtube.latestTestCompletedAt, undefined);
   assert.equal(data.platforms.youtube.latestTestVideoId, undefined);
 });
+
+test('real-world YouTube feed internal ID omitting UC is allowed only with canonical Kings channel link', () => {
+  const shortened = YOUTUBE_CHANNEL_ID.slice(2);
+  const sample = youtubeFeed([
+    {id:'ABc12345_-X',title:'Kings Latest Upload',date:'2026-10-17T10:00:00Z'}
+  ], shortened);
+  assert.throws(() => parseYouTubeFeed(sample), /does not belong/);
+  const canonicalLink = '<link rel="alternate" href="https://www.youtube.com/channel/' + YOUTUBE_CHANNEL_ID + '"/>';
+  const withCanonicalIdentity = sample.replace('</yt:channelId>', '</yt:channelId>' + canonicalLink);
+  const parsed = parseYouTubeFeed(withCanonicalIdentity);
+  assert.equal(parsed.length, 1);
+  assert.equal(parsed[0].platform, 'youtube');
+  assert.equal(parsed[0].caption, 'Kings Latest Upload');
+  const wrongCanonical = withCanonicalIdentity.replace('href="https://www.youtube.com/channel/' + YOUTUBE_CHANNEL_ID + '"',
+    'href="https://www.youtube.com/channel/UCUnrelatedChannel123"');
+  assert.throws(() => parseYouTubeFeed(wrongCanonical), /does not belong/);
+});

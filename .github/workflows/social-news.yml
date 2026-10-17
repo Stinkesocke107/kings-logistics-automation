@@ -46,31 +46,10 @@ jobs:
           node --check social-news.js
           node --test tests/social-news.test.cjs
 
-      # Read-only public YouTube diagnosis on code pushes; no Discord access.
-      - name: Diagnose YouTube feed channel identity
+      - name: Verify real YouTube public feed (read-only, no Discord posting)
         if: github.event_name == 'push'
         run: |
-          node - <<'NODE'
-          (async () => {
-            const expected = 'UCB6vBqCWktsZnAyrITC6E-Q';
-            const url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + expected;
-            const response = await fetch(url, {signal: AbortSignal.timeout(20000)});
-            const xml = await response.text();
-            const root = xml.split('<entry>')[0];
-            const ids = root.split('<yt:channelId>').slice(1).map(chunk => chunk.split('</yt:channelId>')[0].trim());
-            const title = root.split('<title>')[1]?.split('</title>')[0];
-            console.log(JSON.stringify({
-              status: response.status,
-              contentType: response.headers.get('content-type'),
-              expectedChannelId: expected,
-              feedRootChannelIds: ids,
-              feedChannelTitle: title,
-              entryCount: [...xml.matchAll(/<entry>/g)].length,
-              feedRootPreview: root.slice(0, 600)
-            }, null, 2));
-            if (!response.ok) process.exitCode = 1;
-          })().catch(e => { console.error(e.message); process.exitCode = 1; });
-          NODE
+          node -e "require('./social-news').fetchYouTube().then(items => console.log('Kings YouTube feed verified: ' + items.length + ' uploads')).catch(err => { console.error(err.message); process.exitCode = 1; })"
 
       # Code pushes validate only; they must never unexpectedly publish to Discord.
       - name: Check TikTok Instagram and YouTube official videos
