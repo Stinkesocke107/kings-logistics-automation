@@ -1,15 +1,15 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-17T02:08:11.435Z",
-  "currentDrivers": 109,
+  "updatedAt": "2026-10-17T04:52:44.804Z",
+  "currentDrivers": 110,
   "onlineNow": 0,
-  "joinedLast7Days": 1,
-  "joinedLast30Days": 3,
+  "joinedLast7Days": 2,
+  "joinedLast30Days": 4,
   "leftLast7Days": 0,
   "leftLast30Days": 3,
   "activity": {
-    "grace": 1,
+    "grace": 2,
     "active": 11,
     "approvedLeave": 0,
     "info7Days": 5,
@@ -18,8 +18,8 @@
     "unknown": 0
   },
   "tenure": {
-    "known": 109,
-    "under1Month": 3,
+    "known": 110,
+    "under1Month": 4,
     "oneToThreeMonths": 23,
     "threeToSixMonths": 21,
     "sixToTwelveMonths": 26,
@@ -61,6 +61,12 @@
     ],
     "newestDrivers": [
       {
+        "tmpId": 1461015,
+        "username": "JONAS (BR277)",
+        "joinDate": "2026-10-17T03:18:58.000Z",
+        "tenureDays": 0
+      },
+      {
         "tmpId": 6383526,
         "username": "AmeristarTruckingCo",
         "joinDate": "2026-10-14T15:54:13.000Z",
@@ -83,12 +89,6 @@
         "username": "Maxi_274",
         "joinDate": "2026-08-29T19:21:08.000Z",
         "tenureDays": 48
-      },
-      {
-        "tmpId": 6347683,
-        "username": "Ari_C4",
-        "joinDate": "2026-08-23T23:43:40.000Z",
-        "tenureDays": 54
       }
     ]
   },
