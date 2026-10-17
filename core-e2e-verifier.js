@@ -54,7 +54,6 @@ const requiredFiles = [
   '.github/workflows/hr-leadership.yml',
   '.github/workflows/staff-management.yml',
   '.github/workflows/live-tracker.yml',
-  '.github/workflows/management-overview.yml',
   '.github/workflows/news.yml',
   '.github/workflows/driver-weekly-summary.yml',
   '.github/workflows/hr-weekly-summary.yml',
