@@ -1,7 +1,7 @@
 {
   "version": 2,
   "initializedAt": "2026-09-17T22:19:52.000Z",
-  "updatedAt": "2026-10-17T04:32:55.216Z",
+  "updatedAt": "2026-10-17T15:51:21.119Z",
   "currentDrivers": 80,
   "members": [],
   "events": [
@@ -48,6 +48,10 @@
     {
       "type": "join",
       "occurredAt": "2026-10-17T04:32:55.215Z"
+    },
+    {
+      "type": "name_change",
+      "occurredAt": "2026-10-17T15:51:21.119Z"
     }
   ]
 }
