@@ -1,19 +1,19 @@
 {
   "version": 2,
   "mode": "live",
-  "updatedAt": "2026-10-16T14:02:57.294Z",
-  "currentDrivers": 109,
+  "updatedAt": "2026-10-17T13:02:53.198Z",
+  "currentDrivers": 110,
   "matchedCurrentDrivers": 26,
   "newMappings": 0,
   "nameFallbackMappings": 0,
   "fullDiscordMemberListAvailable": true,
-  "noLinkedDiscord": 81,
+  "noLinkedDiscord": 82,
   "linkedDiscordNotOnGuild": 1,
   "truckersmpProfileErrors": 0,
   "eligibleForLoyaltyTier": 26,
-  "roleAdditions": 0,
+  "roleAdditions": 2,
   "roleRemovals": 0,
-  "alreadyCorrect": 26,
+  "alreadyCorrect": 25,
   "formerDriverMappingsCleaned": 0,
   "umbrellaRole": {
     "id": "1555009783357112400",
@@ -78,6 +78,11 @@
     {
       "tmpId": 1191879,
       "username": "Bram_Bogg",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 1461015,
+      "username": "JONAS (BR277)",
       "reason": "no-public-discord-link-and-no-exact-name-match"
     },
     {
