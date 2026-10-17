@@ -205,6 +205,7 @@ function applyFinalFields(item, messages) {
   const meetupOverride = latestHumanField(messages, ['Meeting Point', 'Meeting Location', 'Meetup', 'Meetup Point']);
   const meetupTimeOverride = latestHumanField(messages, ['Meeting Time', 'Meetup Time']);
   const notesOverride = latestHumanField(messages, ['Additional Notes', 'Notes']);
+  const eventTypeOverride = latestHumanField(messages, ['Event Type', 'Convoy Type']);
 
   if (responsibleStaff) {
     parsed.responsibleStaff = responsibleStaff.value;
@@ -231,7 +232,7 @@ function applyFinalFields(item, messages) {
   const authoritative = tmpOk ? item.truckersmp.authoritative : null;
 
   if (authoritative) {
-    for (const key of ['eventType', 'route', 'start', 'destination', 'meetup', 'meetupTime']) {
+    for (const key of ['route', 'start', 'destination', 'meetup', 'meetupTime', 'departureTime', 'departureAtUtc']) {
       const value = authoritative[key];
       if (value !== null && value !== undefined && String(value).trim() !== '') parsed[key] = value;
     }
@@ -246,6 +247,11 @@ function applyFinalFields(item, messages) {
     };
   }
 
+  // Internal classification belongs to Kings Event Staff, not the TruckersMP host.
+  if (eventTypeOverride) {
+    parsed.eventType = eventTypeOverride.value;
+    sources.eventTypeOverride = eventTypeOverride;
+  }
   if (routeOverride) {
     parsed.route = routeOverride.value;
     sources.routeOverride = routeOverride;
@@ -268,7 +274,7 @@ function applyFinalFields(item, messages) {
   const parsedTime = parseMeetingTime(eventDate, meetingTime);
 
   const checks = {
-    eventLink: Boolean(eventLink),
+    eventLink: Boolean(eventLink || item.eventId),
     responsibleStaff: isResponsibleStaff(parsed.responsibleStaff),
     kingsSlotConfirmed: Boolean(slotImage) || isConfirmedSlot(parsed.kingsSlot),
     truckersmpSync: tmpOk,
@@ -284,6 +290,8 @@ function applyFinalFields(item, messages) {
 
   if (eventDate && meetingTime && !parsedTime) missing.push('meetingTimeTimezone');
 
+  // Store real departure independently from meeting time for future time-spacing checks.
+  item.departureAtUtc = parsed.departureAtUtc || null;
   item.validation.checks = checks;
   item.validation.missing = [...new Set(missing)];
   item.validation.complete = item.validation.missing.length === 0;
@@ -343,6 +351,7 @@ function buildStatusMessage(item) {
     item.eventId ? `🔗 **TruckersMP Event ID:** ${item.eventId}` : null,
     tmpDisplay ? `🌐 **Event Source:** TruckersMP Event #${item.eventId || item.truckersmp?.id} · authoritative` : null,
     parsed.eventType ? `📋 **Event Type:** ${parsed.eventType}` : null,
+    parsed.departureTime ? `🚦 **Departure Time:** ${parsed.departureTime}` : null,
     parsed.eventDate ? `📅 **Event Date:** ${parsed.eventDate}` : null,
     parsed.route ? `🛣️ **Route:** ${parsed.route}` : null,
     parsed.meetup ? `📍 **Meeting Point:** ${parsed.meetup}` : null,
