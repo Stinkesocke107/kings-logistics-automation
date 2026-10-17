@@ -1,18 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "stale-data:data/driver-management-summary.json": {
-      "severity": "critical",
-      "system": "Driver Management data",
-      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-10-17T02:08:11.435Z",
-        "ageMinutes": 164,
-        "maxAgeMinutes": 160
-      },
-      "firstAlertedAt": "2026-10-17T04:53:00.764Z"
-    }
-  },
+  "active": {},
   "pending": {}
 }
