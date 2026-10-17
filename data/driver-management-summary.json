@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-17T19:21:36.629Z",
+  "updatedAt": "2026-10-17T20:47:14.479Z",
   "currentDrivers": 110,
-  "onlineNow": 2,
+  "onlineNow": 0,
   "joinedLast7Days": 2,
   "joinedLast30Days": 4,
   "leftLast7Days": 0,
@@ -32,7 +32,7 @@
         "tmpId": 4891248,
         "username": "Stinkesocke107",
         "joinDate": "2023-07-09T19:25:36.000Z",
-        "tenureDays": 1195
+        "tenureDays": 1196
       },
       {
         "tmpId": 5419500,
@@ -82,7 +82,7 @@
         "tmpId": 5155783,
         "username": "giudf211",
         "joinDate": "2026-09-27T20:31:21.000Z",
-        "tenureDays": 19
+        "tenureDays": 20
       },
       {
         "tmpId": 6345786,
