@@ -43,7 +43,6 @@ const CRITICAL_FILES = [
   "data/central-overview.json",
 
   ".github/workflows/live-tracker.yml",
-  ".github/workflows/statistics.yml",
 
   // ----------------------------------------------------
   // PEOPLE MANAGEMENT
