@@ -208,13 +208,15 @@ function buildAuthoritativeFields(event) {
   const meetingTime = utcTime(event.meetup_at);
 
   return {
-    eventType: internalEventType(event),
+    hostCategory: internalEventType(event),
     eventDate,
     route,
     start: departure,
     destination: arrival,
     meetup: departure,
-    meetupTime: meetingTime
+    meetupTime: meetingTime,
+    departureTime: utcTime(event.start_at),
+    departureAtUtc: cleanText(event.start_at)
   };
 }
 
@@ -225,7 +227,7 @@ function applyTruckersMpAuthoritative(item, event) {
   const applied = [];
   const authoritative = buildAuthoritativeFields(event);
 
-  setAuthoritative(parsed, 'eventType', authoritative.eventType, applied);
+  // Partner versus external classification is a Kings decision, never inferred from the hosting VTC.
 
   if (authoritative.eventDate) {
     parsed.eventDate = authoritative.eventDate;
@@ -238,6 +240,8 @@ function applyTruckersMpAuthoritative(item, event) {
   setAuthoritative(parsed, 'destination', authoritative.destination, applied);
   setAuthoritative(parsed, 'meetup', authoritative.meetup, applied);
   setAuthoritative(parsed, 'meetupTime', authoritative.meetupTime, applied);
+  setAuthoritative(parsed, 'departureTime', authoritative.departureTime, applied);
+  setAuthoritative(parsed, 'departureAtUtc', authoritative.departureAtUtc, applied);
 
   return { authoritative, applied };
 }
