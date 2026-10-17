@@ -157,11 +157,11 @@ function checkpoint(platformState, id) {
   platformState.seen = [id, ...platformState.seen.filter(x => x !== id)].slice(0, MAX_SEEN);
   platformState.lastCheckedAt = new Date().toISOString();
 }
-async function processFeed(platform, items, state, {webhook, botToken, history = alreadyOnDiscord, publish = post} = {}) {
+async function processFeed(platform, items, state, {webhook, botToken, history = alreadyOnDiscord, publish = post, persist = saveState} = {}) {
   if (!state.platforms[platform]) {
     const initial = {startedAt: new Date().toISOString(), seen: [...new Set(items.map(x => x.id))].slice(0, MAX_SEEN), lastCheckedAt: new Date().toISOString()};
     state.platforms[platform] = initial;
-    saveState(state);
+    persist(state);
     console.log(platform + ': first connection baseline established (' + items.length + ' existing posts ignored).');
     return {baseline: true, posted: 0};
   }
@@ -175,7 +175,7 @@ async function processFeed(platform, items, state, {webhook, botToken, history =
       count++;
     } else console.log(platform + ': recovered already published ' + item.id + ' from Discord history');
     checkpoint(p, item.id);
-    saveState(state);
+    persist(state);
   }
   if (!next.length) console.log(platform + ': no new videos.');
   return {baseline: false, posted: count};
