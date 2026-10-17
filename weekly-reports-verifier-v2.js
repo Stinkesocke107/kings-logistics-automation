@@ -50,18 +50,45 @@ function norm(value = '') {
   return String(value).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 async function discord(pathname) {
-  const response = await fetch(`${API}${pathname}`, {
-    headers: { Authorization: `Bot ${TOKEN}`, 'User-Agent': 'Kings Logistics Weekly Reports Verifier/2.1' },
-    signal: AbortSignal.timeout(15000)
-  });
-  const text = await response.text();
-  if (!response.ok) {
-    const error = new Error(`Discord API ${response.status} on GET ${pathname}: ${text.slice(0, 300)}`);
-    error.status = response.status;
-    throw error;
+  // Read-only verification can safely retry. Respect Discord's advertised
+  // rate-limit delay instead of incorrectly failing a healthy Core run.
+  const headers = {
+    Authorization: `Bot ${TOKEN}`,
+    'User-Agent': 'Kings Logistics Weekly Reports Verifier/2.1'
+  };
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      const response = await fetch(`${API}${pathname}`, {
+        headers,
+        signal: AbortSignal.timeout(20000)
+      });
+      const body = await response.text();
+      if (response.ok) return body ? JSON.parse(body) : null;
+
+      const error = new Error(`Discord API ${response.status} on GET ${pathname}: ${body.slice(0, 300)}`);
+      error.status = response.status;
+      if (response.status !== 429 || attempt === 3) throw error;
+
+      let seconds = Number(response.headers.get('retry-after'));
+      try {
+        const info = JSON.parse(body);
+        if (Number.isFinite(Number(info.retry_after))) seconds = Number(info.retry_after);
+      } catch {}
+      const waitMs = Math.max(1000, Math.min(90000, Number.isFinite(seconds) ? Math.ceil(seconds * 1000) + 500 : 2000 * (attempt + 1)));
+      console.warn(`Weekly Reports verification: Discord rate limit; retrying GET after ${waitMs}ms.`);
+      await new Promise(resolve => setTimeout(resolve, waitMs));
+    } catch (error) {
+      const transient = error.name === 'TimeoutError' || error.name === 'AbortError' ||
+        /timeout|fetch failed/i.test(String(error.message || ''));
+      if (!transient || attempt === 3) throw error;
+      const waitMs = 1500 * (attempt + 1);
+      console.warn(`Weekly Reports verification: transient Discord GET error; retry in ${waitMs}ms.`);
+      await new Promise(resolve => setTimeout(resolve, waitMs));
+    }
   }
-  return text ? JSON.parse(text) : null;
 }
+
 async function readableMessages(channel) {
   try {
     const data = await discord(`/channels/${channel.id}/messages?limit=100`);
