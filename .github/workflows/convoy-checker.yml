@@ -187,7 +187,15 @@ jobs:
             git config user.email "actions@users.noreply.github.com"
             git add data/convoy-completeness-state.json
             git commit -m "Record healthy Convoy Center snapshot"
-            bash scripts/git-safe-push.sh main
+            if ! bash scripts/git-safe-push.sh main; then
+              # This is only a healthy-snapshot telemetry baseline. A concurrent
+              # run may have recorded a newer baseline; never let its rebase
+              # conflict block subsequent convoy notifications or statistics.
+              echo "::warning::Concurrent convoy completeness baseline update. Using the newer repository snapshot."
+              git rebase --abort >/dev/null 2>&1 || true
+              git fetch origin main >/dev/null 2>&1 || true
+              git reset --hard origin/main >/dev/null 2>&1 || true
+            fi
           fi
 
       - name: Generate convoy overview statistics
