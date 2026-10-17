@@ -215,6 +215,7 @@ function deriveStatus(item) {
 
   // Completed/Cancelled are terminal states and must never be overwritten by later validation changes.
   if (explicitStatus === 'Cancelled' || explicitStatus === 'Completed') return explicitStatus;
+  if (item.truckersmpSync?.ok && item.truckersmp?.publicCancelled === true) return 'Cancelled';
   if (item.duplicateEventId) return 'Needs Information';
   if (!item.validation?.complete) return 'Needs Information';
   if (explicitStatus === 'Needs Information') return 'Needs Information';
