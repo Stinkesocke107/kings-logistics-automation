@@ -25,8 +25,9 @@ on:
       - '.github/workflows/convoy-checker.yml'
 
   schedule:
-    # Shifted by one minute to force GitHub to register a genuinely new schedule trigger.
-    - cron: '6-59/15 * * * *'
+    # Every 15 minutes. GitHub-hosted scheduled runs can start late;
+    # alerting monitors real execution rather than assuming punctual delivery.
+    - cron: '*/15 * * * *'
 
 permissions:
   contents: write
