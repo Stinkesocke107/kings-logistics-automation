@@ -56,7 +56,7 @@ async function main(){
     if(posted.has(notice.key)){
       console.log('Recovered previously posted alert '+notice.key);
     }else{
-      await call('/channels/'+channel+'/messages',{method:'POST',body:JSON.stringify({content:'⚠️ **Kings Convoy Planning Advisory**\\n'+describe(notice.warning)+'\\nReview in Convoy Center. No convoy status has been changed.\\nConvoy Alert Key: '+notice.key,allowed_mentions:{parse:[]}})});
+      await call('/channels/'+channel+'/messages',{method:'POST',body:JSON.stringify({content:'⚠️ **Kings Convoy Planning Advisory**\n'+describe(notice.warning)+'\nReview in Convoy Center. No convoy status has been changed.\nConvoy Alert Key: '+notice.key,allowed_mentions:{parse:[]}})});
       posted.add(notice.key);
     }
     state.sent.push(notice.key);
