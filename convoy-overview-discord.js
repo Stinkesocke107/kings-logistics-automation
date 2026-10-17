@@ -219,6 +219,11 @@ function buildMessage(overview) {
     `🚛 **${month.countedConvoys}** Convoys  ·  🟢 **${month.scheduled}** Scheduled  ·  ✅ **${month.completed}** Completed  ·  ❌ **${month.cancelled}** Cancelled`,
     `⚠️ **${month.needsInformation}** Needs Info  ·  ⏳ **${month.readyForApproval}** Ready for Approval`,
     '',
+    '## 📈 Convoy Planning',
+    `🚛 External: **${overview.planning?.months?.[currentMonth]?.external ?? 0}/20** · 🤝 Partner: **${overview.planning?.months?.[currentMonth]?.partner ?? 0}** · 👑 Kings: **${overview.planning?.months?.[currentMonth]?.kings ?? 0}**`,
+    `📅 Today: External **${overview.planning?.days?.[today]?.external ?? 0}/2** · Partner **${overview.planning?.days?.[today]?.partner ?? 0}/3** · Kings **${overview.planning?.days?.[today]?.kings ?? 0}**`,
+    `⚠️ Planning conflicts: **${(overview.planning?.warnings || []).filter(w => String(w.period || '').slice(0, 7) === currentMonth).length}** · Unclassified: **${overview.planning?.unknownTypes?.length ?? 0}**`,
+    '',
     '## ⏭️ Next Convoy'
   ];
 
