@@ -1,5 +1,8 @@
 'use strict';
-// Read-only official social APIs -> Kings News Discord webhook.
+// Kings GitHub social publisher: official YouTube RSS -> Kings News Discord webhook.
+// TikTok + Instagram news is now delegated to the independent PostPing Discord bot.
+// The legacy official TikTok/Instagram API helpers remain for compatibility/tests
+// but production never invokes them, even if someone adds social API secrets.
 // Never guess account identities, scrape social pages, or replay old posts.
 const fs = require('node:fs');
 const path = require('node:path');
@@ -317,12 +320,9 @@ async function processLatestTest(platform, items, state, {webhook, botToken, his
 
 async function main() {
   const state = loadState();
-  const accounts = [
-    ['tiktok', process.env.SOCIAL_TIKTOK_ACCESS_TOKEN, fetchTikTok],
-    ['instagram', process.env.SOCIAL_INSTAGRAM_ACCESS_TOKEN, fetchInstagram],
-    ['youtube', true, fetchYouTube]
-  ];
-  // TikTok/Instagram require authorized app tokens; YouTube's public RSS is enabled.
+  // Single-publisher routing: YouTube belongs to Kings GitHub automation.
+  // TikTok/Instagram belong to PostPing; do not read or post them here.
+  const accounts = [['youtube', true, fetchYouTube]];
   const verifyOnly = process.env.KINGS_SOCIAL_VERIFY_CONNECTIONS_ONLY === 'true';
   const oneTimeTest = !verifyOnly && process.env.KINGS_SOCIAL_POST_LATEST_TEST === 'true';
   const missingForTest = (oneTimeTest || verifyOnly) ? accounts.filter(([, credential]) => !credential).map(([platform]) => platform) : [];

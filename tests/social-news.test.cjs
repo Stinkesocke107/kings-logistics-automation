@@ -276,3 +276,14 @@ test('Instagram verifies official profile before any media is eligible for Disco
   await assert.rejects(verifyInstagramAccount('mock-token', async () => ({id:'123',username:'somebody_else'})), /account mismatch/);
   await assert.rejects(verifyInstagramAccount('mock-token', async () => ({})), /account mismatch/);
 });
+
+test('Kings GitHub production routing is YouTube-only while TikTok/Instagram belong to PostPing', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const code = fs.readFileSync(path.join(__dirname, '..', 'social-news.js'), 'utf8');
+  const workflow = fs.readFileSync(path.join(__dirname, '..', '.github', 'workflows', 'social-news.yml'), 'utf8');
+  assert.match(code, /const accounts = \[\['youtube', true, fetchYouTube\]\];/);
+  assert.doesNotMatch(workflow, /SOCIAL_TIKTOK_ACCESS_TOKEN|SOCIAL_INSTAGRAM_ACCESS_TOKEN/);
+  assert.match(workflow, /Check official YouTube uploads/);
+  assert.match(workflow, /DISCORD_BOT_TOKEN/);
+});
