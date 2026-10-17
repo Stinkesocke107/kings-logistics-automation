@@ -41,3 +41,8 @@ Status: cleanup in progress (2026-10-17). **Do not infer deletion safety from th
 - Central Scheduler and monitoring now target `leadership-dashboard.yml`.
 - Driver/HR/Management weekly producers remain automatically scheduled because the consolidated dashboard reads their state files; legacy Discord posts stay suppressed.
 - Workflow count after consolidation: 43.
+
+## Automated Changelog publishing (2026-10-17)
+- Changelog publisher now polls the explicit editorial queue every 15 minutes; an empty queue causes no Discord posts.
+- Adding editorial entries remains an intentional controlled action to avoid exposing internal GitHub commits as public news.
+- No changelog history or queued items were modified during automation setup.
