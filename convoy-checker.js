@@ -259,7 +259,7 @@ function checkFields(starterText, messages, threadId = null) {
   // Slot images are now a valid way to CONFIRM the Kings slot, but an image is
   // not a separate required field when the slot is otherwise confirmed.
   const missing = Object.entries(checks)
-    .filter(([name, ok]) => name !== 'imageProof' && !ok)
+    .filter(([, ok]) => !ok)
     .map(([name]) => name);
 
   return {
