@@ -183,6 +183,7 @@ jobs:
         run: node convoy-overview.js
 
       - name: Notify Event Leadership about new planning conflicts
+        id: convoy_planning_alerts
         if: steps.mode.outputs.dry_run != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -190,6 +191,7 @@ jobs:
         run: node convoy-planning-alerts.js
 
       - name: Persist sent planning alert keys
+        id: convoy_planning_state
         if: steps.mode.outputs.dry_run != 'true'
         run: |
           if [ -z "$(git status --porcelain -- data/convoy-planning-alert-state.json)" ]; then
@@ -264,6 +266,17 @@ jobs:
       # Core convoy operations remain health-critical. Driver reminder delivery is
       # auxiliary and retries on the next run, so a transient Discord rate limit
       # must not mark the entire Convoy / Event System as failed.
+      - name: Require successful convoy planning notification and persistence
+        if: always() && steps.mode.outputs.dry_run != 'true'
+        env:
+          ALERT_OUTCOME: ${{ steps.convoy_planning_alerts.outcome }}
+          STATE_OUTCOME: ${{ steps.convoy_planning_state.outcome }}
+        run: |
+          if [ "$ALERT_OUTCOME" != "success" ] || [ "$STATE_OUTCOME" != "success" ]; then
+            echo "::error::Convoy planning alerts or durable state persistence failed."
+            exit 1
+          fi
+
       - name: Require successful convoy stages
         if: always()
         env:
