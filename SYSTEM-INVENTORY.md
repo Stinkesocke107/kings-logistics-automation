@@ -54,3 +54,10 @@ Status: cleanup in progress (2026-10-17). **Do not infer deletion safety from th
 - **Removed:** `management-overview.yml` manual-only duplicate publisher; `leadership-dashboard.yml` remains automatic. References removed from monitoring and core-E2E required-file lists.
 - Workflow count: **42** (originally 49); seven redundant/one-off workflows removed.
 - Always verify that automatic schedules actually fire, as GitHub schedule triggers may be delayed; retain scheduler recovery logic.
+
+## Schedule audit — 2026-10-17
+- Verified scheduled triggers for News, Convoy Checker, Driver Updates, Driver Management, Staff Management, HR Leadership, Probation, Core Backup, Self-Healing, monthly reporting and all three legacy-suppressed weekly data producers.
+- Consolidated Leadership Dashboard is scheduled; Central Scheduler's recovery and completion triggers target the same workflow name and file. Monitoring tracks that exact workflow.
+- Changelog queue publisher has a 15-minute schedule and does not publish when its queue is empty.
+- GitHub Actions schedules may be delayed; successful single-run tests do not guarantee future runs. System Monitoring and Central Scheduler provide checks/recovery for the supported core workflows.
+- Core Baseline, Final Freeze, Offline Verification and Git-State-Hardening finished successfully following removal of the manual Management Overview workflow.
