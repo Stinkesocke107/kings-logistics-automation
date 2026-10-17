@@ -298,7 +298,7 @@ function refreshFieldsFromThread(item, messages) {
     eventType: Boolean(parsed.eventType),
     eventDate: Boolean(eventDate),
     responsibleStaff: Boolean(parsed.responsibleStaff),
-    kingsSlotConfirmed: isConfirmedSlot(parsed.kingsSlot),
+    kingsSlotConfirmed: isConfirmedSlot(parsed.kingsSlot) || (String(parsed.eventType || '').trim().toLowerCase() === 'kings convoy' && /^(?:Kings Organizer\s*\/\s*Assembly Area|Kings Assembly Area)$/i.test(String(parsed.kingsSlot || '').trim())) || hasImage(messages),
     route: Boolean(parsed.route || (parsed.start && parsed.destination)),
     meetup: Boolean(parsed.meetup),
     meetupTime: Boolean(meetingTime),
@@ -308,7 +308,7 @@ function refreshFieldsFromThread(item, messages) {
   item.validation.checks = checks;
 
   const missing = Object.entries(checks)
-    .filter(([, ok]) => !ok)
+    .filter(([name, ok]) => name !== 'imageProof' && !ok)
     .map(([name]) => name);
 
   if (eventDate && meetingTime && !parsedTime) missing.push('meetingTimeTimezone');
