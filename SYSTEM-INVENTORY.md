@@ -5,7 +5,9 @@ Status: cleanup in progress (2026-10-17). **Do not infer deletion safety from th
 ## Verified removals
 - Removed `.github/workflows/statistics.yml`: redundant manual-only invocation of Statistics and Central Overview; these run automatically via `live-tracker.yml`.
 - Removed `.github/workflows/leadership-channel-diagnostic.yml`: one-time, push-on-self-change diagnostic with no production schedule.
-- Workflow count reduced from 49 to 47. Existing data and Discord messages untouched.
+- Removed `.github/workflows/leadership-dashboard-bootstrap.yml`: one-time manual bootstrap duplicated by active scheduled `leadership-dashboard.yml`.
+- Removed `.github/workflows/legacy-convoy-discovery.yml` and `.github/workflows/legacy-october-audit.yml`: completed one-time discovery/audit launchers; historical scripts and data retained.
+- Workflow count reduced from 49 to 44. Existing data and Discord messages untouched.
 
 
 ## Operating policy
@@ -21,8 +23,7 @@ Status: cleanup in progress (2026-10-17). **Do not infer deletion safety from th
 - Leadership Dashboards, News, Milestones, Backups, system monitoring, self-healing, plus scheduled report producers.
 
 ## Known maintenance-only or one-time workflows: audit before removal
-- `leadership-dashboard-bootstrap.yml`: one-time bootstrap, not required for normal scheduled dashboard updates.
-- `legacy-convoy-discovery.yml`, `legacy-convoy-import.yml`, `legacy-october-audit.yml`: manual migration/audit; NEVER schedule automatically.
+- `legacy-convoy-import.yml`: manual-only historical import; retain strictly as controlled recovery option, NEVER schedule automatically.
 - Verification workflows: retain on code changes or periodic verification as appropriate; do not treat these as redundant based on names.
 
 ## Consolidated Leadership publication
