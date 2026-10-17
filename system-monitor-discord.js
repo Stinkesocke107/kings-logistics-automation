@@ -28,22 +28,40 @@ async function discord(endpoint, options = {}) {
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
-  const response = await fetch(`${API}${endpoint}`, {
-    method,
-    headers,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-    signal: AbortSignal.timeout(15000)
-  });
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      const response = await fetch(`${API}${endpoint}`, {
+        method,
+        headers,
+        body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+        signal: AbortSignal.timeout(20000)
+      });
+      const body = await response.text();
+      if (response.ok) {
+        if (!body) return null;
+        try { return JSON.parse(body); } catch { return body; }
+      }
 
-  const text = await response.text();
-  if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${endpoint}: ${text.slice(0, 400)}`);
-  }
-  if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return text;
+      if (response.status !== 429 || attempt === 3) {
+        throw new Error(`Discord API ${response.status} on ${method} ${endpoint}: ${body.slice(0, 400)}`);
+      }
+      let retrySeconds = Number(response.headers.get('retry-after'));
+      try {
+        const json = JSON.parse(body);
+        if (Number.isFinite(Number(json.retry_after))) retrySeconds = Number(json.retry_after);
+      } catch {}
+      const waitMs = Math.min(30000, Math.max(1000, Number.isFinite(retrySeconds) ? retrySeconds * 1000 : 2000 * (attempt + 1)));
+      console.warn(`Discord rate limited; retrying in ${waitMs}ms (attempt ${attempt + 1}/4).`);
+      await new Promise(resolve => setTimeout(resolve, waitMs));
+    } catch (error) {
+      const transient = error.name === 'TimeoutError' || error.name === 'AbortError' ||
+        /timeout|fetch failed/i.test(String(error.message || ''));
+      // Never replay an uncertain POST/PATCH/DELETE: the Discord write may have succeeded.
+      if (!transient || method !== 'GET' || attempt === 3) throw error;
+      const waitMs = 1500 * (attempt + 1);
+      console.warn(`Discord GET transient error; retrying in ${waitMs}ms.`);
+      await new Promise(resolve => setTimeout(resolve, waitMs));
+    }
   }
 }
 
