@@ -182,6 +182,26 @@ jobs:
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-overview.js
 
+      - name: Notify Event Leadership about new planning conflicts
+        if: steps.mode.outputs.dry_run != 'true'
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+        run: node convoy-planning-alerts.js
+
+      - name: Persist sent planning alert keys
+        if: steps.mode.outputs.dry_run != 'true'
+        run: |
+          if [ -z "$(git status --porcelain -- data/convoy-planning-alert-state.json)" ]; then
+            echo "No new convoy planning warnings."
+          else
+            git config user.name "Kings Logistics Automation"
+            git config user.email "actions@users.noreply.github.com"
+            git add data/convoy-planning-alert-state.json
+            git commit -m "Persist dispatched Convoy planning alerts"
+            bash scripts/git-safe-push.sh main
+          fi
+
       - name: Sync convoy overview to Discord
         id: convoy_stage_9
         continue-on-error: true
