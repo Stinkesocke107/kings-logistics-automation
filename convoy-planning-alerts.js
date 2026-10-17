@@ -44,9 +44,21 @@ async function main(){
     if(matches.length!==1)throw Error('Cannot uniquely resolve event-leadership channel');
     channel=matches[0].id;
   }
+  // Discord is the recovery ledger if the state commit failed after posting.
+  // Only inspect the latest 100 messages; older state remains in Git.
+  const recent=await call('/channels/'+channel+'/messages?limit=100');
+  const posted=new Set((Array.isArray(recent)?recent:[]).flatMap(message=>{
+    const match=String(message.content||'').match(/Convoy Alert Key: ([a-f0-9]{24})/);
+    return match?[match[1]]:[];
+  }));
   const state={version:1,sent:[...existing.sent]};
   for(const notice of notices){
-    await call('/channels/'+channel+'/messages',{method:'POST',body:JSON.stringify({content:'⚠️ **Kings Convoy Planning Advisory**\n'+describe(notice.warning)+'\nReview in Convoy Center. No convoy status has been changed.',allowed_mentions:{parse:[]}})});
+    if(posted.has(notice.key)){
+      console.log('Recovered previously posted alert '+notice.key);
+    }else{
+      await call('/channels/'+channel+'/messages',{method:'POST',body:JSON.stringify({content:'⚠️ **Kings Convoy Planning Advisory**\\n'+describe(notice.warning)+'\\nReview in Convoy Center. No convoy status has been changed.\\nConvoy Alert Key: '+notice.key,allowed_mentions:{parse:[]}})});
+      posted.add(notice.key);
+    }
     state.sent.push(notice.key);
     // Persist locally after each successful send; pipeline commits after the batch.
     fs.mkdirSync(path.dirname(STATE),{recursive:true});
