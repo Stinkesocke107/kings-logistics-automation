@@ -57,8 +57,8 @@ jobs:
             const response = await fetch(url, {signal: AbortSignal.timeout(20000)});
             const xml = await response.text();
             const root = xml.split('<entry>')[0];
-            const ids = [...root.matchAll(/<yt:channelId>\\s*([^<]+)\\s*<\\/yt:channelId>/g)].map(m => m[1].trim());
-            const title = root.match(/<title>([\\s\\S]*?)<\\/title>/)?.[1];
+            const ids = root.split('<yt:channelId>').slice(1).map(chunk => chunk.split('</yt:channelId>')[0].trim());
+            const title = root.split('<title>')[1]?.split('</title>')[0];
             console.log(JSON.stringify({
               status: response.status,
               contentType: response.headers.get('content-type'),
