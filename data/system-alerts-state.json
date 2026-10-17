@@ -11,17 +11,6 @@
         "completedAt": "2026-10-17T06:51:00Z"
       },
       "firstAlertedAt": "2026-10-17T06:52:39.565Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-17T06:04:44Z",
-        "ageMinutes": 47,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-17T06:52:39.565Z"
     }
   },
   "pending": {}
