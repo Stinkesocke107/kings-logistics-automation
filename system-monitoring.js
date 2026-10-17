@@ -51,7 +51,6 @@ const CRITICAL_FILES = [
   '.github/workflows/driver-management.yml',
   '.github/workflows/hr-leadership.yml',
   '.github/workflows/staff-management.yml',
-  '.github/workflows/management-overview.yml',
   '.github/workflows/leadership-dashboard.yml',
   '.github/workflows/core-backup.yml',
   '.github/workflows/core-recovery.yml',
