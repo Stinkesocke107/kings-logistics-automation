@@ -268,7 +268,7 @@ function refreshFieldsFromThread(item, messages) {
     : null;
 
   if (tmpAuthoritative) {
-    const authoritativeKeys = ['eventType', 'route', 'start', 'destination', 'meetup', 'meetupTime'];
+    const authoritativeKeys = ['route', 'start', 'destination', 'meetup', 'meetupTime', 'departureTime', 'departureAtUtc'];
     for (const key of authoritativeKeys) {
       const value = tmpAuthoritative[key];
       if (value !== null && value !== undefined && String(value).trim() !== '') {
@@ -287,6 +287,8 @@ function refreshFieldsFromThread(item, messages) {
       authoritative: true
     };
   }
+  // Host data never chooses the Kings internal partner/external classification.
+  item.departureAtUtc = parsed.departureAtUtc || null;
   const eventDate = parsed.eventDate || null;
   const meetingTime = parsed.meetupTime || null;
   const parsedTime = parseMeetingTime(eventDate, meetingTime);
