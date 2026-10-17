@@ -46,3 +46,11 @@ Status: cleanup in progress (2026-10-17). **Do not infer deletion safety from th
 - Changelog publisher now polls the explicit editorial queue every 15 minutes; an empty queue causes no Discord posts.
 - Adding editorial entries remains an intentional controlled action to avoid exposing internal GitHub commits as public news.
 - No changelog history or queued items were modified during automation setup.
+
+## Automation and verification classification (2026-10-17)
+- **Production, automatic:** Live Tracker/statistics, news, milestones, Driver/Staff/HR systems, convoy operations, scheduled Leadership dashboard, weekly/monthly report data producers, Changelog queue publisher.
+- **Reliability, automatic:** Central Scheduler, system monitoring, self-healing, core backup, baseline/freeze tests and targeted code-change verifiers. Keep these because they protect correctness even when they look overlapping.
+- **Controlled, manual-only exceptions:** Legacy convoy import and adding curated public Changelog entries. Neither should automatically replay historical events or publish unreviewed changes.
+- **Removed:** `management-overview.yml` manual-only duplicate publisher; `leadership-dashboard.yml` remains automatic. References removed from monitoring and core-E2E required-file lists.
+- Workflow count: **42** (originally 49); seven redundant/one-off workflows removed.
+- Always verify that automatic schedules actually fire, as GitHub schedule triggers may be delayed; retain scheduler recovery logic.
