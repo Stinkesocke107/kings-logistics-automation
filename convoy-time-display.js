@@ -308,7 +308,7 @@ function refreshFieldsFromThread(item, messages) {
   item.validation.checks = checks;
 
   const missing = Object.entries(checks)
-    .filter(([name, ok]) => name !== 'imageProof' && !ok)
+    .filter(([, ok]) => !ok)
     .map(([name]) => name);
 
   if (eventDate && meetingTime && !parsedTime) missing.push('meetingTimeTimezone');
