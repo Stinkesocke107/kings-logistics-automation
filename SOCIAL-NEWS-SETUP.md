@@ -15,7 +15,7 @@ The YouTube RSS feed is public and does not require an API token. It contains re
 
 - Each new TikTok video, Instagram Reel/video and YouTube video/Short exposed in the channel feed receives **its own** Discord message, with a direct link to the original.
 - Kings blue embed: `#182DFF`.
-- **No history/backfill.** On the first successful authenticated poll of each platform, only a baseline is recorded.
+- **No normal history/backfill.** On the first successful authenticated poll of each platform, only a baseline is recorded. The owner separately approved an **explicit one-time latest-video live test** (one post per connected platform, even if that video is older); this is never enabled by schedules or pushes.
 - Each platform has independent ID checkpoints in `data/social-news-state.json`. After every confirmed Discord post, the checkpoint is saved.
 - Before posting an unseen ID, the bot looks through recent News messages for the embedded `Kings Social News: <platform>:<id>` marker. This also helps recover when posting succeeded but the GitHub state push failed.
 - No roles or mass mentions; no deletion or modification of old messages.
@@ -38,6 +38,19 @@ The YouTube RSS feed is public and does not require an API token. It contains re
 5. Run **Kings Social Video News** via workflow_dispatch once. This initializes baselines for every connected platform (YouTube works without its own token) **without announcing historical videos**. Subsequent public uploads are announced separately.
 
 Never paste tokens into Discord, GitHub issues, or this chat. The workflow skips any social platform without a configured token.
+
+
+## One-time owner-approved live test: latest video from each platform
+
+The owner explicitly permits **one** Discord News post containing the **latest** official video from each of TikTok, Instagram and YouTube, even if the video is older, to verify real publication end to end.
+
+1. Connect the existing Discord News webhook and bot token and, for all three platforms, the official TikTok and Instagram account access tokens.
+2. Go to **Actions → Kings Social Video News → Run workflow** on main.
+3. Select **post_latest_test = true** and run it. This is a deliberate, real Discord publication (not a dry run).
+4. Inspect the News channel and the Actions job result. On success, each platform records `latestTestCompletedAt` and `latestTestVideoId` in its deduplication state.
+5. The workflow publishes only the newest available video of each platform, **not** a backlog; repeats of the test input skip platforms already completed. Discord history checking avoids accidental duplicates after state-push failures.
+
+**Caution:** Without the official TikTok/Instagram tokens, those checks cannot run and the test job reports missing credentials. YouTube still needs the Discord webhook and bot token. Scheduled runs and code pushes never opt into this test, and standard future-video-only behavior remains unchanged.
 
 ## Token renewal — required for long-term unattended operation
 

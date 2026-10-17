@@ -257,6 +257,37 @@ async function processFeed(platform, items, state, {webhook, botToken, history =
   if (!next.length) console.log(platform + ': no new videos.');
   return {baseline: false, posted: count};
 }
+/**
+ * Explicit operator-approved live proof: publish ONLY the latest official video
+ * once per platform, even if it predates the ordinary no-history baseline.
+ * Normal scheduled polling never invokes this function.
+ */
+async function processLatestTest(platform, items, state, {webhook, botToken, history = alreadyOnDiscord, publish = post, persist = saveState} = {}) {
+  if (!Array.isArray(items) || !items.length) throw Error(platform + ': no official video available for one-time test.');
+  if (!state.platforms[platform]) {
+    state.platforms[platform] = {
+      startedAt: new Date().toISOString(),
+      seen: [...new Set(items.map(item => item.id))].slice(0, MAX_SEEN),
+      lastCheckedAt: new Date().toISOString()
+    };
+    persist(state); // Save first-connection baseline before attempting a write.
+  }
+  const p = state.platforms[platform];
+  if (p.latestTestCompletedAt) {
+    console.log(platform + ': one-time latest-video proof already completed (' + p.latestTestVideoId + '); skipping.');
+    return {alreadyTested: true, posted: 0};
+  }
+  const latest = [...items].sort((a, b) => Date.parse(b.date) - Date.parse(a.date))[0];
+  const recovered = await history(latest, botToken);
+  if (!recovered) await publish(latest, webhook);
+  else console.log(platform + ': latest video already published to Discord; recovered proof without duplicate.');
+  checkpoint(p, latest.id);
+  p.latestTestVideoId = latest.id;
+  p.latestTestCompletedAt = new Date().toISOString();
+  persist(state);
+  return {alreadyTested: false, posted: recovered ? 0 : 1};
+}
+
 async function main() {
   const state = loadState();
   const accounts = [
@@ -265,6 +296,8 @@ async function main() {
     ['youtube', true, fetchYouTube]
   ];
   // TikTok/Instagram require authorized app tokens; YouTube's public RSS is enabled.
+  const oneTimeTest = process.env.KINGS_SOCIAL_POST_LATEST_TEST === 'true';
+  const missingForTest = oneTimeTest ? accounts.filter(([, credential]) => !credential).map(([platform]) => platform) : [];
   const enabled = accounts.filter(([, credential]) => Boolean(credential));
   const webhook = process.env.NEWS_DISCORD_WEBHOOK_URL;
   const botToken = process.env.DISCORD_BOT_TOKEN;
@@ -273,14 +306,20 @@ async function main() {
   for (const [platform, token, loader] of enabled) {
     try {
       const items = await loader(token);
-      const result = await processFeed(platform, items, state, {webhook, botToken});
-      console.log(platform + ': ' + result.posted + ' new posts sent.');
+      const result = oneTimeTest
+        ? await processLatestTest(platform, items, state, {webhook, botToken})
+        : await processFeed(platform, items, state, {webhook, botToken});
+      console.log(platform + ': ' + result.posted + (oneTimeTest ? ' one-time test posts sent.' : ' new posts sent.'));
+
     } catch (error) {
       failures.push(platform);
       console.error(platform + ' news failed: ' + error.message);
     }
   }
-  if (failures.length) throw Error('Social News checks failed for: ' + failures.join(', '));
+  if (missingForTest.length) {
+    for (const platform of missingForTest) console.error(platform + ': one-time test needs official account access token; nothing posted.');
+  }
+  if (failures.length || missingForTest.length) throw Error('Social News checks failed or credentials missing for: ' + [...failures, ...missingForTest].join(', '));
 }
 if (require.main === module) main().catch(e => {console.error('Kings Social News failed: ' + e.message);process.exitCode = 1;});
-module.exports = {normalize, unseen, marker, validateState, processFeed, fetchTikTok, fetchInstagram, fetchYouTube, parseYouTubeFeed, main, OFFICIAL_PROFILES, YOUTUBE_CHANNEL_ID};
+module.exports = {normalize, unseen, marker, validateState, processFeed, processLatestTest, fetchTikTok, fetchInstagram, fetchYouTube, parseYouTubeFeed, main, OFFICIAL_PROFILES, YOUTUBE_CHANNEL_ID};

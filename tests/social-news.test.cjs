@@ -1,7 +1,7 @@
 'use strict';
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
-const {normalize, unseen, marker, validateState, processFeed} = require('../social-news');
+const {normalize, unseen, marker, validateState, processFeed, processLatestTest} = require('../social-news');
 
 function item(platform, id, date) {
   return {
@@ -188,4 +188,53 @@ test('YouTube news can recover posted messages from Discord without duplicating 
   assert.equal(result.posted, 0);
   assert.equal(posted, 0);
   assert.equal(saved, 1);
+});
+
+test('operator-approved latest-video proof publishes only one old video and never repeats', async () => {
+  const data = {version: 1, platforms: {}};
+  const sent = [], checkpoints = [];
+  const items = [
+    item('tiktok', '801', '2026-09-01T09:00:00Z'),
+    item('tiktok', '802', '2026-09-02T09:00:00Z'),
+    item('tiktok', '803', '2026-09-03T09:00:00Z')
+  ];
+  const hooks = {
+    history: async () => false,
+    publish: async v => {sent.push(v.id);},
+    persist: v => {checkpoints.push(JSON.stringify(v));}
+  };
+  const first = await processLatestTest('tiktok', items, data, hooks);
+  assert.equal(first.posted, 1);
+  assert.deepEqual(sent, ['803']);
+  assert.equal(data.platforms.tiktok.latestTestVideoId, '803');
+  assert.ok(data.platforms.tiktok.latestTestCompletedAt);
+  assert.equal(checkpoints.length, 2);
+  const again = await processLatestTest('tiktok', [item('tiktok', '900', '2090-01-01T00:00:00Z'), ...items], data, hooks);
+  assert.equal(again.posted, 0);
+  assert.deepEqual(sent, ['803']);
+});
+
+test('one-time latest-video proof recovers from Discord without duplicates', async () => {
+  const data = state('instagram', []);
+  const sent = [];
+  const latest = item('instagram', '991', '2026-09-01T09:00:00Z');
+  const result = await processLatestTest('instagram', [latest], data, {
+    history: async () => true,
+    publish: async v => sent.push(v.id),
+    persist: () => {}
+  });
+  assert.equal(result.posted, 0);
+  assert.deepEqual(sent, []);
+  assert.equal(data.platforms.instagram.latestTestVideoId, '991');
+});
+
+test('failed one-time live post never marks the proof as complete', async () => {
+  const data = state('youtube', []);
+  await assert.rejects(processLatestTest('youtube', [item('youtube', 'xyzxyzxyz12', '2026-09-01T09:00:00Z')], data, {
+    history: async () => false,
+    publish: async () => {throw Error('Discord unreachable');},
+    persist: () => {}
+  }), /Discord unreachable/);
+  assert.equal(data.platforms.youtube.latestTestCompletedAt, undefined);
+  assert.equal(data.platforms.youtube.latestTestVideoId, undefined);
 });

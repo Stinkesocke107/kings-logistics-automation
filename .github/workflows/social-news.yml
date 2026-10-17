@@ -2,6 +2,12 @@ name: Kings Social Video News
 
 on:
   workflow_dispatch:
+    inputs:
+      post_latest_test:
+        description: 'One-time latest video per platform as Discord News (can be older; no other backfill)'
+        type: boolean
+        required: true
+        default: false
   schedule:
     # 5-minute polling; starts depend on GitHub Actions scheduling capacity.
     - cron: '4,9,14,19,24,29,34,39,44,49,54,59 * * * *'
@@ -49,6 +55,7 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           NEWS_DISCORD_WEBHOOK_URL: ${{ secrets.NEWS_DISCORD_WEBHOOK_URL }}
           NEWS_DISCORD_CHANNEL_ID: '1479853315264217202'
+          KINGS_SOCIAL_POST_LATEST_TEST: ${{ inputs.post_latest_test || 'false' }}
         run: node social-news.js
 
       - name: Persist Social News deduplication and Discord publication history
