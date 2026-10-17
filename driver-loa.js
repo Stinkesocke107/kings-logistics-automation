@@ -149,23 +149,42 @@ async function discord(pathname, options = {}) {
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
-  const response = await fetch(`${DISCORD_API}${pathname}`, {
-    method,
-    headers,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-    signal: AbortSignal.timeout(15000)
-  });
+  // Retry only read-only Discord requests. Writes may have succeeded even if
+  // their responses time out, so repeating writes could duplicate LOA actions.
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      const response = await fetch(`${DISCORD_API}${pathname}`, {
+        method,
+        headers,
+        body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+        signal: AbortSignal.timeout(20000)
+      });
 
-  const text = await response.text();
-  if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
-  }
+      const body = await response.text();
+      if (response.ok) {
+        if (!body) return null;
+        try { return JSON.parse(body); } catch { return body; }
+      }
 
-  if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return text;
+      if (method !== 'GET' || response.status !== 429 || attempt === 3) {
+        throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${body.slice(0, 500)}`);
+      }
+      let seconds = Number(response.headers.get('retry-after'));
+      try {
+        const payload = JSON.parse(body);
+        if (Number.isFinite(Number(payload.retry_after))) seconds = Number(payload.retry_after);
+      } catch {}
+      const delay = Math.min(30000, Math.max(1000, Number.isFinite(seconds) ? seconds * 1000 : 2000 * (attempt + 1)));
+      console.warn(`Driver LOA Discord GET rate limited; retrying in ${delay}ms.`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    } catch (error) {
+      const transient = error.name === 'TimeoutError' || error.name === 'AbortError' ||
+        /timeout|fetch failed/i.test(String(error.message || ''));
+      if (method !== 'GET' || !transient || attempt === 3) throw error;
+      const delay = 1500 * (attempt + 1);
+      console.warn(`Driver LOA Discord GET timed out; retrying in ${delay}ms.`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
   }
 }
 
