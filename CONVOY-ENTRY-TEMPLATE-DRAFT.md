@@ -4,7 +4,7 @@ This draft documents the new input split. It is not yet the live Discord forum t
 
 ## Event Staff supplies
 - **TruckersMP Event Link:** paste the full event URL, e.g. `https://truckersmp.com/events/12345`. The automation extracts the event ID internally; Event Staff does not need to enter a numeric ID.
-- **Event Type:** `External Convoy` or `Partner Convoy` (Kings classification, selected by Event Staff).
+- **Event Type:** `Kings Convoy`, `Partner Convoy` or `External Convoy` (Kings classification, selected by Event Staff).
 - **Responsible Staff:** Discord @mention.
 - **Kings Slot:** confirmed slot text or uploaded slot image; pending is not confirmed.
 - **Additional Notes:** optional.
@@ -20,3 +20,9 @@ This draft documents the new input split. It is not yet the live Discord forum t
 - Existing convoy threads should not be force-migrated, cancelled, or rewritten solely because new fields are being introduced.
 - Automated daily/monthly quota enforcement and new-entry-only strict validation belong to the next implementation phase.
 - Until the Discord forum template is explicitly updated, this document is a draft rather than user-facing instructions.
+
+## Event type counting policy
+- **Kings Convoy:** Kings-organized internal/official convoy; does not consume the normal external convoy quota or partner convoy quota.
+- **Partner Convoy:** Official partner event, counted under the separate partner daily limits, excluded from the monthly external quota.
+- **External Convoy:** Other external event, counted under the normal external daily and monthly quotas.
+- The 2-hour departure separation rule applies across all three event types, unless a future approved policy explicitly changes it.
