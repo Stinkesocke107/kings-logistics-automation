@@ -1,0 +1,10 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {inspect}=require('../convoy-completeness');
+const now=Date.parse('2026-10-17T08:00:00Z');
+const make=(count,date='2026-10-17T07:59:00Z',errors=0)=>({generatedAt:date,summary:{actualConvoys:count,errors,activeThreads:count,archivedThreads:0}});
+test('healthy snapshot passes',()=>{assert.equal(inspect(make(110),{actualConvoys:115},now).status,'ok')});
+test('major decrease triggers warning',()=>{assert.ok(inspect(make(20),{actualConvoys:110},now).issues.includes('unexpected-count-drop'))});
+test('stale data triggers warning',()=>{assert.ok(inspect(make(110,'2026-10-17T06:00:00Z'),{},now).issues.includes('stale-checker-data'))});
+test('unreadable threads trigger warning',()=>{assert.ok(inspect(make(110,undefined,2),{},now).issues.includes('unreadable-threads'))});
+test('zero current after previous nonzero is warned',()=>{assert.ok(inspect(make(0),{actualConvoys:110},now).issues.includes('all-threads-missing'))});
