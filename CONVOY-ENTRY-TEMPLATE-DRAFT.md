@@ -3,7 +3,7 @@
 This draft documents the new input split. It is not yet the live Discord forum template.
 
 ## Event Staff supplies
-- **TruckersMP Event ID:** numeric ID or full `https://truckersmp.com/events/...` link.
+- **TruckersMP Event Link:** paste the full event URL, e.g. `https://truckersmp.com/events/12345`. The automation extracts the event ID internally; Event Staff does not need to enter a numeric ID.
 - **Event Type:** `External Convoy` or `Partner Convoy` (Kings classification, selected by Event Staff).
 - **Responsible Staff:** Discord @mention.
 - **Kings Slot:** confirmed slot text or uploaded slot image; pending is not confirmed.
