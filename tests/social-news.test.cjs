@@ -112,3 +112,80 @@ test('unseen filtering excludes pre-activation posts even if not tracked in seen
   const p = state('tiktok', []).platforms.tiktok;
   assert.deepEqual(unseen([item('tiktok', '9', '2026-09-30T00:00:00Z')], p), []);
 });
+
+
+const {parseYouTubeFeed, OFFICIAL_PROFILES, YOUTUBE_CHANNEL_ID} = require('../social-news');
+
+function youtubeFeed(entries, channel = YOUTUBE_CHANNEL_ID) {
+  return '<?xml version="1.0" encoding="UTF-8"?>' +
+    '<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns="http://www.w3.org/2005/Atom">' +
+    '<yt:channelId>' + channel + '</yt:channelId>' +
+    entries.map(e => '<entry><yt:videoId>' + e.id + '</yt:videoId>' +
+      '<yt:channelId>' + (e.channel || channel) + '</yt:channelId>' +
+      '<title>' + e.title + '</title><published>' + e.date + '</published></entry>').join('') +
+    '</feed>';
+}
+test('all three Kings social profiles are configured with the exact official URLs', () => {
+  assert.deepEqual(OFFICIAL_PROFILES, {
+    tiktok: 'https://www.tiktok.com/@kings__logistics',
+    instagram: 'https://www.instagram.com/kings___logistics/',
+    youtube: 'https://www.youtube.com/channel/UCB6vBqCWktsZnAyrITC6E-Q'
+  });
+});
+
+test('YouTube public channel RSS recognizes official videos and Shorts in oldest-first news order', async () => {
+  const feed = youtubeFeed([
+    {id: 'dQw4w9WgXcQ', date: '2026-10-17T10:00:00+00:00', title: 'Kings &amp; Friends | Video'},
+    {id: 'abcDE123_-X', date: '2026-10-17T11:00:00+00:00', title: 'New Kings Short'}
+  ]);
+  const items = parseYouTubeFeed(feed);
+  assert.equal(items.length, 2);
+  assert.equal(items[0].caption, 'Kings & Friends | Video');
+  assert.equal(items[0].url, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+  assert.equal(marker(items[1]), 'Kings Social News: youtube:abcDE123_-X');
+  const data = {version: 1, platforms: {}}, posted = [];
+  const hooks = {
+    history: async () => false,
+    publish: async value => {posted.push(value.id);},
+    persist: () => {}
+  };
+  await processFeed('youtube', items, data, hooks);
+  assert.deepEqual(posted, []);
+  const later = parseYouTubeFeed(youtubeFeed([
+    ...[{id:'dQw4w9WgXcQ',date:'2026-10-17T10:00:00Z',title:'Video'},
+        {id:'abcDE123_-X',date:'2026-10-17T11:00:00Z',title:'Short'}],
+    {id:'zzzzzZ12345',date:'2090-10-17T12:00:00Z',title:'Fresh YouTube Short'}
+  ]));
+  const result = await processFeed('youtube', later, data, hooks);
+  assert.equal(result.posted, 1);
+  assert.deepEqual(posted, ['zzzzzZ12345']);
+  const again = await processFeed('youtube', later, data, hooks);
+  assert.equal(again.posted, 0);
+});
+
+test('YouTube rejects non-Kings channel feeds, corrupt XML and bogus entries', () => {
+  assert.throws(() => parseYouTubeFeed(youtubeFeed([
+    {id: 'abcdefghijk', title: 'Another channel', date: '2026-10-17T10:00:00Z'}
+  ], 'UCOtherWrongChannel12345')), /does not belong/);
+  assert.throws(() => parseYouTubeFeed('<html>blocked</html>'), /Invalid or oversized/);
+  assert.throws(() => parseYouTubeFeed(youtubeFeed([
+    {id: 'bad', title:'Bad ID', date:'2026-10-17T10:00:00Z'}
+  ])), /missing valid ID/);
+  assert.throws(() => validateState({version: 1, platforms: {youtube: {startedAt: 'invalid', seen: []}}}), /refusing to reset/);
+});
+
+test('YouTube news can recover posted messages from Discord without duplicating them', async () => {
+  const feed = parseYouTubeFeed(youtubeFeed([
+    {id:'abcdefghijk',title:'Kings Video',date:'2026-10-17T10:00:00Z'}
+  ]));
+  const data = state('youtube', []);
+  let posted = 0, saved = 0;
+  const result = await processFeed('youtube', feed, data, {
+    history: async item => marker(item) === 'Kings Social News: youtube:abcdefghijk',
+    publish: async () => {posted++;},
+    persist: () => {saved++;}
+  });
+  assert.equal(result.posted, 0);
+  assert.equal(posted, 0);
+  assert.equal(saved, 1);
+});
