@@ -30,7 +30,7 @@ on:
       - "Kings HR Leadership Overview"
       - "Kings Driver Management"
       - "Kings Staff Management"
-      - "Kings Leadership Overviews"
+      - "Kings Consolidated Leadership Dashboard"
       - "Kings Milestone Detector"
       - "Kings System Monitoring"
     types: [completed]
@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-overviews.yml milestones.yml driver-management.yml staff-management.yml; do
+          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml; do
             state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}" --jq '.state')"
             echo "${workflow}: ${state}"
             test "$state" = "active"
@@ -177,7 +177,7 @@ jobs:
             dispatch_if_due hr-leadership.yml 0
             dispatch_if_due driver-management.yml 0
             dispatch_if_due staff-management.yml 0
-            dispatch_if_due leadership-overviews.yml 0
+            dispatch_if_due leadership-dashboard.yml 0
           else
             # Native cadence is normally faster than these recovery thresholds.
             dispatch_if_due live-tracker.yml 540
@@ -186,7 +186,7 @@ jobs:
             dispatch_if_due hr-leadership.yml 1200
             dispatch_if_due driver-management.yml 4500
             dispatch_if_due staff-management.yml 1200
-            dispatch_if_due leadership-overviews.yml 46800
+            dispatch_if_due leadership-dashboard.yml 46800
           fi
 
           echo "Scheduler pass complete. No long-running sleep loop remains."
