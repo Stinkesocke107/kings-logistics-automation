@@ -1,6 +1,17 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
+  "active": {
+    "workflow-failed:driver-management.yml": {
+      "severity": "critical",
+      "system": "Driver Management",
+      "message": "Driver Management latest completed run ended with failure.",
+      "details": {
+        "runId": 39020776679,
+        "completedAt": "2026-10-17T09:21:30Z"
+      },
+      "firstAlertedAt": "2026-10-17T09:24:54.029Z"
+    }
+  },
   "pending": {}
 }
