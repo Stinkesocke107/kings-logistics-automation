@@ -132,6 +132,10 @@ function isResponsibleStaff(value = '') {
   return /<@!?\d+>/.test(String(value));
 }
 
+function isKingsAssembly(value = '') {
+  return /^(?:Kings Organizer\s*\/\s*Assembly Area|Kings Assembly Area)$/i.test(String(value).trim());
+}
+
 function isConfirmedSlot(value = '') {
   const text = String(value).trim();
   if (!text) return false;
@@ -276,7 +280,8 @@ function applyFinalFields(item, messages) {
   const checks = {
     eventLink: Boolean(eventLink || item.eventId),
     responsibleStaff: isResponsibleStaff(parsed.responsibleStaff),
-    kingsSlotConfirmed: Boolean(slotImage) || isConfirmedSlot(parsed.kingsSlot),
+    kingsSlotConfirmed: (String(parsed.eventType || '').trim().toLowerCase() === 'kings convoy' && isKingsAssembly(parsed.kingsSlot)) || Boolean(slotImage) || isConfirmedSlot(parsed.kingsSlot),
+    eventType: ['Kings Convoy', 'Partner Convoy', 'External Convoy'].includes(parsed.eventType),
     truckersmpSync: tmpOk,
     eventDate: Boolean(eventDate),
     route: Boolean(parsed.route || (parsed.start && parsed.destination)),
@@ -302,7 +307,7 @@ function applyFinalFields(item, messages) {
   item.manualRequirements = {
     eventLink: Boolean(eventLink),
     responsibleStaff: isResponsibleStaff(parsed.responsibleStaff),
-    kingsSlotConfirmed: Boolean(slotImage) || isConfirmedSlot(parsed.kingsSlot)
+    kingsSlotConfirmed: checks.kingsSlotConfirmed
   };
   item.kingsOverrides = {
     route: routeOverride?.value || null,
