@@ -317,6 +317,8 @@ function applyFinalFields(item, messages) {
 function deriveStatus(item) {
   const explicitStatus = item.staffStatus?.status || null;
   if (explicitStatus === 'Cancelled' || explicitStatus === 'Completed') return explicitStatus;
+  // Public organiser cancellation is authoritative for the event itself.
+  if (item.truckersmpSync?.ok && item.truckersmp?.publicCancelled === true) return 'Cancelled';
   if (item.duplicateEventId) return 'Needs Information';
   if (!item.validation?.complete) return 'Needs Information';
   if (explicitStatus === 'Needs Information') return 'Needs Information';
