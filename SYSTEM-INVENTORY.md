@@ -1,6 +1,12 @@
 # Kings Logistics – Automation Inventory
 
-Status: initial classification (2026-10-17). **Do not infer deletion safety from this file alone.**
+Status: cleanup in progress (2026-10-17). **Do not infer deletion safety from this file alone.**
+
+## Verified removals
+- Removed `.github/workflows/statistics.yml`: redundant manual-only invocation of Statistics and Central Overview; these run automatically via `live-tracker.yml`.
+- Removed `.github/workflows/leadership-channel-diagnostic.yml`: one-time, push-on-self-change diagnostic with no production schedule.
+- Workflow count reduced from 49 to 47. Existing data and Discord messages untouched.
+
 
 ## Operating policy
 - Production systems run automatically via schedule, push or workflow_run. Manual dispatch is an emergency/recovery option only.
@@ -15,8 +21,6 @@ Status: initial classification (2026-10-17). **Do not infer deletion safety from
 - Leadership Dashboards, News, Milestones, Backups, system monitoring, self-healing, plus scheduled report producers.
 
 ## Known maintenance-only or one-time workflows: audit before removal
-- `statistics.yml`: manual duplicate of statistics and central overview already present in Live Tracker.
-- `leadership-channel-diagnostic.yml`: push-on-self-change-only diagnostic.
 - `leadership-dashboard-bootstrap.yml`: one-time bootstrap, not required for normal scheduled dashboard updates.
 - `legacy-convoy-discovery.yml`, `legacy-convoy-import.yml`, `legacy-october-audit.yml`: manual migration/audit; NEVER schedule automatically.
 - Verification workflows: retain on code changes or periodic verification as appropriate; do not treat these as redundant based on names.
