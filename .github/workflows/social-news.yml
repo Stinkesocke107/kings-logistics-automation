@@ -1,0 +1,68 @@
+name: Kings Social Video News
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 5-minute polling; starts depend on GitHub Actions scheduling capacity.
+    - cron: '4,9,14,19,24,29,34,39,44,49,54,59 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'social-news.js'
+      - 'tests/social-news.test.cjs'
+      - '.github/workflows/social-news.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-social-video-news
+  cancel-in-progress: false
+
+jobs:
+  social-news:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify Social News code
+        run: |
+          node --check social-news.js
+          node --test tests/social-news.test.cjs
+
+      # Code pushes validate only; they must never unexpectedly publish to Discord.
+      - name: Check TikTok and Instagram official videos
+        if: github.event_name != 'push'
+        env:
+          SOCIAL_TIKTOK_ACCESS_TOKEN: ${{ secrets.SOCIAL_TIKTOK_ACCESS_TOKEN }}
+          SOCIAL_INSTAGRAM_ACCESS_TOKEN: ${{ secrets.SOCIAL_INSTAGRAM_ACCESS_TOKEN }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          NEWS_DISCORD_WEBHOOK_URL: ${{ secrets.NEWS_DISCORD_WEBHOOK_URL }}
+          NEWS_DISCORD_CHANNEL_ID: '1479853315264217202'
+        run: node social-news.js
+
+      - name: Persist Social News deduplication and Discord publication history
+        if: always() && github.event_name != 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- data/social-news-state.json)" ]; then
+            echo "No Social News checkpoint changes."
+            exit 0
+          fi
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A -- data/social-news-state.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Persist Kings Social News publication state"
+          bash scripts/git-safe-push.sh main
