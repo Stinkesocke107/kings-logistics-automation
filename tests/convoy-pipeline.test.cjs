@@ -49,6 +49,12 @@ test('convoy pipeline: submission → API sync → approval → reminder → fol
   let report=await stage('convoy-checker.js');
   assert.equal(report.threads[0].status,'Needs Information');
   await stage('convoy-truckersmp-sync.js');
+  const savedProof=messages[0].attachments;
+  messages[0].attachments=[];
+  report=await stage('convoy-time-display.js');
+  assert.equal(report.threads[0].status,'Needs Information');
+  assert.equal(report.threads[0].validation.checks.imageProof,false);
+  messages[0].attachments=savedProof;
   report=await stage('convoy-time-display.js');
   assert.equal(report.threads[0].status,'Scheduled');
   assert.equal(report.threads[0].validation.checks.imageProof,true);
