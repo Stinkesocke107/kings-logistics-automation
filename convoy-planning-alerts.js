@@ -24,7 +24,9 @@ async function main(){
   if(report.mode!=='advisory-only'||!Array.isArray(report.warnings))throw Error('Invalid advisory report');
   const existing=fs.existsSync(STATE)?JSON.parse(fs.readFileSync(STATE,'utf8')):{version:1,sent:[]};
   if(!Array.isArray(existing.sent))throw Error('Invalid alert state');
-  const notices=pending(report.warnings,existing);
+  const monthNow=new Date().toISOString().slice(0,7);
+  const activeWarnings=report.warnings.filter(w=>String(w.period||'').slice(0,7)>=monthNow);
+  const notices=pending(activeWarnings,existing);
   if(!notices.length){console.log('No new convoy planning warnings.');return;}
   if(process.env.CONVOY_DRY_RUN==='true'){console.log('Read-only: '+notices.map(n=>describe(n.warning)).join(' | '));return;}
   const token=process.env.DISCORD_BOT_TOKEN;
