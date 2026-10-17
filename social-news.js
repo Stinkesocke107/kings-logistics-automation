@@ -49,6 +49,11 @@ function normalize(platform, video) {
   if (u.protocol !== 'https:' || !(platform === 'tiktok' ? /(^|\.)tiktok\.com$/.test(u.hostname) : /(^|\.)instagram\.com$/.test(u.hostname))) {
     throw Error('Untrusted or missing ' + platform + ' media permalink: ' + video.id);
   }
+  // The TikTok video URL itself must refer to the Kings account authorized for news.
+  // This fails closed if someone accidentally connects a different TikTok profile.
+  if (platform === 'tiktok' && !/^\/@kings__logistics\/video\/[0-9]+\/?$/i.test(u.pathname)) {
+    throw Error('TikTok account mismatch: media URL is not from official @kings__logistics');
+  }
   return {
     platform, id: String(video.id), url: u.toString(), date: date.toISOString(),
     caption: limitText(platform === 'tiktok' ? (video.title || video.video_description) : video.caption, 1200),
@@ -95,7 +100,18 @@ async function fetchTikTok(token) {
   }
   throw Error('TikTok has more than 100 unread videos. Refusing to silently skip any.');
 }
+async function verifyInstagramAccount(token, read = readJson) {
+  const url = new URL('https://graph.instagram.com/v24.0/me');
+  url.searchParams.set('fields', 'id,username');
+  const user = await read(url.toString(), {headers: {Authorization: 'Bearer ' + token}});
+  if (!user || !user.id || typeof user.username !== 'string' ||
+      user.username.toLowerCase() !== 'kings___logistics') {
+    throw Error('Instagram account mismatch: authorized account must be @kings___logistics');
+  }
+  return {id: String(user.id), username: user.username};
+}
 async function fetchInstagram(token) {
+  await verifyInstagramAccount(token);
   const result = [];
   let after = '';
   for (let page = 0; page < 5; page++) {
@@ -307,16 +323,21 @@ async function main() {
     ['youtube', true, fetchYouTube]
   ];
   // TikTok/Instagram require authorized app tokens; YouTube's public RSS is enabled.
-  const oneTimeTest = process.env.KINGS_SOCIAL_POST_LATEST_TEST === 'true';
-  const missingForTest = oneTimeTest ? accounts.filter(([, credential]) => !credential).map(([platform]) => platform) : [];
+  const verifyOnly = process.env.KINGS_SOCIAL_VERIFY_CONNECTIONS_ONLY === 'true';
+  const oneTimeTest = !verifyOnly && process.env.KINGS_SOCIAL_POST_LATEST_TEST === 'true';
+  const missingForTest = (oneTimeTest || verifyOnly) ? accounts.filter(([, credential]) => !credential).map(([platform]) => platform) : [];
   const enabled = accounts.filter(([, credential]) => Boolean(credential));
   const webhook = process.env.NEWS_DISCORD_WEBHOOK_URL;
   const botToken = process.env.DISCORD_BOT_TOKEN;
-  if (!webhook || !botToken) throw Error('Missing NEWS_DISCORD_WEBHOOK_URL or DISCORD_BOT_TOKEN. Refusing unsafe publication.');
+  if (!verifyOnly && (!webhook || !botToken)) throw Error('Missing NEWS_DISCORD_WEBHOOK_URL or DISCORD_BOT_TOKEN. Refusing unsafe publication.');
   const failures = [];
   for (const [platform, token, loader] of enabled) {
     try {
       const items = await loader(token);
+      if (verifyOnly) {
+        console.log(platform + ': official API connection verified (' + items.length + ' media items read); no Discord posts, no state changes.');
+        continue;
+      }
       const result = oneTimeTest
         ? await processLatestTest(platform, items, state, {webhook, botToken})
         : await processFeed(platform, items, state, {webhook, botToken});
@@ -333,4 +354,4 @@ async function main() {
   if (failures.length || missingForTest.length) throw Error('Social News checks failed or credentials missing for: ' + [...failures, ...missingForTest].join(', '));
 }
 if (require.main === module) main().catch(e => {console.error('Kings Social News failed: ' + e.message);process.exitCode = 1;});
-module.exports = {normalize, unseen, marker, validateState, processFeed, processLatestTest, fetchTikTok, fetchInstagram, fetchYouTube, parseYouTubeFeed, main, OFFICIAL_PROFILES, YOUTUBE_CHANNEL_ID};
+module.exports = {normalize, unseen, marker, validateState, processFeed, processLatestTest, fetchTikTok, fetchInstagram, verifyInstagramAccount, fetchYouTube, parseYouTubeFeed, main, OFFICIAL_PROFILES, YOUTUBE_CHANNEL_ID};

@@ -3,6 +3,11 @@ name: Kings Social Video News
 on:
   workflow_dispatch:
     inputs:
+      verify_connections_only:
+        description: 'Check authorized TikTok/Instagram and YouTube feeds without posting to Discord or modifying state'
+        type: boolean
+        required: true
+        default: false
       post_latest_test:
         description: 'One-time latest video per platform as Discord News (can be older; no other backfill)'
         type: boolean
@@ -61,6 +66,7 @@ jobs:
           NEWS_DISCORD_WEBHOOK_URL: ${{ secrets.NEWS_DISCORD_WEBHOOK_URL }}
           NEWS_DISCORD_CHANNEL_ID: '1479853315264217202'
           KINGS_SOCIAL_POST_LATEST_TEST: ${{ inputs.post_latest_test || 'false' }}
+          KINGS_SOCIAL_VERIFY_CONNECTIONS_ONLY: ${{ inputs.verify_connections_only || 'false' }}
         run: node social-news.js
 
       - name: Persist Social News deduplication and Discord publication history

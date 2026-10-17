@@ -1,7 +1,7 @@
 'use strict';
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
-const {normalize, unseen, marker, validateState, processFeed, processLatestTest} = require('../social-news');
+const {normalize, unseen, marker, validateState, processFeed, processLatestTest, verifyInstagramAccount} = require('../social-news');
 
 function item(platform, id, date) {
   return {
@@ -18,7 +18,7 @@ function state(platform, ids = []) {
 }
 
 test('official TikTok video URL, ID and timestamp are validated', () => {
-  const v = normalize('tiktok', {id: '12345', share_url: 'https://www.tiktok.com/@kings/video/12345', create_time: 1790000000, title: 'Test'});
+  const v = normalize('tiktok', {id: '12345', share_url: 'https://www.tiktok.com/@kings__logistics/video/12345', create_time: 1790000000, title: 'Test'});
   assert.equal(v.platform, 'tiktok');
   assert.equal(v.id, '12345');
   assert.equal(marker(v), 'Kings Social News: tiktok:12345');
@@ -254,4 +254,25 @@ test('real-world YouTube feed internal ID omitting UC is allowed only with canon
   const wrongCanonical = withCanonicalIdentity.replace('href="https://www.youtube.com/channel/' + YOUTUBE_CHANNEL_ID + '"',
     'href="https://www.youtube.com/channel/UCUnrelatedChannel123"');
   assert.throws(() => parseYouTubeFeed(wrongCanonical), /does not belong/);
+});
+
+test('TikTok refuses media belonging to another account even with a valid token', () => {
+  assert.throws(() => normalize('tiktok', {
+    id:'333333', share_url:'https://www.tiktok.com/@otheraccount/video/333333', create_time:1790000000
+  }), /account mismatch/);
+  const official = normalize('tiktok', {
+    id:'333333', share_url:'https://www.tiktok.com/@kings__logistics/video/333333', create_time:1790000000
+  });
+  assert.equal(official.id, '333333');
+});
+test('Instagram verifies official profile before any media is eligible for Discord news', async () => {
+  const mock = async (url, opts) => {
+    assert.match(url, /graph\.instagram\.com\/v24\.0\/me\?fields=/);
+    assert.equal(opts.headers.Authorization, 'Bearer mock-token');
+    return {id:'123456', username:'kings___logistics'};
+  };
+  const user = await verifyInstagramAccount('mock-token', mock);
+  assert.equal(user.username, 'kings___logistics');
+  await assert.rejects(verifyInstagramAccount('mock-token', async () => ({id:'123',username:'somebody_else'})), /account mismatch/);
+  await assert.rejects(verifyInstagramAccount('mock-token', async () => ({})), /account mismatch/);
 });

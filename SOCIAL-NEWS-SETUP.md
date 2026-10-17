@@ -22,6 +22,20 @@ The YouTube RSS feed is public and does not require an API token. Live diagnosis
 - TikTok and Instagram APIs and the official YouTube RSS are **read only**. Posting happens **only** to the established Discord News webhook.
 - Scheduled checks run approximately every five minutes, but GitHub Actions schedules can be delayed.
 
+## Live connection prerequisites and safeguards
+
+The current GitHub failure is caused by absent official TikTok and Instagram access tokens; a GitHub workflow cannot create an OAuth authorization on behalf of the owner.
+
+**TikTok:** Create/approve a TikTok developer app at https://developers.tiktok.com/, add Login Kit + Display API, approve `user.info.basic` and `video.list`, register a compliant OAuth redirect URI, and authorize **@kings__logistics**. Save only the resulting access token in `SOCIAL_TIKTOK_ACCESS_TOKEN` (GitHub Actions secret). TikTok access tokens expire after roughly 24 hours; the owner must also arrange a secure refresh-token manager that persists rotated refresh tokens outside Git.
+
+**Instagram:** Confirm **@kings___logistics** is Business or Creator, configure **Instagram API with Instagram Login** at https://developers.facebook.com/apps/ with `instagram_business_basic`, and authorize that account. This route does not require a Facebook Page. Save its user access token in `SOCIAL_INSTAGRAM_ACCESS_TOKEN` (GitHub Actions secret). The integration verifies `/me` returns exactly **kings___logistics** before it fetches any media.
+
+The TikTok media links are likewise restricted to videos published by the exact official @kings__logistics profile. The workflow **never** silently switches to scraping or an unofficial API.
+
+**Safe preflight:** Actions → Kings Social Video News → Run workflow → set `verify_connections_only=true` and leave `post_latest_test=false`. This checks available official feeds and account identity **without posting to Discord or changing deduplication state**. If credentials are missing, the run reports those platforms as missing while still checking YouTube. Once both accounts pass, rerun with `verify_connections_only=false` and `post_latest_test=true` for the one-time latest-video announcement approved by the owner.
+
+**Token lifecycle:** GitHub Actions secrets cannot be automatically rewritten by this workflow with only `contents: write` permissions. A durable TikTok integration requires an external secure rotation store or dedicated secrets-management service; do not assume the initial access-token secret alone provides ongoing service. Instagram long-lived credentials also need renewal. No tokens or OAuth codes should be pasted into public issues, Git commits, Discord channels, or chats.
+
 ## Connect the official accounts (required before live posting)
 
 **YouTube:** the public feed is configured for Kings channel `UCB6vBqCWktsZnAyrITC6E-Q`; no YouTube login or API key is required. A first authenticated workflow run with an existing Discord News webhook/bot will baseline current YouTube uploads without posting them. Only later releases will be published. The public RSS feed exposes a limited number of recent entries, so this does **not** guarantee that an upload missed during a prolonged outage will be recoverable.
