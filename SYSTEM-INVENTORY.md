@@ -35,3 +35,9 @@ Status: cleanup in progress (2026-10-17). **Do not infer deletion safety from th
 2. Identify truly unused one-shot/duplicate workflows, remove one at a time.
 3. Ensure all productive functions run automatically, but do NOT automate migrations or replay historical notifications.
 4. Verify GitHub Actions, read-only system health, alerts, dashboard and state persistence after changes.
+
+## Leadership consolidation (2026-10-17)
+- Removed `.github/workflows/leadership-overviews.yml` because it duplicated scheduled consolidated dashboard publication.
+- Central Scheduler and monitoring now target `leadership-dashboard.yml`.
+- Driver/HR/Management weekly producers remain automatically scheduled because the consolidated dashboard reads their state files; legacy Discord posts stay suppressed.
+- Workflow count after consolidation: 43.
