@@ -74,6 +74,22 @@ const FRESH_DATA = [
   { file: 'data/driver-achievements-summary.json', label: 'Driver Achievement data', maxAgeMinutes: 2400, severity: 'warning' }
 ];
 
+function checkConvoyCompleteness(issues) {
+  const file = 'data/convoy-completeness-state.json';
+  const result = readJson(file);
+  if (!result.exists) return { ok: null, reason: 'awaiting-first-healthy-live-snapshot' };
+  if (result.error || !result.data || !Number.isFinite(Number(result.data.actualConvoys))) {
+    issues.push(issue('convoy-completeness-invalid', 'critical', 'Convoy Completeness', 'The last healthy convoy snapshot is unreadable or invalid.'));
+    return { ok: false, reason: 'invalid-snapshot' };
+  }
+  const age = ageMinutes(result.data.updatedAt);
+  if (age === null || age > 45 || age < -5) {
+    issues.push(issue('convoy-completeness-stale', 'critical', 'Convoy Completeness', 'No healthy convoy snapshot in the last 45 minutes.', { ageMinutes: age, latestCount: result.data.actualConvoys }));
+    return { ok: false, reason: 'stale', ageMinutes: age };
+  }
+  return { ok: true, ageMinutes: age, latestCount: result.data.actualConvoys };
+}
+
 function nowISO() {
   return new Date().toISOString();
 }
@@ -658,6 +674,7 @@ async function main() {
   const workflows = await checkWorkflows(issues);
   const freshData = checkFreshData(issues, workflows);
   const integrity = checkCrossSystemIntegrity(issues);
+  const convoyCompleteness = checkConvoyCompleteness(issues);
   // Run API-health inspection after workflow API calls so the monitoring engine's
   // own GitHub API health state is included in this same health report.
   const apiHealth = checkApiHealth(issues);
@@ -686,6 +703,7 @@ async function main() {
       apiServicesHealthy: apiHealth.healthy,
       apiServicesDegraded: apiHealth.degraded,
       apiServicesDown: apiHealth.down,
+      convoyCompletenessHealthy: convoyCompleteness.ok,
       integrityChecks: integrity.length,
       integrityHealthy: integrity.filter((item) => item.ok).length,
       criticalIssues: issues.filter((item) => item.severity === 'critical').length,
@@ -697,6 +715,7 @@ async function main() {
       freshness: freshData,
       apiHealth,
       integrity,
+      convoyCompleteness,
       encryptedStates
     },
     repository: {
