@@ -190,6 +190,13 @@ function buildMessage(overview) {
   const month = overview.months?.[currentMonth] || makeEmptyMonth();
 
   const today = generatedAt.toISOString().slice(0, 10);
+  const planning = overview.planning || {};
+  const monthWarnings = (planning.warnings || []).filter(w => String(w.period || '').slice(0, 7) === currentMonth);
+  const dailyWarnings = monthWarnings.filter(w => w.code === 'external-day-over-limit' || w.code === 'partner-day-over-limit');
+  const departureWarnings = monthWarnings.filter(w => w.code === 'departure-under-two-hours');
+  const unresolvedTypes = (planning.unknownTypes || []).filter(x => String(x.date || '').slice(0, 7) === currentMonth);
+  const unknownDeparture = (planning.missingDepartures || []).filter(x => String(x.date || '').slice(0, 7) === currentMonth);
+
 
   // Convoy Overview shows every planned convoy, even when some operational
   // details are still pending. Reminder eligibility remains stricter elsewhere.
@@ -222,7 +229,9 @@ function buildMessage(overview) {
     '## 📈 Convoy Planning',
     `🚛 External: **${overview.planning?.months?.[currentMonth]?.external ?? 0}/20** · 🤝 Partner: **${overview.planning?.months?.[currentMonth]?.partner ?? 0}** · 👑 Kings: **${overview.planning?.months?.[currentMonth]?.kings ?? 0}**`,
     `📅 Today: External **${overview.planning?.days?.[today]?.external ?? 0}/2** · Partner **${overview.planning?.days?.[today]?.partner ?? 0}/3** · Kings **${overview.planning?.days?.[today]?.kings ?? 0}**`,
-    `⚠️ Planning conflicts: **${(overview.planning?.warnings || []).filter(w => String(w.period || '').slice(0, 7) === currentMonth).length}** · Unclassified: **${overview.planning?.unknownTypes?.length ?? 0}**`,
+    `⚠️ Planning alerts: **${monthWarnings.length}** · Daily limits: **${dailyWarnings.length}** · Departure conflicts: **${departureWarnings.length}**`,
+    `🔎 Unclassified: **${unresolvedTypes.length}** · Departure time missing: **${unknownDeparture.length}**`,
+    monthWarnings.length ? `⚠️ **Needs review:** ${monthWarnings.slice(0, 2).map(w => w.code === 'departure-under-two-hours' ? 'Departure <2h' : w.code === 'external-month-threshold' ? 'External '+w.threshold+'/20' : w.code.replace(/-/g, ' ')).join(' · ')}${monthWarnings.length > 2 ? ' · +' + (monthWarnings.length - 2) + ' more' : ''}` : '✅ No current-month planning alerts',
     '',
     '## ⏭️ Next Convoy'
   ];
