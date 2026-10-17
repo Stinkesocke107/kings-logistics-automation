@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-17T17:07:31.099Z",
+  "updatedAt": "2026-10-17T18:25:37.240Z",
   "currentDrivers": 110,
-  "onlineNow": 1,
+  "onlineNow": 0,
   "joinedLast7Days": 2,
   "joinedLast30Days": 4,
   "leftLast7Days": 0,
