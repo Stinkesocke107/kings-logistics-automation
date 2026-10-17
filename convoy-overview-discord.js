@@ -272,8 +272,14 @@ function buildMessage(overview) {
   );
 
   let content = lines.filter((value) => value !== null && value !== undefined).join('\n');
-  if (content.length > 1990) {
-    content = `${content.slice(0, 1940)}\n…\n🤖 Updated automatically every 15 minutes.`;
+  // Discord branding can expand plain Kings text into custom emoji markup.
+  // Keep headroom and enforce the limit on the final branded payload.
+  const footer = '\n…\n🤖 Updated automatically every 15 minutes.';
+  if (brandMessageContent(content).length > 1950) {
+    content = `${content.slice(0, Math.max(0, 1750 - footer.length))}${footer}`;
+  }
+  while (brandMessageContent(content).length > 1950) {
+    content = content.slice(0, -100);
   }
   return content;
 }
