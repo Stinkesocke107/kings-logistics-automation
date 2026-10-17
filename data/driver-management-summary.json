@@ -1,7 +1,7 @@
 {
-  "version": 2,
+  "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-17T09:21:02.833Z",
+  "updatedAt": "2026-10-17T09:49:12.704Z",
   "currentDrivers": 110,
   "onlineNow": 0,
   "joinedLast7Days": 2,
@@ -11,6 +11,7 @@
   "activity": {
     "grace": 2,
     "active": 11,
+    "approvedLeave": 0,
     "info7Days": 5,
     "attention14Days": 92,
     "hrReview30Days": 0,
@@ -95,7 +96,8 @@
     "infoDays": 7,
     "attentionDays": 14,
     "hrReviewDays": 30,
-    "newDriverGraceDays": 14
+    "newDriverGraceDays": 14,
+    "approvedLeavePausesInactivity": true
   },
-  "note": "Advisory only. The automation never kicks, bans, removes, disciplines, or changes roles for Drivers. Human Leadership/HR always decides any action."
+  "note": "Advisory only. Approved leave pauses inactivity counting. The automation never kicks, bans, removes, disciplines, or changes roles for Drivers. Human Leadership/HR always decides any action."
 }
