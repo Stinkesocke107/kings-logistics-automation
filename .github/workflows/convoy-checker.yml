@@ -199,7 +199,10 @@ jobs:
             git config user.email "actions@users.noreply.github.com"
             git add data/convoy-planning-alert-state.json
             git commit -m "Persist dispatched Convoy planning alerts"
-            bash scripts/git-safe-push.sh main
+            if ! bash scripts/git-safe-push.sh main; then
+              echo "::error::Convoy alert state could not be persisted. Discord history provides short-term recovery only."
+              exit 1
+            fi
           fi
 
       - name: Sync convoy overview to Discord
