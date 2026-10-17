@@ -343,6 +343,7 @@ function main() {
     countingRule: 'Convoy Center confirmed-slot convoys plus the one-time frozen Legacy Calendar migration. Convoy Center Event IDs always override matching Legacy entries. Legacy pending/unknown slots stay visible as Needs Information but do not trigger Driver reminders.',
     overall: {
       realConvoySubmissions: realThreads.length,
+      convoyReadErrors: (report.threads || []).filter(item => !item.ignored && item.error).length,
       countedConvoys: countedConvoys.length,
       confirmedKingsSlots,
       upcomingScheduledConvoys: upcomingConvoys.length,
