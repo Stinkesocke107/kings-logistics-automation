@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "technical-safe-self-healing",
-  "updatedAt": "2026-10-17T17:59:00.460Z",
+  "updatedAt": "2026-10-17T20:24:51.267Z",
   "repairs": {
     "live-tracker": {
       "attempts": [
@@ -25,23 +25,25 @@
             "stale-data:data/live-tracker-snapshot.json",
             "workflow-overdue:live-tracker.yml"
           ]
+        },
+        {
+          "at": "2026-10-17T20:24:32.479Z",
+          "outcome": "recovered",
+          "action": "dispatched",
+          "runId": 39066560965,
+          "issueIds": [
+            "stale-data:data/live-tracker-snapshot.json",
+            "stale-data:data/statistics.json",
+            "workflow-overdue:live-tracker.yml"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-10-17T17:58:41.971Z",
-      "lastSuccessAt": "2026-10-17T17:58:41.971Z",
+      "lastAttemptAt": "2026-10-17T20:24:32.479Z",
+      "lastSuccessAt": "2026-10-17T20:24:32.479Z",
       "lastFailureAt": "2026-10-13T11:38:05.603Z"
     },
     "driver-updates": {
       "attempts": [
-        {
-          "at": "2026-10-16T18:57:24.019Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 38951254864,
-          "issueIds": [
-            "workflow-overdue:driver-updates.yml"
-          ]
-        },
         {
           "at": "2026-10-17T00:15:15.457Z",
           "outcome": "recovered",
@@ -86,10 +88,19 @@
           "issueIds": [
             "workflow-overdue:driver-updates.yml"
           ]
+        },
+        {
+          "at": "2026-10-17T20:24:51.267Z",
+          "outcome": "recovered",
+          "action": "dispatched",
+          "runId": 39066582927,
+          "issueIds": [
+            "workflow-overdue:driver-updates.yml"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-10-17T17:59:00.460Z",
-      "lastSuccessAt": "2026-10-17T17:59:00.460Z",
+      "lastAttemptAt": "2026-10-17T20:24:51.267Z",
+      "lastSuccessAt": "2026-10-17T20:24:51.267Z",
       "lastFailureAt": null
     },
     "core-backup": {
