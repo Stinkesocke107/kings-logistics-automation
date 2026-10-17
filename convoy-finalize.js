@@ -282,6 +282,7 @@ function applyFinalFields(item, messages) {
     responsibleStaff: isResponsibleStaff(parsed.responsibleStaff),
     kingsSlotConfirmed: (String(parsed.eventType || '').trim().toLowerCase() === 'kings convoy' && isKingsAssembly(parsed.kingsSlot)) || Boolean(slotImage) || isConfirmedSlot(parsed.kingsSlot),
     eventType: ['Kings Convoy', 'Partner Convoy', 'External Convoy'].includes(parsed.eventType),
+    imageProof: Boolean(slotImage),
     truckersmpSync: tmpOk,
     eventDate: Boolean(eventDate),
     route: Boolean(parsed.route || (parsed.start && parsed.destination)),
