@@ -46,6 +46,32 @@ jobs:
           node --check social-news.js
           node --test tests/social-news.test.cjs
 
+      # Read-only public YouTube diagnosis on code pushes; no Discord access.
+      - name: Diagnose YouTube feed channel identity
+        if: github.event_name == 'push'
+        run: |
+          node - <<'NODE'
+          (async () => {
+            const expected = 'UCB6vBqCWktsZnAyrITC6E-Q';
+            const url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + expected;
+            const response = await fetch(url, {signal: AbortSignal.timeout(20000)});
+            const xml = await response.text();
+            const root = xml.split('<entry>')[0];
+            const ids = [...root.matchAll(/<yt:channelId>\\s*([^<]+)\\s*<\\/yt:channelId>/g)].map(m => m[1].trim());
+            const title = root.match(/<title>([\\s\\S]*?)<\\/title>/)?.[1];
+            console.log(JSON.stringify({
+              status: response.status,
+              contentType: response.headers.get('content-type'),
+              expectedChannelId: expected,
+              feedRootChannelIds: ids,
+              feedChannelTitle: title,
+              entryCount: [...xml.matchAll(/<entry>/g)].length,
+              feedRootPreview: root.slice(0, 600)
+            }, null, 2));
+            if (!response.ok) process.exitCode = 1;
+          })().catch(e => { console.error(e.message); process.exitCode = 1; });
+          NODE
+
       # Code pushes validate only; they must never unexpectedly publish to Discord.
       - name: Check TikTok Instagram and YouTube official videos
         if: github.event_name != 'push'
