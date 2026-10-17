@@ -51,6 +51,7 @@ test('convoy pipeline: submission → API sync → approval → reminder → fol
   await stage('convoy-truckersmp-sync.js');
   report=await stage('convoy-time-display.js');
   assert.equal(report.threads[0].status,'Scheduled');
+  assert.equal(report.threads[0].validation.checks.imageProof,true);
   assert.equal(report.threads[0].validation.parsed.kingsSlot,'Slot 5');
   assert.equal(report.threads[0].validation.parsed.eventType,'External Convoy');
   assert.ok(report.threads[0].validation.parsed.departureAtUtc);
