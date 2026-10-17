@@ -241,7 +241,7 @@ function checkFields(starterText, messages, threadId = null) {
   const meetupTime = getFieldValue(starterText, ['Meeting Time', 'Meetup Time', 'Departure Time', 'Time']);
   const slotImages = kingsSlotImages(messages, threadId);
   const slotImage = slotImages[0] || null;
-  const kingsSlotConfirmed = Boolean(slotImage) || isConfirmedSlot(kingsSlot);
+  const kingsSlotConfirmed = Boolean(slotImage) || isConfirmedSlot(kingsSlot) || (String(eventType || '').trim().toLowerCase() === 'kings convoy' && /^(?:Kings Organizer\s*\/\s*Assembly Area|Kings Assembly Area)$/i.test(String(kingsSlot || '').trim()));
   const effectiveKingsSlot = kingsSlot || (slotImage ? 'Confirmed — Slot image' : null);
 
   const checks = {
