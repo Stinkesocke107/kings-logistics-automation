@@ -1,4 +1,5 @@
 name: Kings Central Scheduler
+# Diagnostic heartbeat: verify the regular recovery path after overdue monitoring alerts.
 
 on:
   workflow_dispatch:
