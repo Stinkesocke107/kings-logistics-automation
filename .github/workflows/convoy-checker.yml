@@ -209,6 +209,7 @@ jobs:
           path: |
             output/convoy-check-results.json
             output/convoy-overview.json
+            output/convoy-planning-limits.json
             output/convoy-overview.md
           if-no-files-found: ignore
           retention-days: 14
