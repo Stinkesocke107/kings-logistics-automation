@@ -41,7 +41,7 @@ jobs:
           node --test tests/social-news.test.cjs
 
       # Code pushes validate only; they must never unexpectedly publish to Discord.
-      - name: Check TikTok and Instagram official videos
+      - name: Check TikTok Instagram and YouTube official videos
         if: github.event_name != 'push'
         env:
           SOCIAL_TIKTOK_ACCESS_TOKEN: ${{ secrets.SOCIAL_TIKTOK_ACCESS_TOKEN }}
