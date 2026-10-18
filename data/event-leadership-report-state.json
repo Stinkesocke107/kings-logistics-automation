@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-10-17T21:25:22.720Z",
+  "updatedAt": "2026-10-18T21:27:59.070Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -217,6 +217,48 @@
       "duplicateEventId": false,
       "archived": false,
       "eventUnix": 1794243600
+    },
+    {
+      "threadId": "1561398997841870909",
+      "name": "11. April - (P) NeoCrime",
+      "eventId": "38385",
+      "status": "Scheduled",
+      "eventDate": "2027-04-11",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1807462800
+    },
+    {
+      "threadId": "1561400743217471648",
+      "name": "7. March - Ethereal Transport",
+      "eventId": "38127",
+      "status": "Scheduled",
+      "eventDate": "2027-03-07",
+      "meetupTime": "12:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1804420800
+    },
+    {
+      "threadId": "1561402209445355761",
+      "name": "31. October - Guiding Line Auto",
+      "eventId": "38364",
+      "status": "Scheduled",
+      "eventDate": "2026-10-31",
+      "meetupTime": "18:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1793469600
     }
   ],
   "changeLog": [
@@ -832,6 +874,66 @@
         "archived": false,
         "eventUnix": 1794243600
       }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-18T21:27:58.846Z",
+      "threadId": "1561398997841870909",
+      "name": "11. April - (P) NeoCrime",
+      "current": {
+        "threadId": "1561398997841870909",
+        "name": "11. April - (P) NeoCrime",
+        "eventId": "38385",
+        "status": "Scheduled",
+        "eventDate": "2027-04-11",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1807462800
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-18T21:27:58.846Z",
+      "threadId": "1561400743217471648",
+      "name": "7. March - Ethereal Transport",
+      "current": {
+        "threadId": "1561400743217471648",
+        "name": "7. March - Ethereal Transport",
+        "eventId": "38127",
+        "status": "Scheduled",
+        "eventDate": "2027-03-07",
+        "meetupTime": "12:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1804420800
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-18T21:27:58.846Z",
+      "threadId": "1561402209445355761",
+      "name": "31. October - Guiding Line Auto",
+      "current": {
+        "threadId": "1561402209445355761",
+        "name": "31. October - Guiding Line Auto",
+        "eventId": "38364",
+        "status": "Scheduled",
+        "eventDate": "2026-10-31",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1793469600
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -839,7 +941,8 @@
     "2026-10-14",
     "2026-10-15",
     "2026-10-16",
-    "2026-10-17"
+    "2026-10-17",
+    "2026-10-18"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05"
