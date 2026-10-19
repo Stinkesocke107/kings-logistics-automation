@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-19T20:44:19.713Z",
+  "updatedAt": "2026-10-19T22:38:47.854Z",
   "currentDrivers": 110,
-  "onlineNow": 0,
+  "onlineNow": 1,
   "joinedLast7Days": 2,
   "joinedLast30Days": 4,
   "leftLast7Days": 1,
@@ -23,8 +23,8 @@
     "oneToThreeMonths": 22,
     "threeToSixMonths": 21,
     "sixToTwelveMonths": 27,
-    "oneToTwoYears": 32,
-    "twoToThreeYears": 3,
+    "oneToTwoYears": 31,
+    "twoToThreeYears": 4,
     "threeYearsPlus": 1,
     "unknown": 0,
     "longestServing": [
@@ -38,7 +38,7 @@
         "tmpId": 5419500,
         "username": "Magierjuwel",
         "joinDate": "2024-03-19T21:42:42.000Z",
-        "tenureDays": 943
+        "tenureDays": 944
       },
       {
         "tmpId": 5318474,
@@ -50,13 +50,13 @@
         "tmpId": 5358213,
         "username": "Taser00700",
         "joinDate": "2024-06-25T21:42:19.000Z",
-        "tenureDays": 845
+        "tenureDays": 846
       },
       {
         "tmpId": 5655769,
         "username": "JackyJack",
         "joinDate": "2024-10-19T21:14:31.000Z",
-        "tenureDays": 729
+        "tenureDays": 730
       }
     ],
     "newestDrivers": [
