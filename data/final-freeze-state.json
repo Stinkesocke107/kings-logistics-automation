@@ -1,9 +1,9 @@
 {
   "version": 1,
   "status": "FINAL-FREEZE-VERIFIED",
-  "verifiedAt": "2026-10-18T21:03:26.510Z",
-  "sourceCommit": "0d74511c442d06151c000986526d14b32b4771f7",
-  "sourceTree": "62f619fc3056dc2aa2bbaa5a38901c0a331c6b5d",
+  "verifiedAt": "2026-10-19T05:20:46.549Z",
+  "sourceCommit": "1a18864b7048570e63b9a0cb5009c8d598adab8b",
+  "sourceTree": "63069f668fbb042eb101bf55fac036c306cc2dd0",
   "protectedCoreFingerprintSha256": "6d7d50125f7a409f0938103b783ee573e9d8d918fa02495cfa2a103465222196",
   "protectedCoreFiles": 153,
   "baselineId": "KINGS-CORE-BASELINE-2026-10-01-P23-READINESS",
