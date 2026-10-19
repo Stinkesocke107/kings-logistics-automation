@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-19T13:05:23.357Z",
+  "updatedAt": "2026-10-19T14:39:18.914Z",
   "currentDrivers": 110,
   "onlineNow": 0,
   "joinedLast7Days": 2,
@@ -20,8 +20,8 @@
   "tenure": {
     "known": 110,
     "under1Month": 4,
-    "oneToThreeMonths": 23,
-    "threeToSixMonths": 20,
+    "oneToThreeMonths": 22,
+    "threeToSixMonths": 21,
     "sixToTwelveMonths": 27,
     "oneToTwoYears": 32,
     "twoToThreeYears": 3,
@@ -76,7 +76,7 @@
         "tmpId": 5504138,
         "username": "GoosiestBrother",
         "joinDate": "2026-10-02T14:03:55.000Z",
-        "tenureDays": 16
+        "tenureDays": 17
       },
       {
         "tmpId": 5155783,
