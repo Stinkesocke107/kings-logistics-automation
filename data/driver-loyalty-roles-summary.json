@@ -1,7 +1,7 @@
 {
   "version": 2,
   "mode": "live",
-  "updatedAt": "2026-10-18T13:23:33.262Z",
+  "updatedAt": "2026-10-19T16:33:34.450Z",
   "currentDrivers": 110,
   "matchedCurrentDrivers": 26,
   "newMappings": 0,
@@ -11,9 +11,9 @@
   "linkedDiscordNotOnGuild": 1,
   "truckersmpProfileErrors": 0,
   "eligibleForLoyaltyTier": 26,
-  "roleAdditions": 2,
-  "roleRemovals": 0,
-  "alreadyCorrect": 25,
+  "roleAdditions": 3,
+  "roleRemovals": 1,
+  "alreadyCorrect": 24,
   "formerDriverMappingsCleaned": 0,
   "umbrellaRole": {
     "id": "1555009783357112400",
