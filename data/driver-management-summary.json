@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-19T15:39:45.992Z",
+  "updatedAt": "2026-10-19T16:08:54.345Z",
   "currentDrivers": 110,
   "onlineNow": 0,
   "joinedLast7Days": 2,
@@ -70,7 +70,7 @@
         "tmpId": 6383526,
         "username": "AmeristarTruckingCo",
         "joinDate": "2026-10-14T15:54:13.000Z",
-        "tenureDays": 4
+        "tenureDays": 5
       },
       {
         "tmpId": 5504138,
