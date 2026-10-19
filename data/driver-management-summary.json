@@ -1,25 +1,25 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-19T16:08:54.345Z",
-  "currentDrivers": 110,
+  "updatedAt": "2026-10-19T18:43:47.590Z",
+  "currentDrivers": 111,
   "onlineNow": 0,
-  "joinedLast7Days": 2,
-  "joinedLast30Days": 4,
+  "joinedLast7Days": 3,
+  "joinedLast30Days": 5,
   "leftLast7Days": 0,
   "leftLast30Days": 3,
   "activity": {
-    "grace": 2,
+    "grace": 3,
     "active": 11,
     "approvedLeave": 0,
-    "info7Days": 3,
-    "attention14Days": 94,
+    "info7Days": 2,
+    "attention14Days": 95,
     "hrReview30Days": 0,
     "unknown": 0
   },
   "tenure": {
-    "known": 110,
-    "under1Month": 4,
+    "known": 111,
+    "under1Month": 5,
     "oneToThreeMonths": 22,
     "threeToSixMonths": 21,
     "sixToTwelveMonths": 27,
@@ -61,6 +61,12 @@
     ],
     "newestDrivers": [
       {
+        "tmpId": 5224803,
+        "username": "Amr_Fahmy",
+        "joinDate": "2026-10-19T16:50:00.000Z",
+        "tenureDays": 0
+      },
+      {
         "tmpId": 1461015,
         "username": "JONAS (BR277)",
         "joinDate": "2026-10-17T03:18:58.000Z",
@@ -83,12 +89,6 @@
         "username": "giudf211",
         "joinDate": "2026-09-27T20:31:21.000Z",
         "tenureDays": 21
-      },
-      {
-        "tmpId": 6345786,
-        "username": "Maxi_274",
-        "joinDate": "2026-08-29T19:21:08.000Z",
-        "tenureDays": 50
       }
     ]
   },
