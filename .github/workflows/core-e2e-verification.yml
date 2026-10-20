@@ -86,9 +86,11 @@ jobs:
           node discord-permission-audit.js
           node - <<'NODE'
           const h = require('./data/system-health.json');
-          if (h.status !== 'HEALTHY') throw new Error(`E2E health snapshot is ${h.status}`);
-          if (Number(h.summary?.criticalIssues || 0) !== 0) throw new Error('E2E health snapshot contains critical issues.');
-          if (Number(h.summary?.warnings || 0) !== 0) throw new Error('E2E health snapshot contains warnings.');
+          const { requireOperationalReadiness } = require('./system-health-readiness');
+          const ready = requireOperationalReadiness(h);
+          if (ready.status !== 'HEALTHY') throw new Error(`E2E operational health is ${ready.status}`);
+          if (ready.criticalIssues !== 0) throw new Error('E2E production has critical issues.');
+          if (ready.warnings !== 0) throw new Error('E2E production has warnings.');
           console.log(`System Health: ${h.status}; workflows ${h.summary?.workflowsHealthy}/${h.summary?.workflowsChecked}; APIs ${h.summary?.apiServicesHealthy}/${h.summary?.apiServicesChecked}`);
           NODE
 

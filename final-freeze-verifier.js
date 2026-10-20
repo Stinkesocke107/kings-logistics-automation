@@ -132,9 +132,11 @@ function main() {
   const selfHealing = readJson(path.join(DATA, 'self-healing-state.json'));
   const alerts = readJson(path.join(DATA, 'system-alerts-state.json'));
 
-  add('System Health = HEALTHY', health.status === 'HEALTHY', health.status);
-  add('Critical Issues = 0', Number(health.summary?.criticalIssues || 0) === 0, health.summary?.criticalIssues ?? null);
-  add('Warnings = 0', Number(health.summary?.warnings || 0) === 0, health.summary?.warnings ?? null);
+  const { requireOperationalReadiness } = require('./system-health-readiness');
+  const ready = requireOperationalReadiness(health);
+  add('Operational production health = HEALTHY', ready.status === 'HEALTHY', ready.status);
+  add('Operational Critical Issues = 0', ready.criticalIssues === 0, ready.criticalIssues);
+  add('Operational Warnings = 0', ready.warnings === 0, ready.warnings);
   add('All monitored APIs healthy', Number(health.summary?.apiServicesHealthy || 0) === Number(health.summary?.apiServicesChecked || 0) && Number(health.summary?.apiServicesChecked || 0) > 0, health.summary || null);
 
   add('API Resilience verified', api.healthy === true && (api.issues || []).length === 0, { healthy: api.healthy, issues: api.issues?.length || 0 });

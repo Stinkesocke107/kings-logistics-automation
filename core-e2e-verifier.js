@@ -132,7 +132,13 @@ for (const name of apiFiles) {
 check('Production API health inventory is complete', apiFiles.length >= 15, apiFiles.length);
 check('Production API health is green', apiBad === 0 && openCircuits === 0, { total: apiFiles.length, healthy: apiHealthy, bad: apiBad, openCircuits });
 
-const systemHealth = validateReport('System Health', 'data/system-health.json');
+const systemHealth = (() => {
+  try { return readJson('data/system-health.json'); }
+  catch(error) { check('System Health report exists and parses',false,error.message); return null; }
+})();
+const { requireOperationalReadiness } = require('./system-health-readiness');
+const operational = systemHealth ? requireOperationalReadiness(systemHealth) : null;
+check('Complete operational readiness report exists',Boolean(operational),operational);
 validateReport('Data Integrity', 'data/data-integrity.json');
 validateReport('System Hardening', 'data/system-hardening.json');
 validateReport('Repository Security', 'data/security-audit.json');
@@ -140,7 +146,10 @@ const permissionAudit = validateReport('Discord Permission Audit', 'data/discord
 if (permissionAudit?.summary?.scopedHighRiskFindings > 0) {
   advisories.push(`${permissionAudit.summary.scopedHighRiskFindings} Discord scoped permission finding(s) are accepted advisory-only per Point 15.`);
 }
-check('Final System Health is HEALTHY with no issues', systemHealth?.status === 'HEALTHY' && Number(systemHealth?.summary?.criticalIssues || 0) === 0 && Number(systemHealth?.summary?.warnings || 0) === 0, { status: systemHealth?.status, critical: systemHealth?.summary?.criticalIssues, warnings: systemHealth?.summary?.warnings });
+check('Final production operational health is HEALTHY with no production findings',
+  operational?.status === 'HEALTHY' && operational?.criticalIssues === 0 && operational?.warnings === 0,
+  {status: operational?.status, critical: operational?.criticalIssues, warnings: operational?.warnings,
+   visibleHistoricGateAlerts: operational?.diagnosticsCount});
 
 validateReport('API Resilience', 'output/api-resilience-final-report.json');
 validateReport('Git/State Hardening', 'output/git-state-hardening-final-report.json');

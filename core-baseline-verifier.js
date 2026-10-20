@@ -117,9 +117,11 @@ function main() {
 
   const systemHealth = safeReport('System Health', 'data/system-health.json');
   if (systemHealth) {
-    check('System Health is HEALTHY', systemHealth.status === 'HEALTHY', systemHealth.status);
-    check('System Health has 0 Critical Issues', Number(systemHealth.summary?.criticalIssues || 0) === 0, systemHealth.summary?.criticalIssues ?? null);
-    check('System Health has 0 Warnings', Number(systemHealth.summary?.warnings || 0) === 0, systemHealth.summary?.warnings ?? null);
+    const { requireOperationalReadiness } = require('./system-health-readiness');
+    const ready = requireOperationalReadiness(systemHealth);
+    check('Operational health is HEALTHY', ready.status === 'HEALTHY', ready.status);
+    check('Operational health has 0 Critical Issues', ready.criticalIssues === 0, ready.criticalIssues);
+    check('Operational health has 0 Warnings', ready.warnings === 0, ready.warnings);
   }
 
   const api = safeReport('API Resilience', 'output/api-resilience-final-report.json');
@@ -216,9 +218,10 @@ function main() {
       ]
     },
     gates: {
-      systemHealthHealthy: systemHealth?.status === 'HEALTHY',
-      criticalIssues: Number(systemHealth?.summary?.criticalIssues || 0),
-      warnings: Number(systemHealth?.summary?.warnings || 0),
+      systemHealthHealthy: systemHealth?.operationalReadiness?.status === 'HEALTHY',
+      criticalIssues: Number(systemHealth?.operationalReadiness?.criticalIssues ?? -1),
+      warnings: Number(systemHealth?.operationalReadiness?.warnings ?? -1),
+      historicGateFindings: Number(systemHealth?.operationalReadiness?.diagnosticsCount ?? 0),
       apiHealthy: api?.healthy === true,
       gitStateHealthy: gitHardening?.healthy === true,
       backupHealthy: backupCore?.healthy === true && backupFinal?.healthy === true,

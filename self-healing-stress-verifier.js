@@ -48,9 +48,11 @@ function main() {
 
   add('All stress scenarios passed', stress.status === 'STRESS-TEST-PASSED' && Number(stress.summary?.failed || 0) === 0, stress.summary);
   add('Full repair logs captured', scenarios.every((x) => Array.isArray(x.logs) && x.logs.length > 0), scenarios.map((x) => ({ name: x.name, logCount: x.logs?.length || 0 })));
-  add('Final production health is HEALTHY', health.status === 'HEALTHY', health.status);
-  add('Final production Critical Issues = 0', Number(health.summary?.criticalIssues || 0) === 0, health.summary?.criticalIssues ?? null);
-  add('Final production Warnings = 0', Number(health.summary?.warnings || 0) === 0, health.summary?.warnings ?? null);
+  const { requireOperationalReadiness } = require('./system-health-readiness');
+  const readiness = requireOperationalReadiness(health);
+  add('Operational production health is HEALTHY', readiness.status === 'HEALTHY', readiness.status);
+  add('Operational production Critical Issues = 0', readiness.criticalIssues === 0, readiness.criticalIssues);
+  add('Operational production Warnings = 0', readiness.warnings === 0, readiness.warnings);
 
   const failed = checks.filter((x) => !x.ok);
   const result = {

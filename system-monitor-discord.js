@@ -150,6 +150,7 @@ function buildMessage(health) {
     MARKER,
     '',
     `${statusIcon(health.status)} **Overall Status:** \`${health.status || 'UNKNOWN'}\``,
+    `🏗️ **Production Readiness:** \`${health.operationalReadiness?.status || 'UNKNOWN'}\` · ${health.operationalReadiness?.diagnosticsCount || 0} historic quality-gate finding(s) shown separately`,
     `🔎 **Automation Coverage:** ${summary.workflowsHealthy ?? 0}/${summary.workflowsChecked ?? 0} scheduled healthy · ${coverage.registered ?? 'unknown'} total workflows (${coverage.onDemand ?? '?'} on-demand)`,
     '',
     '**All Kings Automation Areas**',

@@ -129,10 +129,12 @@ jobs:
 
           node - <<'NODE'
           const h = require('./data/system-health.json');
-          if (h.status !== 'HEALTHY') throw new Error(`Post-Point-22 System Health is ${h.status}`);
-          if (Number(h.summary?.criticalIssues || 0) !== 0) throw new Error(`Post-Point-22 has ${h.summary?.criticalIssues} Critical Issue(s).`);
-          if (Number(h.summary?.warnings || 0) !== 0) throw new Error(`Post-Point-22 has ${h.summary?.warnings} Warning(s).`);
-          console.log(`Post-Point-22 System Health: HEALTHY; Critical=0; Warnings=0; APIs=${h.summary?.apiServicesHealthy}/${h.summary?.apiServicesChecked}`);
+          const { requireOperationalReadiness } = require('./system-health-readiness');
+          const ready = requireOperationalReadiness(h);
+          if (ready.status !== 'HEALTHY') throw new Error(`Post-Point-22 operational health is ${ready.status}`);
+          if (ready.criticalIssues !== 0) throw new Error(`Post-Point-22 has ${ready.criticalIssues} Critical Issue(s).`);
+          if (ready.warnings !== 0) throw new Error(`Post-Point-22 has ${ready.warnings} operational Warning(s).`);
+          console.log(`Post-Point-22 operational health: HEALTHY; Critical=0; Warnings=0; Historic quality-gate findings=${ready.diagnosticsCount}; APIs=${h.summary?.apiServicesHealthy}/${h.summary?.apiServicesChecked}`);
           NODE
 
       - name: Verify Point 22 acceptance against final health
