@@ -33,14 +33,31 @@
         "maxAgeMinutes": 120
       },
       "firstAlertedAt": "2026-10-20T12:59:56.829Z"
+    },
+    "workflow-overdue:news-production-verification.yml": {
+      "severity": "warning",
+      "system": "TruckersMP News Verification",
+      "message": "TruckersMP News Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-20T10:16:06Z",
+        "ageMinutes": 208,
+        "maxAgeMinutes": 180
+      },
+      "firstAlertedAt": "2026-10-20T13:44:30.238Z"
     }
   },
   "pending": {
-    "workflow-overdue:news-production-verification.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-20T13:36:42.160Z",
-      "system": "TruckersMP News Verification",
-      "message": "TruckersMP News Verification has not run within the expected time window."
+      "firstSeenAt": "2026-10-20T13:44:30.238Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-20T13:44:30.238Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
   }
 }
