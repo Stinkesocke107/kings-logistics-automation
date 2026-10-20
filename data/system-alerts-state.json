@@ -22,17 +22,6 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-10-20T12:59:56.829Z"
-    },
-    "workflow-overdue:news-production-verification.yml": {
-      "severity": "warning",
-      "system": "TruckersMP News Verification",
-      "message": "TruckersMP News Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-20T10:16:06Z",
-        "ageMinutes": 208,
-        "maxAgeMinutes": 180
-      },
-      "firstAlertedAt": "2026-10-20T13:44:30.238Z"
     }
   },
   "pending": {}
