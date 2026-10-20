@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { resilientFetchJson } = require('./api-resilience');
+const { operationalReadinessFromIssues } = require('./system-health-readiness');
 
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'data');
@@ -709,12 +710,16 @@ async function main() {
   issues.sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || a.system.localeCompare(b.system));
 
   const status = buildStatus(issues);
+  // Global status retains ALL alerts; readiness excludes only historic
+  // Final-Freeze self-reference to permit a new verification attempt.
+  const operationalReadiness = operationalReadinessFromIssues(issues);
   const result = {
     version: 1,
     mode: 'read-only-monitoring',
     checkedAt: nowISO(),
     status,
     healthy: status === 'HEALTHY',
+    operationalReadiness,
     summary: {
       workflowsRegistered: workflowRegistry.registered,
       workflowsScheduled: workflowRegistry.scheduled,
