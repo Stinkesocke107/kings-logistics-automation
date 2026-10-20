@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml social-news.yml changelog.yml staff-leadership-live-overview.yml convoy-announcement-verifier.yml self-healing.yml probation.yml; do
+          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml social-news.yml changelog.yml staff-leadership-live-overview.yml convoy-announcement-verifier.yml self-healing.yml probation.yml system-monitoring.yml; do
             state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}" --jq '.state')"
             echo "${workflow}: ${state}"
             test "$state" = "active"
@@ -222,6 +222,7 @@ jobs:
             # check. It cannot modify roles or members, and an active run
             # cannot be duplicated.
             dispatch_if_due probation.yml 0 '' 1200 3600
+            dispatch_if_due system-monitoring.yml 0
           else
             # Native cadence is normally faster than these recovery thresholds.
             dispatch_if_due live-tracker.yml 540
@@ -246,6 +247,10 @@ jobs:
             # change Discord roles or personnel status. Recovery only after
             # missing >= 3 hours, with one-hour attempt spacing.
             dispatch_if_due probation.yml 10800 '' 1200 3600
+            # Monitoring is independently scheduled at :15/:45. Recover only
+            # after >= 75 minutes without success; its own workflow_run
+            # wake-up will not dispatch it again while healthy.
+            dispatch_if_due system-monitoring.yml 4500
           fi
 
           echo "Scheduler pass complete. No long-running sleep loop remains."

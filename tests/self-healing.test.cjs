@@ -195,3 +195,13 @@ test('manual-only critical issue produces escalation without executing anything'
   assert.equal(result.plan.unresolvedUnsafe.length, 1);
   assert.equal(result.status, 'escalation-required');
 });
+
+test('self-healing engine does not treat unrelated technical warnings as a repair error', async () => {
+  const result = await runHealingCycle({
+    health: health('DEGRADED', [{ id: 'workflow-failed:final-freeze-verification.yml', severity: 'warning', system: 'Final Freeze', message: 'latest quality gate failed' }]),
+    state: emptyState(), execute: async () => { throw Error('No unsafe dispatch expected'); }
+  });
+  assert.equal(result.status, 'no-safe-repair-available');
+  assert.equal(result.plan.plans.length, 0);
+  assert.deepEqual(result.plan.unresolvedUnsafe.map(item=>item.severity), ['warning']);
+});

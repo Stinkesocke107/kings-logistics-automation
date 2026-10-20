@@ -493,7 +493,12 @@ async function main() {
   if (!canExecute && cycle.plan.plans.length) {
     console.error('Safe repairs were required but GITHUB_REPOSITORY/GITHUB_TOKEN is unavailable.');
     process.exitCode = 1;
-  } else if (['escalation-required', 'no-safe-repair-available'].includes(cycle.status) && health.status !== 'HEALTHY') {
+  } else if (cycle.status === 'escalation-required' ||
+             (cycle.status === 'no-safe-repair-available' && Number(health.summary?.criticalIssues || 0) > 0)) {
+    // Unrelated, non-critical provider/verification warnings cannot be
+    // repaired by this restricted engine. Keep them in the report and Discord
+    // monitoring, but do not claim the *repair engine* failed to operate.
+    // Critical unrepairable faults always remain a hard failure.
     process.exitCode = 1;
   }
 }
