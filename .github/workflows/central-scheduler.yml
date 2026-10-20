@@ -15,8 +15,8 @@ on:
     paths:
       - '.github/workflows/central-scheduler.yml'
 
-  # Short fallback/recovery pass every 5 minutes. Native workflow crons remain
-  # the preferred producers; this scheduler only fills genuine gaps.
+  # One common 5-minute recovery heartbeat. Native producer crons remain
+  # deliberately staggered to limit Discord/API bursts and Git commit conflicts.
   schedule:
     - cron: '3-58/5 * * * *'
 
@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml; do
+          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml social-news.yml changelog.yml; do
             state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}" --jq '.state')"
             echo "${workflow}: ${state}"
             test "$state" = "active"
@@ -77,9 +77,8 @@ jobs:
           }
 
           active_managed_run() {
-            local workflow="$1"
-            managed_run_snapshot "$workflow" \
-              | jq -r '
+            local snapshot="$1"
+            jq -r '
                   [
                     .workflow_runs[]
                     | select(.event == "schedule" or .event == "workflow_dispatch")
@@ -92,19 +91,29 @@ jobs:
                       )
                   ][0]
                   | if . then "\(.id)|\(.status)|\(.created_at)" else "" end
-                '
+                ' <<< "$snapshot"
           }
 
           latest_successful_run() {
-            local workflow="$1"
-            managed_run_snapshot "$workflow" \
-              | jq -r '
+            local snapshot="$1"
+            jq -r '
                   [
                     .workflow_runs[]
                     | select(.event == "schedule" or .event == "workflow_dispatch")
                     | select(.status == "completed" and .conclusion == "success")
                   ][0].updated_at // ""
-                '
+                ' <<< "$snapshot"
+          }
+
+          latest_completed_run() {
+            local snapshot="$1"
+            jq -r '
+                [
+                  .workflow_runs[]
+                  | select(.event == "schedule" or .event == "workflow_dispatch")
+                  | select(.status == "completed")
+                ][0].updated_at // ""
+              ' <<< "$snapshot"
           }
 
           dispatch_if_due() {
@@ -113,10 +122,13 @@ jobs:
             local mode="${3:-}"
             local max_active_age_seconds="${4:-1200}"
             local active active_id active_status active_created active_epoch active_age
-            local latest_success latest_epoch now age
+            local latest_success latest_epoch latest_completed completed_epoch now age snapshot
 
             now="$(date -u +%s)"
-            active="$(active_managed_run "$workflow")"
+            # One API read per producer per pass, not two or three. This also
+            # makes active/freshness/cooldown decisions use the same run list.
+            snapshot="$(managed_run_snapshot "$workflow")"
+            active="$(active_managed_run "$snapshot")"
             if [ -n "$active" ]; then
               IFS='|' read -r active_id active_status active_created <<< "$active"
               active_age=0
@@ -133,7 +145,7 @@ jobs:
               echo "::warning::${workflow}: managed run ${active_id} is still ${active_status} after ${active_age}s; treating it as stuck and allowing one recovery dispatch."
             fi
 
-            latest_success="$(latest_successful_run "$workflow")"
+            latest_success="$(latest_successful_run "$snapshot")"
 
             if [ -n "$latest_success" ]; then
               latest_epoch="$(date -u -d "$latest_success" +%s)"
@@ -144,12 +156,33 @@ jobs:
               fi
             fi
 
-            echo "${workflow}: stale with no recent active run; dispatching recovery."
+            # If the latest execution failed, wait a few minutes before retrying.
+            # Without a cooldown, unrelated workflow_run wake-ups could create
+            # a storm of failing dispatches and unnecessary GitHub API calls.
+            if [ "$max_success_age_seconds" -gt 0 ]; then
+              latest_completed="$(latest_completed_run "$snapshot")"
+              if [ -n "$latest_completed" ]; then
+                completed_epoch="$(date -u -d "$latest_completed" +%s)"
+                if [ $(( now - completed_epoch )) -lt 300 ]; then
+                  echo "${workflow}: recently completed a managed run; observing 5-minute recovery cooldown."
+                  return 0
+                fi
+              fi
+            fi
+
+            echo "${workflow}: overdue with no recent active run; dispatching one safe recovery."
             if [ "$workflow" = "convoy-checker.yml" ]; then
               gh api --method POST \
                 "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/dispatches" \
                 -f ref=main \
                 -f "inputs[mode]=${mode:-live}"
+            elif [ "$workflow" = "social-news.yml" ]; then
+              # Never enable the explicit one-time historical-video test.
+              gh api --method POST \
+                "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/dispatches" \
+                -f ref=main \
+                -f 'inputs[verify_connections_only]=false' \
+                -f 'inputs[post_latest_test]=false'
             else
               gh api --method POST \
                 "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/dispatches" \
@@ -160,10 +193,7 @@ jobs:
           echo "Running short Kings scheduler recovery pass."
 
           force_all=false
-          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
-            force_all=true
-            echo "Scheduler deployment bootstrap: forcing one complete managed recovery pass."
-          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "${FORCE_ALL_INPUT:-false}" = "true" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "${FORCE_ALL_INPUT:-false}" = "true" ]; then
             force_all=true
             echo "Manual force_all recovery requested."
           fi
@@ -178,6 +208,10 @@ jobs:
             dispatch_if_due driver-management.yml 0
             dispatch_if_due staff-management.yml 0
             dispatch_if_due leadership-dashboard.yml 0
+            dispatch_if_due driver-updates.yml 0
+            dispatch_if_due news.yml 0
+            dispatch_if_due social-news.yml 0
+            dispatch_if_due changelog.yml 0
           else
             # Native cadence is normally faster than these recovery thresholds.
             dispatch_if_due live-tracker.yml 540
@@ -187,6 +221,12 @@ jobs:
             dispatch_if_due driver-management.yml 4500
             dispatch_if_due staff-management.yml 1200
             dispatch_if_due leadership-dashboard.yml 46800
+            # Recover delayed data/news workflows without adding independent
+            # timers or coupling their failure domains.
+            dispatch_if_due driver-updates.yml 720
+            dispatch_if_due news.yml 720
+            dispatch_if_due social-news.yml 1200
+            dispatch_if_due changelog.yml 1800
           fi
 
           echo "Scheduler pass complete. No long-running sleep loop remains."
@@ -207,5 +247,8 @@ jobs:
             echo "- Driver recovery threshold: **75 minutes**"
             echo "- Staff recovery threshold: **20 minutes**"
             echo "- Leadership Overview recovery threshold: **13 hours**"
-            echo "- Native workflow crons remain the preferred cadence."
+            echo "- One shared recovery heartbeat also covers Driver Updates, TruckersMP News, YouTube Social News and Changelog." 
+            echo "- Failed jobs have a 5-minute retry cooldown; one GitHub API snapshot per producer." 
+            echo "- Code pushes never force mass producer dispatch; only explicit force_all does." 
+            echo "- Native producer crons remain preferred and staggered for safety."
           } >> "$GITHUB_STEP_SUMMARY"
