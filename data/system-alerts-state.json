@@ -1,37 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 127,
-        "latestCount": 16
-      },
-      "firstAlertedAt": "2026-10-20T09:40:04.641Z"
-    },
-    "workflow-failed:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System latest completed run ended with cancelled.",
-      "details": {
-        "runId": 39402272446,
-        "completedAt": "2026-10-20T09:39:29Z"
-      },
-      "firstAlertedAt": "2026-10-20T09:40:04.641Z"
-    },
-    "workflow-failed:driver-updates.yml": {
-      "severity": "critical",
-      "system": "Driver Updates",
-      "message": "Driver Updates latest completed run ended with failure.",
-      "details": {
-        "runId": 39402229742,
-        "completedAt": "2026-10-20T09:39:33Z"
-      },
-      "firstAlertedAt": "2026-10-20T09:40:04.641Z"
-    }
-  },
+  "active": {},
   "pending": {}
 }
