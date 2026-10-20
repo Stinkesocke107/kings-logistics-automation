@@ -14,6 +14,12 @@ const WORKFLOWS = [
   { file: 'central-scheduler.yml', label: 'Central Scheduler', maxAgeMinutes: 20, severity: 'critical', activeGraceMinutes: 15 },
   { file: 'live-tracker.yml', label: 'Live Tracker / Statistics', maxAgeMinutes: 30, severity: 'critical' },
   { file: 'driver-updates.yml', label: 'Driver Updates', maxAgeMinutes: 30, severity: 'critical' },
+  // These news publishers have independent external feeds. Warn about missed
+  // refreshes and failed publication rather than hiding outages; temporary
+  // YouTube RSS HTTP 404 must not mark the entire driver/convoy core unhealthy.
+  { file: 'news.yml', label: 'TruckersMP News', maxAgeMinutes: 35, severity: 'warning' },
+  { file: 'social-news.yml', label: 'YouTube Social News', maxAgeMinutes: 90, severity: 'warning' },
+  { file: 'changelog.yml', label: 'Changelog Publisher', maxAgeMinutes: 75, severity: 'warning' },
   { file: 'convoy-checker.yml', label: 'Convoy / Event System', maxAgeMinutes: 45, severity: 'critical' },
   { file: 'driver-management.yml', label: 'Driver Management', maxAgeMinutes: 150, severity: 'critical' },
   { file: 'hr-leadership.yml', label: 'HR Leadership', maxAgeMinutes: 45, severity: 'critical' },
