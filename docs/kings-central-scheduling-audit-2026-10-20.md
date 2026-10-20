@@ -11,7 +11,7 @@ At audit time, there are **43 workflow YAML files**, including manual-only recov
 
 A shared recovery heartbeat runs at `3-58/5 * * * *` plus independent existing `workflow_run` watchdog wake-ups. Its latest successful invocation was checked against actual GitHub logs.
 
-Monitored and conditionally redispatched (only when overdue and no currently healthy active execution):
+Monitored and conditionally redispatched (only when overdue and no currently healthy active execution). The main producers are below; three additional technical read-only/advisory producers use the same scheduler: Staff Leadership Live Overview (~75min), Convoy Announcement Verification (~120min), Safe Self-Healing (~90min). Driver Probation's HR-advisory-only reminder checker is recovered only after >=3 hours stale, with a full-hour cooldown and no role/member mutations:
 
 | Producer | Native target | Recovery latest-success threshold |
 | --- | --- | --- |
