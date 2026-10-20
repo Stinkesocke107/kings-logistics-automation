@@ -35,5 +35,12 @@
       "firstAlertedAt": "2026-10-20T12:59:56.829Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:news-production-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-20T13:36:42.160Z",
+      "system": "TruckersMP News Verification",
+      "message": "TruckersMP News Verification has not run within the expected time window."
+    }
+  }
 }
