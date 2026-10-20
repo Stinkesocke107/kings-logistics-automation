@@ -9,7 +9,7 @@ const workflow = name => fs.readFileSync(path.join(root,'.github','workflows',na
 
 test('one common recovery scheduler covers live, convoy, driver, news, YouTube and changelog jobs', () => {
   const s=workflow('central-scheduler');
-  for (const name of ['live-tracker','driver-updates','convoy-checker','news','social-news','changelog','hr-leadership','staff-management','staff-leadership-live-overview','convoy-announcement-verifier','self-healing','probation','system-monitoring']) {
+  for (const name of ['live-tracker','driver-updates','convoy-checker','news','social-news','changelog','hr-leadership','staff-management','staff-leadership-live-overview','convoy-announcement-verifier','self-healing','probation','system-monitoring','news-production-verification']) {
     assert.ok(s.includes('dispatch_if_due '+name+'.yml '),name);
     assert.ok(s.includes(name+'.yml; do') || s.includes(' '+name+'.yml '),name+' active-check');
   }
@@ -23,6 +23,7 @@ test('one common recovery scheduler covers live, convoy, driver, news, YouTube a
   assert.match(s,/dispatch_if_due convoy-announcement-verifier\.yml 7200/);
   assert.match(s,/dispatch_if_due self-healing\.yml 5400/);
   assert.match(s,/dispatch_if_due system-monitoring\.yml 4500/);
+  assert.match(s,/dispatch_if_due news-production-verification\.yml 4500/);
   assert.doesNotMatch(s,/if \[ "\$GITHUB_EVENT_NAME" = "push" \]; then\s*force_all=true/);
 });
 
@@ -87,4 +88,13 @@ test('Probation scheduler recovery may only run the existing advisory-only HR sc
   assert.match(flow,/run: node probation\.js/);
   assert.match(flow,/cancel-in-progress: false/);
   assert.match(workflow('central-scheduler'),/dispatch_if_due probation\.yml 10800 '' 1200 3600/);
+});
+
+test('missed TruckersMP publication verification is restarted separately from the working news fetcher',()=>{
+ const code=workflow('news-production-verification');
+ const scheduler=workflow('central-scheduler');
+ assert.match(code,/workflow_dispatch:/);
+ assert.match(code,/run: node news-production-verifier\.js/);
+ assert.ok(scheduler.includes('dispatch_if_due news-production-verification.yml 4500'));
+ assert.doesNotMatch(code,/post_latest_test=true/);
 });
