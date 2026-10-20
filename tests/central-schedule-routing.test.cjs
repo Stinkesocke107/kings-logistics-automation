@@ -9,13 +9,18 @@ const workflow = name => fs.readFileSync(path.join(root,'.github','workflows',na
 
 test('one common recovery scheduler covers live, convoy, driver, news, YouTube and changelog jobs', () => {
   const s=workflow('central-scheduler');
-  for (const name of ['live-tracker','driver-updates','convoy-checker','news','social-news','changelog','hr-leadership','staff-management']) {
+  for (const name of ['live-tracker','driver-updates','convoy-checker','news','social-news','changelog','hr-leadership','staff-management','staff-leadership-live-overview','convoy-announcement-verifier','self-healing']) {
     assert.ok(s.includes('dispatch_if_due '+name+'.yml '),name);
     assert.ok(s.includes(name+'.yml; do') || s.includes(' '+name+'.yml '),name+' active-check');
   }
   assert.match(s,/social-news\.yml[\s\S]*inputs\[verify_connections_only\]=false[\s\S]*inputs\[post_latest_test\]=false/);
   assert.match(s,/latest_completed_run/);
   assert.match(s,/observing 5-minute recovery cooldown/);
+  assert.doesNotMatch(s,/dispatch_if_due probation\.yml/);
+  assert.doesNotMatch(s,/dispatch_if_due core-recovery\.yml/);
+  assert.match(s,/dispatch_if_due staff-leadership-live-overview\.yml 4500/);
+  assert.match(s,/dispatch_if_due convoy-announcement-verifier\.yml 7200/);
+  assert.match(s,/dispatch_if_due self-healing\.yml 5400/);
   assert.doesNotMatch(s,/if \[ "\$GITHUB_EVENT_NAME" = "push" \]; then\s*force_all=true/);
 });
 
