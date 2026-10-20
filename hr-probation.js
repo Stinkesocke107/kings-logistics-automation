@@ -172,8 +172,9 @@ async function discord(pathname, options = {}) {
   const response = await fetch(`${DISCORD_API}${pathname}`, {
     method,
     headers,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-    signal: AbortSignal.timeout(15000)
+    // Kings' central Discord fetch wrapper assigns a FRESH timeout for each
+    // retry. Reusing an outer 15-second AbortSignal cancelled valid 429 waits.
+    body: options.body !== undefined ? JSON.stringify(options.body) : undefined
   });
 
   const text = await response.text();
