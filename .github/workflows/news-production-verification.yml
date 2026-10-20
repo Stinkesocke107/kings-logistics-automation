@@ -2,9 +2,14 @@ name: Kings News Production Verification
 
 on:
   workflow_dispatch:
+  # Verify only AFTER an actual successful News producer run. Separate 5-minute
+  # verifier crons used to race delayed News jobs and waste GitHub runs.
+  workflow_run:
+    workflows: ["Kings TruckersMP News"]
+    types: [completed]
   schedule:
-    # Shortly after the News poller so genuine publications are verified quickly.
-    - cron: '4,9,14,19,24,29,34,39,44,49,54,59 * * * *'
+    # Hourly independent fallback if workflow_run delivery is delayed.
+    - cron: '11 * * * *'
   push:
     branches: [main]
     paths:
@@ -22,7 +27,7 @@ concurrency:
 
 jobs:
   verify-news:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_run' || (github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion == 'success'))
     name: Verify genuine News publication
     runs-on: ubuntu-latest
     timeout-minutes: 10
