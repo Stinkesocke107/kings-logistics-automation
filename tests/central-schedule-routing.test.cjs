@@ -9,14 +9,15 @@ const workflow = name => fs.readFileSync(path.join(root,'.github','workflows',na
 
 test('one common recovery scheduler covers live, convoy, driver, news, YouTube and changelog jobs', () => {
   const s=workflow('central-scheduler');
-  for (const name of ['live-tracker','driver-updates','convoy-checker','news','social-news','changelog','hr-leadership','staff-management','staff-leadership-live-overview','convoy-announcement-verifier','self-healing']) {
+  for (const name of ['live-tracker','driver-updates','convoy-checker','news','social-news','changelog','hr-leadership','staff-management','staff-leadership-live-overview','convoy-announcement-verifier','self-healing','probation']) {
     assert.ok(s.includes('dispatch_if_due '+name+'.yml '),name);
     assert.ok(s.includes(name+'.yml; do') || s.includes(' '+name+'.yml '),name+' active-check');
   }
   assert.match(s,/social-news\.yml[\s\S]*inputs\[verify_connections_only\]=false[\s\S]*inputs\[post_latest_test\]=false/);
   assert.match(s,/latest_completed_run/);
   assert.match(s,/observing 5-minute recovery cooldown/);
-  assert.doesNotMatch(s,/dispatch_if_due probation\.yml/);
+  assert.match(s,/dispatch_if_due probation\\.yml 10800 '' 1200 3600/);
+  assert.match(s,/local cooldown_seconds="\\$\\{5:-300\\}"/);
   assert.doesNotMatch(s,/dispatch_if_due core-recovery\.yml/);
   assert.match(s,/dispatch_if_due staff-leadership-live-overview\.yml 4500/);
   assert.match(s,/dispatch_if_due convoy-announcement-verifier\.yml 7200/);
@@ -73,4 +74,16 @@ test('Discord rate-limit retry creates a fresh timeout per attempt and HR does n
   assert.equal(attempts.length,2);
   assert.ok(attempts.every(s=>s instanceof AbortSignal));
   assert.notEqual(attempts[0],attempts[1]);
+});
+
+test('Probation scheduler recovery may only run the existing advisory-only HR script, not personnel actions', () => {
+  const source=fs.readFileSync(path.join(root,'probation.js'),'utf8');
+  const flow=workflow('probation');
+  assert.match(source,/Safety guard blocked Discord write/);
+  assert.ok(source.includes('const allowedWrite ='));
+  assert.ok(source.includes('method === "POST"'));
+  assert.ok(source.includes('post an advisory reminder'));
+  assert.match(flow,/run: node probation\.js/);
+  assert.match(flow,/cancel-in-progress: false/);
+  assert.match(workflow('central-scheduler'),/dispatch_if_due probation\.yml 10800 '' 1200 3600/);
 });
