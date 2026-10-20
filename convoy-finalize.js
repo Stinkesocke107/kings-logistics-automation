@@ -371,7 +371,7 @@ function buildStatusMessage(item) {
     parsed.kingsSlot ? `🚚 **Kings Slot:** ${parsed.kingsSlot}` : null,
     parsed.additionalNotes ? `📝 **Additional Notes:** ${parsed.additionalNotes}` : null,
     '',
-    '🤖 This is the single automated status message for this convoy. It is checked every 15 minutes and updated only when something changes.'
+    '🤖 Kings Convoy Center checks are scheduled about every 15 minutes (GitHub may delay). This message changes only when convoy details or status change.'
   ].filter(Boolean).join('\n');
 }
 

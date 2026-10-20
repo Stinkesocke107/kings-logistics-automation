@@ -176,15 +176,25 @@ function convoyTimeLabel(convoy) {
   return '⚠️ Time unavailable';
 }
 
+function convoyDepartureLabel(convoy) {
+  const raw = convoy?.departureAtUtc;
+  if (!raw || typeof raw !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(raw)) return null;
+  const ms = Date.parse(raw);
+  return Number.isFinite(ms) ? discordTimestamp(Math.floor(ms / 1000), 'F') : null;
+}
+
 function compactUpcoming(convoy) {
-  const server = convoy.server ? ` · 🎙️ ${truncate(convoy.server, 24)}` : '';
+  const server = convoy.server ? ` · 🎮 ${truncate(convoy.server, 24)}` : '';
   const source = convoy.legacy ? ' 📚' : '';
   const info = !convoy.eventTimeValid || !convoy.confirmedKingsSlot ? ' · ⚠️ Info pending' : '';
   return `${statusIcon(convoy.status)}${source} ${convoyDateLabel(convoy)} — **${truncate(convoy.name, 42)}**${server}${info}`;
 }
 
 function buildMessage(overview) {
-  const generatedAt = new Date(overview.generatedAt || Date.now());
+  if (!overview || !overview.generatedAt) throw new Error('Convoy Overview has no generatedAt source timestamp.');
+  const generatedAt = new Date(overview.generatedAt);
+  if (!Number.isFinite(generatedAt.getTime())) throw new Error('Convoy Overview source timestamp is invalid.');
+  const generatedUnix = Math.floor(generatedAt.getTime() / 1000);
   const currentMonth = generatedAt.toISOString().slice(0, 7);
   const followingMonth = nextMonthKey(currentMonth);
   const month = overview.months?.[currentMonth] || makeEmptyMonth();
@@ -220,7 +230,7 @@ function buildMessage(overview) {
 
   const lines = [
     MESSAGE_MARKER,
-    '💙 Live overview of Kings Logistics convoy operations.',
+    `🚛 Latest Kings Convoy Center snapshot <t:${generatedUnix}:R>`,
     '',
     `## 📊 ${monthLabel(currentMonth)}`,
     `🚛 **${month.countedConvoys}** Convoys  ·  🟢 **${month.scheduled}** Scheduled  ·  ✅ **${month.completed}** Completed  ·  ❌ **${month.cancelled}** Cancelled`,
@@ -241,8 +251,10 @@ function buildMessage(overview) {
   } else {
     lines.push(
       `**${truncate(next.name, 70)}**`,
-      `🕒 **Meeting:** ${convoyTimeLabel(next)}`,
-      next.server ? `🎙️ **Server:** ${next.server}` : null,
+      next.eventType && next.eventType !== 'Legacy Calendar' ? `📋 **Event Type:** ${next.eventType}` : null,
+      `🕒 **Meeting Time:** ${convoyTimeLabel(next)}`,
+      convoyDepartureLabel(next) ? `🚦 **Departure Time:** ${convoyDepartureLabel(next)}` : null,
+      next.server ? `🎮 **Server:** ${truncate(next.server, 90)}` : null,
       next.meetingPoint ? `📍 **Meeting Point:** ${next.meetingPoint}` : null,
       next.route ? `🛣️ **Route:** ${next.route}` : null,
       next.kingsSlot ? `🚚 **Kings Slot:** ${next.kingsSlot}` : '🚚 **Kings Slot:** ⚠️ Not recorded yet',
@@ -268,19 +280,24 @@ function buildMessage(overview) {
     `📚 Legacy Calendar: **${overview.overall?.legacyActiveConvoys || 0}** active · **${overview.overall?.legacyDuplicatesSuppressed || 0}** duplicate(s) suppressed`,
     `🗓️ Upcoming Planned (current + next month): **${upcoming.length}**  ·  ⚠️ Missing Date: **${overview.overall?.undatedCountedConvoys || 0}**  ·  🕒 Missing/Invalid Time: **${overview.overall?.invalidEventTimeConvoys || 0}**`,
     '',
-    '🤖 Updated automatically every 15 minutes. 📚 = migrated from the old Convoy Calendar. ⚠️ Info pending = still planned, but some reminder-critical details are missing. New convoys come only from the Convoy Center.'
+    '🤖 Scheduled checks approx. every 15 minutes (GitHub may delay). 📚 = legacy calendar. ⚠️ Info pending = meeting time or Kings Slot missing.'
   );
 
-  let content = lines.filter((value) => value !== null && value !== undefined).join('\n');
-  // Discord branding can expand plain Kings text into custom emoji markup.
-  // Keep headroom and enforce the limit on the final branded payload.
-  const footer = '\n…\n🤖 Updated automatically every 15 minutes.';
+  // Keep complete fields / links intact when Discord's 2000-character cap
+  // applies; never cut a TruckersMP URL in the middle.
+  const usable = lines.filter((value) => value !== null && value !== undefined);
+  const footer = '… More convoy details are available in the Kings Convoy Center.';
+  let content = usable.join('\n');
   if (brandMessageContent(content).length > 1950) {
-    content = `${content.slice(0, Math.max(0, 1750 - footer.length))}${footer}`;
+    const retained = [];
+    for (const line of usable) {
+      const candidate = [...retained, line, footer].join('\n');
+      if (brandMessageContent(candidate).length > 1950) break;
+      retained.push(line);
+    }
+    content = [...retained, footer].join('\n');
   }
-  while (brandMessageContent(content).length > 1950) {
-    content = content.slice(0, -100);
-  }
+  if (brandMessageContent(content).length > 1950) throw new Error('Kings Convoy Overview exceeds Discord content limit.');
   return content;
 }
 
