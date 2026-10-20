@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml social-news.yml changelog.yml; do
+          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml social-news.yml changelog.yml staff-leadership-live-overview.yml convoy-announcement-verifier.yml self-healing.yml; do
             state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}" --jq '.state')"
             echo "${workflow}: ${state}"
             test "$state" = "active"
@@ -212,6 +212,11 @@ jobs:
             dispatch_if_due news.yml 0
             dispatch_if_due social-news.yml 0
             dispatch_if_due changelog.yml 0
+            # Technical/read-only recovery tools only; no forced probation,
+            # personnel approval, restore/import or disciplinary action.
+            dispatch_if_due staff-leadership-live-overview.yml 0
+            dispatch_if_due convoy-announcement-verifier.yml 0
+            dispatch_if_due self-healing.yml 0
           else
             # Native cadence is normally faster than these recovery thresholds.
             dispatch_if_due live-tracker.yml 540
@@ -227,6 +232,11 @@ jobs:
             dispatch_if_due news.yml 720
             dispatch_if_due social-news.yml 1200
             dispatch_if_due changelog.yml 1800
+            # Read-only live Staff counts, read-only Convoy proof verifier and
+            # bounded technical Self-Healing. Native clocks stay preferred.
+            dispatch_if_due staff-leadership-live-overview.yml 4500
+            dispatch_if_due convoy-announcement-verifier.yml 7200
+            dispatch_if_due self-healing.yml 5400
           fi
 
           echo "Scheduler pass complete. No long-running sleep loop remains."
@@ -247,7 +257,7 @@ jobs:
             echo "- Driver recovery threshold: **75 minutes**"
             echo "- Staff recovery threshold: **20 minutes**"
             echo "- Leadership Overview recovery threshold: **13 hours**"
-            echo "- One shared recovery heartbeat also covers Driver Updates, TruckersMP News, YouTube Social News and Changelog." 
+            echo "- Shared safe recovery covers Driver Updates, News, Changelog, Staff Role Overview, Convoy Announcement Verification and bounded technical Self-Healing." 
             echo "- Failed jobs have a 5-minute retry cooldown; one GitHub API snapshot per producer." 
             echo "- Code pushes never force mass producer dispatch; only explicit force_all does." 
             echo "- Native producer crons remain preferred and staggered for safety."
