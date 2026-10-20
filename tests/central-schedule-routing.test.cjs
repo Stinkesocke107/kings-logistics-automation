@@ -49,3 +49,20 @@ test('News, YouTube and Changelog remain visible in monitoring without claiming 
     assert.match(monitor,new RegExp("file: '"+name+"\\.yml'[^\\n]*severity: 'warning'"));
   }
 });
+
+test('Discord rate-limit retry creates a fresh timeout per attempt and HR does not impose one abort signal over all waits', async () => {
+  const {discordResilientFetch} = require('../kings-branding.js');
+  const source = fs.readFileSync(path.join(root,'hr-probation.js'),'utf8');
+  assert.doesNotMatch(source,/signal:\s*AbortSignal\.timeout\(15000\)/);
+  const attempts=[];
+  const result=await discordResilientFetch(async (_url,init) => {
+    attempts.push(init.signal);
+    return attempts.length===1
+      ? new Response('rate limited',{status:429,headers:{'retry-after':'0'}})
+      : new Response('{}',{status:200});
+  },'https://discord.com/api/v10/channels/123/messages',{method:'GET'});
+  assert.equal(result.status,200);
+  assert.equal(attempts.length,2);
+  assert.ok(attempts.every(s=>s instanceof AbortSignal));
+  assert.notEqual(attempts[0],attempts[1]);
+});
