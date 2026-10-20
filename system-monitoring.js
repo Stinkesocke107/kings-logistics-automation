@@ -557,6 +557,8 @@ async function checkWorkflow(config, issues) {
   return {
     file: config.file,
     label: config.label,
+    area: config.area,
+    mode: config.mode,
     exists: true,
     ok,
     maxAgeMinutes: config.maxAgeMinutes,
@@ -639,7 +641,7 @@ async function checkWorkflows(issues) {
         'Monitoring Engine',
         `Could not inspect ${config.label}: ${String(error.message || error)}`
       ));
-      results.push({ file: config.file, label: config.label, exists: fs.existsSync(workflowPath(config.file)), ok: false, apiError: true });
+      results.push({ file: config.file, label: config.label, area: config.area, mode: config.mode, exists: fs.existsSync(workflowPath(config.file)), ok: false, apiError: true });
     }
   }
   return results;
