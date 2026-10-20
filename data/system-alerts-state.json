@@ -34,14 +34,18 @@
         "maxAgeMinutes": 90
       },
       "firstAlertedAt": "2026-10-20T10:46:08.705Z"
+    },
+    "workflow-overdue:convoy-announcement-verifier.yml": {
+      "severity": "warning",
+      "system": "Convoy Announcement Verification",
+      "message": "Convoy Announcement Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-20T05:36:45Z",
+        "ageMinutes": 314,
+        "maxAgeMinutes": 180
+      },
+      "firstAlertedAt": "2026-10-20T10:51:43.901Z"
     }
   },
-  "pending": {
-    "workflow-overdue:convoy-announcement-verifier.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-20T10:49:46.223Z",
-      "system": "Convoy Announcement Verification",
-      "message": "Convoy Announcement Verification has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
