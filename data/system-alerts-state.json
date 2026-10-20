@@ -2,5 +2,24 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {}
+  "pending": {
+    "workflow-overdue:probation.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-20T10:45:13.624Z",
+      "system": "Driver Probation",
+      "message": "Driver Probation has not run within the expected time window."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-20T10:45:13.624Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
+    },
+    "workflow-overdue:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-20T10:45:13.624Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview has not run within the expected time window."
+    }
+  }
 }
