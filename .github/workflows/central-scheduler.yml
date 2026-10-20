@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml social-news.yml changelog.yml staff-leadership-live-overview.yml convoy-announcement-verifier.yml self-healing.yml; do
+          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml social-news.yml changelog.yml staff-leadership-live-overview.yml convoy-announcement-verifier.yml self-healing.yml probation.yml; do
             state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}" --jq '.state')"
             echo "${workflow}: ${state}"
             test "$state" = "active"
@@ -121,6 +121,7 @@ jobs:
             local max_success_age_seconds="$2"
             local mode="${3:-}"
             local max_active_age_seconds="${4:-1200}"
+            local cooldown_seconds="${5:-300}"
             local active active_id active_status active_created active_epoch active_age
             local latest_success latest_epoch latest_completed completed_epoch now age snapshot
 
@@ -163,8 +164,8 @@ jobs:
               latest_completed="$(latest_completed_run "$snapshot")"
               if [ -n "$latest_completed" ]; then
                 completed_epoch="$(date -u -d "$latest_completed" +%s)"
-                if [ $(( now - completed_epoch )) -lt 300 ]; then
-                  echo "${workflow}: recently completed a managed run; observing 5-minute recovery cooldown."
+                if [ $(( now - completed_epoch )) -lt "$cooldown_seconds" ]; then
+                  echo "${workflow}: recently completed a managed run; observing ${cooldown_seconds}-second recovery cooldown."
                   return 0
                 fi
               fi
@@ -217,6 +218,10 @@ jobs:
             dispatch_if_due staff-leadership-live-overview.yml 0
             dispatch_if_due convoy-announcement-verifier.yml 0
             dispatch_if_due self-healing.yml 0
+            # An operator may force a single idempotent advisory-only HR
+            # check. It cannot modify roles or members, and an active run
+            # cannot be duplicated.
+            dispatch_if_due probation.yml 0 '' 1200 3600
           else
             # Native cadence is normally faster than these recovery thresholds.
             dispatch_if_due live-tracker.yml 540
@@ -237,6 +242,10 @@ jobs:
             dispatch_if_due staff-leadership-live-overview.yml 4500
             dispatch_if_due convoy-announcement-verifier.yml 7200
             dispatch_if_due self-healing.yml 5400
+            # This script is restricted to HR advisory messages. It does NOT
+            # change Discord roles or personnel status. Recovery only after
+            # missing >= 3 hours, with one-hour attempt spacing.
+            dispatch_if_due probation.yml 10800 '' 1200 3600
           fi
 
           echo "Scheduler pass complete. No long-running sleep loop remains."
@@ -258,7 +267,7 @@ jobs:
             echo "- Staff recovery threshold: **20 minutes**"
             echo "- Leadership Overview recovery threshold: **13 hours**"
             echo "- Shared safe recovery covers Driver Updates, News, Changelog, Staff Role Overview, Convoy Announcement Verification and bounded technical Self-Healing." 
-            echo "- Failed jobs have a 5-minute retry cooldown; one GitHub API snapshot per producer." 
+            echo "- Failed jobs have a five-minute default retry cooldown; the advisory-only Probation job waits one hour between recovery attempts." 
             echo "- Code pushes never force mass producer dispatch; only explicit force_all does." 
             echo "- Native producer crons remain preferred and staggered for safety."
           } >> "$GITHUB_STEP_SUMMARY"
