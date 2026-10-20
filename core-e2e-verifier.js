@@ -109,8 +109,8 @@ if (achievementsOlder) {
 check('News dedupe state is initialized', Boolean(news.lastId && news.lastTitle && news.lastUrl), { lastId: news.lastId, updatedAt: news.updatedAt });
 check('Weekly publication states parse and contain history', Array.isArray(driverWeekly.publishedWeeks) && driverWeekly.publishedWeeks.length > 0 && Array.isArray(hrWeekly.publishedWeeks) && hrWeekly.publishedWeeks.length > 0 && Array.isArray(managementWeekly.publishedWeeks) && managementWeekly.publishedWeeks.length > 0, { driver: driverWeekly.publishedWeeks?.length, hr: hrWeekly.publishedWeeks?.length, management: managementWeekly.publishedWeeks?.length });
 check('System Alert state is technical-only', alerts.mode === 'technical-alerts-only', alerts.mode);
-check('No active System Alerts remain', Object.keys(alerts.active || {}).length === 0, Object.keys(alerts.active || {}));
-check('No pending System Alerts remain', Object.keys(alerts.pending || {}).length === 0, Object.keys(alerts.pending || {}));
+// Alerts are durable and resolved asynchronously. Compare them against the
+// fresh monitoring findings below, not against the raw historical ID count.
 
 const history = Array.isArray(statistics.history) ? statistics.history : [];
 const latestDay = history.at(-1) || null;
@@ -139,6 +139,14 @@ const systemHealth = (() => {
 const { requireOperationalReadiness } = require('./system-health-readiness');
 const operational = systemHealth ? requireOperationalReadiness(systemHealth) : null;
 check('Complete operational readiness report exists',Boolean(operational),operational);
+const { reconcileOperationalAlerts } = require('./system-health-readiness');
+const reconciledAlerts = systemHealth ? reconcileOperationalAlerts(systemHealth,alerts) : null;
+check('No active current operational alerts remain',
+  Boolean(reconciledAlerts) && reconciledAlerts.activeCurrent.length===0,
+  reconciledAlerts?.activeCurrent || null);
+check('No pending current operational alerts remain',
+  Boolean(reconciledAlerts) && reconciledAlerts.pendingCurrent.length===0,
+  reconciledAlerts?.pendingCurrent || null);
 validateReport('Data Integrity', 'data/data-integrity.json');
 validateReport('System Hardening', 'data/system-hardening.json');
 validateReport('Repository Security', 'data/security-audit.json');
@@ -182,7 +190,9 @@ const report = {
     apiHealthy,
     openCircuits,
     activeAlerts: Object.keys(alerts.active || {}).length,
-    pendingAlerts: Object.keys(alerts.pending || {}).length
+    pendingAlerts: Object.keys(alerts.pending || {}).length,
+    currentOperationalAlerts: reconciledAlerts?.activeCurrent.length ?? -1,
+    historicOrResolvedAlertsAwaitingCleanup: reconciledAlerts?.retainedHistorical.length ?? -1
   },
   timeBoundProductionProofs: {
     publicConvoyAnnouncement: 'Mechanism/readiness is verified here; Point 5 still requires the real in-window production post.',

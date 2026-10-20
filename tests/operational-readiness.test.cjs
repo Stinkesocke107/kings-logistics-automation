@@ -31,3 +31,37 @@ test('all post-monitor integrity/security mergers re-evaluate operational readin
   assert.match(code,/health\.operationalReadiness = operationalReadinessFromIssues\(health\.issues\);/,name);
  }
 });
+
+test('stale resolved alerts remain in history without being mistaken for current outages',()=>{
+ const {reconcileOperationalAlerts}=require('../system-health-readiness');
+ const issues=[{id:'workflow-failed:final-freeze-verification.yml',severity:'warning'}];
+ const operationalReadiness=operationalReadinessFromIssues(issues);
+ const result=reconcileOperationalAlerts({issues,operationalReadiness},{
+   active:{'workflow-failed:final-freeze-verification.yml':{},'workflow-overdue:news-production-verification.yml':{}},
+   pending:{}
+ });
+ assert.equal(result.activeCurrent.length,0);
+ assert.equal(result.retainedHistorical.length,2);
+ assert.equal(result.currentIssueCount,0);
+});
+test('a real currently active workflow alert still blocks technical acceptance',()=>{
+ const {reconcileOperationalAlerts}=require('../system-health-readiness');
+ const issues=[{id:'workflow-failed:driver-updates.yml',severity:'critical'}];
+ const operationalReadiness=operationalReadinessFromIssues(issues);
+ const result=reconcileOperationalAlerts({issues,operationalReadiness},{
+   active:{'workflow-failed:driver-updates.yml':{}},pending:{}
+ });
+ assert.deepEqual(result.activeCurrent,['workflow-failed:driver-updates.yml']);
+ assert.equal(operationalReadiness.status,'UNHEALTHY');
+});
+test('Core and Final Freeze check live alert issues rather than raw historical counts',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ for(const name of ['core-e2e-verifier.js','final-freeze-verifier.js']){
+  const code=fs.readFileSync(path.join(__dirname,'..',name),'utf8');
+  assert.ok(code.includes('reconcileOperationalAlerts'),name);
+  assert.doesNotMatch(code,/check\('No active System Alerts remain'/,name);
+ }
+ const workflow=fs.readFileSync(path.join(__dirname,'..','.github','workflows','system-monitoring.yml'),'utf8');
+ assert.match(workflow,/workflow_run:[\s\S]*Kings News Production Verification/);
+ assert.match(workflow,/Kings Final Freeze Verification/);
+});

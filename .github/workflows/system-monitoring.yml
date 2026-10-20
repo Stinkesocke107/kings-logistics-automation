@@ -6,10 +6,18 @@ name: Kings System Monitoring
 on:
   workflow_dispatch:
 
+  # A completed production News proof or Final Freeze should immediately
+  # refresh the technical alert timeline, including resolution messages.
+  # Scheduled monitoring and the Central Scheduler remain independent backups.
+  workflow_run:
+    workflows: ["Kings News Production Verification", "Kings Final Freeze Verification"]
+    types: [completed]
+
   push:
     branches: [main]
     paths:
       - 'system-monitoring.js'
+      - 'system-health-readiness.js'
       - 'workflow-recovery.js'
       - 'system-alerts.js'
       - 'system-monitor-discord.js'

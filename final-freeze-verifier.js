@@ -162,8 +162,12 @@ function main() {
   const repairIds = Object.keys(selfHealing.repairs || {}).sort();
   add('Self-Healing mode technical-safe', selfHealing.mode === 'technical-safe-self-healing', selfHealing.mode);
   add('Self-Healing repair allowlist state exact', JSON.stringify(repairIds) === JSON.stringify(expectedRepairIds), repairIds);
-  add('No active System Alerts', countObject(alerts.active) === 0, countObject(alerts.active));
-  add('No pending System Alerts', countObject(alerts.pending) === 0, countObject(alerts.pending));
+  const {reconcileOperationalAlerts} = require('./system-health-readiness');
+  const reconciledAlerts=reconcileOperationalAlerts(health, alerts);
+  add('No active current production alerts', reconciledAlerts.activeCurrent.length===0, reconciledAlerts.activeCurrent);
+  add('No pending current production alerts', reconciledAlerts.pendingCurrent.length===0, reconciledAlerts.pendingCurrent);
+  // Keep the unmodified durable technical alert state: resolutions are
+  // published separately by Kings System Monitoring, never fabricated here.
 
   const trackedStatus = git('status', '--porcelain', '--untracked-files=no');
   add('Tracked Git worktree clean before final-state write', trackedStatus === '', trackedStatus || 'clean');

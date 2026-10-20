@@ -31,4 +31,23 @@ function requireOperationalReadiness(health) {
   if(JSON.stringify(computed)!==JSON.stringify(health.operationalReadiness)) throw Error('Operational readiness does not match published issues');
   return computed;
 }
-module.exports={HISTORIC_GATE_IDS,operationalReadinessFromIssues,requireOperationalReadiness};
+function reconcileOperationalAlerts(health, alertState) {
+  // The on-disk alert queue is eventually consistent with fresh monitoring.
+  // Only alerts that still refer to a *current* operational finding block the
+  // verification gate. Retain historic/recovered alerts in evidence so
+  // System Monitoring can post their normal resolution messages.
+  const readiness=requireOperationalReadiness(health);
+  const current=new Set((health.issues||[])
+    .filter(x=>['critical','warning'].includes(x.severity))
+    .filter(x=>!(HISTORIC_GATE_IDS.has(x.id) && x.severity==='warning'))
+    .map(x=>String(x.id)));
+  const active=Object.keys(alertState?.active||{});
+  const pending=Object.keys(alertState?.pending||{});
+  return {
+    activeCurrent:active.filter(id=>current.has(id)),
+    pendingCurrent:pending.filter(id=>current.has(id)),
+    retainedHistorical:active.concat(pending).filter(id=>!current.has(id)),
+    currentIssueCount:readiness.criticalIssues+readiness.warnings
+  };
+}
+module.exports={HISTORIC_GATE_IDS,operationalReadinessFromIssues,requireOperationalReadiness,reconcileOperationalAlerts};
