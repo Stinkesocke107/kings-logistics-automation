@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { operationalReadinessFromIssues } = require('./system-health-readiness');
 const path = require('path');
 
 const ROOT = __dirname;
@@ -308,6 +309,10 @@ function mergeIntoHealth(result) {
   health.summary.discordPermissionHealthy = Number(result.summary?.healthyChecks || 0);
   health.status = statusFromIssues(issues);
   health.discordPermissionAudit = result.summary;
+  // Refresh the scoped operational verdict AFTER all findings have been
+  // merged. It must represent the exact same complete issue set that Discord
+  // monitoring and the Core verification scripts receive.
+  health.operationalReadiness = operationalReadinessFromIssues(health.issues);
   writeJson(HEALTH_FILE, health);
   return true;
 }

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { operationalReadinessFromIssues } = require('./system-health-readiness');
 const path = require('path');
 
 const ROOT = __dirname;
@@ -448,6 +449,10 @@ function mergeIntoHealth(result) {
   };
   health.note = 'Read-only technical monitoring. Kings Systems only observes and reports health/integrity; it never performs personnel, member, role, permission, kick, ban, promotion, demotion, or disciplinary actions.';
 
+  // Refresh the scoped operational verdict AFTER all findings have been
+  // merged. It must represent the exact same complete issue set that Discord
+  // monitoring and the Core verification scripts receive.
+  health.operationalReadiness = operationalReadinessFromIssues(health.issues);
   writeJson(HEALTH_FILE, health);
   return true;
 }

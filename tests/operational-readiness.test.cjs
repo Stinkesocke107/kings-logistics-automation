@@ -22,3 +22,12 @@ test('unmodified reports or tampered readiness fail closed',()=>{
  assert.throws(()=>requireOperationalReadiness({issues}),/missing/);
  assert.throws(()=>requireOperationalReadiness({issues,operationalReadiness:{status:'HEALTHY'}}),/does not match/);
 });
+
+test('all post-monitor integrity/security mergers re-evaluate operational readiness from the same full issue set',()=>{
+ const fs=require('node:fs');const path=require('node:path');
+ for(const name of ['data-integrity.js','system-hardening.js','security-audit.js','discord-permission-audit.js']){
+  const code=fs.readFileSync(path.join(__dirname,'..',name),'utf8');
+  assert.match(code,/require\('\.\/system-health-readiness'\)/,name);
+  assert.match(code,/health\.operationalReadiness = operationalReadinessFromIssues\(health\.issues\);/,name);
+ }
+});

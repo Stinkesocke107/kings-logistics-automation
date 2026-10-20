@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { operationalReadinessFromIssues } = require('./system-health-readiness');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
@@ -190,6 +191,10 @@ function mergeIntoHealth(result) {
   health.data = health.data && typeof health.data === 'object' ? health.data : {};
   health.data.hardening = { checkedAt: result.checkedAt, status: result.status, summary: result.summary, checks: result.checks };
   health.note = 'Read-only technical monitoring, integrity, and hardening. Kings Systems observes and reports only; it never performs personnel, member, role, permission, kick, ban, promotion, demotion, or disciplinary actions.';
+  // Refresh the scoped operational verdict AFTER all findings have been
+  // merged. It must represent the exact same complete issue set that Discord
+  // monitoring and the Core verification scripts receive.
+  health.operationalReadiness = operationalReadinessFromIssues(health.issues);
   writeJson(HEALTH_FILE, health);
   return true;
 }
