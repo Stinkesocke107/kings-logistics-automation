@@ -131,44 +131,67 @@ function technicalIssueLines(health) {
   return lines;
 }
 
+function workflowGroupLine(health, area, label) {
+  const all = Array.isArray(health.workflows) ? health.workflows : [];
+  const matched = all.filter(item => item.area === area);
+  if (!matched.length) return `⚪ **${label}:** Not monitored`;
+  const good = matched.filter(item => item.ok).length;
+  const state = good === matched.length ? '🟢' : '🟡';
+  return `${state} **${label}:** ${good}/${matched.length} healthy`;
+}
+
 function buildMessage(health) {
   const checkedAt = health.checkedAt || health.updatedAt || new Date().toISOString();
   const checkedUnix = Math.floor(new Date(checkedAt).getTime() / 1000);
   const safeUnix = Number.isFinite(checkedUnix) ? checkedUnix : Math.floor(Date.now() / 1000);
   const summary = health.summary || {};
-
+  const coverage = health.workflowRegistry || {};
   const lines = [
     MARKER,
     '',
     `${statusIcon(health.status)} **Overall Status:** \`${health.status || 'UNKNOWN'}\``,
+    `🔎 **Automation Coverage:** ${summary.workflowsHealthy ?? 0}/${summary.workflowsChecked ?? 0} scheduled healthy · ${coverage.registered ?? 'unknown'} total workflows (${coverage.onDemand ?? '?'} on-demand)`,
     '',
-    '**Core Systems**',
-    workflowLine(health, 'convoy-checker.yml', 'Convoy / Event System'),
-    workflowLine(health, 'driver-management.yml', 'Driver Management'),
-    workflowLine(health, 'hr-leadership.yml', 'HR & Probation'),
-    workflowLine(health, 'staff-management.yml', 'Staff Management'),
-    workflowLine(health, 'leadership-overviews.yml', 'Leadership Overviews'),
-    freshnessLine(health, 'data/statistics.json', 'Statistics'),
-    workflowLine(health, 'core-backup.yml', 'Backup System'),
-    recoveryLine(),
+    '**All Kings Automation Areas**',
+    workflowGroupLine(health, 'Live Data', 'Live Tracker & Statistics'),
+    workflowGroupLine(health, 'Drivers', 'Drivers, Probation & Awards'),
+    workflowGroupLine(health, 'HR & Staff', 'HR & Staff Systems'),
+    workflowGroupLine(health, 'Convoys', 'Convoy Center & Events'),
+    workflowGroupLine(health, 'News', 'News, Social & Changelog'),
+    workflowGroupLine(health, 'Leadership', 'Leadership Overview'),
+    workflowGroupLine(health, 'Reports', 'Leadership & Periodic Reports'),
+    workflowGroupLine(health, 'Backup', 'Backup & Restore Health'),
+    workflowGroupLine(health, 'Automation', 'Scheduler & Recovery'),
+    workflowGroupLine(health, 'Security', 'Technical Verification'),
     '',
-    '**Security & Integrity**',
+    '**Data & Security**',
+    freshnessLine(health, 'data/statistics.json', 'Statistics source'),
     ratioLine('🧩', 'Data Integrity', summary.deepIntegrityHealthy, summary.deepIntegrityChecks),
-    ratioLine('🔧', 'System Hardening', summary.hardeningHealthy, summary.hardeningChecks),
     ratioLine('🔐', 'Repository Security', summary.securityHealthy, summary.securityChecks),
     ratioLine('🔑', 'Discord Permissions', summary.discordPermissionHealthy, summary.discordPermissionChecks),
+    recoveryLine(),
     '',
     ...technicalIssueLines(health),
     '',
     `🕒 **Last Check:** <t:${safeUnix}:F> · <t:${safeUnix}:R>`,
-    '🔄 Updated automatically by Kings Systems every monitoring cycle.',
-    '',
-    '🛡️ Monitoring only — no automatic personnel, role, kick, ban, timeout, promotion, demotion, or disciplinary actions.'
+    '🛡️ Read-only monitoring. No automatic personnel, role or disciplinary changes.'
   ];
-
   const content = lines.join('\n');
-  if (content.length <= 1950) return content;
-  return `${content.slice(0, 1900)}\n…\n🛡️ Monitoring only.`;
+  if (content.length <= 1850) return content;
+  // Preserve whole lines and the actual last-check timestamp / safety note.
+  // Silently truncating halfway through a system result can mislead staff.
+  const importantFooter = lines.slice(-2).join('\n');
+  const output = [];
+  for (const line of lines.slice(0, -2)) {
+    if ([...output, line, importantFooter].join('\n').length > 1850) {
+      output.push('… More details in Kings System Monitoring.');
+      break;
+    }
+    output.push(line);
+  }
+  const reduced = [...output, importantFooter].join('\n');
+  if (reduced.length > 1900) throw Error('Kings Systems Monitor message is too long for Discord.');
+  return reduced;
 }
 
 async function resolveMonitorChannel() {
