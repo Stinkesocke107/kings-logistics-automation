@@ -1,25 +1,47 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
+  "active": {
     "workflow-overdue:probation.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-20T10:45:13.624Z",
+      "severity": "warning",
       "system": "Driver Probation",
-      "message": "Driver Probation has not run within the expected time window."
+      "message": "Driver Probation has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-20T06:22:32Z",
+        "ageMinutes": 263,
+        "maxAgeMinutes": 180
+      },
+      "firstAlertedAt": "2026-10-20T10:46:08.705Z"
     },
     "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-20T10:45:13.624Z",
+      "severity": "warning",
       "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "message": "Safe Self-Healing has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-20T06:41:12Z",
+        "ageMinutes": 244,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-10-20T10:46:08.705Z"
     },
     "workflow-overdue:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-20T10:45:13.624Z",
+      "severity": "warning",
       "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview has not run within the expected time window."
+      "message": "Staff Leadership Live Overview has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-20T07:42:23Z",
+        "ageMinutes": 183,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-10-20T10:46:08.705Z"
+    }
+  },
+  "pending": {
+    "workflow-failed:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-20T10:46:08.705Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure."
     }
   }
 }
