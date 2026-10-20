@@ -16,8 +16,8 @@ test('one common recovery scheduler covers live, convoy, driver, news, YouTube a
   assert.match(s,/social-news\.yml[\s\S]*inputs\[verify_connections_only\]=false[\s\S]*inputs\[post_latest_test\]=false/);
   assert.match(s,/latest_completed_run/);
   assert.match(s,/observing \$\{cooldown_seconds\}-second recovery cooldown/);
-  assert.match(s,/dispatch_if_due probation\\.yml 10800 '' 1200 3600/);
-  assert.match(s,/local cooldown_seconds="\\$\\{5:-300\\}"/);
+  assert.ok(s.includes("dispatch_if_due probation.yml 10800 '' 1200 3600"));
+  assert.ok(s.includes('local cooldown_seconds="${5:-300}"'));
   assert.doesNotMatch(s,/dispatch_if_due core-recovery\.yml/);
   assert.match(s,/dispatch_if_due staff-leadership-live-overview\.yml 4500/);
   assert.match(s,/dispatch_if_due convoy-announcement-verifier\.yml 7200/);
