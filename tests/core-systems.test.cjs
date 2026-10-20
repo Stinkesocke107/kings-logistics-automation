@@ -6,9 +6,9 @@ const json = value => new Response(JSON.stringify(value), { headers: { 'content-
 test('monitor keeps a failed production run visible while a new run is queued', async () => {
   const at = new Date().toISOString();
   const s = sandbox('system-monitoring.js', { env: { GITHUB_TOKEN: 'fake' }, fetch: async () => json({ workflow_runs: [
-    { id: 3, status: 'queued', created_at: at },
-    { id: 2, status: 'completed', conclusion: 'failure', updated_at: at },
-    { id: 1, status: 'completed', conclusion: 'success', updated_at: at }
+    { id: 3, event: 'schedule', status: 'queued', created_at: at },
+    { id: 2, event: 'schedule', status: 'completed', conclusion: 'failure', updated_at: at },
+    { id: 1, event: 'schedule', status: 'completed', conclusion: 'success', updated_at: at }
   ] }) });
   const r = await s.run("checkWorkflow({file:'live-tracker.yml',label:'Live',maxAgeMinutes:30,severity:'critical'}, [])");
   assert.equal(r.ok, false);
