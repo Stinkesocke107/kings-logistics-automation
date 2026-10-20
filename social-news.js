@@ -190,31 +190,36 @@ function parseYouTubeFeed(xml) {
   return entries.map(match => youtubeFeedEntry(match[1]));
 }
 async function fetchYouTube() {
-  // Official channel RSS is public and read-only: no account token is needed.
-  for (let attempt = 0; attempt < 3; attempt++) {
-    let response;
-    try {
-      response = await fetch(YOUTUBE_FEED_URL, {
-        headers: {Accept: 'application/atom+xml, application/xml', 'User-Agent': 'Kings Logistics Social News/1.0'},
-        signal: AbortSignal.timeout(20000)
-      });
-    } catch (error) {
-      if (attempt === 2) throw error;
-      await new Promise(resolve => setTimeout(resolve, 1200 * (attempt + 1)));
-      continue;
+  // YouTube periodically serves 404/5xx for valid public channel feeds.
+  // These are transient source outages, not proof that Kings has no videos.
+  // Try both official YouTube Atom paths; each result still passes strict
+  // Kings channel-identity validation before any Discord publication.
+  const urls = [
+    YOUTUBE_FEED_URL,
+    'https://www.youtube.com/xml/feeds/videos.xml?channel_id=' + YOUTUBE_CHANNEL_ID
+  ];
+  let lastError = null;
+  for (let round = 0; round < 2; round++) {
+    for (const url of urls) {
+      let response;
+      try {
+        response = await fetch(url, {
+          headers: {Accept: 'application/atom+xml, application/xml', 'User-Agent': 'Kings Logistics Social News/1.0'},
+          signal: AbortSignal.timeout(20000)
+        });
+      } catch (error) {
+        lastError = error;
+        continue;
+      }
+      if (response.ok) return parseYouTubeFeed(await response.text());
+      const retryable = response.status === 404 || response.status === 429 || response.status >= 500;
+      lastError = Error('Official YouTube feed returned HTTP ' + response.status);
+      if (!retryable) throw lastError;
     }
-    const xml = await response.text();
-    if (response.ok) return parseYouTubeFeed(xml);
-    if ((response.status === 429 || response.status >= 500) && attempt < 2) {
-      const seconds = Number(response.headers.get('retry-after'));
-      const delay = Math.min(60000, Math.max(1500, Number.isFinite(seconds) ? seconds * 1000 : 2000 * (attempt + 1)));
-      await new Promise(resolve => setTimeout(resolve, delay));
-      continue;
-    }
-    throw Error('Official YouTube feed returned HTTP ' + response.status);
+    if (round === 0) await new Promise(resolve => setTimeout(resolve, 1500));
   }
+  throw lastError || Error('Official Kings YouTube feed unavailable');
 }
-
 function marker(item) { return MARKER + item.platform + ':' + item.id; }
 async function alreadyOnDiscord(item, token) {
   let before = null;
