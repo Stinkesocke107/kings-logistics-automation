@@ -42,11 +42,14 @@ test('verification follows successful real producers, with independent hourly fa
   assert.match(convoy,/cron: '14 \* \* \* \*'/);
 });
 
-test('News, YouTube and Changelog remain visible in monitoring without claiming core outages on third-party RSS errors', () => {
+test('News, YouTube and Changelog stay visible in the complete registry without core-level severity', () => {
+  const {SCHEDULED_WORKFLOWS} = require('../kings-workflow-registry.js');
   const monitor=fs.readFileSync(path.join(root,'system-monitoring.js'),'utf8');
+  assert.match(monitor,/const WORKFLOWS = SCHEDULED_WORKFLOWS/);
   for(const name of ['news','social-news','changelog']){
-    assert.ok(monitor.includes("file: '"+name+".yml'"),name);
-    assert.match(monitor,new RegExp("file: '"+name+"\\.yml'[^\\n]*severity: 'warning'"));
+    const item=SCHEDULED_WORKFLOWS.find(item=>item.file===name+'.yml');
+    assert.ok(item,name+' is monitored');
+    assert.equal(item.severity,'warning',name);
   }
 });
 
