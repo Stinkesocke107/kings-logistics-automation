@@ -23,6 +23,9 @@ on:
       - 'scripts/git-safe-push.sh'
       # Re-evaluate health immediately whenever scheduler coverage or a monitored producer workflow changes.
       - '.github/workflows/central-scheduler.yml'
+      - '.github/workflows/news.yml'
+      - '.github/workflows/social-news.yml'
+      - '.github/workflows/changelog.yml'
       - '.github/workflows/live-tracker.yml'
       - '.github/workflows/driver-updates.yml'
       - '.github/workflows/convoy-checker.yml'
