@@ -65,3 +65,14 @@ test('Core and Final Freeze check live alert issues rather than raw historical c
  assert.match(workflow,/workflow_run:[\s\S]*Kings News Production Verification/);
  assert.match(workflow,/Kings Final Freeze Verification/);
 });
+
+test('Final Freeze verifies read-only and leaves technical alert publishing to Kings Monitoring',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const root=path.resolve(__dirname,'..');
+ const freeze=fs.readFileSync(path.join(root,'.github/workflows/final-freeze-verification.yml'),'utf8');
+ const monitor=fs.readFileSync(path.join(root,'.github/workflows/system-monitoring.yml'),'utf8');
+ assert.doesNotMatch(freeze,/run: node system-alerts\.js/);
+ assert.match(monitor,/run: node system-alerts\.js/);
+ assert.match(freeze,/run: node core-baseline-verifier\.js/);
+ assert.match(freeze,/run: node final-freeze-verifier\.js/);
+});

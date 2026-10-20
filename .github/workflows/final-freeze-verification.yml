@@ -112,13 +112,10 @@ jobs:
           node discord-permission-audit.js
           node self-healing-stress-verifier.js
 
-      - name: Process final technical alerts
-        continue-on-error: true
-        env:
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_GUILD_ID: '1114967437788577792'
-          SYSTEM_ALERTS_CHANNEL_NAME: 'system-alerts'
-        run: node system-alerts.js
+      # This is a read-only technical verification. Publishing system alerts
+      # here dirtied tracked data/system-alerts-state.json, which then caused
+      # the Git-clean Core Fingerprint gate to fail against its own write.
+      # Kings System Monitoring is the single durable alert publisher.
 
       - name: Verify API resilience and Git/State hardening
         shell: bash
