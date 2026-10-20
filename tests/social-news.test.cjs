@@ -287,3 +287,36 @@ test('Kings GitHub production routing is YouTube-only while TikTok/Instagram bel
   assert.match(workflow, /Check official YouTube uploads/);
   assert.match(workflow, /DISCORD_BOT_TOKEN/);
 });
+
+test('YouTube 404 on documented feed falls back to official alternate path without changing video identity', async () => {
+  const {fetchYouTube} = require('../social-news');
+  const original = global.fetch;
+  const visited = [];
+  const xml = youtubeFeed([{id:'abcDEF12345',date:'2026-10-18T18:00:00Z',title:'Official Kings Video'}]);
+  try {
+    global.fetch = async (url) => {
+      visited.push(String(url));
+      return visited.length === 1 ? new Response('temporary 404',{status:404})
+        : new Response(xml,{status:200,headers:{'content-type':'application/atom+xml'}});
+    };
+    const items = await fetchYouTube();
+    assert.equal(items.length,1);
+    assert.equal(items[0].id,'abcDEF12345');
+    assert.equal(visited.length,2);
+    assert.match(visited[0],/youtube\.com\/feeds\/videos\.xml/);
+    assert.match(visited[1],/youtube\.com\/xml\/feeds\/videos\.xml/);
+  } finally {global.fetch = original;}
+});
+
+test('alternate YouTube Atom endpoint is still rejected when it belongs to another channel', async () => {
+  const {fetchYouTube} = require('../social-news');
+  const original = global.fetch;
+  try {
+    let count = 0;
+    global.fetch = async () => ++count === 1
+      ? new Response('',{status:404})
+      : new Response(youtubeFeed([{id:'abcDEF12345',date:'2026-10-18T18:00:00Z',title:'Other video'}],'UCaaaaaaaaaaaaaaaaaaaaaa'),
+        {status:200});
+    await assert.rejects(fetchYouTube(),/does not belong to official Kings Logistics channel/);
+  } finally {global.fetch = original;}
+});
