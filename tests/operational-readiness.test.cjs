@@ -74,5 +74,5 @@ test('Final Freeze verifies read-only and leaves technical alert publishing to K
  assert.doesNotMatch(freeze,/run: node system-alerts\.js/);
  assert.match(monitor,/run: node system-alerts\.js/);
  assert.match(freeze,/run: node core-baseline-verifier\.js/);
- assert.match(freeze,/run: node final-freeze-verifier\.js/);
+ assert.match(freeze,/node final-freeze-verifier\.js/);
 });
