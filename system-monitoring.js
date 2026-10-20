@@ -10,29 +10,11 @@ const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY || 'Stinkesocke107/kings
 const GITHUB_API = 'https://api.github.com';
 const STEP_SUMMARY = process.env.GITHUB_STEP_SUMMARY || null;
 
-const WORKFLOWS = [
-  { file: 'central-scheduler.yml', label: 'Central Scheduler', maxAgeMinutes: 20, severity: 'critical', activeGraceMinutes: 15 },
-  { file: 'live-tracker.yml', label: 'Live Tracker / Statistics', maxAgeMinutes: 30, severity: 'critical' },
-  { file: 'driver-updates.yml', label: 'Driver Updates', maxAgeMinutes: 30, severity: 'critical' },
-  // These news publishers have independent external feeds. Warn about missed
-  // refreshes and failed publication rather than hiding outages; temporary
-  // YouTube RSS HTTP 404 must not mark the entire driver/convoy core unhealthy.
-  { file: 'news.yml', label: 'TruckersMP News', maxAgeMinutes: 35, severity: 'warning' },
-  { file: 'social-news.yml', label: 'YouTube Social News', maxAgeMinutes: 90, severity: 'warning' },
-  { file: 'changelog.yml', label: 'Changelog Publisher', maxAgeMinutes: 75, severity: 'warning' },
-  { file: 'convoy-checker.yml', label: 'Convoy / Event System', maxAgeMinutes: 45, severity: 'critical' },
-  { file: 'driver-management.yml', label: 'Driver Management', maxAgeMinutes: 150, severity: 'critical' },
-  { file: 'hr-leadership.yml', label: 'HR Leadership', maxAgeMinutes: 45, severity: 'critical' },
-  { file: 'staff-management.yml', label: 'Staff Management', maxAgeMinutes: 150, severity: 'critical' },
-  { file: 'leadership-dashboard.yml', label: 'Consolidated Leadership Dashboard', maxAgeMinutes: 780, severity: 'warning' },
-  { file: 'milestones.yml', label: 'VTC Milestones', maxAgeMinutes: 30, severity: 'warning' },
-  { file: 'driver-achievements.yml', label: 'Driver Achievements', maxAgeMinutes: 2160, severity: 'warning' },
-  { file: 'driver-weekly-summary.yml', label: 'Driver Weekly Summary', maxAgeMinutes: 12000, severity: 'warning', optionalUntilFirstRun: true },
-  { file: 'hr-weekly-summary.yml', label: 'HR Weekly Summary', maxAgeMinutes: 12000, severity: 'warning', optionalUntilFirstRun: true },
-  { file: 'management-weekly-overview.yml', label: 'Management Weekly Overview', maxAgeMinutes: 12000, severity: 'warning', optionalUntilFirstRun: true },
-  { file: 'monthly-report.yml', label: 'Monthly Report', maxAgeMinutes: 50400, severity: 'warning', optionalUntilFirstRun: true },
-  { file: 'core-backup.yml', label: 'Core Backup', maxAgeMinutes: 2160, severity: 'critical' }
-];
+const {WORKFLOW_REGISTRY, SCHEDULED_WORKFLOWS, ON_DEMAND_WORKFLOWS} = require('./kings-workflow-registry');
+// All routinely scheduled Kings systems are monitored, not just the original
+// central-core shortlist. Manual and push-only tools are checked for presence
+// but intentionally never classified as stale because they have no live clock.
+const WORKFLOWS = SCHEDULED_WORKFLOWS;
 
 const CRITICAL_FILES = [
   'tracker.js',
@@ -607,6 +589,39 @@ async function checkWorkflow(config, issues) {
   };
 }
 
+function checkWorkflowRegistryCoverage(issues) {
+  const workflowDir = path.join(ROOT, '.github', 'workflows');
+  const registered = new Set(WORKFLOW_REGISTRY.map(item => item.file));
+  const present = fs.existsSync(workflowDir)
+    ? fs.readdirSync(workflowDir).filter(name => /\.ya?ml$/i.test(name))
+    : [];
+  const unregistered = present.filter(file => !registered.has(file));
+  const missing = WORKFLOW_REGISTRY.filter(item => !present.includes(item.file)).map(item => item.file);
+  for (const file of unregistered) {
+    issues.push(issue('workflow-unregistered:' + file, 'warning', 'Workflow Registry',
+      'A Kings workflow is not classified for monitoring: ' + file));
+  }
+  // Scheduled-file absence is already reported by checkWorkflow; do not count
+  // the same problem twice, but do track manual/push-only tool disappearance.
+  for (const file of missing) {
+    if (ON_DEMAND_WORKFLOWS.some(item => item.file === file)) {
+      issues.push(issue('workflow-tool-missing:' + file, 'warning', 'Workflow Registry',
+        'On-demand Kings workflow is missing: ' + file));
+    }
+  }
+  return {
+    registered: WORKFLOW_REGISTRY.length,
+    scheduled: SCHEDULED_WORKFLOWS.length,
+    onDemand: ON_DEMAND_WORKFLOWS.length,
+    onChange: ON_DEMAND_WORKFLOWS.filter(item => item.mode === 'on-change').length,
+    manual: ON_DEMAND_WORKFLOWS.filter(item => item.mode === 'manual').length,
+    present: present.length,
+    missing,
+    unregistered,
+    complete: missing.length === 0 && unregistered.length === 0
+  };
+}
+
 async function checkWorkflows(issues) {
   if (!GITHUB_TOKEN) {
     issues.push(issue('github-token-missing', 'critical', 'Monitoring Engine', 'GITHUB_TOKEN is missing; workflow monitoring cannot run.'));
@@ -677,6 +692,7 @@ async function main() {
   const criticalFiles = checkCriticalFiles(issues);
   const json = checkJsonFiles(issues);
   const encryptedStates = checkEncryptedStates(issues);
+  const workflowRegistry = checkWorkflowRegistryCoverage(issues);
   const workflows = await checkWorkflows(issues);
   const freshData = checkFreshData(issues, workflows);
   const integrity = checkCrossSystemIntegrity(issues);
@@ -695,6 +711,10 @@ async function main() {
     status,
     healthy: status === 'HEALTHY',
     summary: {
+      workflowsRegistered: workflowRegistry.registered,
+      workflowsScheduled: workflowRegistry.scheduled,
+      workflowsOnDemand: workflowRegistry.onDemand,
+      workflowRegistryComplete: workflowRegistry.complete,
       workflowsChecked: workflows.length,
       workflowsHealthy: workflows.filter((item) => item.ok).length,
       jsonFilesChecked: json.checked,
@@ -717,6 +737,7 @@ async function main() {
     },
     issues,
     workflows,
+    workflowRegistry,
     data: {
       freshness: freshData,
       apiHealth,
@@ -734,6 +755,7 @@ async function main() {
   writeStepSummary(result);
 
   console.log(`System status: ${status}`);
+  console.log(`Workflow registry: ${workflowRegistry.registered} total, ${workflowRegistry.scheduled} scheduled, ${workflowRegistry.onDemand} on-demand, ${workflowRegistry.unregistered.length} unclassified`);
   console.log(`Workflows checked: ${result.summary.workflowsChecked}`);
   console.log(`Workflow health: ${result.summary.workflowsHealthy}/${result.summary.workflowsChecked}`);
   console.log(`JSON health: ${result.summary.validJsonFiles}/${result.summary.jsonFilesChecked}`);
