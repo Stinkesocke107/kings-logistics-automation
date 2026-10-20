@@ -1,28 +1,19 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-failed:final-freeze-verification.yml": {
-      "severity": "warning",
+  "active": {},
+  "pending": {
+    "workflow-no-runs:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-20T15:07:58.207Z",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure.",
-      "details": {
-        "runId": 39420456522,
-        "completedAt": "2026-10-20T12:13:14Z"
-      },
-      "firstAlertedAt": "2026-10-20T12:59:56.829Z"
+      "message": "Final Freeze Verification has no workflow runs."
     },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 540
-      },
-      "firstAlertedAt": "2026-10-20T12:59:56.829Z"
+    "workflow-no-runs:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-20T15:07:58.207Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has no workflow runs."
     }
-  },
-  "pending": {}
+  }
 }
