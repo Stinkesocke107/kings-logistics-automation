@@ -336,6 +336,7 @@ function loadStatistics() {
 
   return {
     history,
+    sourceSnapshotAt: typeof raw.sourceSnapshotAt === 'string' ? raw.sourceSnapshotAt : null,
 
     allTime:
       raw &&
@@ -1338,6 +1339,13 @@ async function start() {
 
   const statistics =
     loadStatistics();
+
+  // Fail closed if live activity and accumulated Statistics refer to
+  // different tracker generations. Missing markers are tolerated only for
+  // backwards compatibility with stored pre-rollout statistics files.
+  if (statistics.sourceSnapshotAt && statistics.sourceSnapshotAt !== snapshot.updatedAt) {
+    throw new Error('Kings Statistics source does not match the current Live Tracker snapshot. Refusing mixed-time Overview.');
+  }
 
   const state =
     loadOverviewState();

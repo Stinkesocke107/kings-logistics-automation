@@ -136,6 +136,7 @@ function loadStatistics() {
     version: 3,
     createdAt: raw.createdAt || nowISO(),
     updatedAt: raw.updatedAt || nowISO(),
+    sourceSnapshotAt: typeof raw.sourceSnapshotAt === 'string' ? raw.sourceSnapshotAt : null,
     messageId: raw.messageId || raw.discordMessageId || null,
     allTime: {
       peakOnline: Math.max(number(raw?.allTime?.peakOnline), ...history.map((d) => d.peakOnline), 0),
@@ -369,6 +370,13 @@ async function main() {
   const driverHistory = loadDriverHistory();
 
   let changed = updateState(state, live.members, live.activity, live.updatedAt);
+  // Freshness contract: report the exact Tracker snapshot used on this run,
+  // including runs when hourly/aggregate historical values stay unchanged.
+  const sourceSnapshotAt = live.updatedAt.toISOString();
+  if (state.sourceSnapshotAt !== sourceSnapshotAt) {
+    state.sourceSnapshotAt = sourceSnapshotAt;
+    changed = true;
+  }
   const embed = buildEmbed(state, live, driverHistory);
   if (await syncDiscord(state, embed)) changed = true;
 

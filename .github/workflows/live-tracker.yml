@@ -55,19 +55,18 @@ jobs:
       - name: Update Kings Advanced Statistics
         env:
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
-        run: |
-          node statistics.js
+        run: node statistics.js
 
-          # statistics.json stores historical/hourly data and therefore may not
-          # otherwise change on every 5-minute workflow run. Keep updatedAt as a
-          # health heartbeat for the last successful Statistics processing run.
+      - name: Verify Tracker and Statistics use the same source generation
+        run: |
           node - <<'NODE'
-          const fs = require('fs');
-          const file = 'data/statistics.json';
-          const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-          data.updatedAt = new Date().toISOString();
-          fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n', 'utf8');
-          console.log(`Statistics heartbeat updated: ${data.updatedAt}`);
+          const fs = require('node:fs');
+          const tracker = JSON.parse(fs.readFileSync('data/live-tracker-snapshot.json', 'utf8'));
+          const stats = JSON.parse(fs.readFileSync('data/statistics.json', 'utf8'));
+          if (!tracker.updatedAt || stats.sourceSnapshotAt !== tracker.updatedAt) {
+            throw new Error('Kings live-source mismatch: refusing to publish mixed-time dashboard data.');
+          }
+          console.log('Verified shared Kings Tracker source: ' + tracker.updatedAt);
           NODE
 
       - name: Update Kings Central Overview
