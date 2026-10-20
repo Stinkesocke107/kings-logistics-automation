@@ -1,25 +1,39 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
+  "active": {
     "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-20T12:16:39.892Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 39420456522,
+        "completedAt": "2026-10-20T12:13:14Z"
+      },
+      "firstAlertedAt": "2026-10-20T12:59:56.829Z"
     },
     "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-20T12:16:39.892Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-10-20T12:59:56.829Z"
     },
     "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-20T12:16:39.892Z",
+      "severity": "warning",
       "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
+      "message": "System Monitoring has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-20T10:07:33Z",
+        "ageMinutes": 172,
+        "maxAgeMinutes": 120
+      },
+      "firstAlertedAt": "2026-10-20T12:59:56.829Z"
     }
-  }
+  },
+  "pending": {}
 }
