@@ -454,13 +454,16 @@ async function checkWorkflow(config, issues) {
   const encodedFile = encodeURIComponent(config.file);
   const data = await githubJson(`/repos/${GITHUB_REPOSITORY}/actions/workflows/${encodedFile}/runs?branch=main&per_page=30`);
   const allRuns = Array.isArray(data?.workflow_runs) ? data.workflow_runs : [];
-  // A validation-only convoy run cannot establish production health.
-  const runs = config.file === 'convoy-checker.yml'
-    ? allRuns.filter((run) =>
-        run.event === 'schedule' ||
-        ((run.event === 'workflow_dispatch' || run.event === 'push') && /\blive\b/i.test(run.display_title || ''))
-      )
-    : allRuns;
+  // Monitor operational executions, not CI-only push checks. A code-push
+  // verifier failure should stay visible in GitHub CI without recursively
+  // marking unrelated live producers unhealthy. Convoy dry-runs must not count
+  // as valid production updates.
+  const runs = allRuns.filter((run) => {
+    if (run.event === 'workflow_run') return true;
+    if (run.event === 'schedule') return true;
+    if (run.event !== 'workflow_dispatch') return false;
+    return config.file !== 'convoy-checker.yml' || /\blive\b/i.test(run.display_title || '');
+  });
 
   if (!runs.length) {
     if (!config.optionalUntilFirstRun) {
