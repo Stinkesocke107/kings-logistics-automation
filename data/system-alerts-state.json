@@ -37,11 +37,11 @@
     }
   },
   "pending": {
-    "workflow-failed:final-freeze-verification.yml": {
+    "workflow-overdue:convoy-announcement-verifier.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-20T10:46:08.705Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
+      "firstSeenAt": "2026-10-20T10:49:46.223Z",
+      "system": "Convoy Announcement Verification",
+      "message": "Convoy Announcement Verification has not run within the expected time window."
     }
   }
 }
