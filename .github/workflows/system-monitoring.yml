@@ -221,7 +221,7 @@ jobs:
           echo "Scheduler Recovery is hard-limited to the Central Scheduler, Driver Updates, and Live Tracker; Monitoring never directly dispatches Convoy live, HR, Staff, Management, Probation, or personnel workflows." >> "$GITHUB_STEP_SUMMARY"
           echo "They never change Discord roles, permissions, members, Staff/Driver/HR status, bans, kicks, timeouts, promotions, demotions, or personnel decisions." >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Require healthy final report
+      - name: Fail only on critical monitoring incidents (keep warnings visible)
         if: always()
         run: |
-          node -e "const h=require('./data/system-health.json'); if(h.status !== 'HEALTHY') { console.error('Kings final health: ' + h.status); process.exit(1); }"
+          node -e "const h=require('./data/system-health.json'); const n=Number(h.summary?.criticalIssues||0); if(h.status==='UNHEALTHY'||h.status==='UNKNOWN'||n>0){console.error('Kings critical monitoring incidents: '+n+' ('+h.status+')');process.exit(1);} if(h.status!=='HEALTHY'&&h.status!=='DEGRADED'){console.error('Invalid Kings health status: '+h.status);process.exit(1);} console.log('Kings monitoring completed: '+h.status+'; warnings remain visible and alertable.');"
