@@ -1,19 +1,19 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-21T13:45:11.534Z",
+  "updatedAt": "2026-10-21T15:22:28.681Z",
   "currentDrivers": 109,
-  "onlineNow": 0,
+  "onlineNow": 1,
   "joinedLast7Days": 2,
   "joinedLast30Days": 4,
   "leftLast7Days": 2,
   "leftLast30Days": 5,
   "activity": {
     "grace": 2,
-    "active": 10,
+    "active": 11,
     "approvedLeave": 0,
     "info7Days": 3,
-    "attention14Days": 94,
+    "attention14Days": 93,
     "hrReview30Days": 0,
     "unknown": 0
   },
@@ -76,7 +76,7 @@
         "tmpId": 5504138,
         "username": "GoosiestBrother",
         "joinDate": "2026-10-02T14:03:55.000Z",
-        "tenureDays": 18
+        "tenureDays": 19
       },
       {
         "tmpId": 5155783,
