@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-21T18:36:15.001Z",
+  "updatedAt": "2026-10-21T20:36:34.918Z",
   "currentDrivers": 109,
   "onlineNow": 0,
   "joinedLast7Days": 2,
@@ -12,9 +12,9 @@
     "grace": 2,
     "active": 11,
     "approvedLeave": 0,
-    "info7Days": 3,
-    "attention14Days": 93,
-    "hrReview30Days": 0,
+    "info7Days": 2,
+    "attention14Days": 11,
+    "hrReview30Days": 83,
     "unknown": 0
   },
   "tenure": {
@@ -32,7 +32,7 @@
         "tmpId": 4891248,
         "username": "Stinkesocke107",
         "joinDate": "2023-07-09T19:25:36.000Z",
-        "tenureDays": 1199
+        "tenureDays": 1200
       },
       {
         "tmpId": 5419500,
@@ -44,7 +44,7 @@
         "tmpId": 5318474,
         "username": "Paul Brandt",
         "joinDate": "2024-04-22T19:19:44.000Z",
-        "tenureDays": 911
+        "tenureDays": 912
       },
       {
         "tmpId": 5358213,
@@ -82,13 +82,13 @@
         "tmpId": 5155783,
         "username": "giudf211",
         "joinDate": "2026-09-27T20:31:21.000Z",
-        "tenureDays": 23
+        "tenureDays": 24
       },
       {
         "tmpId": 6345786,
         "username": "Maxi_274",
         "joinDate": "2026-08-29T19:21:08.000Z",
-        "tenureDays": 52
+        "tenureDays": 53
       }
     ]
   },
