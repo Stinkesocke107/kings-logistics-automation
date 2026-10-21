@@ -1,13 +1,17 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
+  "active": {
     "workflow-failed:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-21T01:03:45.519Z",
+      "severity": "warning",
       "system": "YouTube Social News",
-      "message": "YouTube Social News latest completed run ended with failure."
+      "message": "YouTube Social News latest completed run ended with failure.",
+      "details": {
+        "runId": 39528287330,
+        "completedAt": "2026-10-21T01:36:34Z"
+      },
+      "firstAlertedAt": "2026-10-21T01:37:11.517Z"
     }
-  }
+  },
+  "pending": {}
 }
