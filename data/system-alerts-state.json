@@ -24,5 +24,12 @@
       "firstAlertedAt": "2026-10-21T04:30:44.132Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-21T05:21:42.173Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure."
+    }
+  }
 }
