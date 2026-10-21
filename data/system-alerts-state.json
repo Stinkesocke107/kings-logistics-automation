@@ -1,6 +1,36 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {}
+  "active": {
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-21T20:56:05Z",
+        "ageMinutes": 33,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-10-21T21:30:21.474Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-21T20:37:33Z",
+        "ageMinutes": 52,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-10-21T21:30:21.474Z"
+    }
+  },
+  "pending": {
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-21T21:30:21.474Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    }
+  }
 }
