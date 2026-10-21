@@ -3,11 +3,13 @@
   "namespace": "news",
   "service": "truckersmp-vtc-news",
   "healthKey": "news--truckersmp-vtc-news",
-  "status": "healthy",
-  "consecutiveFailures": 0,
+  "status": "degraded",
+  "consecutiveFailures": 1,
   "lastSuccessAt": "2026-09-29T22:39:57.980Z",
   "recoveredAt": null,
-  "lastError": null,
+  "lastError": "truckersmp-vtc-news: HTTP 500",
   "circuitOpenUntil": null,
-  "updatedAt": "2026-09-29T22:39:57.981Z"
+  "updatedAt": "2026-10-21T14:09:42.441Z",
+  "lastFailureAt": "2026-10-21T14:09:42.441Z",
+  "lastErrorCode": null
 }
