@@ -3,11 +3,11 @@
   "mode": "technical-alerts-only",
   "active": {},
   "pending": {
-    "workflow-overdue:self-healing.yml": {
+    "workflow-failed:social-news.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-21T01:01:45.876Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "firstSeenAt": "2026-10-21T01:03:45.519Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News latest completed run ended with failure."
     }
   }
 }
