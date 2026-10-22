@@ -2,27 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-no-runs:core-backup.yml": {
-      "severity": "critical",
-      "system": "Core Backup",
-      "message": "Core Backup has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:08:02.006Z"
-    },
-    "workflow-no-runs:driver-updates.yml": {
-      "severity": "critical",
-      "system": "Driver Updates",
-      "message": "Driver Updates has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:08:02.006Z"
-    },
-    "workflow-no-runs:staff-management.yml": {
-      "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:08:02.006Z"
-    },
     "workflow-no-runs:event-leadership-reports.yml": {
       "severity": "warning",
       "system": "Event Leadership Reports",
@@ -36,13 +15,6 @@
       "message": "Leadership Dashboard has no workflow runs.",
       "details": null,
       "firstAlertedAt": "2026-10-22T16:08:02.006Z"
-    },
-    "workflow-no-runs:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:19:00.581Z"
     },
     "workflow-no-runs:driver-management.yml": {
       "severity": "critical",
@@ -63,17 +35,6 @@
       "system": "Live Tracker / Statistics",
       "message": "Live Tracker / Statistics has no workflow runs.",
       "details": null,
-      "firstAlertedAt": "2026-10-22T16:19:00.581Z"
-    },
-    "stale-data:data/staff-management-summary.json": {
-      "severity": "warning",
-      "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-10-14T03:47:36.465Z",
-        "ageMinutes": 12271,
-        "maxAgeMinutes": 180
-      },
       "firstAlertedAt": "2026-10-22T16:19:00.581Z"
     },
     "workflow-no-runs:probation.yml": {
@@ -104,38 +65,57 @@
       "details": null,
       "firstAlertedAt": "2026-10-22T16:20:37.226Z"
     },
-    "workflow-no-runs:staff-leadership-live-overview.yml": {
-      "severity": "warning",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview has no workflow runs.",
+    "workflow-no-runs:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has no workflow runs.",
       "details": null,
-      "firstAlertedAt": "2026-10-22T16:20:37.226Z"
+      "firstAlertedAt": "2026-10-22T16:21:29.378Z"
+    },
+    "workflow-no-runs:hr-leadership-reports.yml": {
+      "severity": "warning",
+      "system": "HR Leadership Reports",
+      "message": "HR Leadership Reports has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-10-22T16:21:29.378Z"
     }
   },
   "pending": {
-    "workflow-failed:self-healing.yml": {
+    "workflow-no-runs:changelog.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-22T16:20:37.226Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
+      "firstSeenAt": "2026-10-22T16:21:29.378Z",
+      "system": "Changelog Publisher",
+      "message": "Changelog Publisher has no workflow runs."
     },
-    "workflow-failed:system-monitoring.yml": {
+    "workflow-no-runs:driver-leadership-reports.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-22T16:20:37.226Z",
+      "firstSeenAt": "2026-10-22T16:21:29.378Z",
+      "system": "Driver Leadership Reports",
+      "message": "Driver Leadership Reports has no workflow runs."
+    },
+    "workflow-no-runs:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T16:21:29.378Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has no workflow runs."
+    },
+    "workflow-no-runs:news-production-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T16:21:29.378Z",
+      "system": "TruckersMP News Verification",
+      "message": "TruckersMP News Verification has no workflow runs."
+    },
+    "workflow-no-runs:staff-leadership-reports.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T16:21:29.378Z",
+      "system": "Staff Leadership Reports",
+      "message": "Staff Leadership Reports has no workflow runs."
+    },
+    "workflow-no-runs:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T16:21:29.378Z",
       "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
-    },
-    "workflow-no-runs:hr-leadership-reports.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:20:37.226Z",
-      "system": "HR Leadership Reports",
-      "message": "HR Leadership Reports has no workflow runs."
-    },
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:20:37.226Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "message": "System Monitoring has no workflow runs."
     }
   }
 }
