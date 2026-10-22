@@ -11,14 +11,18 @@
         "completedAt": "2026-10-21T23:38:39Z"
       },
       "firstAlertedAt": "2026-10-21T23:40:15.075Z"
+    },
+    "workflow-overdue:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-21T22:54:06Z",
+        "ageMinutes": 156,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-10-22T01:30:54.808Z"
     }
   },
-  "pending": {
-    "workflow-overdue:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T01:03:56.989Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
