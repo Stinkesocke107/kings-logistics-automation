@@ -2,32 +2,70 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-no-runs:staff-management.yml": {
+    "workflow-no-runs:central-scheduler.yml": {
       "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management has no workflow runs.",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has no workflow runs.",
       "details": null,
-      "firstAlertedAt": "2026-10-22T15:31:24.710Z"
+      "firstAlertedAt": "2026-10-22T16:07:25.047Z"
+    },
+    "workflow-no-runs:driver-management.yml": {
+      "severity": "critical",
+      "system": "Driver Management",
+      "message": "Driver Management has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-10-22T16:07:25.047Z"
+    },
+    "workflow-no-runs:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-10-22T16:07:25.047Z"
     }
   },
   "pending": {
-    "stale-data:data/staff-management-summary.json": {
+    "workflow-no-runs:driver-leadership-reports.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-22T15:31:24.710Z",
-      "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
+      "firstSeenAt": "2026-10-22T16:07:25.047Z",
+      "system": "Driver Leadership Reports",
+      "message": "Driver Leadership Reports has no workflow runs."
     },
-    "workflow-no-runs:convoy-announcement-verifier.yml": {
+    "workflow-no-runs:event-leadership-reports.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-22T15:31:24.710Z",
-      "system": "Convoy Announcement Verification",
-      "message": "Convoy Announcement Verification has no workflow runs."
+      "firstSeenAt": "2026-10-22T16:07:25.047Z",
+      "system": "Event Leadership Reports",
+      "message": "Event Leadership Reports has no workflow runs."
     },
-    "workflow-no-runs:milestones.yml": {
+    "workflow-no-runs:final-freeze-verification.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-22T15:31:24.710Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has no workflow runs."
+      "firstSeenAt": "2026-10-22T16:07:25.047Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has no workflow runs."
+    },
+    "workflow-no-runs:leadership-dashboard.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T16:07:25.047Z",
+      "system": "Leadership Dashboard",
+      "message": "Leadership Dashboard has no workflow runs."
+    },
+    "workflow-no-runs:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T16:07:25.047Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has no workflow runs."
+    },
+    "workflow-no-runs:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T16:07:25.047Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview has no workflow runs."
+    },
+    "workflow-no-runs:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T16:07:25.047Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has no workflow runs."
     }
   }
 }
