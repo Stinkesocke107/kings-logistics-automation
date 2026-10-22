@@ -2,27 +2,10 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 76,
-        "latestCount": 16
-      },
-      "firstAlertedAt": "2026-10-22T15:02:37.727Z"
-    },
     "workflow-no-runs:central-scheduler.yml": {
       "severity": "critical",
       "system": "Central Scheduler",
       "message": "Central Scheduler has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T15:02:37.727Z"
-    },
-    "workflow-no-runs:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has no workflow runs.",
       "details": null,
       "firstAlertedAt": "2026-10-22T15:02:37.727Z"
     },
@@ -40,92 +23,33 @@
       "details": null,
       "firstAlertedAt": "2026-10-22T15:02:37.727Z"
     },
-    "workflow-no-runs:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has no workflow runs.",
+    "workflow-no-runs:hr-leadership-reports.yml": {
+      "severity": "warning",
+      "system": "HR Leadership Reports",
+      "message": "HR Leadership Reports has no workflow runs.",
       "details": null,
-      "firstAlertedAt": "2026-10-22T15:02:37.727Z"
+      "firstAlertedAt": "2026-10-22T15:16:57.658Z"
     },
-    "workflow-no-runs:staff-management.yml": {
-      "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management has no workflow runs.",
+    "workflow-no-runs:system-monitoring.yml": {
+      "severity": "warning",
+      "system": "System Monitoring",
+      "message": "System Monitoring has no workflow runs.",
       "details": null,
-      "firstAlertedAt": "2026-10-22T15:02:37.727Z"
-    },
-    "workflow-overdue:driver-updates.yml": {
-      "severity": "critical",
-      "system": "Driver Updates",
-      "message": "Driver Updates has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-22T13:46:05Z",
-        "ageMinutes": 76,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-10-22T15:02:37.727Z"
+      "firstAlertedAt": "2026-10-22T15:16:57.658Z"
     }
   },
   "pending": {
-    "stale-data:data/staff-management-summary.json": {
+    "workflow-no-runs:event-leadership-reports.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-22T15:02:37.727Z",
-      "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
+      "firstSeenAt": "2026-10-22T15:16:57.658Z",
+      "system": "Event Leadership Reports",
+      "message": "Event Leadership Reports has no workflow runs."
     },
-    "workflow-no-runs:driver-achievements.yml": {
+    "workflow-no-runs:news.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-22T15:02:37.727Z",
-      "system": "Driver Achievements",
-      "message": "Driver Achievements has no workflow runs."
-    },
-    "workflow-no-runs:hr-leadership-reports.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T15:02:37.727Z",
-      "system": "HR Leadership Reports",
-      "message": "HR Leadership Reports has no workflow runs."
-    },
-    "workflow-no-runs:leadership-dashboard.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T15:02:37.727Z",
-      "system": "Leadership Dashboard",
-      "message": "Leadership Dashboard has no workflow runs."
-    },
-    "workflow-no-runs:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T15:02:37.727Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has no workflow runs."
-    },
-    "workflow-no-runs:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T15:02:37.727Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview has no workflow runs."
-    },
-    "workflow-no-runs:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T15:02:37.727Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has no workflow runs."
-    },
-    "workflow-overdue:changelog.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T15:02:37.727Z",
-      "system": "Changelog Publisher",
-      "message": "Changelog Publisher has not run within the expected time window."
-    },
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T15:02:37.727Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T15:02:37.727Z",
+      "firstSeenAt": "2026-10-22T15:16:57.658Z",
       "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
+      "message": "TruckersMP News has no workflow runs."
     }
   }
 }
