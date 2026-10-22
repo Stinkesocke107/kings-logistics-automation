@@ -22,7 +22,93 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-10-22T07:33:10.284Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 146,
+        "latestCount": 16
+      },
+      "firstAlertedAt": "2026-10-22T09:58:47.740Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-22T07:33:24Z",
+        "ageMinutes": 144,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-10-22T09:58:47.740Z"
+    },
+    "workflow-overdue:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-22T07:32:15Z",
+        "ageMinutes": 146,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-10-22T09:58:47.740Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-22T07:31:41Z",
+        "ageMinutes": 146,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-10-22T09:58:47.740Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T09:58:47.740Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:changelog.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T09:58:47.740Z",
+      "system": "Changelog Publisher",
+      "message": "Changelog Publisher has not run within the expected time window."
+    },
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T09:58:47.740Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    },
+    "workflow-overdue:news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T09:58:47.740Z",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News has not run within the expected time window."
+    },
+    "workflow-overdue:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T09:58:47.740Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has not run within the expected time window."
+    },
+    "workflow-overdue:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T09:58:47.740Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview has not run within the expected time window."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T09:58:47.740Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
