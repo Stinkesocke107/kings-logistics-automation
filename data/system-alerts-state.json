@@ -22,14 +22,17 @@
         "maxAgeMinutes": 90
       },
       "firstAlertedAt": "2026-10-22T01:30:54.808Z"
+    },
+    "workflow-failed:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 39727591024,
+        "completedAt": "2026-10-22T05:23:43Z"
+      },
+      "firstAlertedAt": "2026-10-22T06:06:24.303Z"
     }
   },
-  "pending": {
-    "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T05:24:14.662Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
