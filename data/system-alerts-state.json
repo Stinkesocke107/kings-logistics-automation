@@ -11,14 +11,18 @@
         "completedAt": "2026-10-22T05:23:43Z"
       },
       "firstAlertedAt": "2026-10-22T06:06:24.303Z"
+    },
+    "workflow-overdue:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-21T22:01:17Z",
+        "ageMinutes": 571,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-10-22T07:33:10.284Z"
     }
   },
-  "pending": {
-    "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T07:04:03.074Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }

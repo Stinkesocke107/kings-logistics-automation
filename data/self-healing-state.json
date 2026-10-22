@@ -6,17 +6,6 @@
     "live-tracker": {
       "attempts": [
         {
-          "at": "2026-10-21T07:23:00.149Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 39561541870,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
-        {
           "at": "2026-10-21T13:01:47.894Z",
           "outcome": "recovered",
           "action": "dispatched",
@@ -44,15 +33,6 @@
     },
     "driver-updates": {
       "attempts": [
-        {
-          "at": "2026-10-21T07:23:14.138Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 39561579923,
-          "issueIds": [
-            "workflow-overdue:driver-updates.yml"
-          ]
-        },
         {
           "at": "2026-10-21T13:02:07.871Z",
           "outcome": "recovered",
