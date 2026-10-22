@@ -24,12 +24,5 @@
       "firstAlertedAt": "2026-10-22T01:30:54.808Z"
     }
   },
-  "pending": {
-    "workflow-overdue:probation.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T04:52:52.835Z",
-      "system": "Driver Probation",
-      "message": "Driver Probation has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
