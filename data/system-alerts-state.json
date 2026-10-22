@@ -2,13 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-no-runs:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:08:02.006Z"
-    },
     "workflow-no-runs:core-backup.yml": {
       "severity": "critical",
       "system": "Core Backup",
@@ -30,24 +23,10 @@
       "details": null,
       "firstAlertedAt": "2026-10-22T16:08:02.006Z"
     },
-    "workflow-no-runs:driver-leadership-reports.yml": {
-      "severity": "warning",
-      "system": "Driver Leadership Reports",
-      "message": "Driver Leadership Reports has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:08:02.006Z"
-    },
     "workflow-no-runs:event-leadership-reports.yml": {
       "severity": "warning",
       "system": "Event Leadership Reports",
       "message": "Event Leadership Reports has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:08:02.006Z"
-    },
-    "workflow-no-runs:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has no workflow runs.",
       "details": null,
       "firstAlertedAt": "2026-10-22T16:08:02.006Z"
     },
@@ -97,13 +76,6 @@
       },
       "firstAlertedAt": "2026-10-22T16:19:00.581Z"
     },
-    "workflow-no-runs:news-production-verification.yml": {
-      "severity": "warning",
-      "system": "TruckersMP News Verification",
-      "message": "TruckersMP News Verification has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:19:00.581Z"
-    },
     "workflow-no-runs:probation.yml": {
       "severity": "warning",
       "system": "Driver Probation",
@@ -111,69 +83,59 @@
       "details": null,
       "firstAlertedAt": "2026-10-22T16:19:00.581Z"
     },
-    "workflow-no-runs:self-healing.yml": {
+    "workflow-no-runs:driver-achievements.yml": {
       "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has no workflow runs.",
+      "system": "Driver Achievements",
+      "message": "Driver Achievements has no workflow runs.",
       "details": null,
-      "firstAlertedAt": "2026-10-22T16:19:00.581Z"
+      "firstAlertedAt": "2026-10-22T16:20:37.226Z"
     },
-    "workflow-no-runs:staff-leadership-reports.yml": {
+    "workflow-no-runs:news.yml": {
       "severity": "warning",
-      "system": "Staff Leadership Reports",
-      "message": "Staff Leadership Reports has no workflow runs.",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News has no workflow runs.",
       "details": null,
-      "firstAlertedAt": "2026-10-22T16:19:00.581Z"
+      "firstAlertedAt": "2026-10-22T16:20:37.226Z"
+    },
+    "workflow-no-runs:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-10-22T16:20:37.226Z"
+    },
+    "workflow-no-runs:staff-leadership-live-overview.yml": {
+      "severity": "warning",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-10-22T16:20:37.226Z"
     }
   },
   "pending": {
-    "workflow-no-runs:changelog.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-22T16:19:00.581Z",
-      "system": "Changelog Publisher",
-      "message": "Changelog Publisher has no workflow runs."
+      "firstSeenAt": "2026-10-22T16:20:37.226Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     },
-    "workflow-no-runs:convoy-announcement-verifier.yml": {
+    "workflow-failed:system-monitoring.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-22T16:19:00.581Z",
-      "system": "Convoy Announcement Verification",
-      "message": "Convoy Announcement Verification has no workflow runs."
-    },
-    "workflow-no-runs:driver-achievements.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:19:00.581Z",
-      "system": "Driver Achievements",
-      "message": "Driver Achievements has no workflow runs."
-    },
-    "workflow-no-runs:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:19:00.581Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has no workflow runs."
-    },
-    "workflow-no-runs:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:19:00.581Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has no workflow runs."
-    },
-    "workflow-no-runs:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:19:00.581Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has no workflow runs."
-    },
-    "workflow-no-runs:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:19:00.581Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview has no workflow runs."
-    },
-    "workflow-no-runs:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:19:00.581Z",
+      "firstSeenAt": "2026-10-22T16:20:37.226Z",
       "system": "System Monitoring",
-      "message": "System Monitoring has no workflow runs."
+      "message": "System Monitoring latest completed run ended with cancelled."
+    },
+    "workflow-no-runs:hr-leadership-reports.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T16:20:37.226Z",
+      "system": "HR Leadership Reports",
+      "message": "HR Leadership Reports has no workflow runs."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T16:20:37.226Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
   }
 }
