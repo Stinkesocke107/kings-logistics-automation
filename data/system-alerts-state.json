@@ -2,20 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-no-runs:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T15:02:37.727Z"
-    },
-    "workflow-no-runs:core-backup.yml": {
-      "severity": "critical",
-      "system": "Core Backup",
-      "message": "Core Backup has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T15:02:37.727Z"
-    },
     "workflow-no-runs:hr-leadership.yml": {
       "severity": "critical",
       "system": "HR Leadership",
@@ -30,26 +16,34 @@
       "details": null,
       "firstAlertedAt": "2026-10-22T15:16:57.658Z"
     },
-    "workflow-no-runs:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring has no workflow runs.",
+    "workflow-no-runs:driver-management.yml": {
+      "severity": "critical",
+      "system": "Driver Management",
+      "message": "Driver Management has no workflow runs.",
       "details": null,
-      "firstAlertedAt": "2026-10-22T15:16:57.658Z"
+      "firstAlertedAt": "2026-10-22T15:24:01.315Z"
+    },
+    "workflow-no-runs:driver-updates.yml": {
+      "severity": "critical",
+      "system": "Driver Updates",
+      "message": "Driver Updates has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-10-22T15:24:01.315Z"
+    },
+    "workflow-no-runs:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-10-22T15:24:01.315Z"
     }
   },
   "pending": {
-    "workflow-no-runs:event-leadership-reports.yml": {
+    "workflow-no-runs:staff-leadership-live-overview.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-22T15:16:57.658Z",
-      "system": "Event Leadership Reports",
-      "message": "Event Leadership Reports has no workflow runs."
-    },
-    "workflow-no-runs:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T15:16:57.658Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has no workflow runs."
+      "firstSeenAt": "2026-10-22T15:24:01.315Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview has no workflow runs."
     }
   }
 }
