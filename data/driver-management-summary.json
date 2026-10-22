@@ -1,18 +1,18 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-22T15:30:13.852Z",
+  "updatedAt": "2026-10-22T16:06:59.723Z",
   "currentDrivers": 109,
-  "onlineNow": 1,
-  "joinedLast7Days": 2,
+  "onlineNow": 0,
+  "joinedLast7Days": 1,
   "joinedLast30Days": 4,
   "leftLast7Days": 2,
   "leftLast30Days": 5,
   "activity": {
     "grace": 2,
-    "active": 12,
+    "active": 11,
     "approvedLeave": 0,
-    "info7Days": 1,
+    "info7Days": 2,
     "attention14Days": 11,
     "hrReview30Days": 83,
     "unknown": 0
@@ -70,7 +70,7 @@
         "tmpId": 6383526,
         "username": "AmeristarTruckingCo",
         "joinDate": "2026-10-14T15:54:13.000Z",
-        "tenureDays": 7
+        "tenureDays": 8
       },
       {
         "tmpId": 5504138,
