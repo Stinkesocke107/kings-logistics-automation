@@ -2,120 +2,16 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-no-runs:event-leadership-reports.yml": {
-      "severity": "warning",
-      "system": "Event Leadership Reports",
-      "message": "Event Leadership Reports has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:08:02.006Z"
-    },
-    "workflow-no-runs:leadership-dashboard.yml": {
-      "severity": "warning",
-      "system": "Leadership Dashboard",
-      "message": "Leadership Dashboard has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:08:02.006Z"
-    },
-    "workflow-no-runs:driver-management.yml": {
+    "convoy-completeness-stale": {
       "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:19:00.581Z"
-    },
-    "workflow-no-runs:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:19:00.581Z"
-    },
-    "workflow-no-runs:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:19:00.581Z"
-    },
-    "workflow-no-runs:probation.yml": {
-      "severity": "warning",
-      "system": "Driver Probation",
-      "message": "Driver Probation has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:19:00.581Z"
-    },
-    "workflow-no-runs:driver-achievements.yml": {
-      "severity": "warning",
-      "system": "Driver Achievements",
-      "message": "Driver Achievements has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:20:37.226Z"
-    },
-    "workflow-no-runs:news.yml": {
-      "severity": "warning",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:20:37.226Z"
-    },
-    "workflow-no-runs:social-news.yml": {
-      "severity": "warning",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:20:37.226Z"
-    },
-    "workflow-no-runs:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:21:29.378Z"
-    },
-    "workflow-no-runs:hr-leadership-reports.yml": {
-      "severity": "warning",
-      "system": "HR Leadership Reports",
-      "message": "HR Leadership Reports has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-10-22T16:21:29.378Z"
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 67,
+        "latestCount": 16
+      },
+      "firstAlertedAt": "2026-10-22T17:28:05.379Z"
     }
   },
-  "pending": {
-    "workflow-no-runs:changelog.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:21:29.378Z",
-      "system": "Changelog Publisher",
-      "message": "Changelog Publisher has no workflow runs."
-    },
-    "workflow-no-runs:driver-leadership-reports.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:21:29.378Z",
-      "system": "Driver Leadership Reports",
-      "message": "Driver Leadership Reports has no workflow runs."
-    },
-    "workflow-no-runs:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:21:29.378Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has no workflow runs."
-    },
-    "workflow-no-runs:news-production-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:21:29.378Z",
-      "system": "TruckersMP News Verification",
-      "message": "TruckersMP News Verification has no workflow runs."
-    },
-    "workflow-no-runs:staff-leadership-reports.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:21:29.378Z",
-      "system": "Staff Leadership Reports",
-      "message": "Staff Leadership Reports has no workflow runs."
-    },
-    "workflow-no-runs:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-22T16:21:29.378Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has no workflow runs."
-    }
-  }
+  "pending": {}
 }
