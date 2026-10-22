@@ -1,17 +1,19 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 67,
-        "latestCount": 16
-      },
-      "firstAlertedAt": "2026-10-22T17:28:05.379Z"
+  "active": {},
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T17:28:45.266Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-22T17:28:45.266Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
     }
-  },
-  "pending": {}
+  }
 }
