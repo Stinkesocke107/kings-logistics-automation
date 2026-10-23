@@ -1,16 +1,16 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-23T07:26:39.398Z",
-  "currentDrivers": 109,
+  "updatedAt": "2026-10-23T10:18:19.251Z",
+  "currentDrivers": 108,
   "onlineNow": 0,
   "joinedLast7Days": 1,
   "joinedLast30Days": 4,
-  "leftLast7Days": 2,
-  "leftLast30Days": 5,
+  "leftLast7Days": 3,
+  "leftLast30Days": 6,
   "activity": {
     "grace": 2,
-    "active": 13,
+    "active": 12,
     "approvedLeave": 0,
     "info7Days": 2,
     "attention14Days": 9,
@@ -18,9 +18,9 @@
     "unknown": 0
   },
   "tenure": {
-    "known": 109,
+    "known": 108,
     "under1Month": 4,
-    "oneToThreeMonths": 17,
+    "oneToThreeMonths": 16,
     "threeToSixMonths": 24,
     "sixToTwelveMonths": 28,
     "oneToTwoYears": 31,
