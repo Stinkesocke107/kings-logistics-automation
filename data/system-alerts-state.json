@@ -2,5 +2,12 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {}
+  "pending": {
+    "workflow-failed:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-23T21:43:06.653Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure."
+    }
+  }
 }
