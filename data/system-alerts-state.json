@@ -2,49 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 58,
-        "latestCount": 16
-      },
-      "firstAlertedAt": "2026-10-23T00:43:41.232Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-22T23:45:01Z",
-        "ageMinutes": 58,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-10-23T00:43:41.232Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-22T23:45:17Z",
-        "ageMinutes": 58,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-23T00:43:41.232Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-22T23:28:59Z",
-        "ageMinutes": 74,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-23T00:43:41.232Z"
-    },
     "workflow-failed:social-news.yml": {
       "severity": "warning",
       "system": "YouTube Social News",
@@ -54,32 +11,31 @@
         "completedAt": "2026-10-22T23:44:57Z"
       },
       "firstAlertedAt": "2026-10-23T00:43:41.232Z"
+    },
+    "workflow-overdue:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-22T22:39:45Z",
+        "ageMinutes": 127,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-10-23T00:47:47.168Z"
     }
   },
   "pending": {
-    "workflow-overdue:changelog.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-23T00:43:41.232Z",
-      "system": "Changelog Publisher",
-      "message": "Changelog Publisher has not run within the expected time window."
+      "firstSeenAt": "2026-10-23T00:47:47.168Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     },
-    "workflow-overdue:milestones.yml": {
+    "workflow-overdue:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-23T00:43:41.232Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-23T00:43:41.232Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
-    },
-    "workflow-overdue:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-23T00:43:41.232Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window."
+      "firstSeenAt": "2026-10-23T00:47:47.168Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
   }
 }
