@@ -1,19 +1,19 @@
 {
   "version": 2,
   "mode": "live",
-  "updatedAt": "2026-10-22T14:35:27.898Z",
-  "currentDrivers": 109,
+  "updatedAt": "2026-10-23T14:19:19.312Z",
+  "currentDrivers": 108,
   "matchedCurrentDrivers": 25,
   "newMappings": 0,
   "nameFallbackMappings": 0,
   "fullDiscordMemberListAvailable": true,
-  "noLinkedDiscord": 82,
+  "noLinkedDiscord": 81,
   "linkedDiscordNotOnGuild": 1,
   "truckersmpProfileErrors": 0,
   "eligibleForLoyaltyTier": 25,
-  "roleAdditions": 4,
-  "roleRemovals": 2,
-  "alreadyCorrect": 22,
+  "roleAdditions": 5,
+  "roleRemovals": 3,
+  "alreadyCorrect": 21,
   "formerDriverMappingsCleaned": 0,
   "umbrellaRole": {
     "id": "1555009783357112400",
@@ -198,11 +198,6 @@
     {
       "tmpId": 5318474,
       "username": "Paul Brandt",
-      "reason": "no-public-discord-link-and-no-exact-name-match"
-    },
-    {
-      "tmpId": 5334442,
-      "username": "tianp112",
       "reason": "no-public-discord-link-and-no-exact-name-match"
     },
     {
