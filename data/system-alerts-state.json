@@ -2,26 +2,15 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-failed:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure.",
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "runId": 39905416052,
-        "completedAt": "2026-10-23T05:24:43Z"
+        "ageMinutes": 72,
+        "latestCount": 16
       },
-      "firstAlertedAt": "2026-10-23T05:26:15.839Z"
-    },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-22T21:57:26Z",
-        "ageMinutes": 741,
-        "maxAgeMinutes": 540
-      },
-      "firstAlertedAt": "2026-10-23T10:19:21.206Z"
+      "firstAlertedAt": "2026-10-23T12:09:07.722Z"
     }
   },
   "pending": {}
