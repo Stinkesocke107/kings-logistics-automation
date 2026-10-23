@@ -1,13 +1,17 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
+  "active": {
     "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-23T21:43:06.653Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 40028503349,
+        "completedAt": "2026-10-23T21:42:31Z"
+      },
+      "firstAlertedAt": "2026-10-23T22:06:50.559Z"
     }
-  }
+  },
+  "pending": {}
 }
