@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-10-23T22:04:43.241Z",
+  "updatedAt": "2026-10-24T21:34:41.095Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -259,6 +259,34 @@
       "duplicateEventId": false,
       "archived": false,
       "eventUnix": 1793469600
+    },
+    {
+      "threadId": "1563502066679418881",
+      "name": "15 . April - Malkocoglu Logistics",
+      "eventId": "38464",
+      "status": "Scheduled",
+      "eventDate": "2027-04-15",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1807808400
+    },
+    {
+      "threadId": "1563503747299287151",
+      "name": "21. March - I Fora Logistics",
+      "eventId": "38056",
+      "status": "Scheduled",
+      "eventDate": "2027-03-21",
+      "meetupTime": "19:30 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1805657400
     }
   ],
   "changeLog": [
@@ -934,6 +962,46 @@
         "archived": false,
         "eventUnix": 1793469600
       }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-24T21:34:40.816Z",
+      "threadId": "1563502066679418881",
+      "name": "15 . April - Malkocoglu Logistics",
+      "current": {
+        "threadId": "1563502066679418881",
+        "name": "15 . April - Malkocoglu Logistics",
+        "eventId": "38464",
+        "status": "Scheduled",
+        "eventDate": "2027-04-15",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1807808400
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-24T21:34:40.816Z",
+      "threadId": "1563503747299287151",
+      "name": "21. March - I Fora Logistics",
+      "current": {
+        "threadId": "1563503747299287151",
+        "name": "21. March - I Fora Logistics",
+        "eventId": "38056",
+        "status": "Scheduled",
+        "eventDate": "2027-03-21",
+        "meetupTime": "19:30 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1805657400
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -947,7 +1015,8 @@
     "2026-10-20",
     "2026-10-21",
     "2026-10-22",
-    "2026-10-23"
+    "2026-10-23",
+    "2026-10-24"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
