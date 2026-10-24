@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-24T01:55:43.811Z",
+  "updatedAt": "2026-10-24T04:56:23.004Z",
   "currentDrivers": 108,
   "onlineNow": 0,
   "joinedLast7Days": 1,
@@ -64,7 +64,7 @@
         "tmpId": 1461015,
         "username": "JONAS (BR277)",
         "joinDate": "2026-10-17T03:18:58.000Z",
-        "tenureDays": 6
+        "tenureDays": 7
       },
       {
         "tmpId": 6383526,
