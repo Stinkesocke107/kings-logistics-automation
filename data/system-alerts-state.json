@@ -43,7 +43,31 @@
         "maxAgeMinutes": 90
       },
       "firstAlertedAt": "2026-10-24T05:03:19.456Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-24T05:04:15Z",
+        "ageMinutes": 32,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-10-24T05:37:28.770Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-24T05:37:28.770Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    },
+    "workflow-overdue:news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-24T05:37:28.770Z",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News has not run within the expected time window."
+    }
+  }
 }
