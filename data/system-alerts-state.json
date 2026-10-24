@@ -13,5 +13,12 @@
       "firstAlertedAt": "2026-10-23T22:06:50.559Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-24T01:05:20.802Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News latest completed run ended with failure."
+    }
+  }
 }
