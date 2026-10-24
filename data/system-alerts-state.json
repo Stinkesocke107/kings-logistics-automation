@@ -1,6 +1,17 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
+  "active": {
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 58,
+        "latestCount": 18
+      },
+      "firstAlertedAt": "2026-10-24T15:53:06.792Z"
+    }
+  },
   "pending": {}
 }
