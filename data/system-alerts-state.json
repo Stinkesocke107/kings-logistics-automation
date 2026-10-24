@@ -22,52 +22,14 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-10-24T05:03:19.456Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-24T09:14:34Z",
-        "ageMinutes": 31,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-10-24T09:46:33.619Z"
-    },
-    "workflow-overdue:driver-updates.yml": {
-      "severity": "critical",
-      "system": "Driver Updates",
-      "message": "Driver Updates has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-24T09:14:21Z",
-        "ageMinutes": 31,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-10-24T09:46:33.619Z"
-    },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure.",
-      "details": {
-        "runId": 40081167964,
-        "completedAt": "2026-10-24T09:15:14Z"
-      },
-      "firstAlertedAt": "2026-10-24T09:46:33.619Z"
     }
   },
   "pending": {
-    "workflow-overdue:milestones.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-24T09:46:33.619Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-24T09:46:33.619Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
+      "firstSeenAt": "2026-10-24T09:51:46.107Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     }
   }
 }
