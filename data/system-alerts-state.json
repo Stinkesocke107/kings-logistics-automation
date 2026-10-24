@@ -11,14 +11,40 @@
         "completedAt": "2026-10-23T21:42:31Z"
       },
       "firstAlertedAt": "2026-10-23T22:06:50.559Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 181,
+        "latestCount": 16
+      },
+      "firstAlertedAt": "2026-10-24T04:57:25.577Z"
+    },
+    "workflow-failed:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News latest completed run ended with failure.",
+      "details": {
+        "runId": 40064304834,
+        "completedAt": "2026-10-24T04:56:36Z"
+      },
+      "firstAlertedAt": "2026-10-24T04:57:25.577Z"
     }
   },
   "pending": {
-    "workflow-failed:social-news.yml": {
+    "workflow-overdue:final-freeze-verification.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-24T02:00:56.951Z",
+      "firstSeenAt": "2026-10-24T04:57:25.577Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window."
+    },
+    "workflow-overdue:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-24T04:57:25.577Z",
       "system": "YouTube Social News",
-      "message": "YouTube Social News latest completed run ended with failure."
+      "message": "YouTube Social News has not run within the expected time window."
     }
   }
 }
