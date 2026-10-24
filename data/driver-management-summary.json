@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-24T19:25:52.465Z",
+  "updatedAt": "2026-10-24T20:44:24.756Z",
   "currentDrivers": 108,
-  "onlineNow": 1,
+  "onlineNow": 0,
   "joinedLast7Days": 1,
   "joinedLast30Days": 4,
   "leftLast7Days": 3,
@@ -82,7 +82,7 @@
         "tmpId": 5155783,
         "username": "giudf211",
         "joinDate": "2026-09-27T20:31:21.000Z",
-        "tenureDays": 26
+        "tenureDays": 27
       },
       {
         "tmpId": 6345786,
