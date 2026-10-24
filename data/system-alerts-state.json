@@ -12,16 +12,6 @@
       },
       "firstAlertedAt": "2026-10-23T22:06:50.559Z"
     },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 181,
-        "latestCount": 16
-      },
-      "firstAlertedAt": "2026-10-24T04:57:25.577Z"
-    },
     "workflow-failed:social-news.yml": {
       "severity": "warning",
       "system": "YouTube Social News",
@@ -31,20 +21,42 @@
         "completedAt": "2026-10-24T04:56:36Z"
       },
       "firstAlertedAt": "2026-10-24T04:57:25.577Z"
+    },
+    "workflow-overdue:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-23T17:27:58Z",
+        "ageMinutes": 695,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-10-24T05:03:19.456Z"
+    },
+    "workflow-overdue:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-24T01:37:33Z",
+        "ageMinutes": 205,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-10-24T05:03:19.456Z"
     }
   },
   "pending": {
-    "workflow-overdue:final-freeze-verification.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-24T04:57:25.577Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "firstSeenAt": "2026-10-24T05:03:19.456Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     },
-    "workflow-overdue:social-news.yml": {
+    "workflow-overdue:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-24T04:57:25.577Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window."
+      "firstSeenAt": "2026-10-24T05:03:19.456Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
   }
 }
