@@ -43,14 +43,17 @@
         "maxAgeMinutes": 90
       },
       "firstAlertedAt": "2026-10-24T05:03:19.456Z"
+    },
+    "workflow-failed:self-healing.yml": {
+      "severity": "warning",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure.",
+      "details": {
+        "runId": 40066859713,
+        "completedAt": "2026-10-24T05:37:40Z"
+      },
+      "firstAlertedAt": "2026-10-24T06:28:31.812Z"
     }
   },
-  "pending": {
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-24T05:48:21.368Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
