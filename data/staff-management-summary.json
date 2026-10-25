@@ -1,8 +1,8 @@
 {
   "version": 1,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-14T03:47:36.465Z",
-  "currentStaff": 10,
+  "updatedAt": "2026-10-25T13:41:07.764Z",
+  "currentStaff": 9,
   "trackedStaffRecords": 12,
   "staffRoles": [
     {
@@ -207,11 +207,11 @@
     }
   ],
   "roleCounts": {
-    "Staff": 4,
-    "Event Coordinator": 3,
     "Management": 3,
+    "Staff": 3,
     "Developer": 2,
     "Driver Services Management": 2,
+    "Event Coordinator": 2,
     "CEO": 1,
     "Community Support Moderator": 1,
     "Director": 1,
@@ -221,18 +221,18 @@
     "Team Lead": 1
   },
   "departmentCounts": {
-    "General Staff": 5,
     "Management": 5,
+    "General Staff": 4,
     "Driver Services": 3,
-    "Events": 3,
     "Development": 2,
+    "Events": 2,
     "Community Support": 1,
     "HR & Recruitment": 1
   },
   "changesLast30Days": {
     "joinedStaff": 0,
     "roleChanges": 0,
-    "leftStaff": 2
+    "leftStaff": 3
   },
   "note": "Advisory/read-only. Kings Systems never changes Staff roles, permissions, Staff status, or makes promotion/demotion/personnel decisions."
 }
