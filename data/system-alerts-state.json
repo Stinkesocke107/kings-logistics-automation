@@ -1,25 +1,19 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-25T16:11:46Z",
-        "ageMinutes": 31,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-10-25T16:44:02.707Z"
-    }
-  },
+  "active": {},
   "pending": {
-    "workflow-overdue:milestones.yml": {
+    "workflow-failed:final-freeze-verification.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-25T16:44:02.707Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
+      "firstSeenAt": "2026-10-25T16:50:42.967Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure."
+    },
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-25T16:50:42.967Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     }
   }
 }
