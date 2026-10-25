@@ -1,6 +1,24 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {}
+  "active": {
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 69,
+        "latestCount": 18
+      },
+      "firstAlertedAt": "2026-10-25T01:08:05.234Z"
+    }
+  },
+  "pending": {
+    "workflow-failed:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-25T01:08:05.234Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News latest completed run ended with failure."
+    }
+  }
 }
