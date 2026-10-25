@@ -1,19 +1,19 @@
 {
   "version": 2,
   "mode": "live",
-  "updatedAt": "2026-10-24T13:25:22.143Z",
+  "updatedAt": "2026-10-25T13:47:07.139Z",
   "currentDrivers": 108,
-  "matchedCurrentDrivers": 25,
+  "matchedCurrentDrivers": 24,
   "newMappings": 0,
   "nameFallbackMappings": 0,
   "fullDiscordMemberListAvailable": true,
   "noLinkedDiscord": 81,
-  "linkedDiscordNotOnGuild": 1,
+  "linkedDiscordNotOnGuild": 2,
   "truckersmpProfileErrors": 0,
-  "eligibleForLoyaltyTier": 25,
-  "roleAdditions": 6,
-  "roleRemovals": 4,
-  "alreadyCorrect": 20,
+  "eligibleForLoyaltyTier": 24,
+  "roleAdditions": 7,
+  "roleRemovals": 5,
+  "alreadyCorrect": 18,
   "formerDriverMappingsCleaned": 0,
   "umbrellaRole": {
     "id": "1555009783357112400",
@@ -109,6 +109,11 @@
       "tmpId": 2435998,
       "username": "Fischbrötchen",
       "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 2580317,
+      "username": "Epic_dutchgamer",
+      "reason": "linked-discord-account-not-in-kings-server"
     },
     {
       "tmpId": 2674159,
