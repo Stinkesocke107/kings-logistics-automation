@@ -6,15 +6,6 @@
     "live-tracker": {
       "attempts": [
         {
-          "at": "2026-10-24T00:59:13.329Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 40047633326,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json"
-          ]
-        },
-        {
           "at": "2026-10-24T05:36:35.315Z",
           "outcome": "recovered",
           "action": "dispatched",
