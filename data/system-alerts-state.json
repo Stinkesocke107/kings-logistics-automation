@@ -2,23 +2,16 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
+    "workflow-failed:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News latest completed run ended with failure.",
       "details": {
-        "ageMinutes": 69,
-        "latestCount": 18
+        "runId": 40149371854,
+        "completedAt": "2026-10-25T01:07:29Z"
       },
-      "firstAlertedAt": "2026-10-25T01:08:05.234Z"
+      "firstAlertedAt": "2026-10-25T01:11:06.336Z"
     }
   },
-  "pending": {
-    "workflow-failed:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-25T01:08:05.234Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
