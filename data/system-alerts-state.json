@@ -1,36 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-25T12:04:37Z",
-        "ageMinutes": 22,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-10-25T12:27:54.844Z"
-    },
-    "workflow-overdue:driver-updates.yml": {
-      "severity": "critical",
-      "system": "Driver Updates",
-      "message": "Driver Updates has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-25T11:55:53Z",
-        "ageMinutes": 31,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-10-25T12:27:54.844Z"
-    }
-  },
-  "pending": {
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-25T12:27:54.844Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    }
-  }
+  "active": {},
+  "pending": {}
 }
