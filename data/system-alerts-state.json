@@ -2,27 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-failed:social-news.yml": {
-      "severity": "warning",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News latest completed run ended with failure.",
-      "details": {
-        "runId": 40149371854,
-        "completedAt": "2026-10-25T01:07:29Z"
-      },
-      "firstAlertedAt": "2026-10-25T01:11:06.336Z"
-    },
-    "workflow-overdue:social-news.yml": {
-      "severity": "warning",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-25T01:48:55Z",
-        "ageMinutes": 118,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-10-25T03:47:18.189Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
