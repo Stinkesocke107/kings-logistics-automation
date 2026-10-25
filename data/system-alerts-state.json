@@ -34,5 +34,12 @@
       "firstAlertedAt": "2026-10-25T06:05:19.459Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-25T06:40:10.640Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window."
+    }
+  }
 }
