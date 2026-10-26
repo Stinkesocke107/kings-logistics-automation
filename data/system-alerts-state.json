@@ -1,18 +1,13 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-26T13:38:20Z",
-        "ageMinutes": 26,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-10-26T14:05:28.599Z"
+  "active": {},
+  "pending": {
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T14:14:41.606Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     }
-  },
-  "pending": {}
+  }
 }
