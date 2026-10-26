@@ -11,7 +11,24 @@
         "completedAt": "2026-10-26T01:29:20Z"
       },
       "firstAlertedAt": "2026-10-26T01:37:29.599Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 165,
+        "latestCount": 18
+      },
+      "firstAlertedAt": "2026-10-26T04:30:54.341Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T04:30:54.341Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has not run within the expected time window."
+    }
+  }
 }
