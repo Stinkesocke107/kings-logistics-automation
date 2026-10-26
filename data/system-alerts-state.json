@@ -2,23 +2,35 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
+    "workflow-failed:staff-leadership-live-overview.yml": {
+      "severity": "warning",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
       "details": {
-        "ageMinutes": 100,
-        "latestCount": 18
+        "runId": 40363616431,
+        "completedAt": "2026-10-26T16:55:06Z"
       },
-      "firstAlertedAt": "2026-10-26T16:55:24.599Z"
+      "firstAlertedAt": "2026-10-26T16:56:20.802Z"
     }
   },
   "pending": {
-    "workflow-failed:staff-leadership-live-overview.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-26T16:55:24.599Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure."
+      "firstSeenAt": "2026-10-26T16:56:20.802Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
+    },
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T16:56:20.802Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T16:56:20.802Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
   }
 }
