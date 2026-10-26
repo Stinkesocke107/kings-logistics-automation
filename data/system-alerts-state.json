@@ -1,13 +1,48 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
+  "active": {
     "workflow-failed:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-26T22:53:56.969Z",
+      "severity": "warning",
       "system": "YouTube Social News",
-      "message": "YouTube Social News latest completed run ended with failure."
+      "message": "YouTube Social News latest completed run ended with failure.",
+      "details": {
+        "runId": 40415785922,
+        "completedAt": "2026-10-26T22:53:10Z"
+      },
+      "firstAlertedAt": "2026-10-26T22:54:48.206Z"
+    }
+  },
+  "pending": {
+    "workflow-failed:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T22:54:48.206Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure."
+    },
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T22:54:48.206Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
+    },
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T22:54:48.206Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
+    },
+    "workflow-overdue:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T22:54:48.206Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T22:54:48.206Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
   }
 }
