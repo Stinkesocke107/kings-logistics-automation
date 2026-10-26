@@ -2,5 +2,12 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {}
+  "pending": {
+    "workflow-failed:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T01:30:22.289Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News latest completed run ended with failure."
+    }
+  }
 }
