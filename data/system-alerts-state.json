@@ -32,7 +32,69 @@
         "completedAt": "2026-10-26T05:18:54Z"
       },
       "firstAlertedAt": "2026-10-26T06:04:25.051Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 51,
+        "latestCount": 18
+      },
+      "firstAlertedAt": "2026-10-26T06:55:28.365Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-26T06:09:26Z",
+        "ageMinutes": 45,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-10-26T06:55:28.365Z"
+    },
+    "workflow-overdue:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-26T06:04:16Z",
+        "ageMinutes": 50,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-10-26T06:55:28.365Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-26T06:03:31Z",
+        "ageMinutes": 51,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-10-26T06:55:28.365Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T06:55:28.365Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window."
+    },
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T06:55:28.365Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    },
+    "workflow-overdue:news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-26T06:55:28.365Z",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News has not run within the expected time window."
+    }
+  }
 }
