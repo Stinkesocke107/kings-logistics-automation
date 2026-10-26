@@ -2,27 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-failed:social-news.yml": {
-      "severity": "warning",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News latest completed run ended with failure.",
-      "details": {
-        "runId": 40254442175,
-        "completedAt": "2026-10-26T01:29:20Z"
-      },
-      "firstAlertedAt": "2026-10-26T01:37:29.599Z"
-    },
-    "workflow-overdue:social-news.yml": {
-      "severity": "warning",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-26T01:06:54Z",
-        "ageMinutes": 211,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-10-26T04:38:20.861Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -43,27 +22,6 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-10-26T06:58:14.321Z"
-    },
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure.",
-      "details": {
-        "runId": 40282494524,
-        "completedAt": "2026-10-26T06:55:38Z"
-      },
-      "firstAlertedAt": "2026-10-26T07:05:48.060Z"
-    },
-    "workflow-overdue:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-26T04:58:24Z",
-        "ageMinutes": 127,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-10-26T07:05:48.060Z"
     }
   },
   "pending": {}
