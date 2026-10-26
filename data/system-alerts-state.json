@@ -11,38 +11,28 @@
         "completedAt": "2026-10-26T22:53:10Z"
       },
       "firstAlertedAt": "2026-10-26T22:54:48.206Z"
-    }
-  },
-  "pending": {
+    },
     "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-26T22:54:48.206Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
-    },
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-26T22:54:48.206Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    },
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-26T22:54:48.206Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 40415703798,
+        "completedAt": "2026-10-26T22:54:06Z"
+      },
+      "firstAlertedAt": "2026-10-26T23:16:07.674Z"
     },
     "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-26T22:54:48.206Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
-    },
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-26T22:54:48.206Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-26T13:36:41Z",
+        "ageMinutes": 579,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-10-26T23:16:07.674Z"
     }
-  }
+  },
+  "pending": {}
 }
