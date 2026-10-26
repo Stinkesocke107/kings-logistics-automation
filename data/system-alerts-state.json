@@ -33,16 +33,6 @@
       },
       "firstAlertedAt": "2026-10-26T06:04:25.051Z"
     },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 51,
-        "latestCount": 18
-      },
-      "firstAlertedAt": "2026-10-26T06:55:28.365Z"
-    },
     "workflow-overdue:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -53,20 +43,28 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-10-26T06:58:14.321Z"
-    }
-  },
-  "pending": {
+    },
     "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-26T06:58:14.321Z",
+      "severity": "warning",
       "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
+      "message": "Safe Self-Healing latest completed run ended with failure.",
+      "details": {
+        "runId": 40282494524,
+        "completedAt": "2026-10-26T06:55:38Z"
+      },
+      "firstAlertedAt": "2026-10-26T07:05:48.060Z"
     },
     "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-26T06:58:14.321Z",
+      "severity": "warning",
       "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "message": "Safe Self-Healing has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-26T04:58:24Z",
+        "ageMinutes": 127,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-10-26T07:05:48.060Z"
     }
-  }
+  },
+  "pending": {}
 }
