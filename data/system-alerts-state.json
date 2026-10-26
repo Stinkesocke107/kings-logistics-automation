@@ -1,19 +1,24 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
+  "active": {
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 100,
+        "latestCount": 18
+      },
+      "firstAlertedAt": "2026-10-26T16:55:24.599Z"
+    }
+  },
   "pending": {
-    "workflow-failed:self-healing.yml": {
+    "workflow-failed:staff-leadership-live-overview.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-26T15:17:14.392Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    },
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-26T15:17:14.392Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
+      "firstSeenAt": "2026-10-26T16:55:24.599Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure."
     }
   }
 }
