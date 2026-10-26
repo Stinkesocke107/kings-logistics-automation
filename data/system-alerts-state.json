@@ -2,15 +2,15 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "severity": "warning",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "runId": 40363616431,
-        "completedAt": "2026-10-26T16:55:06Z"
+        "ageMinutes": 91,
+        "latestCount": 18
       },
-      "firstAlertedAt": "2026-10-26T16:56:20.802Z"
+      "firstAlertedAt": "2026-10-26T18:54:18.580Z"
     }
   },
   "pending": {}
