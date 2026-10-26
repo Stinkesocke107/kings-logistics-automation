@@ -1,19 +1,19 @@
 {
   "version": 2,
   "mode": "live",
-  "updatedAt": "2026-10-25T13:47:07.139Z",
-  "currentDrivers": 108,
+  "updatedAt": "2026-10-26T16:13:09.679Z",
+  "currentDrivers": 107,
   "matchedCurrentDrivers": 24,
   "newMappings": 0,
   "nameFallbackMappings": 0,
   "fullDiscordMemberListAvailable": true,
-  "noLinkedDiscord": 81,
+  "noLinkedDiscord": 80,
   "linkedDiscordNotOnGuild": 2,
   "truckersmpProfileErrors": 0,
   "eligibleForLoyaltyTier": 24,
-  "roleAdditions": 7,
-  "roleRemovals": 5,
-  "alreadyCorrect": 18,
+  "roleAdditions": 8,
+  "roleRemovals": 6,
+  "alreadyCorrect": 17,
   "formerDriverMappingsCleaned": 0,
   "umbrellaRole": {
     "id": "1555009783357112400",
@@ -438,11 +438,6 @@
     {
       "tmpId": 6259764,
       "username": "TCHAPTCHA",
-      "reason": "no-public-discord-link-and-no-exact-name-match"
-    },
-    {
-      "tmpId": 6266493,
-      "username": "Ahmad_SY",
       "reason": "no-public-discord-link-and-no-exact-name-match"
     },
     {
