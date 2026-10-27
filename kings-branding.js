@@ -1,6 +1,6 @@
 // Kings Logistics central Discord branding and transport hardening.
-// Custom Kings Discord emojis belong only in normal message content.
-// Discord embeds remain untouched and use normal Unicode/text styling.
+// Kings Heart is canonical in Discord message content AND embed text.
+// Do not inject additional decorations into embeddings without explicit content.
 
 const KINGS_LOGISTICS_LOGO = '<:Kings_Logistics_Logo:1545254529648431124>';
 const KINGS_HEART = '<:kings_heart:1500949819110326352>';
@@ -70,17 +70,46 @@ function brandMessageContent(content) {
   return output;
 }
 
+// Only normalize explicit Kings Heart / legacy blue-heart placeholders inside
+// embeds. Never auto-append hearts or logos to monitoring, data, or status fields.
+function brandEmbedHeartText(value) {
+  if (typeof value !== 'string') return value;
+  return value
+    .replace(/<a?:kings_heart:\\d+>/g, KINGS_HEART)
+    .replace(/:kings_heart:/g, KINGS_HEART)
+    .replace(/💙/g, KINGS_HEART);
+}
+
+function brandEmbed(embed) {
+  if (!embed || typeof embed !== 'object' || Array.isArray(embed)) return embed;
+  return {
+    ...embed,
+    ...(typeof embed.title === 'string' ? { title: brandEmbedHeartText(embed.title) } : {}),
+    ...(typeof embed.description === 'string' ? { description: brandEmbedHeartText(embed.description) } : {}),
+    ...(Array.isArray(embed.fields) ? {
+      fields: embed.fields.map((field) => ({
+        ...field,
+        name: brandEmbedHeartText(field.name),
+        value: brandEmbedHeartText(field.value)
+      }))
+    } : {}),
+    ...(embed.author?.name ? { author: { ...embed.author, name: brandEmbedHeartText(embed.author.name) } } : {}),
+    ...(embed.footer?.text ? { footer: { ...embed.footer, text: brandEmbedHeartText(embed.footer.text) } } : {})
+  };
+}
+
 function brandDiscordPayload(payload) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return payload;
-
-  // IMPORTANT: Only normal Discord message content receives Kings custom emojis.
-  // Embeds are intentionally copied unchanged. This prevents raw/custom emoji
-  // markup from appearing inside embed titles, descriptions, fields, authors,
-  // footers, or embed-only system posts such as Kings Systems status embeds.
   const output = { ...payload };
 
   if (typeof output.content === 'string') {
     output.content = brandMessageContent(output.content);
+  }
+  if (Array.isArray(output.embeds)) {
+    output.embeds = output.embeds.map(brandEmbed);
+  }
+  if (output.embed && typeof output.embed === 'object') {
+    output.embed = brandEmbed(output.embed);
   }
 
   return output;
