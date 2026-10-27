@@ -73,6 +73,7 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           STAFF_PUBLIC_UPDATES_CHANNEL_ID: '1494095653096128604'
+          KINGS_UPDATES_BANNER_URL: ${{ vars.KINGS_UPDATES_BANNER_URL }}
           STAFF_PUBLIC_UPDATES_MODE: ${{ steps.staff_updates_mode.outputs.mode }}
         run: node staff-discord-updates.js
 

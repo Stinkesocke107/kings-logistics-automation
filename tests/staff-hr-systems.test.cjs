@@ -176,3 +176,23 @@ test('HR Leadership separates active probation, open reviews, extensions, HR rev
   assert.equal(result.hrReviews.length, 1);
   assert.equal(result.approvedLeave.length, 1);
 });
+
+
+test('Staff public updates use the shared Kings banner for joins, promotions and exits', () => {
+  const s = sandbox('staff-discord-updates.js', { env: { KINGS_UPDATES_BANNER_URL: 'https://example.com/kings-banner.png' } });
+  for (const type of ['staff_joined', 'staff_promoted', 'staff_left']) {
+    const embed = s.run(`buildPublicEmbed({
+      type: '${type}',
+      discordUserId: '123456789123456789',
+      username: 'Example',
+      newRole: 'Team Lead',
+      oldRole: 'Staff',
+      newHierarchyKey: 'team lead',
+      remainsKingsDriver: true
+    })`);
+    assert.equal(embed.image.url, 'https://example.com/kings-banner.png');
+    assert.equal(embed.color, 0x182DFF);
+    assert.match(embed.footer.text, /Kings Logistics/);
+    assert.match(embed.description, /123456789123456789/);
+  }
+});
