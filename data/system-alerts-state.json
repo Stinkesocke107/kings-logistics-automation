@@ -11,59 +11,14 @@
         "latestCount": 22
       },
       "firstAlertedAt": "2026-10-27T19:28:41.603Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-27T18:23:01Z",
-        "ageMinutes": 65,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-10-27T19:28:41.603Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-27T18:17:50Z",
-        "ageMinutes": 70,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-27T19:28:41.603Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-27T18:18:36Z",
-        "ageMinutes": 69,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-27T19:28:41.603Z"
     }
   },
   "pending": {
-    "workflow-overdue:changelog.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-27T19:28:41.603Z",
-      "system": "Changelog Publisher",
-      "message": "Changelog Publisher has not run within the expected time window."
-    },
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T19:28:41.603Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T19:28:41.603Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
+      "firstSeenAt": "2026-10-27T19:44:40.388Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     }
   }
 }
