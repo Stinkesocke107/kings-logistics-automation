@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-10-26T23:06:24.852Z",
+  "updatedAt": "2026-10-27T22:55:42.667Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -292,57 +292,77 @@
       "threadId": "1564340625099325560",
       "name": "9. April - Indian Group",
       "eventId": "38266",
-      "status": "Scheduled",
+      "status": "Needs Information",
       "eventDate": "2027-04-09",
       "meetupTime": "15:30 UTC",
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
-      "missing": [],
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1807284600
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1564369497945673809",
       "name": "25. April - Lightning Logistics",
       "eventId": "38252",
-      "status": "Scheduled",
+      "status": "Needs Information",
       "eventDate": "2027-04-25",
       "meetupTime": "17:00 UTC",
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
-      "missing": [],
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1808672400
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1564370899010846813",
       "name": "7. April - (P) Arab Transport VTC",
       "eventId": "38426",
-      "status": "Scheduled",
+      "status": "Needs Information",
       "eventDate": "2027-04-06",
       "meetupTime": "17:00 UTC",
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
-      "missing": [],
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1807030800
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1564378591234363512",
       "name": "23. April - Baltrak Logistics",
       "eventId": "38162",
-      "status": "Ready for Approval",
+      "status": "Needs Information",
       "eventDate": "2027-04-23",
       "meetupTime": "17:00 UTC",
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
-      "missing": [],
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1808499600
+      "archived": true,
+      "eventUnix": null
     }
   ],
   "changeLog": [
@@ -1138,6 +1158,178 @@
         "archived": false,
         "eventUnix": 1808499600
       }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-10-27T22:55:42.443Z",
+      "threadId": "1564340625099325560",
+      "name": "9. April - Indian Group",
+      "fields": [
+        "status",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1564340625099325560",
+        "name": "9. April - Indian Group",
+        "eventId": "38266",
+        "status": "Scheduled",
+        "eventDate": "2027-04-09",
+        "meetupTime": "15:30 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1807284600
+      },
+      "current": {
+        "threadId": "1564340625099325560",
+        "name": "9. April - Indian Group",
+        "eventId": "38266",
+        "status": "Needs Information",
+        "eventDate": "2027-04-09",
+        "meetupTime": "15:30 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-10-27T22:55:42.443Z",
+      "threadId": "1564369497945673809",
+      "name": "25. April - Lightning Logistics",
+      "fields": [
+        "status",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1564369497945673809",
+        "name": "25. April - Lightning Logistics",
+        "eventId": "38252",
+        "status": "Scheduled",
+        "eventDate": "2027-04-25",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1808672400
+      },
+      "current": {
+        "threadId": "1564369497945673809",
+        "name": "25. April - Lightning Logistics",
+        "eventId": "38252",
+        "status": "Needs Information",
+        "eventDate": "2027-04-25",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-10-27T22:55:42.443Z",
+      "threadId": "1564370899010846813",
+      "name": "7. April - (P) Arab Transport VTC",
+      "fields": [
+        "status",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1564370899010846813",
+        "name": "7. April - (P) Arab Transport VTC",
+        "eventId": "38426",
+        "status": "Scheduled",
+        "eventDate": "2027-04-06",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1807030800
+      },
+      "current": {
+        "threadId": "1564370899010846813",
+        "name": "7. April - (P) Arab Transport VTC",
+        "eventId": "38426",
+        "status": "Needs Information",
+        "eventDate": "2027-04-06",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-10-27T22:55:42.443Z",
+      "threadId": "1564378591234363512",
+      "name": "23. April - Baltrak Logistics",
+      "fields": [
+        "status",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1564378591234363512",
+        "name": "23. April - Baltrak Logistics",
+        "eventId": "38162",
+        "status": "Ready for Approval",
+        "eventDate": "2027-04-23",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1808499600
+      },
+      "current": {
+        "threadId": "1564378591234363512",
+        "name": "23. April - Baltrak Logistics",
+        "eventId": "38162",
+        "status": "Needs Information",
+        "eventDate": "2027-04-23",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -1154,7 +1346,8 @@
     "2026-10-23",
     "2026-10-24",
     "2026-10-25",
-    "2026-10-26"
+    "2026-10-26",
+    "2026-10-27"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
