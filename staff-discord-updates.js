@@ -9,7 +9,8 @@ const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const STATE_KEY = process.env.STAFF_STATE_KEY || process.env.DRIVER_STATE_KEY;
 const PUBLIC_CHANNEL_ID = process.env.STAFF_PUBLIC_UPDATES_CHANNEL_ID || '1494095653096128604';
 const MODE = String(process.env.STAFF_PUBLIC_UPDATES_MODE || 'dry-run').trim().toLowerCase();
-const KINGS_UPDATES_BANNER_URL = String(process.env.KINGS_UPDATES_BANNER_URL || '').trim();
+// One official Kings banner for every public Driver / Staff update embed.
+const KINGS_UPDATES_BANNER_URL = 'https://i.postimg.cc/9M1hrDM5/Kings-Logistics-Banner-1920px-1080px.png';
 
 const STATE_FILE = path.join(__dirname, 'data', 'staff-discord-updates.json');
 const SUMMARY_FILE = path.join(__dirname, 'data', 'staff-discord-updates-summary.json');
