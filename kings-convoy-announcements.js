@@ -400,7 +400,7 @@ function buildPublicContent({ eventId, name, details, startingNow, hasRouteImage
     hasRouteImage ? '' : null,
     hasRouteImage ? '🗺️ **Route Map**' : null,
     '',
-    '<<:kings_heart:1500949819110326352>1500949819110326352> **Kings Logistics — Connecting the world, creating friendships.**'
+    '<:kings_heart:1500949819110326352> **Kings Logistics — Connecting the world, creating friendships.**'
   ].filter((value) => value !== null && value !== undefined).join('\n');
 }
 
@@ -429,7 +429,7 @@ function buildInternalContent({ eventId, name, details, startingNow }) {
     details.kingsSlot ? `🚚 **Kings Slot:** ${details.kingsSlot}` : null,
     `🔗 **TruckersMP Event:** ${eventUrl}`,
     '',
-    'Please make sure you are ready and arrive before the meeting time. <<:kings_heart:1500949819110326352>1500949819110326352>'
+    'Please make sure you are ready and arrive before the meeting time. <:kings_heart:1500949819110326352>'
   ].filter((value) => value !== null && value !== undefined).join('\n');
 }
 
