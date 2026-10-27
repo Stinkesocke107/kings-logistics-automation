@@ -74,10 +74,13 @@ function brandMessageContent(content) {
 // embeds. Never auto-append hearts or logos to monitoring, data, or status fields.
 function brandEmbedHeartText(value) {
   if (typeof value !== 'string') return value;
+  // Protect the exact Discord markup from replacement of its :name: segment.
+  const marker = '__KINGS_EMBED_HEART_MARKER__';
   return value
-    .replace(/<a?:kings_heart:\d+>/g, KINGS_HEART)
-    .replace(/:kings_heart:/g, KINGS_HEART)
-    .replace(/💙/g, KINGS_HEART);
+    .replace(/<a?:kings_heart:\d+>/g, marker)
+    .replace(/:kings_heart:/g, marker)
+    .replace(/💙/g, marker)
+    .replaceAll(marker, KINGS_HEART);
 }
 
 function brandEmbed(embed) {
