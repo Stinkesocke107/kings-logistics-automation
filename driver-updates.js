@@ -633,9 +633,9 @@ function destructiveChangeConfirmed(oldMembers, currentMembers, changes) {
   const oldCount = oldMembers.length;
   const currentCount = currentMembers.length;
   const leftCount = changes.left.length;
-  const significant =
-    leftCount >= 3 ||
-    (oldCount >= 10 && leftCount / oldCount >= 0.10);
+  // Even a single removed membership must be observed twice before
+  // committing the change or considering a public departure message.
+  const significant = leftCount > 0;
 
   if (!significant) {
     clearChangeGuard();
@@ -679,8 +679,8 @@ function destructiveChangeConfirmed(oldMembers, currentMembers, changes) {
   );
 
   console.warn(
-    `Safety hold: ${leftCount} Driver leave(s) detected (${oldCount} -> ${currentCount}). ` +
-    'No leave messages or permanent state changes will be made until the same snapshot is confirmed by the next poll.'
+    `Safety hold: ${leftCount} Driver membership loss(es) detected (${oldCount} -> ${currentCount}). ` +
+    'No departure notices or permanent state changes until a second matching poll.'
   );
 
   return false;
@@ -1493,30 +1493,38 @@ function buildJoinMessage(member) {
   );
 }
 
-function buildLeaveMessage(member) {
-  if (member.remainsOnServer) {
-    return `<:kings_arrow:1466617263699267694> Please note that ${driverDisplay(member)} no longer holds a **Kings ${member.membershipRole === 'trial' ? 'Trial' : 'Driver'}** role. They remain on our Discord server.`;
-  }
-  return (
-    `<:kings_arrow:1466617263699267694> ` +
-    `Please note that ${driverDisplay(member)} is no longer part of ` +
-    `<:Kings_Logistics_Logo:1545254529648431124> ` +
-    `**Kings Logistics** ` +
-    `<:Kings_Logistics_Logo:1545254529648431124>.`
+// A removed Driver or Trial role is NOT proof of departure. Announce only
+// if the formerly verified Driver is gone from BOTH the Kings Discord
+// server and the current TruckersMP Kings VTC roster. Unknown/unlinked
+// accounts are intentionally not announced.
+function isConfirmedKingsDeparture(member, currentTmpMembers, currentDiscordMembers) {
+  const discordUserId = String(member?.discordUserId || '');
+  const tmpId = Number(member?.tmpId);
+  if (!discordUserId || member?.truckersmpVerified !== true ||
+      !Number.isSafeInteger(tmpId) || tmpId <= 0) return false;
+
+  const stillInDiscord = (currentDiscordMembers || []).some(
+    (entry) => String(entry?.user?.id || '') === discordUserId
   );
+  if (stillInDiscord) return false;
+
+  return !(currentTmpMembers || []).some((entry) => Number(entry?.tmpId) === tmpId);
 }
 
 function buildDriverUpdateEmbed(type, member) {
-  if (!['joined', 'promoted'].includes(type)) {
+  if (!['joined', 'promoted', 'departed'].includes(type)) {
     throw new Error('Unsupported public Driver update type.');
   }
   const joining = type === 'joined';
   const role = member.membershipRole === 'trial' ? 'Trial Driver' : 'Driver';
   const embed = {
-    title: joining ? '👑 Welcome to the Kings Family!' : '🎉 Congratulations on Becoming a Kings Driver!',
-    description: joining
-      ? `Please welcome ${driverDisplay(member)} to **Kings Logistics** as a **${role}**!\n\nWe're happy to have you with us. Enjoy your journeys and welcome to the **Kings Family**! 💙`
-      : `Congratulations to ${driverDisplay(member)} on becoming a **Kings Driver**!\n\nThank you for being part of our journey. We look forward to many more miles together! 💙`,
+    title: type === 'departed' ? '👑 Kings Logistics Member Update'
+      : joining ? '👑 Welcome to the Kings Family!' : '🎉 Congratulations on Becoming a Kings Driver!',
+    description: type === 'departed'
+      ? `${driverDisplay(member)} is no longer part of **Kings Logistics**.\n\nThank you for your time in the **Kings Family**. We wish you all the best on the road ahead! 💙`
+      : joining
+        ? `Please welcome ${driverDisplay(member)} to **Kings Logistics** as a **${role}**!\n\nWe're happy to have you with us. Enjoy your journeys and welcome to the **Kings Family**! 💙`
+        : `Congratulations to ${driverDisplay(member)} on becoming a **Kings Driver**!\n\nThank you for being part of our journey. We look forward to many more miles together! 💙`,
     color: 0x182DFF,
     footer: { text: 'Kings Logistics • Driver Update' },
     timestamp: nowISO()
@@ -1666,9 +1674,6 @@ async function checkDriverUpdates() {
       oldMembers,
       currentMembers
     );
-  const activeGuildIds = new Set(discordAuthority.discordMembers.map(m => String(m.user.id)));
-  for (const member of changes.left) member.remainsOnServer = activeGuildIds.has(String(member.discordUserId));
-
   console.log(
     `Discord-authoritative Joined: ${changes.joined.length}`
   );
@@ -1720,8 +1725,9 @@ async function checkDriverUpdates() {
     return;
   }
 
-  // Public Driver Updates are intentionally positive-only. Departures and
-  // other changes still update the private baseline and anonymous history.
+  // Public messages are limited to actual welcomes, Trial -> Driver
+  // promotions, and departures verified against BOTH independent rosters.
+  // Role removals alone never generate public Discord messages.
   for (const member of changes.joined) {
     await sendDiscordMessage({ embeds: [buildDriverUpdateEmbed('joined', member)] });
   }
@@ -1730,6 +1736,14 @@ async function checkDriverUpdates() {
     if (member.oldMembershipRole === 'trial' && member.membershipRole === 'driver') {
       await sendDiscordMessage({ embeds: [buildDriverUpdateEmbed('promoted', member)] });
     }
+  }
+
+  for (const member of changes.left) {
+    if (!isConfirmedKingsDeparture(member, tmpMembers, discordAuthority.discordMembers)) {
+      console.log(`Driver role/membership ended for ${member.username}; not verified as full Kings departure. No public notice.`);
+      continue;
+    }
+    await sendDiscordMessage({ embeds: [buildDriverUpdateEmbed('departed', member)] });
   }
 
   const detectedAt =
