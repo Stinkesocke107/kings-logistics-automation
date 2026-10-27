@@ -75,7 +75,7 @@ function brandMessageContent(content) {
 function brandEmbedHeartText(value) {
   if (typeof value !== 'string') return value;
   return value
-    .replace(/<a?:kings_heart:\\d+>/g, KINGS_HEART)
+    .replace(/<a?:kings_heart:\d+>/g, KINGS_HEART)
     .replace(/:kings_heart:/g, KINGS_HEART)
     .replace(/💙/g, KINGS_HEART);
 }
