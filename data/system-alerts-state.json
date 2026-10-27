@@ -11,77 +11,7 @@
         "latestCount": 22
       },
       "firstAlertedAt": "2026-10-27T14:18:27.776Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-27T12:45:27Z",
-        "ageMinutes": 92,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-10-27T14:18:27.776Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-27T12:32:48Z",
-        "ageMinutes": 105,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-27T14:18:27.776Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-27T12:33:28Z",
-        "ageMinutes": 104,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-27T14:18:27.776Z"
     }
   },
-  "pending": {
-    "workflow-overdue:changelog.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T14:18:27.776Z",
-      "system": "Changelog Publisher",
-      "message": "Changelog Publisher has not run within the expected time window."
-    },
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T14:18:27.776Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T14:18:27.776Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
-    },
-    "workflow-overdue:probation.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T14:18:27.776Z",
-      "system": "Driver Probation",
-      "message": "Driver Probation has not run within the expected time window."
-    },
-    "workflow-overdue:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T14:18:27.776Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window."
-    },
-    "workflow-overdue:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T14:18:27.776Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
