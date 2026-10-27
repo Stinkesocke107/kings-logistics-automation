@@ -17,6 +17,8 @@ const MEMBERS_URL =
 
 const DISCORD_WEBHOOK_URL =
   process.env.DRIVER_UPDATES_WEBHOOK_URL;
+// One official Kings banner for every public Driver / Staff update embed.
+const KINGS_UPDATES_BANNER_URL = 'https://i.postimg.cc/9M1hrDM5/Kings-Logistics-Banner-1920px-1080px.png';
 
 const DISCORD_BOT_TOKEN =
   process.env.DISCORD_BOT_TOKEN || null;
@@ -1504,8 +1506,31 @@ function buildLeaveMessage(member) {
   );
 }
 
+function buildDriverUpdateEmbed(type, member) {
+  if (!['joined', 'promoted'].includes(type)) {
+    throw new Error('Unsupported public Driver update type.');
+  }
+  const joining = type === 'joined';
+  const role = member.membershipRole === 'trial' ? 'Trial Driver' : 'Driver';
+  const embed = {
+    title: joining ? '👑 Welcome to the Kings Family!' : '🎉 Congratulations on Becoming a Kings Driver!',
+    description: joining
+      ? `Please welcome ${driverDisplay(member)} to **Kings Logistics** as a **${role}**!\n\nWe're happy to have you with us. Enjoy your journeys and welcome to the **Kings Family**! 💙`
+      : `Congratulations to ${driverDisplay(member)} on becoming a **Kings Driver**!\n\nThank you for being part of our journey. We look forward to many more miles together! 💙`,
+    color: 0x182DFF,
+    footer: { text: 'Kings Logistics • Driver Update' },
+    timestamp: nowISO()
+  };
+  if (KINGS_UPDATES_BANNER_URL) {
+    const banner = new URL(KINGS_UPDATES_BANNER_URL);
+    if (banner.protocol !== 'https:') throw new Error('Kings Updates banner must use HTTPS.');
+    embed.image = { url: banner.href };
+  }
+  return embed;
+}
+
 async function sendDiscordMessage(
-  content
+  payload
 ) {
   if (
     !DISCORD_WEBHOOK_URL
@@ -1529,10 +1554,8 @@ async function sendDiscordMessage(
 
         body:
           JSON.stringify({
-            content,
-            allowed_mentions: {
-              parse: []
-            }
+            ...(typeof payload === 'string' ? { content: payload } : payload),
+            allowed_mentions: { parse: [] }
           })
       }
     );
@@ -1697,30 +1720,16 @@ async function checkDriverUpdates() {
     return;
   }
 
-  for (
-    const member
-    of changes.joined
-  ) {
-    await sendDiscordMessage(
-      buildJoinMessage(
-        member
-      )
-    );
+  // Public Driver Updates are intentionally positive-only. Departures and
+  // other changes still update the private baseline and anonymous history.
+  for (const member of changes.joined) {
+    await sendDiscordMessage({ embeds: [buildDriverUpdateEmbed('joined', member)] });
   }
 
   for (const member of changes.transitions) {
-    await sendDiscordMessage(`<:kings_arrow:1466617263699267694> ${driverDisplay(member)} has moved from **Kings ${member.oldMembershipRole === 'trial' ? 'Trial' : 'Driver'}** to **Kings ${member.membershipRole === 'trial' ? 'Trial' : 'Driver'}**.`);
-  }
-
-  for (
-    const member
-    of changes.left
-  ) {
-    await sendDiscordMessage(
-      buildLeaveMessage(
-        member
-      )
-    );
+    if (member.oldMembershipRole === 'trial' && member.membershipRole === 'driver') {
+      await sendDiscordMessage({ embeds: [buildDriverUpdateEmbed('promoted', member)] });
+    }
   }
 
   const detectedAt =

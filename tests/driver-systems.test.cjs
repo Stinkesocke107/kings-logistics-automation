@@ -135,6 +135,21 @@ test('Driver Status Alerts deduplicate thresholds and only restore after real Ac
   assert.equal(s.run(`pendingType({current:false,activityLevel:'HR Review',lastActivityAlertLevel:null})`), null);
 });
 
+test('Public Driver Updates use Kings embeds and keep departures out of announcements', () => {
+  const { sandbox } = require('./sandbox.cjs');
+  const s = sandbox('driver-updates.js');
+  const joined = s.run(`buildDriverUpdateEmbed('joined', {tmpId:123,username:'New Driver',membershipRole:'trial'})`);
+  const promotion = s.run(`buildDriverUpdateEmbed('promoted', {tmpId:123,username:'New Driver',membershipRole:'driver'})`);
+  assert.equal(joined.image.url, 'https://i.postimg.cc/9M1hrDM5/Kings-Logistics-Banner-1920px-1080px.png');
+  assert.equal(promotion.image.url, joined.image.url);
+  assert.equal(joined.color, 0x182DFF);
+  assert.match(joined.description, /New Driver/);
+  assert.match(promotion.title, /Congratulations/);
+  const source = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '..', 'driver-updates.js'), 'utf8');
+  assert.doesNotMatch(source, /sendDiscordMessage\(\s*buildLeaveMessage/);
+  assert.match(source, /appendAnonymousEvents\(\s*history,\s*"leave"/);
+});
+
 test('Driver Updates detects join, leave and rename by stable TruckersMP ID', () => {
   const s = sandbox('driver-updates.js');
   const result = s.run(`compareMembers(

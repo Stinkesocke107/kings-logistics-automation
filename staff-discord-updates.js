@@ -9,6 +9,8 @@ const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const STATE_KEY = process.env.STAFF_STATE_KEY || process.env.DRIVER_STATE_KEY;
 const PUBLIC_CHANNEL_ID = process.env.STAFF_PUBLIC_UPDATES_CHANNEL_ID || '1494095653096128604';
 const MODE = String(process.env.STAFF_PUBLIC_UPDATES_MODE || 'dry-run').trim().toLowerCase();
+// One official Kings banner for every public Driver / Staff update embed.
+const KINGS_UPDATES_BANNER_URL = 'https://i.postimg.cc/9M1hrDM5/Kings-Logistics-Banner-1920px-1080px.png';
 
 const STATE_FILE = path.join(__dirname, 'data', 'staff-discord-updates.json');
 const SUMMARY_FILE = path.join(__dirname, 'data', 'staff-discord-updates-summary.json');
@@ -723,12 +725,57 @@ function buildPublicMessage(event) {
   throw new Error(`Unsupported public Staff update type: ${event.type}`);
 }
 
+const PUBLIC_STAFF_EMBED_TITLES = Object.freeze({
+  staff_joined: '👑 Welcome to the Kings Staff!',
+  staff_promoted: '🎉 Kings Staff Promotion',
+  staff_left: '🛡️ Kings Staff Update'
+});
+
+function buildPublicEmbed(event) {
+  const title = PUBLIC_STAFF_EMBED_TITLES[event.type];
+  if (!title) throw new Error('Unsupported public Staff update type.');
+
+  // Embeds deliberately use Unicode instead of Discord's message-only custom emoji syntax.
+  const description = buildPublicMessage(event)
+    .replace(/<:Kings_Logistics_Logo:\d+>/g, '👑')
+    .replace(/:kings_heart:/g, '💙');
+  if (description.length > 4096) throw new Error('Public Staff embed exceeds Discord description limit.');
+
+  const embed = {
+    title,
+    description,
+    color: 0x182DFF,
+    footer: { text: 'Kings Logistics • Staff Update' },
+    timestamp: nowISO()
+  };
+  if (KINGS_UPDATES_BANNER_URL) {
+    const banner = new URL(KINGS_UPDATES_BANNER_URL);
+    if (banner.protocol !== 'https:') throw new Error('Kings Updates banner must use HTTPS.');
+    embed.image = { url: banner.href };
+  }
+  return embed;
+}
+
 async function findExistingPublicPost(channelId, botId, event) {
   const messages = await discord(`/channels/${channelId}/messages?limit=100`);
   const mention = `<@${event.discordUserId}>`;
 
   return (messages || []).find((message) => {
     if (String(message.author?.id || '') !== String(botId)) return false;
+    const embedded = (message.embeds || []).some((embed) => {
+      if (embed.title !== PUBLIC_STAFF_EMBED_TITLES[event.type]) return false;
+      if (String(embed.footer?.text || '') !== 'Kings Logistics • Staff Update') return false;
+      const description = String(embed.description || '');
+      if (!description.includes(mention)) return false;
+      if (event.type === 'staff_joined') return description.includes(String(event.newRole || ''));
+      if (event.type === 'staff_promoted') {
+        return description.includes(String(event.oldRole || '')) &&
+          description.includes(String(event.newRole || ''));
+      }
+      return event.type === 'staff_left';
+    });
+    if (embedded) return true;
+
     const content = String(message.content || '');
     if (!content.includes(mention)) return false;
 
@@ -748,10 +795,7 @@ async function findExistingPublicPost(channelId, botId, event) {
 }
 
 async function publishEvent(channel, botId, event) {
-  const content = buildPublicMessage(event);
-  if (content.length > 2000) {
-    throw new Error(`Public Staff update exceeds Discord limit: ${content.length}`);
-  }
+  const embed = buildPublicEmbed(event);
 
   const existing = await findExistingPublicPost(channel.id, botId, event);
   if (existing) {
@@ -771,11 +815,8 @@ async function publishEvent(channel, botId, event) {
   const sent = await discord(`/channels/${channel.id}/messages`, {
     method: 'POST',
     body: {
-      content,
-      allowed_mentions: {
-        parse: [],
-        users: [String(event.discordUserId)]
-      }
+      embeds: [embed],
+      allowed_mentions: { parse: [] }
     }
   });
 
