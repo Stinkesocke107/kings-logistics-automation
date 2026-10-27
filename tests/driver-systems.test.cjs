@@ -135,19 +135,67 @@ test('Driver Status Alerts deduplicate thresholds and only restore after real Ac
   assert.equal(s.run(`pendingType({current:false,activityLevel:'HR Review',lastActivityAlertLevel:null})`), null);
 });
 
-test('Public Driver Updates use Kings embeds and keep departures out of announcements', () => {
-  const { sandbox } = require('./sandbox.cjs');
+test('Driver Updates publish welcomes, Trial-to-Driver promotions, and only verified full departures', () => {
   const s = sandbox('driver-updates.js');
+  const member = {tmpId:123, discordUserId:'100100100100100100', username:'Example Driver', truckersmpVerified:true};
   const joined = s.run(`buildDriverUpdateEmbed('joined', {tmpId:123,username:'New Driver',membershipRole:'trial'})`);
   const promotion = s.run(`buildDriverUpdateEmbed('promoted', {tmpId:123,username:'New Driver',membershipRole:'driver'})`);
+  const departure = s.run(`buildDriverUpdateEmbed('departed', {tmpId:123,username:'Example Driver'})`);
+
   assert.equal(joined.image.url, 'https://i.postimg.cc/9M1hrDM5/Kings-Logistics-Banner-1920px-1080px.png');
   assert.equal(promotion.image.url, joined.image.url);
+  assert.equal(departure.image.url, joined.image.url);
   assert.equal(joined.color, 0x182DFF);
   assert.match(joined.description, /New Driver/);
   assert.match(promotion.title, /Congratulations/);
+  assert.match(departure.description, /no longer part of.*Kings Logistics/);
+  assert.doesNotMatch(departure.description, /role removed|no longer holds|role taken away/i);
+
+  const confirmed = s.run(`isConfirmedKingsDeparture(${JSON.stringify(member)}, [], [])`);
+  assert.equal(confirmed, true, 'Driver is verified absent from both rosters');
+
+  const stillOnServer = s.run(`isConfirmedKingsDeparture(${JSON.stringify(member)}, [], [{user:{id:'100100100100100100'}}])`);
+  assert.equal(stillOnServer, false, 'Removing Driver/Trial roles while staying on the Discord server is not a departure');
+
+  const stillInVtc = s.run(`isConfirmedKingsDeparture(${JSON.stringify(member)}, [{tmpId:123}], [])`);
+  assert.equal(stillInVtc, false, 'Removing roles or leaving Discord while still in the Kings VTC is not a departure');
+
+  const missingProof = s.run(`isConfirmedKingsDeparture(${JSON.stringify({...member,truckersmpVerified:false})}, [], [])`);
+  assert.equal(missingProof, false, 'No public exit when previous identity was not verified against TruckersMP');
+
+  const missingId = s.run(`isConfirmedKingsDeparture(${JSON.stringify({...member,tmpId:null})}, [], [])`);
+  assert.equal(missingId, false, 'No public exit without a known TruckersMP identity');
+
   const source = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '..', 'driver-updates.js'), 'utf8');
   assert.doesNotMatch(source, /sendDiscordMessage\(\s*buildLeaveMessage/);
+  assert.match(source, /isConfirmedKingsDeparture\(member, tmpMembers, discordAuthority\.discordMembers\)/);
   assert.match(source, /appendAnonymousEvents\(\s*history,\s*"leave"/);
+});
+
+test('Single Driver membership removal waits for a second matching poll before publication', () => {
+  const s = sandbox('driver-updates.js');
+  const oldDrivers = Array.from({length:8},(_,i)=>({discordUserId:String(100+i),tmpId:i+1}));
+  const currentDrivers = oldDrivers.slice(0,7);
+  const changes = {left:[oldDrivers[7]]};
+  const first = s.run(`destructiveChangeConfirmed(${JSON.stringify(oldDrivers)},${JSON.stringify(currentDrivers)},${JSON.stringify(changes)})`);
+  assert.equal(first, false);
+  assert.ok(s.files.has('data/driver-change-guard.json'));
+  const second = s.run(`destructiveChangeConfirmed(${JSON.stringify(oldDrivers)},${JSON.stringify(currentDrivers)},${JSON.stringify(changes)})`);
+  assert.equal(second, true);
+});
+
+test('Trial/Driver role transitions do not create a membership departure', () => {
+  const s=sandbox('driver-updates.js');
+  const result=s.run(`compareDiscordDrivers(
+    [{discordUserId:'100',membershipRole:'trial',username:'Promoted'},
+     {discordUserId:'200',membershipRole:'driver',username:'Downgraded'}],
+    [{discordUserId:'100',membershipRole:'driver',username:'Promoted'},
+     {discordUserId:'200',membershipRole:'trial',username:'Downgraded'}]
+  )`);
+  assert.equal(result.left.length,0);
+  assert.equal(result.joined.length,0);
+  assert.equal(result.transitions.length,2);
+  assert.equal(result.transitions.filter(t=>t.oldMembershipRole==='trial'&&t.membershipRole==='driver').length,1);
 });
 
 test('Driver Updates detects join, leave and rename by stable TruckersMP ID', () => {
@@ -198,15 +246,15 @@ test('Driver Updates rejects catastrophic roster loss and requires confirmation 
   assert.equal(s.files.has('data/driver-change-guard.json'), false);
 });
 
-test('Driver public update messages escape markdown supplied by usernames', () => {
+test('Driver public update embeds escape markdown supplied by usernames', () => {
   const s = sandbox('driver-updates.js');
-  const join = s.run(`buildJoinMessage({tmpId:123,username:'@everyone **Driver**'})`);
-  const leave = s.run(`buildLeaveMessage({tmpId:123,username:'@here _Driver_'})`);
+  const joined = s.run(`buildDriverUpdateEmbed('joined', {tmpId:123,username:'@everyone **Driver**',membershipRole:'trial'})`);
+  const departed = s.run(`buildDriverUpdateEmbed('departed', {tmpId:123,username:'@here _Driver_'})`);
 
-  assert.match(join, /truckersmp\.com\/user\/123/);
-  assert.match(leave, /truckersmp\.com\/user\/123/);
-  assert.match(join, /\\\*\\\*Driver\\\*\\\*/);
-  assert.match(leave, /\\_Driver\\_/);
+  assert.match(joined.description, /truckersmp\.com\/user\/123/);
+  assert.match(departed.description, /truckersmp\.com\/user\/123/);
+  assert.match(joined.description, /\\\*\\\*Driver\\\*\\\*/);
+  assert.match(departed.description, /\\_Driver\\_/);
 });
 
 test('Driver Achievements handles month-end and leap-year anniversaries', () => {
