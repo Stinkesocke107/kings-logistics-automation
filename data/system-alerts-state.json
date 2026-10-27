@@ -22,26 +22,28 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-10-26T23:16:07.674Z"
-    }
-  },
-  "pending": {
-    "workflow-failed:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T05:00:11.651Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News latest completed run ended with failure."
     },
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T05:00:11.651Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
+    "workflow-failed:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News latest completed run ended with failure.",
+      "details": {
+        "runId": 40452707780,
+        "completedAt": "2026-10-27T04:59:07Z"
+      },
+      "firstAlertedAt": "2026-10-27T05:10:30.573Z"
     },
     "workflow-overdue:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T05:00:11.651Z",
+      "severity": "warning",
       "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window."
+      "message": "YouTube Social News has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-27T02:30:16Z",
+        "ageMinutes": 160,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-10-27T05:10:30.573Z"
     }
-  }
+  },
+  "pending": {}
 }
