@@ -137,10 +137,10 @@ test('Driver Status Alerts deduplicate thresholds and only restore after real Ac
 
 test('Public Driver Updates use Kings embeds and keep departures out of announcements', () => {
   const { sandbox } = require('./sandbox.cjs');
-  const s = sandbox('driver-updates.js', { env: { KINGS_UPDATES_BANNER_URL: 'https://example.com/kings-banner.png' } });
+  const s = sandbox('driver-updates.js');
   const joined = s.run(`buildDriverUpdateEmbed('joined', {tmpId:123,username:'New Driver',membershipRole:'trial'})`);
   const promotion = s.run(`buildDriverUpdateEmbed('promoted', {tmpId:123,username:'New Driver',membershipRole:'driver'})`);
-  assert.equal(joined.image.url, 'https://example.com/kings-banner.png');
+  assert.equal(joined.image.url, 'https://i.postimg.cc/9M1hrDM5/Kings-Logistics-Banner-1920px-1080px.png');
   assert.equal(promotion.image.url, joined.image.url);
   assert.equal(joined.color, 0x182DFF);
   assert.match(joined.description, /New Driver/);
