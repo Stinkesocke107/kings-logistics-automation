@@ -735,10 +735,10 @@ function buildPublicEmbed(event) {
   const title = PUBLIC_STAFF_EMBED_TITLES[event.type];
   if (!title) throw new Error('Unsupported public Staff update type.');
 
-  // Embeds deliberately use Unicode instead of Discord's message-only custom emoji syntax.
+  // The approved Kings Heart uses the real Discord custom emoji ID in embeds.
   const description = buildPublicMessage(event)
     .replace(/<:Kings_Logistics_Logo:\d+>/g, '👑')
-    .replace(/:kings_heart:/g, '💙');
+    .replace(/:kings_heart:/g, '<:kings_heart:1500949819110326352>');
   if (description.length > 4096) throw new Error('Public Staff embed exceeds Discord description limit.');
 
   const embed = {
