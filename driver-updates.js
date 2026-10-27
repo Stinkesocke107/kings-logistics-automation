@@ -361,14 +361,17 @@ function loadState() {
   };
 }
 
-function saveState(members) {
+function saveState(members, pendingDepartures = []) {
   const state = {
     version: 3,
     authority: DRIVER_AUTHORITY,
     truckersmpCrossCheckMode: 'advisory-only',
     updatedAt: nowISO(),
     totalMembers: members.length,
-    members
+    members,
+    // Former Driver/Trial members remain encrypted here while another Kings
+    // role is still present. Never count these in active Driver statistics.
+    pendingDepartures
   };
 
   writeJson(
@@ -1177,6 +1180,7 @@ async function getDiscordAuthoritativeDrivers(
     driverRole,
     trialRole,
     discordMembers,
+    guildRoles: roles,
     enrichment
   };
 }
@@ -1493,22 +1497,82 @@ function buildJoinMessage(member) {
   );
 }
 
-// A removed Driver or Trial role is NOT proof of departure. Announce only
-// if the formerly verified Driver is gone from BOTH the Kings Discord
-// server and the current TruckersMP Kings VTC roster. Unknown/unlinked
-// accounts are intentionally not announced.
-function isConfirmedKingsDeparture(member, currentTmpMembers, currentDiscordMembers) {
-  const discordUserId = String(member?.discordUserId || '');
-  const tmpId = Number(member?.tmpId);
-  if (!discordUserId || member?.truckersmpVerified !== true ||
-      !Number.isSafeInteger(tmpId) || tmpId <= 0) return false;
+// Kings membership is determined by Kings-affiliated Discord roles, not by
+// TruckersMP presence and not by merely remaining on the Discord server.
+// Some official Kings staff hierarchy roles do not contain "Kings" in the name.
+const KINGS_TEAM_ROLES = new Set([
+  'ceo', 'coo', 'head management', 'management', 'director',
+  'team lead', 'staff', 'head staff', 'high staff',
+  'human resources', 'hr', 'recruitment', 'recruiter',
+  'driver operations', 'community support', 'event coordination',
+  'events', 'development', 'media', 'creative design'
+]);
 
-  const stillInDiscord = (currentDiscordMembers || []).some(
-    (entry) => String(entry?.user?.id || '') === discordUserId
+function isKingsAffiliationRole(name) {
+  const role = normalizeRoleName(name);
+  return role === 'kings' ||
+    role.startsWith('kings ') ||
+    role.endsWith(' with kings') ||
+    KINGS_TEAM_ROLES.has(role);
+}
+
+// true  = no remaining Kings affiliation (full departure)
+// false = still has a Kings role
+// null  = Discord role data is incomplete: never publish an exit
+function isConfirmedKingsDeparture(member, discordMembers, guildRoles) {
+  const id = String(member?.discordUserId || '');
+  if (!id || !Array.isArray(discordMembers) ||
+      !Array.isArray(guildRoles) || !guildRoles.length) return null;
+
+  const guildMember = discordMembers.find(
+    (item) => String(item?.user?.id || '') === id
   );
-  if (stillInDiscord) return false;
+  if (!guildMember) return true; // left the Kings Discord entirely
+  if (!Array.isArray(guildMember.roles)) return null;
 
-  return !(currentTmpMembers || []).some((entry) => Number(entry?.tmpId) === tmpId);
+  const rolesById = new Map(
+    guildRoles.map((role) => [String(role.id), role])
+  );
+
+  for (const roleId of guildMember.roles) {
+    const role = rolesById.get(String(roleId));
+    // Unknown roles must not be guessed to be unrelated to Kings.
+    if (!role) return null;
+    if (isKingsAffiliationRole(role.name)) return false;
+  }
+  return true;
+}
+
+// Keep former Drivers in encrypted pending state when their Driver/Trial role
+// disappears but other Kings roles remain. If their last Kings role disappears
+// later, that must still be detected without a retroactive public backfill.
+// Two separate valid Discord roster observations are required for an exit.
+function planKingsDepartures(previousPending, newlyLeft, activeDrivers, discordMembers, guildRoles) {
+  const activeIds = new Set(activeDrivers.map((item) => String(item.discordUserId)));
+  const pendingById = new Map();
+
+  for (const member of previousPending || []) {
+    const id = String(member?.discordUserId || '');
+    if (id && !activeIds.has(id)) pendingById.set(id, member);
+  }
+  for (const member of newlyLeft || []) {
+    const id = String(member?.discordUserId || '');
+    if (id && !activeIds.has(id) && !pendingById.has(id)) {
+      pendingById.set(id, { ...member, noKingsRoleChecks: 0 });
+    }
+  }
+
+  const pending = [];
+  const departures = [];
+  for (const member of pendingById.values()) {
+    const absence = isConfirmedKingsDeparture(member, discordMembers, guildRoles);
+    const noKingsRoleChecks = absence === true
+      ? Math.min(2, (Number(member.noKingsRoleChecks) || 0) + 1)
+      : 0;
+    if (noKingsRoleChecks >= 2) departures.push(member);
+    else pending.push({ ...member, noKingsRoleChecks });
+  }
+  return { pending, departures };
 }
 
 function buildDriverUpdateEmbed(type, member) {
@@ -1707,27 +1771,25 @@ async function checkDriverUpdates() {
     return;
   }
 
-  if (!hasChanges) {
-    if (
-      history.currentDrivers !==
-      currentMembers.length
-    ) {
-      saveHistory(
-        history,
-        currentMembers.length
-      );
+  const previousPending = Array.isArray(state.pendingDepartures)
+    ? state.pendingDepartures : [];
+  const departurePlan = planKingsDepartures(
+    previousPending, changes.left, currentMembers,
+    discordAuthority.discordMembers, discordAuthority.guildRoles
+  );
+  const pendingChanged =
+    JSON.stringify(previousPending) !== JSON.stringify(departurePlan.pending);
+
+  if (!hasChanges && !pendingChanged && !departurePlan.departures.length) {
+    if (history.currentDrivers !== currentMembers.length) {
+      saveHistory(history, currentMembers.length);
     }
-
-    console.log(
-      "No Discord-authoritative Kings Driver changes detected."
-    );
-
+    console.log("No new Driver changes or Kings departure confirmations.");
     return;
   }
 
-  // Public messages are limited to actual welcomes, Trial -> Driver
-  // promotions, and departures verified against BOTH independent rosters.
-  // Role removals alone never generate public Discord messages.
+  // Public updates: welcome, Trial -> Driver, confirmed full Kings exit.
+  // Removing an individual Driver/Trial role is never an exit notification.
   for (const member of changes.joined) {
     await sendDiscordMessage({ embeds: [buildDriverUpdateEmbed('joined', member)] });
   }
@@ -1738,47 +1800,26 @@ async function checkDriverUpdates() {
     }
   }
 
-  for (const member of changes.left) {
-    if (!isConfirmedKingsDeparture(member, tmpMembers, discordAuthority.discordMembers)) {
-      console.log(`Driver role/membership ended for ${member.username}; not verified as full Kings departure. No public notice.`);
-      continue;
-    }
+  for (const member of departurePlan.departures) {
     await sendDiscordMessage({ embeds: [buildDriverUpdateEmbed('departed', member)] });
   }
 
   const detectedAt =
     nowISO();
 
-  appendAnonymousEvents(
-    history,
-    "join",
-    changes.joined.length,
-    detectedAt
-  );
+  // Anonymous Driver history stays tied to Driver/Trial roster changes,
+  // not to a later farewell after the last other Kings role disappears.
+  if (hasChanges) {
+    appendAnonymousEvents(history, "join", changes.joined.length, detectedAt);
+    appendAnonymousEvents(history, "leave", changes.left.length, detectedAt);
+    appendAnonymousEvents(history, "name_change", changes.renamed.length, detectedAt);
+    appendAnonymousEvents(history, "role_transition", changes.transitions.length, detectedAt);
+    saveHistory(history, currentMembers.length);
+  } else if (history.currentDrivers !== currentMembers.length) {
+    saveHistory(history, currentMembers.length);
+  }
 
-  appendAnonymousEvents(
-    history,
-    "leave",
-    changes.left.length,
-    detectedAt
-  );
-
-  appendAnonymousEvents(
-    history,
-    "name_change",
-    changes.renamed.length,
-    detectedAt
-  );
-  appendAnonymousEvents(history, "role_transition", changes.transitions.length, detectedAt);
-
-  saveHistory(
-    history,
-    currentMembers.length
-  );
-
-  saveState(
-    currentMembers
-  );
+  saveState(currentMembers, departurePlan.pending);
 }
 
 async function start() {

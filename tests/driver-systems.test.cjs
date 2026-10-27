@@ -135,9 +135,8 @@ test('Driver Status Alerts deduplicate thresholds and only restore after real Ac
   assert.equal(s.run(`pendingType({current:false,activityLevel:'HR Review',lastActivityAlertLevel:null})`), null);
 });
 
-test('Driver Updates publish welcomes, Trial-to-Driver promotions, and only verified full departures', () => {
+test('Public Driver Updates use the Kings banner and announce only full departures', () => {
   const s = sandbox('driver-updates.js');
-  const member = {tmpId:123, discordUserId:'100100100100100100', username:'Example Driver', truckersmpVerified:true};
   const joined = s.run(`buildDriverUpdateEmbed('joined', {tmpId:123,username:'New Driver',membershipRole:'trial'})`);
   const promotion = s.run(`buildDriverUpdateEmbed('promoted', {tmpId:123,username:'New Driver',membershipRole:'driver'})`);
   const departure = s.run(`buildDriverUpdateEmbed('departed', {tmpId:123,username:'Example Driver'})`);
@@ -148,28 +147,85 @@ test('Driver Updates publish welcomes, Trial-to-Driver promotions, and only veri
   assert.equal(joined.color, 0x182DFF);
   assert.match(joined.description, /New Driver/);
   assert.match(promotion.title, /Congratulations/);
-  assert.match(departure.description, /no longer part of.*Kings Logistics/);
+  assert.match(departure.description, /is no longer part of \*\*Kings Logistics\*\*/);
   assert.doesNotMatch(departure.description, /role removed|no longer holds|role taken away/i);
 
-  const confirmed = s.run(`isConfirmedKingsDeparture(${JSON.stringify(member)}, [], [])`);
-  assert.equal(confirmed, true, 'Driver is verified absent from both rosters');
+  const source = require('node:fs').readFileSync(
+    require('node:path').resolve(__dirname, '..', 'driver-updates.js'), 'utf8'
+  );
+  assert.match(source, /planKingsDepartures\(/);
+  assert.match(source, /guildRoles: roles/);
+  assert.match(source, /appendAnonymousEvents\(history, "leave"/);
+});
 
-  const stillOnServer = s.run(`isConfirmedKingsDeparture(${JSON.stringify(member)}, [], [{user:{id:'100100100100100100'}}])`);
-  assert.equal(stillOnServer, false, 'Removing Driver/Trial roles while staying on the Discord server is not a departure');
+test('Full Kings departure requires no remaining Kings Discord role, not TruckersMP exit', () => {
+  const s = sandbox('driver-updates.js');
+  const former = {discordUserId:'100100100100100100',tmpId:123,username:'Example',membershipRole:'driver'};
+  const roles = [
+    {id:'10',name:'Kings Driver'},
+    {id:'11',name:'Kings Trial'},
+    {id:'12',name:'Kings Supporter'},
+    {id:'13',name:'Team Lead'},
+    {id:'14',name:'English'},
+    {id:'15',name:'Notification Updates'},
+    {id:'16',name:'CEO'},
+    {id:'17',name:'1 Year with Kings'}
+  ];
+  const check = guildRoles => s.run(`isConfirmedKingsDeparture(${JSON.stringify(former)}, ${JSON.stringify([{user:{id:former.discordUserId},roles:guildRoles}])}, ${JSON.stringify(roles)})`);
 
-  const stillInVtc = s.run(`isConfirmedKingsDeparture(${JSON.stringify(member)}, [{tmpId:123}], [])`);
-  assert.equal(stillInVtc, false, 'Removing roles or leaving Discord while still in the Kings VTC is not a departure');
+  assert.equal(check(['10']), false);
+  assert.equal(check(['11']), false);
+  assert.equal(check(['12']), false);
+  assert.equal(check(['13']), false);
+  assert.equal(check(['16']), false);
+  assert.equal(check(['17']), false);
+  assert.equal(check(['14','15']), true, 'Only non-Kings language/notification roles remain');
+  assert.equal(check([]), true, 'All Kings roles removed but still in the Kings Discord');
+  assert.equal(check(['14','999']), null, 'Unknown role IDs must fail closed');
+  assert.equal(s.run(`isConfirmedKingsDeparture(${JSON.stringify(former)}, [], ${JSON.stringify(roles)})`), true, 'Leaving the Kings Discord also means no Kings roles');
+  assert.equal(s.run(`isConfirmedKingsDeparture(${JSON.stringify(former)}, [{user:{id:'100100100100100100'},roles:[]}], [])`), null, 'Missing guild roles must not be treated as a departure');
+});
 
-  const missingProof = s.run(`isConfirmedKingsDeparture(${JSON.stringify({...member,truckersmpVerified:false})}, [], [])`);
-  assert.equal(missingProof, false, 'No public exit when previous identity was not verified against TruckersMP');
+test('Former Driver with Staff role remains tracked until their last Kings role disappears', () => {
+  const s = sandbox('driver-updates.js');
+  const former = {discordUserId:'100100100100100100',tmpId:123,username:'Former Driver',membershipRole:'driver'};
+  const roles=[{id:'10',name:'Kings Driver'},{id:'13',name:'Team Lead'},{id:'14',name:'English'}];
+  const member = roleIds => [{user:{id:former.discordUserId},roles:roleIds}];
+  const evaluate = (pending,newLeft,discordMembers,active=[]) =>
+    s.run(`planKingsDepartures(${JSON.stringify(pending)}, ${JSON.stringify(newLeft)}, ${JSON.stringify(active)}, ${JSON.stringify(discordMembers)}, ${JSON.stringify(roles)})`);
 
-  const missingId = s.run(`isConfirmedKingsDeparture(${JSON.stringify({...member,tmpId:null})}, [], [])`);
-  assert.equal(missingId, false, 'No public exit without a known TruckersMP identity');
+  const retained=evaluate([], [former], member(['13','14']));
+  assert.equal(retained.departures.length,0);
+  assert.equal(retained.pending.length,1);
+  assert.equal(retained.pending[0].noKingsRoleChecks,0);
 
-  const source = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '..', 'driver-updates.js'), 'utf8');
-  assert.doesNotMatch(source, /sendDiscordMessage\(\s*buildLeaveMessage/);
-  assert.match(source, /isConfirmedKingsDeparture\(member, tmpMembers, discordAuthority\.discordMembers\)/);
-  assert.match(source, /appendAnonymousEvents\(\s*history,\s*"leave"/);
+  const firstEmpty=evaluate(retained.pending,[],member(['14']));
+  assert.equal(firstEmpty.departures.length,0);
+  assert.equal(firstEmpty.pending[0].noKingsRoleChecks,1);
+
+  const restored=evaluate(firstEmpty.pending,[],member(['13','14']));
+  assert.equal(restored.pending[0].noKingsRoleChecks,0, 'A remaining Kings role resets the confirmation');
+
+  const nextEmpty=evaluate(restored.pending,[],member([]));
+  assert.equal(nextEmpty.departures.length,0);
+  assert.equal(nextEmpty.pending[0].noKingsRoleChecks,1);
+
+  const final=evaluate(nextEmpty.pending,[],member([]));
+  assert.equal(final.departures.length,1);
+  assert.equal(final.pending.length,0);
+
+  const returned=evaluate(retained.pending,[],member(['10','13']),[former]);
+  assert.equal(returned.pending.length,0, 'Rejoined Driver should not get a departure');
+  assert.equal(returned.departures.length,0);
+});
+
+test('Kings departure planning defers unknown role status, without public announcements', () => {
+  const s = sandbox('driver-updates.js');
+  const former={discordUserId:'100100100100100100',tmpId:123,username:'Former Driver'};
+  const pending=[{...former,noKingsRoleChecks:1}];
+  const r=s.run(`planKingsDepartures(${JSON.stringify(pending)},[],[],[{user:{id:'100100100100100100'},roles:['999']}],[{id:'10',name:'Kings Driver'}])`);
+  assert.equal(r.departures.length,0);
+  assert.equal(r.pending[0].noKingsRoleChecks,0);
 });
 
 test('Single Driver membership removal waits for a second matching poll before publication', () => {
