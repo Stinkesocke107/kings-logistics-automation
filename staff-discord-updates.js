@@ -736,7 +736,7 @@ function buildPublicEmbed(event) {
 
   // Embeds deliberately use Unicode instead of Discord's message-only custom emoji syntax.
   const description = buildPublicMessage(event)
-    .replace(/<:Kings_Logistics_Logo:\\d+>/g, '👑')
+    .replace(/<:Kings_Logistics_Logo:\d+>/g, '👑')
     .replace(/:kings_heart:/g, '💙');
   if (description.length > 4096) throw new Error('Public Staff embed exceeds Discord description limit.');
 
