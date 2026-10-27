@@ -8,10 +8,11 @@ on:
       - '.github/workflows/driver-management.yml'
       - 'driver-loa.js'
       - 'driver-management.js'
-      - 'driver-status-alerts.js'
       - 'driver-leadership-rate-limit.js'
   schedule:
-    # Driver data, LOA commands and alerts remain hourly.
+    # Driver data and LOA commands remain hourly.
+    # Kings has no minimum activity requirement: do not publish 7/14/30-day
+    # inactivity alerts or Driver Activity Restored notifications.
     # Leadership Overview delivery is owned by the centralized 12-hour overview pipeline.
     - cron: "17 * * * *"
 
@@ -62,14 +63,6 @@ jobs:
           DRIVER_LEADERSHIP_OVERVIEW_MODE: 'suppress'
           DRIVER_LOA_COMMANDS_MODE: 'process'
         run: node -r ./driver-leadership-rate-limit.js driver-loa.js
-
-      - name: Send Driver Status Alerts
-        env:
-          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_GUILD_ID: '1114967437788577792'
-          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
-        run: node driver-status-alerts.js
 
       - name: Save Driver Management Data and API Health Together
         if: always()
