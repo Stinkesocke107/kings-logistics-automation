@@ -2,23 +2,16 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
+    "workflow-failed:self-healing.yml": {
+      "severity": "warning",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure.",
       "details": {
-        "ageMinutes": 70,
-        "latestCount": 22
+        "runId": 40569102125,
+        "completedAt": "2026-10-27T19:28:55Z"
       },
-      "firstAlertedAt": "2026-10-27T19:28:41.603Z"
+      "firstAlertedAt": "2026-10-27T19:45:56.595Z"
     }
   },
-  "pending": {
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-27T19:44:40.388Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
