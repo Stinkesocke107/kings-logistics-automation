@@ -1,17 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure.",
-      "details": {
-        "runId": 40569102125,
-        "completedAt": "2026-10-27T19:28:55Z"
-      },
-      "firstAlertedAt": "2026-10-27T19:45:56.595Z"
-    }
-  },
+  "active": {},
   "pending": {}
 }
