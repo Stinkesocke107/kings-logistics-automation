@@ -336,7 +336,7 @@ function buildReminder(item, marker, title, description, driverRoleId) {
     eventUrl ? `🔗 **TruckersMP Event:** ${eventUrl}` : null,
     item.legacy ? '📚 **Source:** Migrated old Convoy Calendar' : null,
     '',
-    'Please make sure you are ready and arrive before the meeting time. <<:kings_heart:1500949819110326352>1500949819110326352>'
+    'Please make sure you are ready and arrive before the meeting time. <:kings_heart:1500949819110326352>'
   ].filter(Boolean).join('\n');
 }
 
