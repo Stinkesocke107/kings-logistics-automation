@@ -17,7 +17,8 @@ const MEMBERS_URL =
 
 const DISCORD_WEBHOOK_URL =
   process.env.DRIVER_UPDATES_WEBHOOK_URL;
-const KINGS_UPDATES_BANNER_URL = String(process.env.KINGS_UPDATES_BANNER_URL || '').trim();
+// One official Kings banner for every public Driver / Staff update embed.
+const KINGS_UPDATES_BANNER_URL = 'https://i.postimg.cc/9M1hrDM5/Kings-Logistics-Banner-1920px-1080px.png';
 
 const DISCORD_BOT_TOKEN =
   process.env.DISCORD_BOT_TOKEN || null;
