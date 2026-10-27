@@ -1585,10 +1585,10 @@ function buildDriverUpdateEmbed(type, member) {
     title: type === 'departed' ? '👑 Kings Logistics Member Update'
       : joining ? '👑 Welcome to the Kings Family!' : '🎉 Congratulations on Becoming a Kings Driver!',
     description: type === 'departed'
-      ? `${driverDisplay(member)} is no longer part of **Kings Logistics**.\n\nThank you for your time in the **Kings Family**. We wish you all the best on the road ahead! 💙`
+      ? `${driverDisplay(member)} is no longer part of **Kings Logistics**.\n\nThank you for your time in the **Kings Family**. We wish you all the best on the road ahead! <:kings_heart:1500949819110326352>`
       : joining
-        ? `Please welcome ${driverDisplay(member)} to **Kings Logistics** as a **${role}**!\n\nWe're happy to have you with us. Enjoy your journeys and welcome to the **Kings Family**! 💙`
-        : `Congratulations to ${driverDisplay(member)} on becoming a **Kings Driver**!\n\nThank you for being part of our journey. We look forward to many more miles together! 💙`,
+        ? `Please welcome ${driverDisplay(member)} to **Kings Logistics** as a **${role}**!\n\nWe're happy to have you with us. Enjoy your journeys and welcome to the **Kings Family**! <:kings_heart:1500949819110326352>`
+        : `Congratulations to ${driverDisplay(member)} on becoming a **Kings Driver**!\n\nThank you for being part of our journey. We look forward to many more miles together! <:kings_heart:1500949819110326352>`,
     color: 0x182DFF,
     footer: { text: 'Kings Logistics • Driver Update' },
     timestamp: nowISO()

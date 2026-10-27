@@ -172,7 +172,7 @@ function statusPresentation(status) {
     return {
       line: '✅ **Status:** `Completed`',
       intro: 'This Kings Logistics convoy has been completed. Thank you to everyone who took part! 👑🚛',
-      footer: '✅ This event is finished. Thank you for driving with the Kings Family! :kings_heart:'
+      footer: '✅ This event is finished. Thank you for driving with the Kings Family! <:kings_heart:1500949819110326352>'
     };
   }
 
@@ -203,7 +203,7 @@ function statusPresentation(status) {
   return {
     line: '🟢 **Status:** `Scheduled`',
     intro: 'A Kings Logistics convoy is coming up within 24 hours. 👑',
-    footer: 'Please make sure you are ready before the meeting time. See you on the road! :kings_heart:'
+    footer: 'Please make sure you are ready before the meeting time. See you on the road! <:kings_heart:1500949819110326352>'
   };
 }
 
