@@ -1,26 +1,26 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-27T20:03:10.418Z",
-  "currentDrivers": 107,
-  "onlineNow": 0,
-  "joinedLast7Days": 0,
-  "joinedLast30Days": 4,
+  "updatedAt": "2026-10-27T21:18:12.090Z",
+  "currentDrivers": 108,
+  "onlineNow": 1,
+  "joinedLast7Days": 1,
+  "joinedLast30Days": 5,
   "leftLast7Days": 3,
   "leftLast30Days": 6,
   "activity": {
-    "grace": 2,
-    "active": 11,
+    "grace": 3,
+    "active": 10,
     "approvedLeave": 0,
-    "info7Days": 5,
+    "info7Days": 6,
     "attention14Days": 6,
     "hrReview30Days": 83,
     "unknown": 0
   },
   "tenure": {
-    "known": 107,
+    "known": 108,
     "under1Month": 4,
-    "oneToThreeMonths": 14,
+    "oneToThreeMonths": 15,
     "threeToSixMonths": 25,
     "sixToTwelveMonths": 28,
     "oneToTwoYears": 29,
@@ -56,10 +56,16 @@
         "tmpId": 5655769,
         "username": "JackyJack",
         "joinDate": "2024-10-19T21:14:31.000Z",
-        "tenureDays": 737
+        "tenureDays": 738
       }
     ],
     "newestDrivers": [
+      {
+        "tmpId": 6368423,
+        "username": "Mason111",
+        "joinDate": "2026-10-27T20:29:55.000Z",
+        "tenureDays": 0
+      },
       {
         "tmpId": 1461015,
         "username": "JONAS (BR277)",
@@ -82,13 +88,7 @@
         "tmpId": 5155783,
         "username": "giudf211",
         "joinDate": "2026-09-27T20:31:21.000Z",
-        "tenureDays": 29
-      },
-      {
-        "tmpId": 6345786,
-        "username": "Maxi_274",
-        "joinDate": "2026-08-29T19:21:08.000Z",
-        "tenureDays": 59
+        "tenureDays": 30
       }
     ]
   },
