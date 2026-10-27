@@ -22,27 +22,6 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-10-26T23:16:07.674Z"
-    },
-    "workflow-failed:social-news.yml": {
-      "severity": "warning",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News latest completed run ended with failure.",
-      "details": {
-        "runId": 40452707780,
-        "completedAt": "2026-10-27T04:59:07Z"
-      },
-      "firstAlertedAt": "2026-10-27T05:10:30.573Z"
-    },
-    "workflow-overdue:social-news.yml": {
-      "severity": "warning",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-27T02:30:16Z",
-        "ageMinutes": 160,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-10-27T05:10:30.573Z"
     }
   },
   "pending": {}
