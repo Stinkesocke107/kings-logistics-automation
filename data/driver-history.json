@@ -1,7 +1,7 @@
 {
   "version": 2,
   "initializedAt": "2026-09-17T22:19:52.000Z",
-  "updatedAt": "2026-10-27T20:36:56.250Z",
+  "updatedAt": "2026-10-27T22:24:47.139Z",
   "currentDrivers": 78,
   "members": [],
   "events": [
@@ -88,6 +88,10 @@
     {
       "type": "join",
       "occurredAt": "2026-10-27T20:36:56.250Z"
+    },
+    {
+      "type": "role_transition",
+      "occurredAt": "2026-10-27T22:24:47.139Z"
     }
   ]
 }
