@@ -253,7 +253,7 @@ function buildMessage(report, overview) {
   lines.push(
     '',
     `🕒 Updated: ${discordTimestamp(Math.floor(Date.now() / 1000), 'R')}`,
-    ':kings_heart:'
+    '<:kings_heart:1500949819110326352>'
   );
 
   let content = lines.join('\n');
@@ -282,7 +282,7 @@ function buildMessage(report, overview) {
         : ['• No upcoming Scheduled convoy is currently available.']),
       '',
       `🕒 Updated: ${discordTimestamp(Math.floor(Date.now() / 1000), 'R')}`,
-      ':kings_heart:'
+      '<:kings_heart:1500949819110326352>'
     ].join('\n');
   }
 
