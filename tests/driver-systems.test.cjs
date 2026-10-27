@@ -146,8 +146,8 @@ test('Public Driver Updates use Kings embeds and keep departures out of announce
   assert.match(joined.description, /New Driver/);
   assert.match(promotion.title, /Congratulations/);
   const source = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '..', 'driver-updates.js'), 'utf8');
-  assert.doesNotMatch(source, /sendDiscordMessage\\(\\s*buildLeaveMessage/);
-  assert.match(source, /appendAnonymousEvents\\(\\s*history,\\s*"leave"/);
+  assert.doesNotMatch(source, /sendDiscordMessage\(\s*buildLeaveMessage/);
+  assert.match(source, /appendAnonymousEvents\(\s*history,\s*"leave"/);
 });
 
 test('Driver Updates detects join, leave and rename by stable TruckersMP ID', () => {
