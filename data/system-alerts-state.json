@@ -2,5 +2,18 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {}
+  "pending": {
+    "workflow-failed:convoy-announcement-verifier.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-27T23:04:10.867Z",
+      "system": "Convoy Announcement Verification",
+      "message": "Convoy Announcement Verification latest completed run ended with skipped."
+    },
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-27T23:04:10.867Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    }
+  }
 }
