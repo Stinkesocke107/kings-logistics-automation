@@ -1,11 +1,11 @@
 {
   "version": 1,
   "mode": "live",
-  "updatedAt": "2026-10-27T18:18:36.948Z",
+  "updatedAt": "2026-10-27T19:42:53.007Z",
   "currentStaff": 11,
-  "truckersmpCurrentStaff": 9,
+  "truckersmpCurrentStaff": 11,
   "crossConfirmedStaff": 5,
-  "sourceMismatches": 10,
+  "sourceMismatches": 12,
   "authority": "discord",
   "truckersmpCrossCheckMode": "advisory-only",
   "crossCheckSources": {
@@ -66,8 +66,18 @@
       "reason": "no-discord-match"
     },
     {
+      "tmpId": 5318474,
+      "username": "Paul Brandt",
+      "reason": "no-discord-match"
+    },
+    {
       "tmpId": 5345460,
       "username": "H O C H S T A P L E R",
+      "reason": "no-discord-match"
+    },
+    {
+      "tmpId": 6383526,
+      "username": "AmeristarTruckingCo",
       "reason": "no-discord-match"
     }
   ],
