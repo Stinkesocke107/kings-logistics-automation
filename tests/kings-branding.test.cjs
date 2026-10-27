@@ -70,6 +70,55 @@ test('preserves embed-only messages without injecting custom emoji content', () 
   assert.equal(output.embeds[0].title, 'Kings Staff Leadership Overview');
 });
 
+
+test('normalizes Kings blue heart and textual alias in Discord embed text', () => {
+  const input = {
+    embeds: [{
+      title: 'Kings Driver Update 💙',
+      description: 'Welcome to the Kings Family! 💙 :kings_heart:',
+      fields: [{name:'Our team 💙',value:'Proud of Kings 💙'}],
+      author: {name:'Kings Logistics 💙'},
+      footer: {text:'A Kings Family message 💙'},
+      image: {url:'https://example.com/kings-banner.png'},
+      color: 0x182DFF
+    }]
+  };
+  const output = brandDiscordPayload(input);
+  const embed = output.embeds[0];
+
+  assert.equal(output.content, undefined, 'Do not invent ordinary message content for embed-only payloads');
+  assert.equal(embed.title, 'Kings Driver Update ' + KINGS_HEART);
+  assert.equal(embed.description, 'Welcome to the Kings Family! ' + KINGS_HEART + ' ' + KINGS_HEART);
+  assert.equal(embed.fields[0].name, 'Our team ' + KINGS_HEART);
+  assert.equal(embed.fields[0].value, 'Proud of Kings ' + KINGS_HEART);
+  assert.equal(embed.author.name, 'Kings Logistics ' + KINGS_HEART);
+  assert.equal(embed.footer.text, 'A Kings Family message ' + KINGS_HEART);
+  assert.equal(embed.color, 0x182DFF);
+  assert.equal(embed.image.url, 'https://example.com/kings-banner.png');
+  assert.equal(input.embeds[0].description, 'Welcome to the Kings Family! 💙 :kings_heart:', 'Do not mutate input');
+
+  assert.deepEqual(brandDiscordPayload(output), output, 'Emoji normalization must be idempotent');
+});
+
+test('keeps unrelated embed visuals and content unchanged', () => {
+  const input = {
+    embeds: [{
+      title: '🚨 Technical Monitoring',
+      description: '✅ HEALTHY • Last checked 10 minutes ago',
+      footer: {text:'Kings Systems • Read-only'},
+      color: 0x182DFF
+    }]
+  };
+  assert.deepEqual(brandDiscordPayload(input), input);
+});
+
+test('upgrades old Kings heart IDs inside embeds to the approved emoji', () => {
+  const output = brandDiscordPayload({embeds:[{
+    description:'<:kings_heart:222222222222222222> <:kings_heart:1500949819110326352>'
+  }]});
+  assert.equal(output.embeds[0].description, KINGS_HEART+' '+KINGS_HEART);
+});
+
 test('Discord POST retries explicit 429 but never ambiguous 5xx', () => {
   assert.equal(canRetryDiscordResponse('POST', 429), true);
   assert.equal(canRetryDiscordResponse('POST', 503), false);
