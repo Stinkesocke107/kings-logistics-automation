@@ -23,16 +23,6 @@
       },
       "firstAlertedAt": "2026-10-28T08:58:06.429Z"
     },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 72,
-        "latestCount": 22
-      },
-      "firstAlertedAt": "2026-10-28T20:56:05.394Z"
-    },
     "workflow-failed:system-monitoring.yml": {
       "severity": "warning",
       "system": "System Monitoring",
