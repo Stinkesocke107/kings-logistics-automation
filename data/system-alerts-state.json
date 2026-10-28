@@ -11,26 +11,68 @@
         "completedAt": "2026-10-27T22:41:21Z"
       },
       "firstAlertedAt": "2026-10-27T23:05:36.423Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-28T01:35:06Z",
+        "ageMinutes": 33,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-10-28T02:08:44.362Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-28T01:19:06Z",
+        "ageMinutes": 49,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-10-28T02:08:44.362Z"
+    },
+    "workflow-failed:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News latest completed run ended with failure.",
+      "details": {
+        "runId": 40615890167,
+        "completedAt": "2026-10-28T01:35:02Z"
+      },
+      "firstAlertedAt": "2026-10-28T02:08:44.362Z"
+    },
+    "workflow-overdue:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-27T23:02:59Z",
+        "ageMinutes": 185,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-10-28T02:08:44.362Z"
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "severity": "warning",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-27T22:40:31Z",
+        "ageMinutes": 208,
+        "maxAgeMinutes": 120
+      },
+      "firstAlertedAt": "2026-10-28T02:08:44.362Z"
     }
   },
   "pending": {
-    "workflow-failed:social-news.yml": {
+    "workflow-overdue:milestones.yml": {
       "count": 1,
-      "firstSeenAt": "2026-10-28T01:20:14.210Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News latest completed run ended with failure."
-    },
-    "workflow-overdue:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-28T01:20:14.210Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window."
-    },
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-28T01:20:14.210Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
+      "firstSeenAt": "2026-10-28T02:08:44.362Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
     }
   }
 }
