@@ -23,36 +23,37 @@
       },
       "firstAlertedAt": "2026-10-28T08:58:06.429Z"
     },
-    "workflow-overdue:central-scheduler.yml": {
+    "convoy-completeness-stale": {
       "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "latestActivityAt": "2026-10-28T19:45:03Z",
-        "ageMinutes": 35,
-        "maxAgeMinutes": 20
+        "ageMinutes": 72,
+        "latestCount": 22
       },
-      "firstAlertedAt": "2026-10-28T20:20:39.231Z"
-    }
-  },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-28T20:20:39.231Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
+      "firstAlertedAt": "2026-10-28T20:56:05.394Z"
     },
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-28T20:20:39.231Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
+    "workflow-failed:system-monitoring.yml": {
+      "severity": "warning",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure.",
+      "details": {
+        "runId": 40767468029,
+        "completedAt": "2026-10-28T20:55:12Z"
+      },
+      "firstAlertedAt": "2026-10-28T20:56:05.394Z"
     },
     "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-28T20:20:39.231Z",
+      "severity": "warning",
       "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
+      "message": "System Monitoring has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 120
+      },
+      "firstAlertedAt": "2026-10-28T20:56:05.394Z"
     }
-  }
+  },
+  "pending": {}
 }
