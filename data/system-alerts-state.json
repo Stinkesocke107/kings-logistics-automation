@@ -2,17 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-overdue:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-27T22:40:31Z",
-        "ageMinutes": 208,
-        "maxAgeMinutes": 120
-      },
-      "firstAlertedAt": "2026-10-28T02:08:44.362Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -33,16 +22,6 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-10-28T08:58:06.429Z"
-    },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure.",
-      "details": {
-        "runId": 40690751305,
-        "completedAt": "2026-10-28T12:47:45Z"
-      },
-      "firstAlertedAt": "2026-10-28T12:48:41.540Z"
     }
   },
   "pending": {}
