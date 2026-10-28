@@ -2,16 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-failed:convoy-announcement-verifier.yml": {
-      "severity": "warning",
-      "system": "Convoy Announcement Verification",
-      "message": "Convoy Announcement Verification latest completed run ended with skipped.",
-      "details": {
-        "runId": 40596695024,
-        "completedAt": "2026-10-27T22:41:15Z"
-      },
-      "firstAlertedAt": "2026-10-27T23:05:36.423Z"
-    },
     "workflow-failed:system-monitoring.yml": {
       "severity": "warning",
       "system": "System Monitoring",
@@ -23,5 +13,24 @@
       "firstAlertedAt": "2026-10-27T23:05:36.423Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-28T01:20:14.210Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News latest completed run ended with failure."
+    },
+    "workflow-overdue:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-28T01:20:14.210Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has not run within the expected time window."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-28T01:20:14.210Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
