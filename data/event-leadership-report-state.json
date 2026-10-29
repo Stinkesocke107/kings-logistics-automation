@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-10-28T23:09:51.232Z",
+  "updatedAt": "2026-10-29T23:15:22.102Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -29,11 +29,16 @@
       "responsibleStaff": "<@935991067969470485>",
       "kingsSlot": "ITCC complex (#2)",
       "missing": [
-        "eventType"
+        "eventDate",
+        "eventLink",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1795194000
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1554134962146648205",
@@ -42,14 +47,18 @@
       "status": "Needs Information",
       "eventDate": "2027-03-09",
       "meetupTime": "17:00 UTC",
-      "responsibleStaff": "<@333239475029409792>",
-      "kingsSlot": "Confirmed - Slot H - FLE",
+      "responsibleStaff": "<@935991067969470485>",
+      "kingsSlot": "Confirmed Section H - FLE",
       "missing": [
-        "eventType"
+        "eventDate",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1804611600
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1556232587725512724",
@@ -78,11 +87,15 @@
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot 7",
       "missing": [
-        "eventType"
+        "eventDate",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1806166800
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1557647681600626718",
@@ -146,11 +159,15 @@
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot Section E",
       "missing": [
-        "eventType"
+        "eventDate",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1807365600
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1559823814534242364",
@@ -351,6 +368,25 @@
       "eventId": "38162",
       "status": "Needs Information",
       "eventDate": "2027-04-23",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
+      "duplicateEventId": false,
+      "archived": true,
+      "eventUnix": null
+    },
+    {
+      "threadId": "1565411089993441450",
+      "name": "8. April - Moonlight Express",
+      "eventId": "37550",
+      "status": "Needs Information",
+      "eventDate": "2027-04-08",
       "meetupTime": "17:00 UTC",
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
@@ -1330,6 +1366,214 @@
         "archived": true,
         "eventUnix": null
       }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-10-29T23:15:21.891Z",
+      "threadId": "1553101648635756544",
+      "name": "20. November - ARNI Trans Polska",
+      "fields": [
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1553101648635756544",
+        "name": "20. November - ARNI Trans Polska",
+        "eventId": "37799",
+        "status": "Needs Information",
+        "eventDate": "2026-11-20",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "ITCC complex (#2)",
+        "missing": [
+          "eventType"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1795194000
+      },
+      "current": {
+        "threadId": "1553101648635756544",
+        "name": "20. November - ARNI Trans Polska",
+        "eventId": "37799",
+        "status": "Needs Information",
+        "eventDate": "2026-11-20",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "ITCC complex (#2)",
+        "missing": [
+          "eventDate",
+          "eventLink",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-10-29T23:15:21.891Z",
+      "threadId": "1554134962146648205",
+      "name": "9. March - Northern Lights",
+      "fields": [
+        "responsibleStaff",
+        "kingsSlot",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1554134962146648205",
+        "name": "9. March - Northern Lights",
+        "eventId": "38072",
+        "status": "Needs Information",
+        "eventDate": "2027-03-09",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed - Slot H - FLE",
+        "missing": [
+          "eventType"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1804611600
+      },
+      "current": {
+        "threadId": "1554134962146648205",
+        "name": "9. March - Northern Lights",
+        "eventId": "38072",
+        "status": "Needs Information",
+        "eventDate": "2027-03-09",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "Confirmed Section H - FLE",
+        "missing": [
+          "eventDate",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-10-29T23:15:21.891Z",
+      "threadId": "1556286126573092965",
+      "name": "27. March - Central Transport",
+      "fields": [
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1556286126573092965",
+        "name": "27. March - Central Transport",
+        "eventId": "38055",
+        "status": "Needs Information",
+        "eventDate": "2027-03-27",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot 7",
+        "missing": [
+          "eventType"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1806166800
+      },
+      "current": {
+        "threadId": "1556286126573092965",
+        "name": "27. March - Central Transport",
+        "eventId": "38055",
+        "status": "Needs Information",
+        "eventDate": "2027-03-27",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot 7",
+        "missing": [
+          "eventDate",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-10-29T23:15:21.891Z",
+      "threadId": "1558780071039213649",
+      "name": "10. April (F) Pink Robbon VTC",
+      "fields": [
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1558780071039213649",
+        "name": "10. April (F) Pink Robbon VTC",
+        "eventId": "38346",
+        "status": "Needs Information",
+        "eventDate": "2027-04-10",
+        "meetupTime": "14:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot Section E",
+        "missing": [
+          "eventType"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1807365600
+      },
+      "current": {
+        "threadId": "1558780071039213649",
+        "name": "10. April (F) Pink Robbon VTC",
+        "eventId": "38346",
+        "status": "Needs Information",
+        "eventDate": "2027-04-10",
+        "meetupTime": "14:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot Section E",
+        "missing": [
+          "eventDate",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-29T23:15:21.891Z",
+      "threadId": "1565411089993441450",
+      "name": "8. April - Moonlight Express",
+      "current": {
+        "threadId": "1565411089993441450",
+        "name": "8. April - Moonlight Express",
+        "eventId": "37550",
+        "status": "Needs Information",
+        "eventDate": "2027-04-08",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -1348,7 +1592,8 @@
     "2026-10-25",
     "2026-10-26",
     "2026-10-27",
-    "2026-10-28"
+    "2026-10-28",
+    "2026-10-29"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
