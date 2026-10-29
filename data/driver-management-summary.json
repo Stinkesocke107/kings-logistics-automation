@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-29T19:17:57.019Z",
+  "updatedAt": "2026-10-29T21:10:20.890Z",
   "currentDrivers": 108,
-  "onlineNow": 1,
+  "onlineNow": 0,
   "joinedLast7Days": 1,
   "joinedLast30Days": 4,
   "leftLast7Days": 2,
@@ -32,7 +32,7 @@
         "tmpId": 4891248,
         "username": "Stinkesocke107",
         "joinDate": "2023-07-09T19:25:36.000Z",
-        "tenureDays": 1207
+        "tenureDays": 1208
       },
       {
         "tmpId": 5419500,
@@ -44,7 +44,7 @@
         "tmpId": 5318474,
         "username": "Paul Brandt",
         "joinDate": "2024-04-22T19:19:44.000Z",
-        "tenureDays": 919
+        "tenureDays": 920
       },
       {
         "tmpId": 5358213,
@@ -64,7 +64,7 @@
         "tmpId": 6368423,
         "username": "Mason111",
         "joinDate": "2026-10-27T20:29:55.000Z",
-        "tenureDays": 1
+        "tenureDays": 2
       },
       {
         "tmpId": 1461015,
@@ -88,7 +88,7 @@
         "tmpId": 5155783,
         "username": "giudf211",
         "joinDate": "2026-09-27T20:31:21.000Z",
-        "tenureDays": 31
+        "tenureDays": 32
       }
     ]
   },
