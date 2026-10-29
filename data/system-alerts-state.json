@@ -55,5 +55,12 @@
       "firstAlertedAt": "2026-10-29T00:03:13.670Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-29T02:26:18.322Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has not run within the expected time window."
+    }
+  }
 }
