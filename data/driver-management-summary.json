@@ -1,15 +1,15 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-29T21:10:20.890Z",
-  "currentDrivers": 108,
+  "updatedAt": "2026-10-29T21:47:14.672Z",
+  "currentDrivers": 109,
   "onlineNow": 0,
-  "joinedLast7Days": 1,
-  "joinedLast30Days": 4,
+  "joinedLast7Days": 2,
+  "joinedLast30Days": 5,
   "leftLast7Days": 2,
   "leftLast30Days": 6,
   "activity": {
-    "grace": 2,
+    "grace": 3,
     "active": 10,
     "approvedLeave": 0,
     "info7Days": 5,
@@ -18,8 +18,8 @@
     "unknown": 0
   },
   "tenure": {
-    "known": 108,
-    "under1Month": 4,
+    "known": 109,
+    "under1Month": 5,
     "oneToThreeMonths": 15,
     "threeToSixMonths": 24,
     "sixToTwelveMonths": 29,
@@ -38,7 +38,7 @@
         "tmpId": 5419500,
         "username": "Magierjuwel",
         "joinDate": "2024-03-19T21:42:42.000Z",
-        "tenureDays": 953
+        "tenureDays": 954
       },
       {
         "tmpId": 5318474,
@@ -50,16 +50,22 @@
         "tmpId": 5358213,
         "username": "Taser00700",
         "joinDate": "2024-06-25T21:42:19.000Z",
-        "tenureDays": 855
+        "tenureDays": 856
       },
       {
         "tmpId": 5655769,
         "username": "JackyJack",
         "joinDate": "2024-10-19T21:14:31.000Z",
-        "tenureDays": 739
+        "tenureDays": 740
       }
     ],
     "newestDrivers": [
+      {
+        "tmpId": 5036090,
+        "username": "stamkour",
+        "joinDate": "2026-10-29T21:12:02.000Z",
+        "tenureDays": 0
+      },
       {
         "tmpId": 6368423,
         "username": "Mason111",
@@ -83,12 +89,6 @@
         "username": "GoosiestBrother",
         "joinDate": "2026-10-02T14:03:55.000Z",
         "tenureDays": 27
-      },
-      {
-        "tmpId": 5155783,
-        "username": "giudf211",
-        "joinDate": "2026-09-27T20:31:21.000Z",
-        "tenureDays": 32
       }
     ]
   },
