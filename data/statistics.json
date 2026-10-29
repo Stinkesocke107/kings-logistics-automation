@@ -1,8 +1,8 @@
 {
   "version": 3,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-10-29T17:31:32.568Z",
-  "sourceSnapshotAt": "2026-10-29T17:31:32.006Z",
+  "updatedAt": "2026-10-29T19:17:47.250Z",
+  "sourceSnapshotAt": "2026-10-29T19:17:46.826Z",
   "messageId": "1550301949470048277",
   "allTime": {
     "peakOnline": 8,
@@ -2264,12 +2264,12 @@
       "peakOnline": 2,
       "peakETS2": 2,
       "peakATS": 0,
-      "activitySamples": 14,
-      "ets2PlayerSamples": 4,
+      "activitySamples": 15,
+      "ets2PlayerSamples": 5,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {
         "ETS2 — Simulation 1": 3,
-        "ETS2 — BOLT-CALM-NVA PARTNERS CONVOY": 1
+        "ETS2 — BOLT-CALM-NVA PARTNERS CONVOY": 2
       },
       "sampledHours": [
         "2026-10-29T00:00:00.000Z",
@@ -2285,7 +2285,8 @@
         "2026-10-29T14:00:00.000Z",
         "2026-10-29T15:00:00.000Z",
         "2026-10-29T16:00:00.000Z",
-        "2026-10-29T17:00:00.000Z"
+        "2026-10-29T17:00:00.000Z",
+        "2026-10-29T19:00:00.000Z"
       ]
     }
   ]
