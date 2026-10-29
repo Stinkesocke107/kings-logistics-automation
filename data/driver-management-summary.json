@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-29T13:41:46.508Z",
+  "updatedAt": "2026-10-29T15:16:15.265Z",
   "currentDrivers": 108,
-  "onlineNow": 2,
+  "onlineNow": 0,
   "joinedLast7Days": 1,
   "joinedLast30Days": 4,
   "leftLast7Days": 2,
@@ -82,7 +82,7 @@
         "tmpId": 5504138,
         "username": "GoosiestBrother",
         "joinDate": "2026-10-02T14:03:55.000Z",
-        "tenureDays": 26
+        "tenureDays": 27
       },
       {
         "tmpId": 5155783,
