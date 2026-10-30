@@ -1,15 +1,15 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-29T22:58:58.597Z",
-  "currentDrivers": 109,
-  "onlineNow": 1,
-  "joinedLast7Days": 2,
-  "joinedLast30Days": 5,
+  "updatedAt": "2026-10-30T00:57:46.517Z",
+  "currentDrivers": 110,
+  "onlineNow": 0,
+  "joinedLast7Days": 3,
+  "joinedLast30Days": 6,
   "leftLast7Days": 2,
   "leftLast30Days": 6,
   "activity": {
-    "grace": 3,
+    "grace": 4,
     "active": 10,
     "approvedLeave": 0,
     "info7Days": 5,
@@ -18,8 +18,8 @@
     "unknown": 0
   },
   "tenure": {
-    "known": 109,
-    "under1Month": 5,
+    "known": 110,
+    "under1Month": 6,
     "oneToThreeMonths": 15,
     "threeToSixMonths": 24,
     "sixToTwelveMonths": 29,
@@ -61,6 +61,12 @@
     ],
     "newestDrivers": [
       {
+        "tmpId": 6400820,
+        "username": "kordhaven",
+        "joinDate": "2026-10-29T23:43:27.000Z",
+        "tenureDays": 0
+      },
+      {
         "tmpId": 5036090,
         "username": "stamkour",
         "joinDate": "2026-10-29T21:12:02.000Z",
@@ -83,12 +89,6 @@
         "username": "AmeristarTruckingCo",
         "joinDate": "2026-10-14T15:54:13.000Z",
         "tenureDays": 15
-      },
-      {
-        "tmpId": 5504138,
-        "username": "GoosiestBrother",
-        "joinDate": "2026-10-02T14:03:55.000Z",
-        "tenureDays": 27
       }
     ]
   },
