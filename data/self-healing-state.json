@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "technical-safe-self-healing",
-  "updatedAt": "2026-10-30T07:45:45.746Z",
+  "updatedAt": "2026-10-30T14:33:29.721Z",
   "repairs": {
     "live-tracker": {
       "attempts": [
@@ -36,10 +36,19 @@
             "stale-data:data/statistics.json",
             "workflow-overdue:live-tracker.yml"
           ]
+        },
+        {
+          "at": "2026-10-30T14:33:29.721Z",
+          "outcome": "recovered",
+          "action": "dispatched",
+          "runId": 41072546433,
+          "issueIds": [
+            "stale-data:data/live-tracker-snapshot.json"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-10-30T07:45:26.077Z",
-      "lastSuccessAt": "2026-10-30T07:45:26.077Z",
+      "lastAttemptAt": "2026-10-30T14:33:29.721Z",
+      "lastSuccessAt": "2026-10-30T14:33:29.721Z",
       "lastFailureAt": "2026-10-22T15:02:08.599Z"
     },
     "driver-updates": {
