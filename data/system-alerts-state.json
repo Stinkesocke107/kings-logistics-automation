@@ -53,7 +53,42 @@
         "completedAt": "2026-10-30T00:58:03Z"
       },
       "firstAlertedAt": "2026-10-30T00:59:11.917Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-30T01:14:41Z",
+        "ageMinutes": 32,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-10-30T01:47:49.678Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-30T00:57:49Z",
+        "ageMinutes": 49,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-10-30T01:47:49.678Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-30T01:47:49.678Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    },
+    "workflow-overdue:social-news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-10-30T01:47:49.678Z",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has not run within the expected time window."
+    }
+  }
 }
