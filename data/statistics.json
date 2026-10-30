@@ -1,8 +1,8 @@
 {
   "version": 3,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-10-30T15:51:27.407Z",
-  "sourceSnapshotAt": "2026-10-30T15:51:27.033Z",
+  "updatedAt": "2026-10-30T16:13:02.918Z",
+  "sourceSnapshotAt": "2026-10-30T16:13:02.573Z",
   "messageId": "1550301949470048277",
   "allTime": {
     "peakOnline": 8,
@@ -2300,11 +2300,11 @@
       "peakOnline": 2,
       "peakETS2": 2,
       "peakATS": 0,
-      "activitySamples": 12,
-      "ets2PlayerSamples": 3,
+      "activitySamples": 13,
+      "ets2PlayerSamples": 4,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {
-        "ETS2 — Saffron Line CC - Diwali Convoy": 2,
+        "ETS2 — Saffron Line CC - Diwali Convoy": 3,
         "ETS2 — Simulation 1": 1
       },
       "sampledHours": [
@@ -2319,7 +2319,8 @@
         "2026-10-30T11:00:00.000Z",
         "2026-10-30T13:00:00.000Z",
         "2026-10-30T14:00:00.000Z",
-        "2026-10-30T15:00:00.000Z"
+        "2026-10-30T15:00:00.000Z",
+        "2026-10-30T16:00:00.000Z"
       ]
     }
   ]
