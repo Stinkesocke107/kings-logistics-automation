@@ -1,11 +1,11 @@
 {
   "version": 1,
   "mode": "live",
-  "updatedAt": "2026-10-30T00:57:57.556Z",
+  "updatedAt": "2026-10-30T01:56:47.928Z",
   "currentStaff": 11,
-  "truckersmpCurrentStaff": 11,
+  "truckersmpCurrentStaff": 12,
   "crossConfirmedStaff": 5,
-  "sourceMismatches": 12,
+  "sourceMismatches": 13,
   "authority": "discord",
   "truckersmpCrossCheckMode": "advisory-only",
   "crossCheckSources": {
@@ -49,6 +49,11 @@
       "discordUserId": "1300886296675225611",
       "username": "Marie",
       "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
+    },
+    {
+      "tmpId": 1461015,
+      "username": "JONAS (BR277)",
+      "reason": "no-discord-match"
     },
     {
       "tmpId": 1522731,
