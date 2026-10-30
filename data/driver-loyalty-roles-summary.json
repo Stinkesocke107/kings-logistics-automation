@@ -1,19 +1,19 @@
 {
   "version": 2,
   "mode": "live",
-  "updatedAt": "2026-10-29T16:16:18.241Z",
-  "currentDrivers": 108,
-  "matchedCurrentDrivers": 25,
-  "newMappings": 0,
-  "nameFallbackMappings": 0,
+  "updatedAt": "2026-10-30T16:01:30.380Z",
+  "currentDrivers": 110,
+  "matchedCurrentDrivers": 26,
+  "newMappings": 1,
+  "nameFallbackMappings": 1,
   "fullDiscordMemberListAvailable": true,
-  "noLinkedDiscord": 80,
+  "noLinkedDiscord": 81,
   "linkedDiscordNotOnGuild": 2,
   "truckersmpProfileErrors": 0,
   "eligibleForLoyaltyTier": 24,
   "roleAdditions": 8,
   "roleRemovals": 6,
-  "alreadyCorrect": 18,
+  "alreadyCorrect": 19,
   "formerDriverMappingsCleaned": 0,
   "umbrellaRole": {
     "id": "1555009783357112400",
@@ -168,6 +168,11 @@
     {
       "tmpId": 4863557,
       "username": "lasse-kröger",
+      "reason": "no-public-discord-link-and-no-exact-name-match"
+    },
+    {
+      "tmpId": 5036090,
+      "username": "stamkour",
       "reason": "no-public-discord-link-and-no-exact-name-match"
     },
     {

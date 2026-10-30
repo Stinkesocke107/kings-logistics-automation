@@ -1,9 +1,9 @@
 {
   "version": 1,
   "mode": "recognition-only",
-  "updatedAt": "2026-10-29T16:14:26.819Z",
-  "currentDrivers": 108,
-  "trackedCurrentDrivers": 108,
+  "updatedAt": "2026-10-30T15:59:31.583Z",
+  "currentDrivers": 110,
+  "trackedCurrentDrivers": 110,
   "counts": {
     "1m": 104,
     "3m": 89,
