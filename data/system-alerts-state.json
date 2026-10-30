@@ -23,16 +23,6 @@
       },
       "firstAlertedAt": "2026-10-28T08:58:06.429Z"
     },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure.",
-      "details": {
-        "runId": 40767468029,
-        "completedAt": "2026-10-28T20:55:12Z"
-      },
-      "firstAlertedAt": "2026-10-28T20:56:05.394Z"
-    },
     "workflow-overdue:system-monitoring.yml": {
       "severity": "warning",
       "system": "System Monitoring",
@@ -54,41 +44,17 @@
       },
       "firstAlertedAt": "2026-10-30T00:59:11.917Z"
     },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
+    "workflow-overdue:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News has not run within the expected time window.",
       "details": {
-        "latestActivityAt": "2026-10-30T01:14:41Z",
-        "ageMinutes": 32,
-        "maxAgeMinutes": 20
+        "latestActivityAt": "2026-10-29T23:31:48Z",
+        "ageMinutes": 201,
+        "maxAgeMinutes": 90
       },
-      "firstAlertedAt": "2026-10-30T01:47:49.678Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-30T00:57:49Z",
-        "ageMinutes": 49,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-10-30T01:47:49.678Z"
+      "firstAlertedAt": "2026-10-30T02:52:58.692Z"
     }
   },
-  "pending": {
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-30T01:47:49.678Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-30T01:47:49.678Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
