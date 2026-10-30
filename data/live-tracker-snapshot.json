@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-30T14:33:21.052Z",
+  "updatedAt": "2026-10-30T15:04:45.143Z",
   "members": 110,
   "discordMessageId": "1550299096278110219",
-  "online": 1,
-  "ets2Online": 1,
+  "online": 2,
+  "ets2Online": 2,
   "atsOnline": 0,
   "activeServers": [
     {
@@ -12,6 +12,12 @@
       "name": "Saffron Line CC - Diwali Convoy",
       "online": 1,
       "isEvent": true
+    },
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 1,
+      "isEvent": false
     }
   ]
 }
