@@ -43,14 +43,17 @@
         "maxAgeMinutes": 120
       },
       "firstAlertedAt": "2026-10-28T20:56:05.394Z"
+    },
+    "workflow-failed:social-news.yml": {
+      "severity": "warning",
+      "system": "YouTube Social News",
+      "message": "YouTube Social News latest completed run ended with failure.",
+      "details": {
+        "runId": 40982943516,
+        "completedAt": "2026-10-30T00:58:03Z"
+      },
+      "firstAlertedAt": "2026-10-30T00:59:11.917Z"
     }
   },
-  "pending": {
-    "workflow-failed:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-29T23:00:20.975Z",
-      "system": "YouTube Social News",
-      "message": "YouTube Social News latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
