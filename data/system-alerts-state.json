@@ -54,14 +54,17 @@
         "maxAgeMinutes": 90
       },
       "firstAlertedAt": "2026-10-30T02:52:58.692Z"
+    },
+    "workflow-failed:system-monitoring.yml": {
+      "severity": "warning",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure.",
+      "details": {
+        "runId": 41014273501,
+        "completedAt": "2026-10-30T06:28:34Z"
+      },
+      "firstAlertedAt": "2026-10-30T06:29:19.571Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-30T05:44:01.775Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
