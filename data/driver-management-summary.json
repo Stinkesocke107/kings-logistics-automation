@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-30T22:39:34.914Z",
+  "updatedAt": "2026-10-31T00:15:55.768Z",
   "currentDrivers": 110,
-  "onlineNow": 1,
+  "onlineNow": 0,
   "joinedLast7Days": 3,
   "joinedLast30Days": 6,
   "leftLast7Days": 2,
@@ -12,8 +12,8 @@
     "grace": 4,
     "active": 10,
     "approvedLeave": 0,
-    "info7Days": 5,
-    "attention14Days": 7,
+    "info7Days": 4,
+    "attention14Days": 8,
     "hrReview30Days": 84,
     "unknown": 0
   },
@@ -64,7 +64,7 @@
         "tmpId": 6400820,
         "username": "kordhaven",
         "joinDate": "2026-10-29T23:43:27.000Z",
-        "tenureDays": 0
+        "tenureDays": 1
       },
       {
         "tmpId": 5036090,
