@@ -43,16 +43,6 @@
         "completedAt": "2026-10-30T06:28:34Z"
       },
       "firstAlertedAt": "2026-10-30T06:29:19.571Z"
-    },
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "severity": "warning",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
-      "details": {
-        "runId": 41239862956,
-        "completedAt": "2026-10-31T20:39:08Z"
-      },
-      "firstAlertedAt": "2026-10-31T20:41:05.281Z"
     }
   },
   "pending": {}
