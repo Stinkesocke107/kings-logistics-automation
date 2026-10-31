@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-10-31T22:27:02.731Z",
+  "updatedAt": "2026-10-31T23:45:27.116Z",
   "currentDrivers": 110,
   "onlineNow": 2,
   "joinedLast7Days": 3,
@@ -20,8 +20,8 @@
   "tenure": {
     "known": 110,
     "under1Month": 6,
-    "oneToThreeMonths": 15,
-    "threeToSixMonths": 23,
+    "oneToThreeMonths": 14,
+    "threeToSixMonths": 24,
     "sixToTwelveMonths": 29,
     "oneToTwoYears": 30,
     "twoToThreeYears": 6,
@@ -64,7 +64,7 @@
         "tmpId": 6400820,
         "username": "kordhaven",
         "joinDate": "2026-10-29T23:43:27.000Z",
-        "tenureDays": 1
+        "tenureDays": 2
       },
       {
         "tmpId": 5036090,
