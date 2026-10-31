@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-10-30T22:56:42.882Z",
+  "updatedAt": "2026-10-31T22:26:31.642Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -267,7 +267,7 @@
       "threadId": "1561402209445355761",
       "name": "31. October - Guiding Line Auto",
       "eventId": "38364",
-      "status": "Scheduled",
+      "status": "Completed",
       "eventDate": "2026-10-31",
       "meetupTime": "18:00 UTC",
       "responsibleStaff": "<@333239475029409792>",
@@ -399,6 +399,20 @@
       "duplicateEventId": false,
       "archived": true,
       "eventUnix": null
+    },
+    {
+      "threadId": "1565996899436335246",
+      "name": "20. March - Indian Group",
+      "eventId": "37606",
+      "status": "Scheduled",
+      "eventDate": "2027-03-20",
+      "meetupTime": "15:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1805554800
     }
   ],
   "changeLog": [
@@ -1574,6 +1588,63 @@
         "archived": true,
         "eventUnix": null
       }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-10-31T22:26:31.419Z",
+      "threadId": "1561402209445355761",
+      "name": "31. October - Guiding Line Auto",
+      "fields": [
+        "status"
+      ],
+      "previous": {
+        "threadId": "1561402209445355761",
+        "name": "31. October - Guiding Line Auto",
+        "eventId": "38364",
+        "status": "Scheduled",
+        "eventDate": "2026-10-31",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1793469600
+      },
+      "current": {
+        "threadId": "1561402209445355761",
+        "name": "31. October - Guiding Line Auto",
+        "eventId": "38364",
+        "status": "Completed",
+        "eventDate": "2026-10-31",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1793469600
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-10-31T22:26:31.419Z",
+      "threadId": "1565996899436335246",
+      "name": "20. March - Indian Group",
+      "current": {
+        "threadId": "1565996899436335246",
+        "name": "20. March - Indian Group",
+        "eventId": "37606",
+        "status": "Scheduled",
+        "eventDate": "2027-03-20",
+        "meetupTime": "15:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1805554800
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -1594,7 +1665,8 @@
     "2026-10-27",
     "2026-10-28",
     "2026-10-29",
-    "2026-10-30"
+    "2026-10-30",
+    "2026-10-31"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
