@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-31T20:37:53.893Z",
+  "updatedAt": "2026-10-31T20:48:20.461Z",
   "members": 110,
   "discordMessageId": "1550299096278110219",
-  "online": 2,
-  "ets2Online": 2,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
@@ -12,12 +12,6 @@
       "name": "Simulation 2",
       "online": 1,
       "isEvent": false
-    },
-    {
-      "game": "ETS2",
-      "name": "TruckersMP Halloween Convoy",
-      "online": 1,
-      "isEvent": true
     }
   ]
 }
