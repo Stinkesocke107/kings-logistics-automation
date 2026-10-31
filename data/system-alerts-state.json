@@ -43,20 +43,17 @@
         "completedAt": "2026-10-30T06:28:34Z"
       },
       "firstAlertedAt": "2026-10-30T06:29:19.571Z"
-    }
-  },
-  "pending": {
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-31T20:39:51.961Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with cancelled."
     },
     "workflow-failed:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-10-31T20:39:51.961Z",
+      "severity": "warning",
       "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure."
+      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
+      "details": {
+        "runId": 41239862956,
+        "completedAt": "2026-10-31T20:39:08Z"
+      },
+      "firstAlertedAt": "2026-10-31T20:41:05.281Z"
     }
-  }
+  },
+  "pending": {}
 }
