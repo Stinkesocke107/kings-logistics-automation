@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-31T20:00:49.491Z",
+  "updatedAt": "2026-10-31T20:37:53.893Z",
   "members": 110,
   "discordMessageId": "1550299096278110219",
   "online": 2,
@@ -9,7 +9,7 @@
   "activeServers": [
     {
       "game": "ETS2",
-      "name": "Arcade",
+      "name": "Simulation 2",
       "online": 1,
       "isEvent": false
     },
