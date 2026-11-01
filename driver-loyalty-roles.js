@@ -13,7 +13,9 @@ const MANAGE_ROLES = 1n << 28n;
 const ADMINISTRATOR = 1n << 3n;
 const MAX_ROLE_REMOVALS_PER_RUN = 25;
 const UMBRELLA_LABEL = 'Driver Loyalty';
-const KINGS_DRIVER_LABEL = 'Kings Driver';
+// Verified against the currently authoritative Driver Updates production log.
+// Do not confuse the real 77-member role with the similar 7-member separator role.
+const KINGS_DRIVER_ROLE_ID = '1204836048845410405';
 const TIERS = [
   { id: '1m', label: '1 Month with Kings', months: 1 },
   { id: '3m', label: '3 Months with Kings', months: 3 },
@@ -80,7 +82,10 @@ function uniqueRole(roles, name) {
   return candidates[0];
 }
 function resolveManagedRoles(roles) {
-  const driver = uniqueRole(roles, KINGS_DRIVER_LABEL);
+  const driver = roles.find((role) => String(role.id) === KINGS_DRIVER_ROLE_ID);
+  if (!driver || !['kings driver', 'kings drivers'].includes(normalizeRoleName(driver.name))) {
+    throw new Error('Verified Kings Driver Discord role is missing or renamed; refusing Loyalty writes.');
+  }
   const umbrella = uniqueRole(roles, UMBRELLA_LABEL);
   const tiers = TIERS.map((def) => ({ ...def, role: uniqueRole(roles, def.label) }));
   const all = [umbrella, ...tiers.map((tier) => tier.role)];
