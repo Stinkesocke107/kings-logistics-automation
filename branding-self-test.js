@@ -34,8 +34,13 @@ function run() {
   };
   const embedSnapshot = deepClone(embedOnly.embeds);
   const brandedEmbedOnly = brandDiscordPayload(deepClone(embedOnly));
-  assert.deepStrictEqual(brandedEmbedOnly.embeds, embedSnapshot, 'Embed payloads must remain completely unchanged.');
+  assert.strictEqual(brandedEmbedOnly.embeds[0].description, 'Kings Logistics system status ' + KINGS_HEART, 'Embed hearts must use Kings custom emoji.');
+  assert.strictEqual(brandedEmbedOnly.embeds[0].fields[0].value, KINGS_HEART + ' Healthy', 'Embed field hearts must be canonical.');
+  assert.strictEqual(brandedEmbedOnly.embeds[0].footer.text, KINGS_HEART + ' Kings Logistics', 'Embed footer hearts must be canonical.');
+  assert.strictEqual(brandedEmbedOnly.embeds[0].title, embedSnapshot[0].title, 'Unrelated embed title/branding must remain unchanged.');
+  assert.strictEqual(brandedEmbedOnly.embeds[0].author.name, embedSnapshot[0].author.name, 'Unrelated embed author must remain unchanged.');
   assert.strictEqual(brandedEmbedOnly.content, undefined, 'Embed-only payloads must not gain extra message content.');
+  assert.deepStrictEqual(brandDiscordPayload(brandedEmbedOnly), brandedEmbedOnly, 'Embed branding must be idempotent.');
 
   const mixed = {
     content: '👑 Kings Logistics notification 💙',
@@ -50,7 +55,8 @@ function run() {
   const brandedMixed = brandDiscordPayload(deepClone(mixed));
   assert.ok(brandedMixed.content.includes(KINGS_LOGISTICS_LOGO), 'Mixed payload message content must still be branded.');
   assert.ok(brandedMixed.content.includes(KINGS_HEART), 'Mixed payload message content must still use Kings heart.');
-  assert.deepStrictEqual(brandedMixed.embeds, mixedEmbedSnapshot, 'Mixed payload embeds must remain unchanged.');
+  assert.strictEqual(brandedMixed.embeds[0].description, 'Embed body ' + KINGS_HEART, 'Mixed embed hearts must use Kings custom emoji.');
+  assert.strictEqual(brandedMixed.embeds[0].title, mixedEmbedSnapshot[0].title, 'Mixed embed non-heart title must remain unchanged.');
 
   const existingCustom = {
     content: `${KINGS_LOGISTICS_LOGO} Kings Logistics ${KINGS_HEART}`
@@ -67,7 +73,7 @@ function run() {
     'Existing Kings heart emoji must not be duplicated.'
   );
 
-  console.log('Kings branding self-test passed: custom emojis are message-content-only; embeds remain untouched.');
+  console.log('Kings branding self-test passed: custom hearts are canonical in content and embeds, with no unrelated embed changes.');
 }
 
 run();
