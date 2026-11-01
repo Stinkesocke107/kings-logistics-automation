@@ -23,17 +23,6 @@
       },
       "firstAlertedAt": "2026-10-28T08:58:06.429Z"
     },
-    "workflow-overdue:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 120
-      },
-      "firstAlertedAt": "2026-10-28T20:56:05.394Z"
-    },
     "workflow-failed:system-monitoring.yml": {
       "severity": "warning",
       "system": "System Monitoring",
