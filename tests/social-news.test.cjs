@@ -308,6 +308,42 @@ test('YouTube 404 on documented feed falls back to official alternate path witho
   } finally {global.fetch = original;}
 });
 
+test('YouTube HTTP 200 HTML challenge safely falls back to valid official Atom feed', async () => {
+  const {fetchYouTube} = require('../social-news');
+  const original = global.fetch;
+  const urls = [];
+  const valid = youtubeFeed([{id:'abcDEF12345',date:'2026-10-19T18:00:00Z',title:'Kings Latest Video'}]);
+  try {
+    global.fetch = async url => {
+      urls.push(String(url));
+      if (urls.length === 1) {
+        return new Response('<html>Upstream bot challenge</html>', {
+          status:200,headers:{'content-type':'text/html'}
+        });
+      }
+      return new Response(valid,{status:200,headers:{'content-type':'application/atom+xml'}});
+    };
+    const items=await fetchYouTube();
+    assert.deepEqual(items.map(x=>x.id),['abcDEF12345']);
+    assert.equal(urls.length,2);
+    assert.match(urls[1],/youtube\.com\/xml\/feeds\/videos\.xml/);
+  } finally {global.fetch = original;}
+});
+
+test('YouTube invalid HTML from both official endpoints never appears as a valid upload', async () => {
+  const {fetchYouTube} = require('../social-news');
+  const original = global.fetch;
+  let count=0;
+  try {
+    global.fetch = async () => {
+      count++;
+      return new Response('<html>service temporarily unavailable</html>',{status:200,headers:{'content-type':'text/html'}});
+    };
+    await assert.rejects(fetchYouTube(),/Invalid or oversized official YouTube XML feed/);
+    assert.equal(count,4,'Try the two official endpoints in two bounded rounds');
+  } finally {global.fetch=original;}
+});
+
 test('alternate YouTube Atom endpoint is still rejected when it belongs to another channel', async () => {
   const {fetchYouTube} = require('../social-news');
   const original = global.fetch;
