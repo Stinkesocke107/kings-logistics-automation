@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   create-monthly-report:
-    if: github.ref == 'refs/heads/main' && (github.event_name != 'push' || github.event.head_commit.message == 'KINGS_OCTOBER_CONVOY_BACKFILL_2026_11_01')
+    if: github.ref == 'refs/heads/main' && (github.event_name != 'push' || startsWith(github.event.head_commit.message, 'KINGS_OCTOBER_CONVOY_BACKFILL_2026_11_01'))
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -68,11 +68,11 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           NEWS_NOTIFICATIONS_ROLE_ID: ${{ secrets.NEWS_NOTIFICATIONS_ROLE_ID }}
           MONTHLY_REPORT_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
-          MONTHLY_REPORT_CONVOY_BACKFILL: ${{ github.event_name == 'push' && github.event.head_commit.message == 'KINGS_OCTOBER_CONVOY_BACKFILL_2026_11_01' && '2026-10' || '' }}
+          MONTHLY_REPORT_CONVOY_BACKFILL: ${{ github.event_name == 'push' && startsWith(github.event.head_commit.message, 'KINGS_OCTOBER_CONVOY_BACKFILL_2026_11_01') && '2026-10' || '' }}
         run: node monthly-report-v2.js
 
       - name: Save Monthly Report Data Safely
-        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') || (github.event_name == 'push' && github.event.head_commit.message == 'KINGS_OCTOBER_CONVOY_BACKFILL_2026_11_01') }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') || (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'KINGS_OCTOBER_CONVOY_BACKFILL_2026_11_01')) }}
         run: |
           if git diff --quiet -- data/monthly-report-state.json && [ -z "$(git status --porcelain data/monthly-report-state.json)" ]; then
             echo "No Monthly Report state changes to save."
