@@ -44,49 +44,6 @@
       },
       "firstAlertedAt": "2026-10-30T06:29:19.571Z"
     },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 70,
-        "latestCount": 24
-      },
-      "firstAlertedAt": "2026-11-01T00:52:52.727Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-31T23:52:34Z",
-        "ageMinutes": 59,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-11-01T00:52:52.727Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-31T23:42:49Z",
-        "ageMinutes": 69,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-01T00:52:52.727Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-10-31T23:51:50Z",
-        "ageMinutes": 60,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-01T00:52:52.727Z"
-    },
     "workflow-failed:social-news.yml": {
       "severity": "warning",
       "system": "YouTube Social News",
@@ -96,32 +53,18 @@
         "completedAt": "2026-10-31T23:48:29Z"
       },
       "firstAlertedAt": "2026-11-01T00:52:52.727Z"
-    }
-  },
-  "pending": {
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T00:52:52.727Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T00:52:52.727Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
     },
     "workflow-overdue:social-news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T00:52:52.727Z",
+      "severity": "warning",
       "system": "YouTube Social News",
-      "message": "YouTube Social News has not run within the expected time window."
-    },
-    "workflow-overdue:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T00:52:52.727Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview has not run within the expected time window."
+      "message": "YouTube Social News has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-31T22:51:57Z",
+        "ageMinutes": 136,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-11-01T01:08:36.109Z"
     }
-  }
+  },
+  "pending": {}
 }
