@@ -211,7 +211,25 @@ async function fetchYouTube() {
         lastError = error;
         continue;
       }
-      if (response.ok) return parseYouTubeFeed(await response.text());
+      if (response.ok) {
+        const body = await response.text();
+        try {
+          return parseYouTubeFeed(body);
+        } catch (error) {
+          // An upstream challenge/HTML page can arrive with HTTP 200.
+          // Try the other official URL; never treat invalid XML as an empty
+          // Kings feed and never write a publication checkpoint.
+          lastError = error;
+          if (/does not belong to official Kings Logistics channel/.test(String(error.message))) {
+            throw error; // identity mismatch is a security failure
+          }
+          const contentType = String(response.headers?.get?.('content-type') || 'unknown').split(';')[0];
+          console.warn('Official YouTube feed rejected safely (' +
+            (url === YOUTUBE_FEED_URL ? 'primary' : 'alternate') +
+            ', HTTP 200, ' + contentType + ', ' + body.length + ' chars): ' + error.message);
+          continue;
+        }
+      }
       const retryable = response.status === 404 || response.status === 429 || response.status >= 500;
       lastError = Error('Official YouTube feed returned HTTP ' + response.status);
       if (!retryable) throw lastError;
