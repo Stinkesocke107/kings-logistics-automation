@@ -8,9 +8,6 @@ const TIMEOUT_MS = 15000;
 const DATA = path.join(__dirname, 'data');
 const OUTPUT = path.join(__dirname, 'output', 'monthly-report-verification.json');
 
-if (!WEBHOOK_URL) throw new Error('MONTHLY_REPORT_DISCORD_WEBHOOK_URL is missing.');
-if (!DISCORD_BOT_TOKEN) throw new Error('DISCORD_BOT_TOKEN is missing.');
-
 function readJson(name, fallback = null) {
   const file = path.join(DATA, name);
   if (!fs.existsSync(file)) return fallback;
@@ -29,7 +26,11 @@ function periodForVerification(now = new Date()) {
   const currentStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   if (now.getUTCDate() === 1) {
     const start = new Date(Date.UTC(currentStart.getUTCFullYear(), currentStart.getUTCMonth() - 1, 1));
-    return { start, end: currentStart, key: monthKey(start), label: monthName(start), phase: 'post-publish' };
+    // Monthly publisher runs at 10:00 UTC and its dedicated verifier at
+    // 11:00 UTC. Before then, a completed month can legitimately be pending.
+    const deadline = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 11));
+    const phase = now < deadline ? 'awaiting-publish' : 'post-publish';
+    return { start, end: currentStart, key: monthKey(start), label: monthName(start), phase };
   }
   const nextStart = new Date(Date.UTC(currentStart.getUTCFullYear(), currentStart.getUTCMonth() + 1, 1));
   return { start: currentStart, end: nextStart, key: monthKey(currentStart), label: monthName(currentStart), phase: 'readiness' };
@@ -75,9 +76,12 @@ async function getMessages(channelId) {
 }
 
 async function main() {
+  if (!WEBHOOK_URL) throw new Error('MONTHLY_REPORT_DISCORD_WEBHOOK_URL is missing.');
+  if (!DISCORD_BOT_TOKEN) throw new Error('DISCORD_BOT_TOKEN is missing.');
+
   const now = new Date();
   const period = periodForVerification(now);
-  const fullMonthExpected = period.phase === 'post-publish';
+  const fullMonthExpected = period.phase !== 'readiness';
   const history = loadHistory();
   const observed = new Set(history.map((day) => String(day.date)));
   const expected = expectedDates(period, now, fullMonthExpected);
@@ -106,6 +110,16 @@ async function main() {
     if (!stateEntry) issues.push(`Monthly Report state missing ${period.key}.`);
     if (matchingMessages.length !== 1) issues.push(`Expected exactly one Discord Monthly Report for ${period.key}, found ${matchingMessages.length}.`);
     if (stateEntry?.discordMessageId && matchingMessages[0]?.id && String(stateEntry.discordMessageId) !== String(matchingMessages[0].id)) {
+      issues.push('Monthly Report state Discord message ID does not match live Discord history.');
+    }
+  } else if (period.phase === 'awaiting-publish') {
+    // Publishing is still inside its allowed window, so absence is not a
+    // failure. Still detect duplicates or obvious mismatched state immediately.
+    if (matchingMessages.length > 1) {
+      issues.push(`Duplicate official Monthly Reports before publication deadline: ${matchingMessages.length}.`);
+    }
+    if (stateEntry?.discordMessageId && matchingMessages.length === 1 &&
+        String(stateEntry.discordMessageId) !== String(matchingMessages[0].id)) {
       issues.push('Monthly Report state Discord message ID does not match live Discord history.');
     }
   } else {
@@ -140,7 +154,7 @@ async function main() {
       published: Boolean(stateEntry),
       entry: stateEntry
     },
-    readyForScheduledPublish: period.phase === 'readiness' && missingDates.length === 0 && !stateEntry && matchingMessages.length === 0,
+    readyForScheduledPublish: period.phase === 'awaiting-publish' && missingDates.length === 0 && !stateEntry && matchingMessages.length === 0,
     healthy: issues.length === 0,
     issues
   };
@@ -159,7 +173,11 @@ async function main() {
   if (issues.length) process.exitCode = 1;
 }
 
-main().catch((error) => {
-  console.error('Monthly Report Verification failed:', error.message);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error('Monthly Report Verification failed:', error.message);
+    process.exit(1);
+  });
+}
+
+module.exports = { periodForVerification, expectedDates };
