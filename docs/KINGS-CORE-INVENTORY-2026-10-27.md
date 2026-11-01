@@ -1,5 +1,7 @@
 # Kings Logistics — GitHub-Core-Inventur (Punkt 01)
 
+> **Historische Bestandsaufnahme (27. Oktober 2026):** Die nachfolgenden 43 Workflows und Social-Video-Angaben spiegeln den damaligen Zustand wider. Seit dem 1. November 2026 ist `Kings Social Video News` entfernt. Aktuell gelten **42 aktive Workflows (31 zeitgesteuert, 11 andere)**. Die aktuelle Übersicht befindet sich in [KINGS-ALL-SYSTEMS-INVENTORY.md](KINGS-ALL-SYSTEMS-INVENTORY.md).
+
 **Prüfstand:** 27. Oktober 2026 · **Referenz-Commit:** `99ce00d7b9c64ac1f62fdf7b4ceea52c00dffc07` · **Repository:** `Stinkesocke107/kings-logistics-automation` · **Produktion:** `main`
 
 > **Status:** Inventur und Dokumentation. Kein Produktionsworkflow, kein Secret, keine Discord-Nachricht, keine verschlüsselte Mitgliedsdatei und keine Rollenberechtigung wird durch dieses Dokument verändert. Dieser Bericht ist eine technische Bestandsaufnahme, keine Freigabe von Punkt 02/03 und kein 24/7-Betriebsnachweis.
