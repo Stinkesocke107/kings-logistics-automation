@@ -414,7 +414,7 @@ test('Kings Loyalty is based on Discord joined_at and full Kings Driver role onl
   assert.equal(plan.stats.eligibleForLoyaltyTier,3);
   assert.equal(plan.changes.find(c=>c.userId==='100').tier,'3m');
   assert.ok(plan.changes.find(c=>c.userId==='100').add.includes('13'));
-  assert.ok(plan.changes.find(c=>c.userId==='101').remove.length===0);
+  assert.equal(plan.changes.find(c=>c.userId==='101'),undefined,'Correct existing 1-month tier requires no mutation');
   assert.ok(plan.changes.find(c=>c.userId==='102')===undefined);
   assert.equal(plan.changes.find(c=>c.userId==='103').tier,'3y');
   assert.ok(plan.changes.find(c=>c.userId==='103').remove.includes('14'));
