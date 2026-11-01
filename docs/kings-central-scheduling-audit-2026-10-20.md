@@ -1,4 +1,6 @@
 # Kings Logistics — Central Scheduling and Reliability Audit
+
+> **Historical record (20 October 2026):** The references below to GitHub YouTube Social News are no longer operational. On 1 November 2026 the unused publisher was retired, including its scheduler/monitoring references. TruckersMP News and Changelog remain active. See the current workflow inventory.
 Date: 2026-10-20
 
 ## Decision
