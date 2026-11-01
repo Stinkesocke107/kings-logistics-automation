@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T04:50:00.000Z",
-  "updatedAt": "2026-10-31T21:46:37.832Z",
+  "updatedAt": "2026-11-01T16:15:56.068Z",
   "publishedDailyKeys": [
     "2026-10-13",
     "2026-10-14",
@@ -24,7 +24,8 @@
     "2026-10-31"
   ],
   "publishedMonthlyKeys": [
-    "2026-09"
+    "2026-09",
+    "2026-10"
   ],
   "monthlyReports": [
     {
@@ -40,6 +41,20 @@
       "openReviews": 102,
       "activeLoa": 0,
       "averageTenureDays": 258
+    },
+    {
+      "key": "2026-10",
+      "publishedAt": "2026-11-01T16:15:56.068Z",
+      "completeCoverage": true,
+      "startDrivers": 108,
+      "endDrivers": 110,
+      "joined": 8,
+      "left": 6,
+      "netGrowth": 2,
+      "retention": 94.44444444444444,
+      "openReviews": 97,
+      "activeLoa": 0,
+      "averageTenureDays": 282
     }
   ]
 }
