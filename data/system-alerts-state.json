@@ -1,25 +1,28 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
+  "active": {
     "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T22:28:41.575Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
-    },
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T22:28:41.575Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 41357115639,
+        "completedAt": "2026-11-01T22:28:03Z"
+      },
+      "firstAlertedAt": "2026-11-01T22:40:50.823Z"
     },
     "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T22:28:41.575Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-27T22:38:13Z",
+        "ageMinutes": 7202,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-11-01T22:40:50.823Z"
     }
-  }
+  },
+  "pending": {}
 }
