@@ -95,3 +95,27 @@ for (const mode of ['empty-servers','all-server-failures','discord-failure','suc
     }
   });
 }
+
+test('monthly verifier respects the actual 10 UTC publish and 11 UTC verification deadline', () => {
+  const {periodForVerification, expectedDates} = require('../monthly-report-verifier.js');
+  const before = periodForVerification(new Date('2026-11-01T03:05:00.000Z'));
+  assert.equal(before.key, '2026-10');
+  assert.equal(before.phase, 'awaiting-publish');
+  assert.equal(periodForVerification(new Date('2026-11-01T10:59:59.000Z')).phase, 'awaiting-publish');
+  assert.equal(periodForVerification(new Date('2026-11-01T11:00:00.000Z')).phase, 'post-publish');
+  assert.equal(expectedDates(before, new Date('2026-11-01T03:05:00.000Z'), true).length, 31);
+
+  const midmonth = new Date('2026-11-05T12:00:00.000Z');
+  const midperiod = periodForVerification(midmonth);
+  assert.equal(midperiod.key, '2026-11');
+  assert.equal(midperiod.phase, 'readiness');
+  assert.equal(expectedDates(midperiod, midmonth, false).length, 5);
+
+  const january = periodForVerification(new Date('2027-01-01T02:00:00.000Z'));
+  assert.equal(january.key, '2026-12');
+  assert.equal(january.phase, 'awaiting-publish');
+  const leap = periodForVerification(new Date('2028-03-01T12:00:00.000Z'));
+  assert.equal(leap.key, '2028-02');
+  assert.equal(leap.phase, 'post-publish');
+  assert.equal(expectedDates(leap,new Date('2028-03-01T12:00:00.000Z'),true).length,29);
+});
