@@ -50,10 +50,15 @@ jobs:
         shell: bash
         env:
           REQUESTED_MODE: ${{ inputs.role_sync_mode }}
+          PUSH_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
             MODE="live"
           elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$REQUESTED_MODE" = "live" ]; then
+            MODE="live"
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && [[ "$PUSH_MESSAGE" == "KINGS_LOYALTY_APPLY_ONCE_2026_11_01"* ]]; then
+            # Explicit one-time CEO-approved operational sync. Remove this branch
+            # after its verified production execution; all other pushes stay read-only.
             MODE="live"
           else
             MODE="dry-run"
