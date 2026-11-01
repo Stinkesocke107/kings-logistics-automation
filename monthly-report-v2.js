@@ -1,5 +1,6 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
+const { confirmedKingsConvoysForPeriod } = require('./convoy-participation');
 const path = require('path');
 
 const WEBHOOK_URL = process.env.MONTHLY_REPORT_DISCORD_WEBHOOK_URL || null;
@@ -13,6 +14,8 @@ const DRIVER_HISTORY_FILE = path.join(DATA_DIR, 'driver-history.json');
 const CHANGELOG_QUEUE_FILE = path.join(DATA_DIR, 'changelog-queue.json');
 const CHANGELOG_HISTORY_FILE = path.join(DATA_DIR, 'changelog-history.json');
 const STATE_FILE = path.join(DATA_DIR, 'monthly-report-state.json');
+const CONVOY_OVERVIEW_FILE = path.join(__dirname, 'output', 'convoy-overview.json');
+const OCTOBER_BACKFILL = process.env.MONTHLY_REPORT_CONVOY_BACKFILL === '2026-10';
 
 const DISCORD_API = 'https://discord.com/api/v10';
 const REQUEST_TIMEOUT_MS = 15000;
@@ -73,6 +76,31 @@ function getPreviousMonth() {
   const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   const start = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth() - 1, 1));
   return { start, end, key: monthKey(start), label: monthName(start) };
+}
+
+function getOctober2026() {
+  return {
+    start: new Date('2026-10-01T00:00:00.000Z'),
+    end: new Date('2026-11-01T00:00:00.000Z'),
+    key: '2026-10',
+    label: 'October 2026'
+  };
+}
+
+function loadConvoyParticipation(period) {
+  const overview = readJson(CONVOY_OVERVIEW_FILE, null);
+  const generatedAt = normalizeDate(overview?.generatedAt);
+  if (!generatedAt ||
+      Math.abs(Date.now() - generatedAt.getTime()) > 60 * 60 * 1000) {
+    throw new Error('Fresh (max 60 minutes) Convoy Overview is required before publishing participation counts.');
+  }
+  if (String(overview.guildId || '') !== '1114967437788577792') {
+    throw new Error('Convoy Overview is not from the official Kings Discord.');
+  }
+  const result = confirmedKingsConvoysForPeriod(overview, period);
+  console.log('Kings confirmed-slot convoy participation: ' + result.count +
+    ' (unresolved undated: ' + result.undatedConfirmed + ')');
+  return result;
 }
 
 function getPreviewMonth() {
@@ -259,7 +287,7 @@ function reportMarker(period) {
   return `Kings Logistics — ${period.label} Monthly Report`;
 }
 
-function buildReport(period, statistics, activity, movement, milestones) {
+function buildReport(period, statistics, activity, movement, milestones, convoys) {
   const lines = [];
   if (!PREVIEW_MODE && NEWS_ROLE_ID) lines.push(`<@&${NEWS_ROLE_ID}>`, '');
   lines.push(`👑📊 **${reportMarker(period)}**`, '');
@@ -286,6 +314,8 @@ function buildReport(period, statistics, activity, movement, milestones) {
     lines.push(`Activity Distribution: **ETS2 ${activity.ets2Percent}% • ATS ${activity.atsPercent}%**`);
     if (activity.mostUsedServer) lines.push(`Most Used Server: **${activity.mostUsedServer}** (${activity.mostUsedPercent}%)`);
   }
+  lines.push('', '**Convoy Participation**');
+  lines.push(`Convoys Participated (Confirmed Kings Slot): **${convoys.count}**`);
   lines.push('', '**Milestones**');
   if (!milestones.length) lines.push('No new 50-member milestone was reached this month.');
   else for (const milestone of milestones) lines.push(`👑 **${milestone} TruckersMP Members reached**`);
@@ -389,13 +419,75 @@ function makeStateEntry(period, statistics, activity, movement, milestones, disc
     peakATS: statistics.peakATS,
     mostUsedServer: activity.mostUsedServer,
     milestones,
+    convoysParticipated: extra.convoysParticipated ?? null,
+    convoyParticipationSource: extra.convoyParticipationSource || null,
     discordMessageId: discord?.id || null,
     discordChannelId: discord?.channel_id || null,
     ...extra
   };
 }
 
+async function backfillOctoberConvoyParticipation() {
+  if (PREVIEW_MODE) throw new Error('Convoy backfill cannot run in preview mode.');
+  const period = getOctober2026();
+  const reportState = loadReportState();
+  const entry = reportState.publishedMonths.find((month) => month.key === period.key);
+  if (!entry?.discordMessageId || !entry?.discordChannelId) {
+    throw new Error('Existing October Monthly Report publication ID is required; will not create a duplicate.');
+  }
+  const convoys = loadConvoyParticipation(period);
+  const webhook = await fetchWebhookMetadata();
+  const channel = await discordGet('/channels/' + entry.discordChannelId + '/messages/' + entry.discordMessageId);
+  if (String(channel?.webhook_id || '') !== String(webhook.id || '') ||
+      !String(channel.content || '').includes(reportMarker(period)) ||
+      String(channel.content || '').includes('PREVIEW')) {
+    throw new Error('October Discord message does not match the official published Kings report.');
+  }
+  const oldContent = String(channel.content);
+  const line = 'Convoys Participated (Confirmed Kings Slot): **' + convoys.count + '**';
+  let updatedContent;
+  if (oldContent.includes('**Convoy Participation**')) {
+    updatedContent = oldContent.replace(
+      /\*\*Convoy Participation\*\*\nConvoys Participated \(Confirmed Kings Slot\): \*\*\d+\*\*/,
+      '**Convoy Participation**\n' + line
+    );
+  } else {
+    if (!oldContent.includes('**Milestones**')) throw new Error('Existing October report has no known insertion anchor.');
+    updatedContent = oldContent.replace('**Milestones**', '**Convoy Participation**\n' + line + '\n\n**Milestones**');
+  }
+  if (updatedContent === oldContent &&
+      Number(entry.convoysParticipated) === convoys.count) {
+    console.log('October Convoy Participation is already present; no Discord edit required.');
+    return;
+  }
+  if (updatedContent === oldContent || updatedContent.length > 2000) {
+    throw new Error('October Monthly Report cannot be safely updated within Discord length limits.');
+  }
+  if (!WEBHOOK_URL) throw new Error('October Monthly Report webhook is missing.');
+  const url = webhookBaseUrl();
+  url.pathname = url.pathname.replace(/\/$/, '') + '/messages/' + encodeURIComponent(entry.discordMessageId);
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: updatedContent, allowed_mentions: { parse: [] } }),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+  });
+  const text = await response.text();
+  if (!response.ok) throw new Error('Updating original October Discord report failed: HTTP ' + response.status + ' ' + text.slice(0, 200));
+  const edited = text ? JSON.parse(text) : null;
+  if (String(edited?.id) !== String(entry.discordMessageId) ||
+      String(edited?.content || '') !== updatedContent) {
+    throw new Error('Discord did not confirm the original October report edit; do not claim completion.');
+  }
+  entry.convoysParticipated = convoys.count;
+  entry.convoyParticipationSource = 'confirmed-kings-slot';
+  entry.convoyParticipationUpdatedAt = nowISO();
+  saveReportState(reportState);
+  console.log('Existing October Monthly Report updated in place; message ID ' + entry.discordMessageId);
+}
+
 async function createMonthlyReport() {
+  if (OCTOBER_BACKFILL) return backfillOctoberConvoyParticipation();
   const period = PREVIEW_MODE ? getPreviewMonth() : getPreviousMonth();
   console.log(`Preparing Monthly Report for ${period.label}...`);
   if (PREVIEW_MODE) console.log('Preview mode enabled.');
@@ -427,7 +519,8 @@ async function createMonthlyReport() {
   const activity = buildActivityAnalytics(monthDays);
   const movement = getDriverMovement(loadDriverHistory(), period);
   const milestones = getMilestones(period);
-  const content = buildReport(period, statistics, activity, movement, milestones);
+  const convoys = loadConvoyParticipation(period);
+  const content = buildReport(period, statistics, activity, movement, milestones, convoys);
   if (content.length > 2000) throw new Error(`Monthly Report is too long for Discord: ${content.length} characters.`);
 
   console.log(`Recorded days: ${statistics.recordedDays}`);
@@ -448,7 +541,7 @@ async function createMonthlyReport() {
         movement,
         milestones,
         discordState.existing,
-        { recoveredFromDiscord: true }
+        { recoveredFromDiscord: true, convoysParticipated: convoys.count, convoyParticipationSource: convoys.source }
       ));
       saveReportState(reportState);
       console.log('Monthly Report state recovered successfully.');
@@ -462,7 +555,8 @@ async function createMonthlyReport() {
     return;
   }
 
-  reportState.publishedMonths.push(makeStateEntry(period, statistics, activity, movement, milestones, sent));
+  reportState.publishedMonths.push(makeStateEntry(period, statistics, activity, movement, milestones, sent,
+    { convoysParticipated: convoys.count, convoyParticipationSource: convoys.source }));
   saveReportState(reportState);
   console.log(`${period.label} Monthly Report published successfully.`);
 }

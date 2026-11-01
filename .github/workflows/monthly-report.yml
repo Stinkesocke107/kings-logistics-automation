@@ -15,6 +15,12 @@ on:
   schedule:
     - cron: "0 10 1 * *"
 
+  # One-time, explicit CEO-approved October report edit; deleted after completion.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/monthly-report.yml'
+
 permissions:
   contents: write
 
@@ -24,9 +30,9 @@ concurrency:
 
 jobs:
   create-monthly-report:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name != 'push' || github.event.head_commit.message == 'KINGS_OCTOBER_CONVOY_BACKFILL_2026_11_01')
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
 
     steps:
       - name: Checkout repository
@@ -42,16 +48,31 @@ jobs:
       - name: Verify Monthly Report Script
         run: node --check monthly-report-v2.js
 
+      - name: Build fresh read-only Kings Convoy participation overview
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
+          DISCORD_WRITE_MODE: 'false'
+          CONVOY_FINALIZE_WRITE_MODE: 'false'
+          KINGS_VTC_NAME: 'Kings Logistics'
+        run: |
+          node convoy-checker.js
+          node convoy-truckersmp-sync.js
+          node convoy-finalize.js
+          node convoy-overview.js
+
       - name: Create Kings Monthly Report
         env:
           MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           NEWS_NOTIFICATIONS_ROLE_ID: ${{ secrets.NEWS_NOTIFICATIONS_ROLE_ID }}
           MONTHLY_REPORT_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
+          MONTHLY_REPORT_CONVOY_BACKFILL: ${{ github.event_name == 'push' && github.event.head_commit.message == 'KINGS_OCTOBER_CONVOY_BACKFILL_2026_11_01' && '2026-10' || '' }}
         run: node monthly-report-v2.js
 
       - name: Save Monthly Report Data Safely
-        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') || (github.event_name == 'push' && github.event.head_commit.message == 'KINGS_OCTOBER_CONVOY_BACKFILL_2026_11_01') }}
         run: |
           if git diff --quiet -- data/monthly-report-state.json && [ -z "$(git status --porcelain data/monthly-report-state.json)" ]; then
             echo "No Monthly Report state changes to save."
@@ -74,3 +95,4 @@ jobs:
           echo '- Calendar coverage: **every day of the reporting month is required**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Duplicate protection: **Git state + Discord webhook history**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Incomplete Driver History: **clearly omitted, never invented as zero values**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Convoy participation: **confirmed Kings slots (Convoy Center + Legacy, deduplicated)**' >> "$GITHUB_STEP_SUMMARY"
