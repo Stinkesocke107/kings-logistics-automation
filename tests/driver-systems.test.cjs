@@ -377,3 +377,146 @@ test('Driver Achievements sends only genuinely newly earned milestones and summa
   assert.equal(result.summary.trackedCurrentDrivers, 1);
   assert.equal(result.summary.counts['1m'], 1);
 });
+
+
+test('Kings Loyalty is based on Discord joined_at and full Kings Driver role only', () => {
+  const { sandbox } = require('./sandbox.cjs');
+  const s=sandbox('driver-loyalty-roles.js');
+  const roles=[
+    {id:'10',name:'🚛｜Kings Driver',permissions:'0',position:5},
+    {id:'11',name:'── Driver Loyalty ──',permissions:'0',position:4},
+    {id:'12',name:'| 1 Month with Kings',permissions:'0',position:4},
+    {id:'13',name:'| 3 Months with Kings',permissions:'0',position:4},
+    {id:'14',name:'| 6 Months with Kings',permissions:'0',position:4},
+    {id:'15',name:'| 1 Year with Kings',permissions:'0',position:4},
+    {id:'16',name:'| 2 Years with Kings',permissions:'0',position:4},
+    {id:'17',name:'| 3 Years with Kings',permissions:'0',position:4},
+    {id:'18',name:'| 4 Years with Kings',permissions:'0',position:4},
+    {id:'19',name:'| 5 Years with Kings',permissions:'0',position:4}
+  ];
+  const members=[
+    {user:{id:'100',bot:false},roles:['10'],joined_at:'2026-07-31T12:00:00.000Z'},
+    {user:{id:'101',bot:false},roles:['10','11','12'],joined_at:'2026-09-15T12:00:00.000Z'},
+    {user:{id:'102',bot:false},roles:['10'],joined_at:'2026-10-30T12:00:00.000Z'},
+    {user:{id:'103',bot:false},roles:['10','11','14'],joined_at:'2023-10-01T12:00:00.000Z'},
+    {user:{id:'104',bot:false},roles:['20'],joined_at:'2023-01-01T00:00:00.000Z'},
+    {user:{id:'105',bot:false},roles:[],joined_at:'2023-01-01T00:00:00.000Z'},
+    {user:{id:'106',bot:false},roles:['10','11','13'],joined_at:null},
+    {user:{id:'107',bot:false},roles:['11','15'],joined_at:'2023-01-01T00:00:00.000Z'},
+    {user:{id:'108',bot:true},roles:['10'],joined_at:'2023-01-01T00:00:00.000Z'}
+  ];
+  const managed=s.run('resolveManagedRoles('+JSON.stringify(roles)+')');
+  const plan=s.run('planDiscordLoyalty('+JSON.stringify(members)+',resolveManagedRoles('+JSON.stringify(roles)+'),new Date("2026-11-01T15:00:00.000Z"))');
+  assert.equal(managed.driver.id,'10');
+  assert.equal(plan.stats.currentDrivers,5);
+  assert.equal(plan.stats.missingJoinDate,1);
+  assert.equal(plan.stats.nonDriverCleanupCandidates,1);
+  assert.equal(plan.stats.eligibleForLoyaltyTier,3);
+  assert.equal(plan.changes.find(c=>c.userId==='100').tier,'3m');
+  assert.ok(plan.changes.find(c=>c.userId==='100').add.includes('13'));
+  assert.equal(plan.changes.find(c=>c.userId==='101'),undefined,'Correct existing 1-month tier requires no mutation');
+  assert.ok(plan.changes.find(c=>c.userId==='102')===undefined);
+  assert.equal(plan.changes.find(c=>c.userId==='103').tier,'3y');
+  assert.ok(plan.changes.find(c=>c.userId==='103').remove.includes('14'));
+  assert.ok(plan.changes.find(c=>c.userId==='107').remove.includes('15'));
+  assert.ok(!plan.changes.some(c=>['104','105','106','108'].includes(c.userId)));
+});
+
+test('Kings Loyalty fails closed on missing/ambiguous Driver roles, dangerous rewards, or incomplete guild data', () => {
+  const s=sandbox('driver-loyalty-roles.js');
+  const roles=[
+    {id:'10',name:'Kings Driver',permissions:'0'},
+    {id:'11',name:'Driver Loyalty',permissions:'0'},
+    ...[
+      '1 Month with Kings','3 Months with Kings','6 Months with Kings',
+      '1 Year with Kings','2 Years with Kings','3 Years with Kings',
+      '4 Years with Kings','5 Years with Kings'
+    ].map((name,i)=>({id:String(20+i),name,permissions:'0'}))
+  ];
+  const plan=(people,available=roles)=>s.run(
+    'planDiscordLoyalty('+JSON.stringify(people)+',resolveManagedRoles('+JSON.stringify(available)+'),new Date("2026-11-01T15:00:00.000Z"))');
+  const one={user:{id:'100',bot:false},roles:['10'],joined_at:'2026-08-01T00:00:00Z'};
+  assert.throws(()=>plan([]),/missing or empty/);
+  assert.throws(()=>plan([one,one]),/Duplicate Discord member/);
+  assert.throws(()=>plan([{user:{id:'100'},joined_at:'2025-01-01T00:00:00Z'}]),/Incomplete Discord/);
+  assert.throws(()=>plan([one],roles.filter(r=>r.name!=='Kings Driver')),/exactly one Discord role/);
+  assert.throws(()=>plan([one],[...roles,{id:'99',name:'Kings Driver'}]),/exactly one Discord role/);
+  assert.throws(()=>plan([one],roles.filter(r=>r.name!=='5 Years with Kings')),/exactly one Discord role/);
+  assert.throws(()=>plan([one],roles.map(r=>r.name==='1 Month with Kings'?{...r,permissions:String(1n<<3n)}:r)),/dangerous permissions/);
+  const over=[one,...Array.from({length:26},(_,i)=>({
+    user:{id:String(200+i),bot:false},roles:['20'],joined_at:'2026-01-01T00:00:00Z'
+  }))];
+  assert.throws(()=>plan(over),/manual review required/);
+});
+
+test('Kings Loyalty month and year anniversaries handle end of month and leap years', () => {
+  const s=sandbox('driver-loyalty-roles.js');
+  assert.equal(s.run('addMonthsUTC(new Date("2026-01-31T14:00:00Z"),1).toISOString()'),'2026-02-28T14:00:00.000Z');
+  assert.equal(s.run('addYearsUTC(new Date("2024-02-29T14:00:00Z"),1).toISOString()'),'2025-02-28T14:00:00.000Z');
+  assert.equal(s.run('addYearsUTC(new Date("2024-02-29T14:00:00Z"),4).toISOString()'),'2028-02-29T14:00:00.000Z');
+});
+
+
+test('Loyalty Discord integration: dry-run cannot mutate and live touches cosmetic tier roles only', async () => {
+  const {sandbox}=require('./sandbox.cjs');
+  const guildId='1114967437788577792';
+  const botId='999000000000000001';
+  const botRole='999000000000000002';
+  const roleNames=[
+    '1 Month with Kings','3 Months with Kings','6 Months with Kings',
+    '1 Year with Kings','2 Years with Kings','3 Years with Kings',
+    '4 Years with Kings','5 Years with Kings'
+  ];
+  const tierRoles=roleNames.map((name,i)=>({id:String(210+i),name,permissions:'0',position:5}));
+  const roles=[
+    {id:guildId,name:'@everyone',permissions:'0',position:0},
+    {id:botRole,name:'Kings Systems',permissions:String(1n<<28n),position:100},
+    {id:'200',name:'Kings Driver',permissions:'0',position:10},
+    {id:'201',name:'Driver Loyalty',permissions:'0',position:6},
+    {id:'299',name:'Kings Staff',permissions:'0',position:9},
+    ...tierRoles
+  ];
+  const before = new Date(Date.now()-400*24*3600*1000).toISOString();
+  const yesterday = new Date(Date.now()-24*3600*1000).toISOString();
+  const members=[
+    {user:{id:'100000000000000001',bot:false},roles:['200'],joined_at:before},
+    {user:{id:'100000000000000002',bot:false},roles:['200'],joined_at:yesterday},
+    {user:{id:'100000000000000003',bot:false},roles:['299','201','210'],joined_at:before},
+    {user:{id:'100000000000000004',bot:false},roles:['299'],joined_at:before},
+    {user:{id:botId,bot:true},roles:[botRole],joined_at:before}
+  ];
+  const transport=async(url,options={})=>{
+    const route=url.replace('https://discord.com/api/v10','');
+    const method=String(options.method||'GET').toUpperCase();
+    if(method!=='GET')return new Response(null,{status:204});
+    if(route==='/users/@me')return new Response(JSON.stringify({id:botId}),{status:200});
+    if(route==='/guilds/'+guildId+'/roles')return new Response(JSON.stringify(roles),{status:200});
+    if(route==='/guilds/'+guildId+'/members/'+botId)return new Response(JSON.stringify(members[4]),{status:200});
+    if(route.startsWith('/guilds/'+guildId+'/members?'))return new Response(JSON.stringify(members),{status:200});
+    throw new Error('Unexpected Discord API path '+url);
+  };
+
+  const dry=sandbox('driver-loyalty-roles.js',{fetch:transport});
+  await dry.run('main()');
+  assert.equal(dry.calls.filter(x=>(x.options.method||'GET')!=='GET').length,0);
+  assert.equal(JSON.parse(dry.files.get('data/driver-loyalty-roles-summary.json')).currentDrivers,2);
+  assert.equal(dry.files.has('data/driver-loyalty-roles.json'),false,'Old identity mappings are not rewritten');
+
+  const live=sandbox('driver-loyalty-roles.js',{
+    env:{DRIVER_LOYALTY_ROLE_MODE:'live'},fetch:transport
+  });
+  await live.run('main()');
+  const changes=live.calls.filter(x=>(x.options.method||'GET')!=='GET');
+  assert.ok(changes.length>0);
+  assert.ok(changes.some(x=>x.url.includes('/100000000000000001/roles/')));
+  assert.ok(changes.some(x=>x.url.includes('/100000000000000003/roles/')));
+  assert.ok(changes.every(x=>!x.url.includes('/100000000000000004/')));
+  assert.ok(changes.every(x=>/\/roles\/(201|21[0-7])$/.test(x.url)),'Never mutate Driver, Staff or other Kings roles');
+  assert.ok(!changes.some(x=>x.url.endsWith('/roles/200')));
+  const summary=JSON.parse(live.files.get('data/driver-loyalty-roles-summary.json'));
+  assert.equal(summary.source,'discord-guild-joined_at');
+  assert.equal(summary.currentDrivers,2);
+  assert.equal(summary.nonDriverCleanupCandidates,1);
+  assert.equal(summary.mode,'live');
+  assert.equal(live.files.has('data/driver-loyalty-roles.json'),false);
+});
