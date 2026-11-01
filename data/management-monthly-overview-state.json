@@ -1,9 +1,10 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:40:00.000Z",
-  "updatedAt": "2026-10-13T05:44:24.604Z",
+  "updatedAt": "2026-11-01T17:12:52.391Z",
   "publishedMonths": [
-    "2026-09"
+    "2026-09",
+    "2026-10"
   ],
   "monthlyReports": [
     {
@@ -16,6 +17,17 @@
       "driverNetGrowth": 1,
       "staffNetGrowth": -1,
       "eventCompleted": 0
+    },
+    {
+      "key": "2026-10",
+      "publishedAt": "2026-11-01T17:12:52.391Z",
+      "drivers": 110,
+      "staff": 12,
+      "openReviews": 97,
+      "eventIssues": 2,
+      "driverNetGrowth": 2,
+      "staffNetGrowth": 1,
+      "eventCompleted": 1
     }
   ],
   "messageId": "1559441658569949195"
