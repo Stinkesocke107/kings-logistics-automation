@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:00:00.000Z",
-  "updatedAt": "2026-10-31T21:54:12.241Z",
+  "updatedAt": "2026-11-01T16:24:20.392Z",
   "publishedDailyKeys": [
     "2026-10-13",
     "2026-10-14",
@@ -24,7 +24,8 @@
     "2026-10-31"
   ],
   "publishedMonthlyKeys": [
-    "2026-09"
+    "2026-09",
+    "2026-10"
   ],
   "monthlyReports": [
     {
@@ -42,6 +43,23 @@
       "openProbation": 2,
       "extendedProbation": 0,
       "hrReviews": 0,
+      "activeLoa": 0
+    },
+    {
+      "key": "2026-10",
+      "publishedAt": "2026-11-01T16:24:20.392Z",
+      "completeCoverage": true,
+      "startDrivers": 108,
+      "endDrivers": 110,
+      "joined": 8,
+      "left": 6,
+      "netGrowth": 2,
+      "retention": 94.44444444444444,
+      "probationOpened": 4,
+      "probationCompleted": 0,
+      "openProbation": 4,
+      "extendedProbation": 0,
+      "hrReviews": 86,
       "activeLoa": 0
     }
   ]
