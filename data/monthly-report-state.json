@@ -1,7 +1,7 @@
 {
   "version": 2,
   "createdAt": "2026-10-01T10:05:59.528Z",
-  "updatedAt": "2026-10-01T10:06:10.074Z",
+  "updatedAt": "2026-11-01T16:30:04.708Z",
   "publishedMonths": [
     {
       "key": "2026-09",
@@ -22,6 +22,27 @@
       "mostUsedServer": "ETS2 — Simulation 1",
       "milestones": [],
       "discordMessageId": "1555158837437272125",
+      "discordChannelId": "1479853315264217202"
+    },
+    {
+      "key": "2026-10",
+      "month": "October 2026",
+      "publishedAt": "2026-11-01T16:30:04.708Z",
+      "startMembers": 108,
+      "endMembers": 110,
+      "growth": 2,
+      "joined": 9,
+      "left": 5,
+      "netDriverGrowth": 4,
+      "nameChanges": 7,
+      "driverHistoryComplete": true,
+      "driverHistoryInitializedAt": "2026-09-17T22:19:52.000Z",
+      "peakOnline": 4,
+      "peakETS2": 4,
+      "peakATS": 1,
+      "mostUsedServer": "ETS2 — Simulation 1",
+      "milestones": [],
+      "discordMessageId": "1566489510898958407",
       "discordChannelId": "1479853315264217202"
     }
   ]
