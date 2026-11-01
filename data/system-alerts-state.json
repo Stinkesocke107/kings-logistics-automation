@@ -22,14 +22,17 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-01T18:59:12.544Z"
+    },
+    "workflow-failed:convoy-announcement-verifier.yml": {
+      "severity": "warning",
+      "system": "Convoy Announcement Verification",
+      "message": "Convoy Announcement Verification latest completed run ended with skipped.",
+      "details": {
+        "runId": 41350904713,
+        "completedAt": "2026-11-01T21:13:36Z"
+      },
+      "firstAlertedAt": "2026-11-01T21:17:45.588Z"
     }
   },
-  "pending": {
-    "workflow-failed:convoy-announcement-verifier.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T21:14:48.613Z",
-      "system": "Convoy Announcement Verification",
-      "message": "Convoy Announcement Verification latest completed run ended with skipped."
-    }
-  }
+  "pending": {}
 }
