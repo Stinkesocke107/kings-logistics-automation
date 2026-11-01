@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml social-news.yml changelog.yml staff-leadership-live-overview.yml convoy-announcement-verifier.yml self-healing.yml probation.yml system-monitoring.yml news-production-verification.yml; do
+          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml changelog.yml staff-leadership-live-overview.yml convoy-announcement-verifier.yml self-healing.yml probation.yml system-monitoring.yml news-production-verification.yml; do
             state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}" --jq '.state')"
             echo "${workflow}: ${state}"
             test "$state" = "active"
@@ -177,13 +177,6 @@ jobs:
                 "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/dispatches" \
                 -f ref=main \
                 -f "inputs[mode]=${mode:-live}"
-            elif [ "$workflow" = "social-news.yml" ]; then
-              # Never enable the explicit one-time historical-video test.
-              gh api --method POST \
-                "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/dispatches" \
-                -f ref=main \
-                -f 'inputs[verify_connections_only]=false' \
-                -f 'inputs[post_latest_test]=false'
             else
               gh api --method POST \
                 "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/dispatches" \
@@ -211,7 +204,6 @@ jobs:
             dispatch_if_due leadership-dashboard.yml 0
             dispatch_if_due driver-updates.yml 0
             dispatch_if_due news.yml 0
-            dispatch_if_due social-news.yml 0
             dispatch_if_due changelog.yml 0
             # Technical/read-only recovery tools only; no forced probation,
             # personnel approval, restore/import or disciplinary action.
@@ -237,7 +229,6 @@ jobs:
             # timers or coupling their failure domains.
             dispatch_if_due driver-updates.yml 720
             dispatch_if_due news.yml 720
-            dispatch_if_due social-news.yml 1200
             dispatch_if_due changelog.yml 1800
             # Read-only live Staff counts, read-only Convoy proof verifier and
             # bounded technical Self-Healing. Native clocks stay preferred.
