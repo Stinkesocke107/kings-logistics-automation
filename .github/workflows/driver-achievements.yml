@@ -50,14 +50,10 @@ jobs:
         shell: bash
         env:
           REQUESTED_MODE: ${{ inputs.role_sync_mode }}
-          PUSH_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
             MODE="live"
           elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$REQUESTED_MODE" = "live" ]; then
-            MODE="live"
-          elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$PUSH_MESSAGE" = "KINGS_LOYALTY_RETRY_2026_11_01" ]; then
-            # Explicit CEO-approved one-time retry after Discord bot permission update.
             MODE="live"
           else
             MODE="dry-run"
