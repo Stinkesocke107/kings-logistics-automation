@@ -11,7 +11,6 @@ const SUMMARY_FILE = path.join(__dirname, 'data', 'driver-loyalty-roles-summary.
 const DISCORD_API = 'https://discord.com/api/v10';
 const MANAGE_ROLES = 1n << 28n;
 const ADMINISTRATOR = 1n << 3n;
-const FORBIDDEN_ROLE_PERMISSIONS = ADMINISTRATOR | MANAGE_ROLES;
 const MAX_ROLE_REMOVALS_PER_RUN = 25;
 const UMBRELLA_LABEL = 'Driver Loyalty';
 const KINGS_DRIVER_LABEL = 'Kings Driver';
@@ -94,8 +93,9 @@ function resolveManagedRoles(roles) {
     let permissions;
     try { permissions = BigInt(String(role.permissions || '0')); }
     catch { throw new Error('Unparseable permissions for Loyalty role ' + role.name); }
-    if (permissions & FORBIDDEN_ROLE_PERMISSIONS) {
-      throw new Error('Loyalty role has dangerous permissions: ' + role.name);
+    if (permissions !== 0n) {
+      throw new Error('Loyalty role has dangerous permissions: ' + role.name +
+        ' (Loyalty roles must be cosmetic with zero server permissions).');
     }
   }
   return { driver, umbrella, tiers, all, ids };
