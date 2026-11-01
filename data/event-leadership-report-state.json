@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-10-31T22:26:31.642Z",
+  "updatedAt": "2026-11-01T16:49:08.779Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -1674,7 +1674,8 @@
     "2026-10-19"
   ],
   "publishedMonthlyKeys": [
-    "2026-09"
+    "2026-09",
+    "2026-10"
   ],
   "weeklyReports": [
     {
@@ -1717,6 +1718,18 @@
       "ready": 0,
       "changes": 0,
       "realConvoys": 9
+    },
+    {
+      "key": "2026-10",
+      "publishedAt": "2026-11-01T16:49:08.779Z",
+      "counted": 28,
+      "scheduled": 0,
+      "completed": 1,
+      "cancelled": 0,
+      "needsInfo": 2,
+      "ready": 0,
+      "changes": 37,
+      "realConvoys": 24
     }
   ]
 }
