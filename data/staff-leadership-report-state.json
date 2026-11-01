@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:20:00.000Z",
-  "updatedAt": "2026-10-31T22:22:27.106Z",
+  "updatedAt": "2026-11-01T16:33:07.107Z",
   "publishedDailyKeys": [
     "2026-10-13",
     "2026-10-14",
@@ -29,7 +29,8 @@
     "2026-10-19"
   ],
   "publishedMonthlyKeys": [
-    "2026-09"
+    "2026-09",
+    "2026-10"
   ],
   "weeklyReports": [
     {
@@ -77,6 +78,17 @@
       "left": 1,
       "roleChanges": 0,
       "netGrowth": -1
+    },
+    {
+      "key": "2026-10",
+      "publishedAt": "2026-11-01T16:33:07.107Z",
+      "completeCoverage": true,
+      "startStaff": 11,
+      "endStaff": 12,
+      "joined": 3,
+      "left": 2,
+      "roleChanges": 0,
+      "netGrowth": 1
     }
   ],
   "messageIds": {
