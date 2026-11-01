@@ -1,25 +1,84 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
-    "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T18:08:57.692Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
+  "active": {
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 51,
+        "latestCount": 24
+      },
+      "firstAlertedAt": "2026-11-01T18:59:12.544Z"
     },
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T18:08:57.692Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-01T18:09:46Z",
+        "ageMinutes": 49,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-11-01T18:59:12.544Z"
+    },
+    "workflow-overdue:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-01T18:07:43Z",
+        "ageMinutes": 51,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-11-01T18:59:12.544Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-01T18:07:07Z",
+        "ageMinutes": 51,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-11-01T18:59:12.544Z"
+    },
+    "workflow-failed:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 41334859637,
+        "completedAt": "2026-11-01T18:08:18Z"
+      },
+      "firstAlertedAt": "2026-11-01T18:59:12.544Z"
     },
     "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-01T18:08:57.692Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-10-27T22:38:13Z",
+        "ageMinutes": 6980,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-11-01T18:59:12.544Z"
+    }
+  },
+  "pending": {
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-01T18:59:12.544Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    },
+    "workflow-overdue:news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-01T18:59:12.544Z",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News has not run within the expected time window."
     }
   }
 }
