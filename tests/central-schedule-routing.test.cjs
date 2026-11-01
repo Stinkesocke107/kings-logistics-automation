@@ -7,13 +7,13 @@ const {spawnSync} = require('node:child_process');
 const root = path.resolve(__dirname,'..');
 const workflow = name => fs.readFileSync(path.join(root,'.github','workflows',name+'.yml'),'utf8');
 
-test('one common recovery scheduler covers live, convoy, driver, news, YouTube and changelog jobs', () => {
+test('one common recovery scheduler covers live, convoy, driver, news and changelog jobs', () => {
   const s=workflow('central-scheduler');
-  for (const name of ['live-tracker','driver-updates','convoy-checker','news','social-news','changelog','hr-leadership','staff-management','staff-leadership-live-overview','convoy-announcement-verifier','self-healing','probation','system-monitoring','news-production-verification']) {
+  for (const name of ['live-tracker','driver-updates','convoy-checker','news','changelog','hr-leadership','staff-management','staff-leadership-live-overview','convoy-announcement-verifier','self-healing','probation','system-monitoring','news-production-verification']) {
     assert.ok(s.includes('dispatch_if_due '+name+'.yml '),name);
     assert.ok(s.includes(name+'.yml; do') || s.includes(' '+name+'.yml '),name+' active-check');
   }
-  assert.match(s,/social-news\.yml[\s\S]*inputs\[verify_connections_only\]=false[\s\S]*inputs\[post_latest_test\]=false/);
+  assert.doesNotMatch(s,/social-news\.yml/,'Retired publisher must not be dispatched');
   assert.match(s,/latest_completed_run/);
   assert.match(s,/observing \$\{cooldown_seconds\}-second recovery cooldown/);
   assert.ok(s.includes("dispatch_if_due probation.yml 10800 '' 1200 3600"));
@@ -50,11 +50,11 @@ test('verification follows successful real producers, with independent hourly fa
   assert.match(convoy,/cron: '14 \* \* \* \*'/);
 });
 
-test('News, YouTube and Changelog stay visible in the complete registry without core-level severity', () => {
+test('TruckersMP News and Changelog remain visible in the registry without critical severity', () => {
   const {SCHEDULED_WORKFLOWS} = require('../kings-workflow-registry.js');
   const monitor=fs.readFileSync(path.join(root,'system-monitoring.js'),'utf8');
   assert.match(monitor,/const WORKFLOWS = SCHEDULED_WORKFLOWS/);
-  for(const name of ['news','social-news','changelog']){
+  for(const name of ['news','changelog']){
     const item=SCHEDULED_WORKFLOWS.find(item=>item.file===name+'.yml');
     assert.ok(item,name+' is monitored');
     assert.equal(item.severity,'warning',name);

@@ -158,7 +158,7 @@ function buildMessage(health) {
     workflowGroupLine(health, 'Drivers', 'Drivers, Probation & Awards'),
     workflowGroupLine(health, 'HR & Staff', 'HR & Staff Systems'),
     workflowGroupLine(health, 'Convoys', 'Convoy Center & Events'),
-    workflowGroupLine(health, 'News', 'News, Social & Changelog'),
+    workflowGroupLine(health, 'News', 'News & Changelog'),
     workflowGroupLine(health, 'Leadership', 'Leadership Overview'),
     workflowGroupLine(health, 'Reports', 'Leadership & Periodic Reports'),
     workflowGroupLine(health, 'Backup', 'Backup & Restore Health'),

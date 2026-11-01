@@ -4,6 +4,9 @@ Automation systems and tools for Kings Logistics.
 
 ## Documentation
 
+- [Current workflow inventory](docs/KINGS-ALL-SYSTEMS-INVENTORY.md) — 42 active workflows as of November 2026.
+- [Kings Social Video News retirement](SOCIAL-NEWS-SETUP.md) — the unused YouTube automation was retired; TruckersMP News and external PostPing continue.
+
 - [Point 22 Self-Healing Stress Test — 1 October 2026](docs/self-healing-stress-2026-10-01.md) — controlled failure matrix, corrupt-state fail-closed recovery, Discord 429 hardening and the post-Point-22 Core v1.2 baseline.
 - [Point 21 Safe Self-Healing — 1 October 2026](docs/self-healing-2026-10-01.md) — automatic technical recovery allowlist, cooldowns, attempt budgets and verification evidence.
 - [Stable Core Baseline / Core Freeze — 1 October 2026](docs/core-baseline-2026-10-01.md) — historical Kings Core v1.0 / Point 20 reference, fingerprint, acceptance evidence and freeze rules.

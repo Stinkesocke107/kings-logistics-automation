@@ -283,14 +283,6 @@ const WORKFLOW_REGISTRY = Object.freeze(
       "severity": "warning"
     },
     {
-      "file": "social-news.yml",
-      "label": "YouTube Social News",
-      "mode": "scheduled",
-      "area": "News",
-      "maxAgeMinutes": 90,
-      "severity": "warning"
-    },
-    {
       "file": "staff-leadership-live-overview.yml",
       "label": "Staff Leadership Live Overview",
       "mode": "scheduled",

@@ -1,11 +1,13 @@
-# Kings Logistics — Vollständiges Systemverzeichnis (43 Workflows)
+# Kings Logistics — Vollständiges Systemverzeichnis (42 aktive Workflows)
 
 Stand: 20. Oktober 2026. Dieses Dokument deckt **jede derzeit im Kings-GitHub-Repository vorhandene GitHub-Actions-YAML-Datei** ab. Die eigentlichen Skripte und Discord-Ausgaben hängen jeweils an diesen Workflows; ein Workflow kann mehrere zusammengehörige Schritte ausführen.
 
+> **Aktualisierung am 1. November 2026:** Der ungenutzte YouTube-Publisher `Kings Social Video News` wurde auf ausdrücklichen Wunsch des CEO entfernt. **42 aktive Workflows: 31 automatisch, 11 manuell/on-change.** Der historische Social-Publisher-Zustand (`data/social-news-state.json`) bleibt unverändert gespeichert. TruckersMP News, Changelog und der externe PostPing bleiben erhalten.
+
 ## Grundregeln
 
-- **43 erfasst**, davon **32 automatisch eingeplant** und **11 ohne eigenen Dauer-Zeitplan** (manuell/bei Änderungen). Kein derzeitiger Workflow bleibt außerhalb des Verzeichnisses.
-- Einziger gemeinsamer **technischer Wiederanlauf-Takt: etwa alle 5 Minuten**, zusätzlich durch vorhandene `workflow_run`-Signale. Der Scheduler startet nur überfällige, ausdrücklich freigegebene Produzenten. Er führt keine 43 Systeme blind alle fünf Minuten aus. Für den Driver Probation Tracker gibt es jetzt ausschließlich einen prüfbaren Wiederanlauf nach mindestens drei Stunden ohne Erfolg, mit einer Stunde Sperrfrist; das Skript darf nur HR-Hinweismeldungen verschicken und weder Mitglieder noch Rollen ändern.
+- **42 erfasst**, davon **31 automatisch eingeplant** und **11 ohne eigenen Dauer-Zeitplan** (manuell/bei Änderungen). Kein derzeitiger Workflow bleibt außerhalb des Verzeichnisses.
+- Einziger gemeinsamer **technischer Wiederanlauf-Takt: etwa alle 5 Minuten**, zusätzlich durch vorhandene `workflow_run`-Signale. Der Scheduler startet nur überfällige, ausdrücklich freigegebene Produzenten. Er führt keine 42 Systeme blind alle fünf Minuten aus. Für den Driver Probation Tracker gibt es jetzt ausschließlich einen prüfbaren Wiederanlauf nach mindestens drei Stunden ohne Erfolg, mit einer Stunde Sperrfrist; das Skript darf nur HR-Hinweismeldungen verschicken und weder Mitglieder noch Rollen ändern.
 - **Live Tracker → Statistics → Central Overview** arbeiten innerhalb **einer** Pipeline mit demselben nachgewiesenen Snapshot-Zeitstempel. Convoy Center arbeitet innerhalb seiner eigenen Pipeline. News, Convoys, Fahrerrollen und Berichte haben unabhängige Ausgangsdaten und können nicht sinnvoll als ein einziger Live-Datenbankstand gelten.
 - Für **jede automatisch geplante** Pipeline prüft `system-monitoring.js` auf reale Produktionsläufe und auf das letzte erfolgreiche Ergebnis. Die dort hinterlegte **Frischefrist ist ein Alarmgrenzwert**, nicht die beabsichtigte Ausführungsfrequenz. Häufigkeiten stehen direkt im jeweiligen Workflow-`schedule`.
 - Bei `on-change` und `manual` wird überprüft, dass die Werkzeuge vorhanden und klassifiziert sind. Ein nicht gestarteter manueller Restore darf nicht allein wegen Inaktivität rot werden.
@@ -82,7 +84,6 @@ Stand: 20. Oktober 2026. Dieses Dokument deckt **jede derzeit im Kings-GitHub-Re
 | `changelog.yml` | Automatisch | 75 Min. (Warnung) |
 | `news-production-verification.yml` | Automatisch | 180 Min. (Warnung) |
 | `news.yml` | Automatisch | 35 Min. (Warnung) |
-| `social-news.yml` | Automatisch | 90 Min. (Warnung) |
 
 ### Reports
 
@@ -130,5 +131,5 @@ Stand: 20. Oktober 2026. Dieses Dokument deckt **jede derzeit im Kings-GitHub-Re
 - Das Dateiverzeichnis wird durch `tests/all-kings-workflows.test.cjs` mit den tatsächlichen YAML-Dateien abgeglichen; eine neue/gelöschte YAML ohne Registereintrag lässt die Tests fehlschlagen.
 - Der Discord-Kanal `system-monitor` zeigt jetzt nicht nur eine einzelne veraltete „Leadership Overviews“-Datei, sondern aggregiert die **wirklich überwachten Workflow-Bereiche** mit gesunden/gesamten Werten.
 - Insbesondere nach verspäteten GitHub-Cron-Läufen können echte Warnungen für Probation, Staff Leadership, Self-Healing oder andere Systeme erscheinen; das ist ein Signal für ein Produktionsproblem, nicht etwas, das wir aus den Prüfungen entfernen sollten.
-- Nicht alle 43 Workflows wurden im Rahmen dieser Änderung manuell ausgelöst: Manuelle Restore- oder Import-Werkzeuge sollen **niemals** nur zu Testzwecken echte Daten/Discord-Rechte verändern.
+- Nicht alle 42 Workflows wurden im Rahmen dieser Änderung manuell ausgelöst: Manuelle Restore- oder Import-Werkzeuge sollen **niemals** nur zu Testzwecken echte Daten/Discord-Rechte verändern.
 - Ein erfolgreicher Offline-Test beweist Quellcode-/Konfigurationskonsistenz, nicht 24/7 Betriebszuverlässigkeit. Für eine Produktionsfreigabe echte Ausführung, Datenfrische und Discord-Zustellung über mindestens einen sinnvollen Zeitraum beobachten (für wöchentliche/monatliche Berichte über den entsprechenden Zeitraum).
