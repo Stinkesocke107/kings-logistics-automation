@@ -24,12 +24,5 @@
       "firstAlertedAt": "2026-11-02T07:42:27.554Z"
     }
   },
-  "pending": {
-    "integrity-history-driver-updates-count": {
-      "count": 1,
-      "firstSeenAt": "2026-11-02T18:46:07.268Z",
-      "system": "Cross-System Integrity",
-      "message": "Driver History member total (80) differs from Discord Driver Updates (79)."
-    }
-  }
+  "pending": {}
 }
