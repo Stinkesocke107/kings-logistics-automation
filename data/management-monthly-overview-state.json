@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:40:00.000Z",
-  "updatedAt": "2026-11-01T17:12:52.391Z",
+  "updatedAt": "2026-11-02T20:51:03.330Z",
   "publishedMonths": [
     "2026-09",
     "2026-10"
@@ -20,7 +20,7 @@
     },
     {
       "key": "2026-10",
-      "publishedAt": "2026-11-01T17:12:52.391Z",
+      "publishedAt": "2026-11-02T20:51:03.330Z",
       "drivers": 110,
       "staff": 12,
       "openReviews": 97,
