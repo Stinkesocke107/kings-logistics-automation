@@ -22,41 +22,14 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-02T22:30:47.926Z"
-    },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 62,
-        "latestCount": 24
-      },
-      "firstAlertedAt": "2026-11-03T03:41:55.690Z"
-    },
-    "api-health:truckersmp-vtc-news": {
-      "severity": "warning",
-      "system": "API Resilience",
-      "message": "truckersmp-vtc-news is degraded after repeated request failures.",
-      "details": {
-        "service": "truckersmp-vtc-news",
-        "consecutiveFailures": 2,
-        "lastSuccessAt": "2026-10-21T14:39:11.818Z",
-        "lastFailureAt": "2026-11-03T03:53:59.415Z",
-        "circuitOpenUntil": null,
-        "lastError": "This operation was aborted"
-      },
-      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
-    },
-    "workflow-failed:news-production-verification.yml": {
-      "severity": "warning",
-      "system": "TruckersMP News Verification",
-      "message": "TruckersMP News Verification latest completed run ended with skipped.",
-      "details": {
-        "runId": 41574921428,
-        "completedAt": "2026-11-03T03:54:16Z"
-      },
-      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T06:44:08.419Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
+    }
+  }
 }
