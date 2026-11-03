@@ -4,12 +4,12 @@
   "service": "truckersmp-vtc-news",
   "healthKey": "news--truckersmp-vtc-news",
   "status": "degraded",
-  "consecutiveFailures": 1,
+  "consecutiveFailures": 2,
   "lastSuccessAt": "2026-10-21T14:39:11.818Z",
   "recoveredAt": "2026-10-21T14:39:11.818Z",
   "lastError": "This operation was aborted",
   "circuitOpenUntil": null,
-  "updatedAt": "2026-11-03T03:41:46.569Z",
-  "lastFailureAt": "2026-11-03T03:41:46.569Z",
+  "updatedAt": "2026-11-03T03:53:59.416Z",
+  "lastFailureAt": "2026-11-03T03:53:59.415Z",
   "lastErrorCode": "20"
 }
