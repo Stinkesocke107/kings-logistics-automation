@@ -1,6 +1,121 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {}
+  "active": {
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 154,
+        "latestCount": 24
+      },
+      "firstAlertedAt": "2026-11-03T15:06:18.322Z"
+    },
+    "stale-data:data/driver-management-summary.json": {
+      "severity": "critical",
+      "system": "Driver Management data",
+      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-03T11:42:45.725Z",
+        "ageMinutes": 203,
+        "maxAgeMinutes": 160
+      },
+      "firstAlertedAt": "2026-11-03T15:06:18.322Z"
+    },
+    "workflow-overdue:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-03T12:31:33Z",
+        "ageMinutes": 154,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-11-03T15:06:18.322Z"
+    },
+    "workflow-overdue:driver-management.yml": {
+      "severity": "critical",
+      "system": "Driver Management",
+      "message": "Driver Management has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-03T11:42:53Z",
+        "ageMinutes": 202,
+        "maxAgeMinutes": 150
+      },
+      "firstAlertedAt": "2026-11-03T15:06:18.322Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-03T12:30:07Z",
+        "ageMinutes": 155,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-11-03T15:06:18.322Z"
+    },
+    "workflow-overdue:staff-management.yml": {
+      "severity": "critical",
+      "system": "Staff Management",
+      "message": "Staff Management has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-03T12:30:55Z",
+        "ageMinutes": 155,
+        "maxAgeMinutes": 150
+      },
+      "firstAlertedAt": "2026-11-03T15:06:18.322Z"
+    }
+  },
+  "pending": {
+    "stale-data:data/staff-management-summary.json": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T15:06:18.322Z",
+      "system": "Staff Management data",
+      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
+    },
+    "workflow-overdue:changelog.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T15:06:18.322Z",
+      "system": "Changelog Publisher",
+      "message": "Changelog Publisher has not run within the expected time window."
+    },
+    "workflow-overdue:convoy-announcement-verifier.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T15:06:18.322Z",
+      "system": "Convoy Announcement Verification",
+      "message": "Convoy Announcement Verification has not run within the expected time window."
+    },
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T15:06:18.322Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    },
+    "workflow-overdue:news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T15:06:18.322Z",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News has not run within the expected time window."
+    },
+    "workflow-overdue:probation.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T15:06:18.322Z",
+      "system": "Driver Probation",
+      "message": "Driver Probation has not run within the expected time window."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T15:06:18.322Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
+    },
+    "workflow-overdue:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T15:06:18.322Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview has not run within the expected time window."
+    }
+  }
 }
