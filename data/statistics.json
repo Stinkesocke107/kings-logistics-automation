@@ -1,8 +1,8 @@
 {
   "version": 3,
   "createdAt": "2026-08-30T19:27:30.105Z",
-  "updatedAt": "2026-11-03T20:59:54.072Z",
-  "sourceSnapshotAt": "2026-11-03T20:59:53.803Z",
+  "updatedAt": "2026-11-03T21:37:27.857Z",
+  "sourceSnapshotAt": "2026-11-03T21:37:27.491Z",
   "messageId": "1550301949470048277",
   "allTime": {
     "peakOnline": 8,
@@ -2443,11 +2443,11 @@
       "peakOnline": 3,
       "peakETS2": 3,
       "peakATS": 0,
-      "activitySamples": 17,
-      "ets2PlayerSamples": 14,
+      "activitySamples": 18,
+      "ets2PlayerSamples": 16,
       "atsPlayerSamples": 0,
       "serverPlayerSamples": {
-        "ETS2 — Simulation 1": 12,
+        "ETS2 — Simulation 1": 14,
         "ETS2 — Enjoy Diwali with TruckersHub": 2
       },
       "sampledHours": [
@@ -2467,7 +2467,8 @@
         "2026-11-03T17:00:00.000Z",
         "2026-11-03T18:00:00.000Z",
         "2026-11-03T19:00:00.000Z",
-        "2026-11-03T20:00:00.000Z"
+        "2026-11-03T20:00:00.000Z",
+        "2026-11-03T21:00:00.000Z"
       ]
     }
   ]
