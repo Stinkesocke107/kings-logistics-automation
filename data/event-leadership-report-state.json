@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-11-03T01:32:18.650Z",
+  "updatedAt": "2026-11-03T23:57:45.324Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -268,14 +268,19 @@
       "name": "31. October - Guiding Line Auto",
       "eventId": "38364",
       "status": "Completed",
-      "eventDate": "2026-10-31",
-      "meetupTime": "18:00 UTC",
+      "eventDate": null,
+      "meetupTime": null,
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
-      "missing": [],
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1793469600
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1563502066679418881",
@@ -1644,6 +1649,50 @@
         "duplicateEventId": false,
         "archived": false,
         "eventUnix": 1805554800
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-03T23:57:45.106Z",
+      "threadId": "1561402209445355761",
+      "name": "31. October - Guiding Line Auto",
+      "fields": [
+        "eventDate",
+        "meetupTime",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1561402209445355761",
+        "name": "31. October - Guiding Line Auto",
+        "eventId": "38364",
+        "status": "Completed",
+        "eventDate": "2026-10-31",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1793469600
+      },
+      "current": {
+        "threadId": "1561402209445355761",
+        "name": "31. October - Guiding Line Auto",
+        "eventId": "38364",
+        "status": "Completed",
+        "eventDate": null,
+        "meetupTime": null,
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
       }
     }
   ],
