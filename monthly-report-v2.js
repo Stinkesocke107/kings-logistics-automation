@@ -1,6 +1,6 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
-const { confirmedKingsConvoysForPeriod } = require('./convoy-participation');
+const { attendedRegisteredConvoysForPeriod } = require('./convoy-participation');
 const path = require('path');
 
 const WEBHOOK_URL = process.env.MONTHLY_REPORT_DISCORD_WEBHOOK_URL || null;
@@ -97,9 +97,12 @@ function loadConvoyParticipation(period) {
   if (String(overview.guildId || '') !== '1114967437788577792') {
     throw new Error('Convoy Overview is not from the official Kings Discord.');
   }
-  const result = confirmedKingsConvoysForPeriod(overview, period);
-  console.log('Kings confirmed-slot convoy participation: ' + result.count +
-    ' (unresolved undated: ' + result.undatedConfirmed + ')');
+  const result = attendedRegisteredConvoysForPeriod(overview, period);
+  console.log('Kings held, registered convoy participation: ' + result.count +
+    ' (with confirmed slots: ' + result.confirmedSlotCount +
+    ', undated: ' + result.undatedRegistered +
+    ', cancelled: ' + result.cancelledExcluded +
+    ', not yet held: ' + result.notYetHeld + ')');
   return result;
 }
 
@@ -315,7 +318,8 @@ function buildReport(period, statistics, activity, movement, milestones, convoys
     if (activity.mostUsedServer) lines.push(`Most Used Server: **${activity.mostUsedServer}** (${activity.mostUsedPercent}%)`);
   }
   lines.push('', '**Convoy Participation**');
-  lines.push(`Convoys Participated (Confirmed Kings Slot): **${convoys.count}**`);
+  lines.push(`Convoys Participated: **${convoys.count}**`);
+  lines.push(`With Confirmed Kings Slot: **${convoys.confirmedSlotCount}**`);
   lines.push('', '**Milestones**');
   if (!milestones.length) lines.push('No new 50-member milestone was reached this month.');
   else for (const milestone of milestones) lines.push(`👑 **${milestone} TruckersMP Members reached**`);
@@ -420,6 +424,7 @@ function makeStateEntry(period, statistics, activity, movement, milestones, disc
     mostUsedServer: activity.mostUsedServer,
     milestones,
     convoysParticipated: extra.convoysParticipated ?? null,
+    convoysWithConfirmedSlot: extra.convoysWithConfirmedSlot ?? null,
     convoyParticipationSource: extra.convoyParticipationSource || null,
     discordMessageId: discord?.id || null,
     discordChannelId: discord?.channel_id || null,
@@ -444,24 +449,43 @@ async function backfillOctoberConvoyParticipation() {
     throw new Error('October Discord message does not match the official published Kings report.');
   }
   const oldContent = String(channel.content);
-  const line = 'Convoys Participated (Confirmed Kings Slot): **' + convoys.count + '**';
-  let updatedContent;
-  if (oldContent.includes('**Convoy Participation**')) {
-    updatedContent = oldContent.replace(
-      /\*\*Convoy Participation\*\*\nConvoys Participated \(Confirmed Kings Slot\): \*\*\d+\*\*/,
-      '**Convoy Participation**\n' + line
-    );
+  const section = '**Convoy Participation**';
+  const replacement = section + '\n' +
+    'Convoys Participated: **' + convoys.count + '**\n' +
+    'With Confirmed Kings Slot: **' + convoys.confirmedSlotCount + '**';
+  let updatedContent = null;
+  if (oldContent.includes(section)) {
+    // Edit only the known Convoy block of the original published report.
+    // Do not rewrite unrelated stats or create a second Discord report.
+    const pattern = /\*\*Convoy Participation\*\*\n(?:Convoys Participated \(Confirmed Kings Slot\): \*\*\d+\*\*|Convoys Participated: \*\*\d+\*\*\nWith Confirmed Kings Slot: \*\*\d+\*\*)/g;
+    const found = [...oldContent.matchAll(pattern)];
+    if (found.length !== 1) throw new Error('Existing October report has an unknown/duplicate convoy section.');
+    updatedContent = oldContent.replace(pattern, replacement);
   } else {
-    if (!oldContent.includes('**Milestones**')) throw new Error('Existing October report has no known insertion anchor.');
-    updatedContent = oldContent.replace('**Milestones**', '**Convoy Participation**\n' + line + '\n\n**Milestones**');
+    if (!oldContent.includes('**Milestones**')) {
+      throw new Error('Existing October report has no known insertion anchor.');
+    }
+    updatedContent = oldContent.replace('**Milestones**', replacement + '\n\n**Milestones**');
   }
   if (updatedContent === oldContent &&
-      Number(entry.convoysParticipated) === convoys.count) {
-    console.log('October Convoy Participation is already present; no Discord edit required.');
+      Number(entry.convoysParticipated) === convoys.count &&
+      Number(entry.convoysWithConfirmedSlot) === convoys.confirmedSlotCount &&
+      entry.convoyParticipationSource === convoys.source) {
+    console.log('October registered convoy participation is already current.');
     return;
   }
-  if (updatedContent === oldContent || updatedContent.length > 2000) {
+  if (!updatedContent || updatedContent.length > 2000) {
     throw new Error('October Monthly Report cannot be safely updated within Discord length limits.');
+  }
+  if (updatedContent === oldContent) {
+    // Discord was already edited; only persist the previously uncheckpointed state.
+    entry.convoysParticipated = convoys.count;
+    entry.convoysWithConfirmedSlot = convoys.confirmedSlotCount;
+    entry.convoyParticipationSource = convoys.source;
+    entry.convoyParticipationUpdatedAt = nowISO();
+    saveReportState(reportState);
+    console.log('October published Discord convoy section already correct; updated state only.');
+    return;
   }
   if (!WEBHOOK_URL) throw new Error('October Monthly Report webhook is missing.');
   const url = webhookBaseUrl();
@@ -480,7 +504,8 @@ async function backfillOctoberConvoyParticipation() {
     throw new Error('Discord did not confirm the original October report edit; do not claim completion.');
   }
   entry.convoysParticipated = convoys.count;
-  entry.convoyParticipationSource = 'confirmed-kings-slot';
+  entry.convoysWithConfirmedSlot = convoys.confirmedSlotCount;
+  entry.convoyParticipationSource = convoys.source;
   entry.convoyParticipationUpdatedAt = nowISO();
   saveReportState(reportState);
   console.log('Existing October Monthly Report updated in place; message ID ' + entry.discordMessageId);
@@ -541,7 +566,7 @@ async function createMonthlyReport() {
         movement,
         milestones,
         discordState.existing,
-        { recoveredFromDiscord: true, convoysParticipated: convoys.count, convoyParticipationSource: convoys.source }
+        { recoveredFromDiscord: true, convoysParticipated: convoys.count, convoysWithConfirmedSlot: convoys.confirmedSlotCount, convoyParticipationSource: convoys.source }
       ));
       saveReportState(reportState);
       console.log('Monthly Report state recovered successfully.');
@@ -556,7 +581,7 @@ async function createMonthlyReport() {
   }
 
   reportState.publishedMonths.push(makeStateEntry(period, statistics, activity, movement, milestones, sent,
-    { convoysParticipated: convoys.count, convoyParticipationSource: convoys.source }));
+    { convoysParticipated: convoys.count, convoysWithConfirmedSlot: convoys.confirmedSlotCount, convoyParticipationSource: convoys.source }));
   saveReportState(reportState);
   console.log(`${period.label} Monthly Report published successfully.`);
 }

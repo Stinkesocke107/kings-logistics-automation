@@ -70,4 +70,69 @@ function confirmedKingsConvoysForPeriod(overview, period) {
     undatedConfirmed
   };
 }
-module.exports = { confirmedKingsConvoysForPeriod, eventDateInMonth };
+
+// CEO reporting policy: Every registered Kings convoy that took place counts as
+// participated, even when the Kings slot is not marked confirmed. The Kings
+// Convoy Center and frozen Kings Legacy Calendar are registration records.
+// Cancelled, future, test, undated and unreadable events never become claims.
+function attendedRegisteredConvoysForPeriod(overview, period, now = new Date()) {
+  if (!overview || !Array.isArray(overview.registeredConvoys)) {
+    throw new Error('Fresh Kings Convoy Overview with registeredConvoys is required.');
+  }
+  if (Number(overview.overall?.convoyReadErrors || 0) > 0) {
+    throw new Error('Convoy Overview has read errors; refuse an incomplete monthly participation count.');
+  }
+  const start = new Date(period.start).getTime();
+  const end = new Date(period.end).getTime();
+  const current = new Date(now).getTime();
+  if (![start, end, current].every(Number.isFinite) || start >= end) {
+    throw new Error('Invalid Kings convoy reporting dates.');
+  }
+
+  const events = new Map();
+  let undatedRegistered = 0;
+  let cancelledExcluded = 0;
+  let notYetHeld = 0;
+  for (const event of overview.registeredConvoys) {
+    if (!event || !['convoy-center', 'legacy-calendar'].includes(event.source)) continue;
+    if (/cancelled|canceled/i.test(String(event.status || ''))) {
+      cancelledExcluded++;
+      continue;
+    }
+    // No public TruckersMP roster inference: only existing Kings calendar
+    // entries. Convoy Center records need a linked event or Staff Completed.
+    if (event.source === 'convoy-center' && !event.eventId &&
+        event.status !== 'Completed') continue;
+    const date = eventDateInMonth(event, period);
+    if (!date) { undatedRegistered++; continue; }
+    const t = date.getTime();
+    if (t < start || t >= end) continue;
+    // Wait until the event's calendar date is over if no confirmed actual
+    // completion time exists. Avoid claiming attendance of future events.
+    if (t + 86400000 > current) { notYetHeld++; continue; }
+
+    const id = String(event.eventId || '').trim();
+    const thread = String(event.threadId || event.sourceThreadId || '').trim();
+    if (!id && !thread) throw new Error('Registered Kings convoy is missing a stable event identity.');
+    const platform = String(event.platformId || 'truckersmp').trim().toLowerCase();
+    const key = id ? 'event:' + platform + ':' + id : 'thread:' + thread;
+    const previous = events.get(key);
+    if (!previous || (previous.legacy && !event.legacy)) events.set(key, event);
+  }
+  const values = [...events.values()];
+  return {
+    count: events.size,
+    confirmedSlotCount: values.filter(event => event.confirmedKingsSlot === true).length,
+    source: 'registered-past-kings-convoys',
+    recordIds: [...events.keys()].sort(),
+    undatedRegistered,
+    cancelledExcluded,
+    notYetHeld
+  };
+}
+module.exports = {
+  confirmedKingsConvoysForPeriod,
+  attendedRegisteredConvoysForPeriod,
+  eventDateInMonth
+};
+
