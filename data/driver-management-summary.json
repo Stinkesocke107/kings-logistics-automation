@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-03T16:12:12.844Z",
+  "updatedAt": "2026-11-03T17:28:41.634Z",
   "currentDrivers": 110,
-  "onlineNow": 0,
+  "onlineNow": 2,
   "joinedLast7Days": 3,
   "joinedLast30Days": 5,
   "leftLast7Days": 1,
@@ -23,8 +23,8 @@
     "oneToThreeMonths": 15,
     "threeToSixMonths": 24,
     "sixToTwelveMonths": 29,
-    "oneToTwoYears": 30,
-    "twoToThreeYears": 6,
+    "oneToTwoYears": 29,
+    "twoToThreeYears": 7,
     "threeYearsPlus": 1,
     "unknown": 0,
     "longestServing": [
