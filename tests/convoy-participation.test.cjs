@@ -125,6 +125,37 @@ test('Registration report deduplicates cross-calendar matching events and keeps 
   const otherPlatform={...legacy,platformId:'haulmp',threadId:'haul-thread',confirmedKingsSlot:false};
   const result=registered([legacy,center,otherPlatform]);
   assert.equal(result.count,2);
-  assert.equal(result.confirmedSlotCount,1);
+  assert.equal(result.confirmedSlotCount,0, 'Convoy Center record supersedes older Legacy confirmation for the same event ID');
   assert.equal(result.recordIds.length,2);
+});
+
+
+test('October 2026 frozen Kings Calendar preserves its registered no-slot event',()=>{
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const legacy=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/legacy-convoys.json'),'utf8'));
+  const octoberEntries=legacy.convoys.filter(e=>String(e.eventDate||'').startsWith('2026-10-'));
+  assert.equal(octoberEntries.length,25,'Frozen historical calendar');
+  const normalized=octoberEntries.map(e=>({
+    source:'legacy-calendar',legacy:true,threadId:e.sourceThreadId||e.legacyId,
+    eventId:e.eventId,eventDate:e.eventDate,confirmedKingsSlot:e.confirmedKingsSlot,
+    status:e.status
+  }));
+  const result=registered(normalized);
+  assert.equal(result.count,25,'All 25 Kings October calendar registrations took place');
+  assert.equal(result.confirmedSlotCount,24,'One additional registered October convoy has no confirmed slot');
+});
+
+test('Monthly Report presents total participation and confirmed-slot subset with safe in-place October edit',()=>{
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const src=fs.readFileSync(path.join(__dirname,'../monthly-report-v2.js'),'utf8');
+  const overview=fs.readFileSync(path.join(__dirname,'../convoy-overview.js'),'utf8');
+  assert.match(src,/Convoys Participated: \*\*\$\{convoys.count\}\*\*/);
+  assert.match(src,/With Confirmed Kings Slot: \*\*\$\{convoys.confirmedSlotCount\}\*\*/);
+  assert.match(src,/attendedRegisteredConvoysForPeriod\(overview, period\)/);
+  assert.match(src,/method: 'PATCH'/);
+  assert.match(src,/Existing October report has an unknown\/duplicate convoy section/);
+  assert.match(overview,/registeredConvoys/);
+  assert.match(overview,/registeredConvoys\.push\(convoy\)/);
 });
