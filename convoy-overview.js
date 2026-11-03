@@ -172,6 +172,10 @@ function main() {
   const excludedTestThreads = sourceThreads.length - realThreads.length;
 
   const countedConvoys = [];
+  // All genuine Kings Calendar / Convoy Center registrations, including records
+  // without a confirmed parking slot. Monthly reports use this separate list;
+  // the existing confirmed-slot Overview and reminders remain unchanged.
+  const registeredConvoys = [];
   const months = {};
   const statusCounts = {};
   let undatedCountedConvoys = 0;
@@ -189,7 +193,6 @@ function main() {
     increment(statusCounts, item.status || 'Unknown');
 
     const confirmedKingsSlot = Boolean(item.validation?.checks?.kingsSlotConfirmed);
-    if (!confirmedKingsSlot) continue;
 
     const parsed = item.validation?.parsed || {};
     const eventDate = parsed.eventDate || null;
@@ -231,6 +234,11 @@ function main() {
       game: item.truckersmp?.game || null,
       hostVtc: item.truckersmp?.hostVtc || null
     };
+
+    // A real Convoy Center event link or a positively Completed staff event
+    // establishes a Kings calendar registration; no slot is required.
+    if (eventId || convoy.status === 'Completed') registeredConvoys.push(convoy);
+    if (!confirmedKingsSlot) continue;
 
     countedConvoys.push(convoy);
     confirmedKingsSlots += 1;
@@ -307,6 +315,9 @@ function main() {
       hostVtc: item.hostVtc || item.truckersmp?.hostVtc || null
     };
 
+    // Legacy is a frozen Kings convoy registration calendar, not a general
+    // TruckersMP event search. Keep its unconfirmed entries for monthly counts.
+    registeredConvoys.push(convoy);
     countedConvoys.push(convoy);
     if (status !== 'Legacy Past') legacyActiveConvoys += 1;
     if (confirmedKingsSlot) {
@@ -364,7 +375,10 @@ function main() {
     },
     months,
     upcomingConvoys,
-    countedConvoys
+    countedConvoys,
+    // Dedicated reporting input, never used to send convoy reminders or grant
+    // a confirmed slot. Consumer filters future/cancelled events + deduplicates.
+    registeredConvoys
   };
 
   fs.mkdirSync('output', { recursive: true });
