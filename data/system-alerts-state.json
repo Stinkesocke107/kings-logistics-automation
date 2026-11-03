@@ -33,44 +33,6 @@
       },
       "firstAlertedAt": "2026-11-03T03:41:55.690Z"
     },
-    "workflow-failed:staff-management.yml": {
-      "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management latest completed run ended with failure.",
-      "details": {
-        "runId": 41574004898,
-        "completedAt": "2026-11-03T03:46:01Z"
-      },
-      "firstAlertedAt": "2026-11-03T03:55:23.302Z"
-    },
-    "api-health:TruckersMP VTC members": {
-      "severity": "warning",
-      "system": "API Resilience",
-      "message": "TruckersMP VTC members is degraded after repeated request failures.",
-      "details": {
-        "service": "TruckersMP VTC members",
-        "consecutiveFailures": 1,
-        "lastSuccessAt": "2026-09-29T22:47:08.297Z",
-        "lastFailureAt": "2026-11-03T03:41:26.295Z",
-        "circuitOpenUntil": null,
-        "lastError": "This operation was aborted"
-      },
-      "firstAlertedAt": "2026-11-03T03:55:23.302Z"
-    },
-    "api-health:truckersmp-vtc-members": {
-      "severity": "warning",
-      "system": "API Resilience",
-      "message": "truckersmp-vtc-members is degraded after repeated request failures.",
-      "details": {
-        "service": "truckersmp-vtc-members",
-        "consecutiveFailures": 1,
-        "lastSuccessAt": "2026-09-29T21:45:25.717Z",
-        "lastFailureAt": "2026-11-03T03:45:57.490Z",
-        "circuitOpenUntil": null,
-        "lastError": "This operation was aborted"
-      },
-      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
-    },
     "api-health:truckersmp-vtc-news": {
       "severity": "warning",
       "system": "API Resilience",
@@ -85,17 +47,6 @@
       },
       "firstAlertedAt": "2026-11-03T03:56:52.431Z"
     },
-    "stale-data:data/staff-management-summary.json": {
-      "severity": "warning",
-      "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-10-30T01:56:37.167Z",
-        "ageMinutes": 5880,
-        "maxAgeMinutes": 180
-      },
-      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
-    },
     "workflow-failed:news-production-verification.yml": {
       "severity": "warning",
       "system": "TruckersMP News Verification",
@@ -103,27 +54,6 @@
       "details": {
         "runId": 41574921428,
         "completedAt": "2026-11-03T03:54:16Z"
-      },
-      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
-    },
-    "workflow-failed:news.yml": {
-      "severity": "warning",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News latest completed run ended with failure.",
-      "details": {
-        "runId": 41574789768,
-        "completedAt": "2026-11-03T03:54:04Z"
-      },
-      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
-    },
-    "workflow-overdue:news.yml": {
-      "severity": "warning",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-03T02:39:10Z",
-        "ageMinutes": 77,
-        "maxAgeMinutes": 35
       },
       "firstAlertedAt": "2026-11-03T03:56:52.431Z"
     }
