@@ -3,13 +3,13 @@
   "namespace": "news",
   "service": "truckersmp-vtc-news",
   "healthKey": "news--truckersmp-vtc-news",
-  "status": "healthy",
-  "consecutiveFailures": 0,
+  "status": "degraded",
+  "consecutiveFailures": 1,
   "lastSuccessAt": "2026-10-21T14:39:11.818Z",
   "recoveredAt": "2026-10-21T14:39:11.818Z",
-  "lastError": null,
+  "lastError": "This operation was aborted",
   "circuitOpenUntil": null,
-  "updatedAt": "2026-10-21T14:39:11.818Z",
-  "lastFailureAt": "2026-10-21T14:09:42.441Z",
-  "lastErrorCode": null
+  "updatedAt": "2026-11-03T03:41:46.569Z",
+  "lastFailureAt": "2026-11-03T03:41:46.569Z",
+  "lastErrorCode": "20"
 }
