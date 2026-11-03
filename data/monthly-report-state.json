@@ -1,7 +1,7 @@
 {
   "version": 2,
   "createdAt": "2026-10-01T10:05:59.528Z",
-  "updatedAt": "2026-11-01T21:17:00.290Z",
+  "updatedAt": "2026-11-03T02:38:41.051Z",
   "publishedMonths": [
     {
       "key": "2026-09",
@@ -44,9 +44,10 @@
       "milestones": [],
       "discordMessageId": "1566489510898958407",
       "discordChannelId": "1479853315264217202",
-      "convoysParticipated": 28,
-      "convoyParticipationSource": "confirmed-kings-slot",
-      "convoyParticipationUpdatedAt": "2026-11-01T21:17:00.290Z"
+      "convoysParticipated": 29,
+      "convoyParticipationSource": "registered-past-kings-convoys",
+      "convoyParticipationUpdatedAt": "2026-11-03T02:38:41.051Z",
+      "convoysWithConfirmedSlot": 28
     }
   ]
 }
