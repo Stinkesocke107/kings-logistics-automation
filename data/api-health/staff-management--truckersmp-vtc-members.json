@@ -3,13 +3,13 @@
   "namespace": "staff-management",
   "service": "truckersmp-vtc-members",
   "healthKey": "staff-management--truckersmp-vtc-members",
-  "status": "degraded",
-  "consecutiveFailures": 1,
-  "lastSuccessAt": "2026-09-29T21:45:25.717Z",
-  "recoveredAt": null,
-  "lastError": "This operation was aborted",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-11-03T04:45:34.358Z",
+  "recoveredAt": "2026-11-03T04:45:34.358Z",
+  "lastError": null,
   "circuitOpenUntil": null,
-  "updatedAt": "2026-11-03T03:45:57.491Z",
+  "updatedAt": "2026-11-03T04:45:34.358Z",
   "lastFailureAt": "2026-11-03T03:45:57.490Z",
-  "lastErrorCode": "20"
+  "lastErrorCode": null
 }
