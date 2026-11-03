@@ -3,13 +3,13 @@
   "namespace": "live-systems",
   "service": "truckersmp-map-locations-ats",
   "healthKey": "live-systems--truckersmp-map-locations-ats",
-  "status": "degraded",
-  "consecutiveFailures": 1,
-  "lastSuccessAt": "2026-09-29T22:15:51.866Z",
-  "recoveredAt": null,
-  "lastError": "This operation was aborted",
+  "status": "healthy",
+  "consecutiveFailures": 0,
+  "lastSuccessAt": "2026-11-03T03:54:38.131Z",
+  "recoveredAt": "2026-11-03T03:54:38.131Z",
+  "lastError": null,
   "circuitOpenUntil": null,
-  "updatedAt": "2026-11-03T03:41:23.402Z",
+  "updatedAt": "2026-11-03T03:54:38.131Z",
   "lastFailureAt": "2026-11-03T03:41:23.401Z",
-  "lastErrorCode": "20"
+  "lastErrorCode": null
 }
