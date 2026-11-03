@@ -23,16 +23,84 @@
       },
       "firstAlertedAt": "2026-11-02T22:30:47.926Z"
     },
-    "workflow-failed:convoy-announcement-verifier.yml": {
-      "severity": "warning",
-      "system": "Convoy Announcement Verification",
-      "message": "Convoy Announcement Verification latest completed run ended with skipped.",
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "runId": 41567363434,
-        "completedAt": "2026-11-03T02:38:25Z"
+        "ageMinutes": 62,
+        "latestCount": 24
       },
-      "firstAlertedAt": "2026-11-03T02:42:41.196Z"
+      "firstAlertedAt": "2026-11-03T03:41:55.690Z"
+    },
+    "stale-data:data/live-tracker-snapshot.json": {
+      "severity": "critical",
+      "system": "Live Tracker data",
+      "message": "Live Tracker data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-03T02:38:49.725Z",
+        "ageMinutes": 63,
+        "maxAgeMinutes": 25
+      },
+      "firstAlertedAt": "2026-11-03T03:41:55.690Z"
+    },
+    "stale-data:data/statistics.json": {
+      "severity": "critical",
+      "system": "Statistics data",
+      "message": "Statistics data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-03T02:38:49.989Z",
+        "ageMinutes": 63,
+        "maxAgeMinutes": 35
+      },
+      "firstAlertedAt": "2026-11-03T03:41:55.690Z"
+    },
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
+      "details": {
+        "runId": 41573564337,
+        "completedAt": "2026-11-03T03:41:27Z"
+      },
+      "firstAlertedAt": "2026-11-03T03:41:55.690Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-03T02:38:54Z",
+        "ageMinutes": 62,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-03T03:41:55.690Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "api-health:TruckersMP VTC members": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T03:41:55.690Z",
+      "system": "API Resilience",
+      "message": "TruckersMP VTC members is degraded after repeated request failures."
+    },
+    "api-health:truckersmp-map-locations-ats": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T03:41:55.690Z",
+      "system": "API Resilience",
+      "message": "truckersmp-map-locations-ats is degraded after repeated request failures."
+    },
+    "workflow-failed:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T03:41:55.690Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones latest completed run ended with failure."
+    },
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-03T03:41:55.690Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    }
+  }
 }
