@@ -1,23 +1,23 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-03T17:18:59.047Z",
+  "updatedAt": "2026-11-03T18:33:06.813Z",
   "members": 110,
   "discordMessageId": "1550299096278110219",
-  "online": 2,
-  "ets2Online": 2,
+  "online": 3,
+  "ets2Online": 3,
   "atsOnline": 0,
   "activeServers": [
+    {
+      "game": "ETS2",
+      "name": "Simulation 1",
+      "online": 2,
+      "isEvent": false
+    },
     {
       "game": "ETS2",
       "name": "Enjoy Diwali with TruckersHub",
       "online": 1,
       "isEvent": true
-    },
-    {
-      "game": "ETS2",
-      "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
     }
   ]
 }
