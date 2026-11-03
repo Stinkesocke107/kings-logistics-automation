@@ -3,11 +3,13 @@
   "namespace": "milestones",
   "service": "TruckersMP VTC members",
   "healthKey": "milestones--truckersmp-vtc-members",
-  "status": "healthy",
-  "consecutiveFailures": 0,
+  "status": "degraded",
+  "consecutiveFailures": 1,
   "lastSuccessAt": "2026-09-29T22:47:08.297Z",
   "recoveredAt": null,
-  "lastError": null,
+  "lastError": "This operation was aborted",
   "circuitOpenUntil": null,
-  "updatedAt": "2026-09-29T22:47:08.297Z"
+  "updatedAt": "2026-11-03T03:41:26.295Z",
+  "lastFailureAt": "2026-11-03T03:41:26.295Z",
+  "lastErrorCode": "20"
 }
