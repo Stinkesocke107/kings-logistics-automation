@@ -3,11 +3,13 @@
   "namespace": "driver-management",
   "service": "TruckersMP VTC members",
   "healthKey": "driver-management--truckersmp-vtc-members",
-  "status": "healthy",
-  "consecutiveFailures": 0,
+  "status": "degraded",
+  "consecutiveFailures": 1,
   "lastSuccessAt": "2026-09-29T22:42:47.982Z",
   "recoveredAt": null,
-  "lastError": null,
+  "lastError": "This operation was aborted",
   "circuitOpenUntil": null,
-  "updatedAt": "2026-09-29T22:42:47.983Z"
+  "updatedAt": "2026-11-03T03:41:33.672Z",
+  "lastFailureAt": "2026-11-03T03:41:33.672Z",
+  "lastErrorCode": "20"
 }
