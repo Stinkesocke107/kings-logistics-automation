@@ -33,26 +33,6 @@
       },
       "firstAlertedAt": "2026-11-03T03:41:55.690Z"
     },
-    "workflow-failed:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System latest completed run ended with failure.",
-      "details": {
-        "runId": 41573575278,
-        "completedAt": "2026-11-03T03:44:12Z"
-      },
-      "firstAlertedAt": "2026-11-03T03:55:23.302Z"
-    },
-    "workflow-failed:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management latest completed run ended with failure.",
-      "details": {
-        "runId": 41573586221,
-        "completedAt": "2026-11-03T03:41:37Z"
-      },
-      "firstAlertedAt": "2026-11-03T03:55:23.302Z"
-    },
     "workflow-failed:staff-management.yml": {
       "severity": "critical",
       "system": "Staff Management",
@@ -60,17 +40,6 @@
       "details": {
         "runId": 41574004898,
         "completedAt": "2026-11-03T03:46:01Z"
-      },
-      "firstAlertedAt": "2026-11-03T03:55:23.302Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-03T02:39:27Z",
-        "ageMinutes": 75,
-        "maxAgeMinutes": 45
       },
       "firstAlertedAt": "2026-11-03T03:55:23.302Z"
     },
@@ -88,76 +57,76 @@
       },
       "firstAlertedAt": "2026-11-03T03:55:23.302Z"
     },
-    "workflow-failed:milestones.yml": {
-      "severity": "warning",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones latest completed run ended with failure.",
-      "details": {
-        "runId": 41573570160,
-        "completedAt": "2026-11-03T03:41:29Z"
-      },
-      "firstAlertedAt": "2026-11-03T03:55:23.302Z"
-    },
-    "workflow-overdue:milestones.yml": {
-      "severity": "warning",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-03T02:39:03Z",
-        "ageMinutes": 76,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-03T03:55:23.302Z"
-    }
-  },
-  "pending": {
     "api-health:truckersmp-vtc-members": {
-      "count": 1,
-      "firstSeenAt": "2026-11-03T03:55:23.302Z",
+      "severity": "warning",
       "system": "API Resilience",
-      "message": "truckersmp-vtc-members is degraded after repeated request failures."
+      "message": "truckersmp-vtc-members is degraded after repeated request failures.",
+      "details": {
+        "service": "truckersmp-vtc-members",
+        "consecutiveFailures": 1,
+        "lastSuccessAt": "2026-09-29T21:45:25.717Z",
+        "lastFailureAt": "2026-11-03T03:45:57.490Z",
+        "circuitOpenUntil": null,
+        "lastError": "This operation was aborted"
+      },
+      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
     },
     "api-health:truckersmp-vtc-news": {
-      "count": 1,
-      "firstSeenAt": "2026-11-03T03:55:23.302Z",
+      "severity": "warning",
       "system": "API Resilience",
-      "message": "truckersmp-vtc-news is degraded after repeated request failures."
+      "message": "truckersmp-vtc-news is degraded after repeated request failures.",
+      "details": {
+        "service": "truckersmp-vtc-news",
+        "consecutiveFailures": 2,
+        "lastSuccessAt": "2026-10-21T14:39:11.818Z",
+        "lastFailureAt": "2026-11-03T03:53:59.415Z",
+        "circuitOpenUntil": null,
+        "lastError": "This operation was aborted"
+      },
+      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
     },
     "stale-data:data/staff-management-summary.json": {
-      "count": 1,
-      "firstSeenAt": "2026-11-03T03:55:23.302Z",
+      "severity": "warning",
       "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
+      "message": "Staff Management data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-10-30T01:56:37.167Z",
+        "ageMinutes": 5880,
+        "maxAgeMinutes": 180
+      },
+      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
     },
     "workflow-failed:news-production-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-03T03:55:23.302Z",
+      "severity": "warning",
       "system": "TruckersMP News Verification",
-      "message": "TruckersMP News Verification latest completed run ended with skipped."
+      "message": "TruckersMP News Verification latest completed run ended with skipped.",
+      "details": {
+        "runId": 41574921428,
+        "completedAt": "2026-11-03T03:54:16Z"
+      },
+      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
     },
     "workflow-failed:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-03T03:55:23.302Z",
+      "severity": "warning",
       "system": "TruckersMP News",
-      "message": "TruckersMP News latest completed run ended with failure."
-    },
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-03T03:55:23.302Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
+      "message": "TruckersMP News latest completed run ended with failure.",
+      "details": {
+        "runId": 41574789768,
+        "completedAt": "2026-11-03T03:54:04Z"
+      },
+      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
     },
     "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-03T03:55:23.302Z",
+      "severity": "warning",
       "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
-    },
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-03T03:55:23.302Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "message": "TruckersMP News has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-03T02:39:10Z",
+        "ageMinutes": 77,
+        "maxAgeMinutes": 35
+      },
+      "firstAlertedAt": "2026-11-03T03:56:52.431Z"
     }
-  }
+  },
+  "pending": {}
 }
