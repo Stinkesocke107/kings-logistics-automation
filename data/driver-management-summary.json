@@ -1,15 +1,15 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-04T17:12:08.316Z",
-  "currentDrivers": 110,
+  "updatedAt": "2026-11-04T17:58:25.114Z",
+  "currentDrivers": 111,
   "onlineNow": 1,
-  "joinedLast7Days": 3,
-  "joinedLast30Days": 5,
+  "joinedLast7Days": 4,
+  "joinedLast30Days": 6,
   "leftLast7Days": 1,
   "leftLast30Days": 6,
   "activity": {
-    "grace": 3,
+    "grace": 4,
     "active": 10,
     "approvedLeave": 0,
     "info7Days": 5,
@@ -18,8 +18,8 @@
     "unknown": 0
   },
   "tenure": {
-    "known": 110,
-    "under1Month": 5,
+    "known": 111,
+    "under1Month": 6,
     "oneToThreeMonths": 15,
     "threeToSixMonths": 24,
     "sixToTwelveMonths": 29,
@@ -61,6 +61,12 @@
     ],
     "newestDrivers": [
       {
+        "tmpId": 6403863,
+        "username": "TyrantDiablos",
+        "joinDate": "2026-11-04T17:55:35.000Z",
+        "tenureDays": 0
+      },
+      {
         "tmpId": 3321675,
         "username": "Bohm33d",
         "joinDate": "2026-11-01T06:16:04.000Z",
@@ -83,12 +89,6 @@
         "username": "JONAS (BR277)",
         "joinDate": "2026-10-17T03:18:58.000Z",
         "tenureDays": 18
-      },
-      {
-        "tmpId": 6383526,
-        "username": "AmeristarTruckingCo",
-        "joinDate": "2026-10-14T15:54:13.000Z",
-        "tenureDays": 21
       }
     ]
   },
