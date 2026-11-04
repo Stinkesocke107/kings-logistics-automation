@@ -2,80 +2,17 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
+    "workflow-overdue:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window.",
       "details": {
-        "ageMinutes": 213,
-        "latestCount": 24
+        "latestActivityAt": "2026-11-04T06:59:29Z",
+        "ageMinutes": 563,
+        "maxAgeMinutes": 540
       },
-      "firstAlertedAt": "2026-11-04T14:59:18.739Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-04T14:58:44Z",
-        "ageMinutes": 74,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-11-04T16:13:29.925Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-04T14:58:59Z",
-        "ageMinutes": 74,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-04T16:13:29.925Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-04T14:57:34Z",
-        "ageMinutes": 75,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-04T16:13:29.925Z"
+      "firstAlertedAt": "2026-11-04T16:23:29.150Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-04T16:13:29.925Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
-    },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-04T16:13:29.925Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
-    },
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-04T16:13:29.925Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-04T16:13:29.925Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
-    },
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-04T16:13:29.925Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
