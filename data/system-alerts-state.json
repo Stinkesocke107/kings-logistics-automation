@@ -1,25 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-04T20:04:21Z",
-        "ageMinutes": 625,
-        "maxAgeMinutes": 540
-      },
-      "firstAlertedAt": "2026-11-05T06:30:22.431Z"
-    }
-  },
-  "pending": {
-    "workflow-overdue:probation.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-05T06:31:17.409Z",
-      "system": "Driver Probation",
-      "message": "Driver Probation has not run within the expected time window."
-    }
-  }
+  "active": {},
+  "pending": {}
 }
