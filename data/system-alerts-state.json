@@ -1,6 +1,75 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {}
+  "active": {
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 61,
+        "latestCount": 27
+      },
+      "firstAlertedAt": "2026-11-05T09:33:15.937Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-05T08:36:51Z",
+        "ageMinutes": 55,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-11-05T09:33:15.937Z"
+    },
+    "workflow-overdue:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-05T08:31:46Z",
+        "ageMinutes": 61,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-11-05T09:33:15.937Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-05T08:30:12Z",
+        "ageMinutes": 62,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-11-05T09:33:15.937Z"
+    }
+  },
+  "pending": {
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-05T09:33:15.937Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    },
+    "workflow-overdue:news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-05T09:33:15.937Z",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News has not run within the expected time window."
+    },
+    "workflow-overdue:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-05T09:33:15.937Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview has not run within the expected time window."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-05T09:33:15.937Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
