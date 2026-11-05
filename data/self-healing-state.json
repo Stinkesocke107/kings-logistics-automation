@@ -1,21 +1,10 @@
 {
   "version": 1,
   "mode": "technical-safe-self-healing",
-  "updatedAt": "2026-11-05T09:32:46.056Z",
+  "updatedAt": "2026-11-05T17:36:19.007Z",
   "repairs": {
     "live-tracker": {
       "attempts": [
-        {
-          "at": "2026-11-04T16:13:00.309Z",
-          "outcome": "pending-timeout",
-          "action": "dispatched",
-          "runId": null,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
         {
           "at": "2026-11-05T09:32:26.075Z",
           "outcome": "recovered",
@@ -26,10 +15,21 @@
             "stale-data:data/statistics.json",
             "workflow-overdue:live-tracker.yml"
           ]
+        },
+        {
+          "at": "2026-11-05T17:35:58.699Z",
+          "outcome": "recovered",
+          "action": "dispatched",
+          "runId": 42076114388,
+          "issueIds": [
+            "stale-data:data/live-tracker-snapshot.json",
+            "stale-data:data/statistics.json",
+            "workflow-overdue:live-tracker.yml"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-11-05T09:32:26.075Z",
-      "lastSuccessAt": "2026-11-05T09:32:26.075Z",
+      "lastAttemptAt": "2026-11-05T17:35:58.699Z",
+      "lastSuccessAt": "2026-11-05T17:35:58.699Z",
       "lastFailureAt": "2026-11-04T16:13:00.309Z"
     },
     "driver-updates": {
@@ -42,10 +42,19 @@
           "issueIds": [
             "workflow-overdue:driver-updates.yml"
           ]
+        },
+        {
+          "at": "2026-11-05T17:36:19.007Z",
+          "outcome": "recovered",
+          "action": "dispatched",
+          "runId": 42076204661,
+          "issueIds": [
+            "workflow-overdue:driver-updates.yml"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-11-05T09:32:46.056Z",
-      "lastSuccessAt": "2026-11-05T09:32:46.056Z",
+      "lastAttemptAt": "2026-11-05T17:36:19.007Z",
+      "lastSuccessAt": "2026-11-05T17:36:19.007Z",
       "lastFailureAt": null
     },
     "core-backup": {
