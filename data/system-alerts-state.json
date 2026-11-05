@@ -2,5 +2,12 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-05T12:17:48.372Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
+    }
+  }
 }
