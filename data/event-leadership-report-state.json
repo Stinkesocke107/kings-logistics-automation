@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-11-03T23:57:45.324Z",
+  "updatedAt": "2026-11-05T00:20:43.874Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -67,15 +67,18 @@
       "status": "Needs Information",
       "eventDate": "2027-04-02",
       "meetupTime": "18:00 UTC",
-      "responsibleStaff": "@[ECO] Ginge",
+      "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — 9",
       "missing": [
+        "eventDate",
         "eventType",
-        "responsibleStaff"
+        "meetup",
+        "meetupTime",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1806688800
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1556286126573092965",
@@ -418,6 +421,56 @@
       "duplicateEventId": false,
       "archived": false,
       "eventUnix": 1805554800
+    },
+    {
+      "threadId": "1567582590490247275",
+      "name": "26. March - Kings Logistics x Mileage Riot | 2 Years of Partnership",
+      "eventId": "38746",
+      "status": "Needs Information",
+      "eventDate": "2027-03-26",
+      "meetupTime": "16:30 UTC",
+      "responsibleStaff": null,
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [
+        "eventDate",
+        "eventLink",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "responsibleStaff",
+        "route"
+      ],
+      "duplicateEventId": false,
+      "archived": true,
+      "eventUnix": null
+    },
+    {
+      "threadId": "1567631326905901227",
+      "name": "30. April - The Quick Delivery",
+      "eventId": "38707",
+      "status": "Scheduled",
+      "eventDate": "2027-04-30",
+      "meetupTime": "18:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1809108000
+    },
+    {
+      "threadId": "1567637467178475560",
+      "name": "25. March - The Quick Delivery",
+      "eventId": "38177",
+      "status": "Scheduled",
+      "eventDate": "2027-03-25",
+      "meetupTime": "18:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1805997600
     }
   ],
   "changeLog": [
@@ -1694,6 +1747,121 @@
         "archived": true,
         "eventUnix": null
       }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-05T00:20:43.645Z",
+      "threadId": "1556232587725512724",
+      "name": "02. April - Pink Ribbon VTC",
+      "fields": [
+        "responsibleStaff",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1556232587725512724",
+        "name": "02. April - Pink Ribbon VTC",
+        "eventId": "38211",
+        "status": "Needs Information",
+        "eventDate": "2027-04-02",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "@[ECO] Ginge",
+        "kingsSlot": "Confirmed — 9",
+        "missing": [
+          "eventType",
+          "responsibleStaff"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1806688800
+      },
+      "current": {
+        "threadId": "1556232587725512724",
+        "name": "02. April - Pink Ribbon VTC",
+        "eventId": "38211",
+        "status": "Needs Information",
+        "eventDate": "2027-04-02",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — 9",
+        "missing": [
+          "eventDate",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-11-05T00:20:43.645Z",
+      "threadId": "1567582590490247275",
+      "name": "26. March - Kings Logistics x Mileage Riot | 2 Years of Partnership",
+      "current": {
+        "threadId": "1567582590490247275",
+        "name": "26. March - Kings Logistics x Mileage Riot | 2 Years of Partnership",
+        "eventId": "38746",
+        "status": "Needs Information",
+        "eventDate": "2027-03-26",
+        "meetupTime": "16:30 UTC",
+        "responsibleStaff": null,
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "eventLink",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "responsibleStaff",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-11-05T00:20:43.645Z",
+      "threadId": "1567631326905901227",
+      "name": "30. April - The Quick Delivery",
+      "current": {
+        "threadId": "1567631326905901227",
+        "name": "30. April - The Quick Delivery",
+        "eventId": "38707",
+        "status": "Scheduled",
+        "eventDate": "2027-04-30",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1809108000
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-11-05T00:20:43.645Z",
+      "threadId": "1567637467178475560",
+      "name": "25. March - The Quick Delivery",
+      "current": {
+        "threadId": "1567637467178475560",
+        "name": "25. March - The Quick Delivery",
+        "eventId": "38177",
+        "status": "Scheduled",
+        "eventDate": "2027-03-25",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1805997600
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -1717,7 +1885,8 @@
     "2026-10-30",
     "2026-10-31",
     "2026-11-01",
-    "2026-11-03"
+    "2026-11-03",
+    "2026-11-05"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
