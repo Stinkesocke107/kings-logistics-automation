@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-05T20:16:35.140Z",
+  "updatedAt": "2026-11-05T20:38:58.211Z",
   "currentDrivers": 111,
   "onlineNow": 0,
   "joinedLast7Days": 3,
@@ -82,7 +82,7 @@
         "tmpId": 6368423,
         "username": "Mason111",
         "joinDate": "2026-10-27T20:29:55.000Z",
-        "tenureDays": 8
+        "tenureDays": 9
       },
       {
         "tmpId": 1461015,
