@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-05T20:38:58.211Z",
+  "updatedAt": "2026-11-05T21:26:52.427Z",
   "currentDrivers": 111,
   "onlineNow": 0,
   "joinedLast7Days": 3,
@@ -56,7 +56,7 @@
         "tmpId": 5655769,
         "username": "JackyJack",
         "joinDate": "2024-10-19T21:14:31.000Z",
-        "tenureDays": 746
+        "tenureDays": 747
       }
     ],
     "newestDrivers": [
@@ -76,7 +76,7 @@
         "tmpId": 5036090,
         "username": "stamkour",
         "joinDate": "2026-10-29T21:12:02.000Z",
-        "tenureDays": 6
+        "tenureDays": 7
       },
       {
         "tmpId": 6368423,
