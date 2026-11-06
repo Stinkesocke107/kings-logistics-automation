@@ -25,6 +25,28 @@ test('a recent convoy dry-run does not hide an overdue production run', async ()
   assert.equal(r.latestRun.id, 1);
 });
 
+test('monitor ignores intentionally skipped workflow_run callbacks without hiding actual verifier failures', async () => {
+  const now = new Date().toISOString();
+  const success = {id:1,event:'workflow_run',status:'completed',conclusion:'success',updated_at:now};
+  const skipped = {id:2,event:'workflow_run',status:'completed',conclusion:'skipped',updated_at:now};
+  const config = "{file:'convoy-announcement-verifier.yml',label:'Convoy Verification',maxAgeMinutes:120,severity:'warning'}";
+  const healthy = sandbox('system-monitoring.js', {
+    env:{GITHUB_TOKEN:'fake'}, fetch:async()=>json({workflow_runs:[skipped,success]})
+  });
+  const r = await healthy.run('checkWorkflow('+config+', [])');
+  assert.equal(r.ok,true);
+  assert.equal(r.latestRun.id,1);
+  const failing = sandbox('system-monitoring.js', {
+    env:{GITHUB_TOKEN:'fake'}, fetch:async()=>json({workflow_runs:[
+      {id:3,event:'workflow_run',status:'completed',conclusion:'failure',updated_at:now},
+      skipped,success
+    ]})
+  });
+  const bad = await failing.run('checkWorkflow('+config+', [])');
+  assert.equal(bad.ok,false);
+  assert.ok(bad.reasons.includes('latest-completed-failure'));
+});
+
 test('staff workflow heartbeat accepts unchanged valid state but never a missing state', () => {
   const s = sandbox('system-monitoring.js', {files:{'data/staff-management-summary.json':'{"updatedAt":"2020-01-01"}'}});
   let r = s.run("checkFreshData([], [{file:'staff-management.yml',ok:true}]).find(x=>x.file.includes('staff-management'))");
