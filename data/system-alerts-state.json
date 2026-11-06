@@ -1,17 +1,31 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 82,
-        "latestCount": 27
-      },
-      "firstAlertedAt": "2026-11-06T19:43:09.647Z"
+  "active": {},
+  "pending": {
+    "workflow-failed:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-06T19:44:08.576Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure."
+    },
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-06T19:44:08.576Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
+    },
+    "workflow-overdue:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-06T19:44:08.576Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-06T19:44:08.576Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
-  },
-  "pending": {}
+  }
 }
