@@ -313,6 +313,20 @@ test('Driver public update embeds escape markdown supplied by usernames', () => 
   assert.match(departed.description, /\\_Driver\\_/);
 });
 
+test('Scheduled Loyalty role synchronization runs before TruckersMP achievement notices', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const workflow = fs.readFileSync(path.join(__dirname, '../.github/workflows/driver-achievements.yml'), 'utf8');
+  const achievements = fs.readFileSync(path.join(__dirname, '../driver-achievements.js'), 'utf8');
+  const preflight = workflow.indexOf('- name: Preflight full Kings Driver Loyalty sync');
+  const roleSync = workflow.indexOf('- name: Sync Driver Loyalty Discord roles');
+  const notice = workflow.indexOf('- name: Update Driver Achievements');
+  assert.ok(preflight >= 0 && roleSync > preflight && notice > roleSync, 'Dry-run and live role sync must happen before milestone notices');
+  assert.match(workflow, /if: steps\.loyalty_mode\.outputs\.mode == 'live'/);
+  assert.ok(achievements.includes('TruckersMP milestone reached!'));
+  assert.ok(achievements.includes('Discord role tiers use the Kings Discord join date'));
+});
+
 test('Driver Achievements handles month-end and leap-year anniversaries', () => {
   const s = sandbox('driver-achievements.js');
 
