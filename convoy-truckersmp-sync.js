@@ -108,9 +108,9 @@ function locationLabel(location) {
 function truckersMpUtcInstant(value) {
   const raw = cleanText(value);
   if (!raw) return null;
-  const naiveUtc = /^(\\d{4}-\\d{2}-\\d{2}) (\\d{2}:\\d{2}:\\d{2})$/.exec(raw);
+  const naiveUtc = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})$/.exec(raw);
   const normalized = naiveUtc ? `${naiveUtc[1]}T${naiveUtc[2]}Z` : raw;
-  if (!/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(normalized)) return null;
+  if (!/(?:Z|[+-]\d{2}:\d{2})$/i.test(normalized)) return null;
   const date = new Date(normalized);
   if (Number.isNaN(date.getTime())) return null;
   // Reject invalid calendar dates rather than silently rolling them forward.
