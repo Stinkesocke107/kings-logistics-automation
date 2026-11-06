@@ -460,7 +460,12 @@ async function checkWorkflow(config, issues) {
   // marking unrelated live producers unhealthy. Convoy dry-runs must not count
   // as valid production updates.
   const runs = allRuns.filter((run) => {
-    if (run.event === 'workflow_run') return true;
+    // Workflow-run callbacks deliberately skipped by a verifier's trigger
+    // guard (e.g. a Convoy Checker dry-run) did not execute a health check.
+    // Ignore only those non-executions; genuine completed failures still alert.
+    if (run.event === 'workflow_run') {
+      return !(run.status === 'completed' && run.conclusion === 'skipped');
+    }
     if (run.event === 'schedule') return true;
     if (run.event !== 'workflow_dispatch') return false;
     return config.file !== 'convoy-checker.yml' || /\blive\b/i.test(run.display_title || '');
