@@ -2,16 +2,15 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "latestActivityAt": "2026-11-06T07:26:11Z",
-        "ageMinutes": 602,
-        "maxAgeMinutes": 540
+        "ageMinutes": 82,
+        "latestCount": 27
       },
-      "firstAlertedAt": "2026-11-06T17:28:29.069Z"
+      "firstAlertedAt": "2026-11-06T19:43:09.647Z"
     }
   },
   "pending": {}
