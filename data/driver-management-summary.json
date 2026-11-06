@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-06T17:56:08.159Z",
+  "updatedAt": "2026-11-06T19:42:08.392Z",
   "currentDrivers": 111,
   "onlineNow": 1,
   "joinedLast7Days": 3,
@@ -32,7 +32,7 @@
         "tmpId": 4891248,
         "username": "Stinkesocke107",
         "joinDate": "2023-07-09T19:25:36.000Z",
-        "tenureDays": 1215
+        "tenureDays": 1216
       },
       {
         "tmpId": 5419500,
@@ -44,7 +44,7 @@
         "tmpId": 5318474,
         "username": "Paul Brandt",
         "joinDate": "2024-04-22T19:19:44.000Z",
-        "tenureDays": 927
+        "tenureDays": 928
       },
       {
         "tmpId": 5358213,
