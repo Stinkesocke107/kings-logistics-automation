@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-11-06T00:10:15.476Z",
+  "updatedAt": "2026-11-06T23:43:21.946Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -448,29 +448,39 @@
       "threadId": "1567631326905901227",
       "name": "30. April - The Quick Delivery",
       "eventId": "38707",
-      "status": "Scheduled",
+      "status": "Needs Information",
       "eventDate": "2027-04-30",
       "meetupTime": "18:00 UTC",
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
-      "missing": [],
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1809108000
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1567637467178475560",
       "name": "25. March - The Quick Delivery",
       "eventId": "38177",
-      "status": "Scheduled",
+      "status": "Needs Information",
       "eventDate": "2027-03-25",
       "meetupTime": "18:00 UTC",
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
-      "missing": [],
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1805997600
+      "archived": true,
+      "eventUnix": null
     }
   ],
   "changeLog": [
@@ -1861,6 +1871,92 @@
         "duplicateEventId": false,
         "archived": false,
         "eventUnix": 1805997600
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-06T23:43:21.702Z",
+      "threadId": "1567631326905901227",
+      "name": "30. April - The Quick Delivery",
+      "fields": [
+        "status",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1567631326905901227",
+        "name": "30. April - The Quick Delivery",
+        "eventId": "38707",
+        "status": "Scheduled",
+        "eventDate": "2027-04-30",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1809108000
+      },
+      "current": {
+        "threadId": "1567631326905901227",
+        "name": "30. April - The Quick Delivery",
+        "eventId": "38707",
+        "status": "Needs Information",
+        "eventDate": "2027-04-30",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-06T23:43:21.702Z",
+      "threadId": "1567637467178475560",
+      "name": "25. March - The Quick Delivery",
+      "fields": [
+        "status",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1567637467178475560",
+        "name": "25. March - The Quick Delivery",
+        "eventId": "38177",
+        "status": "Scheduled",
+        "eventDate": "2027-03-25",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1805997600
+      },
+      "current": {
+        "threadId": "1567637467178475560",
+        "name": "25. March - The Quick Delivery",
+        "eventId": "38177",
+        "status": "Needs Information",
+        "eventDate": "2027-03-25",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
       }
     }
   ],
