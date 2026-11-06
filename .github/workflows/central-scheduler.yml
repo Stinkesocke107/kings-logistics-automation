@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml changelog.yml staff-leadership-live-overview.yml convoy-announcement-verifier.yml self-healing.yml probation.yml system-monitoring.yml news-production-verification.yml; do
+          for workflow in live-tracker.yml convoy-checker.yml hr-leadership.yml leadership-dashboard.yml milestones.yml driver-management.yml staff-management.yml driver-updates.yml news.yml changelog.yml staff-leadership-live-overview.yml convoy-announcement-verifier.yml self-healing.yml probation.yml system-monitoring.yml news-production-verification.yml driver-achievements.yml; do
             state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}" --jq '.state')"
             echo "${workflow}: ${state}"
             test "$state" = "active"
@@ -184,6 +184,61 @@ jobs:
             fi
           }
 
+          recover_missed_daily_loyalty() {
+            # GitHub Actions scheduled events may run hours late. When today's
+            # 09:20 UTC live sync still has not completed by 10:20 UTC, use
+            # the existing safe preflight/live job rather than assigning roles
+            # directly from the scheduler.
+            local now due last_sync last_epoch snapshot active latest_completed completed_epoch age
+            now="$(date -u +%s)"
+            due="$(date -u -d "$(date -u +%F) 09:20:00 UTC" +%s)"
+            if [ "$now" -lt "$((due + 3600))" ]; then
+              return 0
+            fi
+
+            # This persisted LIVE summary is the authoritative completion
+            # proof; a successful manual dry-run is not a daily role sync.
+            if ! last_sync="$(gh api --method GET \
+              "repos/${GITHUB_REPOSITORY}/contents/data/driver-loyalty-roles-summary.json" \
+              --jq '.content' | base64 --decode | jq -r 'if .mode == "live" then (.updatedAt // "") else "" end')"; then
+              echo "::warning::Could not verify the persisted Loyalty live summary; skipping recovery safely."
+              return 0
+            fi
+            last_epoch="$(date -u -d "$last_sync" +%s 2>/dev/null || echo 0)"
+            if [ "$last_epoch" -ge "$due" ]; then
+              echo "Driver Loyalty: today's live sync is already recorded."
+              return 0
+            fi
+
+            snapshot="$(managed_run_snapshot driver-achievements.yml)"
+            active="$(active_managed_run "$snapshot")"
+            if [ -n "$active" ]; then
+              local active_id active_status active_created active_epoch
+              IFS='|' read -r active_id active_status active_created <<< "$active"
+              active_epoch="$(date -u -d "$active_created" +%s 2>/dev/null || echo "$now")"
+              age=$(( now - active_epoch ))
+              if [ "$age" -le 2400 ]; then
+                echo "Driver Loyalty: active achievement/sync run ${active_id} (${age}s); no duplicate dispatch."
+                return 0
+              fi
+              echo "::warning::Driver Loyalty run ${active_id} has been active for ${age}s; permitting one bounded recovery attempt."
+            fi
+
+            latest_completed="$(latest_completed_run "$snapshot")"
+            if [ -n "$latest_completed" ]; then
+              completed_epoch="$(date -u -d "$latest_completed" +%s 2>/dev/null || echo "$now")"
+              if [ $((now - completed_epoch)) -lt 3600 ]; then
+                echo "Driver Loyalty: recent run completed; observing one-hour cooldown."
+                return 0
+              fi
+            fi
+            echo "Driver Loyalty: missed daily live sync; dispatching existing safe preflight + role sync + achievement workflow."
+            gh api --method POST \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/driver-achievements.yml/dispatches" \
+              -f ref=main \
+              -f "inputs[role_sync_mode]=live"
+          }
+
           echo "Running short Kings scheduler recovery pass."
 
           force_all=false
@@ -247,6 +302,7 @@ jobs:
             # delayed workflow_run callback must not make news verification
             # disappear while the News fetcher continues successfully.
             dispatch_if_due news-production-verification.yml 4500
+            recover_missed_daily_loyalty
           fi
 
           echo "Scheduler pass complete. No long-running sleep loop remains."
