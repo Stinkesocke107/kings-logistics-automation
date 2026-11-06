@@ -9,6 +9,18 @@ function typeOf(value) {
 function dateFrom(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) ? value : null;
 }
+// TruckersMP supplies UTC timestamps like "2027-03-20 16:00:00" without
+// a timezone suffix. Only this known API format may omit an explicit zone.
+function departureMsFrom(value) {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  const tmpUtc = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})$/.exec(raw);
+  const normalized = tmpUtc ? tmpUtc[1] + 'T' + tmpUtc[2] + 'Z' : raw;
+  if (!/(?:Z|[+-]\d{2}:\d{2})$/i.test(normalized)) return NaN;
+  const timestamp = Date.parse(normalized);
+  if (!Number.isFinite(timestamp)) return NaN;
+  if (tmpUtc && new Date(timestamp).toISOString().slice(0, 19) !== tmpUtc[1] + 'T' + tmpUtc[2]) return NaN;
+  return timestamp;
+}
 function evaluate(input) {
   const records = [], seen = new Set(), unknownTypes = [], missingDepartures = [];
   for (const original of input || []) {
@@ -22,7 +34,7 @@ function evaluate(input) {
     seen.add(key);
     if (!type) { unknownTypes.push({ threadId: original.threadId || null, eventId: original.eventId || null, date }); continue; }
     const rawStart = original.departureAtUtc || original.validation?.parsed?.departureAtUtc;
-    const departureMs = typeof rawStart === 'string' && /(?:Z|[+-]\d\d:\d\d)$/.test(rawStart) ? Date.parse(rawStart) : NaN;
+    const departureMs = departureMsFrom(rawStart);
     if (!Number.isFinite(departureMs)) missingDepartures.push({ threadId: original.threadId || null, eventId: original.eventId || null, date, type });
     records.push({ id: key, threadId: original.threadId || null, name: original.name || null, type, date, departureMs: Number.isFinite(departureMs) ? departureMs : null });
   }

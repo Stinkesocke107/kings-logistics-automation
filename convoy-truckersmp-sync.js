@@ -102,18 +102,30 @@ function locationLabel(location) {
   return city || place || null;
 }
 
-function utcDate(value) {
-  if (!value) return null;
-  const date = new Date(value);
+// TruckersMP API v2 may return UTC timestamps as "YYYY-MM-DD HH:mm:ss"
+// without a literal timezone suffix. Normalize them as UTC, never as the
+// machine's local timezone. Other timestamp formats need an explicit offset.
+function truckersMpUtcInstant(value) {
+  const raw = cleanText(value);
+  if (!raw) return null;
+  const naiveUtc = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})$/.exec(raw);
+  const normalized = naiveUtc ? `${naiveUtc[1]}T${naiveUtc[2]}Z` : raw;
+  if (!/(?:Z|[+-]\d{2}:\d{2})$/i.test(normalized)) return null;
+  const date = new Date(normalized);
   if (Number.isNaN(date.getTime())) return null;
-  return date.toISOString().slice(0, 10);
+  // Reject invalid calendar dates rather than silently rolling them forward.
+  if (naiveUtc && date.toISOString().slice(0, 19) !== `${naiveUtc[1]}T${naiveUtc[2]}`) return null;
+  return date.toISOString();
+}
+
+function utcDate(value) {
+  const timestamp = truckersMpUtcInstant(value);
+  return timestamp ? timestamp.slice(0, 10) : null;
 }
 
 function utcTime(value) {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return `${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')} UTC`;
+  const timestamp = truckersMpUtcInstant(value);
+  return timestamp ? timestamp.slice(11, 16) + ' UTC' : null;
 }
 
 function internalEventType(event) {
@@ -222,7 +234,7 @@ function buildAuthoritativeFields(event) {
     meetup: departure,
     meetupTime: meetingTime,
     departureTime: utcTime(event.start_at),
-    departureAtUtc: cleanText(event.start_at)
+    departureAtUtc: truckersMpUtcInstant(event.start_at)
   };
 }
 
@@ -317,8 +329,8 @@ async function main() {
         language: cleanText(typeof event.language === 'string' ? event.language : event.language?.name),
         departure: event.departure || null,
         arrive: event.arrive || null,
-        meetupAtUtc: cleanText(event.meetup_at),
-        startAtUtc: cleanText(event.start_at),
+        meetupAtUtc: truckersMpUtcInstant(event.meetup_at),
+        startAtUtc: truckersMpUtcInstant(event.start_at),
         hostVtc,
         publicCancelled: publicCancelled(event),
         url: cleanText(event.url) || `https://truckersmp.com/events/${eventId}`,
