@@ -158,4 +158,6 @@ test('Monthly Report presents total participation and confirmed-slot subset with
   assert.match(src,/Existing October report has an unknown\/duplicate convoy section/);
   assert.match(overview,/registeredConvoys/);
   assert.match(overview,/registeredConvoys\.push\(convoy\)/);
+  assert.ok(overview.includes('Tracked Convoys (confirmed-slot Center + Legacy Calendar): **${overview.overall.countedConvoys}**'));
+  assert.ok(overview.includes('Convoys with confirmed Kings slot: **${overview.overall.confirmedKingsSlots}**'));
 });
