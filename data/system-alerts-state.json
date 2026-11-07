@@ -22,6 +22,17 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-07T16:38:39.232Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-07T18:56:42Z",
+        "ageMinutes": 24,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-11-07T19:21:40.173Z"
     }
   },
   "pending": {}
