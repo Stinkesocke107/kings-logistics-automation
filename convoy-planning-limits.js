@@ -52,7 +52,7 @@ function evaluate(input) {
         threadId: original.threadId || null, eventId: eventId || null, date,
         name: original.name || null,
         publicHost: original.truckersmpSync?.ok ? (original.truckersmp?.hostVtc || null) : null,
-        publicEventUrl: /^\\d+$/.test(eventId) ? 'https://truckersmp.com/events/' + eventId : null,
+        publicEventUrl: eventId && [...eventId].every(char => char >= '0' && char <= '9') ? 'https://truckersmp.com/events/' + eventId : null,
         actionRequired: 'Kings Event Staff must confirm Kings / Partner / External classification'
       });
       continue;
