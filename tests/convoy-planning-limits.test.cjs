@@ -46,42 +46,45 @@ test('TruckersMP API timestamps normalize as explicit UTC without local-time amb
 });
 
 
-test('only verified Kings event relationships resolve missing advisory types', () => {
-  const registry = require('../data/convoy-event-type-overrides.json');
-  const rows = Object.entries(registry.events).map(([id,item]) => ({
-    ...entry(id,null,'2027-04-01','2027-04-01T16:00:00Z'),
-    truckersmpSync: {ok:true,authoritative:true},
-    truckersmp: {id:Number(id),hostVtc: item.host}
-  }));
-  const result = evaluate(rows);
-  assert.equal(result.unknownTypes.length,0);
-  assert.equal(result.resolvedEventTypes.length,7);
-  assert.equal(result.resolvedEventTypes.filter(x=>x.type==='Partner Convoy').length,4);
-  assert.equal(result.resolvedEventTypes.filter(x=>x.type==='Kings Convoy').length,1);
-  assert.equal(result.resolvedEventTypes.filter(x=>x.type==='External Convoy').length,2);
-  assert.ok(result.resolvedEventTypes.every(x=>x.source==='verified-kings-event-registry'));
-});
-
-test('wrong host or unverified TruckersMP sync cannot create an invented partner classification', () => {
-  const asEvent = (host,success) => ({
-    ...entry('37926',null,'2027-04-01',null),
-    truckersmpSync:{ok:success,authoritative:success},
-    truckersmp:{id:37926,hostVtc:host}
-  });
-  const result = evaluate([asEvent('Random VTC',true),asEvent('Mileage Riot',false)]);
-  assert.equal(result.resolvedEventTypes.length,0);
-  assert.equal(result.unknownTypes.length,1, 'deduplicated untrusted event still requires staff confirmation');
-  assert.equal(result.counted,0);
-});
-
-test('valid Event Type entered by staff always overrides registry suggestion', () => {
-  const original = {
-    ...entry('37926','External Convoy','2027-04-01','2027-04-01T16:00:00Z'),
+test('public TruckersMP Kings-hosted event resolves missing advisory event type', () => {
+  const record = {
+    ...entry('38746',null,'2027-03-26','2027-03-26T17:00:00Z'),
     truckersmpSync:{ok:true,authoritative:true},
-    truckersmp:{id:37926,hostVtc:'Mileage Riot'}
+    truckersmp:{id:38746,hostVtc:'- Kings Logistics -'}
   };
-  const result=evaluate([original]);
+  const result=evaluate([record]);
+  assert.equal(result.counted,1);
+  assert.equal(result.unknownTypes.length,0);
+  assert.equal(result.months['2027-03'].kings,1);
+  assert.deepEqual(result.resolvedEventTypes,[{
+    threadId:'38746',eventId:'38746',type:'Kings Convoy',
+    source:'truckersmp-authoritative-kings-host'
+  }]);
+});
+
+test('partner/friend distinctions are never guessed from external TruckersMP hosts', () => {
+  const hosts=['Mileage Riot','Twisted Transport','Pink Ribbon Virtual Trucking Company'];
+  const records=hosts.map((host,index)=>({
+    ...entry(String(37926+index),null,'2027-03-26','2027-03-26T17:00:00Z'),
+    truckersmpSync:{ok:true,authoritative:true},
+    truckersmp:{id:37926+index,hostVtc:host}
+  }));
+  const result=evaluate(records);
+  assert.equal(result.counted,0);
   assert.equal(result.resolvedEventTypes.length,0);
-  assert.equal(result.months['2027-04'].external,1);
-  assert.equal(result.months['2027-04'].partner,0);
+  assert.equal(result.unknownTypes.length,3);
+});
+
+test('invalid sync, mismatched event ID, and staff-entered type are never overridden', () => {
+  const base={
+    ...entry('38746',null,'2027-03-26','2027-03-26T17:00:00Z'),
+    truckersmpSync:{ok:true,authoritative:true},
+    truckersmp:{id:38746,hostVtc:'Kings Logistics'}
+  };
+  assert.equal(evaluate([{...base,truckersmpSync:{ok:false,authoritative:false}}]).unknownTypes.length,1);
+  assert.equal(evaluate([{...base,truckersmp:{...base.truckersmp,id:999}}]).unknownTypes.length,1);
+  const manual={...base,validation:{parsed:{eventType:'External Convoy',eventDate:'2027-03-26',departureAtUtc:'2027-03-26T17:00:00Z'}}};
+  const r=evaluate([manual]);
+  assert.equal(r.resolvedEventTypes.length,0);
+  assert.equal(r.months['2027-03'].external,1);
 });
