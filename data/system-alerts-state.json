@@ -1,63 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 50,
-        "latestCount": 27
-      },
-      "firstAlertedAt": "2026-11-07T08:37:07.384Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-07T07:52:56Z",
-        "ageMinutes": 43,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-11-07T08:37:07.384Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-07T07:47:01Z",
-        "ageMinutes": 49,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-07T08:37:07.384Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-07T07:46:36Z",
-        "ageMinutes": 50,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-07T08:37:07.384Z"
-    }
-  },
-  "pending": {
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-07T08:37:07.384Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-07T08:37:07.384Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
-    }
-  }
+  "active": {},
+  "pending": {}
 }
