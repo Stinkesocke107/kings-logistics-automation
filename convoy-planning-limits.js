@@ -2,6 +2,21 @@
 // Pure, advisory-only planning rules. No Discord writes or status changes.
 const LIMITS = Object.freeze({ externalMonthly: 20, externalDaily: 2, partnerDaily: 3, separationMinutes: 120 });
 const TYPES = new Set(['Kings Convoy', 'Partner Convoy', 'External Convoy']);
+const VERIFIED_EVENT_TYPES = require('./data/convoy-event-type-overrides.json');
+function normalizedHost(value) {
+  return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+function trustedEventType(original) {
+  const eventId = String(original?.eventId || '').trim();
+  const record = VERIFIED_EVENT_TYPES.events?.[eventId];
+  const synced = original?.truckersmpSync;
+  const publicEvent = original?.truckersmp;
+  if (!record || !synced?.ok || !synced?.authoritative || !publicEvent) return null;
+  if (String(publicEvent.id || '') !== eventId) return null;
+  if (normalizedHost(publicEvent.hostVtc) !== normalizedHost(record.host)) return null;
+  const type = typeOf(record.type);
+  return type ? { type, eventId, relation: record.relation } : null;
+}
 function typeOf(value) {
   const valueText = String(value || '').trim().toLowerCase();
   return [...TYPES].find(type => type.toLowerCase() === valueText) || null;
@@ -22,16 +37,19 @@ function departureMsFrom(value) {
   return timestamp;
 }
 function evaluate(input) {
-  const records = [], seen = new Set(), unknownTypes = [], missingDepartures = [];
+  const records = [], seen = new Set(), unknownTypes = [], missingDepartures = [], resolvedEventTypes = [];
   for (const original of input || []) {
     if (!original || original.ignored || original.error || original.testThread || /^\s*\[?test\]?(?:\s|[-_:])/i.test(original.name || '')) continue;
     if (/^(Cancelled|Canceled)$/i.test(String(original.status || ''))) continue;
-    const type = typeOf(original.validation?.parsed?.eventType || original.eventType);
+    let type = typeOf(original.validation?.parsed?.eventType || original.eventType);
+    const verified = type ? null : trustedEventType(original);
+    if (verified) type = verified.type;
     const date = dateFrom(original.validation?.parsed?.eventDate || original.eventDate);
     if (!date) continue;
     const key = original.eventId ? 'event:' + String(original.eventId) : 'thread:' + String(original.threadId || original.legacyId || '');
     if (seen.has(key)) continue;
     seen.add(key);
+    if (verified) resolvedEventTypes.push({ threadId: original.threadId || null, eventId: verified.eventId, type: verified.type, relation: verified.relation, source: 'verified-kings-event-registry' });
     if (!type) { unknownTypes.push({ threadId: original.threadId || null, eventId: original.eventId || null, date }); continue; }
     const rawStart = original.departureAtUtc || original.validation?.parsed?.departureAtUtc;
     const departureMs = departureMsFrom(rawStart);
@@ -58,6 +76,6 @@ function evaluate(input) {
   for (let i=0;i<timed.length;i++) for (let j=i+1;j<timed.length && timed[j].departureMs-timed[i].departureMs<LIMITS.separationMinutes*60000;j++) {
     warnings.push({ code: 'departure-under-two-hours', period: timed[i].date, first: timed[i].id, second: timed[j].id, minutesApart: Math.round((timed[j].departureMs-timed[i].departureMs)/60000) });
   }
-  return { version:1, mode:'advisory-only', limits:LIMITS, months, days, warnings, unknownTypes, missingDepartures, counted:records.length };
+  return { version:1, mode:'advisory-only', limits:LIMITS, months, days, warnings, unknownTypes, missingDepartures, resolvedEventTypes, counted:records.length };
 }
 module.exports = { evaluate, typeOf, LIMITS };
