@@ -22,6 +22,16 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-06T21:31:56.506Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 60,
+        "latestCount": 27
+      },
+      "firstAlertedAt": "2026-11-07T01:09:02.953Z"
     }
   },
   "pending": {}
