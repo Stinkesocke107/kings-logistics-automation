@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-07T03:14:48.015Z",
+  "updatedAt": "2026-11-07T06:36:36.092Z",
   "currentDrivers": 111,
   "onlineNow": 0,
   "joinedLast7Days": 2,
@@ -70,7 +70,7 @@
         "tmpId": 3321675,
         "username": "Bohm33d",
         "joinDate": "2026-11-01T06:16:04.000Z",
-        "tenureDays": 5
+        "tenureDays": 6
       },
       {
         "tmpId": 5036090,
@@ -88,7 +88,7 @@
         "tmpId": 1461015,
         "username": "JONAS (BR277)",
         "joinDate": "2026-10-17T03:18:58.000Z",
-        "tenureDays": 20
+        "tenureDays": 21
       }
     ]
   },
