@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-07T20:51:35.890Z",
+  "updatedAt": "2026-11-07T22:18:18.617Z",
   "currentDrivers": 111,
   "onlineNow": 0,
   "joinedLast7Days": 2,
@@ -12,8 +12,8 @@
     "grace": 4,
     "active": 12,
     "approvedLeave": 0,
-    "info7Days": 3,
-    "attention14Days": 4,
+    "info7Days": 2,
+    "attention14Days": 5,
     "hrReview30Days": 88,
     "unknown": 0
   },
@@ -38,7 +38,7 @@
         "tmpId": 5419500,
         "username": "Magierjuwel",
         "joinDate": "2024-03-19T21:42:42.000Z",
-        "tenureDays": 962
+        "tenureDays": 963
       },
       {
         "tmpId": 5318474,
@@ -50,13 +50,13 @@
         "tmpId": 5358213,
         "username": "Taser00700",
         "joinDate": "2024-06-25T21:42:19.000Z",
-        "tenureDays": 864
+        "tenureDays": 865
       },
       {
         "tmpId": 5655769,
         "username": "JackyJack",
         "joinDate": "2024-10-19T21:14:31.000Z",
-        "tenureDays": 748
+        "tenureDays": 749
       }
     ],
     "newestDrivers": [
@@ -76,7 +76,7 @@
         "tmpId": 5036090,
         "username": "stamkour",
         "joinDate": "2026-10-29T21:12:02.000Z",
-        "tenureDays": 8
+        "tenureDays": 9
       },
       {
         "tmpId": 6368423,
