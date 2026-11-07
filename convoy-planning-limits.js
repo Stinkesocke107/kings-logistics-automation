@@ -46,7 +46,17 @@ function evaluate(input) {
     if (seen.has(key)) continue;
     seen.add(key);
     if (verified) resolvedEventTypes.push({ threadId: original.threadId || null, eventId: verified.eventId, type: verified.type, source: 'truckersmp-authoritative-kings-host' });
-    if (!type) { unknownTypes.push({ threadId: original.threadId || null, eventId: original.eventId || null, date }); continue; }
+    if (!type) {
+      const eventId = String(original.eventId || '').trim();
+      unknownTypes.push({
+        threadId: original.threadId || null, eventId: eventId || null, date,
+        name: original.name || null,
+        publicHost: original.truckersmpSync?.ok ? (original.truckersmp?.hostVtc || null) : null,
+        publicEventUrl: /^\\d+$/.test(eventId) ? 'https://truckersmp.com/events/' + eventId : null,
+        actionRequired: 'Kings Event Staff must confirm Kings / Partner / External classification'
+      });
+      continue;
+    }
     const rawStart = original.departureAtUtc || original.validation?.parsed?.departureAtUtc;
     const departureMs = departureMsFrom(rawStart);
     if (!Number.isFinite(departureMs)) missingDepartures.push({ threadId: original.threadId || null, eventId: original.eventId || null, date, type });
