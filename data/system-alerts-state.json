@@ -23,16 +23,15 @@
       },
       "firstAlertedAt": "2026-11-07T16:38:39.232Z"
     },
-    "workflow-overdue:central-scheduler.yml": {
+    "convoy-completeness-stale": {
       "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "latestActivityAt": "2026-11-07T18:56:42Z",
-        "ageMinutes": 24,
-        "maxAgeMinutes": 20
+        "ageMinutes": 61,
+        "latestCount": 27
       },
-      "firstAlertedAt": "2026-11-07T19:21:40.173Z"
+      "firstAlertedAt": "2026-11-07T20:33:24.048Z"
     }
   },
   "pending": {}
