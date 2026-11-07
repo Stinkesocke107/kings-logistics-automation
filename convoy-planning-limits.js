@@ -2,6 +2,17 @@
 // Pure, advisory-only planning rules. No Discord writes or status changes.
 const LIMITS = Object.freeze({ externalMonthly: 20, externalDaily: 2, partnerDaily: 3, separationMinutes: 120 });
 const TYPES = new Set(['Kings Convoy', 'Partner Convoy', 'External Convoy']);
+// A Kings-hosted event is publicly verifiable from the authoritative
+// TruckersMP event's VTC host. Never infer Kings partner/friend status here:
+// private Kings relations cannot be embedded in a public source repository.
+function publiclyVerifiedKingsHost(original) {
+  if (!original?.truckersmpSync?.ok || !original.truckersmpSync.authoritative) return null;
+  const event = original.truckersmp;
+  const eventId = String(original.eventId || '').trim();
+  if (!eventId || !event || String(event.id || '') !== eventId) return null;
+  const normalized = String(event.hostVtc || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return normalized === 'kings logistics' ? { type: 'Kings Convoy', eventId } : null;
+}
 function typeOf(value) {
   const valueText = String(value || '').trim().toLowerCase();
   return [...TYPES].find(type => type.toLowerCase() === valueText) || null;
@@ -22,17 +33,30 @@ function departureMsFrom(value) {
   return timestamp;
 }
 function evaluate(input) {
-  const records = [], seen = new Set(), unknownTypes = [], missingDepartures = [];
+  const records = [], seen = new Set(), unknownTypes = [], missingDepartures = [], resolvedEventTypes = [];
   for (const original of input || []) {
     if (!original || original.ignored || original.error || original.testThread || /^\s*\[?test\]?(?:\s|[-_:])/i.test(original.name || '')) continue;
     if (/^(Cancelled|Canceled)$/i.test(String(original.status || ''))) continue;
-    const type = typeOf(original.validation?.parsed?.eventType || original.eventType);
+    let type = typeOf(original.validation?.parsed?.eventType || original.eventType);
+    const verified = type ? null : publiclyVerifiedKingsHost(original);
+    if (verified) type = verified.type;
     const date = dateFrom(original.validation?.parsed?.eventDate || original.eventDate);
     if (!date) continue;
     const key = original.eventId ? 'event:' + String(original.eventId) : 'thread:' + String(original.threadId || original.legacyId || '');
     if (seen.has(key)) continue;
     seen.add(key);
-    if (!type) { unknownTypes.push({ threadId: original.threadId || null, eventId: original.eventId || null, date }); continue; }
+    if (verified) resolvedEventTypes.push({ threadId: original.threadId || null, eventId: verified.eventId, type: verified.type, source: 'truckersmp-authoritative-kings-host' });
+    if (!type) {
+      const eventId = String(original.eventId || '').trim();
+      unknownTypes.push({
+        threadId: original.threadId || null, eventId: eventId || null, date,
+        name: original.name || null,
+        publicHost: original.truckersmpSync?.ok ? (original.truckersmp?.hostVtc || null) : null,
+        publicEventUrl: eventId && [...eventId].every(char => char >= '0' && char <= '9') ? 'https://truckersmp.com/events/' + eventId : null,
+        actionRequired: 'Kings Event Staff must confirm Kings / Partner / External classification'
+      });
+      continue;
+    }
     const rawStart = original.departureAtUtc || original.validation?.parsed?.departureAtUtc;
     const departureMs = departureMsFrom(rawStart);
     if (!Number.isFinite(departureMs)) missingDepartures.push({ threadId: original.threadId || null, eventId: original.eventId || null, date, type });
@@ -58,6 +82,6 @@ function evaluate(input) {
   for (let i=0;i<timed.length;i++) for (let j=i+1;j<timed.length && timed[j].departureMs-timed[i].departureMs<LIMITS.separationMinutes*60000;j++) {
     warnings.push({ code: 'departure-under-two-hours', period: timed[i].date, first: timed[i].id, second: timed[j].id, minutesApart: Math.round((timed[j].departureMs-timed[i].departureMs)/60000) });
   }
-  return { version:1, mode:'advisory-only', limits:LIMITS, months, days, warnings, unknownTypes, missingDepartures, counted:records.length };
+  return { version:1, mode:'advisory-only', limits:LIMITS, months, days, warnings, unknownTypes, missingDepartures, resolvedEventTypes, counted:records.length };
 }
 module.exports = { evaluate, typeOf, LIMITS };
