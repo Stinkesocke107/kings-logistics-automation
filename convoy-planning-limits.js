@@ -2,20 +2,16 @@
 // Pure, advisory-only planning rules. No Discord writes or status changes.
 const LIMITS = Object.freeze({ externalMonthly: 20, externalDaily: 2, partnerDaily: 3, separationMinutes: 120 });
 const TYPES = new Set(['Kings Convoy', 'Partner Convoy', 'External Convoy']);
-const VERIFIED_EVENT_TYPES = require('./data/convoy-event-type-overrides.json');
-function normalizedHost(value) {
-  return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-}
-function trustedEventType(original) {
-  const eventId = String(original?.eventId || '').trim();
-  const record = VERIFIED_EVENT_TYPES.events?.[eventId];
-  const synced = original?.truckersmpSync;
-  const publicEvent = original?.truckersmp;
-  if (!record || !synced?.ok || !synced?.authoritative || !publicEvent) return null;
-  if (String(publicEvent.id || '') !== eventId) return null;
-  if (normalizedHost(publicEvent.hostVtc) !== normalizedHost(record.host)) return null;
-  const type = typeOf(record.type);
-  return type ? { type, eventId, relation: record.relation } : null;
+// A Kings-hosted event is publicly verifiable from the authoritative
+// TruckersMP event's VTC host. Never infer Kings partner/friend status here:
+// private Kings relations cannot be embedded in a public source repository.
+function publiclyVerifiedKingsHost(original) {
+  if (!original?.truckersmpSync?.ok || !original.truckersmpSync.authoritative) return null;
+  const event = original.truckersmp;
+  const eventId = String(original.eventId || '').trim();
+  if (!eventId || !event || String(event.id || '') !== eventId) return null;
+  const normalized = String(event.hostVtc || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return normalized === 'kings logistics' ? { type: 'Kings Convoy', eventId } : null;
 }
 function typeOf(value) {
   const valueText = String(value || '').trim().toLowerCase();
@@ -42,14 +38,14 @@ function evaluate(input) {
     if (!original || original.ignored || original.error || original.testThread || /^\s*\[?test\]?(?:\s|[-_:])/i.test(original.name || '')) continue;
     if (/^(Cancelled|Canceled)$/i.test(String(original.status || ''))) continue;
     let type = typeOf(original.validation?.parsed?.eventType || original.eventType);
-    const verified = type ? null : trustedEventType(original);
+    const verified = type ? null : publiclyVerifiedKingsHost(original);
     if (verified) type = verified.type;
     const date = dateFrom(original.validation?.parsed?.eventDate || original.eventDate);
     if (!date) continue;
     const key = original.eventId ? 'event:' + String(original.eventId) : 'thread:' + String(original.threadId || original.legacyId || '');
     if (seen.has(key)) continue;
     seen.add(key);
-    if (verified) resolvedEventTypes.push({ threadId: original.threadId || null, eventId: verified.eventId, type: verified.type, relation: verified.relation, source: 'verified-kings-event-registry' });
+    if (verified) resolvedEventTypes.push({ threadId: original.threadId || null, eventId: verified.eventId, type: verified.type, source: 'truckersmp-authoritative-kings-host' });
     if (!type) { unknownTypes.push({ threadId: original.threadId || null, eventId: original.eventId || null, date }); continue; }
     const rawStart = original.departureAtUtc || original.validation?.parsed?.departureAtUtc;
     const departureMs = departureMsFrom(rawStart);
