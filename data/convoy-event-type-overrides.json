@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "scope": "Planning advisory only. Never use this mapping as Driver/Staff approval, parking confirmation, event status or public partnership announcement.",
+  "policy": "These event-specific categories reflect verified Kings relations; an unsupported external host must remain unclassified until confirmed. Explicit valid Staff Event Type has priority.",
+  "events": {
+    "37627": {
+      "type": "Partner Convoy",
+      "host": "POLLITO PIO VTC",
+      "relation": "Official Kings partner"
+    },
+    "37926": {
+      "type": "Partner Convoy",
+      "host": "Mileage Riot",
+      "relation": "Official Kings partner"
+    },
+    "38069": {
+      "type": "Partner Convoy",
+      "host": "Arab Transport VTC",
+      "relation": "Official Kings partner"
+    },
+    "38211": {
+      "type": "External Convoy",
+      "host": "Pink Ribbon Virtual Trucking Company",
+      "relation": "Friendly VTC, not official Kings partner"
+    },
+    "38296": {
+      "type": "Partner Convoy",
+      "host": "Twisted Transport",
+      "relation": "Official Kings partner"
+    },
+    "38346": {
+      "type": "External Convoy",
+      "host": "Pink Ribbon Virtual Trucking Company",
+      "relation": "Friendly VTC, not official Kings partner"
+    },
+    "38746": {
+      "type": "Kings Convoy",
+      "host": "Kings Logistics",
+      "relation": "Kings-hosted joint anniversary convoy"
+    }
+  }
+}
