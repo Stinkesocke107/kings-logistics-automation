@@ -44,3 +44,44 @@ test('TruckersMP API timestamps normalize as explicit UTC without local-time amb
   assert.equal(s.run("truckersMpUtcInstant('2027-02-31 16:00:00')"),null);
   assert.equal(s.run("truckersMpUtcInstant('2027-03-20T16:00:00')"),null);
 });
+
+
+test('only verified Kings event relationships resolve missing advisory types', () => {
+  const registry = require('../data/convoy-event-type-overrides.json');
+  const rows = Object.entries(registry.events).map(([id,item]) => ({
+    ...entry(id,null,'2027-04-01','2027-04-01T16:00:00Z'),
+    truckersmpSync: {ok:true,authoritative:true},
+    truckersmp: {id:Number(id),hostVtc: item.host}
+  }));
+  const result = evaluate(rows);
+  assert.equal(result.unknownTypes.length,0);
+  assert.equal(result.resolvedEventTypes.length,7);
+  assert.equal(result.resolvedEventTypes.filter(x=>x.type==='Partner Convoy').length,4);
+  assert.equal(result.resolvedEventTypes.filter(x=>x.type==='Kings Convoy').length,1);
+  assert.equal(result.resolvedEventTypes.filter(x=>x.type==='External Convoy').length,2);
+  assert.ok(result.resolvedEventTypes.every(x=>x.source==='verified-kings-event-registry'));
+});
+
+test('wrong host or unverified TruckersMP sync cannot create an invented partner classification', () => {
+  const asEvent = (host,success) => ({
+    ...entry('37926',null,'2027-04-01',null),
+    truckersmpSync:{ok:success,authoritative:success},
+    truckersmp:{id:37926,hostVtc:host}
+  });
+  const result = evaluate([asEvent('Random VTC',true),asEvent('Mileage Riot',false)]);
+  assert.equal(result.resolvedEventTypes.length,0);
+  assert.equal(result.unknownTypes.length,1, 'deduplicated untrusted event still requires staff confirmation');
+  assert.equal(result.counted,0);
+});
+
+test('valid Event Type entered by staff always overrides registry suggestion', () => {
+  const original = {
+    ...entry('37926','External Convoy','2027-04-01','2027-04-01T16:00:00Z'),
+    truckersmpSync:{ok:true,authoritative:true},
+    truckersmp:{id:37926,hostVtc:'Mileage Riot'}
+  };
+  const result=evaluate([original]);
+  assert.equal(result.resolvedEventTypes.length,0);
+  assert.equal(result.months['2027-04'].external,1);
+  assert.equal(result.months['2027-04'].partner,0);
+});
