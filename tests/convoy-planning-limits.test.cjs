@@ -88,3 +88,18 @@ test('invalid sync, mismatched event ID, and staff-entered type are never overri
   assert.equal(r.resolvedEventTypes.length,0);
   assert.equal(r.months['2027-03'].external,1);
 });
+
+
+test('unclassified planning events include a public link and staff action, without guessing partnership', () => {
+  const record={
+    ...entry('37926',null,'2026-10-30','2026-10-30T18:00:00Z'),
+    name:'30. October - Unclassified Convoy',
+    truckersmpSync:{ok:true,authoritative:true},
+    truckersmp:{id:37926,hostVtc:'External Event Organizer'}
+  };
+  const result=evaluate([record]);
+  assert.equal(result.unknownTypes.length,1);
+  assert.equal(result.unknownTypes[0].publicEventUrl,'https://truckersmp.com/events/37926');
+  assert.equal(result.unknownTypes[0].publicHost,'External Event Organizer');
+  assert.match(result.unknownTypes[0].actionRequired,/Event Staff/);
+});
