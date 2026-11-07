@@ -1,25 +1,17 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
+  "active": {
     "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-07T13:35:37.972Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
-    },
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-07T13:35:37.972Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    },
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-07T13:35:37.972Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 42377475855,
+        "completedAt": "2026-11-07T13:34:58Z"
+      },
+      "firstAlertedAt": "2026-11-07T13:59:24.881Z"
     }
-  }
+  },
+  "pending": {}
 }
