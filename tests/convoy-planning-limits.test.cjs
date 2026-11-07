@@ -63,7 +63,7 @@ test('public TruckersMP Kings-hosted event resolves missing advisory event type'
 });
 
 test('partner/friend distinctions are never guessed from external TruckersMP hosts', () => {
-  const hosts=['Mileage Riot','Twisted Transport','Pink Ribbon Virtual Trucking Company'];
+  const hosts=['Unrelated VTC A','Other Organization B','Friendly Community C'];
   const records=hosts.map((host,index)=>({
     ...entry(String(37926+index),null,'2027-03-26','2027-03-26T17:00:00Z'),
     truckersmpSync:{ok:true,authoritative:true},
