@@ -22,16 +22,6 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-07T22:28:00.155Z"
-    },
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "severity": "warning",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
-      "details": {
-        "runId": 42430261915,
-        "completedAt": "2026-11-08T00:33:30Z"
-      },
-      "firstAlertedAt": "2026-11-08T00:35:27.548Z"
     }
   },
   "pending": {}
