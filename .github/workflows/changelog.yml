@@ -2,6 +2,10 @@ name: Kings Changelog Publisher
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'data/changelog-queue.json'
   schedule:
     # Publish only explicitly queued changelog entries; empty queue is a no-op.
     - cron: '7,22,37,52 * * * *'
