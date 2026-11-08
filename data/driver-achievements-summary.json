@@ -1,9 +1,9 @@
 {
   "version": 1,
   "mode": "recognition-only",
-  "updatedAt": "2026-11-08T12:00:02.741Z",
-  "currentDrivers": 111,
-  "trackedCurrentDrivers": 111,
+  "updatedAt": "2026-11-08T16:03:16.165Z",
+  "currentDrivers": 112,
+  "trackedCurrentDrivers": 112,
   "counts": {
     "1m": 105,
     "3m": 90,
@@ -14,7 +14,7 @@
     "4y": 0,
     "5y": 0
   },
-  "upcoming30Days": 26,
+  "upcoming30Days": 27,
   "achievements": [
     {
       "id": "1m",
