@@ -1,11 +1,11 @@
 {
   "version": 1,
   "mode": "live",
-  "updatedAt": "2026-11-08T19:10:57.851Z",
-  "currentStaff": 11,
-  "truckersmpCurrentStaff": 12,
+  "updatedAt": "2026-11-08T19:39:37.941Z",
+  "currentStaff": 12,
+  "truckersmpCurrentStaff": 13,
   "crossConfirmedStaff": 5,
-  "sourceMismatches": 13,
+  "sourceMismatches": 15,
   "authority": "discord",
   "truckersmpCrossCheckMode": "advisory-only",
   "crossCheckSources": {
@@ -31,6 +31,12 @@
       "discordUserId": "333239475029409792",
       "username": "Ginge",
       "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
+    },
+    {
+      "type": "staff_joined",
+      "discordUserId": "1117437471203008542",
+      "username": "HEKS",
+      "reason": "discord-authoritative-join-not-confirmed-by-truckersmp"
     },
     {
       "type": "staff_present",
@@ -81,15 +87,20 @@
       "reason": "no-discord-match"
     },
     {
+      "tmpId": 6269537,
+      "username": "The_PerpetuallyMarkedone",
+      "reason": "no-discord-match"
+    },
+    {
       "tmpId": 6383526,
       "username": "AmeristarTruckingCo",
       "reason": "no-discord-match"
     }
   ],
-  "joined": 0,
+  "joined": 1,
   "promotions": 0,
   "left": 0,
-  "published": 0,
+  "published": 1,
   "duplicatesSuppressed": 0,
   "dryRunPosts": 0,
   "baselineCreated": false,
