@@ -2,5 +2,12 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {}
+  "pending": {
+    "workflow-overdue:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-08T08:49:24.236Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview has not run within the expected time window."
+    }
+  }
 }
