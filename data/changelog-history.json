@@ -221,6 +221,231 @@
         }
       ],
       "discordMessageCount": 5
+    },
+    {
+      "id": "S01-KL07",
+      "season": "S01",
+      "number": 7,
+      "publishedAt": "2026-11-08T01:50:02.529Z",
+      "entries": [
+        {
+          "category": "📘 Staff Handbook & Documentation",
+          "text": "Completed a comprehensive update of the Kings Staff Handbook, clarifying responsibilities, conduct, communication and departmental working procedures.",
+          "source": "s01-kl07-2026-11-08-01-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📘 Staff Handbook & Documentation",
+          "text": "Reviewed and improved approximately 40 internal guides and resources across Human Resources, Events, Creative, Driver Services and Development.",
+          "source": "s01-kl07-2026-11-08-01-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📘 Staff Handbook & Documentation",
+          "text": "Standardised guidance for Staff onboarding, departmental cooperation and leadership responsibilities.",
+          "source": "s01-kl07-2026-11-08-01-03",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "👥 Staff Structure & Organisation",
+          "text": "Clarified the existing leadership structure: Operational Staff → Team Lead / Director → Management → Head Management → CEO.",
+          "source": "s01-kl07-2026-11-08-02-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "👥 Staff Structure & Organisation",
+          "text": "Updated departmental role descriptions and improved the separation of operational Staff duties, leadership responsibilities and external community contributions.",
+          "source": "s01-kl07-2026-11-08-02-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "👥 Staff Structure & Organisation",
+          "text": "Reviewed internal task organisation and reporting responsibilities to support clearer accountability across departments.",
+          "source": "s01-kl07-2026-11-08-02-03",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🌍 External Community Roles",
+          "text": "Standardised the external contributor opportunities External Media and Official Streamer for photographers, videographers, content creators and livestreamers who support Kings without joining internal Staff.",
+          "source": "s01-kl07-2026-11-08-03-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🌍 External Community Roles",
+          "text": "Defined clear boundaries for external contributors: these recognition/contributor roles do not provide Staff, Management or administrative authority.",
+          "source": "s01-kl07-2026-11-08-03-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🌍 External Community Roles",
+          "text": "Community application opportunities for External Media, Official Streamer and External event are available through <#1433705423285915668>.",
+          "source": "s01-kl07-2026-11-08-03-03",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📨 External event — Official Role Update",
+          "text": "Standardised our external convoy invitation contributor role under its official name: External event.",
+          "source": "s01-kl07-2026-11-08-04-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📨 External event — Official Role Update",
+          "text": "External event contributors support the distribution of already approved Kings Logistics convoy and event invitations using accurate event information and professional communication.",
+          "source": "s01-kl07-2026-11-08-04-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📨 External event — Official Role Update",
+          "text": "Internal Kings Events Staff retain all event planning, approvals, participation arrangements and final decisions; external contributors do not take over Event Coordinator duties.",
+          "source": "s01-kl07-2026-11-08-04-03",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🏆 Monthly Awards",
+          "text": "Reorganised our regular monthly recognition into four categories: Driver of the Month, Staff of the Month, Recruiter of the Month and Photo of the Month.",
+          "source": "s01-kl07-2026-11-08-05-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🏆 Monthly Awards",
+          "text": "Staff of the Month now recognises contributions across all internal Staff and leadership levels, while Recruiter of the Month remains an independent award.",
+          "source": "s01-kl07-2026-11-08-05-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🏆 Monthly Awards",
+          "text": "Special Excellence Awards remain separate from the regular monthly rotation.",
+          "source": "s01-kl07-2026-11-08-05-03",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🎖️ Driver Loyalty & Achievements",
+          "text": "Improved automatic Discord Loyalty role synchronisation for eligible full Kings Drivers, with milestones at 1, 3 and 6 months and 1, 2, 3, 4 and 5 years.",
+          "source": "s01-kl07-2026-11-08-06-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🎖️ Driver Loyalty & Achievements",
+          "text": "The system checks eligibility, maintains the highest qualifying Loyalty tier and handles outdated cosmetic Loyalty roles without changing Staff or personnel permissions.",
+          "source": "s01-kl07-2026-11-08-06-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🎖️ Driver Loyalty & Achievements",
+          "text": "Improved the order of Loyalty role synchronisation and Achievement notifications, and added safer recovery for delayed daily executions.",
+          "source": "s01-kl07-2026-11-08-06-03",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🎖️ Driver Loyalty & Achievements",
+          "text": "TruckersMP membership Achievements and Discord Loyalty roles use their respective joining dates; milestone levels may therefore differ.",
+          "source": "s01-kl07-2026-11-08-06-04",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🚛 Convoy Tracker & Event Sync",
+          "text": "Improved automated TruckersMP event synchronisation and the validation of convoy event information.",
+          "source": "s01-kl07-2026-11-08-07-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🚛 Convoy Tracker & Event Sync",
+          "text": "Fixed UTC departure-time recognition: the previously false missing-departure warnings were eliminated and the correction was confirmed in a live Convoy Checker run.",
+          "source": "s01-kl07-2026-11-08-07-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🚛 Convoy Tracker & Event Sync",
+          "text": "Improved handling of duplicate, delayed and incomplete event records while preserving authorised event status and slot decisions.",
+          "source": "s01-kl07-2026-11-08-07-03",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📊 Convoy Statistics & Reports",
+          "text": "Improved convoy participation statistics and monthly report counting, including valid participation without a confirmed Kings parking slot.",
+          "source": "s01-kl07-2026-11-08-08-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📊 Convoy Statistics & Reports",
+          "text": "Corrected report labels to distinguish tracked convoy entries, confirmed Kings slots, completed participation, upcoming events and excluded cancellations.",
+          "source": "s01-kl07-2026-11-08-08-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📊 Convoy Statistics & Reports",
+          "text": "Strengthened event-ID deduplication and consistency between Convoy Center records, stored overviews and monthly reporting.",
+          "source": "s01-kl07-2026-11-08-08-03",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📋 Event Classification & Planning",
+          "text": "Improved the planning overview so publicly verified Kings-hosted events can be recognised from authoritative TruckersMP information.",
+          "source": "s01-kl07-2026-11-08-09-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📋 Event Classification & Planning",
+          "text": "Unclassified events now retain useful details such as public host and event reference for authorised Kings Event Staff to review.",
+          "source": "s01-kl07-2026-11-08-09-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "📋 Event Classification & Planning",
+          "text": "Partner and external convoy classifications remain internal Kings decisions and are not automatically guessed from public event names.",
+          "source": "s01-kl07-2026-11-08-09-03",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "💻 Automation, Monitoring & Reliability",
+          "text": "Improved coordination, validation and recovery in the Kings automation infrastructure, including the Driver Loyalty and Convoy systems.",
+          "source": "s01-kl07-2026-11-08-10-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "💻 Automation, Monitoring & Reliability",
+          "text": "Fixed monitoring treatment of intentionally skipped verification callbacks while retaining alerts for genuine failures and overdue workflows.",
+          "source": "s01-kl07-2026-11-08-10-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "💻 Automation, Monitoring & Reliability",
+          "text": "Expanded regression coverage and successfully verified the completed technical corrections through automated system checks.",
+          "source": "s01-kl07-2026-11-08-10-03",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "💻 Automation, Monitoring & Reliability",
+          "text": "Existing safeguards against duplicate work, incorrect role changes and unauthorised personnel actions remain in place.",
+          "source": "s01-kl07-2026-11-08-10-04",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🤝 Partnership Organisation",
+          "text": "After reviewing the separate Partner Discord, decided to return private Partner communication to the Kings Logistics main Discord server to keep the Partner Area more central and convenient.",
+          "source": "s01-kl07-2026-11-08-11-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "🤝 Partnership Organisation",
+          "text": "Clarified the organisational direction for private partner chats, shared partnership information and cooperation with official Kings partners.",
+          "source": "s01-kl07-2026-11-08-11-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "💙 Kings Community",
+          "text": "Updated community-facing explanations of Staff roles, external opportunities, monthly recognition and automated Kings systems for clearer communication.",
+          "source": "s01-kl07-2026-11-08-12-01",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        },
+        {
+          "category": "💙 Kings Community",
+          "text": "Thank you to every Driver, Staff Member, Partner, Supporter and community contributor for supporting the Kings Family and helping Kings Logistics move forward!",
+          "source": "s01-kl07-2026-11-08-12-02",
+          "addedAt": "2026-11-08T01:49:48.445Z"
+        }
+      ],
+      "discordMessageCount": 4
     }
   ]
 }
