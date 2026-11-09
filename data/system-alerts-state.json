@@ -23,41 +23,23 @@
       },
       "firstAlertedAt": "2026-11-09T09:47:32.476Z"
     },
-    "workflow-overdue:central-scheduler.yml": {
+    "convoy-completeness-stale": {
       "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "latestActivityAt": "2026-11-09T10:28:25Z",
-        "ageMinutes": 45,
-        "maxAgeMinutes": 20
+        "ageMinutes": 52,
+        "latestCount": 28
       },
-      "firstAlertedAt": "2026-11-09T11:14:00.692Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-09T10:15:20Z",
-        "ageMinutes": 58,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-09T11:14:00.692Z"
+      "firstAlertedAt": "2026-11-09T11:20:55.726Z"
     }
   },
   "pending": {
-    "workflow-overdue:milestones.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-09T11:14:00.692Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-09T11:14:00.692Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
+      "firstSeenAt": "2026-11-09T11:20:55.726Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     }
   }
 }
