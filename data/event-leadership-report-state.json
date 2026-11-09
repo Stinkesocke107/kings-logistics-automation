@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-11-08T22:50:04.266Z",
+  "updatedAt": "2026-11-09T20:58:19.193Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -1991,7 +1991,8 @@
     "2026-10-05",
     "2026-10-12",
     "2026-10-19",
-    "2026-10-26"
+    "2026-10-26",
+    "2026-11-02"
   ],
   "publishedMonthlyKeys": [
     "2026-09",
@@ -2033,6 +2034,15 @@
       "ready": 0,
       "needsInfo": 17,
       "changes": 15
+    },
+    {
+      "key": "2026-11-02",
+      "publishedAt": "2026-11-09T20:58:19.193Z",
+      "realConvoys": 28,
+      "scheduled": 6,
+      "ready": 0,
+      "needsInfo": 20,
+      "changes": 7
     }
   ],
   "monthlyReports": [
