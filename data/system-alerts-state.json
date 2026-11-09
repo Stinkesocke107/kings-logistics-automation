@@ -1,17 +1,19 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 56,
-        "latestCount": 27
-      },
-      "firstAlertedAt": "2026-11-09T07:13:28.371Z"
+  "active": {},
+  "pending": {
+    "workflow-failed:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-09T07:14:24.823Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure."
+    },
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-09T07:14:24.823Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     }
-  },
-  "pending": {}
+  }
 }
