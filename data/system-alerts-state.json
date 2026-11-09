@@ -22,6 +22,17 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-09T09:47:32.476Z"
+    },
+    "stale-data:data/live-tracker-snapshot.json": {
+      "severity": "critical",
+      "system": "Live Tracker data",
+      "message": "Live Tracker data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-09T21:01:48.210Z",
+        "ageMinutes": 26,
+        "maxAgeMinutes": 25
+      },
+      "firstAlertedAt": "2026-11-09T21:28:08.855Z"
     }
   },
   "pending": {}
