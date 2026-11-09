@@ -22,7 +22,42 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-09T09:47:32.476Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-09T10:28:25Z",
+        "ageMinutes": 45,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-11-09T11:14:00.692Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-09T10:15:20Z",
+        "ageMinutes": 58,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-11-09T11:14:00.692Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-09T11:14:00.692Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    },
+    "workflow-overdue:news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-09T11:14:00.692Z",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News has not run within the expected time window."
+    }
+  }
 }
