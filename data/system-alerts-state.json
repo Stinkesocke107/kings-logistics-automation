@@ -22,24 +22,7 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-09T09:47:32.476Z"
-    },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 52,
-        "latestCount": 28
-      },
-      "firstAlertedAt": "2026-11-09T11:20:55.726Z"
     }
   },
-  "pending": {
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-09T11:20:55.726Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
