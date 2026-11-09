@@ -1,12 +1,12 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-09T11:20:07.225Z",
+  "updatedAt": "2026-11-09T16:27:10.111Z",
   "currentDrivers": 112,
-  "onlineNow": 1,
+  "onlineNow": 0,
   "joinedLast7Days": 3,
   "joinedLast30Days": 8,
-  "leftLast7Days": 2,
+  "leftLast7Days": 1,
   "leftLast30Days": 6,
   "activity": {
     "grace": 6,
@@ -61,16 +61,16 @@
     ],
     "newestDrivers": [
       {
-        "tmpId": 265673,
-        "username": "ItsHarryUK",
-        "joinDate": "2026-11-08T12:13:30.000Z",
-        "tenureDays": 0
-      },
-      {
         "tmpId": 4484416,
         "username": "MrsRing",
         "joinDate": "2026-11-09T10:58:53.000Z",
         "tenureDays": 0
+      },
+      {
+        "tmpId": 265673,
+        "username": "ItsHarryUK",
+        "joinDate": "2026-11-08T12:13:30.000Z",
+        "tenureDays": 1
       },
       {
         "tmpId": 6403863,
