@@ -1,13 +1,17 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-09T06:17:33.694Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
+  "active": {
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 56,
+        "latestCount": 27
+      },
+      "firstAlertedAt": "2026-11-09T07:13:28.371Z"
     }
-  }
+  },
+  "pending": {}
 }
