@@ -22,16 +22,6 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-10T00:31:26.329Z"
-    },
-    "integrity-history-driver-updates-count": {
-      "severity": "warning",
-      "system": "Cross-System Integrity",
-      "message": "Driver History member total (82) differs from Discord Driver Updates (81).",
-      "details": {
-        "difference": 1,
-        "tolerance": 0
-      },
-      "firstAlertedAt": "2026-11-10T00:42:00.460Z"
     }
   },
   "pending": {}
