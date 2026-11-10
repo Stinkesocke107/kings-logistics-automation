@@ -1,31 +1,45 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
-    "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-09T22:45:05.423Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
+  "active": {
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 107,
+        "latestCount": 28
+      },
+      "firstAlertedAt": "2026-11-10T00:31:26.329Z"
     },
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-09T22:45:05.423Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
+    "workflow-failed:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 42714262311,
+        "completedAt": "2026-11-09T22:44:28Z"
+      },
+      "firstAlertedAt": "2026-11-10T00:31:26.329Z"
     },
     "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-09T22:45:05.423Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
-    },
-    "workflow-overdue:self-healing.yml": {
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-08T22:30:32Z",
+        "ageMinutes": 1560,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-11-10T00:31:26.329Z"
+    }
+  },
+  "pending": {
+    "integrity-history-driver-updates-count": {
       "count": 1,
-      "firstSeenAt": "2026-11-09T22:45:05.423Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "firstSeenAt": "2026-11-10T00:31:26.329Z",
+      "system": "Cross-System Integrity",
+      "message": "Driver History member total (82) differs from Discord Driver Updates (81)."
     }
   }
 }
