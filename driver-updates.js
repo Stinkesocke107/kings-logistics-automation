@@ -1457,28 +1457,31 @@ function getProfileUrl(tmpId) {
   return `https://truckersmp.com/user/${tmpId}`;
 }
 
-function driverDisplay(member) {
-  const displayName =
-    escapeMarkdown(
-      member.truckersmpUsername ||
-      member.username ||
-      "Kings Driver"
-    );
+function validDiscordMentionId(member) {
+  // Only genuine Discord snowflakes from the authoritative Driver roster
+  // may create an actual user mention. Never interpolate arbitrary names.
+  const id = String(member?.discordUserId || '').trim();
+  return /^\d{17,20}$/.test(id) ? id : null;
+}
 
-  if (
-    Number.isFinite(
-      Number(
-        member.tmpId
-      )
-    )
-  ) {
-    return `**[${displayName}](${getProfileUrl(Number(member.tmpId))})**`;
+function driverDisplay(member) {
+  const discordId = validDiscordMentionId(member);
+  const displayName = escapeMarkdown(
+    member.truckersmpUsername ||
+    member.username ||
+    'Kings Driver'
+  );
+  const tmpId = Number(member.tmpId);
+  const hasTmpProfile = Number.isSafeInteger(tmpId) && tmpId > 0;
+
+  if (discordId) {
+    // Keep the useful TMP profile as a secondary link, but always name the
+    // actual Discord member first when the authoritative ID is available.
+    return `<@${discordId}>${hasTmpProfile ? ` ([TruckersMP profile](${getProfileUrl(tmpId)}))` : ''}`;
   }
 
-  if (
-    member.discordUserId
-  ) {
-    return `<@${member.discordUserId}>`;
+  if (hasTmpProfile) {
+    return `**[${displayName}](${getProfileUrl(tmpId)})**`;
   }
 
   return `**${displayName}**`;
@@ -1601,6 +1604,17 @@ function buildDriverUpdateEmbed(type, member) {
   return embed;
 }
 
+function buildDriverUpdatePayload(type, member) {
+  const discordId = validDiscordMentionId(member);
+  return {
+    ...(discordId ? { content: `<@${discordId}>` } : {}),
+    embeds: [buildDriverUpdateEmbed(type, member)],
+    // Explicitly permit the one affected user only: never ping everyone,
+    // here, roles, or an ID taken from a profile/name.
+    allowed_mentions: { parse: [], users: discordId ? [discordId] : [] }
+  };
+}
+
 async function sendDiscordMessage(
   payload
 ) {
@@ -1627,7 +1641,19 @@ async function sendDiscordMessage(
         body:
           JSON.stringify({
             ...(typeof payload === 'string' ? { content: payload } : payload),
-            allowed_mentions: { parse: [] }
+            // A mention is allowed only when content is *exactly* the one
+            // validated Discord user token. The caller cannot pass broad pings.
+            allowed_mentions: (() => {
+              const body = typeof payload === 'string' ? { content: payload } : payload;
+              const id = Array.isArray(body?.allowed_mentions?.users) &&
+                body.allowed_mentions.users.length === 1
+                ? String(body.allowed_mentions.users[0]) : null;
+              return {
+                parse: [],
+                users: id && /^\d{17,20}$/.test(id) && body.content === `<@${id}>`
+                  ? [id] : []
+              };
+            })()
           })
       }
     );
@@ -1791,17 +1817,17 @@ async function checkDriverUpdates() {
   // Public updates: welcome, Trial -> Driver, confirmed full Kings exit.
   // Removing an individual Driver/Trial role is never an exit notification.
   for (const member of changes.joined) {
-    await sendDiscordMessage({ embeds: [buildDriverUpdateEmbed('joined', member)] });
+    await sendDiscordMessage(buildDriverUpdatePayload('joined', member));
   }
 
   for (const member of changes.transitions) {
     if (member.oldMembershipRole === 'trial' && member.membershipRole === 'driver') {
-      await sendDiscordMessage({ embeds: [buildDriverUpdateEmbed('promoted', member)] });
+      await sendDiscordMessage(buildDriverUpdatePayload('promoted', member));
     }
   }
 
   for (const member of departurePlan.departures) {
-    await sendDiscordMessage({ embeds: [buildDriverUpdateEmbed('departed', member)] });
+    await sendDiscordMessage(buildDriverUpdatePayload('departed', member));
   }
 
   const detectedAt =

@@ -158,6 +158,44 @@ test('Public Driver Updates use the Kings banner and announce only full departur
   assert.match(source, /appendAnonymousEvents\(history, "leave"/);
 });
 
+test('Driver Updates use verified Discord IDs and allow only that one member mention', async () => {
+  const id = '123456789012345678';
+  const driver = {
+    discordUserId: id, tmpId: 123, username: '@everyone **Example**', membershipRole: 'trial'
+  };
+  const s = sandbox('driver-updates.js', {
+    env: { DRIVER_UPDATES_WEBHOOK_URL: 'https://example.invalid/driver-webhook' },
+    fetch: async () => new Response(null, {status: 204})
+  });
+
+  for (const type of ['joined', 'promoted', 'departed']) {
+    const payload = s.run('buildDriverUpdatePayload('+JSON.stringify(type)+','+JSON.stringify(driver)+')');
+    assert.equal(payload.content, '<@'+id+'>', 'A true user mention must be in message content');
+    assert.match(payload.embeds[0].description, new RegExp('<@'+id+'>'));
+    assert.match(payload.embeds[0].description, /truckersmp\.com\/user\/123/);
+    assert.deepEqual(JSON.parse(JSON.stringify(payload.allowed_mentions)), {parse: [], users:[id]});
+    await s.run('sendDiscordMessage(buildDriverUpdatePayload('+JSON.stringify(type)+','+JSON.stringify(driver)+'))');
+    const sent = JSON.parse(s.calls[s.calls.length-1].options.body);
+    assert.equal(sent.content, '<@'+id+'>');
+    assert.deepEqual(sent.allowed_mentions,{parse:[],users:[id]});
+    assert.equal(sent.embeds.length,1);
+  }
+
+  const withoutId = s.run('buildDriverUpdatePayload("joined",'+JSON.stringify({tmpId:123, username:'Some Driver'})+')');
+  assert.equal(withoutId.content,undefined);
+  assert.match(withoutId.embeds[0].description,/truckersmp\.com\/user\/123/);
+  assert.deepEqual(JSON.parse(JSON.stringify(withoutId.allowed_mentions)),{parse:[],users:[]});
+
+  const unsafeId = s.run('buildDriverUpdatePayload("joined",'+JSON.stringify({discordUserId:'@everyone',tmpId:123,username:'Unsafe Name'})+')');
+  assert.equal(unsafeId.content,undefined);
+  assert.doesNotMatch(unsafeId.embeds[0].description,/<@/);
+  assert.deepEqual(JSON.parse(JSON.stringify(unsafeId.allowed_mentions)),{parse:[],users:[]});
+
+  await s.run('sendDiscordMessage({content:"@everyone",allowed_mentions:{parse:["everyone","roles"],users:["'+id+'"]}})');
+  const forged = JSON.parse(s.calls[s.calls.length-1].options.body);
+  assert.deepEqual(forged.allowed_mentions,{parse:[],users:[]},'Never honor externally supplied broad mentions');
+});
+
 test('Full Kings departure requires no remaining Kings Discord role, not TruckersMP exit', () => {
   const s = sandbox('driver-updates.js');
   const former = {discordUserId:'100100100100100100',tmpId:123,username:'Example',membershipRole:'driver'};
