@@ -1,11 +1,11 @@
 {
   "version": 1,
   "mode": "live",
-  "updatedAt": "2026-11-09T22:43:28.380Z",
-  "currentStaff": 12,
+  "updatedAt": "2026-11-10T00:30:51.868Z",
+  "currentStaff": 11,
   "truckersmpCurrentStaff": 12,
   "crossConfirmedStaff": 5,
-  "sourceMismatches": 14,
+  "sourceMismatches": 13,
   "authority": "discord",
   "truckersmpCrossCheckMode": "advisory-only",
   "crossCheckSources": {
@@ -36,12 +36,6 @@
       "type": "staff_present",
       "discordUserId": "1117437471203008542",
       "username": "HEKS",
-      "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
-    },
-    {
-      "type": "staff_present",
-      "discordUserId": "1045324853156261960",
-      "username": "K 1 T S U N 3",
       "reason": "discord-authoritative-staff-not-confirmed-by-truckersmp"
     },
     {
@@ -94,8 +88,8 @@
   ],
   "joined": 0,
   "promotions": 0,
-  "left": 0,
-  "published": 0,
+  "left": 1,
+  "published": 1,
   "duplicatesSuppressed": 0,
   "dryRunPosts": 0,
   "baselineCreated": false,
