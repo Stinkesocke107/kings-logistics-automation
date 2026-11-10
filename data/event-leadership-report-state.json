@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-11-09T20:58:19.193Z",
+  "updatedAt": "2026-11-10T02:02:13.455Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -481,6 +481,20 @@
       "duplicateEventId": false,
       "archived": true,
       "eventUnix": null
+    },
+    {
+      "threadId": "1569287841605750785",
+      "name": "14. April - Calm Cargo",
+      "eventId": "38479",
+      "status": "Scheduled",
+      "eventDate": "2027-04-14",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1807722000
     }
   ],
   "changeLog": [
@@ -1958,6 +1972,26 @@
         "archived": true,
         "eventUnix": null
       }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-11-10T02:02:13.244Z",
+      "threadId": "1569287841605750785",
+      "name": "14. April - Calm Cargo",
+      "current": {
+        "threadId": "1569287841605750785",
+        "name": "14. April - Calm Cargo",
+        "eventId": "38479",
+        "status": "Scheduled",
+        "eventDate": "2027-04-14",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1807722000
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -1985,7 +2019,8 @@
     "2026-11-05",
     "2026-11-06",
     "2026-11-07",
-    "2026-11-08"
+    "2026-11-08",
+    "2026-11-10"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
