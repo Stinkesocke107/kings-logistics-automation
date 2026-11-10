@@ -2,16 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 107,
-        "latestCount": 28
-      },
-      "firstAlertedAt": "2026-11-10T00:31:26.329Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -32,14 +22,17 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-10T00:31:26.329Z"
+    },
+    "integrity-history-driver-updates-count": {
+      "severity": "warning",
+      "system": "Cross-System Integrity",
+      "message": "Driver History member total (82) differs from Discord Driver Updates (81).",
+      "details": {
+        "difference": 1,
+        "tolerance": 0
+      },
+      "firstAlertedAt": "2026-11-10T00:42:00.460Z"
     }
   },
-  "pending": {
-    "integrity-history-driver-updates-count": {
-      "count": 1,
-      "firstSeenAt": "2026-11-10T00:31:26.329Z",
-      "system": "Cross-System Integrity",
-      "message": "Driver History member total (82) differs from Discord Driver Updates (81)."
-    }
-  }
+  "pending": {}
 }
