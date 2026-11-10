@@ -24,5 +24,18 @@
       "firstAlertedAt": "2026-11-10T00:31:26.329Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-10T06:39:12.384Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with cancelled."
+    },
+    "workflow-failed:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-10T06:39:12.384Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure."
+    }
+  }
 }
