@@ -22,20 +22,27 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-10T00:31:26.329Z"
-    }
-  },
-  "pending": {
+    },
     "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-10T06:39:12.384Z",
+      "severity": "warning",
       "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with cancelled."
+      "message": "Safe Self-Healing latest completed run ended with cancelled.",
+      "details": {
+        "runId": 42769871153,
+        "completedAt": "2026-11-10T06:38:35Z"
+      },
+      "firstAlertedAt": "2026-11-10T06:40:01.648Z"
     },
     "workflow-failed:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-10T06:39:12.384Z",
+      "severity": "warning",
       "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure."
+      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
+      "details": {
+        "runId": 42769862528,
+        "completedAt": "2026-11-10T06:38:58Z"
+      },
+      "firstAlertedAt": "2026-11-10T06:40:01.648Z"
     }
-  }
+  },
+  "pending": {}
 }
