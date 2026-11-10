@@ -1650,7 +1650,7 @@ async function sendDiscordMessage(
                 ? String(body.allowed_mentions.users[0]) : null;
               return {
                 parse: [],
-                users: id && /^\\d{17,20}$/.test(id) && body.content === `<@${id}>`
+                users: id && /^\d{17,20}$/.test(id) && body.content === `<@${id}>`
                   ? [id] : []
               };
             })()
