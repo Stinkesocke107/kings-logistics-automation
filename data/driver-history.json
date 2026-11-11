@@ -1,7 +1,7 @@
 {
   "version": 2,
   "initializedAt": "2026-09-17T22:19:52.000Z",
-  "updatedAt": "2026-11-10T01:29:38.011Z",
+  "updatedAt": "2026-11-11T23:32:26.726Z",
   "currentDrivers": 81,
   "members": [],
   "events": [
@@ -156,6 +156,10 @@
     {
       "type": "leave",
       "occurredAt": "2026-11-10T01:29:38.010Z"
+    },
+    {
+      "type": "role_transition",
+      "occurredAt": "2026-11-11T23:32:26.726Z"
     }
   ]
 }
