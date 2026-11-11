@@ -2,137 +2,24 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
+    "workflow-overdue:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window.",
       "details": {
-        "ageMinutes": 152,
-        "latestCount": 28
+        "latestActivityAt": "2026-11-10T20:01:07Z",
+        "ageMinutes": 595,
+        "maxAgeMinutes": 540
       },
-      "firstAlertedAt": "2026-11-11T05:41:27.590Z"
-    },
-    "stale-data:data/driver-management-summary.json": {
-      "severity": "critical",
-      "system": "Driver Management data",
-      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-11-11T02:45:07.750Z",
-        "ageMinutes": 176,
-        "maxAgeMinutes": 160
-      },
-      "firstAlertedAt": "2026-11-11T05:41:27.590Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-11T03:08:18Z",
-        "ageMinutes": 152,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-11-11T05:41:27.590Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-11T03:08:51Z",
-        "ageMinutes": 152,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-11T05:41:27.590Z"
-    },
-    "workflow-overdue:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-11T02:45:14Z",
-        "ageMinutes": 175,
-        "maxAgeMinutes": 150
-      },
-      "firstAlertedAt": "2026-11-11T05:41:27.590Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-11T03:08:08Z",
-        "ageMinutes": 153,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-11T05:41:27.590Z"
-    },
-    "workflow-overdue:staff-management.yml": {
-      "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-11T03:08:21Z",
-        "ageMinutes": 153,
-        "maxAgeMinutes": 150
-      },
-      "firstAlertedAt": "2026-11-11T05:41:27.590Z"
+      "firstAlertedAt": "2026-11-11T05:56:33.199Z"
     }
   },
   "pending": {
-    "stale-data:data/staff-management-summary.json": {
+    "workflow-failed:system-monitoring.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-11T05:41:27.590Z",
-      "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
-    },
-    "workflow-overdue:changelog.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-11T05:41:27.590Z",
-      "system": "Changelog Publisher",
-      "message": "Changelog Publisher has not run within the expected time window."
-    },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-11T05:41:27.590Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
-    },
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-11T05:41:27.590Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news-production-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-11T05:41:27.590Z",
-      "system": "TruckersMP News Verification",
-      "message": "TruckersMP News Verification has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-11T05:41:27.590Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
-    },
-    "workflow-overdue:probation.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-11T05:41:27.590Z",
-      "system": "Driver Probation",
-      "message": "Driver Probation has not run within the expected time window."
-    },
-    "workflow-overdue:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-11T05:41:27.590Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview has not run within the expected time window."
-    },
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-11T05:41:27.590Z",
+      "firstSeenAt": "2026-11-11T05:56:33.199Z",
       "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
+      "message": "System Monitoring latest completed run ended with cancelled."
     }
   }
 }
