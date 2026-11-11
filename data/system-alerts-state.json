@@ -11,7 +11,83 @@
         "latestCount": 28
       },
       "firstAlertedAt": "2026-11-11T10:51:05.587Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-11T10:53:59Z",
+        "ageMinutes": 125,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-11-11T13:00:06.898Z"
+    },
+    "workflow-overdue:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-11T10:51:06Z",
+        "ageMinutes": 128,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-11-11T13:00:06.898Z"
+    },
+    "workflow-overdue:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-11T10:50:21Z",
+        "ageMinutes": 129,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-11-11T13:00:06.898Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-11T13:00:06.898Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:changelog.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-11T13:00:06.898Z",
+      "system": "Changelog Publisher",
+      "message": "Changelog Publisher has not run within the expected time window."
+    },
+    "workflow-overdue:convoy-announcement-verifier.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-11T13:00:06.898Z",
+      "system": "Convoy Announcement Verification",
+      "message": "Convoy Announcement Verification has not run within the expected time window."
+    },
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-11T13:00:06.898Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    },
+    "workflow-overdue:news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-11T13:00:06.898Z",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News has not run within the expected time window."
+    },
+    "workflow-overdue:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-11T13:00:06.898Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview has not run within the expected time window."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-11T13:00:06.898Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
