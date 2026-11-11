@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-11T10:49:38.894Z",
+  "updatedAt": "2026-11-11T13:56:25.849Z",
   "currentDrivers": 111,
-  "onlineNow": 0,
+  "onlineNow": 2,
   "joinedLast7Days": 3,
   "joinedLast30Days": 8,
   "leftLast7Days": 2,
@@ -64,13 +64,13 @@
         "tmpId": 4484416,
         "username": "MrsRing",
         "joinDate": "2026-11-09T10:58:53.000Z",
-        "tenureDays": 1
+        "tenureDays": 2
       },
       {
         "tmpId": 265673,
         "username": "ItsHarryUK",
         "joinDate": "2026-11-08T12:13:30.000Z",
-        "tenureDays": 2
+        "tenureDays": 3
       },
       {
         "tmpId": 6403863,
