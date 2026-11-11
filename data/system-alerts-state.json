@@ -1,17 +1,19 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled.",
-      "details": {
-        "runId": 43033577459,
-        "completedAt": "2026-11-11T13:57:04Z"
-      },
-      "firstAlertedAt": "2026-11-11T13:57:38.857Z"
+  "active": {},
+  "pending": {
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-11T14:12:41.687Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-11T14:12:41.687Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
-  },
-  "pending": {}
+  }
 }
