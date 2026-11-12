@@ -22,14 +22,28 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-12T07:58:08.806Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-12T22:28:25Z",
+        "ageMinutes": 24,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-11-12T22:52:55.976Z"
+    },
+    "integrity-history-driver-updates-count": {
+      "severity": "warning",
+      "system": "Cross-System Integrity",
+      "message": "Driver History member total (81) differs from Discord Driver Updates (79).",
+      "details": {
+        "difference": 2,
+        "tolerance": 0
+      },
+      "firstAlertedAt": "2026-11-12T22:52:55.976Z"
     }
   },
-  "pending": {
-    "integrity-history-driver-updates-count": {
-      "count": 1,
-      "firstSeenAt": "2026-11-12T22:28:55.904Z",
-      "system": "Cross-System Integrity",
-      "message": "Driver History member total (81) differs from Discord Driver Updates (79)."
-    }
-  }
+  "pending": {}
 }
