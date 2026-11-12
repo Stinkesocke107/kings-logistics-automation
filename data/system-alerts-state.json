@@ -22,63 +22,7 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-12T07:58:08.806Z"
-    },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 60,
-        "latestCount": 30
-      },
-      "firstAlertedAt": "2026-11-12T17:44:26.364Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-12T16:51:02Z",
-        "ageMinutes": 52,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-11-12T17:44:26.364Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-12T16:44:26Z",
-        "ageMinutes": 59,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-12T17:44:26.364Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-12T16:43:46Z",
-        "ageMinutes": 60,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-12T17:44:26.364Z"
     }
   },
-  "pending": {
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-12T17:44:26.364Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-12T17:44:26.364Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
