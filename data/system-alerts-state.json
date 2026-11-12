@@ -24,12 +24,5 @@
       "firstAlertedAt": "2026-11-12T07:58:08.806Z"
     }
   },
-  "pending": {
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-12T20:28:22.444Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
