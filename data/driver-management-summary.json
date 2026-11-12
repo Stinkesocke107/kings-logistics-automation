@@ -1,18 +1,18 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-12T16:43:47.042Z",
+  "updatedAt": "2026-11-12T18:12:26.808Z",
   "currentDrivers": 111,
   "onlineNow": 0,
-  "joinedLast7Days": 3,
+  "joinedLast7Days": 2,
   "joinedLast30Days": 8,
   "leftLast7Days": 2,
   "leftLast30Days": 7,
   "activity": {
     "grace": 5,
-    "active": 16,
+    "active": 15,
     "approvedLeave": 0,
-    "info7Days": 3,
+    "info7Days": 4,
     "attention14Days": 6,
     "hrReview30Days": 81,
     "unknown": 0
@@ -76,7 +76,7 @@
         "tmpId": 6403863,
         "username": "TyrantDiablos",
         "joinDate": "2026-11-04T17:55:35.000Z",
-        "tenureDays": 7
+        "tenureDays": 8
       },
       {
         "tmpId": 3321675,
