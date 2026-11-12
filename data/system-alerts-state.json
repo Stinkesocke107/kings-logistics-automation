@@ -23,26 +23,15 @@
       },
       "firstAlertedAt": "2026-11-12T07:58:08.806Z"
     },
-    "workflow-overdue:central-scheduler.yml": {
+    "convoy-completeness-stale": {
       "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "latestActivityAt": "2026-11-12T22:28:25Z",
-        "ageMinutes": 24,
-        "maxAgeMinutes": 20
+        "ageMinutes": 72,
+        "latestCount": 30
       },
-      "firstAlertedAt": "2026-11-12T22:52:55.976Z"
-    },
-    "integrity-history-driver-updates-count": {
-      "severity": "warning",
-      "system": "Cross-System Integrity",
-      "message": "Driver History member total (81) differs from Discord Driver Updates (79).",
-      "details": {
-        "difference": 2,
-        "tolerance": 0
-      },
-      "firstAlertedAt": "2026-11-12T22:52:55.976Z"
+      "firstAlertedAt": "2026-11-12T23:40:41.964Z"
     }
   },
   "pending": {}
