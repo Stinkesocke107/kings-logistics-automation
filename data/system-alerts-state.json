@@ -2,16 +2,41 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "convoy-completeness-stale": {
+    "stale-data:data/live-tracker-snapshot.json": {
       "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "system": "Live Tracker data",
+      "message": "Live Tracker data is stale or has no valid updatedAt timestamp.",
       "details": {
-        "ageMinutes": 95,
-        "latestCount": 30
+        "updatedAt": "2026-11-13T10:20:19.588Z",
+        "ageMinutes": 26,
+        "maxAgeMinutes": 25
       },
-      "firstAlertedAt": "2026-11-13T10:21:21.328Z"
+      "firstAlertedAt": "2026-11-13T10:46:31.917Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-13T10:20:56Z",
+        "ageMinutes": 25,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-11-13T10:46:31.917Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-13T10:46:31.917Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-13T10:46:31.917Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
