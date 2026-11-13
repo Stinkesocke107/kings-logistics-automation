@@ -1,15 +1,15 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-13T11:38:33.524Z",
-  "currentDrivers": 111,
+  "updatedAt": "2026-11-13T15:20:20.423Z",
+  "currentDrivers": 110,
   "onlineNow": 0,
-  "joinedLast7Days": 2,
-  "joinedLast30Days": 8,
-  "leftLast7Days": 3,
-  "leftLast30Days": 8,
+  "joinedLast7Days": 1,
+  "joinedLast30Days": 7,
+  "leftLast7Days": 4,
+  "leftLast30Days": 9,
   "activity": {
-    "grace": 4,
+    "grace": 3,
     "active": 15,
     "approvedLeave": 0,
     "info7Days": 5,
@@ -18,10 +18,10 @@
     "unknown": 0
   },
   "tenure": {
-    "known": 111,
-    "under1Month": 8,
-    "oneToThreeMonths": 12,
-    "threeToSixMonths": 25,
+    "known": 110,
+    "under1Month": 7,
+    "oneToThreeMonths": 10,
+    "threeToSixMonths": 27,
     "sixToTwelveMonths": 31,
     "oneToTwoYears": 27,
     "twoToThreeYears": 7,
@@ -61,16 +61,10 @@
     ],
     "newestDrivers": [
       {
-        "tmpId": 539725,
-        "username": "rambo2",
-        "joinDate": "2026-11-12T21:34:42.000Z",
-        "tenureDays": 0
-      },
-      {
         "tmpId": 265673,
         "username": "ItsHarryUK",
         "joinDate": "2026-11-08T12:13:30.000Z",
-        "tenureDays": 4
+        "tenureDays": 5
       },
       {
         "tmpId": 6403863,
@@ -89,6 +83,12 @@
         "username": "stamkour",
         "joinDate": "2026-10-29T21:12:02.000Z",
         "tenureDays": 14
+      },
+      {
+        "tmpId": 6368423,
+        "username": "Mason111",
+        "joinDate": "2026-10-27T20:29:55.000Z",
+        "tenureDays": 16
       }
     ]
   },
