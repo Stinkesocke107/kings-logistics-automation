@@ -1,18 +1,18 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-13T17:55:34.804Z",
+  "updatedAt": "2026-11-13T20:00:10.580Z",
   "currentDrivers": 110,
-  "onlineNow": 1,
+  "onlineNow": 0,
   "joinedLast7Days": 1,
   "joinedLast30Days": 7,
   "leftLast7Days": 4,
   "leftLast30Days": 9,
   "activity": {
     "grace": 3,
-    "active": 15,
+    "active": 14,
     "approvedLeave": 0,
-    "info7Days": 4,
+    "info7Days": 5,
     "attention14Days": 6,
     "hrReview30Days": 82,
     "unknown": 0
@@ -21,8 +21,8 @@
     "known": 110,
     "under1Month": 6,
     "oneToThreeMonths": 11,
-    "threeToSixMonths": 27,
-    "sixToTwelveMonths": 31,
+    "threeToSixMonths": 25,
+    "sixToTwelveMonths": 33,
     "oneToTwoYears": 27,
     "twoToThreeYears": 7,
     "threeYearsPlus": 1,
@@ -32,7 +32,7 @@
         "tmpId": 4891248,
         "username": "Stinkesocke107",
         "joinDate": "2023-07-09T19:25:36.000Z",
-        "tenureDays": 1222
+        "tenureDays": 1223
       },
       {
         "tmpId": 5419500,
@@ -44,7 +44,7 @@
         "tmpId": 5318474,
         "username": "Paul Brandt",
         "joinDate": "2024-04-22T19:19:44.000Z",
-        "tenureDays": 934
+        "tenureDays": 935
       },
       {
         "tmpId": 5358213,
