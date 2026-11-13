@@ -12,24 +12,14 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-13T17:56:28.868Z"
-    },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 77,
-        "latestCount": 30
-      },
-      "firstAlertedAt": "2026-11-13T20:00:54.004Z"
     }
   },
   "pending": {
-    "workflow-failed:system-monitoring.yml": {
+    "workflow-failed:final-freeze-verification.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-13T20:01:20.999Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
+      "firstSeenAt": "2026-11-13T20:03:34.917Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure."
     }
   }
 }
