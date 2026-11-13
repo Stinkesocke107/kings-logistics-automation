@@ -12,14 +12,27 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-13T17:56:28.868Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 100,
+        "latestCount": 30
+      },
+      "firstAlertedAt": "2026-11-13T21:41:03.141Z"
+    },
+    "workflow-failed:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 43497738433,
+        "completedAt": "2026-11-13T20:02:57Z"
+      },
+      "firstAlertedAt": "2026-11-13T21:41:03.141Z"
     }
   },
-  "pending": {
-    "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-13T20:03:34.917Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
