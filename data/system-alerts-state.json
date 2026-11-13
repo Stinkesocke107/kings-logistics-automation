@@ -23,15 +23,15 @@
       },
       "firstAlertedAt": "2026-11-12T07:58:08.806Z"
     },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure.",
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "runId": 43355047130,
-        "completedAt": "2026-11-13T02:52:26Z"
+        "ageMinutes": 46,
+        "latestCount": 30
       },
-      "firstAlertedAt": "2026-11-13T02:59:08.089Z"
+      "firstAlertedAt": "2026-11-13T03:38:29.948Z"
     }
   },
   "pending": {}
