@@ -2,24 +2,5 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-13T11:37:51.555Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    },
-    "workflow-overdue:probation.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-13T11:37:51.555Z",
-      "system": "Driver Probation",
-      "message": "Driver Probation has not run within the expected time window."
-    },
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-13T11:37:51.555Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
