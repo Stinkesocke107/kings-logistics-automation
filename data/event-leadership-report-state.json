@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-11-12T01:29:44.435Z",
+  "updatedAt": "2026-11-13T00:15:53.123Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -488,6 +488,41 @@
       "eventId": "38479",
       "status": "Needs Information",
       "eventDate": "2027-04-14",
+      "meetupTime": "17:00 UTC",
+      "responsibleStaff": "<@333239475029409792>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
+      "duplicateEventId": false,
+      "archived": true,
+      "eventUnix": null
+    },
+    {
+      "threadId": "1570476476468306053",
+      "name": "18. April - I Fora Logistics",
+      "eventId": "38499",
+      "status": "Needs Information",
+      "eventDate": "2027-04-18",
+      "meetupTime": "18:30 UTC",
+      "responsibleStaff": "@[ECO] Ginge",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [
+        "responsibleStaff"
+      ],
+      "duplicateEventId": false,
+      "archived": false,
+      "eventUnix": 1808073000
+    },
+    {
+      "threadId": "1570477483151593594",
+      "name": "31. March - Ghost Express",
+      "eventId": "38626",
+      "status": "Needs Information",
+      "eventDate": "2027-03-31",
       "meetupTime": "17:00 UTC",
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
@@ -2040,6 +2075,53 @@
         "archived": true,
         "eventUnix": null
       }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-11-13T00:15:52.870Z",
+      "threadId": "1570476476468306053",
+      "name": "18. April - I Fora Logistics",
+      "current": {
+        "threadId": "1570476476468306053",
+        "name": "18. April - I Fora Logistics",
+        "eventId": "38499",
+        "status": "Needs Information",
+        "eventDate": "2027-04-18",
+        "meetupTime": "18:30 UTC",
+        "responsibleStaff": "@[ECO] Ginge",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "responsibleStaff"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1808073000
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-11-13T00:15:52.870Z",
+      "threadId": "1570477483151593594",
+      "name": "31. March - Ghost Express",
+      "current": {
+        "threadId": "1570477483151593594",
+        "name": "31. March - Ghost Express",
+        "eventId": "38626",
+        "status": "Needs Information",
+        "eventDate": "2027-03-31",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -2070,7 +2152,8 @@
     "2026-11-08",
     "2026-11-10",
     "2026-11-11",
-    "2026-11-12"
+    "2026-11-12",
+    "2026-11-13"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
