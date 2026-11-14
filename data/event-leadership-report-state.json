@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-11-13T00:15:53.123Z",
+  "updatedAt": "2026-11-14T00:19:35.678Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -230,13 +230,17 @@
       "responsibleStaff": "<@1299456550523506743>",
       "kingsSlot": null,
       "missing": [
+        "eventDate",
         "eventType",
         "imageProof",
-        "kingsSlotConfirmed"
+        "kingsSlotConfirmed",
+        "meetup",
+        "meetupTime",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1794243600
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1561398997841870909",
@@ -2122,6 +2126,55 @@
         "archived": true,
         "eventUnix": null
       }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-14T00:19:35.418Z",
+      "threadId": "1559917674442658012",
+      "name": "9. November - THE ORIGINAL",
+      "fields": [
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1559917674442658012",
+        "name": "9. November - THE ORIGINAL",
+        "eventId": "33246",
+        "status": "Needs Information",
+        "eventDate": "2026-11-09",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@1299456550523506743>",
+        "kingsSlot": null,
+        "missing": [
+          "eventType",
+          "imageProof",
+          "kingsSlotConfirmed"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1794243600
+      },
+      "current": {
+        "threadId": "1559917674442658012",
+        "name": "9. November - THE ORIGINAL",
+        "eventId": "33246",
+        "status": "Needs Information",
+        "eventDate": "2026-11-09",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@1299456550523506743>",
+        "kingsSlot": null,
+        "missing": [
+          "eventDate",
+          "eventType",
+          "imageProof",
+          "kingsSlotConfirmed",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -2153,7 +2206,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-14"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
