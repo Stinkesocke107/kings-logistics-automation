@@ -22,7 +22,74 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-14T08:19:46.998Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 50,
+        "latestCount": 30
+      },
+      "firstAlertedAt": "2026-11-14T16:46:20.357Z"
+    },
+    "workflow-failed:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler latest completed run ended with failure.",
+      "details": {
+        "runId": 43617269407,
+        "completedAt": "2026-11-14T16:45:02Z"
+      },
+      "firstAlertedAt": "2026-11-14T16:46:20.357Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-14T16:09:23Z",
+        "ageMinutes": 36,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-11-14T16:46:20.357Z"
+    },
+    "workflow-overdue:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-14T15:56:23Z",
+        "ageMinutes": 49,
+        "maxAgeMinutes": 45
+      },
+      "firstAlertedAt": "2026-11-14T16:46:20.357Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:milestones.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-14T16:46:20.357Z",
+      "system": "VTC Milestones",
+      "message": "VTC Milestones has not run within the expected time window."
+    },
+    "workflow-overdue:news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-14T16:46:20.357Z",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News has not run within the expected time window."
+    },
+    "workflow-overdue:probation.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-14T16:46:20.357Z",
+      "system": "Driver Probation",
+      "message": "Driver Probation has not run within the expected time window."
+    },
+    "workflow-overdue:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-14T16:46:20.357Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview has not run within the expected time window."
+    }
+  }
 }
