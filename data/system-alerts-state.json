@@ -12,16 +12,6 @@
       },
       "firstAlertedAt": "2026-11-14T22:50:46.573Z"
     },
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure.",
-      "details": {
-        "runId": 43649726040,
-        "completedAt": "2026-11-14T22:46:21Z"
-      },
-      "firstAlertedAt": "2026-11-14T22:50:46.573Z"
-    },
     "workflow-overdue:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
