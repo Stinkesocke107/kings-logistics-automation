@@ -1,45 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-13T07:20:15Z",
-        "ageMinutes": 635,
-        "maxAgeMinutes": 540
-      },
-      "firstAlertedAt": "2026-11-13T17:56:28.868Z"
-    },
-    "workflow-failed:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure.",
-      "details": {
-        "runId": 43497738433,
-        "completedAt": "2026-11-13T20:02:57Z"
-      },
-      "firstAlertedAt": "2026-11-13T21:41:03.141Z"
-    },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 100,
-        "latestCount": 30
-      },
-      "firstAlertedAt": "2026-11-14T06:07:39.901Z"
-    }
-  },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-14T06:07:39.901Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
-    }
-  }
+  "active": {},
+  "pending": {}
 }
