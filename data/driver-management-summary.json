@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-14T21:26:21.457Z",
+  "updatedAt": "2026-11-14T22:45:11.456Z",
   "currentDrivers": 110,
-  "onlineNow": 1,
+  "onlineNow": 0,
   "joinedLast7Days": 1,
   "joinedLast30Days": 6,
   "leftLast7Days": 4,
@@ -38,7 +38,7 @@
         "tmpId": 5419500,
         "username": "Magierjuwel",
         "joinDate": "2024-03-19T21:42:42.000Z",
-        "tenureDays": 969
+        "tenureDays": 970
       },
       {
         "tmpId": 5318474,
@@ -50,7 +50,7 @@
         "tmpId": 5358213,
         "username": "Taser00700",
         "joinDate": "2024-06-25T21:42:19.000Z",
-        "tenureDays": 871
+        "tenureDays": 872
       },
       {
         "tmpId": 5655769,
