@@ -1,25 +1,38 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {},
-  "pending": {
+  "active": {
     "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-14T22:46:40.270Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 43649657304,
+        "completedAt": "2026-11-14T22:46:04Z"
+      },
+      "firstAlertedAt": "2026-11-14T22:50:46.573Z"
     },
     "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-14T22:46:40.270Z",
+      "severity": "warning",
       "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
+      "message": "Safe Self-Healing latest completed run ended with failure.",
+      "details": {
+        "runId": 43649726040,
+        "completedAt": "2026-11-14T22:46:21Z"
+      },
+      "firstAlertedAt": "2026-11-14T22:50:46.573Z"
     },
     "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-14T22:46:40.270Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-13T07:20:15Z",
+        "ageMinutes": 2370,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-11-14T22:50:46.573Z"
     }
-  }
+  },
+  "pending": {}
 }
