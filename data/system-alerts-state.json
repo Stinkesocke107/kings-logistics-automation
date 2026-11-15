@@ -2,12 +2,5 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {},
-  "pending": {
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-15T20:25:09.063Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
