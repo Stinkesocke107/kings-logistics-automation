@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-15T20:25:51.901Z",
+  "updatedAt": "2026-11-15T21:19:56.682Z",
   "currentDrivers": 110,
   "onlineNow": 1,
   "joinedLast7Days": 1,
@@ -10,11 +10,11 @@
   "leftLast30Days": 9,
   "activity": {
     "grace": 2,
-    "active": 12,
+    "active": 13,
     "approvedLeave": 0,
     "info7Days": 9,
     "attention14Days": 6,
-    "hrReview30Days": 81,
+    "hrReview30Days": 80,
     "unknown": 0
   },
   "tenure": {
@@ -56,7 +56,7 @@
         "tmpId": 5655769,
         "username": "JackyJack",
         "joinDate": "2024-10-19T21:14:31.000Z",
-        "tenureDays": 756
+        "tenureDays": 757
       }
     ],
     "newestDrivers": [
@@ -82,13 +82,13 @@
         "tmpId": 5036090,
         "username": "stamkour",
         "joinDate": "2026-10-29T21:12:02.000Z",
-        "tenureDays": 16
+        "tenureDays": 17
       },
       {
         "tmpId": 6368423,
         "username": "Mason111",
         "joinDate": "2026-10-27T20:29:55.000Z",
-        "tenureDays": 18
+        "tenureDays": 19
       }
     ]
   },
