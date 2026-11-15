@@ -2,17 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-15T07:15:32Z",
-        "ageMinutes": 27,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-11-15T07:43:39.010Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -33,14 +22,24 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-15T07:43:39.010Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 93,
+        "latestCount": 30
+      },
+      "firstAlertedAt": "2026-11-15T09:18:32.924Z"
     }
   },
   "pending": {
-    "workflow-overdue:milestones.yml": {
+    "workflow-failed:system-monitoring.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-15T07:43:39.010Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
+      "firstSeenAt": "2026-11-15T09:18:32.924Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
     }
   }
 }
