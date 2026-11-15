@@ -22,16 +22,6 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-15T07:43:39.010Z"
-    },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled.",
-      "details": {
-        "runId": 43700464571,
-        "completedAt": "2026-11-15T09:42:55Z"
-      },
-      "firstAlertedAt": "2026-11-15T09:43:29.474Z"
     }
   },
   "pending": {}
