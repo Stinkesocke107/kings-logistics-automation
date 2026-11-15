@@ -1,9 +1,9 @@
 {
   "version": 1,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-09T21:31:30.493Z",
-  "currentStaff": 12,
-  "trackedStaffRecords": 16,
+  "updatedAt": "2026-11-15T19:07:32.526Z",
+  "currentStaff": 13,
+  "trackedStaffRecords": 17,
   "staffRoles": [
     {
       "id": 177880,
@@ -207,8 +207,8 @@
     }
   ],
   "roleCounts": {
+    "Official Streamer": 4,
     "Staff": 4,
-    "Official Streamer": 3,
     "Developer": 2,
     "Event Coordinator": 2,
     "Management": 2,
@@ -223,7 +223,7 @@
     "Team Lead": 1
   },
   "departmentCounts": {
-    "General Staff": 8,
+    "General Staff": 9,
     "Management": 4,
     "Development": 2,
     "Driver Services": 2,
@@ -232,7 +232,7 @@
     "Community Support": 1
   },
   "changesLast30Days": {
-    "joinedStaff": 4,
+    "joinedStaff": 5,
     "roleChanges": 0,
     "leftStaff": 2
   },
