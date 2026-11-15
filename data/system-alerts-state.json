@@ -22,36 +22,7 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-14T22:50:46.573Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-15T00:26:14Z",
-        "ageMinutes": 29,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-11-15T00:56:20.056Z"
-    },
-    "workflow-overdue:driver-updates.yml": {
-      "severity": "critical",
-      "system": "Driver Updates",
-      "message": "Driver Updates has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-15T00:25:03Z",
-        "ageMinutes": 31,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-15T00:56:20.056Z"
     }
   },
-  "pending": {
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-15T00:56:20.056Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
