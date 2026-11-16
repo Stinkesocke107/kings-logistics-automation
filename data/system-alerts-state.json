@@ -12,16 +12,6 @@
       },
       "firstAlertedAt": "2026-11-16T08:04:42.508Z"
     },
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure.",
-      "details": {
-        "runId": 43822836057,
-        "completedAt": "2026-11-16T07:19:13Z"
-      },
-      "firstAlertedAt": "2026-11-16T08:04:42.508Z"
-    },
     "workflow-overdue:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -34,12 +24,5 @@
       "firstAlertedAt": "2026-11-16T08:04:42.508Z"
     }
   },
-  "pending": {
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-16T08:04:42.508Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
