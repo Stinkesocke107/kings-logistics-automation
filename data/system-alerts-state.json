@@ -22,27 +22,6 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-16T08:04:42.508Z"
-    },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 91,
-        "latestCount": 32
-      },
-      "firstAlertedAt": "2026-11-16T20:25:51.436Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-16T18:54:05Z",
-        "ageMinutes": 91,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-16T20:25:51.436Z"
     }
   },
   "pending": {}
