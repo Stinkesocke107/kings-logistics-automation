@@ -2,16 +2,6 @@
   "version": 1,
   "mode": "technical-alerts-only",
   "active": {
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 161,
-        "latestCount": 30
-      },
-      "firstAlertedAt": "2026-11-16T05:52:45.645Z"
-    },
     "workflow-overdue:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
