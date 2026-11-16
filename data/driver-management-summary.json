@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-16T06:15:29.599Z",
+  "updatedAt": "2026-11-16T07:17:55.338Z",
   "currentDrivers": 110,
   "onlineNow": 0,
   "joinedLast7Days": 1,
@@ -76,7 +76,7 @@
         "tmpId": 3321675,
         "username": "Bohm33d",
         "joinDate": "2026-11-01T06:16:04.000Z",
-        "tenureDays": 14
+        "tenureDays": 15
       },
       {
         "tmpId": 5036090,
