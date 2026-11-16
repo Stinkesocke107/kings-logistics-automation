@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-16T21:10:18.812Z",
+  "updatedAt": "2026-11-16T22:31:35.093Z",
   "members": 110,
   "discordMessageId": "1550299096278110219",
   "online": 2,
@@ -10,13 +10,7 @@
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 1,
-      "isEvent": false
-    },
-    {
-      "game": "ETS2",
-      "name": "Simulation 2",
-      "online": 1,
+      "online": 2,
       "isEvent": false
     }
   ]
