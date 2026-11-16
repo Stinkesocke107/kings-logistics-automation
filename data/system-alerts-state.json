@@ -23,23 +23,16 @@
       },
       "firstAlertedAt": "2026-11-16T08:04:42.508Z"
     },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
+    "workflow-failed:system-monitoring.yml": {
+      "severity": "warning",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure.",
       "details": {
-        "ageMinutes": 62,
-        "latestCount": 30
+        "runId": 43840835311,
+        "completedAt": "2026-11-16T09:35:28Z"
       },
-      "firstAlertedAt": "2026-11-16T09:35:16.136Z"
+      "firstAlertedAt": "2026-11-16T09:48:43.887Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-16T09:35:54.637Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
