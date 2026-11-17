@@ -1,20 +1,20 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-17T19:25:52.336Z",
+  "updatedAt": "2026-11-17T20:57:55.598Z",
   "currentDrivers": 110,
-  "onlineNow": 1,
+  "onlineNow": 2,
   "joinedLast7Days": 0,
   "joinedLast30Days": 5,
   "leftLast7Days": 3,
   "leftLast30Days": 9,
   "activity": {
     "grace": 2,
-    "active": 16,
+    "active": 17,
     "approvedLeave": 0,
-    "info7Days": 7,
-    "attention14Days": 5,
-    "hrReview30Days": 80,
+    "info7Days": 6,
+    "attention14Days": 4,
+    "hrReview30Days": 81,
     "unknown": 0
   },
   "tenure": {
@@ -88,7 +88,7 @@
         "tmpId": 6368423,
         "username": "Mason111",
         "joinDate": "2026-10-27T20:29:55.000Z",
-        "tenureDays": 20
+        "tenureDays": 21
       }
     ]
   },
