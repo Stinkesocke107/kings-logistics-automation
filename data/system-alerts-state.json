@@ -11,53 +11,14 @@
         "latestCount": 32
       },
       "firstAlertedAt": "2026-11-17T14:18:03.778Z"
-    },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-17T13:18:03Z",
-        "ageMinutes": 59,
-        "maxAgeMinutes": 20
-      },
-      "firstAlertedAt": "2026-11-17T14:18:03.778Z"
-    },
-    "workflow-overdue:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-17T13:17:48Z",
-        "ageMinutes": 59,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-17T14:18:03.778Z"
-    },
-    "workflow-overdue:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-17T13:17:00Z",
-        "ageMinutes": 60,
-        "maxAgeMinutes": 45
-      },
-      "firstAlertedAt": "2026-11-17T14:18:03.778Z"
     }
   },
   "pending": {
-    "workflow-overdue:milestones.yml": {
+    "workflow-overdue:final-freeze-verification.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-17T14:18:03.778Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-17T14:18:03.778Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
+      "firstSeenAt": "2026-11-17T17:34:15.556Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window."
     }
   }
 }
