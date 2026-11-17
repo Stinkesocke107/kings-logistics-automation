@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-11-16T20:38:22.542Z",
+  "updatedAt": "2026-11-17T02:27:19.101Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -13,11 +13,11 @@
       "responsibleStaff": "<@1299456550523506743>",
       "kingsSlot": "Confirmed — Slot image",
       "missing": [
-        "eventType"
+        "eventDate"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1800302400
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1553101648635756544",
@@ -110,11 +110,15 @@
       "responsibleStaff": "<@1299456550523506743>",
       "kingsSlot": "TruckersMP Quarry (slot 9)",
       "missing": [
-        "eventType"
+        "eventDate",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1804183200
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1558157376786403389",
@@ -126,11 +130,15 @@
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot Area B (Partner)",
       "missing": [
-        "eventType"
+        "eventDate",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1806775200
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1558158179131588730",
@@ -179,14 +187,20 @@
       "status": "Needs Information",
       "eventDate": "2026-10-20",
       "meetupTime": "00:00 UTC",
-      "responsibleStaff": "<@935991067969470485>",
-      "kingsSlot": "Confirmed — Slot ITCC & LKW",
+      "responsibleStaff": null,
+      "kingsSlot": "Confirmed — Slot image",
       "missing": [
-        "eventType"
+        "eventDate",
+        "eventLink",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "responsibleStaff",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1792454400
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1559824475870986281",
@@ -195,14 +209,20 @@
       "status": "Needs Information",
       "eventDate": "2027-03-24",
       "meetupTime": "17:00 UTC",
-      "responsibleStaff": "<@935991067969470485>",
-      "kingsSlot": "Confirmed — Slot     LKW (Partners)",
+      "responsibleStaff": null,
+      "kingsSlot": "Confirmed — Slot image",
       "missing": [
-        "eventType"
+        "eventDate",
+        "eventLink",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "responsibleStaff",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1805907600
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1559825103636668446",
@@ -211,14 +231,20 @@
       "status": "Needs Information",
       "eventDate": "2026-10-30",
       "meetupTime": "17:00 UTC",
-      "responsibleStaff": "<@935991067969470485>",
-      "kingsSlot": "Confirmed — Slot  Taylor Construction Group",
+      "responsibleStaff": null,
+      "kingsSlot": "Confirmed — Slot image",
       "missing": [
-        "eventType"
+        "eventDate",
+        "eventLink",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "responsibleStaff",
+        "route"
       ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1793379600
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1559917674442658012",
@@ -534,6 +560,47 @@
         "eventDate",
         "meetup",
         "meetupTime",
+        "route"
+      ],
+      "duplicateEventId": false,
+      "archived": true,
+      "eventUnix": null
+    },
+    {
+      "threadId": "1571891921025105920",
+      "name": "Event Name — Kings Logistics x Inter Shipeados Logistica | 2 Years",
+      "eventId": "38961",
+      "status": "Needs Information",
+      "eventDate": "2027-05-15",
+      "meetupTime": "21:00 UTC",
+      "responsibleStaff": "<@935991067969470485>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
+      "duplicateEventId": false,
+      "archived": true,
+      "eventUnix": null
+    },
+    {
+      "threadId": "1571918098368438282",
+      "name": "14. May - PRVTC",
+      "eventId": "38926",
+      "status": "Needs Information",
+      "eventDate": "2027-05-14",
+      "meetupTime": "18:00 UTC",
+      "responsibleStaff": null,
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [
+        "eventDate",
+        "eventLink",
+        "eventType",
+        "meetup",
+        "meetupTime",
+        "responsibleStaff",
         "route"
       ],
       "duplicateEventId": false,
@@ -2175,6 +2242,337 @@
         "archived": true,
         "eventUnix": null
       }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-17T02:27:18.810Z",
+      "threadId": "1551261117630648542",
+      "name": "18. January, Pinkachu",
+      "fields": [
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1551261117630648542",
+        "name": "18. January, Pinkachu",
+        "eventId": "36903",
+        "status": "Needs Information",
+        "eventDate": "2027-01-18",
+        "meetupTime": "20:00 UTC",
+        "responsibleStaff": "<@1299456550523506743>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventType"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1800302400
+      },
+      "current": {
+        "threadId": "1551261117630648542",
+        "name": "18. January, Pinkachu",
+        "eventId": "36903",
+        "status": "Needs Information",
+        "eventDate": "2027-01-18",
+        "meetupTime": "20:00 UTC",
+        "responsibleStaff": "<@1299456550523506743>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-17T02:27:18.810Z",
+      "threadId": "1557647681600626718",
+      "name": "04. March - Global Trucking VTC",
+      "fields": [
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1557647681600626718",
+        "name": "04. March - Global Trucking VTC",
+        "eventId": "38240",
+        "status": "Needs Information",
+        "eventDate": "2027-03-04",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@1299456550523506743>",
+        "kingsSlot": "TruckersMP Quarry (slot 9)",
+        "missing": [
+          "eventType"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1804183200
+      },
+      "current": {
+        "threadId": "1557647681600626718",
+        "name": "04. March - Global Trucking VTC",
+        "eventId": "38240",
+        "status": "Needs Information",
+        "eventDate": "2027-03-04",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@1299456550523506743>",
+        "kingsSlot": "TruckersMP Quarry (slot 9)",
+        "missing": [
+          "eventDate",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-17T02:27:18.810Z",
+      "threadId": "1558157376786403389",
+      "name": "03. April - (P) Twisted Transport",
+      "fields": [
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1558157376786403389",
+        "name": "03. April - (P) Twisted Transport",
+        "eventId": "38296",
+        "status": "Needs Information",
+        "eventDate": "2027-04-03",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot Area B (Partner)",
+        "missing": [
+          "eventType"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1806775200
+      },
+      "current": {
+        "threadId": "1558157376786403389",
+        "name": "03. April - (P) Twisted Transport",
+        "eventId": "38296",
+        "status": "Needs Information",
+        "eventDate": "2027-04-03",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot Area B (Partner)",
+        "missing": [
+          "eventDate",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-17T02:27:18.810Z",
+      "threadId": "1559823814534242364",
+      "name": "20. October - Pollito Pio VTC",
+      "fields": [
+        "responsibleStaff",
+        "kingsSlot",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1559823814534242364",
+        "name": "20. October - Pollito Pio VTC",
+        "eventId": "37627",
+        "status": "Needs Information",
+        "eventDate": "2026-10-20",
+        "meetupTime": "00:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "Confirmed — Slot ITCC & LKW",
+        "missing": [
+          "eventType"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1792454400
+      },
+      "current": {
+        "threadId": "1559823814534242364",
+        "name": "20. October - Pollito Pio VTC",
+        "eventId": "37627",
+        "status": "Needs Information",
+        "eventDate": "2026-10-20",
+        "meetupTime": "00:00 UTC",
+        "responsibleStaff": null,
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "eventLink",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "responsibleStaff",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-17T02:27:18.810Z",
+      "threadId": "1559824475870986281",
+      "name": "24. March - Arab Transport VTC",
+      "fields": [
+        "responsibleStaff",
+        "kingsSlot",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1559824475870986281",
+        "name": "24. March - Arab Transport VTC",
+        "eventId": "38069",
+        "status": "Needs Information",
+        "eventDate": "2027-03-24",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "Confirmed — Slot     LKW (Partners)",
+        "missing": [
+          "eventType"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1805907600
+      },
+      "current": {
+        "threadId": "1559824475870986281",
+        "name": "24. March - Arab Transport VTC",
+        "eventId": "38069",
+        "status": "Needs Information",
+        "eventDate": "2027-03-24",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": null,
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "eventLink",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "responsibleStaff",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-17T02:27:18.810Z",
+      "threadId": "1559825103636668446",
+      "name": "30. October - Mileage Riot",
+      "fields": [
+        "responsibleStaff",
+        "kingsSlot",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1559825103636668446",
+        "name": "30. October - Mileage Riot",
+        "eventId": "37926",
+        "status": "Needs Information",
+        "eventDate": "2026-10-30",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "Confirmed — Slot  Taylor Construction Group",
+        "missing": [
+          "eventType"
+        ],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1793379600
+      },
+      "current": {
+        "threadId": "1559825103636668446",
+        "name": "30. October - Mileage Riot",
+        "eventId": "37926",
+        "status": "Needs Information",
+        "eventDate": "2026-10-30",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": null,
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "eventLink",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "responsibleStaff",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-11-17T02:27:18.810Z",
+      "threadId": "1571891921025105920",
+      "name": "Event Name — Kings Logistics x Inter Shipeados Logistica | 2 Years",
+      "current": {
+        "threadId": "1571891921025105920",
+        "name": "Event Name — Kings Logistics x Inter Shipeados Logistica | 2 Years",
+        "eventId": "38961",
+        "status": "Needs Information",
+        "eventDate": "2027-05-15",
+        "meetupTime": "21:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-11-17T02:27:18.810Z",
+      "threadId": "1571918098368438282",
+      "name": "14. May - PRVTC",
+      "current": {
+        "threadId": "1571918098368438282",
+        "name": "14. May - PRVTC",
+        "eventId": "38926",
+        "status": "Needs Information",
+        "eventDate": "2027-05-14",
+        "meetupTime": "18:00 UTC",
+        "responsibleStaff": null,
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "eventLink",
+          "eventType",
+          "meetup",
+          "meetupTime",
+          "responsibleStaff",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -2208,7 +2606,8 @@
     "2026-11-12",
     "2026-11-13",
     "2026-11-14",
-    "2026-11-15"
+    "2026-11-15",
+    "2026-11-17"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
