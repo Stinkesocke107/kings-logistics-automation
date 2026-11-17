@@ -1,31 +1,6 @@
 {
   "version": 1,
   "mode": "technical-alerts-only",
-  "active": {
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-17T08:31:41Z",
-        "ageMinutes": 586,
-        "maxAgeMinutes": 540
-      },
-      "firstAlertedAt": "2026-11-17T18:18:45.941Z"
-    }
-  },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-17T20:59:10.937Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
-    },
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-17T20:59:10.937Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
-    }
-  }
+  "active": {},
+  "pending": {}
 }
