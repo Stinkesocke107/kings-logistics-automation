@@ -24,12 +24,5 @@
       "firstAlertedAt": "2026-11-16T23:18:19.030Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-17T02:14:39.588Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
