@@ -1,9 +1,9 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-17T17:33:21.447Z",
+  "updatedAt": "2026-11-17T18:39:54.071Z",
   "currentDrivers": 110,
-  "onlineNow": 2,
+  "onlineNow": 1,
   "joinedLast7Days": 0,
   "joinedLast30Days": 5,
   "leftLast7Days": 3,
@@ -70,7 +70,7 @@
         "tmpId": 6403863,
         "username": "TyrantDiablos",
         "joinDate": "2026-11-04T17:55:35.000Z",
-        "tenureDays": 12
+        "tenureDays": 13
       },
       {
         "tmpId": 3321675,
