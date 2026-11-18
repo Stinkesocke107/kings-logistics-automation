@@ -22,14 +22,17 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-18T08:17:40.309Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 115,
+        "latestCount": 32
+      },
+      "firstAlertedAt": "2026-11-18T15:51:06.415Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T13:56:13.004Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
-    }
-  }
+  "pending": {}
 }
