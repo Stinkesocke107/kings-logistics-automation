@@ -59,27 +59,6 @@
       },
       "firstAlertedAt": "2026-11-18T18:06:39.610Z"
     },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 44365806200,
-        "completedAt": "2026-11-18T18:06:13Z"
-      },
-      "firstAlertedAt": "2026-11-18T18:06:39.610Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-18T16:00:28Z",
-        "ageMinutes": 126,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-18T18:06:39.610Z"
-    },
     "api-health:ETS2Map area": {
       "severity": "critical",
       "system": "API Resilience",
@@ -94,45 +73,7 @@
       },
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
-    },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled.",
-      "details": {
-        "runId": 44411941344,
-        "completedAt": "2026-11-18T22:29:24Z"
-      },
-      "firstAlertedAt": "2026-11-18T22:30:18.513Z"
-    },
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure.",
-      "details": {
-        "runId": 44411986738,
-        "completedAt": "2026-11-18T22:30:37Z"
-      },
-      "firstAlertedAt": "2026-11-18T22:33:16.785Z"
-    },
-    "workflow-overdue:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-18T15:52:05Z",
-        "ageMinutes": 401,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-11-18T22:33:16.785Z"
     }
   },
-  "pending": {
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T22:36:23.411Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
