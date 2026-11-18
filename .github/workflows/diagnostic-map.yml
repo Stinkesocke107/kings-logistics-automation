@@ -1,0 +1,16 @@
+name: Kings Temporary Map API Diagnostic
+on:
+  pull_request:
+    paths:
+      - 'scripts/map-api-diagnostic.cjs'
+      - '.github/workflows/diagnostic-map.yml'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Public TruckersMP Map transport probes (no private data)
+        run: node scripts/map-api-diagnostic.cjs
