@@ -118,6 +118,29 @@ for (const mode of ['empty-servers','all-server-failures','discord-failure','suc
   });
 }
 
+test('Live Tracker rejects partial server coverage instead of publishing a false zero online', async () => {
+  const prior='{"version":2,"discordMessageId":"123","updatedAt":"2026-11-18T18:00:00Z","online":4}';
+  const s=sandbox('tracker.js',{
+    env:{DISCORD_WEBHOOK_URL:'https://discord.com/api/webhooks/123/fake'},
+    files:{'data/live-tracker-snapshot.json':prior},
+    fetch:async url=>{
+      if(url.includes('/vtc/') && url.endsWith('/members'))return json({response:{members:[{id:1}]}});
+      if(url.includes('locations_'))return json([]);
+      if(url.endsWith('/servers'))return json({response:[
+        {name:'Simulation 1',online:true,mapid:1,game:'ETS2'},
+        {name:'Simulation 2',online:true,mapid:2,game:'ETS2'}
+      ]});
+      if(url.includes('ets2map.com') && url.includes('server=1'))return json({Success:true,Data:[]});
+      if(url.includes('ets2map.com') && url.includes('server=2'))return new Response('unavailable',{status:403});
+      if(url.includes('discord.com'))throw Error('No Discord write allowed for incomplete server coverage');
+      throw Error('Unexpected request '+url);
+    }
+  });
+  await assert.rejects(s.run('start()'),/Only 1\/2 live TruckersMP server checks succeeded/);
+  assert.equal(s.files.get('data/live-tracker-snapshot.json'),prior);
+  assert.equal(s.calls.filter(x=>x.url.includes('discord.com')).length,0);
+});
+
 test('monthly verifier respects the actual 10 UTC publish and 11 UTC verification deadline', () => {
   const {periodForVerification, expectedDates} = require('../monthly-report-verifier.js');
   const before = periodForVerification(new Date('2026-11-01T03:05:00.000Z'));
