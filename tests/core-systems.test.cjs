@@ -161,6 +161,81 @@ test('Live Tracker rejects partial server coverage instead of publishing a false
   assert.equal(s.calls.filter(x=>x.url.includes('discord.com')).length,0);
 });
 
+test('Kings Tracker stops on the first failed server and saves no partial snapshot', async () => {
+  const prior='{"version":2,"discordMessageId":"123","updatedAt":"2026-11-18T16:00:00Z","online":7}';
+  const s=sandbox('tracker.js',{
+    env:{DISCORD_WEBHOOK_URL:'https://discord.com/api/webhooks/123/fake'},
+    files:{'data/live-tracker-snapshot.json':prior},
+    fetch:async (url,options)=>{
+      if(url.includes('/members'))return json({response:{members:[{id:1}]}});
+      if(url.includes('locations_'))return json([]);
+      if(url.endsWith('/servers'))return json({response:[
+        {name:'Simulation 1',online:true,mapid:1,game:'ETS2'},
+        {name:'Simulation 2',online:true,mapid:2,game:'ETS2'},
+        {name:'Simulation 3',online:true,mapid:3,game:'ETS2'}
+      ]});
+      if(url.includes('tracker.ets2map.com'))return new Response('Unavailable',{status:503});
+      if(url.includes('discord.com'))throw Error('No Discord write should happen during failed map coverage');
+      throw Error('Unexpected URL '+url);
+    }
+  });
+  await assert.rejects(s.run('start()'),/Only 0\/3 live TruckersMP server checks succeeded/);
+  const calls=s.calls.filter(c=>c.url.includes('tracker.ets2map.com'));
+  assert.equal(calls.length,1,'First failed map probe prevents unnecessary requests to remaining servers');
+  assert.equal(s.files.get('data/live-tracker-snapshot.json'),prior);
+  assert.equal(s.calls.filter(c=>c.url.includes('discord.com')).length,0);
+});
+
+test('Kings outage embeds show fresh VTC membership but never convert it to Kings online count', () => {
+  const id='123456789012345678', timestamp=new Date().toISOString();
+  const count=110;
+  const files={
+    'data/live-tracker-snapshot.json':JSON.stringify({discordMessageId:id,updatedAt:'2026-11-18T16:00:00Z',online:8}),
+    'data/driver-management-summary.json':JSON.stringify({currentDrivers:count,updatedAt:timestamp,onlineNow:null})
+  };
+  const s=sandbox('live-outage-notice.js',{files});
+  const embed=s.run("outageEmbed(SETTINGS[0],readSafeState('live-tracker-snapshot.json'))");
+  assert.equal(embed.fields.length,3);
+  assert.match(embed.fields[2].name,/membership \(not live online\)/);
+  assert.match(embed.fields[2].value,/110 members/);
+  assert.match(embed.fields[1].value,/Unavailable — not zero/);
+  assert.doesNotMatch(embed.fields[2].value,/online now|currently online/i);
+
+  const stale=sandbox('live-outage-notice.js',{files:{
+    ...files,'data/driver-management-summary.json':JSON.stringify({
+      currentDrivers:count,updatedAt:new Date(Date.now()-100*60000).toISOString()
+    })
+  }});
+  assert.equal(stale.run("outageEmbed(SETTINGS[0],readSafeState('live-tracker-snapshot.json'))").fields.length,2,
+    'Old roster data is omitted, not misrepresented as current');
+});
+
+test('Kings outage message is edited if previously verified VTC membership becomes stale', async () => {
+  const id='123456789012345678';
+  const files={
+    'data/live-tracker-snapshot.json':JSON.stringify({discordMessageId:id,updatedAt:new Date().toISOString()}),
+    'data/driver-management-summary.json':JSON.stringify({
+      currentDrivers:112,updatedAt:new Date(Date.now()-100*60000).toISOString()
+    })
+  };
+  let patch=null;
+  const s=sandbox('live-outage-notice.js',{
+    files,env:{DISCORD_WEBHOOK_URL:'https://discord.com/api/webhooks/'+id+'/token'},
+    fetch:async(url,opts)=>{
+      if(opts.method==='GET')return json({embeds:[{
+        title:'👑 Kings Live Tracker — Live Data Unavailable',
+        description:'Old outage notice', fields:[{name:'VTC members',value:'112'}]
+      }]});
+      if(opts.method==='PATCH'){patch=JSON.parse(opts.body);return new Response(null,{status:204})}
+      throw Error('Unsupported Discord method');
+    }
+  });
+  await s.run('main()');
+  assert.equal(s.calls.length,2);
+  assert.equal(patch.embeds[0].fields.length,2,'Stale roster membership removed from displayed outage notice');
+  assert.deepEqual(patch.allowed_mentions,{parse:[]});
+});
+
 test('a failed live refresh edits only existing Discord status messages and preserves all data', async () => {
   const id='123456789012345678';
   const files={
@@ -209,17 +284,18 @@ test('a failed live refresh edits only existing Discord status messages and pres
 
 test('live outage notice is idempotent and never creates messages on missing targets', async () => {
   const id='123456789012345678';
-  const title='👑 Kings Live Tracker — Live Data Unavailable';
   const files={'data/live-tracker-snapshot.json':JSON.stringify({
     discordMessageId:id,updatedAt:'2026-11-18T16:00:00Z',online:2
   })};
+  let displayed = null;
   const s=sandbox('live-outage-notice.js',{
     files,env:{DISCORD_WEBHOOK_URL:'https://discord.com/api/webhooks/'+id+'/token'},
     fetch:async(url,opts)=>{
       assert.equal(opts.method,'GET');
-      return json({embeds:[{title}]});
+      return json({embeds:[displayed]});
     }
   });
+  displayed=s.run("outageEmbed(SETTINGS[0],readSafeState('live-tracker-snapshot.json'))");
   await s.run('main()');
   assert.equal(s.calls.length,1);
   assert.equal(s.process.exitCode,0);
