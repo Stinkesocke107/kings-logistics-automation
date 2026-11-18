@@ -2,7 +2,7 @@
 // Kings Live Systems: show honest availability when an attempted live refresh
 // fails. Read-only on stored measurements and history; Discord message edits only.
 require('./kings-branding').installDiscordBranding();
-const fs=require('node:fs');
+const fs=require('fs');
 const path=require('node:path');
 
 const ROOT=__dirname;
