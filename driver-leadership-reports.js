@@ -382,7 +382,6 @@ function buildMonthlyData(managementState, loaState, period) {
     attention,
     hrReview,
     openReviews: info.length + attention.length + hrReview.length,
-    tenure: buildTenureSummary(current, period.end.getTime()),
     completeCoverage,
     initializedAt
   };
@@ -399,9 +398,7 @@ function delta(value, previous) {
 }
 
 function buildMonthlyMessage(data, previousReport = null) {
-  const t = data.tenure;
   const retentionText = data.retention === null ? 'n/a' : `${data.retention.toFixed(1)}%`;
-  const averageTenure = Number.isFinite(t.averageDays) ? `${t.averageDays}d` : 'n/a';
   const coverageLine = data.completeCoverage
     ? '✅ Full Driver Management coverage for the month.'
     : data.initializedAt
@@ -425,10 +422,6 @@ function buildMonthlyMessage(data, previousReport = null) {
     `Start: **${data.startDrivers}** · End: **${data.endDrivers}** · Net: **${signed(data.netGrowth)}**`,
     `Joined: **${data.joined.length}** · Left: **${data.left.length}** · Retention: **${retentionText}**`,
     `Activity restored: **${data.restored.length}** · LOAs approved: **${data.loaCreated.length}**`,
-    '',
-    '### 🕒 Membership & Tenure',
-    `<1m **${t.under1Month}** · 1–3m **${t.oneToThreeMonths}** · 3–6m **${t.threeToSixMonths}** · 6–12m **${t.sixToTwelveMonths}**`,
-    `1–2y **${t.oneToTwoYears}** · 2–3y **${t.twoToThreeYears}** · 3y+ **${t.threeYearsPlus}** · Avg **${averageTenure}**`,
     '',
     '### 📊 Current Activity Snapshot',
     `ℹ️ Info: **${data.info.length}** · ⚠️ Attention: **${data.attention.length}** · 👥 HR Review: **${data.hrReview.length}**`,
@@ -573,8 +566,7 @@ async function runMonthly(managementState, loaState, reportState) {
     netGrowth: data.netGrowth,
     retention: data.retention,
     openReviews: data.openReviews,
-    activeLoa: data.activeLoa.length,
-    averageTenureDays: data.tenure.averageDays
+    activeLoa: data.activeLoa.length
   };
 
   const index = reportState.monthlyReports.findIndex((item) => item.key === period.key);
