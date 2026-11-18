@@ -1,16 +1,16 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-18T13:54:40.982Z",
+  "updatedAt": "2026-11-18T15:50:05.950Z",
   "members": 110,
   "discordMessageId": "1550299096278110219",
-  "online": 2,
-  "ets2Online": 2,
+  "online": 1,
+  "ets2Online": 1,
   "atsOnline": 0,
   "activeServers": [
     {
       "game": "ETS2",
       "name": "Simulation 1",
-      "online": 2,
+      "online": 1,
       "isEvent": false
     }
   ]
