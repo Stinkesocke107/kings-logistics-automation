@@ -1,4 +1,4 @@
-name: Kings Driver Achievements
+name: Kings Driver Loyalty Roles
 
 on:
   workflow_dispatch:
@@ -16,6 +16,7 @@ on:
     branches: [main]
     paths:
       - 'driver-loyalty-roles.js'
+      - 'driver-loyalty-register.js'
       - '.github/workflows/driver-achievements.yml'
 
   schedule:
@@ -63,7 +64,9 @@ jobs:
           echo "Driver Loyalty role sync mode: $MODE"
 
       - name: Verify Driver Loyalty role synchronizer
-        run: node --check driver-loyalty-roles.js
+        run: |
+          node --check driver-loyalty-roles.js
+          node --check driver-loyalty-register.js
 
       - name: Preflight full Kings Driver Loyalty sync (no role writes)
         if: steps.loyalty_mode.outputs.mode == 'live'
@@ -81,17 +84,8 @@ jobs:
           DRIVER_LOYALTY_ROLE_MODE: ${{ steps.loyalty_mode.outputs.mode }}
         run: node driver-loyalty-roles.js
 
-      - name: Update Driver Achievements
-        if: github.event_name != 'push'
-        env:
-          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_GUILD_ID: '1114967437788577792'
-          DRIVER_LEADERSHIP_CHANNEL_NAME: '🚛｜driver-leadership'
-        run: node driver-achievements.js
-
-      - name: Save Driver Achievement and Loyalty data safely
-        if: github.event_name != 'push' || steps.loyalty_mode.outputs.mode == 'live'
+      - name: Save Driver Loyalty summary safely
+        if: steps.loyalty_mode.outputs.mode == 'live'
         shell: bash
         env:
           LOYALTY_MODE: ${{ steps.loyalty_mode.outputs.mode }}
@@ -100,14 +94,6 @@ jobs:
 
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
-
-          if [ "$GITHUB_EVENT_NAME" != "push" ]; then
-            for file in data/driver-achievements.json data/driver-achievements-summary.json; do
-              if [ -e "$file" ] || git ls-files -- "$file" | grep -q .; then
-                git add -A -- "$file"
-              fi
-            done
-          fi
 
           if [ "$LOYALTY_MODE" = "live" ]; then
             for file in data/driver-loyalty-roles.json data/driver-loyalty-roles-summary.json; do
@@ -122,7 +108,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Update Kings Driver Achievement and Loyalty data"
+          git commit -m "Update Kings Driver Loyalty sync status"
           bash scripts/git-safe-push.sh main
 
       - name: Loyalty role sync summary
