@@ -4,6 +4,7 @@
 require('./kings-branding').installDiscordBranding();
 const fs=require('fs');
 const path=require('node:path');
+const { fetchOfficialSnapshot }=require('./truckersmp-official-live');
 
 const ROOT=__dirname;
 const KINGS_BLUE=0x182DFF;
@@ -42,18 +43,25 @@ function freshMemberCount(now = Date.now()) {
       !Number.isFinite(at)||at>now+300000||now-at>90*60*1000) return null;
   return {members:number,verifiedAt:Math.floor(at/1000)};
 }
-function outageEmbed(config,state){
+function outageEmbed(config,state,official=null){
   const fields=[
     {name:'Last confirmed player-data sample',value:lastVerified(state,config),inline:false},
     {name:'Current online count',value:'**Unavailable — not zero**',inline:false}
   ];
-  const membership=freshMemberCount();
+  const membership=official?null:freshMemberCount();
   if(membership){
     fields.push({
       name:'Confirmed TruckersMP VTC membership (not live online)',
       value:'**'+membership.members+' members** — verified <t:'+membership.verifiedAt+':R>',
       inline:false
     });
+  }
+  if (official){
+    const ts=Math.floor(Date.parse(official.observedAt)/1000);
+    fields.push({name:'Kings VTC membership (official TruckersMP)',
+      value:'**'+official.vtcMemberCount+' registered VTC members** — verified <t:'+ts+':R>',inline:false});
+    fields.push({name:'ALL TruckersMP players online (not Kings Drivers)',
+      value:'**'+official.totalAllPlayers+' players** across '+official.activeServers+' online servers (ETS2: **'+official.ets2AllPlayers+'** · ATS: **'+official.atsAllPlayers+'**) — <t:'+ts+':R>',inline:false});
   }
   return {
     title:config.title,
@@ -73,7 +81,7 @@ function webhookBase(value){
   if(!/^\/api(?:\/v\d+)?\/webhooks\/\d{17,20}\/[A-Za-z0-9._-]+\/?$/.test(url.pathname))return null;
   return url.origin+url.pathname.replace(/\/$/,'');
 }
-async function updateExisting(config){
+async function updateExisting(config,official=null){
   const state=readSafeState(config.file);
   const id=String(state?.[config.idKey]||'');
   const url=webhookBase(process.env[config.env]);
@@ -89,7 +97,7 @@ async function updateExisting(config){
   }
   if(!get.ok)throw new Error(config.label+': failed to inspect existing Discord message (HTTP '+get.status+').');
   const existing=await get.json();
-  const desired=outageEmbed(config,state);
+  const desired=outageEmbed(config,state,official);
   const current=existing?.embeds?.[0];
   // An already-visible outage title alone is not enough: membership may
   // have been freshly verified, or a previously verified count may be stale.
@@ -117,8 +125,19 @@ async function updateExisting(config){
 }
 async function main(){
   let problems=0;
+  let official=null;
+  if (process.env.TRUCKERSMP_OFFICIAL_FEED_ENABLED==='true') {
+    try {
+      official=await fetchOfficialSnapshot();
+      console.log('Verified public TruckersMP VTC and global server totals are available.');
+    } catch (error) {
+      // Do not conceal player-map outage, mark the official secondary feed
+      // healthy or print identifying player records in logs.
+      console.warn('Official TruckersMP secondary overview unavailable ('+String(error?.name||'Error')+').');
+    }
+  }
   for(const config of SETTINGS){
-    try{await updateExisting(config);}
+    try{await updateExisting(config,official);}
     catch(error){
       problems++;
       // Never print webhook secrets, Discord message bodies or player IDs.

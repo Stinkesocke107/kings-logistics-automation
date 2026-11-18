@@ -10,6 +10,7 @@ on:
       - '.github/workflows/live-tracker.yml'
       - 'tracker.js'
       - 'live-outage-notice.js'
+      - 'truckersmp-official-live.js'
       - 'statistics.js'
       - 'central-overview.js'
       - 'api-resilience.js'
@@ -64,6 +65,9 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
           CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
+          # Official server totals and Kings VTC membership only. Neither
+          # field claims to identify Kings Drivers currently in game.
+          TRUCKERSMP_OFFICIAL_FEED_ENABLED: 'true'
         run: node live-outage-notice.js
 
       - name: Update Kings Advanced Statistics
