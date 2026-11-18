@@ -1,19 +1,20 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-18T17:17:59.232Z",
+  "updatedAt": "2026-11-18T22:27:59.921Z",
   "currentDrivers": 110,
-  "onlineNow": 2,
+  "onlineNow": null,
+  "onlineObservationStatus": "unavailable",
   "joinedLast7Days": 0,
   "joinedLast30Days": 5,
   "leftLast7Days": 2,
   "leftLast30Days": 9,
   "activity": {
-    "grace": 2,
+    "grace": 1,
     "active": 16,
     "approvedLeave": 0,
-    "info7Days": 6,
-    "attention14Days": 5,
+    "info7Days": 5,
+    "attention14Days": 7,
     "hrReview30Days": 81,
     "unknown": 0
   },
@@ -32,31 +33,31 @@
         "tmpId": 4891248,
         "username": "Stinkesocke107",
         "joinDate": "2023-07-09T19:25:36.000Z",
-        "tenureDays": 1227
+        "tenureDays": 1228
       },
       {
         "tmpId": 5419500,
         "username": "Magierjuwel",
         "joinDate": "2024-03-19T21:42:42.000Z",
-        "tenureDays": 973
+        "tenureDays": 974
       },
       {
         "tmpId": 5318474,
         "username": "Paul Brandt",
         "joinDate": "2024-04-22T19:19:44.000Z",
-        "tenureDays": 939
+        "tenureDays": 940
       },
       {
         "tmpId": 5358213,
         "username": "Taser00700",
         "joinDate": "2024-06-25T21:42:19.000Z",
-        "tenureDays": 875
+        "tenureDays": 876
       },
       {
         "tmpId": 5655769,
         "username": "JackyJack",
         "joinDate": "2024-10-19T21:14:31.000Z",
-        "tenureDays": 759
+        "tenureDays": 760
       }
     ],
     "newestDrivers": [
@@ -70,7 +71,7 @@
         "tmpId": 6403863,
         "username": "TyrantDiablos",
         "joinDate": "2026-11-04T17:55:35.000Z",
-        "tenureDays": 13
+        "tenureDays": 14
       },
       {
         "tmpId": 3321675,
@@ -82,13 +83,13 @@
         "tmpId": 5036090,
         "username": "stamkour",
         "joinDate": "2026-10-29T21:12:02.000Z",
-        "tenureDays": 19
+        "tenureDays": 20
       },
       {
         "tmpId": 6368423,
         "username": "Mason111",
         "joinDate": "2026-10-27T20:29:55.000Z",
-        "tenureDays": 21
+        "tenureDays": 22
       }
     ]
   },
