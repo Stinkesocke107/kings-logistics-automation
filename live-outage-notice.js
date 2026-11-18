@@ -31,15 +31,37 @@ function lastVerified(state,config){
   if(!Number.isFinite(ms)||ms<=0||ms>Date.now()+300000)return 'No confirmed recent sample';
   return '<t:'+Math.floor(ms/1000)+':F> (<t:'+Math.floor(ms/1000)+':R>)';
 }
+// Membership is independently verified against the authoritative VTC roster.
+// It is not an online-player measurement and may be shown during map outages
+// only while its source timestamp is still fresh.
+function freshMemberCount(now = Date.now()) {
+  const state=readSafeState('driver-management-summary.json');
+  const number=state?.currentDrivers;
+  const at=Date.parse(state?.updatedAt||'');
+  if(!Number.isInteger(number)||number<0||number>10000||
+      !Number.isFinite(at)||at>now+300000||now-at>90*60*1000) return null;
+  return {members:number,verifiedAt:Math.floor(at/1000)};
+}
 function outageEmbed(config,state){
+  const fields=[
+    {name:'Last confirmed player-data sample',value:lastVerified(state,config),inline:false},
+    {name:'Current online count',value:'**Unavailable — not zero**',inline:false}
+  ];
+  const membership=freshMemberCount();
+  if(membership){
+    fields.push({
+      name:'Confirmed TruckersMP VTC membership (not live online)',
+      value:'**'+membership.members+' members** — verified <t:'+membership.verifiedAt+':R>',
+      inline:false
+    });
+  }
   return {
     title:config.title,
     description:'⚠️ **Current TruckersMP player status is temporarily unavailable.**\n\n' +
       'The latest live refresh could not be verified. No one is being marked online or offline from missing information.\n\n' +
       'Previously confirmed statistics and historical records remain preserved.',
     color:KINGS_BLUE,
-    fields:[{name:'Last confirmed player-data sample',value:lastVerified(state,config),inline:false},
-      {name:'Current online count',value:'**Unavailable — not zero**',inline:false}],
+    fields,
     footer:{text:'Kings Systems | Live source unavailable; refresh will resume automatically after a successful verified run.'}
   };
 }
@@ -67,8 +89,17 @@ async function updateExisting(config){
   }
   if(!get.ok)throw new Error(config.label+': failed to inspect existing Discord message (HTTP '+get.status+').');
   const existing=await get.json();
-  if(existing?.embeds?.[0]?.title===config.title){
-    console.log(config.label+': outage notice already shown; avoiding duplicate edits.');
+  const desired=outageEmbed(config,state);
+  const current=existing?.embeds?.[0];
+  // An already-visible outage title alone is not enough: membership may
+  // have been freshly verified, or a previously verified count may be stale.
+  // Only edit when the actually displayed fields need an honest update.
+  const alreadyShown=current?.title===desired.title &&
+    current?.description===desired.description &&
+    JSON.stringify((current.fields||[]).map(x=>[x.name,x.value]))===
+    JSON.stringify(desired.fields.map(x=>[x.name,x.value]));
+  if(alreadyShown){
+    console.log(config.label+': outage notice already shown with current verified fields; avoiding duplicate edits.');
     return {label:config.label,changed:false,reason:'already-shown'};
   }
   const response=await fetch(endpoint,{
@@ -76,7 +107,7 @@ async function updateExisting(config){
     headers:{'content-type':'application/json'},
     signal:AbortSignal.timeout(12000),
     body:JSON.stringify({
-      content:'',embeds:[outageEmbed(config,state)],
+      content:'',embeds:[desired],
       allowed_mentions:{parse:[]}
     })
   });
