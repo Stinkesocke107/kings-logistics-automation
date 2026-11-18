@@ -351,19 +351,23 @@ test('Driver public update embeds escape markdown supplied by usernames', () => 
   assert.match(departed.description, /\\_Driver\\_/);
 });
 
-test('Scheduled Loyalty role synchronization runs before TruckersMP achievement notices', () => {
+test('Loyalty workflow never publishes Leadership achievements while Driver Updates congratulations remain', () => {
   const fs = require('node:fs');
   const path = require('node:path');
   const workflow = fs.readFileSync(path.join(__dirname, '../.github/workflows/driver-achievements.yml'), 'utf8');
-  const achievements = fs.readFileSync(path.join(__dirname, '../driver-achievements.js'), 'utf8');
+  const updates = fs.readFileSync(path.join(__dirname, '../driver-updates.js'), 'utf8');
+  const leadership = fs.readFileSync(path.join(__dirname, '../driver-leadership-reports.js'), 'utf8');
   const preflight = workflow.indexOf('- name: Preflight full Kings Driver Loyalty sync');
   const roleSync = workflow.indexOf('- name: Sync Driver Loyalty Discord roles');
-  const notice = workflow.indexOf('- name: Update Driver Achievements');
-  assert.ok(preflight >= 0 && roleSync > preflight && notice > roleSync, 'Dry-run and live role sync must happen before milestone notices');
-  assert.match(workflow, /if: steps\.loyalty_mode\.outputs\.mode == 'live'/);
-  assert.ok(achievements.includes('TruckersMP milestone reached!'));
-  assert.ok(achievements.includes('Discord role tiers use the Kings Discord join date'));
+  assert.ok(preflight >= 0 && roleSync > preflight, 'Daily role sync and safe preflight must remain');
+  assert.doesNotMatch(workflow, /run: node driver-achievements\.js|Update Driver Achievements/);
+  assert.match(workflow, /run: node driver-loyalty-roles\.js/);
+  assert.match(updates, /buildDriverUpdatePayload\('joined', member\)/);
+  assert.match(updates, /buildDriverUpdatePayload\('promoted', member\)/);
+  assert.doesNotMatch(leadership, /### 🕒 Membership & Tenure|data\.tenure\.averageDays/);
+  assert.match(leadership, /### 🚛 Driver Development/);
 });
+
 
 test('Driver Achievements handles month-end and leap-year anniversaries', () => {
   const s = sandbox('driver-achievements.js');
@@ -543,6 +547,7 @@ test('Loyalty Discord integration: dry-run cannot mutate and live touches cosmet
     if(method!=='GET')return new Response(null,{status:204});
     if(route==='/users/@me')return new Response(JSON.stringify({id:botId}),{status:200});
     if(route==='/guilds/'+guildId+'/roles')return new Response(JSON.stringify(roles),{status:200});
+    if(route==='/guilds/'+guildId+'/channels')return new Response(JSON.stringify([]),{status:200});
     if(route==='/guilds/'+guildId+'/members/'+botId)return new Response(JSON.stringify(members[4]),{status:200});
     if(route.startsWith('/guilds/'+guildId+'/members?'))return new Response(JSON.stringify(members),{status:200});
     throw new Error('Unexpected Discord API path '+url);
@@ -571,4 +576,97 @@ test('Loyalty Discord integration: dry-run cannot mutate and live touches cosmet
   assert.equal(summary.nonDriverCleanupCandidates,1);
   assert.equal(summary.mode,'live');
   assert.equal(live.files.has('data/driver-loyalty-roles.json'),false);
+});
+
+
+test('Management Loyalty register accepts D.M.YYYY and rejects invalid or ambiguous records', () => {
+  const { parseRecord } = require('../driver-loyalty-register.js');
+  const now=new Date('2026-11-18T20:00:00Z');
+  const parsed=parseRecord('id: 123456789012345678\ndatum: 2.2.2020',now);
+  assert.equal(parsed.userId,'123456789012345678');
+  assert.equal(parsed.joinedAt.toISOString(),'2020-02-02T00:00:00.000Z');
+  assert.equal(parseRecord('Information for Management'),null);
+  for(const invalid of [
+    'id: 12345\ndatum: 2.2.2020',
+    'id: 123456789012345678\ndatum: 31.2.2020',
+    'id: 123456789012345678\ndatum: 1.1.2030',
+    'id: 123456789012345678\ndatum: 2020-02-02',
+    'id: @everyone\ndatum: 2.2.2020'
+  ]) assert.throws(()=>parseRecord(invalid,now),/Invalid/);
+});
+
+test('Private Kings register allows only Management channel access and staff-authored records', async () => {
+  const {loadRegister} = require('../driver-loyalty-register.js');
+  const guild='1114967437788577792', owner='999000000000000001', bot='999000000000000002';
+  const manager='999000000000000003', outsider='999000000000000004', driver='999000000000000005';
+  const view='1024';
+  const roles=[
+    {id:guild,name:'@everyone',permissions:'0'},
+    {id:'100',name:'| Kings Management',permissions:'0'},
+    {id:'200',name:'| Kings Driver',permissions:'0'},
+    {id:'300',name:'Community',permissions:'0'}
+  ];
+  const members=[
+    {user:{id:manager,bot:false},roles:['100']},
+    {user:{id:outsider,bot:false},roles:['300']},
+    {user:{id:driver,bot:false},roles:['200']}
+  ];
+  const channel={
+    id:'999000000000000006',guild_id:guild,type:0,name:'driver-loyalty-records',
+    permission_overwrites:[
+      {id:guild,type:0,deny:view,allow:'0'},
+      {id:'100',type:0,deny:'0',allow:view}
+    ]
+  };
+  let msgs=[{id:'999000000000000099',author:{id:manager},content:'id: '+driver+'\ndatum: 2.2.2020'}];
+  const transport=async route=>{
+    if(route==='/guilds/'+guild+'/channels')return [channel];
+    if(route==='/guilds/'+guild)return {owner_id:owner};
+    if(route.startsWith('/channels/'+channel.id+'/messages?'))return msgs;
+    throw Error('Unexpected request '+route);
+  };
+  const read=()=>loadRegister(transport,guild,roles,members,bot);
+  const good=await read();
+  assert.equal(good.enabled,true);
+  assert.equal(good.records.get(driver).toISOString(),'2020-02-02T00:00:00.000Z');
+  msgs=[{...msgs[0],author:{id:outsider}}];
+  await assert.rejects(read(),/non-Management/);
+  msgs=[{id:'999000000000000097',author:{id:manager},content:'id: '+driver+'\ndatum: 2.2.2020'},
+        {id:'999000000000000098',author:{id:manager},content:'id: '+driver+'\ndatum: 3.2.2020'}];
+  await assert.rejects(read(),/Duplicate Loyalty/);
+  msgs=[];
+  channel.permission_overwrites[0].deny='0';
+  await assert.rejects(read(),/deny View Channel/);
+  channel.permission_overwrites[0].deny=view;
+  channel.permission_overwrites.push({id:'300',type:0,deny:'0',allow:view});
+  await assert.rejects(read(),/non-Management role/);
+});
+
+test('Manual Kings join date overrides Discord join date only for recorded full Drivers', () => {
+  const s=sandbox('driver-loyalty-roles.js');
+  const roles=[
+    {id:'1204836048845410405',name:'Kings Driver',permissions:'0'},
+    {id:'11',name:'Driver Loyalty',permissions:'0'},
+    ...['1 Month with Kings','3 Months with Kings','6 Months with Kings',
+      '1 Year with Kings','2 Years with Kings','3 Years with Kings',
+      '4 Years with Kings','5 Years with Kings']
+      .map((name,i)=>({id:String(20+i),name,permissions:'0'}))
+  ];
+  const registered='123456789012345678', unregistered='123456789012345679', trial='123456789012345680';
+  const members=[
+    {user:{id:registered,bot:false},roles:['1204836048845410405'],joined_at:'2026-10-01T00:00:00Z'},
+    {user:{id:unregistered,bot:false},roles:['1204836048845410405','11','20'],joined_at:'2024-01-01T00:00:00Z'},
+    {user:{id:trial,bot:false},roles:['11','22'],joined_at:'2024-01-01T00:00:00Z'}
+  ];
+  const expr='planDiscordLoyalty('+JSON.stringify(members)+',resolveManagedRoles('+JSON.stringify(roles)+'),'
+    +'new Date("2026-11-18T12:00:00Z"), {enabled:true, records:new Map([["'
+    +registered+'",new Date("2020-02-02T00:00:00Z")]])})';
+  const plan=s.run(expr);
+  assert.equal(plan.stats.currentDrivers,2);
+  assert.equal(plan.stats.registeredKingsDates,1);
+  assert.equal(plan.stats.unregisteredDrivers,1);
+  assert.equal(plan.changes.find(x=>x.userId===registered).tier,'5y');
+  assert.ok(plan.changes.find(x=>x.userId===registered).add.includes('27'));
+  assert.equal(plan.changes.find(x=>x.userId===unregistered),undefined,'Unregistered Driver keeps existing tier');
+  assert.deepEqual([...plan.changes.find(x=>x.userId===trial).remove],['11','22'],'Trial is excluded and only old cosmetic roles are cleaned');
 });
