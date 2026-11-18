@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "technical-safe-self-healing",
-  "updatedAt": "2026-11-17T14:17:41.204Z",
+  "updatedAt": "2026-11-18T12:20:04.970Z",
   "repairs": {
     "live-tracker": {
       "attempts": [
@@ -15,10 +15,21 @@
             "stale-data:data/statistics.json",
             "workflow-overdue:live-tracker.yml"
           ]
+        },
+        {
+          "at": "2026-11-18T12:19:46.364Z",
+          "outcome": "recovered",
+          "action": "dispatched",
+          "runId": 44302815368,
+          "issueIds": [
+            "stale-data:data/live-tracker-snapshot.json",
+            "stale-data:data/statistics.json",
+            "workflow-overdue:live-tracker.yml"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-11-17T14:17:16.125Z",
-      "lastSuccessAt": "2026-11-17T14:17:16.125Z",
+      "lastAttemptAt": "2026-11-18T12:19:46.364Z",
+      "lastSuccessAt": "2026-11-18T12:19:46.364Z",
       "lastFailureAt": "2026-11-04T16:13:00.309Z"
     },
     "driver-updates": {
@@ -31,10 +42,19 @@
           "issueIds": [
             "workflow-overdue:driver-updates.yml"
           ]
+        },
+        {
+          "at": "2026-11-18T12:20:04.970Z",
+          "outcome": "recovered",
+          "action": "dispatched",
+          "runId": 44302866453,
+          "issueIds": [
+            "workflow-overdue:driver-updates.yml"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-11-17T14:17:41.204Z",
-      "lastSuccessAt": "2026-11-17T14:17:41.204Z",
+      "lastAttemptAt": "2026-11-18T12:20:04.970Z",
+      "lastSuccessAt": "2026-11-18T12:20:04.970Z",
       "lastFailureAt": null
     },
     "core-backup": {
