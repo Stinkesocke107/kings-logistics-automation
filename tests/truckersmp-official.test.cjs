@@ -25,6 +25,14 @@ test('TruckersMP official feed reports Kings VTC and all-server population as di
  assert.equal(r.observedAt,'2026-11-19T00:00:00.000Z');
 });
 
+test('Official TruckersMP server API may return the literal string false for its error flag',()=>{
+ const r=parseOfficialSnapshot(roster(110),{error:'false',response:rows},now);
+ assert.equal(r.vtcMemberCount,110);
+ assert.equal(r.totalAllPlayers,2000);
+ assert.equal(r.kingsOnline,null);
+ assert.throws(()=>parseOfficialSnapshot(roster(110),{error:'true',response:rows},now));
+});
+
 test('TruckersMP official data rejects incomplete or misleading responses',()=>{
  for(const bad of [
   null,{}, {error:true,response:{members:[]}},
