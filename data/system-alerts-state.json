@@ -79,7 +79,36 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-18T18:06:39.610Z"
+    },
+    "workflow-failed:driver-management.yml": {
+      "severity": "critical",
+      "system": "Driver Management",
+      "message": "Driver Management latest completed run ended with failure.",
+      "details": {
+        "runId": 44380067746,
+        "completedAt": "2026-11-18T19:25:07Z"
+      },
+      "firstAlertedAt": "2026-11-18T19:25:32.762Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "api-health:ETS2Map area": {
+      "count": 1,
+      "firstSeenAt": "2026-11-18T19:25:32.762Z",
+      "system": "API Resilience",
+      "message": "ETS2Map area is degraded after repeated request failures."
+    },
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-18T19:25:32.762Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-18T19:25:32.762Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
