@@ -214,7 +214,23 @@ function checkDriverSummary(data, issues, checks) {
     issues.push(issue('driver-activity-total-mismatch', 'critical', 'Driver Management', `Driver activity buckets total ${total}, but currentDrivers is ${currentDrivers}.`, { buckets }));
   }
 
-  const onlineNow = number(driver.onlineNow);
+  // An external map outage is not zero online. For the new explicit
+  // observation contract, null is required whenever a live sample is missing.
+  const observation = driver.onlineObservationStatus || null;
+  const onlineNow = driver.onlineNow === null || driver.onlineNow === undefined
+    ? null : number(driver.onlineNow);
+  if (observation === 'unavailable' || observation === 'verified-live') {
+    const contractOk = observation === 'unavailable'
+      ? driver.onlineNow === null
+      : Number.isInteger(onlineNow) && onlineNow >= 0 && onlineNow <= currentDrivers;
+    checks.push(check('driver-online-observation-contract', contractOk, {
+      observationStatus: observation, onlineNow
+    }));
+    if (!contractOk) {
+      issues.push(issue('integrity-driver-online-observation', 'critical', 'Driver Management',
+        'Online observation status and live count disagree. Unavailable must be null; verified-live must have a valid count.'));
+    }
+  }
   if (onlineNow !== null && currentDrivers !== null) {
     const onlinePlausible = Number.isInteger(onlineNow) && onlineNow >= 0 && onlineNow <= currentDrivers;
     checks.push(check('driver-online-plausibility', onlinePlausible, { onlineNow, currentDrivers }));
