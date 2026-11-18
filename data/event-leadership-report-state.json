@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-11-17T02:27:19.101Z",
+  "updatedAt": "2026-11-18T01:35:47.827Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -272,29 +272,39 @@
       "threadId": "1561398997841870909",
       "name": "11. April - (P) NeoCrime",
       "eventId": "38385",
-      "status": "Scheduled",
+      "status": "Needs Information",
       "eventDate": "2027-04-11",
       "meetupTime": "17:00 UTC",
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
-      "missing": [],
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1807462800
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1561400743217471648",
       "name": "7. March - Ethereal Transport",
       "eventId": "38127",
-      "status": "Scheduled",
+      "status": "Needs Information",
       "eventDate": "2027-03-07",
       "meetupTime": "12:00 UTC",
       "responsibleStaff": "<@333239475029409792>",
       "kingsSlot": "Confirmed — Slot image",
-      "missing": [],
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
+        "route"
+      ],
       "duplicateEventId": false,
-      "archived": false,
-      "eventUnix": 1804420800
+      "archived": true,
+      "eventUnix": null
     },
     {
       "threadId": "1561402209445355761",
@@ -2573,6 +2583,92 @@
         "archived": true,
         "eventUnix": null
       }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-18T01:35:47.493Z",
+      "threadId": "1561398997841870909",
+      "name": "11. April - (P) NeoCrime",
+      "fields": [
+        "status",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1561398997841870909",
+        "name": "11. April - (P) NeoCrime",
+        "eventId": "38385",
+        "status": "Scheduled",
+        "eventDate": "2027-04-11",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1807462800
+      },
+      "current": {
+        "threadId": "1561398997841870909",
+        "name": "11. April - (P) NeoCrime",
+        "eventId": "38385",
+        "status": "Needs Information",
+        "eventDate": "2027-04-11",
+        "meetupTime": "17:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
+    },
+    {
+      "type": "event_changed",
+      "at": "2026-11-18T01:35:47.493Z",
+      "threadId": "1561400743217471648",
+      "name": "7. March - Ethereal Transport",
+      "fields": [
+        "status",
+        "missingInformation"
+      ],
+      "previous": {
+        "threadId": "1561400743217471648",
+        "name": "7. March - Ethereal Transport",
+        "eventId": "38127",
+        "status": "Scheduled",
+        "eventDate": "2027-03-07",
+        "meetupTime": "12:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [],
+        "duplicateEventId": false,
+        "archived": false,
+        "eventUnix": 1804420800
+      },
+      "current": {
+        "threadId": "1561400743217471648",
+        "name": "7. March - Ethereal Transport",
+        "eventId": "38127",
+        "status": "Needs Information",
+        "eventDate": "2027-03-07",
+        "meetupTime": "12:00 UTC",
+        "responsibleStaff": "<@333239475029409792>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -2607,7 +2703,8 @@
     "2026-11-13",
     "2026-11-14",
     "2026-11-15",
-    "2026-11-17"
+    "2026-11-17",
+    "2026-11-18"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
