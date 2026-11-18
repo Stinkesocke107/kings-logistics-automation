@@ -8,7 +8,7 @@ function parseOfficialSnapshot(roster,serverResponse,nowMs=Date.now()) {
   if (!roster || roster.error !== false || !Array.isArray(roster.response?.members)) {
     throw new Error('Official TruckersMP VTC member roster is unavailable or invalid.');
   }
-  if (!serverResponse || serverResponse.error !== false || !Array.isArray(serverResponse.response) ||
+  if (!serverResponse || (serverResponse.error !== false && serverResponse.error !== 'false') || !Array.isArray(serverResponse.response) ||
       serverResponse.response.length===0) {
     throw new Error('Official TruckersMP server directory is unavailable or invalid.');
   }
