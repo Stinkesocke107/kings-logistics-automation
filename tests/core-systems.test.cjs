@@ -56,6 +56,26 @@ test('staff workflow heartbeat accepts unchanged valid state but never a missing
   assert.equal(r.ok,false);
 });
 
+test('Driver online observation integrity distinguishes unavailable from a verified zero', () => {
+  const s=sandbox('data-integrity.js');
+  const summary=(onlineNow,onlineObservationStatus)=>{
+    const driver={currentDrivers:1,onlineNow,onlineObservationStatus,activity:{grace:1}};
+    return s.run('(()=>{const issues=[],checks=[];checkDriverSummary({driver:'+JSON.stringify(driver)+'},issues,checks);return {issues,checks};})()');
+  };
+  const unknown=summary(null,'unavailable');
+  assert.equal(unknown.issues.length,0);
+  assert.ok(unknown.checks.some(x=>x.check==='driver-online-observation-contract'&&x.ok));
+  assert.ok(!unknown.checks.some(x=>x.check==='driver-online-plausibility'));
+
+  const falseZero=summary(0,'unavailable');
+  assert.ok(falseZero.issues.some(x=>x.id==='integrity-driver-online-observation'));
+
+  const validZero=summary(0,'verified-live');
+  assert.equal(validZero.issues.length,0);
+  assert.ok(validZero.checks.some(x=>x.check==='driver-online-plausibility'&&x.ok));
+  assert.ok(summary(null,'verified-live').issues.some(x=>x.id==='integrity-driver-online-observation'));
+});
+
 test('staff history may exceed current count but cannot omit current staff', () => {
   const s = sandbox('data-integrity.js');
   assert.equal(s.run("const issues=[];checkStaffSummary({staff:{currentStaff:5,trackedStaffRecords:7}},issues,[]);issues.length"),0);
