@@ -218,7 +218,7 @@ jobs:
               active_epoch="$(date -u -d "$active_created" +%s 2>/dev/null || echo "$now")"
               age=$(( now - active_epoch ))
               if [ "$age" -le 2400 ]; then
-                echo "Driver Loyalty: active achievement/sync run ${active_id} (${age}s); no duplicate dispatch."
+                echo "Driver Loyalty: active role sync ${active_id} (${age}s); no duplicate dispatch."
                 return 0
               fi
               echo "::warning::Driver Loyalty run ${active_id} has been active for ${age}s; permitting one bounded recovery attempt."
@@ -232,7 +232,7 @@ jobs:
                 return 0
               fi
             fi
-            echo "Driver Loyalty: missed daily live sync; dispatching existing safe preflight + role sync + achievement workflow."
+            echo "Driver Loyalty: missed daily live sync; dispatching existing safe role-sync workflow."
             gh api --method POST \
               "repos/${GITHUB_REPOSITORY}/actions/workflows/driver-achievements.yml/dispatches" \
               -f ref=main \
