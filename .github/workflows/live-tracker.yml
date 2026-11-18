@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/workflows/live-tracker.yml'
       - 'tracker.js'
+      - 'live-outage-notice.js'
       - 'statistics.js'
       - 'central-overview.js'
       - 'api-resilience.js'
@@ -48,9 +49,22 @@ jobs:
           node-version: "24"
 
       - name: Update Kings Live Tracker
+        id: live_tracker
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: node tracker.js
+
+      # Keep the failed Tracker run visibly failed for monitoring. This
+      # step edits only existing Discord messages and never changes saved
+      # measurement data or invents offline users.
+      - name: Mark existing Live Tracker and Statistics messages unavailable
+        if: ${{ failure() && steps.live_tracker.outcome == 'failure' }}
+        continue-on-error: true
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
+          CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
+        run: node live-outage-notice.js
 
       - name: Update Kings Advanced Statistics
         env:
