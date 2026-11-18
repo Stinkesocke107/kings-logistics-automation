@@ -52,6 +52,56 @@ test('Driver Management applies Grace, Active, Info, Attention and HR Review thr
   assert.equal(left.level, 'Left');
 });
 
+test('Driver Management keeps fresh roster while map outage leaves online unknown and activity unchanged', async () => {
+  const {sandbox}=require('./sandbox.cjs');
+  const s=sandbox('driver-management.js',{
+    fetch:async url=>{
+      if(url.includes('/v2/servers'))return new Response('unavailable',{status:403});
+      throw Error('Unexpected external request '+url);
+    }
+  });
+  const result=await s.run('getOnlineObservation()');
+  assert.equal(result.available,false);
+  assert.equal(result.onlineMap,null);
+  const old=isoDaysAgo(90);
+  const previous={
+    version:3, initializedAt:old, updatedAt:old,
+    drivers:[{tmpId:17,username:'Driver',joinDate:old,firstObservedAt:old,
+      lastOnlineSeenAt:isoDaysAgo(20),current:true,activityLevel:'Info',
+      activityLevelSince:old,inactiveDays:20}]
+  };
+  const current=[{tmpId:17,username:'Driver',joinDate:old,vtcMemberId:3}];
+  const state=s.run('updateState('+JSON.stringify(previous)+','+JSON.stringify(current)+',new Map())');
+  assert.equal(state.drivers.length,1);
+  assert.equal(state.drivers[0].activityLevel,'Info','Never invent new inactivity escalation during map outage');
+  const summary=s.run('buildSummary('+JSON.stringify(state)+',new Map(),false)');
+  assert.equal(summary.currentDrivers,1);
+  assert.equal(summary.onlineNow,null,'Unavailable online counts must not be displayed as zero');
+  assert.equal(summary.onlineObservationStatus,'unavailable');
+  const message=s.run('buildLeadershipMessage('+JSON.stringify(state)+','+JSON.stringify(summary)+',[])');
+  assert.match(message,/Online now:\*\* Unavailable \(map service\)/);
+});
+
+test('Driver Management reports zero online only on an actual successful empty map response', async () => {
+  const {sandbox}=require('./sandbox.cjs');
+  const s=sandbox('driver-management.js',{
+    fetch:async url=>{
+      if(url.includes('/v2/servers'))return new Response(JSON.stringify({response:[{
+        name:'Simulation 1',online:true,mapid:1,game:'ETS2'
+      }]}),{status:200});
+      if(url.includes('tracker.ets2map.com'))return new Response(JSON.stringify({Success:true,Data:[]}),{status:200});
+      throw Error('Unexpected external request '+url);
+    }
+  });
+  const result=await s.run('getOnlineObservation()');
+  assert.equal(result.available,true);
+  assert.equal(result.onlineMap.size,0);
+  const state={drivers:[{tmpId:10,current:true,username:'A',joinDate:isoDaysAgo(5)}],updatedAt:new Date().toISOString()};
+  const summary=s.run('buildSummary('+JSON.stringify(state)+',new Map(),true)');
+  assert.equal(summary.onlineNow,0);
+  assert.equal(summary.onlineObservationStatus,'verified-live');
+});
+
 test('Driver LOA marks active leave and historical leave time is excluded from inactivity', () => {
   const s = sandbox('driver-loa.js');
 
