@@ -742,7 +742,6 @@ function buildLeadershipMessage(managementState, summary) {
   const hrReview = current.filter((driver) => driver.activityLevel === 'HR Review');
   const leave = current.filter((driver) => driver.activityLevel === 'Approved Leave');
   const timestamp = Math.floor(new Date(managementState.updatedAt || Date.now()).getTime() / 1000);
-  const tenure = summary.tenure || buildTenureSummary(current);
   const openReviews = info.length + attention.length + hrReview.length;
 
   const lines = [
@@ -752,18 +751,9 @@ function buildLeadershipMessage(managementState, summary) {
     'Live leadership view of Kings Driver operations, membership and internal review signals.',
     '',
     '## 📊 Current Status',
-    `🚛 Drivers: **${summary.currentDrivers}** · 🟢 Online: **${summary.onlineNow ?? 0}** · 🛡️ LOA: **${summary.activity?.approvedLeave ?? 0}** · 🆕 Grace: **${summary.activity?.grace ?? 0}**`,
+    `🚛 Drivers: **${summary.currentDrivers}** · 🟢 Online: **${summary.onlineNow === null || summary.onlineNow === undefined ? 'Unavailable' : summary.onlineNow}** · 🛡️ LOA: **${summary.activity?.approvedLeave ?? 0}** · 🆕 Grace: **${summary.activity?.grace ?? 0}**`,
     `🚨 Open Activity Reviews: **${openReviews}** · ℹ️ 7d: **${info.length}** · ⚠️ 14d: **${attention.length}** · 👥 30d: **${hrReview.length}**`,
     '',
-    '## 🕒 Membership & Tenure',
-    `<1m **${tenure.under1Month ?? 0}** · 1–3m **${tenure.oneToThreeMonths ?? 0}** · 3–6m **${tenure.threeToSixMonths ?? 0}** · 6–12m **${tenure.sixToTwelveMonths ?? 0}**`,
-    `1–2y **${tenure.oneToTwoYears ?? 0}** · 2–3y **${tenure.twoToThreeYears ?? 0}** · 3y+ **${tenure.threeYearsPlus ?? 0}**`,
-    '',
-    '### 👑 Longest Serving',
-    ...(tenure.longestServing?.length ? tenure.longestServing.slice(0, 3).map(tenureLine) : ['• No tenure data available.']),
-    '',
-    '### 🆕 Newest Drivers',
-    ...(tenure.newestDrivers?.length ? tenure.newestDrivers.slice(0, 3).map(tenureLine) : ['• No tenure data available.']),
     ...compactSection('## 🛡️ Approved Leave', leave, leaveLine),
     ...compactSection('## ℹ️ 7 Days — Information', info, statusLine),
     ...compactSection('## ⚠️ 14 Days — Attention', attention, statusLine),
@@ -782,17 +772,7 @@ function buildLeadershipMessage(managementState, summary) {
       '🔵 **LIVE / CURRENT OVERVIEW**',
       '',
       '## 📊 Current Status',
-      `🚛 Drivers: **${summary.currentDrivers}** · 🟢 Online: **${summary.onlineNow ?? 0}** · 🛡️ LOA: **${summary.activity?.approvedLeave ?? 0}** · 🚨 Reviews: **${openReviews}**`,
-      '',
-      '## 🕒 Membership & Tenure',
-      `<1m **${tenure.under1Month ?? 0}** · 1–3m **${tenure.oneToThreeMonths ?? 0}** · 3–6m **${tenure.threeToSixMonths ?? 0}** · 6–12m **${tenure.sixToTwelveMonths ?? 0}**`,
-      `1–2y **${tenure.oneToTwoYears ?? 0}** · 2–3y **${tenure.twoToThreeYears ?? 0}** · 3y+ **${tenure.threeYearsPlus ?? 0}**`,
-      '',
-      '### 👑 Longest Serving',
-      ...(tenure.longestServing?.length ? tenure.longestServing.slice(0, 2).map(tenureLine) : ['• No tenure data available.']),
-      '',
-      '### 🆕 Newest Drivers',
-      ...(tenure.newestDrivers?.length ? tenure.newestDrivers.slice(0, 2).map(tenureLine) : ['• No tenure data available.']),
+      `🚛 Drivers: **${summary.currentDrivers}** · 🟢 Online: **${summary.onlineNow === null || summary.onlineNow === undefined ? 'Unavailable' : summary.onlineNow}** · 🛡️ LOA: **${summary.activity?.approvedLeave ?? 0}** · 🚨 Reviews: **${openReviews}**`,
       '',
       '## 🚨 Leadership Attention',
       `ℹ️ 7d Info: **${info.length}** · ⚠️ 14d Attention: **${attention.length}** · 👥 30d HR Review: **${hrReview.length}**`,
