@@ -44,14 +44,42 @@
         "maxAgeMinutes": 35
       },
       "firstAlertedAt": "2026-11-18T17:20:28.681Z"
+    },
+    "api-health:truckersmp-map-live": {
+      "severity": "critical",
+      "system": "API Resilience",
+      "message": "truckersmp-map-live is down or its circuit breaker is open.",
+      "details": {
+        "service": "truckersmp-map-live",
+        "consecutiveFailures": 6,
+        "lastSuccessAt": "2026-10-09T00:08:05.549Z",
+        "lastFailureAt": "2026-11-18T18:06:07.866Z",
+        "circuitOpenUntil": "2026-11-18T18:07:07.866Z",
+        "lastError": "This operation was aborted"
+      },
+      "firstAlertedAt": "2026-11-18T18:06:39.610Z"
+    },
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
+      "details": {
+        "runId": 44365806200,
+        "completedAt": "2026-11-18T18:06:13Z"
+      },
+      "firstAlertedAt": "2026-11-18T18:06:39.610Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-18T16:00:28Z",
+        "ageMinutes": 126,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-18T18:06:39.610Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T17:24:33.782Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
