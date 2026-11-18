@@ -27,22 +27,19 @@ async function probe(label,url){
 }
 (async()=>{
  let ids=[];
- try{
-   const r=await fetch(BASE+'/vtc/73990/members',{signal:AbortSignal.timeout(7000),headers:{Accept:'application/json'}});
-   if(r.ok){const j=await r.json(); ids=(j?.response?.members||[]).slice(0,3).map(x=>Number(x.user?.id||x.user_id||x.id)).filter(x=>Number.isSafeInteger(x)&&x>0);}
- }catch{}
- // If VTC ID does not match, use the repository's configured VTC ID from the existing script.
- if(!ids.length){
-   const fs=require('node:fs');
-   const source=fs.readFileSync('tracker.js','utf8');
-   const found=/KINGS_VTC_ID\s*=\s*(\d+)/.exec(source);
-   if(found){
-     try{
-       const r=await fetch(BASE+'/vtc/'+found[1]+'/members',{signal:AbortSignal.timeout(7000),headers:{Accept:'application/json'}});
+ const fs=require('node:fs');
+ const source=fs.readFileSync('tracker.js','utf8');
+ const found=/KINGS_VTC_ID\s*=\s*(\d+)/.exec(source);
+ if(found){
+   try{
+     const r=await fetch(BASE+'/vtc/'+found[1]+'/members',{signal:AbortSignal.timeout(7000),headers:{Accept:'application/json'}});
+     if(r.ok){
        const j=await r.json();
-       ids=(j?.response?.members||[]).slice(0,3).map(x=>Number(x.user?.id||x.user_id||x.id)).filter(x=>Number.isSafeInteger(x)&&x>0);
-     }catch{}
-   }
+       ids=(j?.response?.members||[]).slice(0,3)
+         .map(x=>Number(x.user?.id||x.user_id||x.id))
+         .filter(x=>Number.isSafeInteger(x)&&x>0);
+     }
+   }catch{}
  }
  console.log(JSON.stringify({label:'Public VTC roster discovery',validSampleIds:ids.length}));
  if(!ids.length){console.log('No safe test IDs; stop without exposing private data');return;}
