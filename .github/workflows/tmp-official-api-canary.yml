@@ -1,0 +1,34 @@
+name: Temporary Kings Official TruckersMP API Canary
+on:
+  pull_request:
+    paths:
+      - 'truckersmp-official-live.js'
+      - '.github/workflows/tmp-official-api-canary.yml'
+permissions:
+  contents: read
+jobs:
+  verify-official-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Verify official TMP APIs and aggregate counts (no personal data output)
+        run: |
+          node - <<'NODE'
+          const {fetchOfficialSnapshot}=require('./truckersmp-official-live');
+          fetchOfficialSnapshot().then(s=>{
+            if(s.kingsOnline!==null)throw new Error('Unsafe Kings online inference');
+            console.log(JSON.stringify({
+              source:s.source,
+              memberCount:s.vtcMemberCount,
+              activeServers:s.activeServers,
+              allTmpOnline:s.totalAllPlayers,
+              ets2:s.ets2AllPlayers,
+              ats:s.atsAllPlayers,
+              individualKingsOnline:'not available in official API'
+            }));
+          }).catch(error=>{console.error('Official API verification failed: '+error.message);process.exitCode=1;});
+          NODE
