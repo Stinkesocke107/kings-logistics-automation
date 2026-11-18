@@ -89,26 +89,34 @@
         "completedAt": "2026-11-18T19:25:07Z"
       },
       "firstAlertedAt": "2026-11-18T19:25:32.762Z"
+    },
+    "api-health:ETS2Map area": {
+      "severity": "warning",
+      "system": "API Resilience",
+      "message": "ETS2Map area is degraded after repeated request failures.",
+      "details": {
+        "service": "ETS2Map area",
+        "consecutiveFailures": 1,
+        "lastSuccessAt": "2026-10-09T00:08:21.101Z",
+        "lastFailureAt": "2026-11-18T19:25:01.799Z",
+        "circuitOpenUntil": null,
+        "lastError": "This operation was aborted"
+      },
+      "firstAlertedAt": "2026-11-18T19:38:50.279Z"
     }
   },
   "pending": {
-    "api-health:ETS2Map area": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-18T19:25:32.762Z",
-      "system": "API Resilience",
-      "message": "ETS2Map area is degraded after repeated request failures."
+      "firstSeenAt": "2026-11-18T19:38:50.279Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     },
-    "workflow-failed:system-monitoring.yml": {
+    "workflow-overdue:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-18T19:25:32.762Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
-    },
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T19:25:32.762Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
+      "firstSeenAt": "2026-11-18T19:38:50.279Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
   }
 }
