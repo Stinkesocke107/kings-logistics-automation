@@ -74,34 +74,29 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
+    "workflow-failed:system-monitoring.yml": {
+      "severity": "warning",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled.",
       "details": {
-        "runId": 44421630779,
-        "completedAt": "2026-11-18T23:32:49Z"
+        "runId": 44425118209,
+        "completedAt": "2026-11-18T23:57:56Z"
       },
-      "firstAlertedAt": "2026-11-18T23:33:20.335Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-18T23:33:20.335Z"
+      "firstAlertedAt": "2026-11-18T23:58:52.307Z"
     }
   },
   "pending": {
-    "workflow-failed:system-monitoring.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-18T23:33:20.335Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
+      "firstSeenAt": "2026-11-18T23:58:52.307Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with cancelled."
+    },
+    "workflow-failed:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-18T23:58:52.307Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure."
     }
   }
 }
