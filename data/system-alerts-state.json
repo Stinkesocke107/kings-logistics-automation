@@ -95,57 +95,16 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "stale-data:data/driver-management-summary.json": {
-      "severity": "critical",
-      "system": "Driver Management data",
-      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
+    "workflow-failed:system-monitoring.yml": {
+      "severity": "warning",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled.",
       "details": {
-        "updatedAt": "2026-11-18T17:17:59.232Z",
-        "ageMinutes": 203,
-        "maxAgeMinutes": 160
+        "runId": 44411941344,
+        "completedAt": "2026-11-18T22:29:24Z"
       },
-      "firstAlertedAt": "2026-11-18T20:41:58.500Z"
-    },
-    "workflow-failed:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management latest completed run ended with failure.",
-      "details": {
-        "runId": 44410386937,
-        "completedAt": "2026-11-18T22:20:23Z"
-      },
-      "firstAlertedAt": "2026-11-18T22:22:34.589Z"
-    },
-    "workflow-overdue:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-18T17:18:14Z",
-        "ageMinutes": 304,
-        "maxAgeMinutes": 150
-      },
-      "firstAlertedAt": "2026-11-18T22:22:34.589Z"
+      "firstAlertedAt": "2026-11-18T22:30:18.513Z"
     }
   },
-  "pending": {
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T22:22:34.589Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    },
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T22:22:34.589Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
-    },
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T22:22:34.589Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
