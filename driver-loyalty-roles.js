@@ -297,7 +297,6 @@ async function main() {
     mode: SYNC_MODE,
     source: register.enabled ? 'management-private-kings-date-register' : 'discord-guild-joined_at',
     registrationChannelActive: register.enabled,
-    registrationChannelId: register.channelId,
     eligibility: 'Kings Driver role only (not Trial, Staff-only, Partners or bots)',
     updatedAt: nowISO(),
     ...plan.stats,
