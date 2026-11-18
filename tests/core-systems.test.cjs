@@ -161,6 +161,84 @@ test('Live Tracker rejects partial server coverage instead of publishing a false
   assert.equal(s.calls.filter(x=>x.url.includes('discord.com')).length,0);
 });
 
+test('a failed live refresh edits only existing Discord status messages and preserves all data', async () => {
+  const id='123456789012345678';
+  const files={
+    'data/live-tracker-snapshot.json':JSON.stringify({
+      version:2,updatedAt:'2026-11-18T16:00:00.000Z',online:3,discordMessageId:id
+    }),
+    'data/statistics.json':JSON.stringify({
+      version:2,sourceSnapshotAt:'2026-11-18T16:00:00.000Z',messageId:id,
+      allTime:{peakOnline:8},history:[{date:'2026-11-17',peakOnline:8}]
+    }),
+    'data/central-overview.json':JSON.stringify({version:1,messageId:id})
+  };
+  const payloads=[];
+  const s=sandbox('live-outage-notice.js',{
+    env:{
+      DISCORD_WEBHOOK_URL:'https://discord.com/api/webhooks/'+id+'/tracker-token',
+      STATS_DISCORD_WEBHOOK_URL:'https://discord.com/api/webhooks/'+id+'/stats-token',
+      CENTRAL_OVERVIEW_WEBHOOK_URL:'https://discord.com/api/webhooks/'+id+'/central-token'
+    },
+    files,
+    fetch:async(url,opts)=>{
+      if(opts.method==='GET') return json({embeds:[{title:'Kings Live'}]});
+      if(opts.method==='PATCH'){
+        payloads.push(JSON.parse(opts.body));
+        return new Response(null,{status:204});
+      }
+      throw Error('Unexpected webhook method');
+    }
+  });
+  await s.run('main()');
+  assert.equal(s.process.exitCode,0);
+  assert.equal(payloads.length,3);
+  assert.equal(s.calls.length,6);
+  for(const p of payloads){
+    assert.equal(p.content,'');
+    assert.deepEqual(p.allowed_mentions,{parse:[]});
+    assert.equal(p.embeds.length,1);
+    assert.match(p.embeds[0].title,/Unavailable/);
+    assert.match(p.embeds[0].fields[1].value,/Unavailable — not zero/);
+    assert.doesNotMatch(JSON.stringify(p),/Currently Online|No Kings Logistics members are currently online/);
+  }
+  for(const [key,value] of Object.entries(files)){
+    assert.equal(s.files.get(key),value,'Outage notice must never overwrite stored data '+key);
+  }
+});
+
+test('live outage notice is idempotent and never creates messages on missing targets', async () => {
+  const id='123456789012345678';
+  const title='👑 Kings Live Tracker — Live Data Unavailable';
+  const files={'data/live-tracker-snapshot.json':JSON.stringify({
+    discordMessageId:id,updatedAt:'2026-11-18T16:00:00Z',online:2
+  })};
+  const s=sandbox('live-outage-notice.js',{
+    files,env:{DISCORD_WEBHOOK_URL:'https://discord.com/api/webhooks/'+id+'/token'},
+    fetch:async(url,opts)=>{
+      assert.equal(opts.method,'GET');
+      return json({embeds:[{title}]});
+    }
+  });
+  await s.run('main()');
+  assert.equal(s.calls.length,1);
+  assert.equal(s.process.exitCode,0);
+  assert.equal(s.files.get('data/live-tracker-snapshot.json'),files['data/live-tracker-snapshot.json']);
+  assert.equal(s.run("webhookBase('https://example.com/api/webhooks/123456789012345678/token')"),null);
+  assert.equal(s.run("webhookBase('http://discord.com/api/webhooks/123456789012345678/token')"),null);
+});
+
+test('live outage status only runs when the live Tracker step fails', () => {
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/live-tracker.yml'),'utf8');
+  assert.match(workflow,/id: live_tracker/);
+  assert.match(workflow,/if: \${{ failure\(\) && steps\.live_tracker\.outcome == 'failure' }}/);
+  assert.match(workflow,/continue-on-error: true/);
+  assert.match(workflow,/run: node live-outage-notice\.js/);
+  assert.match(workflow,/if: always\(\)/);
+});
+
 test('monthly verifier respects the actual 10 UTC publish and 11 UTC verification deadline', () => {
   const {periodForVerification, expectedDates} = require('../monthly-report-verifier.js');
   const before = periodForVerification(new Date('2026-11-01T03:05:00.000Z'));
