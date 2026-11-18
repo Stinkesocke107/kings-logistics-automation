@@ -217,6 +217,19 @@ async function getOnlineKingsDrivers() {
   return online;
 }
 
+// The public roster and third-party live map are independent systems.
+// A map outage must not block fresh Kings membership and LOA processing,
+// but must never be presented as a verified zero-online measurement.
+async function getOnlineObservation() {
+  try {
+    return { available: true, onlineMap: await getOnlineKingsDrivers() };
+  } catch (error) {
+    console.warn('Kings online observation unavailable: ' + error.message);
+    console.warn('Continuing authoritative Driver roster sync without changing activity statuses or claiming zero online.');
+    return { available: false, onlineMap: null };
+  }
+}
+
 function ageDays(value, now = Date.now()) {
   if (!value) return null;
   const time = new Date(value).getTime();
@@ -433,7 +446,7 @@ function applyActivityLevels(state) {
   return changed;
 }
 
-function buildSummary(state, onlineMap) {
+function buildSummary(state, onlineMap, observationAvailable = true) {
   const now = Date.now();
   const current = state.drivers.filter((driver) => driver.current);
   const left = state.drivers.filter((driver) => !driver.current);
@@ -469,7 +482,10 @@ function buildSummary(state, onlineMap) {
     mode: 'advisory-only',
     updatedAt: state.updatedAt,
     currentDrivers: current.length,
-    onlineNow: [...onlineMap.keys()].filter((tmpId) => current.some((driver) => driver.tmpId === tmpId)).length,
+    onlineNow: observationAvailable
+      ? [...onlineMap.keys()].filter((tmpId) => current.some((driver) => driver.tmpId === tmpId)).length
+      : null,
+    onlineObservationStatus: observationAvailable ? 'verified-live' : 'unavailable',
     joinedLast7Days: joinedWithin(7),
     joinedLast30Days: joinedWithin(30),
     leftLast7Days: leftWithin(7),
@@ -539,7 +555,7 @@ function buildLeadershipMessage(state, summary, changes) {
     '# 🚛 Driver Management',
     '',
     `**Current Drivers:** ${summary.currentDrivers}`,
-    `**Online now:** ${summary.onlineNow}`,
+    `**Online now:** ${summary.onlineNow === null ? 'Unavailable (map service)' : summary.onlineNow}`,
     `**Grace (<${NEW_DRIVER_GRACE_DAYS}d tracking):** ${grace.length}`,
     `**7d Info:** ${info.length}`,
     `**14d Attention:** ${attention.length}`,
@@ -650,9 +666,9 @@ async function main() {
     }
   }
 
-  const [members, onlineMap] = await Promise.all([
+  const [members, observation] = await Promise.all([
     getCurrentMembers(),
-    getOnlineKingsDrivers()
+    getOnlineObservation()
   ]);
 
   const previousCurrentCount = previous?.drivers?.filter((driver) => driver.current).length || 0;
@@ -660,9 +676,11 @@ async function main() {
     throw new Error('Safety stop: TruckersMP member count dropped by more than 50%.');
   }
 
-  const state = updateState(previous, members, onlineMap);
-  const changes = applyActivityLevels(state);
-  const summary = buildSummary(state, onlineMap);
+  const state = updateState(previous, members, observation.onlineMap || new Map());
+  // If the map provider is unavailable, preserve previous activity levels.
+  // Do not escalate 'inactivity' based on an unknown online observation.
+  const changes = observation.available ? applyActivityLevels(state) : [];
+  const summary = buildSummary(state, observation.onlineMap || new Map(), observation.available);
 
   writeJson(STATE_FILE, encryptState(state));
   writeJson(SUMMARY_FILE, summary);
@@ -676,7 +694,7 @@ async function main() {
   console.log('Kings Driver Management updated successfully.');
   console.log(`Mode: ${summary.mode}`);
   console.log(`Current Drivers: ${summary.currentDrivers}`);
-  console.log(`Online Now: ${summary.onlineNow}`);
+  console.log(`Online Now: ${summary.onlineNow === null ? 'unavailable' : summary.onlineNow}`);
   console.log(`Grace / Active / Info / Attention / HR Review: ${summary.activity.grace} / ${summary.activity.active} / ${summary.activity.info7Days} / ${summary.activity.attention14Days} / ${summary.activity.hrReview30Days}`);
   console.log('Safety: No automatic disciplinary or personnel actions are implemented.');
 }
