@@ -25,7 +25,18 @@ async function probe(label,url){
       errorFlag:data&&typeof data==='object'?data.error??null:null}));
   }catch(e){console.log(JSON.stringify({label,status:'NETWORK_FAILURE',error:e.name||'Error',ms:Date.now()-t}));}
 }
+async function hostProbe(label,url){
+ const t=Date.now();
+ try{
+  const response=await fetch(url,{method:'HEAD',headers:{'User-Agent':agent},signal:AbortSignal.timeout(6500)});
+  console.log(JSON.stringify({label,status:response.status,ms:Date.now()-t}));
+ }catch(e){console.log(JSON.stringify({label,status:'NETWORK_FAILURE',error:e.name||'Error',ms:Date.now()-t}));}
+}
 (async()=>{
+ await hostProbe('Trucky website', 'https://truckyapp.com/');
+ await hostProbe('Trucky API root', 'https://api.truckyapp.com/');
+ await hostProbe('TruckersMP map website', 'https://map.truckersmp.com/');
+ await hostProbe('ETS2Map tracker root', 'https://tracker.ets2map.com/');
  let ids=[];
  const fs=require('node:fs');
  const source=fs.readFileSync('tracker.js','utf8');
