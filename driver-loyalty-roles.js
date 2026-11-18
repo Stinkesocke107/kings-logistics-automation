@@ -1,5 +1,6 @@
-// Kings Driver Loyalty — Discord tenure and Kings Driver role are authoritative.
-// No TruckersMP account or nickname matching, and no Kings membership/role assignment.
+// Kings Driver Loyalty — Kings joining dates from a private, staff-controlled Discord register.
+// Discord joined_at is a non-destructive fallback until each Driver has an approved record.
+// No TruckersMP/nickname matching or Kings membership/Staff role assignment.
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
@@ -16,6 +17,14 @@ const UMBRELLA_LABEL = 'Driver Loyalty';
 // Verified against the currently authoritative Driver Updates production log.
 // Do not confuse the real 77-member role with the similar 7-member separator role.
 const KINGS_DRIVER_ROLE_ID = '1204836048845410405';
+
+const LOYALTY_RECORDS_CHANNEL_ID = String(process.env.DRIVER_LOYALTY_RECORDS_CHANNEL_ID || '').trim();
+const LOYALTY_RECORDS_CHANNEL_NAME = String(process.env.DRIVER_LOYALTY_RECORDS_CHANNEL_NAME || 'driver-loyalty-records').trim();
+const EDITOR_IDS = new Set(String(process.env.DRIVER_LOYALTY_EDITOR_IDS || '')
+  .split(',').map((id) => id.trim()).filter((id) => /^\d{17,20}$/.test(id)));
+const VIEW_CHANNEL = 1n << 10n;
+const MAX_RECORD_MESSAGES = 2000;
+
 const TIERS = [
   { id: '1m', label: '1 Month with Kings', months: 1 },
   { id: '3m', label: '3 Months with Kings', months: 3 },
@@ -110,7 +119,108 @@ function validJoinedAt(member, now) {
   if (!joinedAt || joinedAt > now || joinedAt.getUTCFullYear() < 2015) return null;
   return joinedAt;
 }
-function planDiscordLoyalty(members, managed, now = new Date()) {
+
+// Each *staff-authored* message in the private channel is an individual record:
+// LOYALTY | 123456789012345678 | 2023-11-14
+// Changing or deleting the message changes the record at the next daily sync.
+// Never accept names, unverified author IDs, or ambiguous dates.
+function parseLoyaltyRecord(content, now = new Date()) {
+  const value = String(content || '').trim();
+  if (!/^LOYALTY\b/i.test(value)) return null;
+  const match = /^LOYALTY\s*\|\s*(?:<@!?(\d{17,20})>|(\d{17,20}))\s*\|\s*(\d{4}-\d{2}-\d{2})\s*$/i.exec(value);
+  if (!match) throw new Error('Invalid Loyalty record format: use LOYALTY | Discord ID | YYYY-MM-DD');
+  const id = match[1] || match[2];
+  const joined = match[3];
+  const date = new Date(joined + 'T00:00:00.000Z');
+  if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== joined ||
+      joined < '2020-01-01' || date.getTime() > now.getTime()) {
+    throw new Error('Invalid Kings joining date in Loyalty record');
+  }
+  return { discordUserId: id, joinedAt: date };
+}
+function normalizeLoyaltyChannelName(value) {
+  return String(value || '').toLowerCase().normalize('NFKD')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+function isAuthorizedRecordEditor(member, roles, guildOwnerId) {
+  const id = String(member?.user?.id || '');
+  if (!id || member?.user?.bot) return false;
+  if (id === String(guildOwnerId) || EDITOR_IDS.has(id)) return true;
+  if (!Array.isArray(member?.roles)) return false;
+  const byId = new Map(roles.map((role) => [String(role.id), role]));
+  return member.roles.some((roleId) => {
+    const role = byId.get(String(roleId));
+    if (!role) return false;
+    try { return Boolean(BigInt(String(role.permissions || '0')) & ADMINISTRATOR); }
+    catch { return false; }
+  });
+}
+// No write access to Discord channels is required. Missing channel = preserve
+// current role behavior, while a configured but unsafe channel fails closed.
+async function readPrivateLoyaltyRecords(roles, members, now = new Date()) {
+  const channels = await discord('/guilds/' + DISCORD_GUILD_ID + '/channels');
+  if (!Array.isArray(channels)) throw new Error('Discord channel list unavailable for Loyalty register.');
+  const matches = channels.filter((channel) => Number(channel.type) === 0 &&
+    (LOYALTY_RECORDS_CHANNEL_ID
+      ? String(channel.id) === LOYALTY_RECORDS_CHANNEL_ID
+      : normalizeLoyaltyChannelName(channel.name) ===
+        normalizeLoyaltyChannelName(LOYALTY_RECORDS_CHANNEL_NAME)));
+  if (!matches.length) {
+    if (LOYALTY_RECORDS_CHANNEL_ID) throw new Error('Configured private Loyalty channel missing.');
+    console.log('Kings Loyalty registration channel not yet created; using existing Discord join dates.');
+    return { records: new Map(), enabled: false, channelId: null, ignored: 0 };
+  }
+  if (matches.length !== 1) throw new Error('Ambiguous Kings Loyalty registration channel.');
+  const channel = matches[0];
+  if (String(channel.guild_id) !== DISCORD_GUILD_ID) {
+    throw new Error('Loyalty channel is not in the Kings guild.');
+  }
+  const everyone = (channel.permission_overwrites || []).find(
+    (overwrite) => String(overwrite.id) === DISCORD_GUILD_ID && Number(overwrite.type) === 0);
+  let hidden = false;
+  try { hidden = Boolean(BigInt(String(everyone?.deny || '0')) & VIEW_CHANNEL); }
+  catch { hidden = false; }
+  if (!hidden) throw new Error('Loyalty register must be private: deny View Channel for @everyone.');
+  const guild = await discord('/guilds/' + DISCORD_GUILD_ID);
+  const owner = String(guild?.owner_id || '');
+  if (!owner) throw new Error('Could not verify Kings guild owner for Loyalty record authorization.');
+  const memberById = new Map(members.map((member) => [String(member?.user?.id || ''), member]));
+  const records = new Map();
+  let before = null;
+  let ignored = 0;
+  let total = 0;
+  for (let page = 0; page < MAX_RECORD_MESSAGES / 100; page++) {
+    const qs = new URLSearchParams({ limit: '100' });
+    if (before) qs.set('before', before);
+    const batch = await discord('/channels/' + channel.id + '/messages?' + qs);
+    if (!Array.isArray(batch)) throw new Error('Invalid Kings Loyalty record channel history.');
+    for (const message of batch) {
+      total++;
+      const content = String(message?.content || '').trim();
+      if (!/^LOYALTY\b/i.test(content)) continue;
+      const author = memberById.get(String(message?.author?.id || ''));
+      if (!isAuthorizedRecordEditor(author, roles, owner)) {
+        ignored++;
+        continue;
+      }
+      const parsed = parseLoyaltyRecord(content, now);
+      if (records.has(parsed.discordUserId)) {
+        throw new Error('Duplicate Kings Loyalty record for the same Discord ID; resolve the channel entries before changing roles.');
+      }
+      records.set(parsed.discordUserId, parsed.joinedAt);
+    }
+    if (batch.length < 100) {
+      console.log('Kings Loyalty private registry: ' + records.size + ' approved record(s), ' + ignored + ' unauthorized message(s) ignored.');
+      return { records, enabled: true, channelId: String(channel.id), ignored };
+    }
+    before = String(batch[batch.length - 1]?.id || '');
+    if (!before) throw new Error('Kings Loyalty channel pagination cursor missing.');
+  }
+  throw new Error('Kings Loyalty registration channel exceeds safe history limit (' +
+    MAX_RECORD_MESSAGES + ' messages); archive old entries before continuing.');
+}
+
+function planDiscordLoyalty(members, managed, now = new Date(), registration = new Map()) {
   if (!Array.isArray(members) || !members.length) throw new Error('Discord member roster is missing or empty.');
   const ids = new Set();
   const managedIds = new Set(managed.ids);
@@ -119,7 +229,8 @@ function planDiscordLoyalty(members, managed, now = new Date()) {
   const stats = {
     guildMembers: members.length, currentDrivers: 0, eligibleForLoyaltyTier: 0,
     missingJoinDate: 0, excludedNonDrivers: 0, nonDriverCleanupCandidates: 0,
-    roleAdditions: 0, roleRemovals: 0, alreadyCorrect: 0
+    roleAdditions: 0, roleRemovals: 0, alreadyCorrect: 0,
+    verifiedKingsDates: 0, fallbackDiscordDates: 0
   };
   for (const member of members) {
     if (!member?.user?.id || !Array.isArray(member.roles)) {
@@ -143,7 +254,10 @@ function planDiscordLoyalty(members, managed, now = new Date()) {
       // Explicitly remove only Loyalty roles, never Driver/Staff/other Kings roles.
     } else {
       stats.currentDrivers++;
-      const joinedAt = validJoinedAt(member, now);
+      const registered = registration.get(id) || null;
+      const joinedAt = registered || validJoinedAt(member, now);
+      if (registered) stats.verifiedKingsDates++;
+      else stats.fallbackDiscordDates++;
       if (!joinedAt) {
         stats.missingJoinDate++;
         continue; // Never remove awards because Discord omitted a join date.
@@ -242,7 +356,7 @@ function writeSummary(summary) {
   fs.writeFileSync(SUMMARY_FILE, JSON.stringify(summary, null, 2) + '\n', 'utf8');
 }
 async function main() {
-  console.log('Kings Driver Loyalty — Discord joined_at + Kings Driver role');
+  console.log('Kings Driver Loyalty — private Kings joining dates + Kings Driver role');
   console.log('Mode: ' + SYNC_MODE);
 
   const [bot, roles, members] = await Promise.all([
@@ -254,7 +368,8 @@ async function main() {
   const botMember = await getGuildMemberOrNull(bot.id);
   if (!botMember) throw new Error('Kings Systems bot not found in Kings Discord.');
   const managed = resolveManagedRoles(roles);
-  const plan = planDiscordLoyalty(members, managed);
+  const registration = await readPrivateLoyaltyRecords(roles, members);
+  const plan = planDiscordLoyalty(members, managed, new Date(), registration.records);
   const hierarchy = botCanManageRoles(botMember, roles, managed);
 
   if (SYNC_MODE === 'live' && (!hierarchy.hasManageRoles || hierarchy.blocked.length)) {
@@ -265,6 +380,7 @@ async function main() {
   console.log('Discord Members: ' + plan.stats.guildMembers);
   console.log('Kings Driver members: ' + plan.stats.currentDrivers);
   console.log('Eligible for tier: ' + plan.stats.eligibleForLoyaltyTier);
+  console.log('Approved Kings date records: ' + plan.stats.verifiedKingsDates + '; Discord fallback: ' + plan.stats.fallbackDiscordDates);
   console.log('Role changes: add ' + plan.stats.roleAdditions +
     ', remove ' + plan.stats.roleRemovals);
   console.log('Non-Driver cleanup candidates: ' + plan.stats.nonDriverCleanupCandidates);
@@ -277,9 +393,10 @@ async function main() {
   }
 
   const summary = {
-    version: 3,
+    version: 4,
     mode: SYNC_MODE,
-    source: 'discord-guild-joined_at',
+    source: registration.enabled ? 'private-discord-kings-date-register-with-joined-at-fallback' : 'discord-guild-joined_at',
+    registrationChannelConfigured: registration.enabled,
     eligibility: 'Kings Driver role only (not Trial, Staff-only, Partners or bots)',
     updatedAt: nowISO(),
     ...plan.stats,
@@ -298,6 +415,8 @@ async function main() {
     safety: {
       fullDiscordRosterRequired: true,
       safeJoinDateRequired: true,
+      privateRegisterRequired: registration.enabled,
+      authorizedRecordAuthorsOnly: true,
       verifiedKingsDriverRoleRequired: true,
       dangerousRolePermissionsBlocked: true,
       managedRoleRemovalsCapped: MAX_ROLE_REMOVALS_PER_RUN,
