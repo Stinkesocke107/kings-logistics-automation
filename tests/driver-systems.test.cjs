@@ -102,6 +102,38 @@ test('Driver Management reports zero online only on an actual successful empty m
   assert.equal(summary.onlineObservationStatus,'verified-live');
 });
 
+test('Leadership views never present missing map observations as zero or duplicate Loyalty tenure', () => {
+  const {sandbox}=require('./sandbox.cjs');
+  const now=new Date().toISOString();
+  const mState={updatedAt:now,drivers:[{
+    tmpId:1,username:'Driver',current:true,activityLevel:'Active',
+    firstObservedAt:now,joinDate:now
+  }]};
+  const summary={currentDrivers:1,onlineNow:null,onlineObservationStatus:'unavailable',
+    activity:{active:1,grace:0,approvedLeave:0,info7Days:0,attention14Days:0,hrReview30Days:0},
+    tenure:{under1Month:1,newestDrivers:[],longestServing:[]}};
+  const loa=sandbox('driver-loa.js');
+  const text=loa.run('buildLeadershipMessage('+JSON.stringify(mState)+','+JSON.stringify(summary)+')');
+  assert.match(text,/Online: \*\*Unavailable\*\*/);
+  assert.doesNotMatch(text,/Membership & Tenure|Longest Serving|Newest Drivers|3y\+/);
+
+  const dashboard=sandbox('leadership-dashboard.js');
+  const data={
+    driver:mState,loa:{leaves:[]},driverSummary:summary,
+    driverWeekly:{publishedWeeks:[]},driverReports:{monthlyReports:[]},
+    managementWeekly:{publishedWeeks:[]},managementMonthly:{monthlyReports:[]},
+    hr:{reviews:[]},staffSummary:{currentStaff:0},
+    eventReports:{lastSnapshot:[]}
+  };
+  const driver=dashboard.run('buildDriver('+JSON.stringify(data)+')');
+  const management=dashboard.run('buildManagement('+JSON.stringify(data)+',{}, {}, {}, {})');
+  const driverFields=JSON.stringify(driver.fields);
+  const managementFields=JSON.stringify(management.fields);
+  assert.match(driverFields,/Online \*\*Unavailable\*\*/);
+  assert.match(managementFields,/Online \*\*Unavailable\*\*/);
+  assert.doesNotMatch(driverFields,/Tenure: <1m/);
+});
+
 test('Driver LOA marks active leave and historical leave time is excluded from inactivity', () => {
   const s = sandbox('driver-loa.js');
 
