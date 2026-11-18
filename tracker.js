@@ -455,12 +455,13 @@ async function getKingsOnline() {
     }
   }
 
-  if (
-    servers.length > 0 &&
-    successfulServerChecks === 0
-  ) {
+  // Never publish a partial online count as if it were complete.
+  // In particular, 0 Kings Drivers on one responding server does not mean
+  // 0 Kings Drivers across the servers that failed to respond.
+  if (successfulServerChecks !== servers.length) {
     throw new Error(
-      "All live TruckersMP server checks failed. Keeping the last known good tracker state instead of publishing a false zero-online snapshot."
+      'Only ' + successfulServerChecks + '/' + servers.length +
+      ' live TruckersMP server checks succeeded. Keeping the last known good tracker state instead of publishing incomplete online statistics.'
     );
   }
 
