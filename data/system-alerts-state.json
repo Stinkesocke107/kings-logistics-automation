@@ -105,7 +105,47 @@
         "maxAgeMinutes": 160
       },
       "firstAlertedAt": "2026-11-18T20:41:58.500Z"
+    },
+    "workflow-failed:driver-management.yml": {
+      "severity": "critical",
+      "system": "Driver Management",
+      "message": "Driver Management latest completed run ended with failure.",
+      "details": {
+        "runId": 44410386937,
+        "completedAt": "2026-11-18T22:20:23Z"
+      },
+      "firstAlertedAt": "2026-11-18T22:22:34.589Z"
+    },
+    "workflow-overdue:driver-management.yml": {
+      "severity": "critical",
+      "system": "Driver Management",
+      "message": "Driver Management has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-18T17:18:14Z",
+        "ageMinutes": 304,
+        "maxAgeMinutes": 150
+      },
+      "firstAlertedAt": "2026-11-18T22:22:34.589Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-18T22:22:34.589Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
+    },
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-18T22:22:34.589Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-18T22:22:34.589Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
+    }
+  }
 }
