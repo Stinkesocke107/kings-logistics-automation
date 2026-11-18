@@ -179,7 +179,7 @@ async function getServers() {
 // LIVE PLAYER DATA
 // ======================================================
 
-async function getPlayers(server) {
+async function getPlayers(server, options = {}) {
   const url =
     `https://tracker.ets2map.com/v3/area` +
     `?x1=-1000000` +
@@ -192,8 +192,11 @@ async function getPlayers(server) {
     url,
     {
       label: 'truckersmp-map-live',
-      retries: 2,
-      timeoutMs: 12000,
+      // Every complete scan must include the first server. A failed first
+      // probe proves the current global snapshot cannot be complete, so avoid
+      // retrying eight servers during known provider outages.
+      retries: options.probe ? 0 : 1,
+      timeoutMs: options.probe ? 7000 : 10000,
       validateJson: (payload) =>
         Boolean(payload && payload.Success && Array.isArray(payload.Data))
     }
@@ -366,8 +369,8 @@ async function getKingsOnline() {
     0;
 
   for (
-    const server
-    of servers
+    const [serverIndex, server]
+    of servers.entries()
   ) {
     console.log(
       `Checking ${server.game} - ${server.name}...`
@@ -376,7 +379,8 @@ async function getKingsOnline() {
     try {
       const players =
         await getPlayers(
-          server
+          server,
+          { probe: serverIndex === 0 }
         );
 
       successfulServerChecks++;
@@ -444,13 +448,13 @@ async function getKingsOnline() {
         `Found ${kingsPlayers.length} Kings member(s).`
       );
     } catch (error) {
-      /*
-        One broken TruckersMP server must
-        not stop the complete Live Tracker.
-      */
-
-      console.error(
-        `Skipped server: ${error.message}`
+      // A single failed server makes the global online measurement
+      // incomplete. Stop immediately rather than probing the others and
+      // repeatedly hammering an unavailable map provider.
+      console.error('Kings map coverage incomplete: ' + error.message);
+      throw new Error(
+        'Only ' + successfulServerChecks + '/' + servers.length +
+        ' live TruckersMP server checks succeeded. Keeping the last known good tracker state instead of publishing incomplete online statistics.'
       );
     }
   }
