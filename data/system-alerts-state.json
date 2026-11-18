@@ -81,18 +81,19 @@
       "firstAlertedAt": "2026-11-18T18:06:39.610Z"
     },
     "api-health:ETS2Map area": {
-      "severity": "warning",
+      "severity": "critical",
       "system": "API Resilience",
-      "message": "ETS2Map area is degraded after repeated request failures.",
+      "message": "ETS2Map area is down or its circuit breaker is open.",
       "details": {
         "service": "ETS2Map area",
-        "consecutiveFailures": 1,
+        "consecutiveFailures": 5,
         "lastSuccessAt": "2026-10-09T00:08:21.101Z",
-        "lastFailureAt": "2026-11-18T19:25:01.799Z",
-        "circuitOpenUntil": null,
+        "lastFailureAt": "2026-11-18T21:55:57.317Z",
+        "circuitOpenUntil": "2026-11-18T21:56:57.317Z",
         "lastError": "This operation was aborted"
       },
-      "firstAlertedAt": "2026-11-18T19:38:50.279Z"
+      "firstAlertedAt": "2026-11-18T19:38:50.279Z",
+      "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
     "stale-data:data/driver-management-summary.json": {
       "severity": "critical",
@@ -106,12 +107,5 @@
       "firstAlertedAt": "2026-11-18T20:41:58.500Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T21:56:09.211Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
-    }
-  }
+  "pending": {}
 }
