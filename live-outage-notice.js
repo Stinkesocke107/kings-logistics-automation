@@ -96,5 +96,4 @@ async function main(){
   }
   if(problems)process.exitCode=1;
 }
-module.exports={SETTINGS,readSafeState,lastVerified,outageEmbed,webhookBase,updateExisting,main};
 main().catch(error=>{console.error('Kings outage status could not finish.');process.exitCode=1;});
