@@ -105,16 +105,6 @@
       },
       "firstAlertedAt": "2026-11-18T20:41:58.500Z"
     },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled.",
-      "details": {
-        "runId": 44395964410,
-        "completedAt": "2026-11-18T20:55:48Z"
-      },
-      "firstAlertedAt": "2026-11-18T20:55:52.521Z"
-    },
     "workflow-failed:driver-management.yml": {
       "severity": "critical",
       "system": "Driver Management",
@@ -137,18 +127,5 @@
       "firstAlertedAt": "2026-11-18T20:57:22.325Z"
     }
   },
-  "pending": {
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T20:57:22.325Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    },
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T20:57:22.325Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
