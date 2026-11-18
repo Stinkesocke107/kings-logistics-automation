@@ -172,9 +172,9 @@ function buildDriver(data, now = Date.now()) {
   const s = data.driverSummary;
   const t = s.tenure || {};
   const live =
-    `Drivers **${s.currentDrivers ?? current.length}** • Online **${s.onlineNow ?? 0}** • Grace **${s.activity?.grace ?? 0}** • LOA **${s.activity?.approvedLeave ?? 0}**\n` +
+    `Drivers **${s.currentDrivers ?? current.length}** • Online **${s.onlineNow === null || s.onlineNow === undefined ? 'Unavailable' : s.onlineNow}** • Grace **${s.activity?.grace ?? 0}** • LOA **${s.activity?.approvedLeave ?? 0}**\n` +
     `Activity: Active **${s.activity?.active ?? 0}** • Info **${s.activity?.info7Days ?? 0}** • Attention **${s.activity?.attention14Days ?? 0}** • HR Review **${s.activity?.hrReview30Days ?? 0}**\n` +
-    `Tenure: <1m **${t.under1Month ?? 0}** • 1–3m **${t.oneToThreeMonths ?? 0}** • 3–6m **${t.threeToSixMonths ?? 0}** • 6–12m **${t.sixToTwelveMonths ?? 0}** • 1y+ **${(t.oneToTwoYears||0)+(t.twoToThreeYears||0)+(t.threeYearsPlus||0)}**`;
+    `Activity data are advisory and use the last verified observations.`;
   const daily =
     `Joined **${joined.length}** • Left **${left.length}** • Restored **${restored.length}** • New review levels **${reviewChanges.length}** • LOA +**${loaStarted.length}** / ended **${loaEnded.length}**\n` +
     `Newest: ${shortPeople(t.newestDrivers || [], 3)}`;
@@ -298,7 +298,7 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
     description: `One fixed Management dashboard combining the key information from all Leadership areas. Current attention indicators: **${attention}**.`,
     color: KINGS_BLUE,
     fields: [
-      field('🚛 Drivers — Live', `Drivers **${ds.currentDrivers ?? 0}** • Online **${ds.onlineNow ?? 0}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
+      field('🚛 Drivers — Live', `Drivers **${ds.currentDrivers ?? 0}** • Online **${ds.onlineNow === null || ds.onlineNow === undefined ? 'Unavailable' : ds.onlineNow}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
       field('🛡️ Staff — Live', `Current Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
       field('📅 Events — Live', `Tracked **${eventSnap.length}** • Scheduled **${eventSnap.filter(e=>e.status==='Scheduled').length}** • Ready **${eventReady}** • Needs Info **${eventNeeds}**`),
