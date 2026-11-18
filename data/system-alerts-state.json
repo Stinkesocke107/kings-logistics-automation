@@ -104,28 +104,14 @@
         "maxAgeMinutes": 160
       },
       "firstAlertedAt": "2026-11-18T20:41:58.500Z"
-    },
-    "workflow-failed:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management latest completed run ended with failure.",
-      "details": {
-        "runId": 44395887355,
-        "completedAt": "2026-11-18T20:55:40Z"
-      },
-      "firstAlertedAt": "2026-11-18T20:57:22.325Z"
-    },
-    "workflow-overdue:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-18T17:18:14Z",
-        "ageMinutes": 218,
-        "maxAgeMinutes": 150
-      },
-      "firstAlertedAt": "2026-11-18T20:57:22.325Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-18T21:56:09.211Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
+    }
+  }
 }
