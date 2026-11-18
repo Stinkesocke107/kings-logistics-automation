@@ -1,8 +1,9 @@
-// Kings Driver Loyalty — Discord tenure and Kings Driver role are authoritative.
-// No TruckersMP account or nickname matching, and no Kings membership/role assignment.
+// Kings Driver Loyalty — private Kings joining-date register + verified Kings Driver role.
+// Never match by TruckersMP nickname or modify Kings membership/Staff roles.
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
+const { loadRegister } = require('./driver-loyalty-register');
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -110,7 +111,7 @@ function validJoinedAt(member, now) {
   if (!joinedAt || joinedAt > now || joinedAt.getUTCFullYear() < 2015) return null;
   return joinedAt;
 }
-function planDiscordLoyalty(members, managed, now = new Date()) {
+function planDiscordLoyalty(members, managed, now = new Date(), register = {enabled:false, records:new Map()}) {
   if (!Array.isArray(members) || !members.length) throw new Error('Discord member roster is missing or empty.');
   const ids = new Set();
   const managedIds = new Set(managed.ids);
@@ -119,7 +120,8 @@ function planDiscordLoyalty(members, managed, now = new Date()) {
   const stats = {
     guildMembers: members.length, currentDrivers: 0, eligibleForLoyaltyTier: 0,
     missingJoinDate: 0, excludedNonDrivers: 0, nonDriverCleanupCandidates: 0,
-    roleAdditions: 0, roleRemovals: 0, alreadyCorrect: 0
+    roleAdditions: 0, roleRemovals: 0, alreadyCorrect: 0,
+    registeredKingsDates: 0, unregisteredDrivers: 0
   };
   for (const member of members) {
     if (!member?.user?.id || !Array.isArray(member.roles)) {
@@ -143,7 +145,15 @@ function planDiscordLoyalty(members, managed, now = new Date()) {
       // Explicitly remove only Loyalty roles, never Driver/Staff/other Kings roles.
     } else {
       stats.currentDrivers++;
-      const joinedAt = validJoinedAt(member, now);
+      // Once the private register exists, only explicitly recorded Drivers
+      // are updated. Unregistered Drivers keep their current Loyalty roles
+      // until Management records their original Kings joining date.
+      if (register.enabled && !register.records.has(id)) {
+        stats.unregisteredDrivers++;
+        continue;
+      }
+      const joinedAt = register.enabled ? register.records.get(id) : validJoinedAt(member, now);
+      if (register.enabled) stats.registeredKingsDates++;
       if (!joinedAt) {
         stats.missingJoinDate++;
         continue; // Never remove awards because Discord omitted a join date.
@@ -242,7 +252,7 @@ function writeSummary(summary) {
   fs.writeFileSync(SUMMARY_FILE, JSON.stringify(summary, null, 2) + '\n', 'utf8');
 }
 async function main() {
-  console.log('Kings Driver Loyalty — Discord joined_at + Kings Driver role');
+  console.log('Kings Driver Loyalty — private Kings dates + Kings Driver role');
   console.log('Mode: ' + SYNC_MODE);
 
   const [bot, roles, members] = await Promise.all([
@@ -254,7 +264,11 @@ async function main() {
   const botMember = await getGuildMemberOrNull(bot.id);
   if (!botMember) throw new Error('Kings Systems bot not found in Kings Discord.');
   const managed = resolveManagedRoles(roles);
-  const plan = planDiscordLoyalty(members, managed);
+  const register = await loadRegister(discord, DISCORD_GUILD_ID, roles, members, bot.id, {
+    channelId: process.env.DRIVER_LOYALTY_REGISTER_CHANNEL_ID,
+    channelName: process.env.DRIVER_LOYALTY_REGISTER_CHANNEL_NAME
+  });
+  const plan = planDiscordLoyalty(members, managed, new Date(), register);
   const hierarchy = botCanManageRoles(botMember, roles, managed);
 
   if (SYNC_MODE === 'live' && (!hierarchy.hasManageRoles || hierarchy.blocked.length)) {
@@ -265,6 +279,8 @@ async function main() {
   console.log('Discord Members: ' + plan.stats.guildMembers);
   console.log('Kings Driver members: ' + plan.stats.currentDrivers);
   console.log('Eligible for tier: ' + plan.stats.eligibleForLoyaltyTier);
+  console.log('Private Kings joining-date register: ' + (register.enabled ? 'active' : 'not yet configured'));
+  console.log('Recorded Drivers: ' + plan.stats.registeredKingsDates + '; awaiting registration: ' + plan.stats.unregisteredDrivers);
   console.log('Role changes: add ' + plan.stats.roleAdditions +
     ', remove ' + plan.stats.roleRemovals);
   console.log('Non-Driver cleanup candidates: ' + plan.stats.nonDriverCleanupCandidates);
@@ -277,9 +293,10 @@ async function main() {
   }
 
   const summary = {
-    version: 3,
+    version: 4,
     mode: SYNC_MODE,
-    source: 'discord-guild-joined_at',
+    source: register.enabled ? 'management-private-kings-date-register' : 'discord-guild-joined_at',
+    registrationChannelActive: register.enabled,
     eligibility: 'Kings Driver role only (not Trial, Staff-only, Partners or bots)',
     updatedAt: nowISO(),
     ...plan.stats,
@@ -298,6 +315,8 @@ async function main() {
     safety: {
       fullDiscordRosterRequired: true,
       safeJoinDateRequired: true,
+      authorizedManagementRecordsOnly: true,
+      unregisteredDriversPreserved: true,
       verifiedKingsDriverRoleRequired: true,
       dangerousRolePermissionsBlocked: true,
       managedRoleRemovalsCapped: MAX_ROLE_REMOVALS_PER_RUN,
