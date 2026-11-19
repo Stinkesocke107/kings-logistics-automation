@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const {
   parseDriverIdentityRecord, createPlatformIndex, addIdentityToIndex
 } = require('../driver-identity-register.js');
-const { loadRegister } = require('../driver-loyalty-register.js');
+const { loadRegister,managementRole,assertPrivateChannel } = require('../driver-loyalty-register.js');
 const now = new Date('2026-11-19T10:00:00Z');
 
 test('legacy two-line records remain valid with no platform mapping', () => {
@@ -84,4 +84,34 @@ test('private Discord loader exposes verified mappings only in memory, preservin
     {id:'898',author:{id:manager},content:'id: 123456789012345680\ntruckersmp_id: 1234567\ndatum: 3.3.2021'}
   ];
   await assert.rejects(loadRegister(discord,guild,roles,members,bot),/Duplicate truckersmp ID/);
+});
+
+
+test('department-specific Head Management can see private register, general Driver and Staff roles cannot',()=>{
+  const guild='1114967437788577792';
+  const head={id:'170000000000000011',name:'Head Management - Driver Services'};
+  const management={id:'170000000000000012',name:'Kings Management - Human Resources'};
+  const driver={id:'170000000000000013',name:'Kings Driver'};
+  const staff={id:'170000000000000014',name:'Staff - Driver Services'};
+  assert.equal(managementRole(head),true);
+  assert.equal(managementRole(management),true);
+  assert.equal(managementRole(driver),false);
+  assert.equal(managementRole(staff),false);
+  assert.equal(managementRole({name:'Management Admin Everyone'}),false);
+  const overwrites=[
+    {id:guild,type:0,allow:'0',deny:'1024'},
+    {id:head.id,type:0,allow:'1024',deny:'0'},
+    {id:management.id,type:0,allow:'1024',deny:'0'}
+  ];
+  const channel={id:'1572736232969084948',guild_id:guild,type:0,
+    permission_overwrites:overwrites};
+  const owner='999000000000000001',bot='999000000000000003';
+  assert.doesNotThrow(()=>assertPrivateChannel(channel,guild,
+    [head,management,driver,staff],[],owner,bot));
+  assert.throws(()=>assertPrivateChannel({...channel,
+    permission_overwrites:[...overwrites,{id:driver.id,type:0,allow:'1024',deny:'0'}]
+  },guild,[head,management,driver,staff],[],owner,bot),/non-Management role.*kings driver/);
+  assert.throws(()=>assertPrivateChannel({...channel,
+    permission_overwrites:[...overwrites,{id:staff.id,type:0,allow:'1024',deny:'0'}]
+  },guild,[head,management,driver,staff],[],owner,bot),/non-Management role.*staff driver services/);
 });
