@@ -74,40 +74,40 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
+    "workflow-failed:self-healing.yml": {
+      "severity": "warning",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure.",
       "details": {
-        "runId": 44428896015,
-        "completedAt": "2026-11-19T00:26:00Z"
+        "runId": 44427795909,
+        "completedAt": "2026-11-19T00:18:28Z"
       },
-      "firstAlertedAt": "2026-11-19T00:26:27.626Z"
+      "firstAlertedAt": "2026-11-19T00:27:23.004Z"
     },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
+    "workflow-overdue:self-healing.yml": {
+      "severity": "warning",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window.",
       "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
+        "latestActivityAt": "2026-11-18T15:52:05Z",
+        "ageMinutes": 515,
+        "maxAgeMinutes": 90
       },
-      "firstAlertedAt": "2026-11-19T00:26:27.626Z"
+      "firstAlertedAt": "2026-11-19T00:27:23.004Z"
     }
   },
   "pending": {
-    "workflow-failed:self-healing.yml": {
+    "workflow-failed:system-monitoring.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-19T00:26:27.626Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
+      "firstSeenAt": "2026-11-19T00:27:23.004Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
     },
-    "workflow-overdue:self-healing.yml": {
+    "workflow-overdue:system-monitoring.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-19T00:26:27.626Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "firstSeenAt": "2026-11-19T00:27:23.004Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
     }
   }
 }
