@@ -17,6 +17,7 @@ on:
     paths:
       - 'driver-loyalty-roles.js'
       - 'driver-loyalty-register.js'
+      - 'driver-identity-register.js'
       - '.github/workflows/driver-achievements.yml'
 
   schedule:
@@ -67,6 +68,7 @@ jobs:
         run: |
           node --check driver-loyalty-roles.js
           node --check driver-loyalty-register.js
+          node --check driver-identity-register.js
 
       - name: Preflight full Kings Driver Loyalty sync (no role writes)
         if: steps.loyalty_mode.outputs.mode == 'live'
