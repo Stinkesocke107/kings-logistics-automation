@@ -74,16 +74,6 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure.",
-      "details": {
-        "runId": 44440363081,
-        "completedAt": "2026-11-19T01:55:17Z"
-      },
-      "firstAlertedAt": "2026-11-19T02:02:23.001Z"
-    },
     "workflow-failed:live-tracker.yml": {
       "severity": "critical",
       "system": "Live Tracker / Statistics",
@@ -106,18 +96,5 @@
       "firstAlertedAt": "2026-11-19T03:23:15.208Z"
     }
   },
-  "pending": {
-    "security-main-protection-unverified": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T03:23:15.208Z",
-      "system": "GitHub Repository Protection",
-      "message": "Could not verify repository rulesets from the GitHub API."
-    },
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T03:23:15.208Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
