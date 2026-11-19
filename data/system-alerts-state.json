@@ -73,48 +73,14 @@
       },
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
-    },
-    "workflow-failed:driver-achievements.yml": {
-      "severity": "warning",
-      "system": "Driver Achievements",
-      "message": "Driver Achievements latest completed run ended with failure.",
-      "details": {
-        "runId": 44522600430,
-        "completedAt": "2026-11-19T12:18:19Z"
-      },
-      "firstAlertedAt": "2026-11-19T12:52:53.301Z"
-    },
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "severity": "warning",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
-      "details": {
-        "runId": 44608284847,
-        "completedAt": "2026-11-19T20:24:46Z"
-      },
-      "firstAlertedAt": "2026-11-19T20:26:54.391Z"
-    },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 44609085384,
-        "completedAt": "2026-11-19T20:29:28Z"
-      },
-      "firstAlertedAt": "2026-11-19T20:29:57.735Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-19T20:29:57.735Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T21:30:29.344Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
+    }
+  }
 }
