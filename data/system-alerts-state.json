@@ -74,17 +74,40 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "stale-data:data/driver-management-summary.json": {
+    "workflow-failed:live-tracker.yml": {
       "severity": "critical",
-      "system": "Driver Management data",
-      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
       "details": {
-        "updatedAt": "2026-11-19T03:21:56.314Z",
-        "ageMinutes": 255,
-        "maxAgeMinutes": 160
+        "runId": 44481012916,
+        "completedAt": "2026-11-19T07:37:49Z"
       },
-      "firstAlertedAt": "2026-11-19T07:37:32.614Z"
+      "firstAlertedAt": "2026-11-19T07:38:12.358Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-19T07:38:12.358Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T07:38:12.358Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T07:38:12.358Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
