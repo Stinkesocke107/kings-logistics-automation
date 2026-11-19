@@ -212,5 +212,8 @@ test('reuses existing 42-workflow registry and only runs manual welcome review m
   assert.match(workflow,/LEADERSHIP_CONSOLIDATED_ONLY: 'false'/);
   assert.match(workflow,/DRIVER_UPDATES_WEBHOOK_URL: \$\{\{ secrets\.DRIVER_UPDATES_WEBHOOK_URL \}\}/);
   assert.match(workflow,/DRIVER_WELCOME_REVIEW_MODE: \$\{\{ inputs\.report/);
+  assert.match(workflow,/Read-only Welcome Review privacy preflight/);
+  assert.match(workflow,/DRIVER_WELCOME_REVIEW_MODE: preflight/);
+  assert.match(workflow,/continue-on-error: true/);
   assert.doesNotMatch(workflow,/run: node driver-welcome-register-review.js[\s\S]*Save.+Register/i);
 });
