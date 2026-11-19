@@ -58,7 +58,7 @@ function assertPrivateLeadershipChannel(channel, roles, guildId) {
       // Kings Driver membership roles. Never reject every role containing
       // the word 'driver': that wrongly blocked the real Leadership channel.
       const generalAudience = /(^|-)driver(s)?($|-)|(^|-)trial($|-)|(^|-)partner(s)?($|-)|(^|-)community($|-)/.test(role || '');
-      const leadershipOnly = /^(?:kings-)?(?:driver-(?:leadership|management|services|operations)(?:-leadership|-management)?|driver-team-lead|driver-director)$/.test(role || '');
+      const leadershipOnly = /^(?:kings-)?(?:driver-(?:leadership|management|services|operations)(?:-leadership|-management)?|driver-team-lead|driver-director|(?:head-management|management|director|team-lead|head-staff|high-staff|staff)-(?:driver-services|driver-operations|driver-leadership|driver-management))$/.test(role || '');
       if (!role || (generalAudience && !leadershipOnly)) {
         throw new Error('Driver Leadership review blocked: non-Leadership role with View Channel access: ' +
           (role || 'unknown role') + '. Remove its View Channel allow permission.');

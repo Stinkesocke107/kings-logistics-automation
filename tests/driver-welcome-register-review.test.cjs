@@ -114,7 +114,10 @@ test('Driver Leadership and Driver Management roles are not mistaken for ordinar
   const access=[
     {id:'170000000000000010',name:'Driver Leadership'},
     {id:'170000000000000011',name:'Driver Management'},
-    {id:'170000000000000012',name:'Kings Driver Leadership'}
+    {id:'170000000000000012',name:'Kings Driver Leadership'},
+    {id:'170000000000000014',name:'Head Management - Driver Services'},
+    {id:'170000000000000015',name:'Management - Driver Services'},
+    {id:'170000000000000016',name:'Team Lead - Driver Services'}
   ];
   const channel={...privateChannel(),permission_overwrites:[
     ...privateChannel().permission_overwrites,
