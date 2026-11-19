@@ -11,10 +11,15 @@ function normalizeRoleName(name = '') {
     .replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
 }
 function managementRole(role) {
-  return new Set([
+  const name=normalizeRoleName(role?.name);
+  if(new Set([
     'ceo', 'ceo founder', 'kings ceo', 'kings ceo founder',
     'management', 'kings management', 'head management', 'kings head management'
-  ]).has(normalizeRoleName(role?.name));
+  ]).has(name)) return true;
+  // Department-specific top Leadership titles remain Management, rather than
+  // ordinary Staff / Driver roles. Explicit department allowlist prevents
+  // broad access through arbitrary role-name fragments.
+  return /^(?:kings )?(?:head management|management) (?:human resources|hr|events|event coordination|creative|driver services|driver operations|development|media|community support)$/.test(name);
 }
 const parseRecord = parseDriverIdentityRecord;
 
@@ -44,7 +49,8 @@ function assertPrivateChannel(channel, guildId, roles, members, ownerId, botId) 
     if (Number(overwrite.type) === 0) {
       const role = byId.get(String(overwrite.id));
       if (!managementRole(role) && String(role?.tags?.bot_id || '') !== String(botId)) {
-        throw new Error('Loyalty register has a non-Management role with View Channel access.');
+        throw new Error('Loyalty register has a non-Management role with View Channel access: '+
+          normalizeRoleName(role?.name || 'unknown')+'.');
       }
     } else if (Number(overwrite.type) === 1) {
       if (String(overwrite.id) !== String(botId) &&
