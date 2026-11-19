@@ -60,6 +60,19 @@ jobs:
           node --check driver-leadership-reports.js
           node --check driver-welcome-register-review.js
 
+      # A real Discord GET-only diagnostic on this workflow's relevant pushes.
+      # It must never publish driver IDs/dates or change any Discord messages.
+      # An external Discord permission issue is visible as a failed step, but
+      # cannot block a syntactically valid code fix from being verified.
+      - name: Read-only Welcome Review privacy preflight
+        continue-on-error: true
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DRIVER_UPDATES_WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
+          DRIVER_WELCOME_REVIEW_MODE: preflight
+        run: node driver-welcome-register-review.js
+
+
   daily:
     if: >-
       github.ref == 'refs/heads/main' &&
