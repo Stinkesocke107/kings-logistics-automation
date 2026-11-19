@@ -4,7 +4,7 @@ This private Discord register is the authoritative source of a **Kings Driver's 
 
 ## Setup
 
-1. Create a **private text channel** on the Kings Discord named exactly `driver-loyalty-records`. Do not create a public channel.
+1. Use the already created private Kings Discord channel **`1572736232969084948`** (`<#1572736232969084948>`). This exact channel ID is pinned in both GitHub Actions workflows, `driver-achievements.yml` and `live-tracker.yml`, through `DRIVER_LOYALTY_REGISTER_CHANNEL_ID`. The configured ID is authoritative, so the channel can keep its existing Discord name; do **not** create a second register channel. Never make this channel public.
 2. Deny **View Channel** to `@everyone`.
 3. Allow **View Channel** and **Read Message History** only for **Management**, **Head Management**, and **CEO**, along with the Kings Systems bot. Users with Discord's Administrator permission may also be able to view private channels regardless of channel overrides.
 4. Do not give other Staff, Drivers, Trial Drivers, Partner or community roles channel visibility. The automation checks explicit channel permission overwrites and refuses role updates if access has been explicitly granted to unrelated users or roles.
@@ -27,6 +27,8 @@ kings_join_date: 02.02.2020
 
 The IDs above are examples, not real driver accounts. `id` and `discord_id` are aliases, as are `datum` and `kings_join_date`; never include both versions of the same field in one message. Keep the Discord ID first. The mandatory date is the **original Kings membership date**, not the Discord join date or a platform registration date. The day and month may have one or two digits. The three platform ID fields are optional; use `-` or omit a field when no verified ID is available. TruckersMP IDs are positive numeric strings; HaulMP and TrucklineMP IDs are treated as opaque alphanumeric identifiers (including `-` and `_`) pending provider integrations. Do not assume a player's display name proves identity.
 
+**Important distinction:** This private channel stores identity links and the original Kings joining dates. It is **not** a source of real-time game presence, positions, or live activity. The Live Tracker still gets actual TruckersMP server data from the existing TruckersMP APIs and (where available) its player-map feed. Official server totals alone cannot establish which Kings drivers are online. If that player feed is unavailable, the tracker must mark live data unavailable and preserve the last verified aggregates — never fabricate an online count. HaulMP and TrucklineMP account IDs can already be recorded in this register; integration of their own live-data sources remains future work. No Trucky app registration or alternative third-party provider is required by this channel configuration.
+
 ## Updating entries
 
 - Edit the existing Driver record if the original Kings date or a verified platform ID needs correction.
@@ -35,7 +37,7 @@ The IDs above are examples, not real driver accounts. `id` and `discord_id` are 
 - Only messages authored by current Management/CEO members (or the guild owner) are accepted.
 - Only members with the verified full **Kings Driver** Discord role can receive Loyalty awards.
 - Once the private register is active, registered Kings Drivers are assigned the highest earned cosmetic Loyalty role based on the recorded date. Unregistered Drivers retain their **existing** role assignments unchanged during migration; they are not guessed from TruckersMP, usernames or the Discord server join date.
-- When the channel has not been created yet, the previous Discord joining-date calculation stays in effect. With a configured but unsafe channel, the sync fails rather than making role changes.
+- Because the register channel ID is now explicitly configured in GitHub Actions, a missing, inaccessible, or unsafe channel **fails closed** instead of falling back to the Discord-server join date. Once the channel is active, Drivers without records keep their existing Loyalty roles unchanged until Management adds their original joining dates.
 - The automation runs with the existing daily and recovery schedule and does **not** create, edit or delete messages in the register.
 
 ## Privacy

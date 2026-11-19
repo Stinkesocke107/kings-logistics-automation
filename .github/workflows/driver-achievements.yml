@@ -75,6 +75,7 @@ jobs:
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LOYALTY_REGISTER_CHANNEL_ID: '1572736232969084948'
           DRIVER_LOYALTY_ROLE_MODE: dry-run
         run: node driver-loyalty-roles.js
 
@@ -83,6 +84,7 @@ jobs:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
+          DRIVER_LOYALTY_REGISTER_CHANNEL_ID: '1572736232969084948'
           DRIVER_LOYALTY_ROLE_MODE: ${{ steps.loyalty_mode.outputs.mode }}
         run: node driver-loyalty-roles.js
 
