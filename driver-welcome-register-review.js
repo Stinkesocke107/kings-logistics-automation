@@ -271,7 +271,17 @@ async function generateWelcomeReview({token, webhookUrl, transport=fetch, enforc
     currentWebhookMessages:sourceMessages.filter(m=>String(m?.webhook_id||'')===String(webhookId)).length,
     welcomeEmbeds:sourceMessages.filter(m=>(m.embeds||[]).some(e=>
       String(e.title||'').includes('Welcome to the Kings Family'))).length,
-    welcomeText:sourceMessages.filter(m=>/Please welcome/i.test(String(m.content||''))).length
+    welcomeText:sourceMessages.filter(m=>/Please welcome/i.test(String(m.content||''))).length,
+    textWithDirectMention:sourceMessages.filter(m=>/Please welcome/i.test(String(m.content||'')) &&
+      /<@!?\d{17,20}>/.test(String(m.content||''))).length,
+    textFromBot:sourceMessages.filter(m=>/Please welcome/i.test(String(m.content||'')) &&
+      m.author?.bot===true).length,
+    textWithWebhook:sourceMessages.filter(m=>/Please welcome/i.test(String(m.content||'')) &&
+      Boolean(m.webhook_id)).length,
+    textWithKings:sourceMessages.filter(m=>/Please welcome/i.test(String(m.content||'')) &&
+      /Kings (Family|Logistics)/i.test(String(m.content||''))).length,
+    textWithDriverRole:sourceMessages.filter(m=>/Please welcome/i.test(String(m.content||'')) &&
+      /(?:Trial )?Driver/i.test(String(m.content||''))).length
   };
   const index = selectEarliestWelcomes(sourceMessages,webhookId);
   const rows = buildWelcomeRows(drivers,index,GUILD_ID,updates.id);
@@ -303,6 +313,12 @@ async function main() {
     ' messages, '+report.counts.sourceStats.currentWebhookMessages+' current webhook messages, '+
     report.counts.sourceStats.welcomeEmbeds+' welcome-title embeds, '+
     report.counts.sourceStats.welcomeText+' plain-text welcome candidates.');
+  console.log('Legacy welcome hints (aggregate only): '+
+    report.counts.sourceStats.textWithDirectMention+' direct Discord mentions, '+
+    report.counts.sourceStats.textFromBot+' bot authors, '+
+    report.counts.sourceStats.textWithWebhook+' webhook messages, '+
+    report.counts.sourceStats.textWithKings+' Kings references, '+
+    report.counts.sourceStats.textWithDriverRole+' Driver-role references.');
   if (mode !== 'publish') {
     console.log(mode === 'preflight'
       ? 'READ-ONLY PREFLIGHT: private Leadership permission checks passed; no Discord writes.'
