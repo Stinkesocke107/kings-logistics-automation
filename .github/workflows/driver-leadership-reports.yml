@@ -13,12 +13,15 @@ on:
           - daily-publish
           - monthly-preview
           - monthly-publish
+          - welcome-review-preview
+          - welcome-review-publish
 
   push:
     branches:
       - main
     paths:
       - 'driver-leadership-reports.js'
+      - 'driver-welcome-register-review.js'
       - '.github/workflows/driver-leadership-reports.yml'
 
   schedule:
@@ -53,7 +56,9 @@ jobs:
           node-version: '24'
 
       - name: Verify Driver Leadership reports
-        run: node --check driver-leadership-reports.js
+        run: |
+          node --check driver-leadership-reports.js
+          node --check driver-welcome-register-review.js
 
   daily:
     if: >-
@@ -144,3 +149,36 @@ jobs:
           git add data/driver-leadership-report-state.json
           git commit -m "Update Driver Leadership monthly report state"
           bash scripts/git-safe-push.sh main
+
+  welcome-review:
+    # Intentional, operator-triggered review only. Never backfill joining dates
+    # or send per-member information during schedules or routine code pushes.
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'workflow_dispatch' &&
+      (inputs.report == 'welcome-review-preview' || inputs.report == 'welcome-review-publish')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Explicit, narrowly scoped manual report exception. The consolidated
+      # daily/monthly Leadership report policy remains unchanged.
+      LEADERSHIP_CONSOLIDATED_ONLY: 'false'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify welcome review implementation
+        run: node --check driver-welcome-register-review.js
+
+      - name: Review historical Driver Updates welcomes for private Leadership
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DRIVER_UPDATES_WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
+          DRIVER_WELCOME_REVIEW_MODE: ${{ inputs.report == 'welcome-review-publish' && 'publish' || 'preview' }}
+        run: node driver-welcome-register-review.js
