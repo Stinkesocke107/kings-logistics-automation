@@ -29,6 +29,19 @@ The IDs above are examples, not real driver accounts. `id` and `discord_id` are 
 
 **Important distinction:** This private channel stores identity links and the original Kings joining dates. It is **not** a source of real-time game presence, positions, or live activity. The Live Tracker still gets actual TruckersMP server data from the existing TruckersMP APIs and (where available) its player-map feed. Official server totals alone cannot establish which Kings drivers are online. If that player feed is unavailable, the tracker must mark live data unavailable and preserve the last verified aggregates — never fabricate an online count. HaulMP and TrucklineMP account IDs can already be recorded in this register; integration of their own live-data sources remains future work. No Trucky app registration or alternative third-party provider is required by this channel configuration.
 
+## Easier onboarding-date review from Driver Updates
+
+The **Kings Driver Leadership Reports** GitHub Actions workflow now supports a safe on-demand historical welcome-date report:
+
+1. Open **Actions → Kings Driver Leadership Reports → Run workflow**.
+2. Choose **welcome-review-preview** first. It scans the existing `driver-updates` channel but shows **only aggregate counts** in GitHub Actions logs; it sends **no** Discord messages.
+3. Choose **welcome-review-publish** to publish/update paginated lists in the existing private `driver-leadership` channel. Each current Kings Driver/Trial Driver has a row with their Discord user ID, role, the oldest identifiable **official welcome-message timestamp**, and a direct Discord link to that message. Missing historical welcomes are marked as unknown; no names are matched or guessed.
+4. For each Driver, verify that the welcome-message time actually reflects the **original Kings joining date**. Only then create a **separate Management-authored record** in <#1572736232969084948> using the extended record format above.
+
+**Important:** The report is a manual review aid, **not a data migration**. A welcome announcement may have been delayed, may have used an earlier webhook, or may have been sent after a member rejoined. The posted date is **not automatically accepted** as the Kings joining date and does not automatically trigger a Loyalty role. The scan verifies the official Driver Updates webhook, ignores promotions/departures, and includes only current verified Driver/Trial roles. It does not use guessed TruckersMP mappings, nor does it modify the existing announcements. No personal roster, Discord IDs, message links or dates are written to public GitHub files or Actions logs. Publishing refuses a channel without explicit @everyone denial or with Driver/Trial visibility overrides.
+
+The report is **manual-only** to avoid repeated Leadership spam. Existing Daily/Monthly Driver Leadership reports and welcome messages continue unchanged. If there is no identifiable welcome announcement, verify the original Kings date using internal records instead of inventing one.
+
 ## Updating entries
 
 - Edit the existing Driver record if the original Kings date or a verified platform ID needs correction.
