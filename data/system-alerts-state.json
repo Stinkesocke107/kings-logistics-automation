@@ -84,27 +84,6 @@
       },
       "firstAlertedAt": "2026-11-19T12:52:53.301Z"
     },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 44575926494,
-        "completedAt": "2026-11-19T17:20:03Z"
-      },
-      "firstAlertedAt": "2026-11-19T17:20:38.954Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-19T17:20:38.954Z"
-    },
     "workflow-failed:system-monitoring.yml": {
       "severity": "warning",
       "system": "System Monitoring",
@@ -114,20 +93,34 @@
         "completedAt": "2026-11-19T20:25:23Z"
       },
       "firstAlertedAt": "2026-11-19T20:25:39.871Z"
+    },
+    "workflow-failed:driver-leadership-reports.yml": {
+      "severity": "warning",
+      "system": "Driver Leadership Reports",
+      "message": "Driver Leadership Reports latest completed run ended with failure.",
+      "details": {
+        "runId": 44606768257,
+        "completedAt": "2026-11-19T20:15:47Z"
+      },
+      "firstAlertedAt": "2026-11-19T20:26:54.391Z"
+    },
+    "workflow-failed:staff-leadership-live-overview.yml": {
+      "severity": "warning",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
+      "details": {
+        "runId": 44608284847,
+        "completedAt": "2026-11-19T20:24:46Z"
+      },
+      "firstAlertedAt": "2026-11-19T20:26:54.391Z"
     }
   },
   "pending": {
-    "workflow-failed:driver-leadership-reports.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-19T20:25:39.871Z",
-      "system": "Driver Leadership Reports",
-      "message": "Driver Leadership Reports latest completed run ended with failure."
-    },
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T20:25:39.871Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure."
+      "firstSeenAt": "2026-11-19T20:26:54.391Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     }
   }
 }
