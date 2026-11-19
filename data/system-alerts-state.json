@@ -104,18 +104,20 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-19T13:00:53.960Z"
-    },
-    "stale-data:data/driver-management-summary.json": {
-      "severity": "critical",
-      "system": "Driver Management data",
-      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-11-19T12:58:41.951Z",
-        "ageMinutes": 228,
-        "maxAgeMinutes": 160
-      },
-      "firstAlertedAt": "2026-11-19T16:47:41.961Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T16:48:48.178Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T16:48:48.178Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
