@@ -1,6 +1,6 @@
-# Kings Driver Loyalty — private Management register
+# Kings Driver Identity & Loyalty — private Management register
 
-This private Discord register replaces Discord-server tenure as the source of a **Kings Driver's original Kings joining date**. The monthly Driver Leadership membership-duration section and automated TruckersMP achievement notices are disabled. Welcome and promotion messages in **Driver Updates are unchanged**.
+This private Discord register is the authoritative source of a **Kings Driver's original Kings joining date**, and may also hold **verified Discord ↔ platform account mappings**. It is intentionally the same existing Management channel, not a second public database. The monthly Driver Leadership membership-duration section and automated TruckersMP achievement notices remain disabled. Welcome and promotion messages in **Driver Updates are unchanged**.
 
 ## Setup
 
@@ -8,20 +8,30 @@ This private Discord register replaces Discord-server tenure as the source of a 
 2. Deny **View Channel** to `@everyone`.
 3. Allow **View Channel** and **Read Message History** only for **Management**, **Head Management**, and **CEO**, along with the Kings Systems bot. Users with Discord's Administrator permission may also be able to view private channels regardless of channel overrides.
 4. Do not give other Staff, Drivers, Trial Drivers, Partner or community roles channel visibility. The automation checks explicit channel permission overwrites and refuses role updates if access has been explicitly granted to unrelated users or roles.
-5. An authorised Management/CEO account must post **one ordinary message per Driver**, exactly two lines:
+5. An authorised Management/CEO account posts **one ordinary message per Driver**. The existing two-line format is still fully supported:
 
 ```text
 id: 123456789012345678
 datum: 2.2.2020
 ```
 
-Replace the example ID and date with the **real Discord user ID** (17–20 digits) and the **original Kings membership date**, not the Discord server join date. The month and day may have one or two digits.
+Alternatively, use the extended identity format:
+
+```text
+discord_id: 123456789012345678
+truckersmp_id: 1234567
+haulmp_id: -
+trucklinemp_id: -
+kings_join_date: 02.02.2020
+```
+
+The IDs above are examples, not real driver accounts. `id` and `discord_id` are aliases, as are `datum` and `kings_join_date`; never include both versions of the same field in one message. Keep the Discord ID first. The mandatory date is the **original Kings membership date**, not the Discord join date or a platform registration date. The day and month may have one or two digits. The three platform ID fields are optional; use `-` or omit a field when no verified ID is available. TruckersMP IDs are positive numeric strings; HaulMP and TrucklineMP IDs are treated as opaque alphanumeric identifiers (including `-` and `_`) pending provider integrations. Do not assume a player's display name proves identity.
 
 ## Updating entries
 
-- Edit the existing two-line message if the original Kings date was entered incorrectly.
+- Edit the existing Driver record if the original Kings date or a verified platform ID needs correction.
 - Delete an obsolete message if it should no longer be used.
-- Never have two valid records for the same Discord ID. Duplicates or malformed record messages stop role updates until resolved.
+- Never have two valid records for the same Discord ID, or assign one platform account ID to different Discord members. Duplicates, unknown fields or malformed records stop role updates until resolved.
 - Only messages authored by current Management/CEO members (or the guild owner) are accepted.
 - Only members with the verified full **Kings Driver** Discord role can receive Loyalty awards.
 - Once the private register is active, registered Kings Drivers are assigned the highest earned cosmetic Loyalty role based on the recorded date. Unregistered Drivers retain their **existing** role assignments unchanged during migration; they are not guessed from TruckersMP, usernames or the Discord server join date.
@@ -30,7 +40,11 @@ Replace the example ID and date with the **real Discord user ID** (17–20 digit
 
 ## Privacy
 
-The register is read directly through the Kings Systems Discord bot. Individual ID/date mappings are not copied into the publicly accessible GitHub repository. The public Loyalty summary includes only aggregate counts.
+The register is read directly through the Kings Systems Discord bot. Individual ID/date mappings are **not copied into the publicly accessible GitHub repository**. The role sync continues consuming only the `records` map of original Kings joining dates. A new `identities` map and per-platform `platformIndex` exist **only in process memory** for later verified cross-system integration. The public Loyalty summary includes only aggregate counts. Do not log individual identity objects or add them to public tracker snapshots.
+
+## Future system integrations
+
+The shared parser lives in `driver-identity-register.js`, and `loadRegister()` in `driver-loyalty-register.js` provides the private verified identity lookup once Management has configured the channel. The existing Loyalty role logic remains unchanged. **Live Tracker, Statistics, Driver Management and Convoy reporting have not yet been connected to the new identity lookup**; those integrations need separate access, privacy and data-source verification before activation.
 
 ## Other messages
 

@@ -1,8 +1,7 @@
-// Private, read-only Kings Loyalty date register.
-// One management-authored message per Driver:
-// id: 123456789012345678
-// datum: 2.2.2020
+// Private, read-only Kings Driver Loyalty + identity register.
+// Legacy two-line records remain supported; verified platform IDs are optional.
 // No IDs or dates are written to the public GitHub repository.
+const { parseDriverIdentityRecord, createPlatformIndex, addIdentityToIndex } = require('./driver-identity-register');
 const VIEW_CHANNEL = 1n << 10n;
 const MAX_MESSAGES = 2000;
 const CHANNEL_NAME = 'driver-loyalty-records';
@@ -17,21 +16,8 @@ function managementRole(role) {
     'management', 'kings management', 'head management', 'kings head management'
   ]).has(normalizeRoleName(role?.name));
 }
-function parseRecord(content, now = new Date()) {
-  const raw = String(content || '').trim();
-  if (!/^id\s*:/i.test(raw)) return null;
-  const found = /^id\s*:\s*(?:<@!?(\d{17,20})>|(\d{17,20}))\s*\n\s*datum\s*:\s*(\d{1,2})\.(\d{1,2})\.(\d{4})\.?\s*$/i.exec(raw);
-  if (!found) throw new Error('Invalid Loyalty record. Required two lines: id: DISCORD_ID / datum: D.M.YYYY');
-  const userId = found[1] || found[2];
-  const day = Number(found[3]), month = Number(found[4]), year = Number(found[5]);
-  const joinedAt = new Date(Date.UTC(year, month - 1, day));
-  if (year < 2015 || !Number.isFinite(joinedAt.getTime()) ||
-      joinedAt.getUTCFullYear() !== year || joinedAt.getUTCMonth() !== month - 1 ||
-      joinedAt.getUTCDate() !== day || joinedAt > now) {
-    throw new Error('Invalid or future Kings joining date in Loyalty register');
-  }
-  return { userId, joinedAt };
-}
+const parseRecord = parseDriverIdentityRecord;
+
 function authorizedManager(userId, members, roles, ownerId) {
   if (String(userId) === String(ownerId)) return true;
   const member = members.find((m) => String(m?.user?.id) === String(userId));
@@ -81,7 +67,7 @@ async function loadRegister(discord, guildId, roles, members, botId, options = {
   if (candidates.length === 0 && !desiredId) {
     // Before a Management-only channel has been configured, preserve existing
     // roles and the established Discord-joined_at calculation.
-    return { enabled: false, records: new Map(), channelId: null };
+    return { enabled: false, records: new Map(), identities: new Map(), platformIndex: createPlatformIndex(), channelId: null };
   }
   if (candidates.length !== 1) throw new Error('Missing or ambiguous private Kings Loyalty channel.');
   const channel = candidates[0];
@@ -90,6 +76,9 @@ async function loadRegister(discord, guildId, roles, members, botId, options = {
   assertPrivateChannel(channel, guildId, roles, members, guild.owner_id, botId);
 
   const records = new Map();
+  // Memory-only identity lookup for later Live Tracker and Driver integrations.
+  const identities = new Map();
+  const platformIndex = createPlatformIndex();
   let before = '';
   for (let page = 0; page < MAX_MESSAGES / 100; page++) {
     const params = new URLSearchParams({limit:'100'});
@@ -105,9 +94,11 @@ async function loadRegister(discord, guildId, roles, members, botId, options = {
       if (records.has(parsed.userId)) {
         throw new Error('Duplicate Loyalty register entry for the same Discord ID; remove outdated entry first.');
       }
+      addIdentityToIndex(platformIndex, parsed);
       records.set(parsed.userId, parsed.joinedAt);
+      identities.set(parsed.userId, parsed);
     }
-    if (batch.length < 100) return { enabled: true, records, channelId: String(channel.id) };
+    if (batch.length < 100) return { enabled: true, records, identities, platformIndex, channelId: String(channel.id) };
     before = String(batch[batch.length - 1]?.id || '');
     if (!before) throw new Error('Incomplete private Loyalty record history.');
   }
