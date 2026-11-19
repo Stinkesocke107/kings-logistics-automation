@@ -70,27 +70,53 @@ function assertPrivateLeadershipChannel(channel, roles, guildId) {
 }
 
 function parseWelcomeMessage(message, webhookId) {
-  if (String(message?.webhook_id || '') !== String(webhookId) ||
-      !snowflake(message?.id)) return null;
-  const titles = Array.isArray(message.embeds) ? message.embeds : [];
-  const welcome = titles.find(embed =>
+  if (!snowflake(message?.id)) return null;
+  const currentWebhook = String(message?.webhook_id || '') === String(webhookId);
+  // Historical Kings welcome messages may use an older webhook or bot.
+  // These are only *candidates* for manual Leadership review: an unrelated
+  // user or arbitrary human message must never be accepted.
+  const historicalBot = message?.author?.bot === true &&
+    (!message.webhook_id || snowflake(message.webhook_id));
+  if (!currentWebhook && !historicalBot) return null;
+
+  const embeds = Array.isArray(message.embeds) ? message.embeds : [];
+  const welcomeEmbed = embeds.find(embed =>
     String(embed?.title || '').includes('Welcome to the Kings Family!') &&
     /^Please welcome /i.test(String(embed?.description || '')));
-  if (!welcome) return null; // Explicitly ignore Trial -> Driver promotions and departures.
 
-  const mentions = [...String(welcome.description).matchAll(/<@!?(\d{17,20})>/g)]
-    .map(match => match[1]);
-  if (new Set(mentions).size !== 1 || !mentions.length) return null;
-  const discordId = mentions[0];
-  // An optional, separately published ping must never identify a different member.
-  const contentMentions = [...String(message.content || '').matchAll(/<@!?(\d{17,20})>/g)]
-    .map(match => match[1]);
-  if (contentMentions.some(id => id !== discordId)) return null;
-  const when = new Date(message.timestamp);
-  if (!Number.isFinite(when.getTime()) || when > new Date() ||
-      when.getUTCFullYear() < 2015) return null;
-  return { discordId, sentAt:when.toISOString(), messageId:String(message.id) };
+  // Former Driver Updates announcements used ordinary webhook text:
+  // "Please welcome <@discordId> to the Kings Family as a Driver".
+  // This path MUST retain a directly tagged Discord member. Do not match
+  // usernames or TruckersMP names and do not accept promotions/departures.
+  const sourceText = welcomeEmbed
+    ? String(welcomeEmbed.description || '')
+    : String(message.content || '');
+  if (!/Please welcome\s+<@!?(\d{17,20})>[\s\S]{0,350}\bto\s+(?:the\s+)?[\s\S]{0,220}\bKings\s+(?:Family|Logistics)\b[\s\S]{0,220}\bas\s+a\s+[\s\S]{0,70}\b(?:Trial\s+Driver|Driver)\b/i.test(sourceText)) {
+    return null;
+  }
+
+  const mentions = [...sourceText.matchAll(/<@!?(\d{17,20})>/g)].map(match=>match[1]);
+  if (mentions.length===0 || new Set(mentions).size!==1) return null;
+  const discordId=mentions[0];
+  // In an embed-based update, public ping content must not name a different
+  // driver. Other plain-text legacy content was validated in its entirety.
+  if (welcomeEmbed) {
+    const contentMentions=[...String(message.content||'').matchAll(/<@!?(\d{17,20})>/g)]
+      .map(match=>match[1]);
+    if (contentMentions.some(id=>id!==discordId)) return null;
+  }
+  const when=new Date(message.timestamp);
+  if (!Number.isFinite(when.getTime()) || when>new Date() ||
+      when.getUTCFullYear()<2015) return null;
+  return {
+    discordId,
+    sentAt:when.toISOString(),
+    messageId:String(message.id),
+    sourceKind:currentWebhook ? (welcomeEmbed?'current-embed':'current-text')
+      : (welcomeEmbed?'historical-bot-embed':'historical-bot-text')
+  };
 }
+
 function selectEarliestWelcomes(messages, webhookId) {
   const byId = new Map();
   for (const message of messages) {
@@ -103,6 +129,7 @@ function selectEarliestWelcomes(messages, webhookId) {
       if (parsed.sentAt < current.sentAt) {
         current.sentAt = parsed.sentAt;
         current.messageId = parsed.messageId;
+        current.sourceKind = parsed.sourceKind;
       }
     }
   }
@@ -148,6 +175,7 @@ function buildWelcomeRows(drivers, welcomeIndex, guildId, sourceChannelId) {
       ? dateDE(welcome.sentAt) + ' • [Welcome](https://discord.com/channels/' +
         guildId + '/' + sourceChannelId + '/' + welcome.messageId + ')' +
         (welcome.count > 1 ? ' • ' + welcome.count + '×' : '')
+        + (welcome.sourceKind?.startsWith('historical-') ? ' • *Older bot source: verify*' : '')
       : '*No verified welcome in scan*';
     return {
       ...driver,

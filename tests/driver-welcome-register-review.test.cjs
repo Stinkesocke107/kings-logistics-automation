@@ -68,6 +68,48 @@ test('extract only official webhook welcome messages with one unambiguous Discor
   assert.equal(parseWelcomeMessage(wrong,WEBHOOK),null,'Do not match display names');
 });
 
+test('legacy Kings welcome texts from historical bot/webhooks become manual-review candidates',()=>{
+  const historic = {
+    id:'900000000000000019',
+    webhook_id:'888888888888888888',
+    author:{id:'888888888888888888',bot:true},
+    timestamp:'2025-02-02T12:30:00.000Z',
+    content:'<:kings_arrow:1466617263699267694> Please welcome <@'+DRIVER+
+      '> to the <:Kings_Logistics_Logo:1545254529648431124> **Kings Family** '+
+      'as a **Driver**! We are happy to have you with us.',
+    embeds:[]
+  };
+  const candidate=parseWelcomeMessage(historic,WEBHOOK);
+  assert.equal(candidate.discordId,DRIVER);
+  assert.equal(candidate.sentAt,'2025-02-02T12:30:00.000Z');
+  assert.equal(candidate.sourceKind,'historical-bot-text');
+  const withFakeUser={...historic,author:{id:'888888888888888888',bot:false}};
+  assert.equal(parseWelcomeMessage(withFakeUser,WEBHOOK),null,
+    'A human-written copy of the welcome text is not a verified historical bot candidate');
+  const withWrongRecipient={...historic,content:historic.content+' <@'+TRIAL+'>'};
+  assert.equal(parseWelcomeMessage(withWrongRecipient,WEBHOOK),null,
+    'Conflicting Discord user IDs must never be assigned to one driver');
+  const promo={...historic,content:'Congratulations <@'+DRIVER+'> on becoming a Kings Driver!'};
+  assert.equal(parseWelcomeMessage(promo,WEBHOOK),null);
+  const byName={...historic,content:'Please welcome SomeDriver to the Kings Family as a Driver'};
+  assert.equal(parseWelcomeMessage(byName,WEBHOOK),null);
+});
+
+test('older webhook welcome embeds count as review-only candidates and preserve old origin',()=>{
+  const historic={...welcome(),
+    webhook_id:'888888888888888888',
+    author:{id:'888888888888888888',bot:true}
+  };
+  const candidate=parseWelcomeMessage(historic,WEBHOOK);
+  assert.equal(candidate.discordId,DRIVER);
+  assert.equal(candidate.sourceKind,'historical-bot-embed');
+  const index=selectEarliestWelcomes([welcome(DRIVER,'2026-11-01T12:00:00.000Z'),historic],WEBHOOK);
+  const rows=buildWelcomeRows([{discordId:DRIVER,role:'Driver'}],index,GUILD,SOURCE);
+  assert.equal(rows.length,1);
+  assert.equal(rows[0].welcomeFound,true);
+  assert.match(rows[0].text,/Older bot source: verify/);
+});
+
 test('multiple welcomes for same member preserve oldest observed message, never claim verified join date',()=>{
   const messages=[
     welcome(DRIVER,'2026-11-01T12:30:00.000Z','900000000000000002'),
