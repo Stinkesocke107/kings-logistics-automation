@@ -84,16 +84,6 @@
       },
       "firstAlertedAt": "2026-11-19T12:52:53.301Z"
     },
-    "workflow-failed:driver-leadership-reports.yml": {
-      "severity": "warning",
-      "system": "Driver Leadership Reports",
-      "message": "Driver Leadership Reports latest completed run ended with failure.",
-      "details": {
-        "runId": 44606768257,
-        "completedAt": "2026-11-19T20:15:47Z"
-      },
-      "firstAlertedAt": "2026-11-19T20:26:54.391Z"
-    },
     "workflow-failed:staff-leadership-live-overview.yml": {
       "severity": "warning",
       "system": "Staff Leadership Live Overview",
@@ -147,12 +137,5 @@
       "firstAlertedAt": "2026-11-19T20:38:38.491Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T20:38:38.491Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
-    }
-  }
+  "pending": {}
 }
