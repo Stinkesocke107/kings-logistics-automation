@@ -74,29 +74,47 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled.",
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
       "details": {
-        "runId": 44425118209,
-        "completedAt": "2026-11-18T23:57:56Z"
+        "runId": 44425302465,
+        "completedAt": "2026-11-18T23:59:36Z"
       },
-      "firstAlertedAt": "2026-11-18T23:58:52.307Z"
-    }
-  },
-  "pending": {
+      "firstAlertedAt": "2026-11-18T23:59:59.766Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-18T23:59:59.766Z"
+    },
     "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T23:58:52.307Z",
+      "severity": "warning",
       "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with cancelled."
+      "message": "Safe Self-Healing latest completed run ended with cancelled.",
+      "details": {
+        "runId": 44425108558,
+        "completedAt": "2026-11-18T23:57:52Z"
+      },
+      "firstAlertedAt": "2026-11-18T23:59:59.766Z"
     },
     "workflow-failed:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-18T23:58:52.307Z",
+      "severity": "warning",
       "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure."
+      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
+      "details": {
+        "runId": 44425100068,
+        "completedAt": "2026-11-18T23:58:17Z"
+      },
+      "firstAlertedAt": "2026-11-18T23:59:59.766Z"
     }
-  }
+  },
+  "pending": {}
 }
