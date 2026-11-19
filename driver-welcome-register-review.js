@@ -54,8 +54,14 @@ function assertPrivateLeadershipChannel(channel, roles, guildId) {
     if (!(BigInt(String(o.allow || '0')) & VIEW_CHANNEL)) continue;
     if (Number(o.type) === 0) {
       const role = byId.get(String(o.id));
-      if (!role || /(^|-)driver(s)?($|-)|(^|-)trial($|-)|(^|-)partner(s)?($|-)|(^|-)community($|-)/.test(role)) {
-        throw new Error('Driver Leadership review blocked: non-Leadership role may view channel.');
+      // 'Driver Leadership' and 'Driver Management' are staff roles, not
+      // Kings Driver membership roles. Never reject every role containing
+      // the word 'driver': that wrongly blocked the real Leadership channel.
+      const generalAudience = /(^|-)driver(s)?($|-)|(^|-)trial($|-)|(^|-)partner(s)?($|-)|(^|-)community($|-)/.test(role || '');
+      const leadershipOnly = /^(?:kings-)?(?:driver-(?:leadership|management|services|operations)(?:-leadership|-management)?|driver-team-lead|driver-director)$/.test(role || '');
+      if (!role || (generalAudience && !leadershipOnly)) {
+        throw new Error('Driver Leadership review blocked: non-Leadership role with View Channel access: ' +
+          (role || 'unknown role') + '. Remove its View Channel allow permission.');
       }
     } else if (Number(o.type) !== 1) {
       throw new Error('Unknown Driver Leadership permission overwrite.');
@@ -180,7 +186,7 @@ function buildWelcomePages(rows, {completeScan, scannedMessages}, maxLength=1900
     HEADER_MARKER+(i+1)+'/'+chunks.length+'**\n'+preamble+'\n'+chunk.join('\n'));
 }
 
-async function generateWelcomeReview({token, webhookUrl, transport=fetch}) {
+async function generateWelcomeReview({token, webhookUrl, transport=fetch, enforcePrivateDestination=true}) {
   if (!token) throw new Error('DISCORD_BOT_TOKEN is required.');
   const webhookId = officialWebhookId(webhookUrl);
   const discord = async pathname => {
@@ -201,7 +207,9 @@ async function generateWelcomeReview({token, webhookUrl, transport=fetch}) {
   const updates = selectChannel(channels,'driver-updates');
   const leadership = selectChannel(channels,'driver-leadership');
   if (updates.id === leadership.id) throw new Error('Source and destination channels cannot be identical.');
-  assertPrivateLeadershipChannel(leadership,roles,GUILD_ID);
+  // Preview only computes aggregate counts and prints no driver IDs/dates.
+  // The private destination check applies to every actual publication.
+  if (enforcePrivateDestination) assertPrivateLeadershipChannel(leadership,roles,GUILD_ID);
   const members = [];
   let after = '';
   for (let page=0;page<20;page++) {
@@ -242,10 +250,11 @@ async function generateWelcomeReview({token, webhookUrl, transport=fetch}) {
 
 async function main() {
   const mode = String(process.env.DRIVER_WELCOME_REVIEW_MODE || 'preview');
-  if (!['preview','publish'].includes(mode)) throw new Error('Use preview or publish.');
+  if (!['preview','publish','preflight'].includes(mode)) throw new Error('Use preview, preflight or publish.');
   const token = process.env.DISCORD_BOT_TOKEN;
   const report = await generateWelcomeReview({
-    token,webhookUrl:process.env.DRIVER_UPDATES_WEBHOOK_URL
+    token,webhookUrl:process.env.DRIVER_UPDATES_WEBHOOK_URL,
+    enforcePrivateDestination:mode !== 'preview'
   });
   // GitHub Actions logs are publicly visible; never print member IDs, dates,
   // messages or complete report contents there.
@@ -253,8 +262,10 @@ async function main() {
     report.counts.withWelcome+' matching welcomes, '+
     report.counts.withoutWelcome+' missing within scan, '+
     report.pages.length+' pages; history complete: '+report.counts.completeScan+'.');
-  if (mode === 'preview') {
-    console.log('PREVIEW ONLY: no Discord messages sent; no register or role writes.');
+  if (mode !== 'publish') {
+    console.log(mode === 'preflight'
+      ? 'READ-ONLY PREFLIGHT: private Leadership permission checks passed; no Discord writes.'
+      : 'PREVIEW ONLY: no Discord messages sent; no register or role writes.');
     return;
   }
   for (let i=0;i<report.pages.length;i++) {
