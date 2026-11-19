@@ -110,6 +110,56 @@ test('Leadership output is private: @everyone and Driver roles cannot view expli
   assert.throws(()=>assertPrivateLeadershipChannel(driverAccess,roles(),GUILD),/non-Leadership role/);
 });
 
+test('Driver Leadership and Driver Management roles are not mistaken for ordinary Kings Driver roles',()=>{
+  const access=[
+    {id:'170000000000000010',name:'Driver Leadership'},
+    {id:'170000000000000011',name:'Driver Management'},
+    {id:'170000000000000012',name:'Kings Driver Leadership'}
+  ];
+  const channel={...privateChannel(),permission_overwrites:[
+    ...privateChannel().permission_overwrites,
+    ...access.map(role=>({id:role.id,type:0,allow:'1024',deny:'0'}))
+  ]};
+  assert.doesNotThrow(()=>assertPrivateLeadershipChannel(channel,[...roles(),...access],GUILD));
+  const broad={...channel,permission_overwrites:[
+    ...channel.permission_overwrites,
+    {id:'170000000000000013',type:0,allow:'1024',deny:'0'}
+  ]};
+  const entries=[...roles(),...access,{id:'170000000000000013',name:'Kings Trial'}];
+  assert.throws(()=>assertPrivateLeadershipChannel(broad,entries,GUILD),/non-Leadership role.*kings-trial/);
+  assert.throws(()=>assertPrivateLeadershipChannel({
+    ...privateChannel(),permission_overwrites:[
+      ...privateChannel().permission_overwrites,{id:DRIVER_ROLE,type:0,allow:'1024',deny:'0'}
+    ]
+  },roles(),GUILD),/non-Leadership role.*kings-driver/);
+});
+
+test('read-only preview can inspect welcome history without private publish permission but publish cannot',async()=>{
+  const publicDestination={...privateChannel(),permission_overwrites:[
+    {id:GUILD,type:0,allow:'1024',deny:'0'}
+  ]};
+  const payload=data=>new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}});
+  const transport=async (url,options)=>{
+    assert.equal(options.method,'GET');
+    const route=url.replace('https://discord.com/api/v10','');
+    if(route==='/guilds/'+GUILD+'/channels') return payload([
+      {id:SOURCE,guild_id:GUILD,name:'🚛｜driver-updates',type:0},publicDestination
+    ]);
+    if(route==='/guilds/'+GUILD+'/roles') return payload(roles());
+    if(route.startsWith('/guilds/'+GUILD+'/members?'))return payload(members());
+    if(route.startsWith('/channels/'+SOURCE+'/messages?'))return payload([welcome()]);
+    throw Error('Unexpected read-only Discord path');
+  };
+  const preview=await generateWelcomeReview({
+    token:'test-bot',webhookUrl,transport,enforcePrivateDestination:false
+  });
+  assert.equal(preview.counts.withWelcome,1);
+  assert.equal(preview.pages.length,1);
+  await assert.rejects(generateWelcomeReview({
+    token:'test-bot',webhookUrl,transport,enforcePrivateDestination:true
+  }),/@everyone View Channel denied/);
+});
+
 test('paginate Discord output within strict message length and never set Kings joining dates automatically',()=>{
   const base=Array.from({length:80},(_,i)=>({
     discordId:String(200000000000000001n+BigInt(i)),role:'Driver',
