@@ -1,0 +1,83 @@
+name: Kings TruckersMP Driver Joining Date Review
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Review official Kings VTC joining dates against exact public Discord profile links"
+        required: true
+        type: choice
+        default: preview
+        options:
+          - preview
+          - publish
+
+  push:
+    branches: [main]
+    paths:
+      - 'driver-tmp-vtc-register-review.js'
+      - 'kings-vtc-register-contract.js'
+      - 'driver-identity-register.js'
+      - 'driver-loyalty-register.js'
+      - '.github/workflows/driver-tmp-vtc-review.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kings-tmp-vtc-driver-date-review
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Validate private VTC review scripts
+        run: |
+          node --check kings-vtc-register-contract.js
+          node --check driver-tmp-vtc-register-review.js
+          node --check driver-identity-register.js
+          node --check driver-loyalty-register.js
+
+      # Safe, read-only real API acceptance probe: counts only.
+      # External profile failures do not cause public data or role writes.
+      - name: Read-only Kings VTC date import coverage
+        continue-on-error: true
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_TMP_VTC_REVIEW_MODE: preview
+        run: node driver-tmp-vtc-register-review.js
+
+  review:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Validate VTC review program
+        run: |
+          node --check kings-vtc-register-contract.js
+          node --check driver-tmp-vtc-register-review.js
+
+      - name: Review official Kings VTC join dates
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_TMP_VTC_REVIEW_MODE: ${{ inputs.mode }}
+        run: node driver-tmp-vtc-register-review.js
