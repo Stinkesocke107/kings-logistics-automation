@@ -34,7 +34,8 @@ function parseRoster(body,now=new Date()) {
     const id=numericId(raw?.user_id);
     if (!id || seen.has(id)) throw Error('Invalid or duplicate TruckersMP user ID in Kings VTC roster.');
     seen.add(id);
-    out.push({tmpId:id,joinedAt:parseVtcJoinDate(raw.joinDate,now)});
+    out.push({tmpId:id,joinedAt:parseVtcJoinDate(raw.joinDate,now),
+      username:typeof raw.username==='string'?raw.username.trim():''});
   }
   return out;
 }
@@ -87,6 +88,47 @@ function matchProfiles(roster, profiles, drivers, storedMappings=[]) {
   return {matched,outstanding,duplicateCount:duplicate.size+contradictions};
 }
 
+// Human-facing suggestion ONLY. Exact display-name similarity can never prove
+// a Discord/TruckersMP identity and must never populate an approved batch.
+function attachManualNameHints(roster,result) {
+  const normalize=value=>String(value||'').normalize('NFKC')
+    .toLowerCase().trim().replace(/\s+/g,' ');
+  const used=new Set(result.matched.map(m=>m.tmpId));
+  const byName=new Map();
+  for(const item of roster) {
+    if(used.has(item.tmpId))continue;
+    const name=normalize(item.username);
+    if(name.length<4 || /^\d+$/.test(name))continue;
+    if(!byName.has(name))byName.set(name,[]);
+    byName.get(name).push(item);
+  }
+  const outstanding=result.outstanding.map(driver=>{
+    const choices=new Map();
+    for(const text of driver.possibleNames||[]) {
+      const name=normalize(text);
+      if(name.length<4)continue;
+      const matches=byName.get(name)||[];
+      if(matches.length!==1)continue;
+      choices.set(matches[0].tmpId,matches[0]);
+    }
+    if(choices.size!==1)return {...driver,manualHint:null};
+    const match=[...choices.values()][0];
+    return {...driver,manualHint:{
+      tmpId:match.tmpId,joinedAt:match.joinedAt
+    }};
+  });
+  const hintCounts=new Map();
+  for(const item of outstanding){
+    if(!item.manualHint)continue;
+    const id=item.manualHint.tmpId;
+    hintCounts.set(id,(hintCounts.get(id)||0)+1);
+  }
+  const unique=outstanding.map(item=>item.manualHint &&
+    hintCounts.get(item.manualHint.tmpId)!==1
+    ? {...item,manualHint:null} : item);
+  return {...result,outstanding:unique,manualHintCount:unique.filter(x=>x.manualHint).length};
+}
+
 function deDate(iso) {
   const d=new Date(iso);
   return String(d.getUTCDate()).padStart(2,'0')+'.'+String(d.getUTCMonth()+1).padStart(2,'0')+'.'+d.getUTCFullYear();
@@ -114,12 +156,14 @@ function reportPages(result, guild, options={}) {
     if(content.length>maxLength)throw Error('Batch report exceeds Discord message length.');
     pages.push({marker:'👑 **Kings TruckersMP VTC Date Review | Batch '+(i+1)+'/',content});
   }
-  const missing=chunk(result.outstanding,23);
+  const missing=chunk(result.outstanding,12);
   for(let i=0;i<missing.length;i++){
     const title='👑 **Kings TruckersMP Unlinked Drivers | Page '+(i+1)+'/'+missing.length+'**';
-    const note='No *verified public* Discord-to-TMP link. Never match by nickname. Manually confirm TruckersMP profile and original Kings join date. No register writes.';
+    const note='Unlinked Drivers: an exact-name TMP suggestion is **NOT** a verified identity. Check the TMP profile and true original Kings date manually before making a separate register entry. No role changes.';
     const content=title+'\n'+note+'\n'+missing[i].map(d=>
-      '• '+d.role+' • Discord ID: '+d.discordId).join('\n');
+      '• '+d.role+' • Discord ID: '+d.discordId+
+      (d.manualHint?' • [Possible TMP](https://truckersmp.com/user/'+d.manualHint.tmpId+') • VTC '+deDate(d.manualHint.joinedAt.toISOString())+' • *VERIFY*':''))
+      .join('\n');
     if(content.length>maxLength)throw Error('Unlinked report exceeds Discord message length.');
     pages.push({marker:'👑 **Kings TruckersMP Unlinked Drivers | Page '+(i+1)+'/',content});
   }
@@ -127,4 +171,4 @@ function reportPages(result, guild, options={}) {
   if(pages.length===0)throw Error('Refusing empty VTC review report.');
   return pages;
 }
-module.exports={VTC_ID,numericId,discordId,parseVtcJoinDate,parseRoster,readPublicProfile,matchProfiles,deDate,registerBlock,reportPages};
+module.exports={VTC_ID,numericId,discordId,parseVtcJoinDate,parseRoster,readPublicProfile,matchProfiles,attachManualNameHints,deDate,registerBlock,reportPages};

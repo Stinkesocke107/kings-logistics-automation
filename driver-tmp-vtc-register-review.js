@@ -2,7 +2,7 @@
 const { selectChannel,assertPrivateLeadershipChannel,currentDrivers } =
   require('./driver-welcome-register-review');
 const { syncTextMessage } = require('./leadership-message-sync');
-const {VTC_ID,parseRoster,readPublicProfile,matchProfiles,reportPages} =
+const {VTC_ID,parseRoster,readPublicProfile,matchProfiles,attachManualNameHints,reportPages} =
   require('./kings-vtc-register-contract');
 const {loadVerifiedLegacyMappings}=require('./driver-legacy-verified-mappings');
 
@@ -84,19 +84,25 @@ async function review({token,transport=fetch}) {
     after=String(batch.at(-1)?.user?.id||'');
     if(!/^\d{17,20}$/.test(after)||page===19)throw Error('Incomplete Kings Discord member pagination.');
   }
-  const drivers=currentDrivers(roles,members);
+  const drivers=currentDrivers(roles,members).map(driver=>{
+    const member=members.find(m=>String(m.user?.id)===driver.discordId);
+    return {...driver,possibleNames:[
+      member?.nick,member?.user?.global_name,member?.user?.username
+    ].filter(value=>typeof value==='string' && value.length>0)};
+  });
   const profiles=await fetchPublicProfiles(roster,transport);
   // Reuse ONLY older Kings mappings whose provenance is a previously
   // verified exact TruckersMP /player discordSnowflake. No old name
   // heuristics or unverifiable public profile guesses enter the result.
   const stored=loadVerifiedLegacyMappings();
-  const matched=matchProfiles(roster,profiles.index,drivers,stored);
+  const matched=attachManualNameHints(roster,
+    matchProfiles(roster,profiles.index,drivers,stored));
   const pages=reportPages(matched,GUILD);
   return {
     channelId:String(leadership.id),pages,
     counts:{vtc:roster.length,drivers:drivers.length,verified:matched.matched.length,
       unmatched:matched.outstanding.length,conflicts:matched.duplicateCount,
-      profileFailures:profiles.failedCount, historical:matched.matched.filter(x=>x.source==='historical-verified').length}
+      profileFailures:profiles.failedCount, manualHints:matched.manualHintCount, historical:matched.matched.filter(x=>x.source==='historical-verified').length}
   };
 }
 async function main(){
@@ -110,6 +116,7 @@ async function main(){
     result.counts.drivers+' Discord Drivers/Trials, '+
     result.counts.verified+' exact public Discord-profile matches, '+
     result.counts.unmatched+' requiring confirmation, '+
+    result.counts.manualHints+' name-only suggestions for manual review, '+
     result.counts.historical+' recovered from previously verified encrypted links, '+
     result.counts.profileFailures+' inaccessible/invalid profiles, '+
     result.counts.conflicts+' ambiguous links.');
