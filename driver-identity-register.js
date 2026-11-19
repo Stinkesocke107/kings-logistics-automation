@@ -30,7 +30,7 @@ function parseDriverIdentityRecord(content, now = new Date()) {
   if (!discordId) throw new Error('Invalid or missing Discord ID in Kings Driver identity record.');
   const userId = discordId[1] || discordId[2];
   const match = /^(\d{1,2})\.(\d{1,2})\.(\d{4})\.?$/.exec(values.get('kings_join_date') || '');
-  if (!match) throw new Error('Missing or invalid Kings joining date (D.M.YYYY).');
+  if (!match) throw new Error('Invalid or missing Kings joining date (D.M.YYYY).');
   const [, dayText, monthText, yearText] = match;
   const day = Number(dayText), month = Number(monthText), year = Number(yearText);
   const joinedAt = new Date(Date.UTC(year, month - 1, day));
