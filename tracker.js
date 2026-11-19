@@ -1,5 +1,6 @@
 require('./kings-branding').installDiscordBranding();
 const { resilientFetchJson } = require('./api-resilience');
+const { loadTrackerTruckersMpIdentityIndex, markLinkedTruckersMpPlayers } = require('./tracker-driver-identity');
 const fs = require("fs");
 const path = require("path");
 
@@ -784,6 +785,8 @@ function buildDiscordEmbeds(
           return (
             `**${player.name}**\n` +
             `${player.city}\n` +
+            `TruckersMP ID: ${player.tmpId}` +
+            (player.identityLinked ? ' • Kings Identity Linked' : '') + '\n' +
             `[Profile](${profile})` +
             ` • ` +
             `[Live Map](${liveMap})`
@@ -1006,6 +1009,27 @@ async function start() {
       getMemberCount()
     ]);
 
+  // Match only explicitly registered TruckersMP IDs via the private
+  // Management-authored Kings Driver identity register. Never persist,
+  // display or log the underlying Discord IDs or Kings joining dates.
+  let trackedPlayers = markLinkedTruckersMpPlayers(kingsOnline, null);
+  if (process.env.TRACKER_IDENTITY_SYNC_ENABLED === 'true') {
+    try {
+      const identity = await loadTrackerTruckersMpIdentityIndex();
+      if (identity.enabled) {
+        trackedPlayers = markLinkedTruckersMpPlayers(kingsOnline, identity.index);
+        console.log('Live Tracker private ID matches: ' +
+          trackedPlayers.filter(p => p.identityLinked).length + '/' + trackedPlayers.length);
+      } else {
+        console.log('Live Tracker private identity register not configured; standard display retained.');
+      }
+    } catch {
+      // An unavailable or unsafe private register must NEVER invent matches
+      // or take down the existing live player feed.
+      console.warn('Private Kings identity lookup unavailable; publishing without identity markers.');
+    }
+  }
+
   console.log("");
 
   console.log(
@@ -1050,11 +1074,11 @@ async function start() {
 
   const discordMessageId =
     await updateDiscordMessage(
-      kingsOnline
+      trackedPlayers
     );
 
   saveLiveSnapshot(
-    kingsOnline,
+    trackedPlayers,
     memberCount,
     discordMessageId
   );
