@@ -167,6 +167,10 @@ async function getServers() {
       name: server.name,
       mapId: Number(server.mapid),
       game: server.game,
+      // Only an explicitly verified integer zero can skip a map lookup.
+      // Missing/malformed counts are unknown, NEVER assumed offline.
+      reportedPlayers: Number.isSafeInteger(server.players) && server.players >= 0
+        ? server.players : null,
       isEvent: server.event === true || server.specialEvent === true
     }))
     .sort((a, b) => {
@@ -197,7 +201,9 @@ async function getPlayers(server, options = {}) {
       // probe proves the current global snapshot cannot be complete, so avoid
       // retrying eight servers during known provider outages.
       retries: options.probe ? 0 : 1,
-      timeoutMs: options.probe ? 7000 : 10000,
+      // The full-area map query may exceed the former 7s first-server
+      // timeout. Keep bounded limits and fail closed if coverage is incomplete.
+      timeoutMs: options.probe ? 16000 : 15000,
       validateJson: (payload) =>
         Boolean(payload && payload.Success && Array.isArray(payload.Data))
     }
@@ -376,6 +382,16 @@ async function getKingsOnline() {
     console.log(
       `Checking ${server.game} - ${server.name}...`
     );
+
+    // The OFFICIAL TruckersMP server directory explicitly reports zero
+    // current players: there cannot be any Kings players to locate there.
+    // This avoids expensive full-world map requests for empty servers.
+    // Any missing/non-integer count must still be queried, never guessed.
+    if (server.reportedPlayers === 0) {
+      successfulServerChecks++;
+      console.log('Skipped confirmed empty TruckersMP server.');
+      continue;
+    }
 
     try {
       const players =
