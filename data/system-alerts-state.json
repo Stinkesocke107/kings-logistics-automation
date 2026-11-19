@@ -74,40 +74,27 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure.",
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
       "details": {
-        "runId": 44427795909,
-        "completedAt": "2026-11-19T00:18:28Z"
+        "runId": 44429086475,
+        "completedAt": "2026-11-19T00:27:25Z"
       },
-      "firstAlertedAt": "2026-11-19T00:27:23.004Z"
+      "firstAlertedAt": "2026-11-19T00:28:23.351Z"
     },
-    "workflow-overdue:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window.",
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
       "details": {
-        "latestActivityAt": "2026-11-18T15:52:05Z",
-        "ageMinutes": 515,
-        "maxAgeMinutes": 90
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 30
       },
-      "firstAlertedAt": "2026-11-19T00:27:23.004Z"
+      "firstAlertedAt": "2026-11-19T00:28:23.351Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T00:27:23.004Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
-    },
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T00:27:23.004Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
