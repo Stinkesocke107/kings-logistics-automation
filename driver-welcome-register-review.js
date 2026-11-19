@@ -250,11 +250,11 @@ async function generateWelcomeReview({token, webhookUrl, transport=fetch, enforc
 
 async function main() {
   const mode = String(process.env.DRIVER_WELCOME_REVIEW_MODE || 'preview');
-  if (!['preview','publish'].includes(mode)) throw new Error('Use preview or publish.');
+  if (!['preview','publish','preflight'].includes(mode)) throw new Error('Use preview, preflight or publish.');
   const token = process.env.DISCORD_BOT_TOKEN;
   const report = await generateWelcomeReview({
     token,webhookUrl:process.env.DRIVER_UPDATES_WEBHOOK_URL,
-    enforcePrivateDestination:mode === 'publish'
+    enforcePrivateDestination:mode !== 'preview'
   });
   // GitHub Actions logs are publicly visible; never print member IDs, dates,
   // messages or complete report contents there.
@@ -262,8 +262,10 @@ async function main() {
     report.counts.withWelcome+' matching welcomes, '+
     report.counts.withoutWelcome+' missing within scan, '+
     report.pages.length+' pages; history complete: '+report.counts.completeScan+'.');
-  if (mode === 'preview') {
-    console.log('PREVIEW ONLY: no Discord messages sent; no register or role writes.');
+  if (mode !== 'publish') {
+    console.log(mode === 'preflight'
+      ? 'READ-ONLY PREFLIGHT: private Leadership permission checks passed; no Discord writes.'
+      : 'PREVIEW ONLY: no Discord messages sent; no register or role writes.');
     return;
   }
   for (let i=0;i<report.pages.length;i++) {
