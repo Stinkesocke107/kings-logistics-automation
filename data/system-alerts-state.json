@@ -93,7 +93,35 @@
         "completedAt": "2026-11-19T17:18:55Z"
       },
       "firstAlertedAt": "2026-11-19T17:19:56.352Z"
+    },
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
+      "details": {
+        "runId": 44575926494,
+        "completedAt": "2026-11-19T17:20:03Z"
+      },
+      "firstAlertedAt": "2026-11-19T17:20:38.954Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-19T17:20:38.954Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T17:20:38.954Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
