@@ -107,5 +107,24 @@
       "firstAlertedAt": "2026-11-19T12:18:39.282Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:driver-achievements.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T12:19:14.784Z",
+      "system": "Driver Achievements",
+      "message": "Driver Achievements latest completed run ended with failure."
+    },
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T12:19:14.784Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T12:19:14.784Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
