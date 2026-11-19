@@ -124,20 +124,35 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-19T20:29:57.735Z"
+    },
+    "workflow-failed:self-healing.yml": {
+      "severity": "warning",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure.",
+      "details": {
+        "runId": 44609996893,
+        "completedAt": "2026-11-19T20:35:35Z"
+      },
+      "firstAlertedAt": "2026-11-19T20:38:38.491Z"
+    },
+    "workflow-overdue:self-healing.yml": {
+      "severity": "warning",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-11-19T20:38:38.491Z"
     }
   },
   "pending": {
-    "workflow-failed:self-healing.yml": {
+    "workflow-failed:system-monitoring.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-19T20:36:19.149Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    },
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T20:36:19.149Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "firstSeenAt": "2026-11-19T20:38:38.491Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
     }
   }
 }
