@@ -72,12 +72,14 @@ function assertPrivateLeadershipChannel(channel, roles, guildId) {
 function parseWelcomeMessage(message, webhookId) {
   if (!snowflake(message?.id)) return null;
   const currentWebhook = String(message?.webhook_id || '') === String(webhookId);
-  // Historical Kings welcome messages may use an older webhook or bot.
-  // These are only *candidates* for manual Leadership review: an unrelated
-  // user or arbitrary human message must never be accepted.
+  // Older announcements were often written by staff members rather than
+  // today's webhook. This is a REVIEW LIST, never an authoritative join-date
+  // source; manual posts are visibly labeled for Management confirmation.
   const historicalBot = message?.author?.bot === true &&
     (!message.webhook_id || snowflake(message.webhook_id));
-  if (!currentWebhook && !historicalBot) return null;
+  const manualStaffPost = !message?.webhook_id &&
+    snowflake(message?.author?.id) && message?.author?.bot !== true;
+  if (!currentWebhook && !historicalBot && !manualStaffPost) return null;
 
   const embeds = Array.isArray(message.embeds) ? message.embeds : [];
   const welcomeEmbed = embeds.find(embed =>
@@ -91,7 +93,7 @@ function parseWelcomeMessage(message, webhookId) {
   const sourceText = welcomeEmbed
     ? String(welcomeEmbed.description || '')
     : String(message.content || '');
-  if (!/Please welcome\s+<@!?(\d{17,20})>[\s\S]{0,350}\bto\s+(?:the\s+)?[\s\S]{0,220}\bKings\s+(?:Family|Logistics)\b[\s\S]{0,220}\bas\s+a\s+[\s\S]{0,70}\b(?:Trial\s+Driver|Driver)\b/i.test(sourceText)) {
+  if (!/\bPlease\s+welcome\b[\s\S]{0,180}<@!?(\d{17,20})>[\s\S]{0,450}\bKings\s+(?:Family|Logistics)\b/i.test(sourceText)) {
     return null;
   }
 
@@ -113,7 +115,8 @@ function parseWelcomeMessage(message, webhookId) {
     sentAt:when.toISOString(),
     messageId:String(message.id),
     sourceKind:currentWebhook ? (welcomeEmbed?'current-embed':'current-text')
-      : (welcomeEmbed?'historical-bot-embed':'historical-bot-text')
+      : historicalBot ? (welcomeEmbed?'historical-bot-embed':'historical-bot-text')
+      : (welcomeEmbed?'manual-staff-embed':'manual-staff-text')
   };
 }
 
@@ -176,6 +179,7 @@ function buildWelcomeRows(drivers, welcomeIndex, guildId, sourceChannelId) {
         guildId + '/' + sourceChannelId + '/' + welcome.messageId + ')' +
         (welcome.count > 1 ? ' • ' + welcome.count + '×' : '')
         + (welcome.sourceKind?.startsWith('historical-') ? ' • *Older bot source: verify*' : '')
+        + (welcome.sourceKind?.startsWith('manual-') ? ' • *Manual welcome: verify*' : '')
       : '*No verified welcome in scan*';
     return {
       ...driver,
