@@ -236,6 +236,15 @@ async function generateWelcomeReview({token, webhookUrl, transport=fetch, enforc
     before = String(batch.at(-1)?.id || '');
     if (!snowflake(before)) throw new Error('Invalid Driver Updates history cursor.');
   }
+  // Aggregate-only diagnostics: CI logs must never contain Discord IDs,
+  // message authors, raw message contents, dates, or webhook tokens.
+  const sourceStats = {
+    sourceMessages:sourceMessages.length,
+    currentWebhookMessages:sourceMessages.filter(m=>String(m?.webhook_id||'')===String(webhookId)).length,
+    welcomeEmbeds:sourceMessages.filter(m=>(m.embeds||[]).some(e=>
+      String(e.title||'').includes('Welcome to the Kings Family'))).length,
+    welcomeText:sourceMessages.filter(m=>/Please welcome/i.test(String(m.content||''))).length
+  };
   const index = selectEarliestWelcomes(sourceMessages,webhookId);
   const rows = buildWelcomeRows(drivers,index,GUILD_ID,updates.id);
   const pages = buildWelcomePages(rows, {completeScan,scannedMessages:sourceMessages.length});
@@ -244,7 +253,7 @@ async function generateWelcomeReview({token, webhookUrl, transport=fetch, enforc
     leadershipChannelId:String(leadership.id),
     counts:{currentDrivers:rows.length, withWelcome:rows.filter(x=>x.welcomeFound).length,
       withoutWelcome:rows.filter(x=>!x.welcomeFound).length,
-      scannedMessages:sourceMessages.length, completeScan}
+      scannedMessages:sourceMessages.length, completeScan,sourceStats}
   };
 }
 
@@ -262,6 +271,10 @@ async function main() {
     report.counts.withWelcome+' matching welcomes, '+
     report.counts.withoutWelcome+' missing within scan, '+
     report.pages.length+' pages; history complete: '+report.counts.completeScan+'.');
+  console.log('Source coverage (aggregate only): '+report.counts.sourceStats.sourceMessages+
+    ' messages, '+report.counts.sourceStats.currentWebhookMessages+' current webhook messages, '+
+    report.counts.sourceStats.welcomeEmbeds+' welcome-title embeds, '+
+    report.counts.sourceStats.welcomeText+' plain-text welcome candidates.');
   if (mode !== 'publish') {
     console.log(mode === 'preflight'
       ? 'READ-ONLY PREFLIGHT: private Leadership permission checks passed; no Discord writes.'
