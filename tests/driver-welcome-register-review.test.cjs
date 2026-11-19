@@ -110,6 +110,29 @@ test('older webhook welcome embeds count as review-only candidates and preserve 
   assert.match(rows[0].text,/Older bot source: verify/);
 });
 
+test('human-authored Kings Driver Updates welcomes become explicitly unverified review candidates',()=>{
+  const manual = {
+    id:'900000000000000079',
+    author:{id:'777777777777777777',bot:false},
+    timestamp:'2025-02-20T12:00:00.000Z',
+    content:'👑 Please welcome <@'+DRIVER+'> to the Kings Family! Enjoy your time as a Driver.',
+    embeds:[]
+  };
+  const parsed=parseWelcomeMessage(manual,WEBHOOK);
+  assert.equal(parsed.discordId,DRIVER);
+  assert.equal(parsed.sourceKind,'manual-staff-text');
+  const index=selectEarliestWelcomes([manual],WEBHOOK);
+  const rows=buildWelcomeRows([{discordId:DRIVER,role:'Driver'}],index,GUILD,SOURCE);
+  assert.equal(rows[0].welcomeFound,true);
+  assert.match(rows[0].text,/Manual welcome: verify/);
+  assert.match(rows[0].text,/20\.02\.2025/);
+  assert.equal(parseWelcomeMessage({...manual,content:'Please welcome '+DRIVER+' to Kings Family'},WEBHOOK),null);
+  assert.equal(parseWelcomeMessage({...manual,content:'Congratulations to <@'+DRIVER+'> for promotion to Driver'},WEBHOOK),null);
+  assert.equal(parseWelcomeMessage({...manual,content:'Please welcome <@'+DRIVER+'> to another server'},WEBHOOK),null);
+  assert.equal(parseWelcomeMessage({...manual,content:manual.content+' <@'+TRIAL+'>'},WEBHOOK),null);
+  assert.equal(parseWelcomeMessage({...manual,author:null},WEBHOOK),null);
+});
+
 test('multiple welcomes for same member preserve oldest observed message, never claim verified join date',()=>{
   const messages=[
     welcome(DRIVER,'2026-11-01T12:30:00.000Z','900000000000000002'),
