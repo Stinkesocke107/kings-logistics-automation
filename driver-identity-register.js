@@ -57,6 +57,39 @@ function parseDriverIdentityRecord(content, now = new Date()) {
   return { userId, joinedAt, platformIds };
 }
 
+// One staff-authored Discord message can register several already reviewed
+// Drivers, with normal per-record validation and global duplicate protection.
+// Explicit header keeps ordinary private messages and legacy two-line records
+// completely backward compatible.
+const BATCH_HEADER = 'KINGS_REGISTER_BATCH_V1';
+const MAX_BATCH_RECORDS = 12;
+function parseDriverIdentityRecords(content, now = new Date()) {
+  const raw = String(content || '').trim();
+  if (!raw.startsWith(BATCH_HEADER)) {
+    const single = parseDriverIdentityRecord(raw, now);
+    return single ? [single] : [];
+  }
+  const lines = raw.split(/\r?\n/);
+  if (lines[0].trim() !== BATCH_HEADER) {
+    throw new Error('Invalid private Kings Driver register batch header.');
+  }
+  const rest = lines.slice(1).join('\n').trim();
+  const blocks = rest.split(/^\s*---\s*$/m).map(block=>block.trim());
+  if (!rest || !blocks.length || blocks.length > MAX_BATCH_RECORDS ||
+      blocks.some(block=>!block)) {
+    throw new Error('Kings Driver register batch must contain 1 to 12 nonempty records.');
+  }
+  const ids = new Set();
+  return blocks.map(block => {
+    const parsed = parseDriverIdentityRecord(block, now);
+    if (!parsed || ids.has(parsed.userId)) {
+      throw new Error('Invalid or duplicate Driver identity in batch.');
+    }
+    ids.add(parsed.userId);
+    return parsed;
+  });
+}
+
 function createPlatformIndex() {
   return {
     truckersmp: new Map(),
@@ -79,6 +112,7 @@ function addIdentityToIndex(index, identity) {
 module.exports = {
   PLATFORMS,
   parseDriverIdentityRecord,
+  parseDriverIdentityRecords,
   createPlatformIndex,
   addIdentityToIndex
 };
