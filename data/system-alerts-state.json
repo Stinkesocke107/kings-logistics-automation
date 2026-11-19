@@ -104,7 +104,31 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-19T17:20:38.954Z"
+    },
+    "workflow-overdue:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-19T18:29:03Z",
+        "ageMinutes": 28,
+        "maxAgeMinutes": 20
+      },
+      "firstAlertedAt": "2026-11-19T18:58:11.922Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T18:58:11.922Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-19T18:58:11.922Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
