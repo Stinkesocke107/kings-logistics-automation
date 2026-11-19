@@ -105,30 +105,29 @@
       },
       "firstAlertedAt": "2026-11-19T17:20:38.954Z"
     },
-    "workflow-overdue:central-scheduler.yml": {
-      "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
+    "workflow-failed:system-monitoring.yml": {
+      "severity": "warning",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled.",
       "details": {
-        "latestActivityAt": "2026-11-19T18:29:03Z",
-        "ageMinutes": 28,
-        "maxAgeMinutes": 20
+        "runId": 44608317314,
+        "completedAt": "2026-11-19T20:25:23Z"
       },
-      "firstAlertedAt": "2026-11-19T18:58:11.922Z"
+      "firstAlertedAt": "2026-11-19T20:25:39.871Z"
     }
   },
   "pending": {
-    "workflow-failed:system-monitoring.yml": {
+    "workflow-failed:driver-leadership-reports.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-19T18:58:11.922Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
+      "firstSeenAt": "2026-11-19T20:25:39.871Z",
+      "system": "Driver Leadership Reports",
+      "message": "Driver Leadership Reports latest completed run ended with failure."
     },
-    "workflow-overdue:system-monitoring.yml": {
+    "workflow-failed:staff-leadership-live-overview.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-19T18:58:11.922Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
+      "firstSeenAt": "2026-11-19T20:25:39.871Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure."
     }
   }
 }
