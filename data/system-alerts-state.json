@@ -95,42 +95,17 @@
       },
       "firstAlertedAt": "2026-11-19T07:38:12.358Z"
     },
-    "workflow-overdue:central-scheduler.yml": {
+    "stale-data:data/driver-management-summary.json": {
       "severity": "critical",
-      "system": "Central Scheduler",
-      "message": "Central Scheduler has not run within the expected time window.",
+      "system": "Driver Management data",
+      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
       "details": {
-        "latestActivityAt": "2026-11-19T09:23:18Z",
-        "ageMinutes": 42,
-        "maxAgeMinutes": 20
+        "updatedAt": "2026-11-19T09:24:05.528Z",
+        "ageMinutes": 174,
+        "maxAgeMinutes": 160
       },
-      "firstAlertedAt": "2026-11-19T10:06:25.844Z"
+      "firstAlertedAt": "2026-11-19T12:18:39.282Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T10:06:25.844Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
-    },
-    "workflow-overdue:milestones.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T10:06:25.844Z",
-      "system": "VTC Milestones",
-      "message": "VTC Milestones has not run within the expected time window."
-    },
-    "workflow-overdue:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T10:06:25.844Z",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News has not run within the expected time window."
-    },
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-19T10:06:25.844Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
