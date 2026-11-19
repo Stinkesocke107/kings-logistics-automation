@@ -117,6 +117,12 @@ const WORKFLOW_REGISTRY = Object.freeze(
       "severity": "critical"
     },
     {
+      "file": "driver-tmp-vtc-review.yml",
+      "label": "TruckersMP Driver VTC Date Review",
+      "mode": "on-change",
+      "area": "Drivers"
+    },
+    {
       "file": "driver-weekly-summary.yml",
       "label": "Driver Weekly Summary",
       "mode": "scheduled",
