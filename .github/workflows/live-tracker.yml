@@ -9,6 +9,9 @@ on:
     paths:
       - '.github/workflows/live-tracker.yml'
       - 'tracker.js'
+      - 'tracker-driver-identity.js'
+      - 'driver-loyalty-register.js'
+      - 'driver-identity-register.js'
       - 'live-outage-notice.js'
       - 'truckersmp-official-live.js'
       - 'statistics.js'
@@ -53,6 +56,9 @@ jobs:
         id: live_tracker
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          TRACKER_IDENTITY_SYNC_ENABLED: 'true'
         run: node tracker.js
 
       # Keep the failed Tracker run visibly failed for monitoring. This

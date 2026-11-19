@@ -44,7 +44,9 @@ The register is read directly through the Kings Systems Discord bot. Individual 
 
 ## Future system integrations
 
-The shared parser lives in `driver-identity-register.js`, and `loadRegister()` in `driver-loyalty-register.js` provides the private verified identity lookup once Management has configured the channel. The existing Loyalty role logic remains unchanged. **Live Tracker, Statistics, Driver Management and Convoy reporting have not yet been connected to the new identity lookup**; those integrations need separate access, privacy and data-source verification before activation.
+The shared parser lives in `driver-identity-register.js`, and `loadRegister()` in `driver-loyalty-register.js` provides the private verified identity lookup once Management has configured the channel. The existing Loyalty role logic remains unchanged. **TruckersMP Live Tracker:** The scheduled `live-tracker.yml` job now reads this private register with the same read-only, permission-checked parser (`tracker-driver-identity.js`). It matches live TruckersMP IDs **exactly**, never by nickname. The public Discord Tracker shows the **public TruckersMP ID** and a neutral `Kings Identity Linked` label only when the private record matches. It never exposes Discord IDs, Kings joining dates, other platform IDs, or the private record text. The public-safe GitHub live snapshot remains **aggregate-only**. Missing bot credentials, a missing channel, unsafe permissions or malformed/ambiguous records produce **no linked labels**; ordinary live player tracking continues normally. The lookup is enabled only when `TRACKER_IDENTITY_SYNC_ENABLED=true` and `DISCORD_BOT_TOKEN` is present in the existing live workflow.
+
+**Future integrations:** HaulMP, TrucklineMP, Statistics, Driver Management and Convoy reporting are **not yet connected** to the identity lookup; those integrations need verified provider data, privacy controls, and separate regression tests before activation.
 
 ## Other messages
 
