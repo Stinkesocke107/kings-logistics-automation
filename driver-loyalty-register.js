@@ -1,7 +1,7 @@
 // Private, read-only Kings Driver Loyalty + identity register.
 // Legacy two-line records remain supported; verified platform IDs are optional.
 // No IDs or dates are written to the public GitHub repository.
-const { parseDriverIdentityRecord, createPlatformIndex, addIdentityToIndex } = require('./driver-identity-register');
+const { parseDriverIdentityRecord, parseDriverIdentityRecords, createPlatformIndex, addIdentityToIndex } = require('./driver-identity-register');
 const VIEW_CHANNEL = 1n << 10n;
 const MAX_MESSAGES = 2000;
 const CHANNEL_NAME = 'driver-loyalty-records';
@@ -86,17 +86,19 @@ async function loadRegister(discord, guildId, roles, members, botId, options = {
     const batch = await discord('/channels/' + channel.id + '/messages?' + params);
     if (!Array.isArray(batch)) throw new Error('Invalid private Loyalty register message history.');
     for (const message of batch) {
-      const parsed = parseRecord(message.content);
-      if (!parsed) continue;
+      const parsedRecords = parseDriverIdentityRecords(message.content);
+      if (!parsedRecords.length) continue;
       if (!authorizedManager(message.author?.id, members, roles, guild.owner_id)) {
         throw new Error('Loyalty record was posted by a non-Management member; no role changes allowed.');
       }
-      if (records.has(parsed.userId)) {
-        throw new Error('Duplicate Loyalty register entry for the same Discord ID; remove outdated entry first.');
+      for (const parsed of parsedRecords) {
+        if (records.has(parsed.userId)) {
+          throw new Error('Duplicate Loyalty register entry for the same Discord ID; remove outdated entry first.');
+        }
+        addIdentityToIndex(platformIndex, parsed);
+        records.set(parsed.userId, parsed.joinedAt);
+        identities.set(parsed.userId, parsed);
       }
-      addIdentityToIndex(platformIndex, parsed);
-      records.set(parsed.userId, parsed.joinedAt);
-      identities.set(parsed.userId, parsed);
     }
     if (batch.length < 100) return { enabled: true, records, identities, platformIndex, channelId: String(channel.id) };
     before = String(batch[batch.length - 1]?.id || '');

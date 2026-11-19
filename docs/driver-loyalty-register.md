@@ -8,7 +8,7 @@ This private Discord register is the authoritative source of a **Kings Driver's 
 2. Deny **View Channel** to `@everyone`.
 3. Allow **View Channel** and **Read Message History** only for **Management**, **Head Management**, and **CEO**, along with the Kings Systems bot. Users with Discord's Administrator permission may also be able to view private channels regardless of channel overrides.
 4. Do not give other Staff, Drivers, Trial Drivers, Partner or community roles channel visibility. The automation checks explicit channel permission overwrites and refuses role updates if access has been explicitly granted to unrelated users or roles.
-5. An authorised Management/CEO account posts **one ordinary message per Driver**. The existing two-line format is still fully supported:
+5. An authorised Management/CEO account posts **one ordinary message per Driver**, or one validated **bulk batch of up to 12 Drivers** as shown below. The existing two-line format is still fully supported:
 
 ```text
 id: 123456789012345678
@@ -28,6 +28,31 @@ kings_join_date: 02.02.2020
 The IDs above are examples, not real driver accounts. `id` and `discord_id` are aliases, as are `datum` and `kings_join_date`; never include both versions of the same field in one message. Keep the Discord ID first. The mandatory date is the **original Kings membership date**, not the Discord join date or a platform registration date. The day and month may have one or two digits. The three platform ID fields are optional; use `-` or omit a field when no verified ID is available. TruckersMP IDs are positive numeric strings; HaulMP and TrucklineMP IDs are treated as opaque alphanumeric identifiers (including `-` and `_`) pending provider integrations. Do not assume a player's display name proves identity.
 
 **Important distinction:** This private channel stores identity links and the original Kings joining dates. It is **not** a source of real-time game presence, positions, or live activity. The Live Tracker still gets actual TruckersMP server data from the existing TruckersMP APIs and (where available) its player-map feed. Official server totals alone cannot establish which Kings drivers are online. If that player feed is unavailable, the tracker must mark live data unavailable and preserve the last verified aggregates — never fabricate an online count. HaulMP and TrucklineMP account IDs can already be recorded in this register; integration of their own live-data sources remains future work. No Trucky app registration or alternative third-party provider is required by this channel configuration.
+
+## Fast TruckersMP VTC joining-date import (manual approval, no guessed IDs)
+
+Use **Actions → Kings TruckersMP Driver Joining Date Review** in GitHub:
+
+1. Choose `preview` to compare the official current Kings TruckersMP VTC roster (`/v2/vtc/64284/members`) against the current Kings Driver / Trial Discord roles using only a **public, exact `discordSnowflake` to Discord-ID match** from each TruckersMP `/v2/player/{id}` profile. The GitHub log prints aggregate counts only.
+2. Choose `publish` to send an ID-and-date review in the existing **private `driver-leadership`** channel. Matched records have the **current Kings VTC joining date**, not the TruckersMP account registration date. The report also lists current Discord Drivers/Trials whose public TruckersMP-to-Discord link could not be verified; those are not matched by nickname.
+3. For each candidate, **verify that the VTC join date represents the original Kings membership date**. A VTC rejoin or earlier Kings participation can make the recorded current VTC date newer than the true Kings date.
+4. Copy a confirmed batch (the content of its code block, without Markdown triple-backtick markers) to the private register <#1572736232969084948>. The batch must be sent by a current **Management, Head Management or CEO** account. The existing private channel safety/permission checks remain mandatory. The Bot does not self-authorize records, and publishing the review NEVER updates roles.
+5. For new Drivers, run the same review after onboarding or add an ordinary 2-line record manually; this feature is currently **on-demand**, not an unattended weekly sync. Enabling automatic registration later requires a trusted original Kings date and an explicit sign-off design.
+
+The importer recognizes the following **Management-authored batch format** as a single Discord message (maximum 12 entries; each Discord message stays under Discord's message-length limit):
+
+```text
+KINGS_REGISTER_BATCH_V1
+discord_id: 123456789012345678
+truckersmp_id: 1234567
+kings_join_date: 02.02.2020
+---
+discord_id: 123456789012345679
+truckersmp_id: 1234568
+kings_join_date: 03.03.2021
+```
+
+These are examples, never real Kings identities. Duplicate IDs, duplicate platform links, invalid dates, unauthorized authors or unsafe channel permissions stop role processing rather than assigning uncertain Loyalty awards. Existing single-driver messages remain supported. The new VTC review never writes personal dates or Discord↔TruckersMP IDs into the public GitHub repository.
 
 ## Easier onboarding-date review from Driver Updates
 
