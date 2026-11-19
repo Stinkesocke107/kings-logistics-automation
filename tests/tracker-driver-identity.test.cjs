@@ -128,7 +128,7 @@ test('public Discord presentation shows only public TMP ID and linked status; sa
   assert.equal(snapshot.online,2);
   assert.equal(snapshot.ets2Online,1);
   assert.equal(snapshot.atsOnline,1);
-  assert.doesNotMatch(JSON.stringify(snapshot),/ExampleDriver|OtherDriver|1234567|999999|identityLinked|discord/i);
+  assert.doesNotMatch(JSON.stringify(snapshot),/ExampleDriver|OtherDriver|1234567|999999|identityLinked|discordUserId|discord_id|kings_join_date/i);
 });
 
 test('production Live Tracker reads bot token only inside the existing tracker job', () => {
