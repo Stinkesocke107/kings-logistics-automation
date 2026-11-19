@@ -117,7 +117,16 @@ function attachManualNameHints(roster,result) {
       tmpId:match.tmpId,joinedAt:match.joinedAt
     }};
   });
-  return {...result,outstanding,manualHintCount:outstanding.filter(x=>x.manualHint).length};
+  const hintCounts=new Map();
+  for(const item of outstanding){
+    if(!item.manualHint)continue;
+    const id=item.manualHint.tmpId;
+    hintCounts.set(id,(hintCounts.get(id)||0)+1);
+  }
+  const unique=outstanding.map(item=>item.manualHint &&
+    hintCounts.get(item.manualHint.tmpId)!==1
+    ? {...item,manualHint:null} : item);
+  return {...result,outstanding:unique,manualHintCount:unique.filter(x=>x.manualHint).length};
 }
 
 function deDate(iso) {
