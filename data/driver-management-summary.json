@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-19T20:25:01.441Z",
+  "updatedAt": "2026-11-19T21:28:57.849Z",
   "currentDrivers": 110,
   "onlineNow": null,
   "onlineObservationStatus": "unavailable",
@@ -57,7 +57,7 @@
         "tmpId": 5655769,
         "username": "JackyJack",
         "joinDate": "2024-10-19T21:14:31.000Z",
-        "tenureDays": 760
+        "tenureDays": 761
       }
     ],
     "newestDrivers": [
@@ -83,13 +83,13 @@
         "tmpId": 5036090,
         "username": "stamkour",
         "joinDate": "2026-10-29T21:12:02.000Z",
-        "tenureDays": 20
+        "tenureDays": 21
       },
       {
         "tmpId": 6368423,
         "username": "Mason111",
         "joinDate": "2026-10-27T20:29:55.000Z",
-        "tenureDays": 22
+        "tenureDays": 23
       }
     ]
   },
