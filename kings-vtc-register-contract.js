@@ -50,21 +50,43 @@ function readPublicProfile(payload, expectedId) {
   }
   return {valid:true,discordId:discordId(payload.response.discordSnowflake)};
 }
-function matchProfiles(roster, profiles, drivers) {
+function matchProfiles(roster, profiles, drivers, storedMappings=[]) {
   const allowed=new Set(drivers.map(d=>d.discordId));
-  const candidates=new Map(),duplicate=new Set();
-  for (const member of roster) {
-    const profile=profiles.get(member.tmpId);
-    if (!profile?.valid || !profile.discordId || !allowed.has(profile.discordId)) continue;
-    if (candidates.has(profile.discordId))duplicate.add(profile.discordId);
-    else candidates.set(profile.discordId,{...member,discordId:profile.discordId,source:'public-truckersmp-discord-link'});
+  const rosterById=new Map(roster.map(r=>[r.tmpId,r]));
+  const historical=new Map();
+  for(const item of storedMappings){
+    if(!rosterById.has(item.tmpId) || !allowed.has(item.discordId))continue;
+    if(historical.has(item.tmpId) && historical.get(item.tmpId)!==item.discordId)
+      throw Error('Conflicting trusted historical TruckersMP ID mapping.');
+    historical.set(item.tmpId,item.discordId);
   }
-  for (const id of duplicate)candidates.delete(id);
+  const candidates=new Map(),duplicate=new Set();
+  let contradictions=0;
+  for(const member of roster){
+    const profile=profiles.get(member.tmpId);
+    const publicId=profile?.valid ? profile.discordId : null;
+    const storedId=historical.get(member.tmpId)||null;
+    if(publicId && storedId && publicId!==storedId){
+      // Current public link disagrees with the previously verified ID. Neither
+      // must be guessed as correct. Refuse both for this account.
+      contradictions++;
+      continue;
+    }
+    const chosen=publicId||storedId;
+    if(!chosen || !allowed.has(chosen))continue;
+    if(candidates.has(chosen))duplicate.add(chosen);
+    else candidates.set(chosen,{
+      ...member,discordId:chosen,
+      source:publicId?'public-truckersmp-discord-link':'historical-verified'
+    });
+  }
+  for(const id of duplicate)candidates.delete(id);
   const matched=[...candidates.values()].sort((a,b)=>a.discordId.localeCompare(b.discordId));
   const outstanding=drivers.filter(d=>!candidates.has(d.discordId))
     .sort((a,b)=>a.discordId.localeCompare(b.discordId));
-  return {matched,outstanding,duplicateCount:duplicate.size};
+  return {matched,outstanding,duplicateCount:duplicate.size+contradictions};
 }
+
 function deDate(iso) {
   const d=new Date(iso);
   return String(d.getUTCDate()).padStart(2,'0')+'.'+String(d.getUTCMonth()+1).padStart(2,'0')+'.'+d.getUTCFullYear();
@@ -85,7 +107,8 @@ function reportPages(result, guild, options={}) {
   const confirmed=chunk(result.matched,9);
   for(let i=0;i<confirmed.length;i++){
     const title='👑 **Kings TruckersMP VTC Date Review | Batch '+(i+1)+'/'+confirmed.length+'**';
-    const note='Public TruckersMP Discord-ID match, but **VTC join date is not automatically the original Kings date**. Verify previous memberships/rejoins, then copy the batch content into the restricted register <#1572736232969084948>. No role updates.';
+    const historic=confirmed[i].filter(x=>x.source==='historical-verified').length;
+    const note='Verified TMP Discord link (current public or previously verified Kings mapping; '+historic+' historic). **VTC join date is not automatically the original Kings date**. Check rejoins before copying the approved batch to <#1572736232969084948>. No roles change here.';
     const content=title+'\n'+note+'\n'+code+'text\nKINGS_REGISTER_BATCH_V1\n'+
       confirmed[i].map(registerBlock).join('\n---\n')+'\n'+code;
     if(content.length>maxLength)throw Error('Batch report exceeds Discord message length.');

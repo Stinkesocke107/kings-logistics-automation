@@ -4,6 +4,7 @@ const { selectChannel,assertPrivateLeadershipChannel,currentDrivers } =
 const { syncTextMessage } = require('./leadership-message-sync');
 const {VTC_ID,parseRoster,readPublicProfile,matchProfiles,reportPages} =
   require('./kings-vtc-register-contract');
+const {loadVerifiedLegacyMappings}=require('./driver-legacy-verified-mappings');
 
 const GUILD='1114967437788577792';
 const TMP_API='https://api.truckersmp.com/v2';
@@ -85,13 +86,17 @@ async function review({token,transport=fetch}) {
   }
   const drivers=currentDrivers(roles,members);
   const profiles=await fetchPublicProfiles(roster,transport);
-  const matched=matchProfiles(roster,profiles.index,drivers);
+  // Reuse ONLY older Kings mappings whose provenance is a previously
+  // verified exact TruckersMP /player discordSnowflake. No old name
+  // heuristics or unverifiable public profile guesses enter the result.
+  const stored=loadVerifiedLegacyMappings();
+  const matched=matchProfiles(roster,profiles.index,drivers,stored);
   const pages=reportPages(matched,GUILD);
   return {
     channelId:String(leadership.id),pages,
     counts:{vtc:roster.length,drivers:drivers.length,verified:matched.matched.length,
       unmatched:matched.outstanding.length,conflicts:matched.duplicateCount,
-      profileFailures:profiles.failedCount}
+      profileFailures:profiles.failedCount, historical:matched.matched.filter(x=>x.source==='historical-verified').length}
   };
 }
 async function main(){
@@ -105,6 +110,7 @@ async function main(){
     result.counts.drivers+' Discord Drivers/Trials, '+
     result.counts.verified+' exact public Discord-profile matches, '+
     result.counts.unmatched+' requiring confirmation, '+
+    result.counts.historical+' recovered from previously verified encrypted links, '+
     result.counts.profileFailures+' inaccessible/invalid profiles, '+
     result.counts.conflicts+' ambiguous links.');
   if(mode!=='publish'){
