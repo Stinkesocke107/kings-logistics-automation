@@ -17,6 +17,7 @@ on:
     paths:
       - 'driver-tmp-vtc-register-review.js'
       - 'kings-vtc-register-contract.js'
+      - 'driver-legacy-verified-mappings.js'
       - 'driver-identity-register.js'
       - 'driver-loyalty-register.js'
       - '.github/workflows/driver-tmp-vtc-review.yml'
@@ -45,6 +46,7 @@ jobs:
       - name: Validate private VTC review scripts
         run: |
           node --check kings-vtc-register-contract.js
+          node --check driver-legacy-verified-mappings.js
           node --check driver-tmp-vtc-register-review.js
           node --check driver-identity-register.js
           node --check driver-loyalty-register.js
@@ -55,6 +57,7 @@ jobs:
         continue-on-error: true
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           KINGS_TMP_VTC_REVIEW_MODE: preview
         run: node driver-tmp-vtc-register-review.js
 
@@ -74,10 +77,12 @@ jobs:
       - name: Validate VTC review program
         run: |
           node --check kings-vtc-register-contract.js
+          node --check driver-legacy-verified-mappings.js
           node --check driver-tmp-vtc-register-review.js
 
       - name: Review official Kings VTC join dates
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           KINGS_TMP_VTC_REVIEW_MODE: ${{ inputs.mode }}
         run: node driver-tmp-vtc-register-review.js
