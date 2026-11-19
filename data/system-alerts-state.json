@@ -83,48 +83,6 @@
         "completedAt": "2026-11-19T21:30:08Z"
       },
       "firstAlertedAt": "2026-11-19T21:43:07.791Z"
-    },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 44621454316,
-        "completedAt": "2026-11-19T21:43:14Z"
-      },
-      "firstAlertedAt": "2026-11-19T21:43:41.039Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-19T21:43:41.039Z"
-    },
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure.",
-      "details": {
-        "runId": 44628778001,
-        "completedAt": "2026-11-19T22:29:00Z"
-      },
-      "firstAlertedAt": "2026-11-19T22:34:24.890Z"
-    },
-    "workflow-overdue:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-11-19T22:34:24.890Z"
     }
   },
   "pending": {}
