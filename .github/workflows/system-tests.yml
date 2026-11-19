@@ -30,3 +30,50 @@ jobs:
           node -e "const fs=require('fs');const d=fs.readFileSync('driver-updates.js','utf8');const i=fs.readFileSync('data-integrity.js','utf8');const a=d.match(/const DRIVER_AUTHORITY\\s*=\\s*'([^']+)'/);const b=i.match(/const authorityOk = data\\.driverUpdates\\?\\.authority === '([^']+)'/);if(!a||!b||a[1]!==b[1]){console.error('Driver authority mismatch between publisher and monitoring');process.exit(1)}"
       - name: Run isolated regression and integration tests
         run: node --test tests/*.test.cjs
+      - name: Temporary read-only TruckersMP map availability probe
+        if: github.event_name == 'pull_request' && github.head_ref == 'diagnostic/tmp-map-provider-probe-2026-11-19'
+        run: |
+          node - <<'NODE'
+          const controller = ms => AbortSignal.timeout(ms);
+          let servers;
+          try {
+            const r = await fetch('https://api.truckersmp.com/v2/servers',
+              {signal:controller(8000)});
+            const body = await r.json();
+            servers = (body.response || []).filter(s => s.online &&
+              Number.isSafeInteger(Number(s.mapid)));
+            console.log('Official server directory:',r.status,'servers:',servers.length);
+          } catch(e) {
+            console.log('Official server directory unavailable:',e.name);
+            process.exit(0);
+          }
+          if (!servers.length) process.exit(0);
+          const candidates = [servers.find(s => s.name === '[US] Arcade') || servers[0],
+            [...servers].sort((a,b)=>(b.players||0)-(a.players||0))[0]];
+          for (let i=0;i<candidates.length;i++) {
+            const server=candidates[i];
+            for (const [size,x1,y1,x2,y2] of [
+              ['small',-1000,1000,1000,-1000],
+              ['world',-1000000,1000000,1000000,-1000000]
+            ]) {
+              const query=new URLSearchParams({x1:String(x1),y1:String(y1),
+                x2:String(x2),y2:String(y2),server:String(server.mapid)});
+              const url='https://tracker.ets2map.com/v3/area?'+query;
+              const start=Date.now();
+              try {
+                const response=await fetch(url,{signal:controller(10000)});
+                const raw=await response.text();
+                let shape = null;
+                try {
+                  const data=JSON.parse(raw);
+                  shape={success:data.Success,rows:Array.isArray(data.Data)?data.Data.length:null};
+                }catch{}
+                console.log(JSON.stringify({candidate:i,reportedPlayers:server.players||0,
+                  query:size,status:response.status,elapsedMs:Date.now()-start,bytes:raw.length,shape}));
+              }catch(error){
+                console.log(JSON.stringify({candidate:i,query:size,
+                  elapsedMs:Date.now()-start,errorName:error.name,errorCode:error.code||error.cause?.code||null}));
+              }
+            }
+          }
+          NODE
