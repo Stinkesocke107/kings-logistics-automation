@@ -84,16 +84,6 @@
       },
       "firstAlertedAt": "2026-11-19T12:52:53.301Z"
     },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled.",
-      "details": {
-        "runId": 44608317314,
-        "completedAt": "2026-11-19T20:25:23Z"
-      },
-      "firstAlertedAt": "2026-11-19T20:25:39.871Z"
-    },
     "workflow-failed:driver-leadership-reports.yml": {
       "severity": "warning",
       "system": "Driver Leadership Reports",
@@ -113,14 +103,45 @@
         "completedAt": "2026-11-19T20:24:46Z"
       },
       "firstAlertedAt": "2026-11-19T20:26:54.391Z"
+    },
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
+      "details": {
+        "runId": 44609085384,
+        "completedAt": "2026-11-19T20:29:28Z"
+      },
+      "firstAlertedAt": "2026-11-19T20:29:57.735Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-19T20:29:57.735Z"
+    },
+    "workflow-failed:self-healing.yml": {
+      "severity": "warning",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure.",
+      "details": {
+        "runId": 44608302627,
+        "completedAt": "2026-11-19T20:27:27Z"
+      },
+      "firstAlertedAt": "2026-11-19T20:29:57.735Z"
     }
   },
   "pending": {
-    "workflow-failed:self-healing.yml": {
+    "workflow-overdue:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-19T20:26:54.391Z",
+      "firstSeenAt": "2026-11-19T20:29:57.735Z",
       "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
   }
 }
