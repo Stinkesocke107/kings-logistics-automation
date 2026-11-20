@@ -115,3 +115,38 @@ test('department-specific Head Management can see private register, general Driv
     permission_overwrites:[...overwrites,{id:staff.id,type:0,allow:'1024',deny:'0'}]
   },guild,[head,management,driver,staff],[],owner,bot),/non-Management role.*staff driver services/);
 });
+
+
+test('register privacy error lists every unauthorized role at once without exposing user IDs',()=>{
+  const guild='1114967437788577792', owner='999000000000000001',bot='999000000000000003';
+  const roles=[
+    {id:'170000000000000001',name:'Management'},
+    {id:'170000000000000002',name:'Driver Services Management'},
+    {id:'170000000000000003',name:'Kings Driver'},
+    {id:'170000000000000004',name:'Kings Trial'}
+  ];
+  const channel={id:'1572736232969084948',guild_id:guild,type:0,
+    permission_overwrites:[
+      {id:guild,type:0,allow:'0',deny:'1024'},
+      {id:roles[0].id,type:0,allow:'1024',deny:'0'},
+      {id:roles[1].id,type:0,allow:'1024',deny:'0'},
+      {id:roles[2].id,type:0,allow:'1024',deny:'0'},
+      {id:roles[3].id,type:0,allow:'1024',deny:'0'},
+      {id:'900000000000000001',type:1,allow:'1024',deny:'0'}
+    ]
+  };
+  let message='';
+  try{
+    assertPrivateChannel(channel,guild,roles,[],owner,bot);
+    assert.fail('Expected private register permissions to fail');
+  }catch(error){message=error.message;}
+  assert.match(message,/driver services management/);
+  assert.match(message,/kings driver/);
+  assert.match(message,/kings trial/);
+  assert.match(message,/1 non-Management individual member/);
+  assert.doesNotMatch(message,/900000000000000001/);
+  assert.doesNotMatch(message,/17000000000000000/);
+  assert.doesNotThrow(()=>assertPrivateChannel({
+    ...channel, permission_overwrites:channel.permission_overwrites.slice(0,2)
+  },guild,roles,[],owner,bot));
+});
