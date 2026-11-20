@@ -109,6 +109,9 @@ function compareRegister({drivers, roster, identities, profiles = new Map(), his
     tmpNotInCurrentVtc,
     identityConflicts,
     missingVtcLinks,
+    discordComplete:missingRecords.length===0 && missingTmpIds.length===0 &&
+      tmpNotInCurrentVtc.length===0 && identityConflicts.length===0,
+    vtcComplete:missingVtcLinks.length===0,
     complete:missingRecords.length===0 && missingTmpIds.length===0 &&
       tmpNotInCurrentVtc.length===0 && identityConflicts.length===0 &&
       missingVtcLinks.length===0
@@ -166,6 +169,8 @@ function auditPages(report, checkedAt=new Date(), maxLength=MAX_DISCORD_MESSAGE)
     '**'+status+'** • '+stamp,
     'Discord Driver/Trial members: **'+report.currentDrivers+'**',
     'Private records for current members: **'+report.registeredDrivers+'/'+report.currentDrivers+'**',
+    'Current Discord Driver register coverage: **'+(report.discordComplete?'COMPLETE':'INCOMPLETE')+'**',
+    'Official Kings VTC link coverage: **'+(report.vtcComplete?'COMPLETE':'INCOMPLETE')+'**',
     'Registered current VTC links: **'+report.matchedVtcCount+'/'+report.officialVtcMembers+'**',
     counts,
     'Only confirmed current memberships count as complete. VTC members without verified Discord links are NOT guessed from nicknames.',
