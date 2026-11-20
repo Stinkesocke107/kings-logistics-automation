@@ -43,23 +43,40 @@ function assertPrivateChannel(channel, guildId, roles, members, ownerId, botId) 
   if (!everyone || !(BigInt(String(everyone.deny || '0')) & VIEW_CHANNEL)) {
     throw new Error('Kings Loyalty register must deny View Channel to @everyone.');
   }
+  // Collect every unsafe explicit View Channel grant in one read-only pass.
+  // Never log member IDs or the private register contents. A blocked channel
+  // stays unreadable until ALL unauthorized grants have been removed.
+  const unsafeRoles = new Set();
+  let unsafeMemberGrants = 0;
   for (const overwrite of all) {
     const canView = Boolean(BigInt(String(overwrite.allow || '0')) & VIEW_CHANNEL);
     if (!canView) continue;
     if (Number(overwrite.type) === 0) {
       const role = byId.get(String(overwrite.id));
       if (!managementRole(role) && String(role?.tags?.bot_id || '') !== String(botId)) {
-        throw new Error('Loyalty register has a non-Management role with View Channel access: '+
-          normalizeRoleName(role?.name || 'unknown')+'.');
+        unsafeRoles.add(normalizeRoleName(role?.name || 'unknown role'));
       }
     } else if (Number(overwrite.type) === 1) {
       if (String(overwrite.id) !== String(botId) &&
           !authorizedManager(overwrite.id, members, roles, ownerId)) {
-        throw new Error('Loyalty register has a non-Management member with View Channel access.');
+        unsafeMemberGrants++;
       }
     } else {
       throw new Error('Unknown channel permission overwrite type.');
     }
+  }
+  if (unsafeRoles.size || unsafeMemberGrants) {
+    const names = Array.from(unsafeRoles).sort();
+    const visible = names.slice(0, 20).join(', ');
+    const extra = Math.max(0, names.length - 20);
+    const details = [
+      unsafeRoles.size ? 'non-Management role with View Channel access: ' +
+        visible + (extra ? ' (and ' + extra + ' more roles)' : '') : null,
+      unsafeMemberGrants ? unsafeMemberGrants +
+        ' non-Management individual member View Channel grant(s)' : null
+    ].filter(Boolean);
+    throw new Error('Loyalty register has unsafe private-channel permissions: ' +
+      details.join('; ') + '.');
   }
 }
 async function loadRegister(discord, guildId, roles, members, botId, options = {}) {
