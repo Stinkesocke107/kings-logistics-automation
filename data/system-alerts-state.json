@@ -53,27 +53,6 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "workflow-failed:driver-achievements.yml": {
-      "severity": "warning",
-      "system": "Driver Achievements",
-      "message": "Driver Achievements latest completed run ended with failure.",
-      "details": {
-        "runId": 44619315378,
-        "completedAt": "2026-11-19T21:30:08Z"
-      },
-      "firstAlertedAt": "2026-11-19T21:43:07.791Z"
-    },
-    "workflow-overdue:driver-achievements.yml": {
-      "severity": "warning",
-      "system": "Driver Achievements",
-      "message": "Driver Achievements has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-18T18:10:41Z",
-        "ageMinutes": 2231,
-        "maxAgeMinutes": 2160
-      },
-      "firstAlertedAt": "2026-11-20T07:22:38.440Z"
-    },
     "stale-data:data/driver-achievements-summary.json": {
       "severity": "warning",
       "system": "Driver Achievement data",
@@ -126,14 +105,17 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-20T21:35:41.790Z"
+    },
+    "workflow-failed:staff-leadership-live-overview.yml": {
+      "severity": "warning",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
+      "details": {
+        "runId": 44827902788,
+        "completedAt": "2026-11-20T22:19:22Z"
+      },
+      "firstAlertedAt": "2026-11-20T22:50:46.590Z"
     }
   },
-  "pending": {
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-20T22:21:07.751Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
