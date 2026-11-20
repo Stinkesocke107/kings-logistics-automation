@@ -106,27 +106,6 @@
       },
       "firstAlertedAt": "2026-11-20T21:26:00.793Z"
     },
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure.",
-      "details": {
-        "runId": 44820080116,
-        "completedAt": "2026-11-20T21:26:16Z"
-      },
-      "firstAlertedAt": "2026-11-20T21:29:53.132Z"
-    },
-    "workflow-overdue:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-11-20T21:29:53.132Z"
-    },
     "workflow-failed:live-tracker.yml": {
       "severity": "critical",
       "system": "Live Tracker / Statistics",
@@ -149,5 +128,12 @@
       "firstAlertedAt": "2026-11-20T21:35:41.790Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-20T22:21:07.751Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure."
+    }
+  }
 }
