@@ -95,15 +95,26 @@
       },
       "firstAlertedAt": "2026-11-20T07:22:38.440Z"
     },
-    "workflow-failed:system-monitoring.yml": {
-      "severity": "warning",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled.",
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
       "details": {
-        "runId": 44697413304,
-        "completedAt": "2026-11-20T07:47:20Z"
+        "runId": 44698310300,
+        "completedAt": "2026-11-20T07:54:13Z"
       },
-      "firstAlertedAt": "2026-11-20T07:47:47.098Z"
+      "firstAlertedAt": "2026-11-20T07:54:40.878Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-20T07:54:40.878Z"
     }
   },
   "pending": {}
