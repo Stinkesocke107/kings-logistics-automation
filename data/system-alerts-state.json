@@ -117,5 +117,18 @@
       "firstAlertedAt": "2026-11-20T22:50:46.590Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:driver-achievements.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-20T23:02:47.025Z",
+      "system": "Driver Achievements",
+      "message": "Driver Achievements latest completed run ended with failure."
+    },
+    "workflow-overdue:driver-achievements.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-20T23:02:47.025Z",
+      "system": "Driver Achievements",
+      "message": "Driver Achievements has not run within the expected time window."
+    }
+  }
 }
