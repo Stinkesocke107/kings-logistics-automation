@@ -11,6 +11,8 @@ on:
         options:
           - preview
           - publish
+          - audit-preview
+          - audit-publish
 
   push:
     branches: [main]
@@ -20,6 +22,7 @@ on:
       - 'driver-legacy-verified-mappings.js'
       - 'driver-identity-register.js'
       - 'driver-loyalty-register.js'
+      - 'driver-register-completeness.js'
       - '.github/workflows/driver-tmp-vtc-review.yml'
 
 permissions:
@@ -48,6 +51,7 @@ jobs:
           node --check kings-vtc-register-contract.js
           node --check driver-legacy-verified-mappings.js
           node --check driver-tmp-vtc-register-review.js
+          node --check driver-register-completeness.js
           node --check driver-identity-register.js
           node --check driver-loyalty-register.js
 
@@ -79,6 +83,7 @@ jobs:
           node --check kings-vtc-register-contract.js
           node --check driver-legacy-verified-mappings.js
           node --check driver-tmp-vtc-register-review.js
+          node --check driver-register-completeness.js
 
       - name: Review official Kings VTC join dates
         env:
