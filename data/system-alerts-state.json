@@ -106,5 +106,18 @@
       "firstAlertedAt": "2026-11-19T23:41:00.321Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-20T01:49:08.480Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-20T01:49:08.480Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
+    }
+  }
 }
