@@ -5,6 +5,8 @@ const { syncTextMessage } = require('./leadership-message-sync');
 const {VTC_ID,parseRoster,readPublicProfile,matchProfiles,attachManualNameHints,reportPages} =
   require('./kings-vtc-register-contract');
 const {loadVerifiedLegacyMappings}=require('./driver-legacy-verified-mappings');
+const {loadRegister}=require('./driver-loyalty-register');
+const {compareRegister,auditPages,REPORT_PREFIX,REGISTER_CHANNEL_ID}=require('./driver-register-completeness');
 
 const GUILD='1114967437788577792';
 const TMP_API='https://api.truckersmp.com/v2';
@@ -55,7 +57,7 @@ async function fetchPublicProfiles(roster, transport=fetch) {
   await Promise.all([worker(),worker(),worker(),worker()]);
   return {index,failedCount:failed.size};
 }
-async function review({token,transport=fetch}) {
+async function review({token,transport=fetch,mode='preview'}) {
   if(!token)throw Error('DISCORD_BOT_TOKEN is missing.');
   const botHeaders={
     Authorization:'Bot '+token,
@@ -97,6 +99,28 @@ async function review({token,transport=fetch}) {
   const stored=loadVerifiedLegacyMappings();
   const matched=attachManualNameHints(roster,
     matchProfiles(roster,profiles.index,drivers,stored));
+  if(mode.startsWith('audit-')) {
+    // Read ONLY the existing validated Management register. Fail closed when
+    // the private channel is public, roles are unsafe or records conflict.
+    const bot=await getDiscord('/users/@me');
+    if(!/^\d{17,20}$/.test(String(bot?.id||'')))
+      throw Error('Could not validate Kings Systems Bot identity.');
+    const register=await loadRegister(getDiscord,GUILD,roles,members,bot.id,
+      {channelId:REGISTER_CHANNEL_ID});
+    if(!register.enabled)throw Error('Private Driver register is not configured.');
+    const audit=compareRegister({drivers,roster,identities:register.identities,
+      profiles:profiles.index,historicalMappings:stored});
+    const pages=auditPages(audit);
+    return {channelId:String(leadership.id),pages,type:'audit',
+      counts:{currentDrivers:audit.currentDrivers,vtc:audit.officialVtcMembers,
+        registered:audit.registeredDrivers,linkedVtc:audit.matchedVtcCount,
+        missingRecords:audit.missingRecords.length,missingTmp:audit.missingTmpIds.length,
+        notOnVtc:audit.tmpNotInCurrentVtc.length,
+        identityConflicts:audit.identityConflicts.length,
+        unlinkedVtc:audit.missingVtcLinks.length,
+        discordComplete:audit.discordComplete,vtcComplete:audit.vtcComplete,
+        complete:audit.complete}};
+  }
   const pages=reportPages(matched,GUILD);
   return {
     channelId:String(leadership.id),pages,
@@ -105,14 +129,62 @@ async function review({token,transport=fetch}) {
       profileFailures:profiles.failedCount, manualHints:matched.manualHintCount, historical:matched.matched.filter(x=>x.source==='historical-verified').length}
   };
 }
+// Remove only obsolete, BOT-authored pages from this specific Kings audit.
+// Never delete human messages, other Leadership reports or private register data.
+async function cleanupObsoleteAuditPages({token,channelId,markers,transport=fetch}) {
+  const headers={Authorization:'Bot '+token,'User-Agent':'Kings Driver Register Audit/1.0'};
+  const me=await getJson(DISCORD_API+'/users/@me',headers,transport);
+  if(!/^\d{17,20}$/.test(String(me?.id||'')))throw Error('Cannot validate audit publisher identity.');
+  let before='';
+  let removed=0;
+  for(let page=0;page<10;page++){
+    const qs=new URLSearchParams({limit:'100'});
+    if(before)qs.set('before',before);
+    const messages=await getJson(DISCORD_API+'/channels/'+channelId+'/messages?'+qs,
+      headers,transport);
+    if(!Array.isArray(messages))throw Error('Cannot verify private Leadership audit history.');
+    for(const message of messages){
+      const text=String(message?.content||'');
+      if(String(message?.author?.id||'')!==String(me.id) ||
+         !text.startsWith(REPORT_PREFIX) ||
+         markers.some(marker=>text.includes(marker)))continue;
+      if(!/^\d{17,20}$/.test(String(message.id||'')))continue;
+      const response=await transport(DISCORD_API+'/channels/'+channelId+'/messages/'+message.id,{
+        method:'DELETE',headers,signal:AbortSignal.timeout(12000),redirect:'error'
+      });
+      if(!response?.ok)throw Error('Could not safely remove outdated bot-owned audit page.');
+      removed++;
+    }
+    if(messages.length<100)break;
+    before=String(messages.at(-1)?.id||'');
+    if(!/^\d{17,20}$/.test(before))throw Error('Invalid private Leadership history cursor.');
+  }
+  return removed;
+}
+
 async function main(){
   const mode=String(process.env.KINGS_TMP_VTC_REVIEW_MODE||'preview').trim();
-  if(!['preview','publish'].includes(mode))throw Error('Invalid VTC review mode.');
+  if(!['preview','publish','audit-preview','audit-publish'].includes(mode))
+    throw Error('Invalid VTC review mode.');
   const token=process.env.DISCORD_BOT_TOKEN;
-  const result=await review({token});
+  const result=await review({token,mode});
   // Print counts only, never Discord identities, profiles, joining dates or
   // complete message content in publicly visible GitHub Actions logs.
-  console.log('Kings TMP VTC review: '+result.counts.vtc+' roster members, '+
+  if(result.type==='audit') {
+    console.log('Private Kings Driver register audit: '+
+      result.counts.registered+'/'+result.counts.currentDrivers+
+      ' current Discord Drivers/Trials recorded, '+
+      result.counts.linkedVtc+'/'+result.counts.vtc+
+      ' official Kings VTC accounts represented, '+
+      result.counts.missingRecords+' missing register records, '+
+      result.counts.missingTmp+' records missing TMP IDs, '+
+      result.counts.notOnVtc+' noncurrent VTC IDs, '+
+      result.counts.identityConflicts+' contradictory exact profile links, '+
+      result.counts.unlinkedVtc+' official VTC accounts not safely linked. '+
+      'Discord complete: '+result.counts.discordComplete+','+
+      ' VTC complete: '+result.counts.vtcComplete+','+
+      ' both complete: '+result.counts.complete+'.');
+  }else console.log('Kings TMP VTC review: '+result.counts.vtc+' roster members, '+
     result.counts.drivers+' Discord Drivers/Trials, '+
     result.counts.verified+' exact public Discord-profile matches, '+
     result.counts.unmatched+' requiring confirmation, '+
@@ -120,7 +192,7 @@ async function main(){
     result.counts.historical+' recovered from previously verified encrypted links, '+
     result.counts.profileFailures+' inaccessible/invalid profiles, '+
     result.counts.conflicts+' ambiguous links.');
-  if(mode!=='publish'){
+  if(!['publish','audit-publish'].includes(mode)){
     console.log('PREVIEW: no Discord writes, no register entries and no Loyalty role changes.');
     return;
   }
@@ -132,7 +204,12 @@ async function main(){
     });
     if(sync.action==='suppressed')throw Error('Leadership report publication disabled.');
   }
-  console.log('Published VTC review candidates to private Driver Leadership; no register or role writes.');
+  if(result.type==='audit'){
+    const deleted=await cleanupObsoleteAuditPages({token,channelId:result.channelId,
+      markers:result.pages.map(page=>page.marker)});
+    console.log('Private Kings Driver Register completeness audit published; '+
+      deleted+' outdated bot-owned audit pages removed. No register or role writes.');
+  }else console.log('Published VTC review candidates to private Driver Leadership; no register or role writes.');
 }
 if(require.main===module){
   main().catch(err=>{
@@ -140,4 +217,4 @@ if(require.main===module){
     process.exit(1);
   });
 }
-module.exports={getJson,fetchPublicProfiles,review};
+module.exports={getJson,fetchPublicProfiles,review,cleanupObsoleteAuditPages};

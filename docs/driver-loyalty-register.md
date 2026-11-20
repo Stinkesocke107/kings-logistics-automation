@@ -54,6 +54,21 @@ kings_join_date: 03.03.2021
 
 These are examples, never real Kings identities. Duplicate IDs, duplicate platform links, invalid dates, unauthorized authors or unsafe channel permissions stop role processing rather than assigning uncertain Loyalty awards. Existing single-driver messages remain supported. The new VTC review never writes personal dates or Discord↔TruckersMP IDs into the public GitHub repository.
 
+## Final completeness audit when current Kings Drivers have been registered
+
+Once Management has finished entering the IDs and original joining dates, run **Actions → Kings TruckersMP Driver Joining Date Review → Run workflow** with:
+
+- `audit-preview` – checks the existing **private** register, current Discord Driver/Trial roles, current official Kings TruckersMP VTC membership, and existing exact public/previously verified TMP↔Discord links. Outputs **counts only** to public GitHub logs. Does not send, alter or reveal private records.
+- `audit-publish` – performs the same strict checks and publishes the **remaining Discord IDs and TruckersMP profile links in the private `driver-leadership` channel only**, alongside an explicit `COMPLETE` or `INCOMPLETE` assessment. Older bot-owned audit pages are removed safely; no unrelated Discord messages are changed.
+
+The report distinguishes **missing Discord records**, **registered Drivers without a TruckersMP ID**, **registered IDs that are absent from the current official Kings VTC roster**, **exact public profile identity conflicts**, and **current official VTC members without a verified, current Driver/Trial record link**. The final category can include verified public Discord-ID candidates marked `VERIFY`, but never treats nickname matches as verified identity. A current VTC member without an exact Discord link is reported with their TruckersMP profile only, not an invented Discord ID.
+
+**The audit reports two separate completion results:** (1) current Discord Kings Driver/Trial records with valid current TruckersMP IDs, and (2) all official current Kings VTC accounts represented by confirmed current Driver/Trial links. Overall `COMPLETE` requires both. You can therefore finish all currently registered Discord Drivers while still seeing unresolved VTC accounts. If a VTC member is not on the Discord Driver/Trial roster, or a current member is exempt, Management must resolve/record the exception before a global `COMPLETE` claim is possible. A `COMPLETE` audit validates coverage, **not** that every historical Kings joining date is accurate; dates still require Management verification.
+
+The private register channel must still deny `View Channel` to `@everyone` and unapproved roles (including any broad `Leadership` role not exclusively limited to CEO/Management). The bot **refuses to inspect the register** if privacy/author checks, duplicate records, or identity validation fail. Correct permissions before rerunning the audit. All audits are manual only; no automatic driver registrations or Loyalty role changes occur.
+
+**When to use it:** Tell ChatGPT you have finished entering all current Driver IDs, then use `audit-preview` and `audit-publish` to review the remaining cases. Re-run after corrections for an updated list. Do not paste driver identities in GitHub issues, PRs or public workflow logs.
+
 ## Easier onboarding-date review from Driver Updates
 
 The **Kings Driver Leadership Reports** GitHub Actions workflow now supports a safe on-demand historical welcome-date report:
