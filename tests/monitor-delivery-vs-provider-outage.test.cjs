@@ -74,6 +74,8 @@ test('Point 22 still fails strictly when an isolated safety or recovery scenario
 test('System Monitor publishes true red production state without failing just for reporting it',()=>{
   const yml=fs.readFileSync(path.join(root,'.github/workflows/system-monitoring.yml'),'utf8');
   assert.match(yml,/Verify technical monitor delivery/);
+  assert.match(yml,/Verify technical monitor delivery[^\n]*\n(?:[^\n]*\n){0,6}\s*if: success\(\)/);
+  assert.doesNotMatch(yml,/Verify technical monitor delivery[^\n]*\n\s*if: always\(\)/);
   assert.match(yml,/real production status/);
   assert.match(yml,/health\.status === 'UNHEALTHY' && critical === 0/);
   assert.doesNotMatch(yml,/h\.status==='UNHEALTHY'\|\|h\.status==='UNKNOWN'/);
