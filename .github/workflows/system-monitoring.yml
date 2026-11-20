@@ -233,7 +233,11 @@ jobs:
       # UNHEALTHY: never change the health JSON or hide these incidents.
       # This also avoids the monitor becoming its own next false failure.
       - name: Verify technical monitor delivery (keep production incidents visible)
-        if: always()
+        # A superseded/cancelled workflow may never have generated evidence;
+        # its replacement will validate and publish the next full report.
+        # Genuine earlier security/Discord publication failures already fail
+        # this workflow and must not be concealed by a finalizer.
+        if: success()
         shell: bash
         run: |
           node - <<'NODE'
