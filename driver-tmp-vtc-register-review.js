@@ -65,13 +65,10 @@ async function review({token,transport=fetch,mode='preview'}) {
     'User-Agent':'Kings Logistics Private VTC Date Review/1.0'
   };
   const getDiscord=path=>getJson(DISCORD_API+path,botHeaders,transport);
-  const [rosterData,channels,roles]=await Promise.all([
-    getJson(TMP_API+'/vtc/'+VTC_ID+'/members',
-      {'User-Agent':'Kings Logistics Driver Identity Review/1.0'},transport),
+  const [channels,roles]=await Promise.all([
     getDiscord('/guilds/'+GUILD+'/channels'),
     getDiscord('/guilds/'+GUILD+'/roles')
   ]);
-  const roster=parseRoster(rosterData);
   const leadership=selectChannel(channels,'driver-leadership');
   assertPrivateLeadershipChannel(leadership,roles,GUILD);
 
@@ -93,20 +90,13 @@ async function review({token,transport=fetch,mode='preview'}) {
       member?.nick,member?.user?.global_name,member?.user?.username
     ].filter(value=>typeof value==='string' && value.length>0)};
   });
-  const profiles=await fetchPublicProfiles(roster,transport);
-  // Reuse ONLY older Kings mappings whose provenance is a previously
-  // verified exact TruckersMP /player discordSnowflake. No old name
-  // heuristics or unverifiable public profile guesses enter the result.
-  const stored=loadVerifiedLegacyMappings();
-  const matched=attachManualNameHints(roster,
-    matchProfiles(roster,profiles.index,drivers,stored));
+  let register=null;
   if(mode.startsWith('audit-')) {
     // Read ONLY the existing validated Management register. Fail closed when
     // the private channel is public, roles are unsafe or records conflict.
     const bot=await getDiscord('/users/@me');
     if(!/^\d{17,20}$/.test(String(bot?.id||'')))
       throw Error('Could not validate Kings Systems Bot identity.');
-    let register;
     try {
       register=await loadRegister(getDiscord,GUILD,roles,members,bot.id,
         {channelId:REGISTER_CHANNEL_ID});
@@ -129,6 +119,21 @@ async function review({token,transport=fetch,mode='preview'}) {
       };
     }
     if(!register.enabled)throw Error('Private Driver register is not configured.');
+  }
+  // Invalid or unauthorized register entries are diagnosed without hitting
+  // the rate-limited TruckersMP API. A complete register still requires the
+  // official VTC roster and exact public/previously verified profile links.
+  const rosterData=await getJson(TMP_API+'/vtc/'+VTC_ID+'/members',
+    {'User-Agent':'Kings Logistics Driver Identity Review/1.0'},transport);
+  const roster=parseRoster(rosterData);
+  const profiles=await fetchPublicProfiles(roster,transport);
+  // Reuse ONLY older Kings mappings whose provenance is a previously
+  // verified exact TruckersMP /player discordSnowflake. No old name
+  // heuristics or unverifiable public profile guesses enter the result.
+  const stored=loadVerifiedLegacyMappings();
+  const matched=attachManualNameHints(roster,
+    matchProfiles(roster,profiles.index,drivers,stored));
+  if(mode.startsWith('audit-')) {
     const audit=compareRegister({drivers,roster,identities:register.identities,
       profiles:profiles.index,historicalMappings:stored});
     const pages=auditPages(audit);
