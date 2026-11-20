@@ -84,27 +84,6 @@
       },
       "firstAlertedAt": "2026-11-19T21:43:07.791Z"
     },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 44694197542,
-        "completedAt": "2026-11-20T07:20:38Z"
-      },
-      "firstAlertedAt": "2026-11-20T07:21:30.725Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-20T07:21:30.725Z"
-    },
     "workflow-overdue:driver-achievements.yml": {
       "severity": "warning",
       "system": "Driver Achievements",
@@ -115,20 +94,17 @@
         "maxAgeMinutes": 2160
       },
       "firstAlertedAt": "2026-11-20T07:22:38.440Z"
+    },
+    "workflow-failed:system-monitoring.yml": {
+      "severity": "warning",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled.",
+      "details": {
+        "runId": 44697413304,
+        "completedAt": "2026-11-20T07:47:20Z"
+      },
+      "firstAlertedAt": "2026-11-20T07:47:47.098Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-20T07:22:38.440Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with failure."
-    },
-    "workflow-overdue:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-20T07:22:38.440Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
