@@ -150,3 +150,24 @@ test('register privacy error lists every unauthorized role at once without expos
     ...channel, permission_overwrites:channel.permission_overwrites.slice(0,2)
   },guild,roles,[],owner,bot));
 });
+
+
+test('HR Management and Head Management HR are private register managers',()=>{
+  for (const name of ['HR Management','Head Management HR','HR Head Management','Management Human Resources']) {
+    assert.equal(managementRole({name}),true,name);
+  }
+  for (const name of ['HR','HR Staff','Leadership','Driver Services Management','Kings Driver']) {
+    assert.equal(managementRole({name}),false,name);
+  }
+  const guild='1114967437788577792';
+  const hr={id:'170000000000000011',name:'HR Management'};
+  const head={id:'170000000000000012',name:'Head Management HR'};
+  const channel={id:'1572736232969084948',guild_id:guild,type:0,
+    permission_overwrites:[
+      {id:guild,type:0,allow:'0',deny:'1024'},
+      {id:hr.id,type:0,allow:'1024',deny:'0'},
+      {id:head.id,type:0,allow:'1024',deny:'0'}
+    ]};
+  assert.doesNotThrow(()=>assertPrivateChannel(channel,guild,[hr,head],[],
+    '999000000000000001','999000000000000003'));
+});
