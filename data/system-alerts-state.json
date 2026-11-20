@@ -85,37 +85,6 @@
       },
       "firstAlertedAt": "2026-11-20T21:26:00.793Z"
     },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 44821565177,
-        "completedAt": "2026-11-20T21:35:15Z"
-      },
-      "firstAlertedAt": "2026-11-20T21:35:41.790Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-20T21:35:41.790Z"
-    },
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "severity": "warning",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
-      "details": {
-        "runId": 44827902788,
-        "completedAt": "2026-11-20T22:19:22Z"
-      },
-      "firstAlertedAt": "2026-11-20T22:50:46.590Z"
-    },
     "workflow-failed:driver-achievements.yml": {
       "severity": "warning",
       "system": "Driver Achievements",
