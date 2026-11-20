@@ -23,6 +23,7 @@ on:
       - 'driver-identity-register.js'
       - 'driver-loyalty-register.js'
       - 'driver-register-completeness.js'
+      - 'driver-register-format-diagnostics.js'
       - '.github/workflows/driver-tmp-vtc-review.yml'
 
 permissions:
@@ -52,6 +53,7 @@ jobs:
           node --check driver-legacy-verified-mappings.js
           node --check driver-tmp-vtc-register-review.js
           node --check driver-register-completeness.js
+          node --check driver-register-format-diagnostics.js
           node --check driver-identity-register.js
           node --check driver-loyalty-register.js
 
@@ -65,6 +67,18 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           KINGS_TMP_VTC_REVIEW_MODE: audit-preview
+        run: node driver-tmp-vtc-register-review.js
+
+      # One-time user-authorized private diagnostic. This executes ONLY for
+      # the explicitly titled merge commit; normal pushes are read-only.
+      # The Leadership upsert is idempotent on re-runs. It publishes only
+      # links to the protected register, never private identity data.
+      - name: Publish private correction links once for Kings Management
+        if: startsWith(github.event.head_commit.message, 'Run private Kings Driver register diagnostics')
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          KINGS_TMP_VTC_REVIEW_MODE: audit-publish
         run: node driver-tmp-vtc-register-review.js
 
   review:
@@ -86,6 +100,7 @@ jobs:
           node --check driver-legacy-verified-mappings.js
           node --check driver-tmp-vtc-register-review.js
           node --check driver-register-completeness.js
+          node --check driver-register-format-diagnostics.js
 
       - name: Review official Kings VTC join dates
         env:
