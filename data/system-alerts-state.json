@@ -126,20 +126,18 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-20T13:22:57.861Z"
+    },
+    "stale-data:data/driver-management-summary.json": {
+      "severity": "critical",
+      "system": "Driver Management data",
+      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-20T13:22:56.791Z",
+        "ageMinutes": 182,
+        "maxAgeMinutes": 160
+      },
+      "firstAlertedAt": "2026-11-20T16:25:15.621Z"
     }
   },
-  "pending": {
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-20T13:26:05.507Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    },
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-20T13:26:05.507Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
