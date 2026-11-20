@@ -55,14 +55,16 @@ jobs:
           node --check driver-identity-register.js
           node --check driver-loyalty-register.js
 
-      # Safe, read-only real API acceptance probe: counts only.
-      # External profile failures do not cause public data or role writes.
-      - name: Read-only Kings VTC date import coverage
-        continue-on-error: true
+      # Check the live, permission-validated private register on changes to
+      # this audit workflow. Print aggregate totals only, never player IDs,
+      # dates or messages. Do not publish Discord data or update roles.
+      # A channel permission error is visible in the step without exposing
+      # register records; external API failures cannot masquerade as success.
+      - name: Read-only Kings private Driver register completion audit
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
-          KINGS_TMP_VTC_REVIEW_MODE: preview
+          KINGS_TMP_VTC_REVIEW_MODE: audit-preview
         run: node driver-tmp-vtc-register-review.js
 
   review:
