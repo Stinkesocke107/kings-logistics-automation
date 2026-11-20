@@ -1,22 +1,10 @@
 {
   "version": 1,
   "mode": "technical-safe-self-healing",
-  "updatedAt": "2026-11-20T09:37:35.651Z",
+  "updatedAt": "2026-11-20T10:11:49.767Z",
   "repairs": {
     "live-tracker": {
       "attempts": [
-        {
-          "at": "2026-11-19T10:05:42.652Z",
-          "outcome": "failed",
-          "action": "dispatched",
-          "runId": 44502281921,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-failed:live-tracker.yml",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
         {
           "at": "2026-11-19T12:18:50.992Z",
           "outcome": "failed",
@@ -178,23 +166,26 @@
             "workflow-failed:live-tracker.yml",
             "workflow-overdue:live-tracker.yml"
           ]
+        },
+        {
+          "at": "2026-11-20T10:11:49.767Z",
+          "outcome": "failed",
+          "action": "dispatched",
+          "runId": 44717104707,
+          "issueIds": [
+            "stale-data:data/live-tracker-snapshot.json",
+            "stale-data:data/statistics.json",
+            "workflow-failed:live-tracker.yml",
+            "workflow-overdue:live-tracker.yml"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-11-20T09:37:35.651Z",
+      "lastAttemptAt": "2026-11-20T10:11:49.767Z",
       "lastSuccessAt": "2026-11-18T12:19:46.364Z",
-      "lastFailureAt": "2026-11-20T09:37:35.651Z"
+      "lastFailureAt": "2026-11-20T10:11:49.767Z"
     },
     "driver-updates": {
       "attempts": [
-        {
-          "at": "2026-11-19T10:06:01.745Z",
-          "outcome": "recovered",
-          "action": "dispatched",
-          "runId": 44502421659,
-          "issueIds": [
-            "workflow-overdue:driver-updates.yml"
-          ]
-        },
         {
           "at": "2026-11-20T08:36:52.592Z",
           "outcome": "recovered",

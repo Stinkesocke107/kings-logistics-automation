@@ -115,14 +115,31 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-20T07:54:40.878Z"
+    },
+    "stale-data:data/driver-achievements-summary.json": {
+      "severity": "warning",
+      "system": "Driver Achievement data",
+      "message": "Driver Achievement data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-18T18:10:28.175Z",
+        "ageMinutes": 2401,
+        "maxAgeMinutes": 2400
+      },
+      "firstAlertedAt": "2026-11-20T10:12:14.175Z"
     }
   },
   "pending": {
-    "stale-data:data/driver-achievements-summary.json": {
+    "workflow-failed:system-monitoring.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-20T10:11:40.112Z",
-      "system": "Driver Achievement data",
-      "message": "Driver Achievement data is stale or has no valid updatedAt timestamp."
+      "firstSeenAt": "2026-11-20T10:12:14.175Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-20T10:12:14.175Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
     }
   }
 }
