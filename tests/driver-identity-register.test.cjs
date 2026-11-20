@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  parseDriverIdentityRecord, createPlatformIndex, addIdentityToIndex
+  parseDriverIdentityRecord, parseDriverIdentityRecords, createPlatformIndex, addIdentityToIndex
 } = require('../driver-identity-register.js');
 const { loadRegister,managementRole,assertPrivateChannel } = require('../driver-loyalty-register.js');
 const now = new Date('2026-11-19T10:00:00Z');
@@ -21,6 +21,39 @@ test('extended records keep verified platform IDs as strings', () => {
   assert.equal(parsed.platformIds.haulmp, 'user-ABC_123');
   assert.equal(parsed.platformIds.trucklinemp, null);
   assert.equal(parsed.joinedAt.getUTCFullYear(), 2020);
+});
+
+test('existing unheaded multi-driver messages parse with or without separators', () => {
+  const entry = (index) =>
+    'discord_id: ' + String(123456789012345678n + BigInt(index)) +
+    '\ntruckersmp_id: ' + String(2000000 + index) +
+    '\nkings_join_date: 15.08.2026';
+  const values = Array.from({length:17}, (_, i) => entry(i));
+  // An existing message can contain >12 entries and may omit some '---' lines.
+  const mixed = values.map((v, i) => i % 3 === 0 ? v : '---\n' + v).join('\n');
+  const parsed = parseDriverIdentityRecords(mixed, now);
+  assert.equal(parsed.length, 17);
+  assert.equal(parsed[16].platformIds.truckersmp, '2000016');
+  assert.equal(parseDriverIdentityRecords(entry(0), now).length, 1);
+  assert.equal(parseDriverIdentityRecords('Staff internal note', now).length, 0);
+  const originalBatch = 'KINGS_REGISTER_BATCH_V1\n' + values.slice(0, 2).join('\n---\n');
+  assert.equal(parseDriverIdentityRecords(originalBatch, now).length, 2);
+  assert.throws(() => parseDriverIdentityRecords(
+    'KINGS_REGISTER_BATCH_V1\n' + values.slice(0, 13).join('\n---\n'), now
+  ), /batch must contain/);
+});
+
+test('unheaded multi-driver messages still fail closed for duplicate IDs, invalid fields and empty separators', () => {
+  const a = 'discord_id: 123456789012345678\ntruckersmp_id: 1234567\nkings_join_date: 02.02.2020';
+  const b = 'discord_id: 123456789012345679\ntruckersmp_id: 1234568\nkings_join_date: 03.03.2021';
+  assert.throws(() => parseDriverIdentityRecords(a + '\n---\n' + a, now), /duplicate/i);
+  assert.throws(() => parseDriverIdentityRecords(a + '\n---\n' + b + '\n---', now), /separator|batch must contain/i);
+  assert.throws(() => parseDriverIdentityRecords(a + '\n---\n' +
+    'discord_id: 123456789012345680\nunknown_field: x\nkings_join_date: 03.03.2021', now),
+  /Invalid Kings Driver identity record field or line/);
+  assert.throws(() => parseDriverIdentityRecords(a + '\n---\n' +
+    'discord_id: 123456789012345680\ntruckersmp_id: 1234569\nkings_join_date: 32.03.2021', now),
+  /Invalid or future Kings joining date/);
 });
 
 test('invalid, malformed, duplicate, missing and future fields fail closed', () => {
