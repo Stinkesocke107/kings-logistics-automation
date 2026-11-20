@@ -19,6 +19,11 @@ function managementRole(role) {
   // Department-specific top Leadership titles remain Management, rather than
   // ordinary Staff / Driver roles. Explicit department allowlist prevents
   // broad access through arbitrary role-name fragments.
+  // Real Kings HR titles can be department-first (HR Management) or
+  // leadership-first (Head Management HR). Accept only exact HR titles.
+  if (new Set(['hr management','hr head management','human resources management',
+    'human resources head management','kings hr management',
+    'kings hr head management']).has(name)) return true;
   return /^(?:kings )?(?:head management|management) (?:human resources|hr|events|event coordination|creative|driver services|driver operations|development|media|community support)$/.test(name);
 }
 const parseRecord = parseDriverIdentityRecord;
