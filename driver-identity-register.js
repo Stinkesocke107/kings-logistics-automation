@@ -94,6 +94,9 @@ function parseDriverIdentityRecords(content, now = new Date()) {
     }
     if (line.trim() || current.length) current.push(line);
   }
+  if (!current.length && blocks.length) {
+    throw new Error('Kings Driver register batch must contain nonempty records.');
+  }
   if (current.length) blocks.push(current.join('\n').trim());
   const max = hasHeader ? MAX_BATCH_RECORDS : MAX_LEGACY_MESSAGE_RECORDS;
   if (!rest || !blocks.length || blocks.length > max || blocks.some(block => !block)) {
