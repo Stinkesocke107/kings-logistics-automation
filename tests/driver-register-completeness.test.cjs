@@ -39,6 +39,8 @@ test('audit requires all current Discord Driver and Trial records AND current of
     identities:new Map([[D1,identity('1234567')],[D2,identity('1234568')]])
   });
   assert.equal(result.complete,true);
+  assert.equal(result.discordComplete,true);
+  assert.equal(result.vtcComplete,true);
   assert.equal(result.registeredDrivers,2);
   assert.equal(result.matchedVtcCount,2);
   assert.equal(result.missingVtcLinks.length,0);
@@ -46,6 +48,19 @@ test('audit requires all current Discord Driver and Trial records AND current of
   assert.equal(pages.length,1);
   assert.match(pages[0].content,/COMPLETE/);
   assert.match(pages[0].content,/2\/2/);
+});
+
+test('all Discord Drivers can be fully registered while remaining VTC accounts still need verification',()=>{
+  const result=compareRegister({
+    drivers,roster:roster(),
+    identities:new Map([[D1,identity('1234567')],[D2,identity('1234568')]])
+  });
+  assert.equal(result.discordComplete,true);
+  assert.equal(result.vtcComplete,false);
+  assert.equal(result.complete,false);
+  const msg=auditPages(result)[0].content;
+  assert.match(msg,/Current Discord Driver register coverage: \*\*COMPLETE\*\*/);
+  assert.match(msg,/Official Kings VTC link coverage: \*\*INCOMPLETE\*\*/);
 });
 
 test('missing records, missing TMP IDs, wrong VTC IDs and unknown VTC members are reported separately',()=>{
