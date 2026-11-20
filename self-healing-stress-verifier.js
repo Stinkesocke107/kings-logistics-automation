@@ -75,4 +75,9 @@ function main() {
   if (failed.length) process.exitCode = 1;
 }
 
-try { main(); } catch (error) { console.error(error.stack || error.message); process.exitCode = 1; }
+try {
+  main();
+} catch (error) {
+  console.error(error.stack || error.message);
+  process.exitCode = 1;
+}
