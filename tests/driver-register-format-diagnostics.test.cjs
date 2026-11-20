@@ -121,6 +121,8 @@ test('audit-preview reports private correction links without writing or exposing
   assert.equal(result.channelId,LEADERSHIP);
   assert.ok(result.pages.some(p=>p.content.includes('Open entry')));
   assert.ok(calls.every(c=>c.method==='GET'));
+  assert.ok(calls.every(c=>!c.url.includes('api.truckersmp.com')),
+    'Invalid private register must be diagnosed before any TruckersMP API call');
 });
 test('one-time publishing remains disabled for normal GitHub pushes',()=>{
   const yaml=fs.readFileSync(path.join(__dirname,
