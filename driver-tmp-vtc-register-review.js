@@ -118,6 +118,7 @@ async function review({token,transport=fetch,mode='preview'}) {
         notOnVtc:audit.tmpNotInCurrentVtc.length,
         identityConflicts:audit.identityConflicts.length,
         unlinkedVtc:audit.missingVtcLinks.length,
+        discordComplete:audit.discordComplete,vtcComplete:audit.vtcComplete,
         complete:audit.complete}};
   }
   const pages=reportPages(matched,GUILD);
@@ -180,7 +181,9 @@ async function main(){
       result.counts.notOnVtc+' noncurrent VTC IDs, '+
       result.counts.identityConflicts+' contradictory exact profile links, '+
       result.counts.unlinkedVtc+' official VTC accounts not safely linked. '+
-      'Complete: '+result.counts.complete+'.');
+      'Discord complete: '+result.counts.discordComplete+','+
+      ' VTC complete: '+result.counts.vtcComplete+','+
+      ' both complete: '+result.counts.complete+'.');
   }else console.log('Kings TMP VTC review: '+result.counts.vtc+' roster members, '+
     result.counts.drivers+' Discord Drivers/Trials, '+
     result.counts.verified+' exact public Discord-profile matches, '+
