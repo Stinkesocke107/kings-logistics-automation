@@ -115,20 +115,28 @@
         "completedAt": "2026-11-20T22:19:22Z"
       },
       "firstAlertedAt": "2026-11-20T22:50:46.590Z"
-    }
-  },
-  "pending": {
+    },
     "workflow-failed:driver-achievements.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-20T23:02:47.025Z",
+      "severity": "warning",
       "system": "Driver Achievements",
-      "message": "Driver Achievements latest completed run ended with failure."
+      "message": "Driver Achievements latest completed run ended with failure.",
+      "details": {
+        "runId": 44832175135,
+        "completedAt": "2026-11-20T22:50:42Z"
+      },
+      "firstAlertedAt": "2026-11-20T23:05:41.824Z"
     },
     "workflow-overdue:driver-achievements.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-20T23:02:47.025Z",
+      "severity": "warning",
       "system": "Driver Achievements",
-      "message": "Driver Achievements has not run within the expected time window."
+      "message": "Driver Achievements has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-18T18:10:41Z",
+        "ageMinutes": 3174,
+        "maxAgeMinutes": 2160
+      },
+      "firstAlertedAt": "2026-11-20T23:05:41.824Z"
     }
-  }
+  },
+  "pending": {}
 }
