@@ -151,41 +151,43 @@ jobs:
           console.log(`Final Point 21 health: ${h.status}; Critical=${h.summary?.criticalIssues || 0}; Warnings=${h.summary?.warnings || 0}`);
           NODE
 
-      - name: Process technical alert / recovery messages
-        if: always()
-        continue-on-error: true
-        env:
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_GUILD_ID: '1114967437788577792'
-          SYSTEM_ALERTS_CHANNEL_NAME: 'system-alerts'
-        run: node system-alerts.js
-
+      # Kings System Monitoring is the single persistent owner of
+      # data/system-alerts-state.json and the system-alerts Discord channel.
+      # Self-Healing produces repair evidence only. Publishing from both
+      # workflows caused conflicting state commits and duplicate alerts.
       - name: Verify Point 21 acceptance gates
         id: verify
         if: always()
         run: node self-healing-verifier.js
 
-      - name: Persist Self-Healing technical state
+      - name: Persist Self-Healing technical state (single-writer ownership)
         if: always()
         shell: bash
         run: |
           set -euo pipefail
 
-          if [ -z "$(git status --porcelain -- data/self-healing-state.json data/system-alerts-state.json data/api-health)" ]; then
-            echo 'No Self-Healing technical state changes to save.'
+          # API health and technical alert state are persisted only by Kings
+          # System Monitoring. They may have been touched by read-only
+          # diagnostic checks; do not commit stale copies from this worker.
+          git restore --worktree -- data/api-health data/system-alerts-state.json
+          # Discard generated, untracked API-health JSON from this workspace.
+          # Only this known technical namespace is eligible for cleanup.
+          git ls-files --others --exclude-standard -- data/api-health | while IFS= read -r file; do
+            case "$file" in data/api-health/*) rm -- "$file" ;; *) exit 1 ;; esac
+          done
+
+          if [ -z "$(git status --porcelain -- data/self-healing-state.json)" ]; then
+            echo 'No Self-Healing repair-state change to persist.'
             exit 0
           fi
-
           git config user.name 'Kings Logistics Automation'
           git config user.email 'actions@users.noreply.github.com'
-          git add -A -- data/self-healing-state.json data/system-alerts-state.json data/api-health
-
+          git add -- data/self-healing-state.json
           if git diff --cached --quiet; then
-            echo 'No Self-Healing technical state changes staged.'
+            echo 'No Self-Healing repair-state change staged.'
             exit 0
           fi
-
-          git commit -m 'Update Kings self-healing state'
+          git commit -m 'Update Kings self-healing repair state'
           bash scripts/git-safe-push.sh main
 
       - name: Upload Point 21 evidence
