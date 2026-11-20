@@ -57,28 +57,50 @@ function parseDriverIdentityRecord(content, now = new Date()) {
   return { userId, joinedAt, platformIds };
 }
 
-// One staff-authored Discord message can register several already reviewed
-// Drivers, with normal per-record validation and global duplicate protection.
-// Explicit header keeps ordinary private messages and legacy two-line records
-// completely backward compatible.
+// Existing private register messages may contain multiple Driver records
+// separated by '---' or simply followed by the next discord_id line. Accept
+// both formats without rewriting or exposing private Discord messages.
+// Explicit V1 batches retain their original stricter 12-record limit.
 const BATCH_HEADER = 'KINGS_REGISTER_BATCH_V1';
 const MAX_BATCH_RECORDS = 12;
+const MAX_LEGACY_MESSAGE_RECORDS = 20;
 function parseDriverIdentityRecords(content, now = new Date()) {
   const raw = String(content || '').trim();
-  if (!raw.startsWith(BATCH_HEADER)) {
-    const single = parseDriverIdentityRecord(raw, now);
-    return single ? [single] : [];
+  const hasHeader = raw.startsWith(BATCH_HEADER);
+  if (!hasHeader && !/^(?:id|discord_id)\s*:/i.test(raw)) return [];
+
+  let rest = raw;
+  if (hasHeader) {
+    const lines = raw.split(/\r?\n/);
+    if (lines[0].trim() !== BATCH_HEADER) {
+      throw new Error('Invalid private Kings Driver register batch header.');
+    }
+    rest = lines.slice(1).join('\n').trim();
   }
-  const lines = raw.split(/\r?\n/);
-  if (lines[0].trim() !== BATCH_HEADER) {
-    throw new Error('Invalid private Kings Driver register batch header.');
+
+  const blocks = [];
+  let current = [];
+  for (const line of rest.split(/\r?\n/)) {
+    if (/^\s*---\s*$/.test(line)) {
+      if (!current.length) throw new Error('Invalid private Driver register separator.');
+      blocks.push(current.join('\n').trim());
+      current = [];
+      continue;
+    }
+    // Missing '---' between entries is unambiguous at a fresh ID field.
+    if (!hasHeader && current.length && /^\s*(?:id|discord_id)\s*:/i.test(line)) {
+      blocks.push(current.join('\n').trim());
+      current = [];
+    }
+    if (line.trim() || current.length) current.push(line);
   }
-  const rest = lines.slice(1).join('\n').trim();
-  const blocks = rest.split(/^\s*---\s*$/m).map(block=>block.trim());
-  if (!rest || !blocks.length || blocks.length > MAX_BATCH_RECORDS ||
-      blocks.some(block=>!block)) {
-    throw new Error('Kings Driver register batch must contain 1 to 12 nonempty records.');
+  if (current.length) blocks.push(current.join('\n').trim());
+  const max = hasHeader ? MAX_BATCH_RECORDS : MAX_LEGACY_MESSAGE_RECORDS;
+  if (!rest || !blocks.length || blocks.length > max || blocks.some(block => !block)) {
+    throw new Error('Kings Driver register batch must contain 1 to ' + max +
+      ' nonempty records.');
   }
+
   const ids = new Set();
   return blocks.map(block => {
     const parsed = parseDriverIdentityRecord(block, now);
