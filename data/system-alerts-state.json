@@ -85,16 +85,6 @@
       },
       "firstAlertedAt": "2026-11-20T10:12:14.175Z"
     },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 44808570157,
-        "completedAt": "2026-11-20T20:08:16Z"
-      },
-      "firstAlertedAt": "2026-11-20T20:08:41.782Z"
-    },
     "workflow-overdue:live-tracker.yml": {
       "severity": "critical",
       "system": "Live Tracker / Statistics",
