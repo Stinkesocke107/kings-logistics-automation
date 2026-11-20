@@ -84,17 +84,6 @@
       },
       "firstAlertedAt": "2026-11-19T21:43:07.791Z"
     },
-    "stale-data:data/driver-management-summary.json": {
-      "severity": "critical",
-      "system": "Driver Management data",
-      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-11-20T03:08:52.699Z",
-        "ageMinutes": 252,
-        "maxAgeMinutes": 160
-      },
-      "firstAlertedAt": "2026-11-20T07:21:30.725Z"
-    },
     "workflow-failed:live-tracker.yml": {
       "severity": "critical",
       "system": "Live Tracker / Statistics",
@@ -115,14 +104,31 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-20T07:21:30.725Z"
+    },
+    "workflow-overdue:driver-achievements.yml": {
+      "severity": "warning",
+      "system": "Driver Achievements",
+      "message": "Driver Achievements has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-18T18:10:41Z",
+        "ageMinutes": 2231,
+        "maxAgeMinutes": 2160
+      },
+      "firstAlertedAt": "2026-11-20T07:22:38.440Z"
     }
   },
   "pending": {
-    "workflow-overdue:driver-achievements.yml": {
+    "workflow-failed:system-monitoring.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-20T07:21:30.725Z",
-      "system": "Driver Achievements",
-      "message": "Driver Achievements has not run within the expected time window."
+      "firstSeenAt": "2026-11-20T07:22:38.440Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with failure."
+    },
+    "workflow-overdue:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-20T07:22:38.440Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring has not run within the expected time window."
     }
   }
 }
