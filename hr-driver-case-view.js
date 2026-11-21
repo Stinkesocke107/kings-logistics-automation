@@ -119,9 +119,9 @@ function privateHrCasePages(view){
   const chunks=[];
   for(let i=0;i<view.cases.length;i+=CASES_PER_PAGE)
     chunks.push(view.cases.slice(i,i+CASES_PER_PAGE));
-  const all=Math.max(1,chunks.length);
+  const pageCount=1+chunks.length;
   const head=[
-    '👑 Kings HR Driver Case View | 1/'+(all+1),
+    '👑 Kings HR Driver Case View | 1/'+pageCount,
     '🔒 PRIVATE HR/Management ONLY — read-only evidence, never an approval action',
     'Current Kings Drivers: **'+s.currentDrivers+'** • Original identities: **'+s.originalIdentityRegistered+'**',
     'Verified HR first: **'+s.approvedFirst+'** • return: **'+s.approvedReturn+'**',
@@ -136,7 +136,7 @@ function privateHrCasePages(view){
   const pages=[Object.freeze({marker:'Kings HR Driver Case View | 1/',content:head})];
   for(let i=0;i<chunks.length;i++){
     const lines=[
-      '👑 Kings HR Driver Case View | '+(i+2)+'/'+(all+1),
+      '👑 Kings HR Driver Case View | '+(i+2)+'/'+pageCount,
       '🔒 PRIVATE HR/Management ONLY • Human authorization required',
       'Source: verified Discord Driver roles + protected Kings identity/HR decisions',
       ...chunks[i].map(privateCaseLine)
