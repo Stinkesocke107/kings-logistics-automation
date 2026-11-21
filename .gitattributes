@@ -1,0 +1,4 @@
+# Avoid surfacing historical free-text Staff details in GitHub change diffs.
+# This is NOT a substitute for a separate, authorized Git-history cleanup.
+data/legacy-convoys.json -diff
+data/legacy-convoys-private.json -diff
