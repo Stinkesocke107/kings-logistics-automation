@@ -33,9 +33,11 @@ test('monitor/convoy audits reject stale or duplicate bot messages while omittin
  const bot='123456789123456789';
  const monitor={author:{id:bot},content:'👑 **Kings Systems — Live Monitor**\n**Overall Status:** `UNHEALTHY`\n**Production Readiness:** `UNHEALTHY`\n**Automation Coverage:** 31/32\n🕒 **Last Check:** <t:'+Math.floor((now-600000)/1000)+':F>'};
  assert.equal(a.verifyMonitor([monitor],bot,now),null);
+ assert.equal(a.verifyMonitor([{...monitor,content:monitor.content.replace('👑','<:Kings_Logistics_Logo:1545254529648431124>')}],bot,now),null);
  assert.equal(a.verifyMonitor([monitor,monitor],bot,now),'monitor-duplicate-visible');
  const convoy={author:{id:bot},content:'👑 **Kings Logistics | Convoy Overview**\nLatest Kings Convoy Center snapshot <t:'+Math.floor((now-600000)/1000)+':R>\nConvoy Planning\nSystem Overview'};
  assert.equal(a.verifyConvoyOverview([convoy],bot,now),null);
+ assert.equal(a.verifyConvoyOverview([{...convoy,content:convoy.content.replace('👑','<:Kings_Logistics_Logo:1545254529648431124>')}],bot,now),null);
  assert.equal(a.verifyConvoyOverview([convoy,convoy],bot,now),'convoy-overview-duplicate-visible');
 });
 test('publisher-observed IDs allow direct lookup for updated messages older than latest 100',()=>{
