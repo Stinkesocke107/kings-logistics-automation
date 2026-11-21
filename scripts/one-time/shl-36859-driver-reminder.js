@@ -17,7 +17,7 @@ const BOT_ID='1404524559214051499';
 const MARKER='🚨 **Kings Driver Convoy Reminder — 1 Hour**';
 const URL='https://truckersmp.com/events/'+EVENT;
 const TOKEN=process.env.DISCORD_BOT_TOKEN;
-const REPORT=path.join(__dirname,'..','output','convoy-check-results.json');
+const REPORT=path.join(__dirname,'..','..','output','convoy-check-results.json');
 const API='https://discord.com/api/v10';
 
 function verifiedSource(report){
