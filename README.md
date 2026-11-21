@@ -4,6 +4,9 @@ Automation systems and tools for Kings Logistics.
 
 ## Documentation
 
+- [Current Kings systems operating guide (21 November 2026)](docs/KINGS-AUTOMATION-OPERATING-GUIDE-2026-11-21.md) — living status, data ownership, verification limits, safe workflows and policy rules.
+- [CEO-only Command Center (concept, not deployed)](docs/KINGS-CEO-COMMAND-CENTER-CONCEPT.md) — proposed Discord slash commands, security requirements and safe rollout gates.
+
 - [Current workflow inventory](docs/KINGS-ALL-SYSTEMS-INVENTORY.md) — 44 registered workflows (32 scheduled, 12 on-demand) as of 21 November 2026.
 - [Kings Data Sources Masterplan](docs/KINGS-DATA-SOURCES-MASTERPLAN.md) — authoritative private Discord Driver ID/join-date register, data-source field ownership, future Driver onboarding, privacy boundaries and planned Staff/Partner/Event/Award sources.
 - [Kings Staff & Leadership Data Sources](docs/KINGS-STAFF-DATA-SOURCES.md) — verified Discord Staff-role coverage separately from TMP VTC Staff classifications and not-yet-configured human Staff appointment decisions.
@@ -13,7 +16,7 @@ Automation systems and tools for Kings Logistics.
 - [Point 22 Self-Healing Stress Test — 1 October 2026](docs/self-healing-stress-2026-10-01.md) — controlled failure matrix, corrupt-state fail-closed recovery, Discord 429 hardening and the post-Point-22 Core v1.2 baseline.
 - [Point 21 Safe Self-Healing — 1 October 2026](docs/self-healing-2026-10-01.md) — automatic technical recovery allowlist, cooldowns, attempt budgets and verification evidence.
 - [Stable Core Baseline / Core Freeze — 1 October 2026](docs/core-baseline-2026-10-01.md) — historical Kings Core v1.0 / Point 20 reference, fingerprint, acceptance evidence and freeze rules.
-- [Final Core Documentation](docs/final-core-documentation.md) — architecture, workflows, schedules, data/state, Discord outputs, APIs, secret names, backup/recovery, monitoring, troubleshooting, manual operations, maintenance, verifiers and safety systems.
+- [Historical Final Core Documentation (30 September 2026)](docs/final-core-documentation.md) — baseline-era architecture, workflows, schedules, data/state, Discord outputs, APIs, secret names, backup/recovery, monitoring, troubleshooting, manual operations, maintenance, verifiers and safety systems.
 - [System Verification — 30 September 2026](docs/system-verification-2026-09-30.md) — historical verification evidence, tested repairs and production-validation notes from that verification pass.
 
 ## Stable Core Baseline
