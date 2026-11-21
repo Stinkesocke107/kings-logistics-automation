@@ -1,6 +1,7 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const { discordTimestamp } = require('./convoy-time-utils');
+const { archivedReminderReady } = require('./convoy-archived-reminder-policy');
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -100,7 +101,9 @@ async function resolveFreshSlotImage(item) {
   } catch (error) {
     console.warn(`Could not refresh Kings slot image for ${item.name || item.threadId}: ${error.message}`);
 
-    if (meta.capturedUrl) {
+    // Archived source images must still be verifiable in the original
+    // Discord attachment; an old captured CDN URL is not sufficient.
+    if (meta.capturedUrl && !item.archived) {
       return {
         url: meta.capturedUrl,
         attachmentId: String(meta.attachmentId || ''),
@@ -351,6 +354,16 @@ async function sendReminder(channelId, item, marker, title, description, botId, 
 
   const embeds = buildSlotImageEmbed(slotImage);
 
+  // An archived approved event may already have received a separately
+  // authorized recovery reminder. Preserve the existing verified message
+  // instead of editing/re-pinging it; changed meeting times need review.
+  if (existing && item.archived && !DRY_RUN) {
+    if (!String(existing.content || '').includes(`<t:${item.eventUnix}:F>`)) {
+      throw new Error('Archived reminder exists with a different meeting time; manual verification required.');
+    }
+    return { action: 'already-sent-archived', messageId: existing.id };
+  }
+
   if (DRY_RUN) {
     if (!content.includes(`<@&${driverRoleId}>`)) {
       throw new Error('Dry-run safety check failed: Convoy Driver role mention is missing.');
@@ -433,7 +446,8 @@ async function main() {
       continue;
     }
 
-    if (item.archived || item.locked || item.status !== 'Scheduled') {
+    if (item.locked || item.status !== 'Scheduled' ||
+        (item.archived && !archivedReminderReady(item, nowUnix))) {
       skipped += 1;
       continue;
     }

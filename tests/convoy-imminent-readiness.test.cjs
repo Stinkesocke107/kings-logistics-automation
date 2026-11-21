@@ -10,10 +10,10 @@ function approved(overrides={}){
  return {
   eventId:'36859',ignored:false,error:null,testThread:false,
   archived:false,locked:false,status:'Scheduled',duplicateEventId:false,
-  staffStatus:{status:'Scheduled'},
+  staffStatus:{status:'Scheduled',authorId:'human-approver',roleSource:'message.member',matchedRoleIds:['approved-event-role']},
   truckersmpSync:{ok:true,authoritative:true,syncedAt:'2026-11-21T23:10:00Z'},
-  truckersmp:{meetupAtUtc:meetup,publicCancelled:false,authoritative:{eventDate:'2026-11-22'}},
-  validation:{complete:true,checks:{kingsSlotConfirmed:true,imageProof:true},parsed:{kingsSlotImage:{messageId:'synthetic'}}},
+  truckersmp:{id:36859,meetupAtUtc:meetup,publicCancelled:false,authoritative:{eventDate:'2026-11-22'}},
+  validation:{complete:true,checks:{eventLink:true,eventType:true,responsibleStaff:true,kingsSlotConfirmed:true,imageProof:true,truckersmpSync:true,eventDate:true,route:true,meetup:true,meetupTime:true},parsed:{kingsSlotImage:{messageId:'synthetic',attachmentId:'synthetic-image'}}},
   eventUnix:Math.floor(Date.parse(meetup)/1000),eventTimeValid:true,
   ...overrides
  };
@@ -35,10 +35,16 @@ test('real SHL-shaped archived approved convoy is blocked by archived, stale fin
  assert.equal(result.length,1);
  assert.equal(result[0].status,'BLOCKED');
  assert.deepEqual(result[0].blockers,[
-  'archived-thread','final-status-not-scheduled',
+  'archived-approval-or-evidence-not-ready','final-status-not-scheduled',
   'required-fields-not-finalized','meeting-time-not-finalized'
  ]);
  assert.equal(A.summary(result).blockedOneHour,1);
+});
+test('archived human-approved future convoy is eligible after full read-only finalization',()=>{
+ const result=A.approvedUpcoming({threads:[approved({archived:true})]},now);
+ assert.equal(result.length,1);
+ assert.equal(result[0].status,'ELIGIBLE_NOT_DELIVERY_PROOF');
+ assert.deepEqual(result[0].blockers,[]);
 });
 test('unsupported approvals or cancelled public events are not advertised as due',()=>{
  const variants=[
