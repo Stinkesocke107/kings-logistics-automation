@@ -4,7 +4,7 @@
 require('./kings-branding').installDiscordBranding();
 const fs=require('fs');
 const path=require('node:path');
-const { fetchOfficialSnapshot }=require('./truckersmp-official-live');
+const { fetchOfficialSnapshot,fetchOfficialMembership }=require('./truckersmp-official-live');
 
 const ROOT=__dirname;
 const KINGS_BLUE=0x182DFF;
@@ -60,8 +60,14 @@ function outageEmbed(config,state,official=null){
     const ts=Math.floor(Date.parse(official.observedAt)/1000);
     fields.push({name:'Kings VTC membership (official TruckersMP)',
       value:'**'+official.vtcMemberCount+' registered VTC members** — verified <t:'+ts+':R>',inline:false});
+    // When only VTC membership is verified, omit unverified global online totals.
+    if (Number.isSafeInteger(official.totalAllPlayers) &&
+        Number.isSafeInteger(official.activeServers) &&
+        Number.isSafeInteger(official.ets2AllPlayers) &&
+        Number.isSafeInteger(official.atsAllPlayers)) {
     fields.push({name:'ALL TruckersMP players online (not Kings Drivers)',
       value:'**'+official.totalAllPlayers+' players** across '+official.activeServers+' online servers (ETS2: **'+official.ets2AllPlayers+'** · ATS: **'+official.atsAllPlayers+'**) — <t:'+ts+':R>',inline:false});
+    }
   }
   return {
     title:config.title,
@@ -134,6 +140,13 @@ async function main(){
       // Do not conceal player-map outage, mark the official secondary feed
       // healthy or print identifying player records in logs.
       console.warn('Official TruckersMP secondary overview unavailable ('+String(error?.name||'Error')+').');
+      try {
+        official=await fetchOfficialMembership();
+        console.log('Official Kings VTC membership verified; global server totals unavailable.');
+      } catch (membershipError) {
+        console.warn('Official Kings VTC membership unavailable ('+
+          String(membershipError?.name||'Error')+').');
+      }
     }
   }
   for(const config of SETTINGS){

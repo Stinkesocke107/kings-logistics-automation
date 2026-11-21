@@ -4,6 +4,20 @@
 const BASE='https://api.truckersmp.com/v2';
 const KINGS_VTC_ID=64284;
 
+function parseOfficialMembership(roster,nowMs=Date.now()) {
+  if (!roster || (roster.error !== false && roster.error !== 'false') ||
+      !Array.isArray(roster.response?.members)) {
+    throw new Error('Official TruckersMP VTC member roster is unavailable or invalid.');
+  }
+  if (!Number.isFinite(nowMs) || nowMs<=0) throw new Error('Invalid official API snapshot timestamp.');
+  const vtcMemberCount=roster.response.members.length;
+  if (vtcMemberCount>20000) throw new Error('Official TruckersMP member count is outside safety limits.');
+  return {
+    source:'truckersmp-official-v2',observedAt:new Date(nowMs).toISOString(),
+    vtcMemberCount,kingsOnline:null
+  };
+}
+
 function parseOfficialSnapshot(roster,serverResponse,nowMs=Date.now()) {
   if (!roster || roster.error !== false || !Array.isArray(roster.response?.members)) {
     throw new Error('Official TruckersMP VTC member roster is unavailable or invalid.');
@@ -59,6 +73,13 @@ async function officialGetJson(path,transport=fetch) {
   return response.json();
 }
 
+async function fetchOfficialMembership(transport=fetch) {
+  // The full official Kings VTC count does not depend on the map API or
+  // server directory. Never infer per-player online status from this count.
+  const roster=await officialGetJson('/vtc/'+KINGS_VTC_ID+'/members',transport);
+  return parseOfficialMembership(roster);
+}
+
 async function fetchOfficialSnapshot(transport=fetch) {
   // Intentionally call only two documented TruckersMP public API endpoints.
   const [members,servers]=await Promise.all([
@@ -68,4 +89,4 @@ async function fetchOfficialSnapshot(transport=fetch) {
   return parseOfficialSnapshot(members,servers);
 }
 
-module.exports={KINGS_VTC_ID,parseOfficialSnapshot,fetchOfficialSnapshot};
+module.exports={KINGS_VTC_ID,parseOfficialMembership,parseOfficialSnapshot,fetchOfficialMembership,fetchOfficialSnapshot};
