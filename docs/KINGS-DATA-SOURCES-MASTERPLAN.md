@@ -142,6 +142,8 @@ Nicht für alles neue Kanäle anlegen. Nur Informationen, die von Menschen **ver
 
 **HR-Integrationsschritt (21. November 2026):** Das vorhandene HR-Leadership-Overview zeigt zusätzlich die **rein aggregierte**, gegen das private Kings-Register verifizierte Driver-Registrierungsabdeckung aus dem Loyalty-Quellstatus an. Die vollständige TMP-VTC-Mitgliederzahl wird getrennt beschriftet. Ein über 36 Stunden alter oder widersprüchlicher Quellstatus wird `Unavailable`, nie fälschlich `0 ausstehend`. Individualisierte Korrekturanfragen bleiben in der geschützten Driver-Leadership-Registerliste; HR/Management bestätigt Originaldaten und etwaige Rückkehrentscheidungen menschlich. Das fügt keine automatische Approval-, Rollen- oder Registeränderung hinzu.
 
+**Produktive Anzeigeschicht:** `hr-leadership.js` wird vom bestehenden `hr-leadership.yml` aktuell **nicht direkt ausgeführt** (der Workflow führt `hr-probation.js` aus). Für die tatsächlich sichtbare zentrale HR-Leadership-Nachricht muss die Quelle deshalb zusätzlich im aktiven `leadership-dashboard.js:buildHr()` eingebunden sein. Der Consolidated Leadership Workflow aktualisiert damit weiterhin dieselbe gespeicherte HR-Nachricht; kein zweites Dashboard wird angelegt. Die tatsächliche Veröffentlichung ist anhand eines nachfolgenden erfolgreichen Produktionslaufs zu kontrollieren.
+
 **Phase D — Staff, Partner, Events und Awards:** konkrete Feldschemata, Eigentümer und Genehmigungsabläufe separat fertigstellen; zunächst nicht automatisch neue Channels, Nachrichten oder Rollen anlegen.
 
 **Phase E — Driver Hub und Kings Website:** Zugriff über eine abgesicherte API, Rollen- und Zweckprüfung; perspektivisch eine belastbare interne Datenbank statt Discord-Text als alleiniger Speicher.
