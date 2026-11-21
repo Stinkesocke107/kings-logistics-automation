@@ -914,6 +914,37 @@ async function updateDiscordMessage(
 }
 
 // ======================================================
+// SAFE PUBLIC LIVE TRACKER DIAGNOSTICS
+// ======================================================
+
+// Never print arbitrary thrown Error objects, provider payloads, player IDs,
+// coordinates, Discord webhook URLs, headers or stack traces to public CI.
+// Preserve the verified *coverage numbers* needed to diagnose map outages.
+function publicTrackerFailureReason(error) {
+  const raw=typeof error?.message==='string'?error.message:'';
+  const coverage=/^Only (\d{1,3})\/(\d{1,3}) live TruckersMP server checks succeeded\./.exec(raw);
+  if(coverage){
+    const checked=Number(coverage[1]),total=Number(coverage[2]);
+    if(total>0&&checked<=total)
+      return 'Incomplete live map coverage ('+checked+'/'+total+
+        ' servers); last known-good snapshot preserved.';
+  }
+  if(raw==='No usable online TruckersMP servers; keeping the last known good tracker state.')
+    return 'No usable online TruckersMP servers; last known-good snapshot preserved.';
+  if(raw==='Live Tracker stored Discord message is missing or webhook ownership changed; refusing duplicate publication.')
+    return 'Stored Discord Live Tracker message missing or changed ownership; refusing duplicate post.';
+  const discord=/^Live Tracker Discord update failed: HTTP ([4-5]\d\d)\.$/.exec(raw);
+  if(discord)return 'Discord Live Tracker message update failed (HTTP '+discord[1]+').';
+  if(error?.name==='AbortError'||error?.name==='TimeoutError')
+    return 'Live Tracker provider timeout (details withheld).';
+  if(error?.code==='CIRCUIT_OPEN')
+    return 'Live Tracker provider circuit open (details withheld).';
+  if(Number.isSafeInteger(error?.status)&&error.status>=400&&error.status<=599)
+    return 'Live Tracker provider HTTP '+error.status+' (details withheld).';
+  return 'Live Tracker execution or provider failure (details withheld).';
+}
+
+// ======================================================
 // START TRACKER
 // ======================================================
 
@@ -1002,15 +1033,8 @@ async function start() {
 }
 
 start().catch(error => {
-  console.error("");
-
-  console.error(
-    "Kings Live Tracker failed:"
-  );
-
-  console.error(
-    error
-  );
-
+  console.error('Kings Live Tracker failed: '+publicTrackerFailureReason(error));
+  // Public logs contain only fixed categories/coverage. Keep CI failing
+  // until a genuinely complete, independently verified live scan succeeds.
   process.exit(1);
 });
