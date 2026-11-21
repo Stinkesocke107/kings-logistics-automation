@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - 'hr-leadership.js'
+      - 'hr-driver-register-status.js'
       - 'hr-probation.js'
       - 'probation.js'
       - 'data/probation-state.json'
@@ -45,6 +46,7 @@ jobs:
         run: |
           node --check hr-probation.js
           node --check hr-leadership.js
+          node --check hr-driver-register-status.js
           test -f scripts/git-safe-push.sh
 
       - name: Sync HR Probation Reviews
