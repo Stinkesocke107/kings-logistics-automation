@@ -88,27 +88,6 @@
       },
       "firstAlertedAt": "2026-11-21T16:06:07.968Z"
     },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 44934378288,
-        "completedAt": "2026-11-21T18:14:34Z"
-      },
-      "firstAlertedAt": "2026-11-21T18:14:57.394Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-21T18:14:57.394Z"
-    },
     "workflow-failed:staff-leadership-live-overview.yml": {
       "severity": "warning",
       "system": "Staff Leadership Live Overview",
