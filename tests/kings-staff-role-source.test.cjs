@@ -50,14 +50,15 @@ test('decorated Discord role names match hierarchy without using nicknames',()=>
 });
 
 test('incomplete, duplicated or ambiguous guild role snapshots fail closed',()=>{
-  assert.throws(()=>currentStaffRoleSnapshot([],roleList().slice(0,4),at),/missing/);
+  assert.throws(()=>currentStaffRoleSnapshot(guildMembers,roleList().slice(0,4),at),/missing/);
+  assert.throws(()=>currentStaffRoleSnapshot([],roleList(),at),/incomplete/);
   assert.throws(()=>currentStaffRoleSnapshot([...guildMembers,guildMembers[0]],roleList(),at),/duplicate verified identities/);
   assert.throws(()=>currentStaffRoleSnapshot([{user:{id:'invalid'},roles:[]}],roleList(),at),/missing or duplicate/);
   assert.throws(()=>currentStaffRoleSnapshot(guildMembers,[...roleList(),roleList()[0]],at),/duplicate role IDs/);
   const extra={id:'223456789012345683',name:'Staff',position:1};
   const roles=roleList();
   roles[4].position=1;
-  assert.throws(()=>currentStaffRoleSnapshot([], [...roles,extra],at),/ambiguous/);
+  assert.throws(()=>currentStaffRoleSnapshot([{user:{id:A,bot:false},roles:[]}], [...roles,extra],at),/ambiguous/);
   assert.throws(()=>currentStaffRoleSnapshot(guildMembers,roleList(),new Date('invalid')),/incomplete/);
 });
 
