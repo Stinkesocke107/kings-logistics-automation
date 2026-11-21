@@ -80,6 +80,7 @@ for(const mode of ['tracker','statistics','central']){
       assert.doesNotMatch(error.message,/sample-secret-should-not-appear/);
       return true;
     });
-    assert.deepEqual(s.calls.map(call=>call.options.method),['PATCH']);
+    assert.ok(s.calls.length >= 1 && s.calls.length <= 4, 'Only bounded idempotent PATCH retries are allowed');
+    assert.ok(s.calls.every(call=>call.options.method==='PATCH'), 'No create/delete fallback on HTTP 503');
   });
 }
