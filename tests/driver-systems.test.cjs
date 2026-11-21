@@ -655,23 +655,51 @@ test('Loyalty Discord integration: dry-run cannot mutate and live touches cosmet
   assert.equal(JSON.parse(dry.files.get('data/driver-loyalty-roles-summary.json')).currentDrivers,2);
   assert.equal(dry.files.has('data/driver-loyalty-roles.json'),false,'Old identity mappings are not rewritten');
 
+  // Manual live mode must never fall back to Discord guild joined_at.
+  const rejectedLive=sandbox('driver-loyalty-roles.js',{
+    env:{DRIVER_LOYALTY_ROLE_MODE:'live'},fetch:transport
+  });
+  await assert.rejects(rejectedLive.run('main()'),/private original Kings joining-date register is unavailable/);
+  assert.equal(rejectedLive.calls.filter(x=>(x.options.method||'GET')!=='GET').length,0);
+
+  // Positive mutation coverage uses an explicitly authorized private Kings
+  // joining-date register, with separate confirmation for the two planned
+  // managed Loyalty-role removals. No real Discord writes are performed.
+  const managed={
+    driver:roles.find(role=>role.id==='1204836048845410405'),
+    umbrella:roles.find(role=>role.id==='201'),
+    tiers:tierRoles.map((role,i)=>({
+      id:['1m','3m','6m','1y','2y','3y','4y','5y'][i],
+      role,
+      ...(i<3?{months:[1,3,6][i]}:{years:i-2})
+    })),
+    ids:['201',...tierRoles.map(role=>role.id)]
+  };
+  const registerExpr=`{enabled:true,records:new Map([
+    ['100000000000000001',new Date('${before}')],
+    ['100000000000000002',new Date('${yesterday}')]
+  ])}`;
   const live=sandbox('driver-loyalty-roles.js',{
     env:{DRIVER_LOYALTY_ROLE_MODE:'live'},fetch:transport
   });
-  await live.run('main()');
+  const stats=await live.run(`(async()=>{
+    const register=${registerExpr};
+    const p=planDiscordLoyalty(${JSON.stringify(members)},${JSON.stringify(managed)},new Date(),register);
+    ensureLiveMutationAuthorized(p,register,'live','confirmed');
+    for(const change of p.changes) await applyRolePlan(change);
+    return p.stats;
+  })()`);
+  assert.equal(stats.currentDrivers,2);
+  assert.equal(stats.roleRemovals,2);
   const changes=live.calls.filter(x=>(x.options.method||'GET')!=='GET');
   assert.ok(changes.length>0);
   assert.ok(changes.some(x=>x.url.includes('/100000000000000001/roles/')));
   assert.ok(changes.some(x=>x.url.includes('/100000000000000003/roles/')));
   assert.ok(changes.every(x=>!x.url.includes('/100000000000000004/')));
-  assert.ok(changes.every(x=>/\/roles\/(201|21[0-7])$/.test(x.url)),'Never mutate Driver, Staff or other Kings roles');
+  assert.ok(changes.every(x=>/\\/roles\\/(201|21[0-7])$/.test(x.url)),'Never mutate Driver, Staff or other Kings roles');
   assert.ok(!changes.some(x=>x.url.endsWith('/roles/1204836048845410405')));
-  const summary=JSON.parse(live.files.get('data/driver-loyalty-roles-summary.json'));
-  assert.equal(summary.source,'discord-guild-joined_at');
-  assert.equal(summary.currentDrivers,2);
-  assert.equal(summary.nonDriverCleanupCandidates,1);
-  assert.equal(summary.mode,'live');
   assert.equal(live.files.has('data/driver-loyalty-roles.json'),false);
+
 });
 
 
