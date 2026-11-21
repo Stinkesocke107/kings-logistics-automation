@@ -4,7 +4,7 @@
   "source": "management-private-kings-date-register",
   "registrationChannelActive": true,
   "eligibility": "Kings Driver role only (not Trial, Staff-only, Partners or bots)",
-  "updatedAt": "2026-11-21T16:50:48.500Z",
+  "updatedAt": "2026-11-21T16:56:09.702Z",
   "guildMembers": 671,
   "currentDrivers": 74,
   "eligibleForLoyaltyTier": 69,
@@ -16,6 +16,14 @@
   "alreadyCorrect": 74,
   "registeredKingsDates": 74,
   "unregisteredDrivers": 0,
+  "identitySourceCoverage": {
+    "status": "complete",
+    "activeDrivers": 74,
+    "registered": 74,
+    "missing": 0,
+    "platformLinksPresent": 74,
+    "authority": "management-approved-private-discord"
+  },
   "matchedCurrentDrivers": 74,
   "newMappings": 0,
   "nameFallbackMappings": 0,
