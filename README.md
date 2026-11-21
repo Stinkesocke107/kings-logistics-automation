@@ -4,7 +4,7 @@ Automation systems and tools for Kings Logistics.
 
 ## Documentation
 
-- [Current Kings systems operating guide (21 November 2026)](docs/KINGS-AUTOMATION-OPERATING-GUIDE-2026-11-21.md) — living status, data ownership, verification limits, safe workflows and policy rules.
+- [Verified Kings Discord publication audit (21 November 2026)](docs/KINGS-DISCORD-PUBLICATION-AUDIT-2026-11-21.md) — 8 fixed messages, 13 channel mappings, 7 actual content contracts, 8 webhook destinations, outstanding checks.\n- [Current Kings systems operating guide (21 November 2026)](docs/KINGS-AUTOMATION-OPERATING-GUIDE-2026-11-21.md) — living status, data ownership, verification limits, safe workflows and policy rules.
 - [CEO-only Command Center (concept, not deployed)](docs/KINGS-CEO-COMMAND-CENTER-CONCEPT.md) — proposed Discord slash commands, security requirements and safe rollout gates.
 
 - [Current workflow inventory](docs/KINGS-ALL-SYSTEMS-INVENTORY.md) — 44 registered workflows (32 scheduled, 12 on-demand) as of 21 November 2026.
