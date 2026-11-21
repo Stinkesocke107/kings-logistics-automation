@@ -172,7 +172,7 @@ function buildDriver(data, now = Date.now()) {
   const s = data.driverSummary;
   const t = s.tenure || {};
   const live =
-    `Drivers **${s.currentDrivers ?? current.length}** • Online **${s.onlineNow === null || s.onlineNow === undefined ? 'Unavailable' : s.onlineNow}** • Grace **${s.activity?.grace ?? 0}** • LOA **${s.activity?.approvedLeave ?? 0}**\n` +
+    `VTC Drivers **${s.currentDrivers ?? current.length}** • Online **${s.onlineNow === null || s.onlineNow === undefined ? 'Unavailable' : s.onlineNow}** • Grace **${s.activity?.grace ?? 0}** • LOA **${s.activity?.approvedLeave ?? 0}**\n` +
     `Activity: Active **${s.activity?.active ?? 0}** • Info **${s.activity?.info7Days ?? 0}** • Attention **${s.activity?.attention14Days ?? 0}** • HR Review **${s.activity?.hrReview30Days ?? 0}**\n` +
     `Activity data are advisory and use the last verified observations.`;
   const daily =
@@ -186,7 +186,7 @@ function buildDriver(data, now = Date.now()) {
     : 'No completed monthly report yet.';
   return {
     title: '🚛 Kings Driver Leadership Dashboard',
-    description: 'One fixed dashboard message. Live, daily, weekly and monthly Driver information is kept together here.',
+    description: 'One fixed Driver dashboard. Driver totals cover the full TruckersMP VTC roster, including members without the Discord Kings Driver role. Live online status is shown only when verified.',
     color: KINGS_BLUE,
     fields: [field('🔵 Live Overview', live), field('🟢 Last 24 Hours', daily), field('🟣 Last Completed Week', weekly), field('👑 Last Completed Month', monthly)],
     footer: { text: 'Kings Logistics • Driver Leadership • Advisory only' },
@@ -219,7 +219,7 @@ function buildHr(data, now = Date.now()) {
     description: 'One fixed HR dashboard. Information only — all HR and personnel decisions remain human.',
     color: KINGS_BLUE,
     fields: [
-      field('🔵 Live Overview', `Drivers **${drivers.length}** • First 7d **${first7.length}** • Open Probation **${open.length}** • Extended **${extended.length}** • 30d HR Reviews **${hrReviews.length}** • LOA active/scheduled **${activeLoa.length}/${scheduledLoa.length}**`),
+      field('🔵 VTC Driver & HR Overview', `VTC Drivers **${drivers.length}** • First 7d **${first7.length}** • Open Probation **${open.length}** • Extended **${extended.length}** • 30d HR Reviews **${hrReviews.length}** • LOA active/scheduled **${activeLoa.length}/${scheduledLoa.length}**`),
       field('🟢 Last 24 Hours', `Probation opened **${opened24.length}** • Completed **${completed24.length}** • New HR Reviews **${hrStarted24.length}** • LOA approved **${loa24.length}**`),
       field('🟣 Last Completed Week', w ? `${fmtKey(w.key)} • Drivers **${w.currentDrivers}** • Joined **${w.joined}** • Left **${w.left}** • Net **${signed(w.netGrowth)}** • Probation open **${w.openProbation ?? 0}** • HR Reviews **${w.hrReviews30d ?? 0}**` : 'No completed weekly report yet.'),
       field('👑 Last Completed Month', m ? `${fmtKey(m.key)} • Start **${m.startDrivers}** → End **${m.endDrivers}** • Joined **${m.joined}** • Left **${m.left}** • Retention **${pct(m.retention)}** • Probation opened/completed **${m.probationOpened}/${m.probationCompleted}**` : 'No completed monthly report yet.')
@@ -242,10 +242,10 @@ function buildStaff(data, now = Date.now()) {
   const topDepartments = Object.entries(s.departmentCounts || {}).slice(0,5).map(([k,v]) => `${k} **${v}**`).join(' • ') || 'No department data';
   return {
     title: '🛡️ Kings Staff Leadership Dashboard',
-    description: 'One fixed Staff dashboard. Staff structure and changes are summarized without automatic role or personnel actions.',
+    description: 'Staff Management uses tracked TruckersMP VTC classifications. Discord Staff-role membership is a different count in the separate Staff Leadership Live Overview. No automatic role or personnel actions.',
     color: KINGS_BLUE,
     fields: [
-      field('🔵 Live Overview', `Current Staff **${s.currentStaff ?? 0}** • Tracked Records **${s.trackedStaffRecords ?? 0}**\n${topDepartments}`),
+      field('🔵 VTC Staff Classification', `VTC-classified Staff **${s.currentStaff ?? 0}** • Tracked Records **${s.trackedStaffRecords ?? 0}**\n${topDepartments}`),
       field('🟢 Last 24 Hours', `Joined **${joined24}** • Left **${left24}** • Role changes **${role24}**`),
       field('🟣 Last Completed Week', w ? `${fmtKey(w.key)} • Start **${w.startStaff}** → End **${w.endStaff}** • Joined **${w.joined}** • Left **${w.left}** • Role Changes **${w.roleChanges}** • Net **${signed(w.netGrowth)}**` : 'No completed weekly report yet.'),
       field('👑 Last Completed Month', m ? `${fmtKey(m.key)} • Start **${m.startStaff}** → End **${m.endStaff}** • Joined **${m.joined}** • Left **${m.left}** • Role Changes **${m.roleChanges}** • Net **${signed(m.netGrowth)}**` : 'No completed monthly report yet.')
@@ -295,12 +295,12 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
   const attention = (ds.activity?.attention14Days || 0) + (ds.activity?.hrReview30Days || 0) + hrOpen + eventNeeds + eventReady;
   return {
     title: '👑 Kings Management Leadership Dashboard',
-    description: `One fixed Management dashboard combining the key information from all Leadership areas. Current attention indicators: **${attention}**.`,
+    description: `One fixed Management dashboard. Drivers count the full TruckersMP VTC roster; Staff count uses VTC Staff classification. Discord role-member counts are separate. Current attention indicators: **${attention}**.`,
     color: KINGS_BLUE,
     fields: [
-      field('🚛 Drivers — Live', `Drivers **${ds.currentDrivers ?? 0}** • Online **${ds.onlineNow === null || ds.onlineNow === undefined ? 'Unavailable' : ds.onlineNow}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
+      field('🚛 VTC Drivers — Live', `VTC Drivers **${ds.currentDrivers ?? 0}** • Online **${ds.onlineNow === null || ds.onlineNow === undefined ? 'Unavailable' : ds.onlineNow}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
-      field('🛡️ Staff — Live', `Current Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
+      field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
       field('📅 Events — Live', `Tracked **${eventSnap.length}** • Scheduled **${eventSnap.filter(e=>e.status==='Scheduled').length}** • Ready **${eventReady}** • Needs Info **${eventNeeds}**`),
       field('🟣 Last Completed Week', dw ? `${fmtKey(dw.key)} • Drivers **${dw.members}** • Joined **${dw.joined}** • Left **${dw.left}** • Net **${signed(dw.netGrowth)}** • Staff **${dw.currentStaff ?? ss.currentStaff ?? 0}** • Active Event Threads **${dw.activeEventThreads ?? 0}** • Weekly Peak **${dw.weeklyPeak ?? 0}**` : 'No completed Management weekly report yet.'),
       field('👑 Last Completed Month', mm ? `${fmtKey(mm.key)} • Drivers **${mm.drivers}** • Driver Net **${signed(mm.driverNetGrowth)}** • Staff **${mm.staff}** • Staff Net **${signed(mm.staffNetGrowth)}** • Open Reviews **${mm.openReviews}** • Event Issues **${mm.eventIssues}**` : 'No completed Management monthly report yet.')
