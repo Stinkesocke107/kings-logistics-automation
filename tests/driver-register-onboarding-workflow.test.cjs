@@ -9,6 +9,8 @@ test('daily Driver onboarding review uses only the private, idempotent Discord a
     '../.github/workflows/driver-register-onboarding.yml'),'utf8');
   assert.match(source,/cron: '17 7 \* \* \*'/);
   assert.match(source,/workflow_dispatch:/);
+  assert.match(source,/push:\s+branches: \[main\]/);
+  assert.match(source,/\.github\/workflows\/driver-register-onboarding\.yml/);
   assert.match(source,/contents: read/);
   assert.match(source,/group: kings-tmp-vtc-driver-date-review/);
   assert.match(source,/KINGS_TMP_VTC_REVIEW_MODE: audit-driver-only-publish/);
