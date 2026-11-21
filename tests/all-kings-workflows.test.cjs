@@ -95,3 +95,12 @@ test('published workflow inventory stays synchronized with the source registry',
     else assert.match(operation,/^Bei Codeänderungen/,workflow.file);
   }
 });
+
+
+test('README cites the live registry without presenting historical test counts as current', () => {
+  const readme=fs.readFileSync(path.join(root,'README.md'),'utf8');
+  assert.ok(readme.includes(WORKFLOW_REGISTRY.length+' registered workflows'));
+  assert.ok(readme.includes(SCHEDULED_WORKFLOWS.length+' scheduled'));
+  assert.ok(readme.includes(ON_DEMAND_WORKFLOWS.length+' on-demand'));
+  assert.doesNotMatch(readme,/suite passes \*\*107\/107 tests\*\*/);
+});
