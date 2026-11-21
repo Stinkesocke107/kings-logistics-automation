@@ -84,7 +84,9 @@ async function review({token,transport=fetch,mode='preview'}) {
     after=String(batch.at(-1)?.user?.id||'');
     if(!/^\d{17,20}$/.test(after)||page===19)throw Error('Incomplete Kings Discord member pagination.');
   }
-  const drivers=currentDrivers(roles,members).map(driver=>{
+  const drivers=currentDrivers(roles,members)
+    .filter(driver=>!mode.startsWith('audit-') || driver.role==='Driver')
+    .map(driver=>{
     const member=members.find(m=>String(m.user?.id)===driver.discordId);
     return {...driver,possibleNames:[
       member?.nick,member?.user?.global_name,member?.user?.username
@@ -126,7 +128,14 @@ async function review({token,transport=fetch,mode='preview'}) {
   const rosterData=await getJson(TMP_API+'/vtc/'+VTC_ID+'/members',
     {'User-Agent':'Kings Logistics Driver Identity Review/1.0'},transport);
   const roster=parseRoster(rosterData);
-  const profiles=await fetchPublicProfiles(roster,transport);
+  // Audit only active Driver IDs already approved in the private register.
+  // TMP-only accounts must not require 100+ public profile fetches.
+  const profileRoster=mode.startsWith('audit-')
+    ? roster.filter(member=>new Set(drivers.map(driver=>
+        register.identities.get(driver.discordId)?.platformIds?.truckersmp)
+        .filter(Boolean)).has(member.tmpId))
+    : roster;
+  const profiles=await fetchPublicProfiles(profileRoster,transport);
   // Reuse ONLY older Kings mappings whose provenance is a previously
   // verified exact TruckersMP /player discordSnowflake. No old name
   // heuristics or unverifiable public profile guesses enter the result.
@@ -204,14 +213,14 @@ async function main(){
   }else if(result.type==='audit') {
     console.log('Private Kings Driver register audit: '+
       result.counts.registered+'/'+result.counts.currentDrivers+
-      ' current Discord Drivers/Trials recorded, '+
+      ' active Discord Kings Drivers recorded, '+
       result.counts.linkedVtc+'/'+result.counts.vtc+
-      ' official Kings VTC accounts represented, '+
+      ' active Kings Driver VTC links (of '+result.counts.vtc+' total VTC accounts), '+
       result.counts.missingRecords+' missing register records, '+
       result.counts.missingTmp+' records missing TMP IDs, '+
       result.counts.notOnVtc+' noncurrent VTC IDs, '+
       result.counts.identityConflicts+' contradictory exact profile links, '+
-      result.counts.unlinkedVtc+' official VTC accounts not safely linked. '+
+      'VTC-only accounts excluded from completion. '+
       'Discord complete: '+result.counts.discordComplete+','+
       ' VTC complete: '+result.counts.vtcComplete+','+
       ' both complete: '+result.counts.complete+'.');

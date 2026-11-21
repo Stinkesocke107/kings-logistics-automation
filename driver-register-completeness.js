@@ -11,20 +11,29 @@ const MAX_DISCORD_MESSAGE = 1900;
 function snowflake(value) { return /^\d{17,20}$/.test(String(value || '')); }
 function tmpId(value) { return /^[1-9]\d{0,17}$/.test(String(value || '')); }
 
-function compareRegister({drivers, roster, identities, profiles = new Map(), historicalMappings = []}) {
+function compareRegister({drivers, roster, identities, profiles = new Map()}) {
   if (!Array.isArray(drivers) || !drivers.length ||
       !Array.isArray(roster) || !roster.length ||
-      !(identities instanceof Map) || !(profiles instanceof Map) ||
-      !Array.isArray(historicalMappings)) {
+      !(identities instanceof Map) || !(profiles instanceof Map)) {
     throw new Error('Incomplete private register audit sources.');
   }
-  const roleByDiscord = new Map();
-  for (const driver of drivers) {
-    if (!snowflake(driver.discordId) || roleByDiscord.has(driver.discordId)) {
+
+  // Only the authoritative Discord Kings Driver role establishes active Driver
+  // status. Trials and TMP-only members must not become missing registrations.
+  const seenDiscord = new Set(), activeDrivers = [];
+  for (const member of drivers) {
+    if (!snowflake(member?.discordId) ||
+        !['Driver', 'Trial'].includes(member.role) ||
+        seenDiscord.has(member.discordId)) {
       throw new Error('Invalid or duplicate current Kings Discord Driver ID.');
     }
-    roleByDiscord.set(driver.discordId, driver);
+    seenDiscord.add(member.discordId);
+    if (member.role === 'Driver') activeDrivers.push(member);
   }
+  if (!activeDrivers.length) {
+    throw new Error('No current Kings Driver roles in roster; refusing empty audit.');
+  }
+
   const vtcByTmp = new Map();
   for (const member of roster) {
     if (!tmpId(member.tmpId) || vtcByTmp.has(String(member.tmpId))) {
@@ -32,12 +41,10 @@ function compareRegister({drivers, roster, identities, profiles = new Map(), his
     }
     vtcByTmp.set(String(member.tmpId), member);
   }
-  const matchedVtc = new Map();
-  const missingRecords = [];
-  const missingTmpIds = [];
-  const tmpNotInCurrentVtc = [];
-  const identityConflicts = [];
-  for (const driver of drivers) {
+  const matchedVtc = new Set();
+  const missingRecords = [], missingTmpIds = [];
+  const tmpNotInCurrentVtc = [], identityConflicts = [];
+  for (const driver of activeDrivers) {
     const record = identities.get(driver.discordId);
     if (!record) {
       missingRecords.push(driver);
@@ -57,64 +64,29 @@ function compareRegister({drivers, roster, identities, profiles = new Map(), his
       identityConflicts.push({...driver,tmpId:String(assignedTmp),reason:'public-profile-disagreement'});
       continue;
     }
-    matchedVtc.set(String(assignedTmp), driver.discordId);
+    if (matchedVtc.has(String(assignedTmp))) {
+      identityConflicts.push({...driver,tmpId:String(assignedTmp),reason:'duplicate-active-driver-link'});
+      continue;
+    }
+    matchedVtc.add(String(assignedTmp));
   }
 
-  // Historical mappings are only trusted when previously verified from an
-  // exact TruckersMP profile link; the loader enforces their original source.
-  const historicalByTmp = new Map();
-  const disputedHistorical = new Set();
-  for (const item of historicalMappings) {
-    if (!tmpId(item?.tmpId) || !snowflake(item?.discordId)) continue;
-    const id = String(item.tmpId);
-    if (historicalByTmp.has(id) && historicalByTmp.get(id) !== item.discordId) {
-      disputedHistorical.add(id);
-    } else {
-      historicalByTmp.set(id,item.discordId);
-    }
-  }
-  const missingVtcLinks = [];
-  for (const member of roster) {
-    if (matchedVtc.has(member.tmpId)) continue;
-    const profile = profiles.get(member.tmpId);
-    const publicDiscord = profile?.valid ? profile.discordId : null;
-    const historicalDiscord = disputedHistorical.has(member.tmpId)
-      ? null : historicalByTmp.get(member.tmpId) || null;
-    let candidateId = null;
-    let candidateKind = null;
-    if (publicDiscord && historicalDiscord && publicDiscord !== historicalDiscord) {
-      candidateKind = 'conflicting-verifications';
-    } else {
-      candidateId = publicDiscord || historicalDiscord || null;
-      candidateKind = candidateId
-        ? (publicDiscord ? 'public-tmp-discord' : 'previously-verified') : 'unknown';
-    }
-    missingVtcLinks.push({
-      tmpId:member.tmpId,
-      candidateDiscordId:candidateId,
-      candidateKind,
-      currentKingsRole:Boolean(candidateId && roleByDiscord.has(candidateId))
-    });
-  }
-  // A guild/role match never proves a historical Kings joining date.
-  // A VTC member without an exact Discord mapping must not be assigned to a
-  // guessed Discord member, even when the names seem identical.
+  const discordComplete = missingRecords.length === 0;
+  const vtcComplete = discordComplete && missingTmpIds.length === 0 &&
+    tmpNotInCurrentVtc.length === 0 && identityConflicts.length === 0;
   return {
-    currentDrivers:drivers.length,
-    officialVtcMembers:roster.length,
-    registeredDrivers:drivers.length - missingRecords.length,
-    matchedVtcCount:matchedVtc.size,
+    currentDrivers: activeDrivers.length,
+    officialVtcMembers: roster.length, // Context only; NOT the audit denominator.
+    registeredDrivers: activeDrivers.length - missingRecords.length,
+    matchedVtcCount: matchedVtc.size,
     missingRecords,
     missingTmpIds,
     tmpNotInCurrentVtc,
     identityConflicts,
-    missingVtcLinks,
-    discordComplete:missingRecords.length===0 && missingTmpIds.length===0 &&
-      tmpNotInCurrentVtc.length===0 && identityConflicts.length===0,
-    vtcComplete:missingVtcLinks.length===0,
-    complete:missingRecords.length===0 && missingTmpIds.length===0 &&
-      tmpNotInCurrentVtc.length===0 && identityConflicts.length===0 &&
-      missingVtcLinks.length===0
+    missingVtcLinks: [], // Legacy output contract; no VTC-only accounts are actionable.
+    discordComplete,
+    vtcComplete,
+    complete: discordComplete && vtcComplete
   };
 }
 
@@ -124,12 +96,12 @@ function auditPages(report, checkedAt=new Date(), maxLength=MAX_DISCORD_MESSAGE)
     throw new Error('Invalid Kings register audit result.');
   }
   const stamp=checkedAt.toISOString().replace('T',' ').slice(0,16)+' UTC';
-  const status=report.complete ? 'COMPLETE – all current identities covered'
+  const status=report.complete ? 'COMPLETE – all current Kings Drivers covered'
     : 'INCOMPLETE – Management review required';
   const sections=[
     {
       kind:'Missing Discord',
-      label:'Current Kings Driver/Trial role with NO private register record',
+      label:'Current Kings Driver role with NO private register record (Trials excluded)',
       items:report.missingRecords.map(d=>'• '+d.role+' • Discord ID: '+d.discordId)
     },
     {
@@ -148,18 +120,6 @@ function auditPages(report, checkedAt=new Date(), maxLength=MAX_DISCORD_MESSAGE)
       label:'Private register conflicts with current exact TMP↔Discord profile link – verify manually',
       items:report.identityConflicts.map(d=>'• Discord ID: '+d.discordId+
         ' • [TMP profile](https://truckersmp.com/user/'+d.tmpId+') • VERIFY')
-    },
-    {
-      kind:'Unlinked VTC',
-      label:'Current official Kings VTC member not fully covered by a confirmed current Driver/Trial register link',
-      items:report.missingVtcLinks.map(m=>'• [TMP '+m.tmpId+'](https://truckersmp.com/user/'+m.tmpId+')'+
-        (m.candidateDiscordId
-          ? ' • Candidate Discord ID: '+m.candidateDiscordId+
-            (m.currentKingsRole?' (current Driver/Trial)':' (role not confirmed)')+
-            ' • VERIFY'
-          : m.candidateKind==='conflicting-verifications'
-            ? ' • conflicting identity evidence • VERIFY'
-            : ' • Discord ID unknown • VERIFY'))
     }
   ];
   const counts=sections.map(s=>s.kind+': '+s.items.length).join(' | ');
@@ -167,13 +127,13 @@ function auditPages(report, checkedAt=new Date(), maxLength=MAX_DISCORD_MESSAGE)
   const summary=[
     header,
     '**'+status+'** • '+stamp,
-    'Discord Driver/Trial members: **'+report.currentDrivers+'**',
+    'Active Discord Kings Drivers: **'+report.currentDrivers+'**',
     'Private records for current members: **'+report.registeredDrivers+'/'+report.currentDrivers+'**',
-    'Current Discord Driver register coverage: **'+(report.discordComplete?'COMPLETE':'INCOMPLETE')+'**',
-    'Official Kings VTC link coverage: **'+(report.vtcComplete?'COMPLETE':'INCOMPLETE')+'**',
-    'Registered current VTC links: **'+report.matchedVtcCount+'/'+report.officialVtcMembers+'**',
+    'Current Kings Driver register coverage: **'+(report.discordComplete?'COMPLETE':'INCOMPLETE')+'**',
+    'Active Kings Driver TMP verification: **'+(report.vtcComplete?'COMPLETE':'INCOMPLETE')+'**',
+    'Verified current Driver VTC links: **'+report.matchedVtcCount+'/'+report.currentDrivers+'**',
     counts,
-    'Only confirmed current memberships count as complete. VTC members without verified Discord links are NOT guessed from nicknames.',
+    'Kings Trial and additional TruckersMP VTC-only accounts are outside active Driver coverage; they do not block completion. No nickname-based identity guesses.',
     'No automatic register, Loyalty role, or personnel changes. Update private records in <#'+REGISTER_CHANNEL_ID+'>.',
     'Only the newest audit pages should be used for a new registration review.'
   ].join('\n');

@@ -33,58 +33,70 @@ const drivers=[
   {discordId:D2,role:'Trial'}
 ];
 
-test('audit requires all current Discord Driver and Trial records AND current official VTC account links',()=>{
+test('audit only includes current Kings Driver role and checks its verified TMP link',()=>{
   const result=compareRegister({
-    drivers,roster:roster().slice(0,2),
+    drivers,roster:roster(),
     identities:new Map([[D1,identity('1234567')],[D2,identity('1234568')]])
   });
   assert.equal(result.complete,true);
   assert.equal(result.discordComplete,true);
   assert.equal(result.vtcComplete,true);
-  assert.equal(result.registeredDrivers,2);
-  assert.equal(result.matchedVtcCount,2);
+  assert.equal(result.currentDrivers,1);
+  assert.equal(result.registeredDrivers,1);
+  assert.equal(result.matchedVtcCount,1);
   assert.equal(result.missingVtcLinks.length,0);
   const pages=auditPages(result,new Date('2026-11-20T21:00:00Z'));
   assert.equal(pages.length,1);
   assert.match(pages[0].content,/COMPLETE/);
-  assert.match(pages[0].content,/2\/2/);
+  assert.match(pages[0].content,/1\/1/);
+  assert.match(pages[0].content,/VTC-only accounts are outside/);
 });
 
-test('all Discord Drivers can be fully registered while remaining VTC accounts still need verification',()=>{
+test('additional TMP VTC accounts do not block complete active Driver registrations',()=>{
+  const allDrivers=[{discordId:D1,role:'Driver'},{discordId:D2,role:'Driver'}];
   const result=compareRegister({
-    drivers,roster:roster(),
+    drivers:allDrivers,roster:roster(),
     identities:new Map([[D1,identity('1234567')],[D2,identity('1234568')]])
   });
   assert.equal(result.discordComplete,true);
-  assert.equal(result.vtcComplete,false);
-  assert.equal(result.complete,false);
+  assert.equal(result.vtcComplete,true);
+  assert.equal(result.complete,true);
+  assert.equal(result.currentDrivers,2);
+  assert.equal(result.matchedVtcCount,2);
+  assert.equal(result.officialVtcMembers,3);
   const msg=auditPages(result)[0].content;
-  assert.match(msg,/Current Discord Driver register coverage: \*\*COMPLETE\*\*/);
-  assert.match(msg,/Official Kings VTC link coverage: \*\*INCOMPLETE\*\*/);
+  assert.match(msg,/Current Kings Driver register coverage: \*\*COMPLETE\*\*/);
+  assert.match(msg,/Active Kings Driver TMP verification: \*\*COMPLETE\*\*/);
+  assert.doesNotMatch(msg,/Unlinked VTC/);
 });
 
-test('missing records, missing TMP IDs, wrong VTC IDs and unknown VTC members are reported separately',()=>{
+test('missing active Driver entries, TMP IDs and departed TMP accounts are distinct',()=>{
+  const D4='123456789012345681';
   const mixed=compareRegister({
-    drivers:[...drivers,{discordId:D3,role:'Driver'}],
+    drivers:[...drivers,{discordId:D3,role:'Driver'},{discordId:D4,role:'Driver'}],
     roster:roster(),
-    identities:new Map([[D1,identity('1234567')],[D2,identity(null)]])
+    identities:new Map([
+      [D1,identity('1234567')],
+      [D2,identity('1234568')], // Trial is not part of active Driver coverage.
+      [D3,identity(null)]
+    ])
   });
   assert.equal(mixed.complete,false);
+  assert.equal(mixed.currentDrivers,3);
   assert.equal(mixed.registeredDrivers,2);
-  assert.deepEqual(mixed.missingRecords.map(x=>x.discordId),[D3]);
-  assert.deepEqual(mixed.missingTmpIds.map(x=>x.discordId),[D2]);
-  assert.equal(mixed.missingVtcLinks.length,2);
+  assert.deepEqual(mixed.missingRecords.map(x=>x.discordId),[D4]);
+  assert.deepEqual(mixed.missingTmpIds.map(x=>x.discordId),[D3]);
+  assert.equal(mixed.missingVtcLinks.length,0);
   const pages=auditPages(mixed,new Date('2026-11-20T21:00:00Z'));
   assert.ok(pages.some(p=>p.marker.includes('Missing Discord')));
   assert.ok(pages.some(p=>p.marker.includes('Missing TMP ID')));
-  assert.ok(pages.some(p=>p.marker.includes('Unlinked VTC')));
+  assert.ok(!pages.some(p=>p.marker.includes('Unlinked VTC')));
   assert.ok(pages.every(p=>p.content.length<=1900));
-  assert.match(pages.find(p=>p.marker.includes('Missing Discord')).content,new RegExp(D3));
-  assert.match(pages.find(p=>p.marker.includes('Unlinked VTC')).content,/Discord ID unknown/);
+  assert.match(pages.find(p=>p.marker.includes('Missing Discord')).content,new RegExp(D4));
   assert.doesNotMatch(pages.map(x=>x.content).join('\n'),/kings_join_date: /);
 });
 
-test('current TMP profile contradiction blocks completion and yields a manual verification warning',()=>{
+test('current exact TMP profile contradiction blocks active Driver completion',()=>{
   const result=compareRegister({
     drivers:drivers.slice(0,1),roster:roster().slice(0,1),
     identities:new Map([[D1,identity('1234567')]]),
@@ -93,23 +105,27 @@ test('current TMP profile contradiction blocks completion and yields a manual ve
   assert.equal(result.complete,false);
   assert.equal(result.identityConflicts.length,1);
   assert.equal(result.matchedVtcCount,0);
-  assert.equal(result.missingVtcLinks[0].candidateDiscordId,D2);
   const pages=auditPages(result);
   assert.match(pages.find(x=>x.marker.includes('Identity conflict')).content,/VERIFY/);
 });
-test('VTC candidates only use exact public or previously verified links, never nicknames',()=>{
-  const result=compareRegister({
-    drivers:drivers.slice(0,1),roster:roster(),
-    identities:new Map(),
-    profiles:new Map([['1234567',{valid:true,discordId:D1}]]),
-    historicalMappings:[{tmpId:'1234568',discordId:D2,source:'historical-verified'}]
+
+test('wrong or duplicate TMP links cannot be counted as verified Driver membership',()=>{
+  const wrong=compareRegister({
+    drivers:[{discordId:D1,role:'Driver'},{discordId:D2,role:'Driver'}],
+    roster:roster(),
+    identities:new Map([[D1,identity('1234567')],[D2,identity('9988776')]])
   });
-  assert.equal(result.missingVtcLinks.find(x=>x.tmpId==='1234567').candidateDiscordId,D1);
-  assert.equal(result.missingVtcLinks.find(x=>x.tmpId==='1234568').candidateDiscordId,D2);
-  assert.equal(result.missingVtcLinks.find(x=>x.tmpId==='1234569').candidateDiscordId,null);
-  assert.equal(result.complete,false);
-  assert.match(auditPages(result).find(x=>x.marker.includes('Unlinked VTC')).content,/role not confirmed/);
+  assert.equal(wrong.complete,false);
+  assert.equal(wrong.tmpNotInCurrentVtc.length,1);
+  const duplicate=compareRegister({
+    drivers:[{discordId:D1,role:'Driver'},{discordId:D2,role:'Driver'}],
+    roster:roster(),
+    identities:new Map([[D1,identity('1234567')],[D2,identity('1234567')]])
+  });
+  assert.equal(duplicate.complete,false);
+  assert.equal(duplicate.identityConflicts.length,1);
 });
+
 test('large missing lists paginate without overflowing Discord or publishing anything',()=>{
   const hundred=Array.from({length:100},(_,i)=>({
     discordId:String(200000000000000001n+BigInt(i)),role:'Driver'
@@ -176,9 +192,11 @@ test('private audit only reads source APIs and rejects unsafe register permissio
   const result=await review({token:'test-token',transport,mode:'audit-preview'});
   assert.equal(result.type,'audit');
   assert.equal(result.counts.registered,1);
-  assert.equal(result.counts.missingRecords,1);
-  assert.equal(result.counts.unlinkedVtc,1);
-  assert.ok(result.pages.some(p=>p.content.includes(D2)));
+  assert.equal(result.counts.missingRecords,0);
+  assert.equal(result.counts.unlinkedVtc,0);
+  assert.equal(result.counts.currentDrivers,1);
+  assert.equal(result.counts.complete,true);
+  assert.ok(result.pages.every(p=>!p.content.includes(D2)));
   assert.ok(calls.every(x=>x.method==='GET'));
   untrusted=true;
   await assert.rejects(review({token:'test-token',transport,mode:'audit-preview'}),
