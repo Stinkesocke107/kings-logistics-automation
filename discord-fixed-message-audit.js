@@ -3,8 +3,8 @@
 // Independent, READ-ONLY Discord delivery proof for the existing fixed Kings
 // messages. Never POST, PATCH, DELETE, log webhook credentials, inspect member
 // rosters, or persist message bodies to the public repository.
-const fs=require('node:fs');
-const path=require('node:path');
+const fs=require('fs');
+const path=require('path');
 
 const ROOT=__dirname;
 const DISCORD_API='https://discord.com/api/v10';
