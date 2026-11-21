@@ -85,27 +85,6 @@
       },
       "firstAlertedAt": "2026-11-20T21:26:00.793Z"
     },
-    "workflow-failed:driver-achievements.yml": {
-      "severity": "warning",
-      "system": "Driver Achievements",
-      "message": "Driver Achievements latest completed run ended with failure.",
-      "details": {
-        "runId": 44832175135,
-        "completedAt": "2026-11-20T22:50:42Z"
-      },
-      "firstAlertedAt": "2026-11-20T23:05:41.824Z"
-    },
-    "workflow-overdue:driver-achievements.yml": {
-      "severity": "warning",
-      "system": "Driver Achievements",
-      "message": "Driver Achievements has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-18T18:10:41Z",
-        "ageMinutes": 3174,
-        "maxAgeMinutes": 2160
-      },
-      "firstAlertedAt": "2026-11-20T23:05:41.824Z"
-    },
     "workflow-failed:live-tracker.yml": {
       "severity": "critical",
       "system": "Live Tracker / Statistics",
