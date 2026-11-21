@@ -123,7 +123,11 @@ const WORKFLOW_REGISTRY = Object.freeze(
       "area": "Drivers",
       "maxAgeMinutes": 2160,
       "severity": "warning",
-      "optionalUntilFirstRun": true
+      "dailyUtcSchedule": {
+        "hour": 7,
+        "minute": 17,
+        "graceMinutes": 120
+      }
     },
     {
       "file": "driver-tmp-vtc-review.yml",
