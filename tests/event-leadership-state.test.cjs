@@ -32,7 +32,8 @@ test('fails closed on missing/wrong encryption key and corrupted ciphertext', ()
   assert.throws(() => decryptEventState(sealed, differentSecret), /integrity check failed/);
   assert.throws(() => decryptEventState(sealed, ''), /missing or too short/);
   assert.throws(() => encryptEventState(sampleState(), ''), /missing or too short/);
-  assert.throws(() => decryptEventState({...sealed, ciphertext: sealed.ciphertext + 'A'}, secret), /integrity check failed/);
+  const corrupted = (sealed.ciphertext[0] === 'A' ? 'B' : 'A') + sealed.ciphertext.slice(1);
+  assert.throws(() => decryptEventState({...sealed, ciphertext: corrupted}, secret), /integrity check failed/);
   assert.throws(() => decryptEventState({...sealed, algorithm: 'none'}, secret), /container is invalid/);
 });
 
