@@ -107,5 +107,12 @@
       "firstAlertedAt": "2026-11-20T23:32:29.391Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:staff-leadership-live-overview.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-21T00:57:12.402Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure."
+    }
+  }
 }
