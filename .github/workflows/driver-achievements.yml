@@ -81,7 +81,7 @@ jobs:
           DRIVER_LOYALTY_ROLE_MODE: dry-run
         run: node driver-loyalty-roles.js
 
-      - name: Verify Kings Driver Loyalty role plan (read-only unless manually authorized)
+      - name: Sync Driver Loyalty Discord roles
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
