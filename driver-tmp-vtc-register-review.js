@@ -7,6 +7,7 @@ const {VTC_ID,parseRoster,readPublicProfile,matchProfiles,attachManualNameHints,
 const {loadVerifiedLegacyMappings}=require('./driver-legacy-verified-mappings');
 const {loadRegister}=require('./driver-loyalty-register');
 const {activeDriverSourceCoverage}=require('./kings-data-sources');
+const {pendingHrDriverIntake}=require('./hr-driver-intake-review');
 const {compareRegister,auditPages,REPORT_PREFIX,REGISTER_CHANNEL_ID}=require('./driver-register-completeness');
 const {inspectRegisterMessages,diagnosticPages}=require('./driver-register-format-diagnostics');
 
@@ -65,31 +66,29 @@ async function fetchPublicProfiles(roster, transport=fetch) {
 function driverOnlyAuditPages(drivers, register, checkedAt=new Date()){
   if(!Array.isArray(drivers) || !drivers.length)
     throw Error('Invalid active Driver-only audit sources.');
+  // A verified current Driver role is not approval evidence. The private HR
+  // intake review never infers "first-time" or "returner" from join dates.
+  const intake=pendingHrDriverIntake(drivers,register,checkedAt);
+  const coverage=intake.counts;
+  const missing=intake.cases;
   const active=drivers.filter(d=>d.role==='Driver');
-  if(!active.length)throw Error('No active Kings Driver role holders to audit.');
-  // The shared, read-only Kings Data Sources contract validates original
-  // dates and platform identities, not merely a Discord-ID key's existence.
-  const coverage=activeDriverSourceCoverage(register,active.map(d=>d.discordId),checkedAt);
-  if(!['complete','incomplete'].includes(coverage.status))
-    throw Error('Private Kings Driver identity source is unavailable for onboarding.');
-  const missing=active.filter(d=>!register.identities.has(d.discordId));
-  if(coverage.registered!==active.length-missing.length ||
-     coverage.missing!==missing.length)
-    throw Error('Private Driver register audit does not match authoritative Kings source.');
   const stamp=checkedAt.toISOString().replace('T',' ').slice(0,16)+' UTC';
   const header=QUEUE_PREFIX+'Summary**';
   const summary=[
     header,'**Active Kings Driver registration review** • '+stamp,
     'Discord Kings Driver roles: **'+active.length+'**',
-    'Approved current Driver records: **'+coverage.registered+'/'+coverage.activeDrivers+'**',
-    'Missing current Driver registrations: **'+coverage.missing+'**',
+    'Verified private Kings Driver records: **'+coverage.registered+'/'+coverage.activeDrivers+'**',
+    'Missing current Driver registrations: **'+coverage.needsHumanReview+'**',
+    'HR first-admission / returner cases pending human review: **'+coverage.needsHumanReview+'**',
     'Register records with at least one platform ID: **'+coverage.platformLinksPresent+'** (not proof of current VTC membership).',
     'Joining-date authority: **private Management-approved Kings Driver Register**.',
     'Only current Discord Kings Driver holders are in scope. Kings Trial and',
     'TruckersMP VTC-only accounts are excluded from registration requirements.',
     'The separate TruckersMP verification was NOT performed in this report.',
-    'Correct missing entries in <#'+REGISTER_CHANNEL_ID+'>.',
-    'No records, joining dates or roles were modified.'
+    'A Kings Driver role is NOT evidence that HR approved an admission or return.',
+    'Only HR/Management can decide first admission vs returner; preserve original Kings date when policy requires.',
+    'Ask Management to correct missing records in <#'+REGISTER_CHANNEL_ID+'>.',
+    'No HR decisions, records, joining dates or roles were modified.'
   ].join('\n');
   if(summary.length>1900)throw Error('Private Driver summary exceeds limit.');
   const pages=[{marker:header,content:summary}];
@@ -98,15 +97,18 @@ function driverOnlyAuditPages(drivers, register, checkedAt=new Date()){
     const marker=QUEUE_PREFIX+'Missing Discord '+(1+Math.floor(i/15))+'/';
     const content=[
       marker+Math.ceil(missing.length/15)+'**',
-      '**Active Kings Driver members missing from the private Driver Register**',
-      'Verify each Discord identity, TruckersMP ID and original Kings join date before registering:',
-      ...batch.map(d=>'• Discord ID: '+d.discordId+' • Kings Driver')
+      '**Private HR Intake / Returning Driver Review — confirmation required**',
+      'Current Driver role only: no verified private Kings identity record.',
+      'HR: confirm actual approval, classify FIRST ADMISSION or RETURNER, and verify the original Kings date.',
+      'Management: verify platform IDs and correct <#'+REGISTER_CHANNEL_ID+'>. Never infer dates.',
+      ...batch.map(d=>'• Discord ID: '+d.discordId+' • Kings Driver • HR intake: review')
     ].join('\n');
     if(content.length>1900)throw Error('Private missing Driver page exceeds limit.');
     pages.push({marker,content});
   }
   return {pages,counts:{currentDrivers:coverage.activeDrivers,
-    registered:coverage.registered,missingRecords:coverage.missing,
+    registered:coverage.registered,missingRecords:coverage.needsHumanReview,
+    pendingHrIntakeCases:coverage.needsHumanReview,
     platformLinksPresent:coverage.platformLinksPresent,
     sourceStatus:coverage.status,
     complete:coverage.status==='complete'}};
