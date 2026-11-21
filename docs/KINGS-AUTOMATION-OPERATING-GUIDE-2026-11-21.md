@@ -24,12 +24,14 @@ Nur Kings Logistics (ETS2 / ATS auf allen offiziell unterstützten Multiplayer-P
 - **Publikation:** feste Dashboards nur nach eindeutiger Nachrichten-Identitätsprüfung PATCHen; keine ungeprüfte Neuerstellung oder automatische Duplikat-Entfernung. Ereignisbasierte News/Posts nur bei echten neuen Daten. Private Angaben nie in öffentlichen GitHub Actions Logs speichern.
 - **Reparaturen:** zuerst read-only und isolierte Tests. Keine Rollen-/HR-/Ticket-/Guild-/Channel-Schreibaktionen ohne zuständige Freigabe.
 
-## 4. Discord-Destinationen – echte Beweisgrenzen
-- **8/8 feste Nachrichten** wurden am 21. November 2026 im bestehenden `discord-fixed-message-audit.js` per Discord GET direkt geprüft: fünf Leadership-Dashboards (Driver, HR, Staff, Event, Management) und Live Tracker, Advanced Statistics, Central Overview. Diese Prüfung verifiziert Nachricht/Embed und einzelne Datenkontrakte, **nicht jeden** Inhalt oder jeden Public Channel.
-- **13 direkte Kanal-/Forum-Mappings** sind im neuen `discord-channel-inventory-audit.js` dokumentiert (Leadership, Staff Public, Public Convoys/Overview, interne Convoy-Quellen und technische System-Kanäle). Das separate read-only Produktionsresultat entscheidet, ob sie zur Laufzeit erreichbar sind.
-- **Noch nicht voll inhaltsgeprüft**: News, Changelog, Milestones, Driver Updates, Staff Updates, Convoy/Slot-Publikationen, System Monitor/Alerts, restliche Reports, externe PostPing- und Galaxy-Ausgaben sowie eigens geschützte HR Register. Webhook-Targets brauchen geprüfte Zuordnung; keine Schätzung aus Kanalnamen.
-- **Prüfmatrix**: erwarteter Publisher + tatsächlicher Channel/Forum + berechtigte Rollen/Bot + Message-ID/Owner + Datenquelle + Timestamp + aktuelle Kings Policy + Fehler-/Duplikatstatus + unmittelbarer Nachweis. Bestehende Discord-Nachrichten nicht blind ersetzen.
-- `#105` ist der vollständige Nachweisauftrag; Live map provider `#42/#72` und Audit `#73` bleiben unabhängig.
+## 4. Discord-Destinationen – geprüfter Stand und Beweisgrenzen
+- **8/8 feste Nachrichten** direkt auf Discord gelesen (fünf Leadership-Dashboards, Live Tracker, Statistics, Central Overview).
+- **13/13 direkte Channel-/Forum-Mappings**: Typ, Guild und Existenz live bestätigt.
+- **7/7 konkrete Inhaltsverträge**: drei ehrliche Live-Outage-Embeds, Staff Rollen-/Appointment-Trennung, zuletzt publizierte News, System Monitor, Convoy Overview.
+- **8/8 konfigurierte Webhook-Targets**: Live, Statistics, Central, News, Changelog, Milestones, Driver Updates und Monthly Report zeigen auf Kings-Discord. Korrekte Zielzuordnung beweist **keine** neuen ereignisgetriebenen Nachrichten.
+- **Live-Run-Nachweis:** [44951155556](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/44951155556). Die Mengen überschneiden sich und dürfen nicht zu einer fiktiven Gesamtzahl einzigartiger Nachrichten addiert werden.
+- **Noch ausstehend:** inhaltliche Vollprüfung aller historischen/ereignisgetriebenen Public Posts, Changelog, Staff/Driver Updates, Awards, Milestones, Monatsberichte, System Alerts, externe PostPing-/Galaxy-Bots und private HR-Berechtigungen. Alte Publikationen nicht heimlich überschreiben.
+- **Audit-Matrix und Fundstellen:** [KINGS-DISCORD-PUBLICATION-AUDIT-2026-11-21.md](KINGS-DISCORD-PUBLICATION-AUDIT-2026-11-21.md). Verantwortliche Issues: #105 (Kanäle/Texte), #106 (Guides), #114 (historische Changelog-Aussagen). Der Map-Provider-Ausfall und #73 bleiben ausdrücklich offen.
 
 ## 5. Datenschutz und Datenmigration
 - Aktueller Event Leadership Report State ist AES-256-GCM-verschlüsselt nach #101/#102.
