@@ -44,3 +44,15 @@ test('reads the known legacy plaintext state only with valid structure and a con
   assert.throws(() => decryptEventState({version: 1, encrypted: false, ...original}, secret), /not trusted/);
   assert.throws(() => decryptEventState({version: 1, changeLog: []}, secret), /structure is invalid/);
 });
+
+test('Event Leadership report previews and errors never print unredacted Discord content to public CI logs', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const source = fs.readFileSync(path.join(__dirname, '..', 'event-leadership-reports.js'), 'utf8');
+  assert.doesNotMatch(source, /PREVIEW Event Daily Changes for #[^\n]*\\n\$\{content\}/);
+  assert.doesNotMatch(source, /PREVIEW Event Weekly Review for #[^\n]*\\n\$\{content\}/);
+  assert.doesNotMatch(source, /PREVIEW Event Monthly Report for #[^\n]*\\n\$\{content\}/);
+  assert.doesNotMatch(source, /Discord API \$\{response\.status\} on \$\{method\} \$\{pathname\}/);
+  assert.doesNotMatch(source, /console\.error\([^\n]*error\.message/);
+  assert.match(source, /private report content withheld from CI logs/);
+});
