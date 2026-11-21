@@ -4,6 +4,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const { loadRegister } = require('./driver-loyalty-register');
+const { activeDriverSourceCoverage } = require('./kings-data-sources');
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -203,6 +204,33 @@ function ensureLiveMutationAuthorized(plan, register, mode = SYNC_MODE,
   return true;
 }
 
+// Reuse the central Kings source contract in both safe preview and manually
+// approved live plans. No IDs, dates, names, or role records are persisted here.
+// Missing register data does NOT become Discord guild joined_at authority.
+function verifyLoyaltyIdentityCoverage(members, managed, register, stats, at = new Date()) {
+  if (!Array.isArray(members) || !managed?.driver?.id || !stats) {
+    throw new Error('Incomplete Kings Loyalty identity coverage inputs.');
+  }
+  const driverRoleId=String(managed.driver.id);
+  const activeIds=members
+    .filter(member=>!member?.user?.bot && Array.isArray(member?.roles) &&
+      member.roles.map(String).includes(driverRoleId))
+    .map(member=>String(member?.user?.id || ''));
+  const coverage=activeDriverSourceCoverage(register,activeIds,at);
+  if (coverage.activeDrivers!==stats.currentDrivers) {
+    throw new Error('Kings Loyalty Driver-role total differs from the authoritative current Discord role source.');
+  }
+  if (coverage.status==='complete' || coverage.status==='incomplete') {
+    if (coverage.registered!==stats.registeredKingsDates ||
+        coverage.missing!==stats.unregisteredDrivers) {
+      throw new Error('Kings Loyalty registration totals differ from the authoritative private Kings identity source.');
+    }
+  } else if (coverage.status==='source-unavailable' && stats.registeredKingsDates!==0) {
+    throw new Error('Kings Loyalty cannot claim private Driver registration without the private source.');
+  }
+  return coverage;
+}
+
 async function discord(pathname, options = {}) {
   const method = String(options.method || 'GET').toUpperCase();
   if (SYNC_MODE !== 'live' && method !== 'GET') {
@@ -290,6 +318,10 @@ async function main() {
     channelName: process.env.DRIVER_LOYALTY_REGISTER_CHANNEL_NAME
   });
   const plan = planDiscordLoyalty(members, managed, new Date(), register);
+  // Independently reconcile the current Driver-role denominator and original
+  // Kings joining-date registration counts through the shared source.
+  const identityCoverage=verifyLoyaltyIdentityCoverage(
+    members, managed, register, plan.stats);
   // Fail before the first PUT/DELETE if the original Kings join-date register
   // is missing or a role removal has not been separately confirmed.
   ensureLiveMutationAuthorized(plan, register);
@@ -305,6 +337,8 @@ async function main() {
   console.log('Eligible for tier: ' + plan.stats.eligibleForLoyaltyTier);
   console.log('Private Kings joining-date register: ' + (register.enabled ? 'active' : 'not yet configured'));
   console.log('Recorded Drivers: ' + plan.stats.registeredKingsDates + '; awaiting registration: ' + plan.stats.unregisteredDrivers);
+  console.log('Shared private Kings identity source: ' + identityCoverage.status +
+    '; platform IDs registered for ' + (identityCoverage.platformLinksPresent ?? 'unavailable') + ' active Driver(s).');
   console.log('Role changes: add ' + plan.stats.roleAdditions +
     ', remove ' + plan.stats.roleRemovals);
   console.log('Non-Driver cleanup candidates: ' + plan.stats.nonDriverCleanupCandidates);
@@ -324,6 +358,14 @@ async function main() {
     eligibility: 'Kings Driver role only (not Trial, Staff-only, Partners or bots)',
     updatedAt: nowISO(),
     ...plan.stats,
+    identitySourceCoverage: {
+      status:identityCoverage.status,
+      activeDrivers:identityCoverage.activeDrivers,
+      registered:identityCoverage.registered,
+      missing:identityCoverage.missing,
+      platformLinksPresent:identityCoverage.platformLinksPresent,
+      authority:identityCoverage.authority
+    },
     matchedCurrentDrivers: plan.stats.currentDrivers,
     alreadyCorrect: plan.stats.alreadyCorrect,
     newMappings: 0, nameFallbackMappings: 0, noLinkedDiscord: 0,
