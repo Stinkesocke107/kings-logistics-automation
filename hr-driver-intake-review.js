@@ -39,6 +39,7 @@ function pendingHrDriverIntake(drivers, register, checkedAt=new Date()) {
       activeDrivers:coverage.activeDrivers,
       registered:coverage.registered,
       needsHumanReview:cases.length,
+      platformLinksPresent:coverage.platformLinksPresent,
       status:coverage.status
     }),
     cases:Object.freeze(cases)
