@@ -7,7 +7,10 @@ const {sandbox}=require('./sandbox.cjs');
 
 const id='1559442670441730079';
 const webhook='https://discord.com/api/webhooks/123456789012345678/fake-secret?wait=true';
-const body={id,embeds:[{title:'Kings fixed status',fields:[{name:'Live',value:'VTC Drivers **111** • Online **Unavailable**'}]}]};
+const body={id,embeds:[{title:'Kings fixed status',fields:[
+  {name:'Live',value:'VTC Drivers **111** • Online **Unavailable**'},
+  {name:'🗂️ Kings Driver Registration — HR Review',value:'Active Discord Kings Drivers registered **74/74** • Needs HR registration review **0**'}
+]}]};
 const response=()=>new Response(JSON.stringify(body),{status:200,headers:{'content-type':'application/json'}});
 function setup(fetcher=async()=>response(),options={}){
  const files={
@@ -15,6 +18,11 @@ function setup(fetcher=async()=>response(),options={}){
   'data/statistics.json':JSON.stringify({messageId:id}),
   'data/central-overview.json':JSON.stringify({messageId:id}),
   'data/driver-management-summary.json':JSON.stringify({currentDrivers:111,onlineNow:null,onlineObservationStatus:'unavailable',updatedAt:new Date().toISOString()}),
+  'data/driver-loyalty-roles-summary.json':JSON.stringify({
+    source:'management-private-kings-date-register',registrationChannelActive:true,
+    updatedAt:new Date().toISOString(),currentDrivers:74,registeredKingsDates:74,unregisteredDrivers:0,
+    identitySourceCoverage:{status:'complete',activeDrivers:74,registered:74,missing:0,platformLinksPresent:74,authority:'management-approved-private-discord'}
+  }),
   'data/leadership-dashboard-state.json':JSON.stringify({messageIds:{
     driver:id,hr:id,staff:id,event:id,management:id
   }}),
@@ -103,4 +111,45 @@ test('aggregate online evidence accepts verified zero, never invents a zero on a
   assert.equal(s.run('expectedDriverObservation('+JSON.stringify(source)+','+at+')'),'0');
   assert.equal(s.run('expectedDriverObservation('+JSON.stringify({...source,onlineObservationStatus:'unavailable',onlineNow:9})+','+at+')'),'Unavailable');
   assert.equal(s.run('expectedDriverObservation('+JSON.stringify({...source,updatedAt:'2026-11-18T16:00:21Z',onlineNow:9})+','+at+')'),'Unavailable');
+});
+
+
+test('direct HR audit confirms the displayed fixed message has verified 74/74 registrations',async()=>{
+  const s=setup();
+  const result=await s.run('main()');
+  assert.equal(result.find(x=>x.label==='HR Leadership').status,'VERIFIED');
+  assert.ok(s.calls.every(x=>x.options.method==='GET'));
+});
+
+test('direct HR audit rejects a stale or mismatched Driver registration count without posting',async()=>{
+  const bad={id,embeds:[{title:'Kings fixed status',fields:[
+    {name:'Live',value:'VTC Drivers **111** • Online **Unavailable**'},
+    {name:'🗂️ Kings Driver Registration — HR Review',value:
+      'Active Discord Kings Drivers registered **73/74** • Needs HR registration review **1**'}
+  ]}]};
+  const s=setup(async(url,opts)=>{
+    assert.equal(opts.method,'GET');
+    return new Response(JSON.stringify(url.includes('/channels/')&&url.includes('/messages/')?
+      bad:body),{status:200});
+  });
+  await assert.rejects(s.run('main()'),/could not be independently verified/);
+  assert.equal(s.calls.length,8);
+  assert.ok(s.calls.every(x=>x.options.method==='GET'));
+});
+
+test('HR direct audit expects explicit unavailable status when authoritative source is stale',()=>{
+  const s=setup(undefined,{
+    files:{'data/driver-loyalty-roles-summary.json':JSON.stringify({
+      source:'management-private-kings-date-register',registrationChannelActive:true,
+      updatedAt:'2026-01-01T00:00:00Z',
+      currentDrivers:74,registeredKingsDates:74,unregisteredDrivers:0,
+      identitySourceCoverage:{status:'complete',activeDrivers:74,registered:74,
+        missing:0,authority:'management-approved-private-discord'}
+    })}
+  });
+  assert.equal(s.run('hrEmbeddedDataMatches({key:"hr"},'+JSON.stringify(body)+')'),false);
+  const correct={id,embeds:[{title:'Kings HR Leadership Dashboard',fields:[{
+    name:'🗂️ Kings Driver Registration — HR Review',value:'Verified Kings Driver registration **Unavailable / stale**.'
+  }]}]};
+  assert.equal(s.run('hrEmbeddedDataMatches({key:"hr"},'+JSON.stringify(correct)+')'),true);
 });
