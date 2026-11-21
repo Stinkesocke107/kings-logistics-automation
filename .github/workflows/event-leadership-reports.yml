@@ -123,6 +123,7 @@ jobs:
           DISCORD_EVENT_LEADERSHIP_CHANNEL_NAME: 'event-leadership'
           EVENT_LEADERSHIP_REPORT_MODE: ${{ steps.mode.outputs.mode }}
           EVENT_LEADERSHIP_REPORT_PREVIEW: ${{ steps.mode.outputs.preview }}
+          EVENT_LEADERSHIP_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
         run: node event-leadership-reports.js
 
       - name: Save Event Leadership report state

@@ -3,6 +3,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const { syncTextMessage } = require('./leadership-message-sync');
+const { encryptEventState, decryptEventState } = require('./event-leadership-state');
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -29,7 +30,7 @@ function nowISO() {
 function readJson(file, fallback = null) {
   if (!fs.existsSync(file)) return fallback;
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
-  catch (error) { throw new Error(`Invalid JSON in ${file}: ${error.message}`); }
+  catch { throw new Error('Event Leadership input/state JSON is invalid (details withheld).'); }
 }
 
 function writeJson(file, value) {
@@ -133,9 +134,19 @@ function defaultState() {
   };
 }
 
+function eventStateSecret() {
+  const secret = process.env.EVENT_LEADERSHIP_STATE_KEY || process.env.DRIVER_STATE_KEY;
+  if (!secret || Buffer.byteLength(String(secret), 'utf8') < 32) {
+    throw new Error('Event Leadership private state key is missing or too short.');
+  }
+  return String(secret);
+}
+
 function loadState() {
-  const state = readJson(STATE_PATH, null);
-  if (!state) return defaultState();
+  const secret = eventStateSecret();
+  const stored = readJson(STATE_PATH, null);
+  if (!stored) return defaultState();
+  const state = decryptEventState(stored, secret);
   const base = defaultState();
   return {
     ...base,
@@ -161,7 +172,7 @@ function saveState(state) {
   state.publishedMonthlyKeys = state.publishedMonthlyKeys.slice(-36);
   state.weeklyReports = state.weeklyReports.slice(-104);
   state.monthlyReports = state.monthlyReports.slice(-24);
-  writeJson(STATE_PATH, state);
+  writeJson(STATE_PATH, encryptEventState(state, eventStateSecret()));
 }
 
 function escapeMarkdown(value = '') {
@@ -382,7 +393,7 @@ async function discord(pathname, options = {}) {
     signal: AbortSignal.timeout(15000)
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+  if (!response.ok) throw new Error(`Event Leadership Discord HTTP ${response.status}`);
   if (!text) return null;
   try { return JSON.parse(text); } catch { return text; }
 }
@@ -433,7 +444,7 @@ async function runDaily(report, overview, state) {
   const content = buildDailyMessage(changes, snapshot);
 
   if (PREVIEW) {
-    console.log(`PREVIEW Event Daily Changes for #${channel.name}:\n${content}`);
+    console.log(`PREVIEW Event Daily Changes: ${changes.length} changes; private report content withheld from CI logs.`);
     return;
   }
 
@@ -462,7 +473,7 @@ async function runWeekly(report, overview, state) {
   const channel = await resolveChannel();
 
   if (PREVIEW) {
-    console.log(`PREVIEW Event Weekly Review for #${channel.name}:\n${content}`);
+    console.log(`PREVIEW Event Weekly Review for ${period.key}; private report content withheld from CI logs.`);
     return;
   }
 
@@ -502,7 +513,7 @@ async function runMonthly(report, overview, state) {
   const channel = await resolveChannel();
 
   if (PREVIEW) {
-    console.log(`PREVIEW Event Monthly Report for #${channel.name}:\n${content}`);
+    console.log(`PREVIEW Event Monthly Report for ${period.key}; private report content withheld from CI logs.`);
     return;
   }
 
@@ -545,7 +556,11 @@ async function main() {
 
 if (require.main === module) {
   main().catch((error) => {
-    console.error('Kings Event Leadership Reports failed:', error.message);
+    const message = String(error?.message || '');
+    const code = message.match(/^Event Leadership Discord HTTP (\\d{3})$/);
+    console.error('Kings Event Leadership Reports failed:', code
+      ? `Discord HTTP ${code[1]}`
+      : 'private source, publishing or integrity failure (details withheld)');
     process.exit(1);
   });
 }
