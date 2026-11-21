@@ -48,13 +48,16 @@ function assessChannel(target,channel,roles,{guildId,botId,botRoleIds=[]}){
  const byId=new Map(roles.map(r=>[String(r.id),r]));
  if(byId.size!==roles.length)
     return decision('UNVERIFIED','ambiguous-role-metadata');
- // Administrator bypasses private channel denies. Without a human member
- // roster we can prove only a POTENTIAL bypass from configured role powers.
- for(const role of roles){
-  if(contains(role.permissions,BITS.ADMINISTRATOR)&&
-     !authorizedRole(role,target.kind,botId))
-    return decision('UNVERIFIED','unrelated-administrator-role-may-bypass-privacy');
- }
+ // A non-approved Administrator ROLE in Guild metadata is only a possible
+ // bypass: this audit intentionally does not inspect human role assignments.
+ // Do not mark it VERIFIED, but do not call an unassigned/intentional role an
+ // actual privacy breach. @everyone Administrator is a concrete guild-wide
+ // exposure, and stays a hard failure.
+ const administratorRoles=roles.filter(role=>
+   contains(role.permissions,BITS.ADMINISTRATOR)&&
+   !authorizedRole(role,target.kind,botId));
+ if(administratorRoles.some(role=>String(role.id)===String(guildId)))
+   return decision('UNVERIFIED','everyone-administrator-can-bypass-privacy');
  const seen=new Set();
  for(const item of overwrites){
   const key=String(item.type)+':'+String(item.id);
@@ -78,6 +81,10 @@ function assessChannel(target,channel,roles,{guildId,botId,botRoleIds=[]}){
  const effective=effectiveChannelPermissions(channel,guildId,botId,botRoleIds,base);
  if(!contains(effective,BITS.VIEW_CHANNEL)||!contains(effective,BITS.READ_MESSAGE_HISTORY))
    return decision('UNVERIFIED','bot-minimum-read-access-unverified');
+ // All explicit channel-boundary checks passed. A separate Administrator role
+ // still requires private membership review; never imply full privacy proof.
+ if(administratorRoles.length)
+   return decision('ADVISORY','administrator-role-bypass-assignment-not-verified');
  return decision('VERIFIED','protected-overwrites-and-bot-read-access-match');
 }
 function configuration(targets=TARGETS){
@@ -133,6 +140,12 @@ async function main(){
  const results=await audit();
  for(const r of results)
   console.log('[Kings Protected Channel Access] '+r.key+': '+r.status+' ('+r.reason+')');
+ const count=status=>results.filter(x=>x.status===status).length;
+ console.log('Protected channel audit: '+count('VERIFIED')+' structurally verified; '+
+   count('ADVISORY')+' potential administrator-role bypasses (assignments not read); '+
+   count('NOT_CONFIGURED')+' optional channels not configured; '+
+   count('UNVERIFIED')+' failing channel contracts.');
+ console.log('ADVISORY is NOT a complete privacy clearance; private authorized role-assignment review remains open.');
  console.log('Protected channel audit reads structural permission metadata and ONE bot role membership only. No private messages, no HR decisions, no role changes.');
  if(results.some(x=>x.status==='UNVERIFIED'))throw Error('Protected HR/Driver permission evidence incomplete');
 }
