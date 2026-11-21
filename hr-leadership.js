@@ -2,6 +2,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const {assessHrDriverRegistration,hrDriverRegistrationMessage} = require('./hr-driver-register-status');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
@@ -12,6 +13,7 @@ const HR_LEADERSHIP_CHANNEL_NAME = process.env.HR_LEADERSHIP_CHANNEL_NAME || 'hr
 const DRIVER_STATE_FILE = path.join(__dirname, 'data', 'driver-management.json');
 const PROBATION_STATE_FILE = path.join(__dirname, 'data', 'probation-state.json');
 const HR_PROBATION_FILE = path.join(__dirname, 'data', 'hr-probation.json');
+const PRIVATE_REGISTER_SUMMARY_FILE = path.join(__dirname, 'data', 'driver-loyalty-roles-summary.json');
 
 const PROBATION_DAYS = 7;
 const DISCORD_API = 'https://discord.com/api/v10';
@@ -288,7 +290,7 @@ function buildData(driverState, probationState, hrProbationState) {
   };
 }
 
-function buildMessage(driverState, data) {
+function buildMessage(driverState, data, privateDriverRegisterStatus = null) {
   const timestamp = Math.floor(new Date(driverState.updatedAt || Date.now()).getTime() / 1000);
 
   const probationActiveText = compactList(
@@ -325,13 +327,15 @@ function buildMessage(driverState, data) {
     '',
     '# 👥 HR & Probation',
     '',
-    `**Current Drivers:** ${data.current.length}`,
+    `**Tracked TruckersMP VTC Drivers:** ${data.current.length}`,
     `**Joined last 7 days:** ${data.joinedLast7Days.length}`,
     `**In Probation:** ${data.probationActive.length}`,
     `**Open Probation Reviews:** ${data.probationReviews.length}`,
     `**Extended Probation Reviews:** ${data.probationExtended.length}`,
     `**30d HR Reviews:** ${data.hrReviews.length}`,
     `**Approved Leave:** ${data.approvedLeave.length}`,
+    '',
+    hrDriverRegistrationMessage(privateDriverRegisterStatus),
     '',
     `## 🕒 Driver Probation — First ${PROBATION_DAYS} Days`,
     probationActiveText,
@@ -354,7 +358,7 @@ function buildMessage(driverState, data) {
   ].join('\n');
 }
 
-async function syncOverview(driverState, data) {
+async function syncOverview(driverState, data, privateDriverRegisterStatus = null) {
   const channel = await resolveHrChannel();
   const bot = await discord('/users/@me');
   const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
@@ -364,7 +368,7 @@ async function syncOverview(driverState, data) {
   );
   const existing = matches[0] || null;
 
-  const content = buildMessage(driverState, data);
+  const content = buildMessage(driverState, data, privateDriverRegisterStatus);
 
   if (existing) {
     if (String(existing.content || '').trim() === content.trim()) {
@@ -406,10 +410,18 @@ async function main() {
     : { reviews: [] };
 
   const data = buildData(driverState, probationState, hrProbationState);
-  await syncOverview(driverState, data);
+  // Reuse the already verified Loyalty aggregate source; never load names,
+  // original Kings dates or external IDs into this HR Overview.
+  const privateDriverRegisterStatus = assessHrDriverRegistration(
+    readJson(PRIVATE_REGISTER_SUMMARY_FILE, null)
+  );
+  await syncOverview(driverState, data, privateDriverRegisterStatus);
 
   console.log('Kings HR Leadership overview updated successfully.');
-  console.log(`Current Drivers: ${data.current.length}`);
+  console.log(`Current tracked TruckersMP VTC Drivers: ${data.current.length}`);
+  console.log('Private Kings Driver registration source status: '+privateDriverRegisterStatus.status+
+    '; registered: '+(privateDriverRegisterStatus.registered ?? 'unavailable')+
+    '; pending HR review: '+(privateDriverRegisterStatus.missing ?? 'unavailable'));
   console.log(`Probation: ${data.probationActive.length}`);
   console.log(`Open Probation Reviews: ${data.probationReviews.length}`);
   console.log(`Extended Probation Reviews: ${data.probationExtended.length}`);
