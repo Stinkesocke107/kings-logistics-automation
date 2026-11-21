@@ -31,17 +31,34 @@ Alle verwenden in dieser Prüfung nur Discord GET. Die produktive Code-Änderung
 
 **Monitor und Convoy Overview:** Beide Nachrichten wurden gezielt über ihre aus dem letzten erfolgreichen Publisher-Lauf belegten bestehenden Message-IDs gelesen. Die ursprünglich verwendeten 100-Nachrichten-Seiten allein reichen nicht aus, um ältere, wiederholt bearbeitete feste Nachrichten zu finden. Das Kings-Branding ersetzt das 👑-Zeichen in Discord-Nachrichtentexten durch ein eigenes Logo; Verträge prüfen daher den stabilen Titeltext. Der Lauf vom 21.11. meldet beide Inhalts-/Aktualitätsprüfungen als bestanden.
 
+## 2a. Verifizierte ereignisabhängige Veröffentlichungen (21.11.2026)
+
+**Produktiver Nachweis:** [GitHub Read-only-Run 44953466706](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/44953466706). Nach temporär unverifiziertem System-Alerts-GET wurde die Lesereoutine auf **maximal drei** Versuche bei Discord 429/5xx/Netzfehlern begrenzt und danach erneut mit realem Discord verifiziert. Fehler nach erschöpfter Retry-Frist bleiben rot/unverifiziert. Offline-Regressionen: **461 bestanden, 0 fehlgeschlagen**.
+
+| System | Ergebnis am 21.11.2026 | Prüfung / echte Grenze |
+| --- | --- | --- |
+| Monatliche Kings-Berichte | **VERIFIED** | Beide gespeicherten Monatsnachrichten für **September und Oktober 2026** direkt via Message-ID abgerufen und auf korrektes Webhook, Channel, Monatsmarker, fehlende PREVIEW-Kennzeichnung geprüft; Oktobers Convoy-Backfill-Zahlen **29/28** stimmen mit bestehendem State überein |
+| Changelog `S01-KL07` vom 08.11.2026 | **VERIFIED** | Tatsächliche **vier** aufeinanderfolgende Kings-Webhook-Nachrichten im begrenzten historischen Veröffentlichungszeitfenster geprüft: Release-Marker, drei Fortsetzungen und letzter Kings-Footer. **Historischer Policy-Text** weiterhin nicht automatisch aktuell, siehe #114 |
+| System Alerts | **VERIFIED** | Eine echte bot-eigene technische Kings System-Alert-Publikation in der letzten 100er-Kanalhistorie bestätigt. Dies beweist **nicht**, dass alle älteren Alerts/Resolves vollständig zugestellt wurden |
+| Driver Updates | **VERIFIED** | Neueste erreichbare zugehörige Webhook-Nachricht mit richtigem Kings Driver Embed, Publisher/Channel, Footer und **keiner** unerlaubten @everyone-/Rollen-/Mehrfach-Nutzererwähnung. **Kein** Vollbeleg über alle 49 anonymisierten historischen Driver-Events oder jeden Join/Leave-Post, siehe #119 |
+| Milestones | **NO_EVENT** | Letzter geprüfter Kings VTC-Mitgliederstand **111** liegt unter der ersten automatisierten 150er-Schwelle; nicht fälschlich einen Test-Milestone auslösen |
+| Staff Public Updates | **NO_EVENT** | Letzter tatsächlicher Live-Lauf meldete null neue Staff Public Posts. **Kein** Beweis über alte Staff-Publikationen und keine Veröffentlichung zu Testzwecken |
+
+**Statusdefinitionen:** `VERIFIED` ist ein exakt bestimmter bestehender, tatsächlich gelesener Content-/Publisher-Vertrag. `NO_EVENT` heißt, dass laut sicherer letzter Quelle kein aktueller Veröffentlichungsvorgang ausgelöst wurde – **nicht**, dass alle alten Texte geprüft sind. `UNVERIFIED` wird bei Fehler, Lücke oder fehlender Autorisierung ausgegeben und nie als Erfolg umetikettiert.
+
+Zusätzliche Prüfroutinen: `discord-event-driven-publication-audit.js`, `discord-driver-public-updates-audit.js`. Keine produktiven Discord-Nachrichten, Rollen oder HR/Staff/Driver-Daten wurden für den Test erstellt oder verändert.
+
 ## 3. Offene Public-Inhaltsprüfungen
 
 | System | Tatsächliche Ausgangslage | Nächster Prüfauftrag |
 | --- | --- | --- |
-| Changelog | Webhook korrekt zugeordnet; letzter gespeicherter Release `S01-KL07` (08.11.2026); ereignisgetrieben | Tatsächliche Changelog-Discord-Nachrichten, Duplikate, Freigaben und Inhalte gezielt prüfen |
-| Driver Updates | Webhook korrekt zugeordnet; Änderungen sind ereignisgetrieben | Neue echte Join/Leave-Publikation gegen gespeicherte **private** Berechtigung/Quellen prüfen; keine Daten in GitHub Logs |
+| Changelog | Letzter Release `S01-KL07`: 4/4 bestehende Discord-Nachrichten und Webhook-Daten tatsächlich geprüft | Historischen Policy-Widerspruch zu Excellence Awards nur redaktionell freigegeben klarstellen (#114); alte Releases erhalten |
+| Driver Updates | Neueste erreichbare Driver-Update-Webhook-Nachricht und sichere Einzel-Erwähnung verifiziert | Alte Join/Leave-/Promotion-Posts nicht vollständig einzeln belegbar; verschlüsselte künftige Message-Evidence prüfen (#119) |
 | Milestones | Webhook korrekt zugeordnet; `data/milestones.json` enthält derzeit keine erreichten Schwellenwerte | Keine Test-Publikation erzeugen; nächstes echtes Ereignis auf nur einen korrekten Post prüfen |
 | Staff Public Updates | Direkter Discord-Zielkanal bestätigt; letzter geprüfter Status meldete 0 neue Posts | Echte Staff-Event-Publikation nur bei autorisiertem Ereignis prüfen, nicht für einen Test erfinden |
 | Public Kings Convoy Announcements | Kanal bestätigt; separat bereits frühere reale Publikationsbelege | Nächste echte 2h-/Start-Ankündigung, Timing, Slot und Duplikate gegen Events prüfen |
-| System Alerts | Technischer Kanal bestätigt; Monitoring meldet externe Abhängigkeiten | Konkrete Alarm-/Resolve-Folgen und frische Quellen gegen Status prüfen, ohne Texte oder User IDs zu loggen |
-| Monthly Reports / weitere Leadership Reports | Konfigurations-/Workflow-Prüfungen, aber nicht alle individuellen letzten Texte geprüft | Zu korrektem Monat und autorisiertem Veröffentlichungszeitpunkt den tatsächlichen Bericht kontrollieren |
+| System Alerts | Aktuelle bot-eigene technische Nachricht in den letzten 100 Kanalnachrichten bestätigt | Historische Alarm-/Resolve-Ketten und Source-Reconciliation weiter prüfen, ohne User IDs zu loggen |
+| Monthly Reports / weitere Leadership Reports | Gespeicherte **September-/Oktober-2026-Monatsberichte** inklusive Oktober-Convoy-Backfill direkt geprüft | Sonstige monatliche Leadership-/HR-/Event-/Driver-Berichtstexte separat gegen Berechtigungen und Veröffentlichungstermine kontrollieren |
 | PostPing, Galaxy, externe Bots | Extern administrierte Systeme, nicht vollständig durch GitHub-Inventur abgedeckt | Mit zuständiger Bot-Konfiguration und separat legitimierter read-only Discord-Sicht prüfen |
 
 ## 4. Historische Changelog-Abweichungen (redaktionell, nicht heimlich ändern)
