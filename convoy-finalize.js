@@ -2,6 +2,7 @@ require('./kings-branding').installDiscordBranding();
 const { brandMessageContent } = require('./kings-branding');
 const fs = require('fs');
 const { parseMeetingTime, discordTimestamp } = require('./convoy-time-utils');
+const { isArchivedApprovedFuture } = require('./convoy-archived-reminder-policy');
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -452,7 +453,10 @@ async function main() {
   let changed = false;
 
   for (const item of report.threads || []) {
-    if (item.ignored || item.error || item.archived || item.locked) continue;
+    // Archived Discord threads are still valid approved FUTURE Kings events.
+    // Finalize their local data read-only; never unarchive or write status/tags.
+    if (item.ignored || item.error || item.locked ||
+        (item.archived && !isArchivedApprovedFuture(item))) continue;
 
     try {
       const thread = await discord(`/channels/${item.threadId}`);
