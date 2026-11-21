@@ -73,6 +73,25 @@ NODE
   fi
 }
 
+# Once the private Legacy source exists, never let another workflow re-introduce
+# plaintext staff notes into the public Legacy JSON (including after rebase).
+validate_public_legacy_privacy() {
+  [ -f data/legacy-convoys-private.json ] || return 0
+  node - <<'NODE'
+const fs = require('node:fs');
+let data;
+try { data=JSON.parse(fs.readFileSync('data/legacy-convoys.json','utf8')); }
+catch { process.exit(1); }
+if (!Array.isArray(data?.convoys)) process.exit(1);
+const leak=data.convoys.some(item =>
+  item?.sourceNotes?.some(x=>x?.text) ||
+  item?.slotEvidence?.some(x=>x?.text) ||
+  item?.kingsSlotImages?.some(x=>x?.accompanyingText) ||
+  item?.kingsSlotImage?.accompanyingText);
+if (leak) process.exit(1);
+NODE
+}
+
 retry_delay() {
   local attempt="$1"
   echo $((BASE_DELAY * attempt + RANDOM % 3))
@@ -148,6 +167,11 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
 
   if ! validate_public_driver_privacy; then
     echo "Safe push stopped by Driver public-data privacy guard."
+    exit 1
+  fi
+
+  if ! validate_public_legacy_privacy; then
+    echo "Safe push stopped by Legacy Convoy public-data privacy guard."
     exit 1
   fi
 
