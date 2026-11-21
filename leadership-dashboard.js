@@ -17,10 +17,12 @@ const CHANNELS = {
   management: process.env.MANAGEMENT_OVERVIEW_CHANNEL_ID || '1492936683304517792'
 };
 
+const {assessHrDriverRegistration}=require('./hr-driver-register-status');
 const DATA = path.join(__dirname, 'data');
 const FILES = {
   driverState: path.join(DATA, 'driver-management.json'),
   driverSummary: path.join(DATA, 'driver-management-summary.json'),
+  driverLoyaltySummary: path.join(DATA, 'driver-loyalty-roles-summary.json'),
   loa: path.join(DATA, 'driver-loa.json'),
   hr: path.join(DATA, 'hr-probation.json'),
   staffState: path.join(DATA, 'staff-management.json'),
@@ -160,6 +162,7 @@ function loadAll() {
   return {
     driver: decryptFile(FILES.driverState, 'kings-driver-management-v1', { drivers: [] }),
     driverSummary: readJson(FILES.driverSummary, {}),
+    driverLoyaltySummary: readJson(FILES.driverLoyaltySummary, null),
     loa: decryptFile(FILES.loa, 'kings-driver-loa-v1', { leaves: [] }),
     hr: decryptFile(FILES.hr, 'kings-hr-probation-v1', { reviews: [] }),
     staff: decryptFile(FILES.staffState, 'kings-staff-management-v1', { staff: [], history: [] }),
@@ -239,12 +242,17 @@ function buildHr(data, now = Date.now()) {
   const loa24 = leaves.filter((l) => recent(l.createdAt, start));
   const w = latest(data.hrWeekly.publishedWeeks);
   const m = latest(data.hrReports.monthlyReports);
+  const register = assessHrDriverRegistration(data.driverLoyaltySummary,now);
+  const registerStatus = register.status==='complete'||register.status==='incomplete'
+    ? `Active Discord Kings Drivers registered **${register.registered}/${register.activeDrivers}** • Needs HR registration review **${register.missing}** • Source <t:${Math.floor(Date.parse(register.sourceAt)/1000)}:R>. Original Kings dates and rejoin decisions require human Management confirmation.`
+    : 'Verified Kings Driver registration **Unavailable / stale**. Do not infer a joining date or treat missing data as zero. Consult the private Driver Leadership register queue.';
   return {
     title: '👥 Kings HR Leadership Dashboard',
     description: 'One fixed HR dashboard. Information only — all HR and personnel decisions remain human.',
     color: KINGS_BLUE,
     fields: [
       field('🔵 VTC Driver & HR Overview', `VTC Drivers **${drivers.length}** • First 7d **${first7.length}** • Open Probation **${open.length}** • Extended **${extended.length}** • 30d HR Reviews **${hrReviews.length}** • LOA active/scheduled **${activeLoa.length}/${scheduledLoa.length}**`),
+      field('🗂️ Kings Driver Registration — HR Review', registerStatus),
       field('🟢 Last 24 Hours', `Probation opened **${opened24.length}** • Completed **${completed24.length}** • New HR Reviews **${hrStarted24.length}** • LOA approved **${loa24.length}**`),
       field('🟣 Last Completed Week', w ? `${fmtKey(w.key)} • Drivers **${w.currentDrivers}** • Joined **${w.joined}** • Left **${w.left}** • Net **${signed(w.netGrowth)}** • Probation open **${w.openProbation ?? 0}** • HR Reviews **${w.hrReviews30d ?? 0}**` : 'No completed weekly report yet.'),
       field('👑 Last Completed Month', m ? `${fmtKey(m.key)} • Start **${m.startDrivers}** → End **${m.endDrivers}** • Joined **${m.joined}** • Left **${m.left}** • Retention **${pct(m.retention)}** • Probation opened/completed **${m.probationOpened}/${m.probationCompleted}**` : 'No completed monthly report yet.')
