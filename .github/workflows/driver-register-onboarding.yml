@@ -2,6 +2,10 @@ name: Kings Driver Register Onboarding Check
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/driver-register-onboarding.yml'
   schedule:
     # Once daily, 07:17 UTC (08:17 CET / 09:17 CEST).
     - cron: '17 7 * * *'
