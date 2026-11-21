@@ -5,6 +5,7 @@
 // rosters, or persist message bodies to the public repository.
 const fs=require('fs');
 const path=require('path');
+const {assessHrDriverRegistration}=require('./hr-driver-register-status');
 
 const ROOT=__dirname;
 const DISCORD_API='https://discord.com/api/v10';
@@ -89,6 +90,28 @@ function driverEmbeddedDataMatches(target, message) {
     values.includes('Online **'+expectedDriverObservation(driver)+'**');
 }
 
+// Independent verification of the ACTUAL fixed HR Leadership embed.
+// Only compare aggregate Driver-role registration coverage with the source
+// snapshot the producer uses. Never persist/log private source or message body.
+function hrEmbeddedDataMatches(target, message) {
+  if (target.key !== 'hr') return true;
+  const fields=(message.embeds||[]).flatMap(embed=>
+    Array.isArray(embed?.fields) ? embed.fields : []);
+  const actual=fields.find(field=>
+    String(field?.name||'')==='🗂️ Kings Driver Registration — HR Review');
+  if (!actual || typeof actual.value!=='string') return false;
+  const source=assessHrDriverRegistration(storedJson('driver-loyalty-roles-summary.json'));
+  if(source.status==='unavailable') {
+    return actual.value.includes('Unavailable / stale') &&
+      !actual.value.includes('Needs HR registration review **0**');
+  }
+  return actual.value.includes(
+    'Active Discord Kings Drivers registered **'+source.registered+'/'+source.activeDrivers+'**'
+  ) && actual.value.includes(
+    'Needs HR registration review **'+source.missing+'**'
+  );
+}
+
 async function inspect(target, transport=fetch) {
   if (!target.url || (LEADERSHIP.some(item=>item.key===target.key) && !BOT_TOKEN)) {
     return {label:target.label,status:'UNVERIFIED',reason:'configuration-or-stored-id-missing'};
@@ -107,6 +130,9 @@ async function inspect(target, transport=fetch) {
     }
     if (!driverEmbeddedDataMatches(target,message)) {
       return {label:target.label,status:'UNVERIFIED',reason:'driver-roster-or-online-status-drift'};
+    }
+    if (!hrEmbeddedDataMatches(target,message)) {
+      return {label:target.label,status:'UNVERIFIED',reason:'hr-register-coverage-drift'};
     }
     // Never output or store message bodies, embeds, IDs or player information.
     return {label:target.label,status:'VERIFIED',reason:'message-readable-with-embed'};
