@@ -63,7 +63,7 @@ test('daily onboarding refuses missing or inconsistent private Kings source with
     '\nkings_join_date: 2.2.2024',at);
   const active=[{discordId:D1,role:'Driver'}];
   assert.throws(()=>driverOnlyAuditPages(active,{enabled:false,
-    records:new Map(),identities:new Map()},at),/source is unavailable/);
+    records:new Map(),identities:new Map()},at),/private Kings Driver registry is unavailable/);
   const mismatch={enabled:true,records:new Map([[D1,new Date('2025-03-03T00:00:00Z')]]),
     identities:new Map([[D1,identity]])};
   assert.throws(()=>driverOnlyAuditPages(active,mismatch,at),/consistency/);
