@@ -19,7 +19,7 @@ function normalizeRole(value){
 function currentStaffRoleSnapshot(members,roles,at=new Date()){
   if(!Array.isArray(members)||!Array.isArray(roles)||
       !(at instanceof Date)||!Number.isFinite(at.getTime())||
-      !roles.length)throw new Error('Kings Staff Discord role source is incomplete.');
+      !roles.length||!members.length)throw new Error('Kings Staff Discord role source is incomplete.');
   const memberIds=new Set();
   const active=[];
   for(const member of members){
