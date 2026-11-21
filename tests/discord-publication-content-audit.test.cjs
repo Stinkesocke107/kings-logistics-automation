@@ -12,6 +12,8 @@ test('outage embeds must state online unavailability not zero',()=>{
  assert.equal(a.verifyOutage(valid,cfg.title),null);
  assert.equal(a.verifyOutage({embeds:[{...valid.embeds[0],fields:[{name:'Current online count',value:'**0 online**'}]}]},cfg.title),'outage-online-unavailable-field-missing');
  assert.equal(a.verifyNormal(valid,cfg.title),'outage-still-shown-after-fresh-snapshot');
+ const actualWording={embeds:[{...valid.embeds[0],description:'Current TruckersMP player status is temporarily unavailable. No one is being marked online or offline from missing information.'}]};
+ assert.equal(a.verifyOutage(actualWording,cfg.title),null);
 });
 test('Staff role dashboard checks explicit distinction from HR appointments and source counts',()=>{
  const st={channelId:'1551675877178474526',messageId:'1559808918761373737',updatedAt:mk(now),totalStaff:11};
@@ -35,6 +37,14 @@ test('monitor/convoy audits reject stale or duplicate bot messages while omittin
  const convoy={author:{id:bot},content:'👑 **Kings Logistics | Convoy Overview**\nLatest Kings Convoy Center snapshot <t:'+Math.floor((now-600000)/1000)+':R>\nConvoy Planning\nSystem Overview'};
  assert.equal(a.verifyConvoyOverview([convoy],bot,now),null);
  assert.equal(a.verifyConvoyOverview([convoy,convoy],bot,now),'convoy-overview-duplicate-visible');
+});
+test('publisher-observed IDs allow direct lookup for updated messages older than latest 100',()=>{
+ assert.equal(a.MONITOR_FIXED_MESSAGE_ID,'1551779478269599746');
+ assert.equal(a.CONVOY_FIXED_MESSAGE_ID,'1550990101838954508');
+ const code=fs.readFileSync(path.join(__dirname,'../discord-publication-content-audit.js'),'utf8');
+ assert.match(code,/ownedFixedAndRecent\(monitorId,MONITOR_FIXED_MESSAGE_ID/);
+ assert.match(code,/ownedFixedAndRecent\(CONVOY_CHANNEL,CONVOY_FIXED_MESSAGE_ID/);
+ assert.match(code,/recent\.filter\(m=>String\(m\?\.id\|\|''\)!==String\(fixed\.id\)\)/);
 });
 test('webhook URLs are validated and never logged; audit uses GET only',()=>{
  assert.equal(a.webhookIdentity('https://discord.com/api/webhooks/123456789123456789/secrettoken'),'123456789123456789');
