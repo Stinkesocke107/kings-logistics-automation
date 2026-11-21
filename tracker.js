@@ -275,9 +275,17 @@ async function getCities(
     }
   );
 
-  return collectCities(
-    data
-  );
+  return collectCities(data);
+}
+
+// City labels are optional: a map metadata outage must not prevent verified
+// Kings VTC players from being counted when the player map itself is healthy.
+async function getOptionalCities(url, game) {
+  try { return await getCities(url, game); }
+  catch {
+    console.warn('Kings '+game+' city labels unavailable; using Location unavailable.');
+    return [];
+  }
 }
 
 function getNearestCity(
@@ -340,15 +348,9 @@ async function getKingsOnline() {
     atsCities
   ] =
     await Promise.all([
-      getCities(
-        ETS2_LOCATIONS_URL,
-        "ETS2"
-      ),
+      getOptionalCities(ETS2_LOCATIONS_URL, "ETS2"),
 
-      getCities(
-        ATS_LOCATIONS_URL,
-        "ATS"
-      )
+      getOptionalCities(ATS_LOCATIONS_URL, "ATS")
     ]);
 
   console.log(
@@ -470,7 +472,14 @@ async function getKingsOnline() {
       // A single failed server makes the global online measurement
       // incomplete. Stop immediately rather than probing the others and
       // repeatedly hammering an unavailable map provider.
-      console.error('Kings map coverage incomplete: ' + error.message);
+      const reason = error?.name === 'AbortError' || error?.name === 'TimeoutError'
+        ? 'provider timeout'
+        : error?.code === 'CIRCUIT_OPEN' ? 'provider circuit open'
+        : Number.isInteger(error?.status) ? 'HTTP ' + error.status
+        : 'provider request failed';
+      // Never log private records or player IDs in public workflow logs.
+      console.error('Kings map coverage incomplete ('+server.game+
+        ' server '+server.mapId+'): '+reason);
       throw new Error(
         'Only ' + successfulServerChecks + '/' + servers.length +
         ' live TruckersMP server checks succeeded. Keeping the last known good tracker state instead of publishing incomplete online statistics.'

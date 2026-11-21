@@ -338,3 +338,21 @@ test('monthly verifier respects the actual 10 UTC publish and 11 UTC verificatio
   assert.equal(leap.phase, 'post-publish');
   assert.equal(expectedDates(leap,new Date('2028-03-01T12:00:00.000Z'),true).length,29);
 });
+
+
+test('noncritical city API failures keep verified Kings VTC online player counts',async()=>{
+  const s=sandbox('tracker.js',{fetch:async url=>{
+    if(url.includes('locations_'))return new Response('not available',{status:404});
+    if(url.includes('/v2/servers'))return new Response(JSON.stringify({
+      error:false,response:[{online:true,mapid:1,name:'Simulation 1',game:'ETS2',players:1}]
+    }),{status:200});
+    if(url.includes('tracker.ets2map.com/v3/area'))return new Response(JSON.stringify({
+      Success:true,Data:[{VtcId:64284,MpId:1234,Name:'Kings Member',X:0,Y:0}]
+    }),{status:200});
+    throw Error('Unexpected mock API '+url);
+  }});
+  const players=await s.run('getKingsOnline()');
+  assert.equal(players.length,1);
+  assert.equal(players[0].tmpId,1234);
+  assert.equal(players[0].city,'Location unavailable');
+});
