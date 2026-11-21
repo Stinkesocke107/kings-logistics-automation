@@ -84,6 +84,7 @@ jobs:
           node --check event-leadership-overview.js
           node --check kings-convoy-announcements.js
           node --check convoy-e2e-dry-run.js
+          node --check convoy-imminent-readiness.js
 
       - name: Run convoy checker
         id: convoy_stage_0
@@ -115,6 +116,14 @@ jobs:
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
         run: node convoy-finalize.js
+
+      - name: Audit imminent approved convoy reminder eligibility (read-only, no messages)
+        id: convoy_reminder_readiness
+        continue-on-error: true
+        if: steps.mode.outputs.dry_run != 'true'
+        run: |
+          node --test tests/convoy-imminent-readiness.test.cjs
+          node convoy-imminent-readiness.js
 
       - name: Send one-time convoy notifications
         id: convoy_stage_3
