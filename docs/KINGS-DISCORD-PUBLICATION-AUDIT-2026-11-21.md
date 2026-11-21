@@ -63,6 +63,18 @@ Zusätzliche Prüfroutinen: `discord-event-driven-publication-audit.js`, `discor
 
 **Prüfskripte:** `discord-public-convoy-content-audit.js`, `discord-legacy-leadership-evidence-audit.js`. Beide sind reine Discord-GET-Leser; bei unzuverlässigen Source- oder Content-Verträgen melden sie `UNVERIFIED`, nicht einen behaupteten Live-Erfolg.
 
+## 2c. Issue #123 – neutrale Reconciliation historischer Leadership-Statusdaten (21.11.2026)
+
+Der neue rein lokale Prüfer `legacy-leadership-state-reconciliation.js` liest fünf bisherige Quellen (**Driver, HR, Staff, Event, Management**) ausschließlich lesend und gibt nur aggregierte Mengen von gespeicherten Tages-/Wochen-/Monatsmarkern, Snapshot-Anzahlen sowie Strukturfehlern aus. Der bestehende Workflow `leadership-dashboard-verification.yml` führt ihn getrennt von der direkten Discord-GET-Prüfung aus. Tests verwenden künstliche Beispiele, keine künstlichen Discord-Nachrichten.
+
+**Bedeutung der Ergebnisse:**
+- `RECORDED_UNVERIFIED`: Das alte State-File enthält entsprechende Periodenmarker oder Berichtssnapshots. Dies ist **kein** Beleg, dass Discord zum gespeicherten Zeitraum einen Report erhielt. Ein `publishedAt` im historischen State ist nur interne Metadateninformation.
+- `SEALED_UNVERIFIED`: Der Event-Leadership-State liegt verschlüsselt vor. Dieser öffentliche, secret-freie Prüfer versucht **keine Entschlüsselung** und meldet **keinen Nullbestand**; etwaige periodengenaue Prüfung ist nur in geschütztem Kontext zulässig.
+- `UNVERIFIED`: State nicht lesbar oder nicht vorhanden; keine Veröffentlichung oder Abwesenheit behaupten.
+- `HISTORICAL_PRESENT` und `NOT_VISIBLE` aus `discord-legacy-leadership-evidence-audit.js` gelten jeweils **nur für die konkret gespeicherte Message-ID**. Ein existierender einmaliger Report kann nicht automatisch sämtliche älteren Daily-/Weekly-/Monthly-Keys beweisen. Die vier geprüften Original-IDs waren beim letzten Live-GET **NOT_VISIBLE**.
+
+**Offene Abnahme unter #123:** Echte Nachricht-zu-Periode-Zuordnung benötigt eindeutige, autorisiert zugängliche historische Discord-Belege. Fehlen diese, bleibt der jeweilige Datensatz dauerhaft `unverified`, nicht `published`, `deleted` oder `reposted`. Mögliche private Archivkennzeichnung und gesonderte Event-Entschlüsselung brauchen eine eigene Freigabe. Alte State-Dateien und bestehende Discord-Nachrichten wurden nicht geändert, keine Altberichte neu ausgesendet.
+
 ## 3. Offene Public-Inhaltsprüfungen
 
 | System | Tatsächliche Ausgangslage | Nächster Prüfauftrag |
