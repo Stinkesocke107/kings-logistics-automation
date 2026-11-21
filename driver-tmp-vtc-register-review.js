@@ -6,6 +6,7 @@ const {VTC_ID,parseRoster,readPublicProfile,matchProfiles,attachManualNameHints,
   require('./kings-vtc-register-contract');
 const {loadVerifiedLegacyMappings}=require('./driver-legacy-verified-mappings');
 const {loadRegister}=require('./driver-loyalty-register');
+const {activeDriverSourceCoverage}=require('./kings-data-sources');
 const {compareRegister,auditPages,REPORT_PREFIX,REGISTER_CHANNEL_ID}=require('./driver-register-completeness');
 const {inspectRegisterMessages,diagnosticPages}=require('./driver-register-format-diagnostics');
 
@@ -61,19 +62,29 @@ async function fetchPublicProfiles(roster, transport=fetch) {
 }
 // Report only missing ACTIVE Discord Kings Driver register entries.
 // This never calls TruckersMP, guesses account links, or changes personnel.
-function driverOnlyAuditPages(drivers, identities, checkedAt=new Date()){
-  if(!Array.isArray(drivers) || !drivers.length || !(identities instanceof Map))
+function driverOnlyAuditPages(drivers, register, checkedAt=new Date()){
+  if(!Array.isArray(drivers) || !drivers.length)
     throw Error('Invalid active Driver-only audit sources.');
   const active=drivers.filter(d=>d.role==='Driver');
   if(!active.length)throw Error('No active Kings Driver role holders to audit.');
-  const missing=active.filter(d=>!identities.has(d.discordId));
+  // The shared, read-only Kings Data Sources contract validates original
+  // dates and platform identities, not merely a Discord-ID key's existence.
+  const coverage=activeDriverSourceCoverage(register,active.map(d=>d.discordId),checkedAt);
+  if(!['complete','incomplete'].includes(coverage.status))
+    throw Error('Private Kings Driver identity source is unavailable for onboarding.');
+  const missing=active.filter(d=>!register.identities.has(d.discordId));
+  if(coverage.registered!==active.length-missing.length ||
+     coverage.missing!==missing.length)
+    throw Error('Private Driver register audit does not match authoritative Kings source.');
   const stamp=checkedAt.toISOString().replace('T',' ').slice(0,16)+' UTC';
   const header=QUEUE_PREFIX+'Summary**';
   const summary=[
     header,'**Active Kings Driver registration review** • '+stamp,
     'Discord Kings Driver roles: **'+active.length+'**',
-    'Approved current Driver records: **'+(active.length-missing.length)+'/'+active.length+'**',
-    'Missing current Driver registrations: **'+missing.length+'**',
+    'Approved current Driver records: **'+coverage.registered+'/'+coverage.activeDrivers+'**',
+    'Missing current Driver registrations: **'+coverage.missing+'**',
+    'Register records with at least one platform ID: **'+coverage.platformLinksPresent+'** (not proof of current VTC membership).',
+    'Joining-date authority: **private Management-approved Kings Driver Register**.',
     'Only current Discord Kings Driver holders are in scope. Kings Trial and',
     'TruckersMP VTC-only accounts are excluded from registration requirements.',
     'The separate TruckersMP verification was NOT performed in this report.',
@@ -94,9 +105,11 @@ function driverOnlyAuditPages(drivers, identities, checkedAt=new Date()){
     if(content.length>1900)throw Error('Private missing Driver page exceeds limit.');
     pages.push({marker,content});
   }
-  return {pages,counts:{currentDrivers:active.length,
-    registered:active.length-missing.length,missingRecords:missing.length,
-    complete:missing.length===0}};
+  return {pages,counts:{currentDrivers:coverage.activeDrivers,
+    registered:coverage.registered,missingRecords:coverage.missing,
+    platformLinksPresent:coverage.platformLinksPresent,
+    sourceStatus:coverage.status,
+    complete:coverage.status==='complete'}};
 }
 
 async function review({token,transport=fetch,mode='preview'}) {
@@ -164,7 +177,7 @@ async function review({token,transport=fetch,mode='preview'}) {
     if(!register.enabled)throw Error('Private Driver register is not configured.');
   }
   if(mode.startsWith('audit-driver-only-')) {
-    const audit=driverOnlyAuditPages(drivers,register.identities);
+    const audit=driverOnlyAuditPages(drivers,register);
     return {channelId:String(leadership.id),type:'audit-driver-only',...audit};
   }
   // Invalid or unauthorized register entries are diagnosed without hitting
@@ -188,12 +201,21 @@ async function review({token,transport=fetch,mode='preview'}) {
   const matched=attachManualNameHints(roster,
     matchProfiles(roster,profiles.index,drivers,stored));
   if(mode.startsWith('audit-')) {
+    const coverage=activeDriverSourceCoverage(register,
+      drivers.filter(driver=>driver.role==='Driver').map(driver=>driver.discordId));
+    if(!['complete','incomplete'].includes(coverage.status))
+      throw Error('Private Kings Driver identity source is unavailable for VTC audit.');
     const audit=compareRegister({drivers,roster,identities:register.identities,
       profiles:profiles.index,historicalMappings:stored});
+    if(audit.currentDrivers!==coverage.activeDrivers ||
+       audit.registeredDrivers!==coverage.registered)
+      throw Error('Kings Driver VTC audit does not match the authoritative private identity source.');
     const pages=auditPages(audit);
     return {channelId:String(leadership.id),pages,type:'audit',
       counts:{currentDrivers:audit.currentDrivers,vtc:audit.officialVtcMembers,
         registered:audit.registeredDrivers,linkedVtc:audit.matchedVtcCount,
+        sourceStatus:coverage.status,
+        platformLinksPresent:coverage.platformLinksPresent,
         missingRecords:audit.missingRecords.length,missingTmp:audit.missingTmpIds.length,
         notOnVtc:audit.tmpNotInCurrentVtc.length,
         identityConflicts:audit.identityConflicts.length,

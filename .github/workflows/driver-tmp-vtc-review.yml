@@ -23,6 +23,7 @@ on:
       - 'kings-vtc-register-contract.js'
       - 'driver-legacy-verified-mappings.js'
       - 'driver-identity-register.js'
+      - 'kings-data-sources.js'
       - 'driver-loyalty-register.js'
       - 'driver-register-completeness.js'
       - 'driver-register-format-diagnostics.js'
@@ -57,6 +58,7 @@ jobs:
           node --check driver-register-completeness.js
           node --check driver-register-format-diagnostics.js
           node --check driver-identity-register.js
+          node --check kings-data-sources.js
           node --check driver-loyalty-register.js
 
       # Check the live, permission-validated private register on changes to

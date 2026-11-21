@@ -134,6 +134,8 @@ Nicht für alles neue Kanäle anlegen. Nur Informationen, die von Menschen **ver
 
 **Phase B — bestehende Driver-Workflows harmonisieren:** bei jedem bestehenden Nutzer von `loadRegister()` die gleichen Schutzregeln und die neue öffentliche Summen-Schnittstelle anwenden. Keine gleichzeitige breite Workflow-Umschreibung; jeweils isoliert testen und einen realen read-only Lauf prüfen.
 
+**Erster Integrationsschritt (21. November 2026):** Die tägliche private Driver-Register-Prüfung und der vorhandene private VTC-Abgleich verwenden die gemeinsame, read-only `activeDriverSourceCoverage()`-Validierung. Eine scheinbar vorhandene ID ohne übereinstimmendes originales Kings-Beitrittsdatum wird nicht mehr als unproblematisch behandelt; die privaten Berichte bleiben bei der bestehenden Management-/Driver-Leadership-Verteilung. Das ist noch keine Integration von Driver Hub, Website oder anderen Abteilungen.
+
 **Phase C — zukünftige Driver-Abläufe:** HR-Freigabe → Rollenstatus überprüfen → Original-Datum/IDs im privaten Register durch berechtigte Person bestätigen → private Completeness-Audit → autorisierte Folgesysteme aktualisieren. Fehlende Felder bleiben sichtbar, aber nicht öffentlich.
 
 **Phase D — Staff, Partner, Events und Awards:** konkrete Feldschemata, Eigentümer und Genehmigungsabläufe separat fertigstellen; zunächst nicht automatisch neue Channels, Nachrichten oder Rollen anlegen.

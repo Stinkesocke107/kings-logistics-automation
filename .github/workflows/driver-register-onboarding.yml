@@ -33,6 +33,7 @@ jobs:
       - name: Validate private Kings Driver registration workflow
         run: |
           node --check driver-identity-register.js
+          node --check kings-data-sources.js
           node --check driver-loyalty-register.js
           node --check driver-welcome-register-review.js
           node --check driver-tmp-vtc-register-review.js
