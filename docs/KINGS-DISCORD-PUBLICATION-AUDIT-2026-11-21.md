@@ -79,6 +79,16 @@ Der neue rein lokale Prüfer `legacy-leadership-state-reconciliation.js` liest f
 
 **Offene Abnahme unter #123:** Echte Nachricht-zu-Periode-Zuordnung benötigt eindeutige, autorisiert zugängliche historische Discord-Belege. Fehlen diese, bleibt der jeweilige Datensatz dauerhaft `unverified`, nicht `published`, `deleted` oder `reposted`. Mögliche private Archivkennzeichnung und gesonderte Event-Entschlüsselung brauchen eine eigene Freigabe. Alte State-Dateien und bestehende Discord-Nachrichten wurden nicht geändert, keine Altberichte neu ausgesendet.
 
+## 2d. Private Driver-/HR-Kanalberechtigungen – separate Metadatenprüfung (#105)
+
+Neue rein lesende Prüfroutine: `discord-protected-channel-access-audit.js`. Anders als die bestehende allgemeine Discord-Permission-Audit prüft sie explizit die **Vertraulichkeit** folgender fachlich definierten Ziele: (1) der bereits bestehende private Kings Driver Identity/Loyalty Register-Kanal, (2) der **optional** über ein Actions-Secret konfigurierte eigene HR-Entscheidungsquellkanal, (3) der **optional** getrennt konfigurierte private HR Case View Channel.
+
+- **VERIFIED** nur bei eindeutigem erwarteten Textkanal in der Kings Guild, eindeutigem `@everyone`-Verbot auf `View Channel`, keiner expliziten Freigabe an nicht freigegebene Rollen, keinem unüberprüfbaren individuellen View-Allow, keinem fremden Administrator-Rollen-Potenzial und nachgewiesenem minimalem Lesezugriff des eigenen Kings Systems Bots. Die erlaubten Rollengruppen richten sich nach den bestehenden, separat gepflegten Prüfregeln für Management-Loyalty-Register bzw. formale HR-Freigaben. Die Prüfung ersetzt **nicht** die menschliche Überprüfung individueller Personenzugriffe.
+- **UNVERIFIED** bei unsicheren, mehrdeutigen oder nicht zugänglichen Channel- und Berechtigungsdaten, potentiellen Admin-Umgehungsrechten oder fehlendem Bot-Lesezugang. Administrator-Rollen werden aus **Rollenkonfiguration** ermittelt; ohne vollständige aktuelle menschliche Rollenmitgliedschaft ist damit lediglich ein **potenzieller** Bypass nachweisbar, keine tatsächlich erfolgte Einsicht.
+- **NOT_CONFIGURED** für den noch nicht per Secret zugewiesenen HR-Entscheidungs- oder Case-View-Kanal. Das bedeutet **keine bestehende freigegebene HR-Entscheidungsquelle**, nicht „privacy verified“ oder „kein HR-Fall“.
+- Die Routine verwendet **nur** Discord GET für Botidentität, Guild-Rollen, Guild-Kanalmetadaten und **eine** Bot-Mitgliedschaft, **keine** Nachrichten/Anhänge, HR-/Identity-Records oder komplette menschliche Memberliste. Öffentliche Logs enthalten nur drei neutrale System-Aliase, Status und generische Fehlergründe, **keine** privaten Kanal-/Rollen-/Mitglied-IDs. Es werden weder Rechte noch Rollen, Personalentscheidungen, Registereinträge oder Nachrichten verändert.
+- Weitere Rechte der realen **HR-/Driver-Mitarbeiter**, externe Galaxy/PostPing-Bot-Zugriffe, frühere Einzelberechtigungen und tatsächliche Benutzerzugehörigkeiten bleiben ohne autorisierte, vertrauliche Administrationseinsicht **nicht vollständig nachgewiesen**. Ein fehlgeschlagener Check muss privat geprüft werden, nicht durch Lockerung von Sicherheitsregeln oder automatisches Löschen repariert werden.
+
 ## 3. Offene Public-Inhaltsprüfungen
 
 | System | Tatsächliche Ausgangslage | Nächster Prüfauftrag |
