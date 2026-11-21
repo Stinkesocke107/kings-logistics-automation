@@ -1,10 +1,10 @@
 {
   "version": 4,
-  "mode": "dry-run",
+  "mode": "live",
   "source": "management-private-kings-date-register",
   "registrationChannelActive": true,
   "eligibility": "Kings Driver role only (not Trial, Staff-only, Partners or bots)",
-  "updatedAt": "2026-11-21T16:35:25.959Z",
+  "updatedAt": "2026-11-21T16:37:19.697Z",
   "guildMembers": 671,
   "currentDrivers": 74,
   "eligibleForLoyaltyTier": 69,
@@ -88,6 +88,6 @@
     "dangerousRolePermissionsBlocked": true,
     "managedRoleRemovalsCapped": 5,
     "historicalTmpMappings": "retained unchanged for compatibility with Staff systems",
-    "roleWritesEnabled": false
+    "roleWritesEnabled": true
   }
 }
