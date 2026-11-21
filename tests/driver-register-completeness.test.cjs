@@ -33,6 +33,44 @@ const drivers=[
   {discordId:D2,role:'Trial'}
 ];
 
+test('daily private Driver onboarding uses the shared authoritative identity source',()=>{
+  const {parseDriverIdentityRecord}=require('../driver-identity-register');
+  const at=new Date('2026-11-21T16:00:00Z');
+  const identity=parseDriverIdentityRecord(
+    'discord_id: '+D1+'\\nkings_join_date: 2.2.2024\\ntruckersmp_id: 1234567',at);
+  const register={enabled:true,records:new Map([[D1,identity.joinedAt]]),
+    identities:new Map([[D1,identity]])};
+  const current=[{discordId:D1,role:'Driver'},{discordId:D2,role:'Driver'},
+    {discordId:D3,role:'Trial'}];
+  const result=driverOnlyAuditPages(current,register,at);
+  assert.equal(result.counts.currentDrivers,2);
+  assert.equal(result.counts.registered,1);
+  assert.equal(result.counts.missingRecords,1);
+  assert.equal(result.counts.platformLinksPresent,1);
+  assert.equal(result.counts.sourceStatus,'incomplete');
+  assert.equal(result.counts.complete,false);
+  const privateOutput=result.pages.map(page=>page.content).join('\\n');
+  assert.match(privateOutput,/Joining-date authority: \\*\\*private Management-approved Kings Driver Register/);
+  assert.match(privateOutput,new RegExp(D2));
+  assert.ok(!privateOutput.includes(D3),'Trial must not be treated as a missing registered Driver');
+  assert.doesNotMatch(privateOutput,/2024-02-02|2\\.2\\.2024/,'Original joining date is not published in audit pages');
+});
+
+test('daily onboarding refuses missing or inconsistent private Kings source without guessing Discord dates',()=>{
+  const {parseDriverIdentityRecord}=require('../driver-identity-register');
+  const at=new Date('2026-11-21T16:00:00Z');
+  const identity=parseDriverIdentityRecord('discord_id: '+D1+
+    '\\nkings_join_date: 2.2.2024',at);
+  const active=[{discordId:D1,role:'Driver'}];
+  assert.throws(()=>driverOnlyAuditPages(active,{enabled:false,
+    records:new Map(),identities:new Map()},at),/source is unavailable/);
+  const mismatch={enabled:true,records:new Map([[D1,new Date('2025-03-03T00:00:00Z')]]),
+    identities:new Map([[D1,identity]])};
+  assert.throws(()=>driverOnlyAuditPages(active,mismatch,at),/consistency/);
+  assert.throws(()=>driverOnlyAuditPages(active,{enabled:true,
+    records:new Map([[D1,identity.joinedAt]]),identities:new Map()},at),/source entry is inconsistent/);
+});
+
 test('audit only includes current Kings Driver role and checks its verified TMP link',()=>{
   const result=compareRegister({
     drivers,roster:roster(),
