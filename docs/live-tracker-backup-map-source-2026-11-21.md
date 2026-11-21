@@ -26,6 +26,12 @@ Decision: No secondary player-position feed enabled until verified complete and 
 
 The new map-source-coverage.js is a pure FAIL-CLOSED validator for future integration. It is not a working second provider and is NOT wired into tracker.js. Existing outage behavior preserves the last valid online snapshot and shows independently verified Kings VTC membership without inventing online counts.
 
+## Public CI error privacy during the current outage
+
+The tracker preserves **actual** complete-server coverage results and never substitutes guessed online counts when the map provider fails. Its GitHub Actions output reports only **aggregate successful/total server checks, fixed error categories or a safe HTTP status code**. Arbitrary thrown provider errors and stack traces can contain user IDs, names, coordinates, request URLs or authentication material; these are never printed wholesale by the public tracker entrypoint.
+
+This log minimization is **not a live-map recovery**: the external Map API outage and the Core End-to-End / Freeze gate failures must stay visible until a genuinely complete new verified run succeeds. Do not update the last-good snapshot timestamp on a failure.
+
 ## References
 - https://truckersmpstatus.com/
 - https://docs.truckersmp.com/
