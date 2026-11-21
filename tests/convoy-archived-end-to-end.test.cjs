@@ -23,8 +23,7 @@ function harness({locked=false,noImage=false,approved=true,cancelled=false}={}){
    'Responsible Staff: <@123456789012345678>',
    'Kings Slot: Confirmed Slot #5',
    'Route: Berlin → Prague',
-   'Meeting Point: Berlin',
-   'Meeting Time: 18:30 UTC'
+   'Meeting Point: Berlin'
   ].join('\n'),
   attachments:noImage?[]:[{id:'501',filename:'kings-slot.png',content_type:'image/png',
    url:'https://cdn.discordapp.com/attachments/101/501/kings-slot.png'}]
