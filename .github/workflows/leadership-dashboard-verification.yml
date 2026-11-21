@@ -12,6 +12,7 @@ on:
       - 'discord-fixed-message-audit.js'
       - 'discord-channel-inventory-audit.js'
       - 'discord-publication-content-audit.js'
+      - 'discord-webhook-destination-audit.js'
       - 'driver-leadership-reports.js'
       - 'driver-weekly-summary.js'
       - 'hr-leadership-reports.js'
@@ -60,6 +61,7 @@ jobs:
           node --check discord-fixed-message-audit.js
           node --check discord-channel-inventory-audit.js
           node --check discord-publication-content-audit.js
+          node --check discord-webhook-destination-audit.js
 
       - name: Verify existing fixed Discord messages (read-only, no posts)
         env:
@@ -89,3 +91,17 @@ jobs:
           CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
           NEWS_DISCORD_WEBHOOK_URL: ${{ secrets.NEWS_DISCORD_WEBHOOK_URL }}
         run: node discord-publication-content-audit.js
+
+      - name: Verify all Kings configured Discord webhook destinations (read-only)
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
+          CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
+          NEWS_DISCORD_WEBHOOK_URL: ${{ secrets.NEWS_DISCORD_WEBHOOK_URL }}
+          CHANGELOG_DISCORD_WEBHOOK_URL: ${{ secrets.CHANGELOG_DISCORD_WEBHOOK_URL }}
+          MILESTONE_DISCORD_WEBHOOK_URL: ${{ secrets.MILESTONE_DISCORD_WEBHOOK_URL }}
+          DRIVER_UPDATES_WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
+          MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
+        run: node discord-webhook-destination-audit.js
