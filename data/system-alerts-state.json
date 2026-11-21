@@ -73,20 +73,38 @@
         "completedAt": "2026-11-21T02:07:00Z"
       },
       "firstAlertedAt": "2026-11-21T02:07:23.299Z"
-    }
-  },
-  "pending": {
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 68,
+        "latestCount": 33
+      },
+      "firstAlertedAt": "2026-11-21T08:52:18.553Z"
+    },
     "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-21T07:45:36.551Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 44881447980,
+        "completedAt": "2026-11-21T07:43:56Z"
+      },
+      "firstAlertedAt": "2026-11-21T08:52:18.553Z"
     },
     "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-21T07:45:36.551Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-11-21T08:52:18.553Z"
     }
-  }
+  },
+  "pending": {}
 }
