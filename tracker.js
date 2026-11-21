@@ -1044,17 +1044,8 @@ async function start() {
     `Online: ${kingsOnline.length}`
   );
 
-  for (
-    const player
-    of kingsOnline
-  ) {
-    console.log(
-      `${player.name} | ` +
-      `${player.game} | ` +
-      `${player.server} | ` +
-      `${player.city}`
-    );
-  }
+  // Never log per-player names, locations or server presence in public CI.
+  // Aggregate game totals and snapshot safety checks are logged above.
 
   /*
     First update the public Discord Live Tracker.
