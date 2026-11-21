@@ -17,8 +17,9 @@ const OUTAGE=[
 const STAFF_CHANNEL='1551675877178474526';
 const CONVOY_CHANNEL='1550619865805754378';
 const STAFF_TITLE='Kings Staff Leadership — Live Role Overview';
-const MONITOR_MARKER='👑 **Kings Systems — Live Monitor**';
-const CONVOY_MARKER='👑 **Kings Logistics | Convoy Overview**';
+// kings-branding replaces 👑 with the Kings custom logo in actual message text.
+const MONITOR_MARKER='Kings Systems — Live Monitor';
+const CONVOY_MARKER='Kings Logistics | Convoy Overview';
  // Proven existing fixed targets from successful Kings production writers:
  // system-monitoring run 44949376230 / convoy-checker run 44948817547.
  // Both originals are older than the latest 100 channel messages; look them up
