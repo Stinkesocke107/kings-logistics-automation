@@ -117,7 +117,12 @@ test('read-only Discord audit reports administrator potential separately from a 
  ]});
  assert.deepEqual(results.map(r=>r.status),['ADVISORY','NOT_CONFIGURED','NOT_CONFIGURED']);
  assert.ok(requests.every(r=>r.method==='GET'));
- assert.ok(!requests.some(r=>r.url.includes('/messages')||/members\\?/.test(r.url)));
+ assert.deepEqual(requests.map(r=>r.url.replace('https://discord.com/api/v10','')),[
+  '/users/@me',
+  '/guilds/'+guild+'/roles',
+  '/guilds/'+guild+'/channels',
+  '/guilds/'+guild+'/members/'+bot
+ ]);
 });
 test('HR-specific approval roles differ from ordinary Staff',()=>{
  const hrTarget={key:'hr-decisions',id:A.REGISTER,kind:'hr'};
