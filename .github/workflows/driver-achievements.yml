@@ -90,8 +90,9 @@ jobs:
           DRIVER_LOYALTY_ROLE_MODE: ${{ steps.loyalty_mode.outputs.mode }}
         run: node driver-loyalty-roles.js
 
+      # Scheduled/push read-only previews must also refresh the privacy-safe
+      # aggregate Loyalty health summary; roles are never changed in dry-run.
       - name: Save Driver Loyalty summary safely
-        if: steps.loyalty_mode.outputs.mode == 'live'
         shell: bash
         env:
           LOYALTY_MODE: ${{ steps.loyalty_mode.outputs.mode }}
@@ -101,16 +102,15 @@ jobs:
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
 
-          if [ "$LOYALTY_MODE" = "live" ]; then
-            for file in data/driver-loyalty-roles.json data/driver-loyalty-roles-summary.json; do
-              if [ -e "$file" ] || git ls-files -- "$file" | grep -q .; then
-                git add -A -- "$file"
-              fi
-            done
+          # Store only aggregate status, never private register messages or
+          # legacy per-driver identity mappings, in public repository commits.
+          file=data/driver-loyalty-roles-summary.json
+          if [ -e "$file" ] || git ls-files -- "$file" | grep -q .; then
+            git add -A -- "$file"
           fi
 
           if git diff --cached --quiet; then
-            echo "No Driver Achievement or Loyalty data changes to save."
+            echo "No aggregate Kings Driver Loyalty changes to save."
             exit 0
           fi
 

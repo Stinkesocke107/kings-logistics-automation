@@ -60,7 +60,9 @@ const FRESH_DATA = [
   { file: 'data/statistics.json', label: 'Statistics data', maxAgeMinutes: 35, severity: 'critical' },
   { file: 'data/driver-management-summary.json', label: 'Driver Management data', maxAgeMinutes: 160, severity: 'critical' },
   { file: 'data/staff-management-summary.json', label: 'Staff Management data', maxAgeMinutes: 180, severity: 'warning' },
-  { file: 'data/driver-achievements-summary.json', label: 'Driver Achievement data', maxAgeMinutes: 2400, severity: 'warning' }
+  // Legacy Achievement publisher is no longer scheduled. Live health depends
+  // on the active private Kings joining-date Loyalty audit instead.
+  { file: 'data/driver-loyalty-roles-summary.json', label: 'Driver Loyalty register data', maxAgeMinutes: 2400, severity: 'warning' }
 ];
 
 function checkConvoyCompleteness(issues) {
