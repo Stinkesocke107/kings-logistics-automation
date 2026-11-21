@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['staff-leadership-live-overview.js', '.github/workflows/staff-leadership-live-overview.yml']
+    paths: ['staff-leadership-live-overview.js', 'kings-staff-role-source.js', '.github/workflows/staff-leadership-live-overview.yml']
   schedule:
     - cron: '8,23,38,53 * * * *'
 permissions:
@@ -24,7 +24,9 @@ jobs:
         with:
           node-version: '24'
       - name: Check safety and syntax
-        run: node --check staff-leadership-live-overview.js
+        run: |
+          node --check staff-leadership-live-overview.js
+          node --check kings-staff-role-source.js
       - name: Publish or update Staff role overview
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
