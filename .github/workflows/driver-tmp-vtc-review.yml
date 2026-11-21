@@ -13,6 +13,8 @@ on:
           - publish
           - audit-preview
           - audit-publish
+          - audit-driver-only-preview
+          - audit-driver-only-publish
 
   push:
     branches: [main]
@@ -63,6 +65,7 @@ jobs:
       # A channel permission error is visible in the step without exposing
       # register records; external API failures cannot masquerade as success.
       - name: Read-only Kings private Driver register completion audit
+        if: "!startsWith(github.event.head_commit.message, 'Run private Kings Driver register diagnostics')"
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
@@ -70,8 +73,8 @@ jobs:
         run: node driver-tmp-vtc-register-review.js
 
       # CEO-authorized one-time private active Driver register audit.
-      # Publish missing Kings Driver Discord IDs and verification exceptions
-      # only in the access-controlled driver-leadership channel. The public
+      # Publish missing Kings Driver Discord IDs ONLY, without depending on
+      # TruckersMP rate limits, to private driver-leadership. The public
       # GitHub logs remain aggregate-only; no register or role writes.
       # The explicitly titled commit activates this one-time report.
       - name: Publish private correction links once for Kings Management
@@ -79,7 +82,7 @@ jobs:
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
-          KINGS_TMP_VTC_REVIEW_MODE: audit-publish
+          KINGS_TMP_VTC_REVIEW_MODE: audit-driver-only-publish
         run: node driver-tmp-vtc-register-review.js
 
   review:

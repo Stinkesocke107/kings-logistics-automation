@@ -202,6 +202,52 @@ test('private audit only reads source APIs and rejects unsafe register permissio
   await assert.rejects(review({token:'test-token',transport,mode:'audit-preview'}),
     /non-Management role/);
 });
+
+test('Discord-only private audit publishes missing active Kings Driver IDs without TruckersMP requests',async()=>{
+  const allRoles=[{id:DR,name:'Kings Driver'},{id:TR,name:'Kings Trial'},{id:MGT,name:'Management'}];
+  const allMembers=[
+    {user:{id:D1,bot:false},roles:[DR]},
+    {user:{id:D2,bot:false},roles:[DR]},
+    {user:{id:D3,bot:false},roles:[TR]},
+    {user:{id:MANAGER,bot:false},roles:[MGT]}
+  ];
+  const over=[
+    {id:GUILD,type:0,deny:'1024',allow:'0'},
+    {id:MGT,type:0,deny:'0',allow:'1024'}
+  ];
+  const channels=[
+    {id:DEST,name:'driver-leadership',guild_id:GUILD,type:0,permission_overwrites:over},
+    {id:REGISTER,name:'driver-register',guild_id:GUILD,type:0,permission_overwrites:over}
+  ];
+  const calls=[];
+  const transport=async (url,opts)=>{
+    calls.push(url);
+    assert.equal(opts.method,'GET');
+    assert.ok(!url.includes('truckersmp.com'), 'Discord-only audit must not call TMP API');
+    const p=url.replace('https://discord.com/api/v10','');
+    const payload=body=>new Response(JSON.stringify(body),{status:200});
+    if(p==='/guilds/'+GUILD+'/channels')return payload(channels);
+    if(p==='/guilds/'+GUILD+'/roles')return payload(allRoles);
+    if(p.startsWith('/guilds/'+GUILD+'/members?'))return payload(allMembers);
+    if(p==='/guilds/'+GUILD)return payload({owner_id:OWNER});
+    if(p==='/users/@me')return payload({id:BOT});
+    if(p.startsWith('/channels/'+REGISTER+'/messages?'))return payload([
+      {id:'900000000000000001',author:{id:MANAGER},
+        content:'discord_id: '+D1+'\ntruckersmp_id: 1234567\nkings_join_date: 02.02.2024'}
+    ]);
+    throw Error('Unexpected request '+p);
+  };
+  const result=await review({token:'test-token',transport,mode:'audit-driver-only-preview'});
+  assert.equal(result.type,'audit-driver-only');
+  assert.deepEqual(result.counts,{currentDrivers:2,registered:1,missingRecords:1,complete:false});
+  const published=result.pages.map(p=>p.content).join('\n');
+  assert.ok(published.includes(D2));
+  assert.ok(!published.includes(D3));
+  assert.ok(!published.includes(D1+' • Kings Driver'));
+  assert.ok(!published.includes('1234567'));
+  assert.ok(calls.every(url=>!url.includes('truckersmp.com')));
+});
+
 test('old audit cleanup removes only bot-authored expired audit pages',async()=>{
   const removed=[];
   const post=payload=>new Response(JSON.stringify(payload),{status:200});

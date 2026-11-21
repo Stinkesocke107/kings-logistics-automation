@@ -58,6 +58,46 @@ async function fetchPublicProfiles(roster, transport=fetch) {
   await Promise.all([worker(),worker(),worker(),worker()]);
   return {index,failedCount:failed.size};
 }
+// Report only missing ACTIVE Discord Kings Driver register entries.
+// This never calls TruckersMP, guesses account links, or changes personnel.
+function driverOnlyAuditPages(drivers, identities, checkedAt=new Date()){
+  if(!Array.isArray(drivers) || !drivers.length || !(identities instanceof Map))
+    throw Error('Invalid active Driver-only audit sources.');
+  const active=drivers.filter(d=>d.role==='Driver');
+  if(!active.length)throw Error('No active Kings Driver role holders to audit.');
+  const missing=active.filter(d=>!identities.has(d.discordId));
+  const stamp=checkedAt.toISOString().replace('T',' ').slice(0,16)+' UTC';
+  const header=REPORT_PREFIX+'Summary**';
+  const summary=[
+    header,'**Active Kings Driver registration review** • '+stamp,
+    'Discord Kings Driver roles: **'+active.length+'**',
+    'Approved current Driver records: **'+(active.length-missing.length)+'/'+active.length+'**',
+    'Missing current Driver registrations: **'+missing.length+'**',
+    'Only current Discord Kings Driver holders are in scope. Kings Trial and',
+    'TruckersMP VTC-only accounts are excluded from registration requirements.',
+    'The separate TruckersMP verification was NOT performed in this report.',
+    'Correct missing entries in <#'+REGISTER_CHANNEL_ID+'>.',
+    'No records, joining dates or roles were modified.'
+  ].join('\n');
+  if(summary.length>1900)throw Error('Private Driver summary exceeds limit.');
+  const pages=[{marker:header,content:summary}];
+  for(let i=0;i<missing.length;i+=15){
+    const batch=missing.slice(i,i+15);
+    const marker=REPORT_PREFIX+'Missing Discord '+(1+Math.floor(i/15))+'/';
+    const content=[
+      marker+Math.ceil(missing.length/15)+'**',
+      '**Active Kings Driver members missing from the private Driver Register**',
+      'Verify each Discord identity, TruckersMP ID and original Kings join date before registering:',
+      ...batch.map(d=>'• Discord ID: '+d.discordId+' • Kings Driver')
+    ].join('\n');
+    if(content.length>1900)throw Error('Private missing Driver page exceeds limit.');
+    pages.push({marker,content});
+  }
+  return {pages,counts:{currentDrivers:active.length,
+    registered:active.length-missing.length,missingRecords:missing.length,
+    complete:missing.length===0}};
+}
+
 async function review({token,transport=fetch,mode='preview'}) {
   if(!token)throw Error('DISCORD_BOT_TOKEN is missing.');
   const botHeaders={
@@ -121,6 +161,10 @@ async function review({token,transport=fetch,mode='preview'}) {
       };
     }
     if(!register.enabled)throw Error('Private Driver register is not configured.');
+  }
+  if(mode.startsWith('audit-driver-only-')) {
+    const audit=driverOnlyAuditPages(drivers,register.identities);
+    return {channelId:String(leadership.id),type:'audit-driver-only',...audit};
   }
   // Invalid or unauthorized register entries are diagnosed without hitting
   // the rate-limited TruckersMP API. A complete register still requires the
@@ -199,7 +243,8 @@ async function cleanupObsoleteAuditPages({token,channelId,markers,transport=fetc
 
 async function main(){
   const mode=String(process.env.KINGS_TMP_VTC_REVIEW_MODE||'preview').trim();
-  if(!['preview','publish','audit-preview','audit-publish'].includes(mode))
+  if(!['preview','publish','audit-preview','audit-publish',
+       'audit-driver-only-preview','audit-driver-only-publish'].includes(mode))
     throw Error('Invalid VTC review mode.');
   const token=process.env.DISCORD_BOT_TOKEN;
   const result=await review({token,mode});
@@ -210,6 +255,11 @@ async function main(){
       result.counts.invalidMessages+' invalid or unsafe register messages out of '+
       result.counts.scannedMessages+' inspected; '+result.counts.parseableEntries+
       ' initially parseable entries. INCOMPLETE. No IDs/dates printed.');
+  }else if(result.type==='audit-driver-only') {
+    console.log('Private active Kings Driver-only register audit: '+
+      result.counts.registered+'/'+result.counts.currentDrivers+
+      ' recorded; '+result.counts.missingRecords+
+      ' current Kings Drivers missing. TruckersMP API not queried.');
   }else if(result.type==='audit') {
     console.log('Private Kings Driver register audit: '+
       result.counts.registered+'/'+result.counts.currentDrivers+
@@ -232,7 +282,7 @@ async function main(){
     result.counts.historical+' recovered from previously verified encrypted links, '+
     result.counts.profileFailures+' inaccessible/invalid profiles, '+
     result.counts.conflicts+' ambiguous links.');
-  if(!['publish','audit-publish'].includes(mode)){
+  if(!['publish','audit-publish','audit-driver-only-publish'].includes(mode)){
     console.log('PREVIEW: no Discord writes, no register entries and no Loyalty role changes.');
     return;
   }
@@ -244,7 +294,7 @@ async function main(){
     });
     if(sync.action==='suppressed')throw Error('Leadership report publication disabled.');
   }
-  if(result.type==='audit' || result.type==='audit-diagnostics'){
+  if(['audit','audit-diagnostics','audit-driver-only'].includes(result.type)){
     const deleted=await cleanupObsoleteAuditPages({token,channelId:result.channelId,
       markers:result.pages.map(page=>page.marker)});
     console.log('Private Kings Driver Register audit published ('+result.type+'); '+
@@ -257,4 +307,4 @@ if(require.main===module){
     process.exit(1);
   });
 }
-module.exports={getJson,fetchPublicProfiles,review,cleanupObsoleteAuditPages};
+module.exports={getJson,fetchPublicProfiles,review,driverOnlyAuditPages,cleanupObsoleteAuditPages};

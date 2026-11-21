@@ -129,6 +129,6 @@ test('one-time publishing remains disabled for normal GitHub pushes',()=>{
     '../.github/workflows/driver-tmp-vtc-review.yml'),'utf8');
   assert.match(yaml,/startsWith\(github\.event\.head_commit\.message, 'Run private Kings Driver register diagnostics'\)/);
   assert.match(yaml,/Read-only Kings private Driver register completion audit/);
-  assert.match(yaml,/KINGS_TMP_VTC_REVIEW_MODE: audit-publish/);
+  assert.match(yaml,/KINGS_TMP_VTC_REVIEW_MODE: audit-driver-only-publish/);
   assert.doesNotMatch(yaml,/schedule:/);
 });
