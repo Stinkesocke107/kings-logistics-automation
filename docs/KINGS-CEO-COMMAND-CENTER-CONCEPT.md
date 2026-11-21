@@ -26,6 +26,30 @@ Die Discord-UI-Berechtigung ist nur die erste Grenze. Für **jede** Aktion zusä
 | `/kings maintenance on/off` | geschützt | zeitbegrenzter Wartungsmodus für allowlistete Publisher, nicht Monitoring/Security/Backups |
 | `/kings history` | lesend | minimaler, geschützter Audit-Trail ohne personenbezogene Discord-Daten |
 
+## 2.1 CEO-Hilfe: vollständige Befehlsübersicht und Einzelanleitungen
+
+**Verbindliche Anforderung:** `/kings help` zeigt **alle** im CEO System Command Center tatsächlich registrierten Befehle in übersichtlichen Kategorien. Kein Befehl darf aktiv sein, ohne in dieser Hilfe mit Beschreibung, Wirkung und Berechtigungsstatus aufgeführt zu werden. Noch nicht bereitgestellte Befehle müssen ausdrücklich **Geplant / Nicht verfügbar** anzeigen; niemals eine Ausführung vortäuschen.
+
+- `/kings help` – vollständige Übersicht aller registrierten Kings-CEO-Befehle einschließlich Kurzbeschreibung, Status (`Aktiv` / `Geplant` / `Gesperrt`), Risiko (`Lesend` / `Verändernd` / `Geschützt`) und Voraussetzung.
+- `/kings help command:<befehl>` – ausführliche Hilfe zu genau einem Befehl. Der optionale Parameter `command` soll durch Discord-Autocomplete auswählbar sein, z. B. `/kings help command:backup` oder `/kings help command:pause`.
+- Die Detailhilfe enthält **exakte Slash-Command-Syntax, Erklärung aller Parameter, konkreten Ablauf, Auswirkungen auf Discord/GitHub, erforderliche CEO-Freigabe, Sicherheitsgrenzen, typische Fehlermeldungen und ein ungefährliches Beispiel**.
+- Bei vielen Befehlen wird die Übersicht kategorisiert bzw. paginiert, optional mit Auswahlmenü oder Schaltfläche **„Befehl erklären“**. Die Hilfe ist im privaten CEO-Kanal als **ephemere Antwort** sichtbar, nicht als neue öffentliche Discord-Nachricht.
+- Die Hilfe wird aus **derselben versionierten Command-Registry** erzeugt, die auch tatsächlich registrierte Slash Commands und zulässige Operations definiert. So können Hilfetexte nicht unbemerkt von der produktiven Implementierung abweichen.
+- `/kings help` ist **immer read-only**: kein Workflow-Dispatch, kein Backup, kein Pause/Resume, keine Rollenänderung. Zugriff trotzdem nur nach tatsächlicher CEO-/Guild-/Channel-Prüfung.
+
+**Vorgesehene Hilfe-Kategorien (in der Übersicht):**
+
+| Kategorie | Befehle | Kurzbeschreibung |
+| --- | --- | --- |
+| Hilfe | `/kings help` | Alle verfügbaren Befehle zeigen und einzeln erklären |
+| Übersicht | `/kings status`, `/kings channels` | Echte Systemzustände und bekannte Discord-Ziele anzeigen |
+| Kontrolle | `/kings audit`, `/kings history` | Sichere Prüfungen und privaten Änderungsverlauf aufrufen |
+| Sicherheit | `/kings backup create` | Geschützten, überprüfbaren Sicherungslauf beantragen |
+| Steuerung | `/kings pause`, `/kings resume` | Erlaubte Publisher gezielt anhalten oder kontrolliert fortsetzen |
+| Wartung | `/kings maintenance on/off` | Zeitlich begrenzten Wartungsmodus steuern |
+
+**Beispiel für die Detailhilfe:** `/kings help command:pause` beschreibt, welche Publisher pausiert werden dürfen, welche davon ausdrücklich ausgenommen sind (Monitoring, Sicherheitsprüfungen, Backups), was der Befehl verändert, warum eine zweite CEO-Bestätigung erforderlich ist und wie `/kings resume` die sichere Rücknahme ermöglicht.
+
 **Keine direkten Chat-Befehle** für `restore apply`, Geheimnisrotation, Git-History-Rewrite, Staff-/Driver-/HR-Rollenänderungen, Vergabe von Awards, Guild-/Permission-Löschungen oder unbeschränkte `pause all`-Aktionen. Recovery bleibt im bestehenden, getrennt abgesicherten `kings-production-recovery`-GitHub-Environment mit zuständiger menschlicher Freigabe.
 
 ## 3. Zwei-Stufen-Freigabe
