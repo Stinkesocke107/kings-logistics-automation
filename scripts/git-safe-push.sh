@@ -64,7 +64,7 @@ if (Object.hasOwn(json.tenure,'longestServing') ||
     Object.hasOwn(json.tenure,'newestDrivers')) {
   process.exit(1);
 }
-const forbidden=/"(?:tmpId|username|joinDate|tenureDays|discordUserId)"\\s*:/;
+const forbidden=/"(?:tmpId|username|joinDate|tenureDays|discordUserId)"\s*:/;
 if (forbidden.test(JSON.stringify(json.tenure))) process.exit(1);
 NODE
   then
