@@ -88,6 +88,25 @@ function ageDays(value, now = Date.now()) {
   const d = date(value);
   return d ? Math.max(0, Math.floor((now - d.getTime()) / DAY_MS)) : null;
 }
+// Current online is only a trustworthy measurement when Driver Management
+// explicitly verified full live-server coverage and its observation is fresh.
+// It must not accidentally turn a stale cache, a contradictory status, or a
+// missing observation into a false zero or a believable nonzero count.
+function verifiedLiveOnline(summary, now = Date.now()) {
+  if (summary?.onlineObservationStatus !== 'verified-live') return 'Unavailable';
+  const online = summary.onlineNow;
+  if (!Number.isSafeInteger(online) || online < 0) return 'Unavailable';
+  if (Number.isSafeInteger(summary.currentDrivers) &&
+      summary.currentDrivers >= 0 && online > summary.currentDrivers) return 'Unavailable';
+  const time = date(summary.updatedAt)?.getTime();
+  const checkAt = new Date(now).getTime();
+  if (!Number.isFinite(time) || !Number.isFinite(checkAt) ||
+      time > checkAt + 5 * 60000 || checkAt - time > 160 * 60000) {
+    return 'Unavailable';
+  }
+  return String(online);
+}
+
 function signed(value) {
   const n = Number(value || 0);
   return n > 0 ? `+${n}` : String(n);
@@ -172,7 +191,7 @@ function buildDriver(data, now = Date.now()) {
   const s = data.driverSummary;
   const t = s.tenure || {};
   const live =
-    `VTC Drivers **${s.currentDrivers ?? current.length}** • Online **${s.onlineNow === null || s.onlineNow === undefined ? 'Unavailable' : s.onlineNow}** • Grace **${s.activity?.grace ?? 0}** • LOA **${s.activity?.approvedLeave ?? 0}**\n` +
+    `VTC Drivers **${s.currentDrivers ?? current.length}** • Online **${verifiedLiveOnline(s, now)}** • Grace **${s.activity?.grace ?? 0}** • LOA **${s.activity?.approvedLeave ?? 0}**\n` +
     `Activity: Active **${s.activity?.active ?? 0}** • Info **${s.activity?.info7Days ?? 0}** • Attention **${s.activity?.attention14Days ?? 0}** • HR Review **${s.activity?.hrReview30Days ?? 0}**\n` +
     `Activity data are advisory and use the last verified observations.`;
   const daily =
@@ -298,7 +317,7 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
     description: `One fixed Management dashboard. Drivers count the full TruckersMP VTC roster; Staff count uses VTC Staff classification. Discord role-member counts are separate. Current attention indicators: **${attention}**.`,
     color: KINGS_BLUE,
     fields: [
-      field('🚛 VTC Drivers — Live', `VTC Drivers **${ds.currentDrivers ?? 0}** • Online **${ds.onlineNow === null || ds.onlineNow === undefined ? 'Unavailable' : ds.onlineNow}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
+      field('🚛 VTC Drivers — Live', `VTC Drivers **${ds.currentDrivers ?? 0}** • Online **${verifiedLiveOnline(ds)}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
       field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
       field('📅 Events — Live', `Tracked **${eventSnap.length}** • Scheduled **${eventSnap.filter(e=>e.status==='Scheduled').length}** • Ready **${eventReady}** • Needs Info **${eventNeeds}**`),
