@@ -1035,113 +1035,6 @@ function buildEmbed(
 // DISCORD
 // ======================================================
 
-function webhookWithWait() {
-  const url =
-    new URL(
-      WEBHOOK_URL
-    );
-
-  url.searchParams.set(
-    "wait",
-    "true"
-  );
-
-  return url.toString();
-}
-
-async function createDiscordMessage(
-  embed
-) {
-  if (!WEBHOOK_URL) {
-    throw new Error(
-      "CENTRAL_OVERVIEW_WEBHOOK_URL is missing."
-    );
-  }
-
-  const response =
-    await fetch(
-      webhookWithWait(),
-      {
-        method:
-          "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body:
-          JSON.stringify({
-            embeds: [
-              embed
-            ],
-
-            allowed_mentions: {
-              parse: []
-            }
-          })
-      }
-    );
-
-  if (!response.ok) {
-    throw new Error(
-      `Central Overview Discord create failed: HTTP ${response.status} - ${await response.text()}`
-    );
-  }
-
-  const message =
-    await response.json();
-
-  if (!message.id) {
-    throw new Error(
-      "Discord did not return a Central Overview message ID."
-    );
-  }
-
-  return String(
-    message.id
-  );
-}
-
-async function deleteDiscordMessage(
-  messageId
-) {
-  if (!WEBHOOK_URL) {
-    throw new Error(
-      "CENTRAL_OVERVIEW_WEBHOOK_URL is missing."
-    );
-  }
-
-  const base =
-    WEBHOOK_URL
-      .split("?")[0]
-      .replace(
-        /\/$/,
-        ""
-      );
-
-  const response =
-    await fetch(
-      `${base}/messages/${messageId}`,
-      {
-        method:
-          "DELETE"
-      }
-    );
-
-  if (
-    response.status === 404
-  ) {
-    return;
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      `Central Overview Discord delete failed: HTTP ${response.status} - ${await response.text()}`
-    );
-  }
-}
-
 async function updateDiscordMessage(
   messageId,
   embed
@@ -1185,16 +1078,13 @@ async function updateDiscordMessage(
       }
     );
 
-  if (
-    response.status ===
-    404
-  ) {
-    return false;
+  if (response.status === 404) {
+    throw new Error('Central Overview stored Discord message missing or webhook ownership changed; refusing duplicate publication.');
   }
 
   if (!response.ok) {
     throw new Error(
-      `Central Overview Discord update failed: HTTP ${response.status} - ${await response.text()}`
+      `Central Overview Discord update failed: HTTP ${response.status}.`
     );
   }
 
@@ -1205,63 +1095,16 @@ async function updateDiscordMessage(
 // PUBLISH OVERVIEW
 // ======================================================
 
-async function publishOverview(
-  state,
-  embed
-) {
-  if (
-    state.recreateMessage &&
-    state.messageId
-  ) {
-    console.log(
-      "Refreshing Kings Central Overview with a completely new Discord message."
-    );
-
-    await deleteDiscordMessage(
-      state.messageId
-    );
-
-    state.messageId =
-      null;
+async function publishOverview(state, embed) {
+  if (state?.recreateMessage) {
+    throw new Error('Central Overview automatic message recreation is disabled; manual ownership verification is required.');
   }
-
-  if (state.messageId) {
-    const updated =
-      await updateDiscordMessage(
-        state.messageId,
-        embed
-      );
-
-    if (updated) {
-      console.log(
-        "Existing Kings Central Overview message updated."
-      );
-
-      return false;
-    }
-
-    console.log(
-      "Stored Central Overview message no longer exists."
-    );
-
-    console.log(
-      "Creating a new Central Overview message."
-    );
+  if (!/^\d{17,20}$/.test(String(state?.messageId || ''))) {
+    throw new Error('Central Overview stored Discord message ID missing or invalid; refusing duplicate publication.');
   }
-
-  state.messageId =
-    await createDiscordMessage(
-      embed
-    );
-
-  state.recreateMessage =
-    false;
-
-  console.log(
-    `New Kings Central Overview message created: ${state.messageId}`
-  );
-
-  return true;
+  await updateDiscordMessage(state.messageId, embed);
+  console.log('Existing Kings Central Overview message updated.');
+  return false;
 }
 
 // ======================================================
