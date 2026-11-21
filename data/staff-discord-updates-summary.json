@@ -1,11 +1,11 @@
 {
   "version": 1,
   "mode": "live",
-  "updatedAt": "2026-11-21T01:13:37.544Z",
+  "updatedAt": "2026-11-21T01:47:48.299Z",
   "currentStaff": 11,
-  "truckersmpCurrentStaff": 13,
+  "truckersmpCurrentStaff": 14,
   "crossConfirmedStaff": 5,
-  "sourceMismatches": 14,
+  "sourceMismatches": 15,
   "authority": "discord",
   "truckersmpCrossCheckMode": "advisory-only",
   "crossCheckSources": {
@@ -78,6 +78,11 @@
     {
       "tmpId": 5345460,
       "username": "H O C H S T A P L E R",
+      "reason": "no-discord-match"
+    },
+    {
+      "tmpId": 6266493,
+      "username": "Ahmad_SY",
       "reason": "no-discord-match"
     },
     {
