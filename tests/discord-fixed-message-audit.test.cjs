@@ -7,13 +7,14 @@ const {sandbox}=require('./sandbox.cjs');
 
 const id='1559442670441730079';
 const webhook='https://discord.com/api/webhooks/123456789012345678/fake-secret?wait=true';
-const body={id,embeds:[{title:'Kings fixed status'}]};
+const body={id,embeds:[{title:'Kings fixed status',fields:[{name:'Live',value:'VTC Drivers **111** • Online **Unavailable**'}]}]};
 const response=()=>new Response(JSON.stringify(body),{status:200,headers:{'content-type':'application/json'}});
 function setup(fetcher=async()=>response(),options={}){
  const files={
   'data/live-tracker-snapshot.json':JSON.stringify({discordMessageId:id}),
   'data/statistics.json':JSON.stringify({messageId:id}),
   'data/central-overview.json':JSON.stringify({messageId:id}),
+  'data/driver-management-summary.json':JSON.stringify({currentDrivers:111,onlineNow:null,onlineObservationStatus:'unavailable',updatedAt:new Date().toISOString()}),
   'data/leadership-dashboard-state.json':JSON.stringify({messageIds:{
     driver:id,hr:id,staff:id,event:id,management:id
   }}),
@@ -81,4 +82,25 @@ test('audit source cannot write to Discord or persist private message content',(
  assert.doesNotMatch(source,/method:\s*['"](?:POST|PATCH|DELETE)['"]/);
  assert.doesNotMatch(source,/writeFileSync\(|appendFileSync\(/);
  assert.doesNotMatch(source,/console\.log\([^\n]*(?:target\.url|JSON\.stringify\(message|message\.embeds)/);
+});
+
+test('Driver and Management audit rejects visible stale online values even with a readable embed',async()=>{
+  const bad={id,embeds:[{title:'Kings fixed status',fields:[{name:'Live',value:'VTC Drivers **111** • Online **9**'}]}]};
+  const s=setup(async(url,options)=>{
+    assert.equal(options.method,'GET');
+    if(url.includes('/channels/'))return new Response(JSON.stringify(bad),{status:200});
+    return response();
+  });
+  const result=await assert.rejects(s.run('main()'),/could not be independently verified/);
+  assert.equal(s.calls.length,8);
+  assert.ok(s.calls.every(x=>x.options.method==='GET'));
+});
+
+test('aggregate online evidence accepts verified zero, never invents a zero on an outage',()=>{
+  const s=setup();
+  const at=Date.now();
+  const source={currentDrivers:111,updatedAt:new Date(at).toISOString(),onlineObservationStatus:'verified-live',onlineNow:0};
+  assert.equal(s.run('expectedDriverObservation('+JSON.stringify(source)+','+at+')'),'0');
+  assert.equal(s.run('expectedDriverObservation('+JSON.stringify({...source,onlineObservationStatus:'unavailable',onlineNow:9})+','+at+')'),'Unavailable');
+  assert.equal(s.run('expectedDriverObservation('+JSON.stringify({...source,updatedAt:'2026-11-18T16:00:21Z',onlineNow:9})+','+at+')'),'Unavailable');
 });
