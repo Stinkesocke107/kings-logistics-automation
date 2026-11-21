@@ -16,6 +16,7 @@ on:
       - 'discord-event-driven-publication-audit.js'
       - 'discord-driver-public-updates-audit.js'
       - 'discord-public-convoy-content-audit.js'
+      - 'discord-legacy-leadership-evidence-audit.js'
       - 'driver-leadership-reports.js'
       - 'driver-weekly-summary.js'
       - 'hr-leadership-reports.js'
@@ -68,6 +69,7 @@ jobs:
           node --check discord-event-driven-publication-audit.js
           node --check discord-driver-public-updates-audit.js
           node --check discord-public-convoy-content-audit.js
+          node --check discord-legacy-leadership-evidence-audit.js
 
       - name: Verify existing fixed Discord messages (read-only, no posts)
         env:
@@ -133,3 +135,9 @@ jobs:
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_KINGS_CONVOY_ANNOUNCEMENT_CHANNEL_ID: '1351613882791366838'
         run: node discord-public-convoy-content-audit.js
+
+      - name: Verify archived Legacy Leadership message identities read-only
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+        run: node discord-legacy-leadership-evidence-audit.js
