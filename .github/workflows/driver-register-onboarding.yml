@@ -1,0 +1,39 @@
+name: Kings Driver Register Onboarding Check
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Once daily, 07:17 UTC (08:17 CET / 09:17 CEST).
+    - cron: '17 7 * * *'
+
+permissions:
+  contents: read
+
+# Share the register-audit lock to avoid competing private Leadership edits.
+concurrency:
+  group: kings-tmp-vtc-driver-date-review
+  cancel-in-progress: false
+
+jobs:
+  driver-register-onboarding:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Kings main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Validate private Kings Driver registration workflow
+        run: |
+          node --check driver-identity-register.js
+          node --check driver-loyalty-register.js
+          node --check driver-welcome-register-review.js
+          node --check driver-tmp-vtc-register-review.js
+      - name: Refresh private pending registrations for active Kings Drivers
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_TMP_VTC_REVIEW_MODE: audit-driver-only-publish
+        run: node driver-tmp-vtc-register-review.js
