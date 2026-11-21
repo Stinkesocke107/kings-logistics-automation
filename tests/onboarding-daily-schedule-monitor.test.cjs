@@ -11,7 +11,7 @@ const run=(date,id=1)=>({id,event:'schedule',status:'completed',conclusion:'succ
 const z=(s)=>new Date(s).getTime();
 
 test('Kings daily UTC schedule: eight-hour late onboarding run is still flagged despite success',()=>{
-  const due='2026-11-21T07:17:00Z';
+  const due='2026-11-21T07:17:00.000Z';
   const late='2026-11-21T15:19:53Z';
   const r=assessDailyUtcSchedule([run(late)],{...config,now:'2026-11-21T16:05:00Z'});
   assert.equal(r.status,'late');
@@ -22,7 +22,7 @@ test('Kings daily UTC schedule: eight-hour late onboarding run is still flagged 
 });
 
 test('on-time scheduled run remains healthy and does not use earlier manual runs',()=>{
-  const due='2026-11-21T07:17:00Z';
+  const due='2026-11-21T07:17:00.000Z';
   const r=assessDailyUtcSchedule([
     {id:3,event:'workflow_dispatch',created_at:'2026-11-21T15:19:53Z'},
     run('2026-11-21T07:22:00Z',2)
