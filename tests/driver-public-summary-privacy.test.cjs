@@ -39,8 +39,8 @@ test('already committed public summary snapshot contains no personal Driver tenu
   const summary=JSON.parse(raw);
   assert.ok(Number.isInteger(summary.currentDrivers));
   assert.ok(Number.isInteger(summary.tenure.known));
-  assert.equal(summary.tenure.longestServing,undefined);
-  assert.equal(summary.tenure.newestDrivers,undefined);
+  assert.equal(Object.hasOwn(summary.tenure,'longestServing'),false,'Public summary has private longest-serving list');
+  assert.equal(Object.hasOwn(summary.tenure,'newestDrivers'),false,'Public summary has private newest-driver list');
   assert.doesNotMatch(raw,/"(?:tmpId|username|joinDate|tenureDays|lastOnlineSeenAt)"\s*:/);
 });
 
@@ -66,4 +66,12 @@ test('Lead dashboard no longer references public newestDrivers property',()=>{
   const source=fs.readFileSync(path.join(ROOT,'leadership-dashboard.js'),'utf8');
   assert.ok(!source.includes('t.newestDrivers'));
   assert.ok(source.includes('shortPeople(newestPrivate, 3)'));
+});
+
+test('shared Kings safe-push helper refuses stale checkouts that reintroduce named Driver summaries',()=>{
+  const shell=fs.readFileSync(path.join(ROOT,'scripts','git-safe-push.sh'),'utf8');
+  assert.ok(shell.includes('validate_public_driver_privacy()'));
+  assert.ok(shell.includes('if ! validate_public_driver_privacy; then'));
+  assert.ok(shell.includes("Object.hasOwn(json.tenure,'longestServing')"));
+  assert.ok(shell.includes("Object.hasOwn(json.tenure,'newestDrivers')"));
 });
