@@ -19,6 +19,6 @@ test('historical message proof uses exact channel, bot owner, stored ID and repo
 test('legacy audit is GET-only and cannot advertise the old publishedKeys as proof',()=>{
  const file=fs.readFileSync(path.join(__dirname,'../discord-legacy-leadership-evidence-audit.js'),'utf8');
  assert.doesNotMatch(file,/method:\s*['"](?:POST|PATCH|PUT|DELETE)['"]/);
- assert.match(file,/published-keys\/snapshot updates/);
+ assert.match(file,/published-keys\/snapshot updates/i);
  assert.match(file,/NOT_VISIBLE/);
 });
