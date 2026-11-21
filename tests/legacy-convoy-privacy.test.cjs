@@ -49,3 +49,17 @@ test('future importer writes both encrypted source and sanitized public projecti
   assert.match(s,/legacy-convoys-private\.json/);
   assert.doesNotMatch(s,/console\.error\([^\n]*error\.stack/);
 });
+
+test('actual tracked Legacy archive projection preserves every event and operational slot availability',()=>{
+  const tracked=JSON.parse(fs.readFileSync(path.join(__dirname,'..','data','legacy-convoys.json'),'utf8'));
+  const p=sanitizeLegacyPublicArchive(tracked);
+  assert.equal(p.convoys.length,tracked.convoys.length);
+  for(let i=0;i<p.convoys.length;i++){
+    const current=p.convoys[i],prior=tracked.convoys[i];
+    for(const field of ['legacyId','eventId','eventUnix','eventDate','meetingTime','confirmedKingsSlot','slotStatus','game','route']){
+      assert.deepEqual(current[field],prior[field]);
+    }
+    assert.equal(Boolean(current.kingsSlotImage),Boolean(prior.kingsSlotImage));
+  }
+  assert.equal(hasUnredactedPrivateNotes(p),false);
+});
