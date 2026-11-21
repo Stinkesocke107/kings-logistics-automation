@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-21T11:49:35.473Z",
+  "updatedAt": "2026-11-21T12:43:46.240Z",
   "currentDrivers": 110,
   "onlineNow": null,
   "onlineObservationStatus": "unavailable",
@@ -71,7 +71,7 @@
         "tmpId": 265673,
         "username": "ItsHarryUK",
         "joinDate": "2026-11-08T12:13:30.000Z",
-        "tenureDays": 12
+        "tenureDays": 13
       },
       {
         "tmpId": 6403863,
