@@ -13,6 +13,7 @@ on:
       - 'discord-channel-inventory-audit.js'
       - 'discord-publication-content-audit.js'
       - 'discord-webhook-destination-audit.js'
+      - 'discord-event-driven-publication-audit.js'
       - 'driver-leadership-reports.js'
       - 'driver-weekly-summary.js'
       - 'hr-leadership-reports.js'
@@ -62,6 +63,7 @@ jobs:
           node --check discord-channel-inventory-audit.js
           node --check discord-publication-content-audit.js
           node --check discord-webhook-destination-audit.js
+          node --check discord-event-driven-publication-audit.js
 
       - name: Verify existing fixed Discord messages (read-only, no posts)
         env:
@@ -105,3 +107,11 @@ jobs:
           DRIVER_UPDATES_WEBHOOK_URL: ${{ secrets.DRIVER_UPDATES_WEBHOOK_URL }}
           MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
         run: node discord-webhook-destination-audit.js
+
+      - name: Verify Kings event-driven public publications without posting anything
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          CHANGELOG_DISCORD_WEBHOOK_URL: ${{ secrets.CHANGELOG_DISCORD_WEBHOOK_URL }}
+          MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
+        run: node discord-event-driven-publication-audit.js
