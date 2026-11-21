@@ -207,6 +207,9 @@ async function review({token,transport=fetch,mode='preview'}) {
       throw Error('Private Kings Driver identity source is unavailable for VTC audit.');
     const audit=compareRegister({drivers,roster,identities:register.identities,
       profiles:profiles.index,historicalMappings:stored});
+    if(audit.currentDrivers!==coverage.activeDrivers ||
+       audit.registeredDrivers!==coverage.registered)
+      throw Error('Kings Driver VTC audit does not match the authoritative private identity source.');
     const pages=auditPages(audit);
     return {channelId:String(leadership.id),pages,type:'audit',
       counts:{currentDrivers:audit.currentDrivers,vtc:audit.officialVtcMembers,
