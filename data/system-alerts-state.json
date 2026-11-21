@@ -110,16 +110,6 @@
       },
       "firstAlertedAt": "2026-11-21T20:34:04.269Z"
     },
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "severity": "warning",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
-      "details": {
-        "runId": 44955378385,
-        "completedAt": "2026-11-21T22:11:10Z"
-      },
-      "firstAlertedAt": "2026-11-21T22:13:15.418Z"
-    },
     "workflow-failed:self-healing.yml": {
       "severity": "warning",
       "system": "Safe Self-Healing",
