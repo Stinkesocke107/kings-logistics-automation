@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-13T05:30:00.000Z",
-  "updatedAt": "2026-11-20T01:14:17.928Z",
+  "updatedAt": "2026-11-21T00:46:30.693Z",
   "lastSnapshot": [
     {
       "threadId": "1551261117630648542",
@@ -611,6 +611,25 @@
         "meetup",
         "meetupTime",
         "responsibleStaff",
+        "route"
+      ],
+      "duplicateEventId": false,
+      "archived": true,
+      "eventUnix": null
+    },
+    {
+      "threadId": "1573471889127514252",
+      "name": "22.November - SHL",
+      "eventId": "36859",
+      "status": "Needs Information",
+      "eventDate": "2026-11-22",
+      "meetupTime": "00:00 UTC",
+      "responsibleStaff": "<@935991067969470485>",
+      "kingsSlot": "Confirmed — Slot image",
+      "missing": [
+        "eventDate",
+        "meetup",
+        "meetupTime",
         "route"
       ],
       "duplicateEventId": false,
@@ -2669,6 +2688,31 @@
         "archived": true,
         "eventUnix": null
       }
+    },
+    {
+      "type": "event_added",
+      "at": "2026-11-21T00:46:30.477Z",
+      "threadId": "1573471889127514252",
+      "name": "22.November - SHL",
+      "current": {
+        "threadId": "1573471889127514252",
+        "name": "22.November - SHL",
+        "eventId": "36859",
+        "status": "Needs Information",
+        "eventDate": "2026-11-22",
+        "meetupTime": "00:00 UTC",
+        "responsibleStaff": "<@935991067969470485>",
+        "kingsSlot": "Confirmed — Slot image",
+        "missing": [
+          "eventDate",
+          "meetup",
+          "meetupTime",
+          "route"
+        ],
+        "duplicateEventId": false,
+        "archived": true,
+        "eventUnix": null
+      }
     }
   ],
   "publishedDailyKeys": [
@@ -2706,7 +2750,8 @@
     "2026-11-17",
     "2026-11-18",
     "2026-11-19",
-    "2026-11-20"
+    "2026-11-20",
+    "2026-11-21"
   ],
   "publishedWeeklyKeys": [
     "2026-10-05",
