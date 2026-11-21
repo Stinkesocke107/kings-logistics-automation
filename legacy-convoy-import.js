@@ -1,12 +1,15 @@
 // Legacy refresh preservation verification: deleted source threads must remain frozen.
 const fs = require('fs');
 const path = require('path');
+const { encryptLegacyArchive, decryptLegacyArchive, sanitizeLegacyPublicArchive } = require('./legacy-convoy-privacy');
 
 const DISCORD_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const DISCORD_API = 'https://discord.com/api/v10';
 const TMP_API = 'https://api.truckersmp.com/v2';
 const OUTPUT = path.join(__dirname, 'data', 'legacy-convoys.json');
+const PRIVATE_OUTPUT = path.join(__dirname, 'data', 'legacy-convoys-private.json');
+const PRIVATE_KEY = process.env.LEGACY_PRIVATE_STATE_KEY;
 const SUMMARY = path.join(__dirname, 'data', 'legacy-convoys-import-summary.json');
 
 const MONTHS = [
@@ -18,8 +21,8 @@ const MONTHS = [
   { label: 'March 2027', year: 2027, month: 3, channelId: '1525976979902300160' }
 ];
 
-if (!DISCORD_TOKEN) {
-  console.error('DISCORD_BOT_TOKEN is missing.');
+if (!DISCORD_TOKEN || !PRIVATE_KEY || Buffer.byteLength(String(PRIVATE_KEY), 'utf8') < 32) {
+  console.error('Kings Legacy Convoy import blocked: required protected credentials unavailable.');
   process.exit(1);
 }
 
@@ -407,14 +410,21 @@ function isCancelled(messages) {
 }
 
 function loadPreviousLegacy() {
+  if (fs.existsSync(PRIVATE_OUTPUT)) {
+    try {
+      const stored = JSON.parse(fs.readFileSync(PRIVATE_OUTPUT, 'utf8'));
+      return decryptLegacyArchive(stored, PRIVATE_KEY).convoys;
+    } catch {
+      throw new Error('Previously encrypted Kings Legacy archive unavailable or invalid; refusing import.');
+    }
+  }
   if (!fs.existsSync(OUTPUT)) return [];
-
   try {
-    const data = JSON.parse(fs.readFileSync(OUTPUT, 'utf8'));
-    return Array.isArray(data?.convoys) ? data.convoys : [];
-  } catch (error) {
-    console.warn(`Previous Legacy Convoy file could not be read for preservation: ${error.message}`);
-    return [];
+    const existing = JSON.parse(fs.readFileSync(OUTPUT, 'utf8'));
+    if (!Array.isArray(existing?.convoys)) throw new Error('Invalid archive');
+    return existing.convoys;
+  } catch {
+    throw new Error('Previous public Legacy archive invalid; refusing unsafe reset.');
   }
 }
 
@@ -641,14 +651,19 @@ async function main() {
   };
 
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
-  fs.writeFileSync(OUTPUT, `${JSON.stringify(output, null, 2)}\n`, 'utf8');
+  // Preserve all original staff notes and evidence in a distinct encrypted
+  // state. Write only the derived, minimised public projection to Git.
+  const sealed = encryptLegacyArchive(output, PRIVATE_KEY);
+  const publicOutput = sanitizeLegacyPublicArchive(output);
+  fs.writeFileSync(PRIVATE_OUTPUT, `${JSON.stringify(sealed, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(OUTPUT, `${JSON.stringify(publicOutput, null, 2)}\n`, 'utf8');
   fs.writeFileSync(SUMMARY, `${JSON.stringify({
     version: 1,
     importedAt,
-    summary: output.summary,
+    summary: publicOutput.summary,
     monthStats,
     duplicateEventIds,
-    failures
+    failures: publicOutput.failures
   }, null, 2)}\n`, 'utf8');
 
   console.log('Kings Legacy Convoy import completed.');
@@ -670,6 +685,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('Kings Legacy Convoy import failed:', error.stack || error.message);
+  console.error('Kings Legacy Convoy import failed safely (private details withheld).');
   process.exit(1);
 });
