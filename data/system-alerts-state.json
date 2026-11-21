@@ -73,14 +73,14 @@
         "completedAt": "2026-11-21T02:07:00Z"
       },
       "firstAlertedAt": "2026-11-21T02:07:23.299Z"
+    },
+    "workflow-no-runs:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-11-21T02:19:06.722Z"
     }
   },
-  "pending": {
-    "workflow-no-runs:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-21T02:17:49.339Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has no workflow runs."
-    }
-  }
+  "pending": {}
 }
