@@ -36,3 +36,25 @@ test('event-driven audit never writes to Discord or logs message content',()=>{
  assert.doesNotMatch(src,/console\.log\([^\n]*\.content/);
  assert.match(src,/if\(missing\)throw/);
 });
+
+test('event-driven read-only audit retries bounded Discord rate limits without POSTs',async()=>{
+ const a=require('../discord-event-driven-publication-audit');
+ const calls=[];
+ const transport=async (_url,init)=>{
+   calls.push(init.method);
+   if(calls.length===1)return new Response('{}',{status:429,headers:{'retry-after':'0'}});
+   if(calls.length===2)return new Response('{}',{status:503});
+   return new Response('{"ok":true}',{status:200});
+ };
+ const waits=[];
+ const result=await a.getJson('https://discord.com/api/v10/channels/123/messages',{},transport,async ms=>{waits.push(ms);});
+ assert.equal(result.ok,true);
+ assert.deepEqual(calls,['GET','GET','GET']);
+ assert.equal(waits.length,2);
+ assert.ok(waits.every(n=>Number.isInteger(n)&&n>=0&&n<=10000));
+});
+test('event-driven audit fails closed after bounded transient retries',async()=>{
+ const a=require('../discord-event-driven-publication-audit');
+ const transport=async()=>new Response('{}',{status:429,headers:{'retry-after':'0'}});
+ await assert.rejects(()=>a.getJson('https://discord.com/api/v10/channels/123/messages',{},transport,async()=>{}),/discord-read-transient-exhausted/);
+});
