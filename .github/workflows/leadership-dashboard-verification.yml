@@ -10,6 +10,8 @@ on:
       - 'leadership-dashboard.js'
       - 'hr-driver-register-status.js'
       - 'discord-fixed-message-audit.js'
+      - 'discord-leadership-content-audit.js'
+      - 'tests/discord-leadership-content-audit.test.cjs'
       - 'discord-channel-inventory-audit.js'
       - 'discord-publication-content-audit.js'
       - 'discord-webhook-destination-audit.js'
@@ -65,6 +67,7 @@ jobs:
           node --check management-monthly-report.js
           node --check weekly-reports-verifier-v2.js
           node --check discord-fixed-message-audit.js
+          node --check discord-leadership-content-audit.js
           node --check discord-channel-inventory-audit.js
           node --check discord-publication-content-audit.js
           node --check discord-webhook-destination-audit.js
@@ -86,6 +89,13 @@ jobs:
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
           CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
         run: node discord-fixed-message-audit.js
+
+      - name: Verify all five current consolidated Leadership content contracts (read-only)
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: |
+          node --test tests/discord-leadership-content-audit.test.cjs
+          node discord-leadership-content-audit.js
 
       - name: Verify mapped Kings Discord channels (read-only, no posts or member reads)
         env:
