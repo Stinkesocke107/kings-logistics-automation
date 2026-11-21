@@ -48,9 +48,28 @@ test('individual human grants need private authorization and cannot be guessed f
  const c=channel();c.permission_overwrites.push(overwrite('1999999999999999999',1,power('VIEW_CHANNEL')));
  assert.equal(A.assessChannel(target,c,roles,context).reason,'individual-view-grant-needs-private-authorization');
 });
-test('an unrelated global Administrator role is potential bypass despite everyone deny',()=>{
+test('an unrelated Administrator role without member-assignment proof is ADVISORY, never VERIFIED',()=>{
  const withAdmin=[...roles,{id:'1900000000000000000',name:'External Partner',permissions:power('ADMINISTRATOR')}];
- assert.equal(A.assessChannel(target,channel(),withAdmin,context).reason,'unrelated-administrator-role-may-bypass-privacy');
+ assert.deepEqual(A.assessChannel(target,channel(),withAdmin,context),{
+  status:'ADVISORY',reason:'administrator-role-bypass-assignment-not-verified'
+ });
+});
+test('a broad explicit view permission is a hard failure even if an Administrator role also exists',()=>{
+ const withAdmin=[...roles,{id:'1900000000000000000',name:'External Partner',permissions:power('ADMINISTRATOR')}];
+ const c=channel();c.permission_overwrites.push(overwrite(roleDriver,0,power('VIEW_CHANNEL')));
+ assert.equal(A.assessChannel(target,c,withAdmin,context).reason,'nonapproved-role-explicit-view-grant');
+});
+test('@everyone with Administrator power is a hard failure, not a role-assignment advisory',()=>{
+ const everyoneAdmin=roles.map(r=>r.id===guild?{...r,permissions:power('ADMINISTRATOR')}:r);
+ assert.deepEqual(A.assessChannel(target,channel(),everyoneAdmin,context),{
+  status:'UNVERIFIED',reason:'everyone-administrator-can-bypass-privacy'
+ });
+});
+test('privacy failures take priority over non-approved Administrator advisory',()=>{
+ const withAdmin=[...roles,{id:'1900000000000000000',name:'External Partner',permissions:power('ADMINISTRATOR')}];
+ const notPrivate=channel();notPrivate.permission_overwrites[0].deny='0';
+ assert.equal(A.assessChannel(target,notPrivate,withAdmin,context).reason,'everyone-view-not-safely-denied');
+ assert.equal(A.assessChannel(target,channel(),withAdmin,{...context,botRoleIds:[]}).reason,'bot-minimum-read-access-unverified');
 });
 test('bot permission and bot Administrator policies fail closed',()=>{
  assert.equal(A.assessChannel(target,channel(),roles,{...context,botRoleIds:[]}).reason,'bot-minimum-read-access-unverified');
@@ -80,6 +99,25 @@ test('all Discord requests are GET and no message/history/human roster is fetche
  assert.equal(requested.length,4);
  assert.ok(requested.every(r=>r.method==='GET'));
  assert.ok(!requested.some(r=>/messages|members\?|members\%3F/.test(r.url)));
+});
+test('read-only Discord audit reports administrator potential separately from a proven channel misconfiguration',async()=>{
+ const requests=[];
+ const withAdmin=[...roles,{id:'1900000000000000000',name:'External Partner',permissions:power('ADMINISTRATOR')}];
+ const transport=async(url,options)=>{
+  requests.push({url,method:options.method});
+  if(url.endsWith('/users/@me'))return new Response(JSON.stringify({id:bot}),{status:200});
+  if(url.endsWith('/roles'))return new Response(JSON.stringify(withAdmin),{status:200});
+  if(url.endsWith('/channels'))return new Response(JSON.stringify([channel()]),{status:200});
+  if(url.endsWith('/members/'+bot))return new Response(JSON.stringify({roles:[roleBot]}),{status:200});
+  return new Response('{}',{status:404});
+ };
+ const results=await A.audit({transport,targets:[
+  target,{key:'hr-decision-ledger',id:'',kind:'hr',required:false},
+  {key:'hr-private-case-view',id:'',kind:'hr',required:false}
+ ]});
+ assert.deepEqual(results.map(r=>r.status),['ADVISORY','NOT_CONFIGURED','NOT_CONFIGURED']);
+ assert.ok(requests.every(r=>r.method==='GET'));
+ assert.ok(!requests.some(r=>r.url.includes('/messages')||/members\\?/.test(r.url)));
 });
 test('HR-specific approval roles differ from ordinary Staff',()=>{
  const hrTarget={key:'hr-decisions',id:A.REGISTER,kind:'hr'};
