@@ -41,6 +41,16 @@ const SOURCES = Object.freeze({
     fields: Object.freeze(['online_now','last_verified_online_at']),
     noPublicPersonalData: true
   }),
+  hrAdmissions: Object.freeze({
+    name: 'Human-approved Kings HR Driver Admissions and Re-entry Decisions',
+    authority: 'hr-human-approved-private-discord',
+    status: 'opt-in-source-not-yet-configured',
+    privacy: 'restricted',
+    fields: Object.freeze([
+      'hr_driver_admission_decision','hr_driver_return_decision','hr_approval_ticket_ref'
+    ]),
+    noPublicPersonalData: true
+  }),
   staff: Object.freeze({
     name: 'Verified Kings Staff Roles and Encrypted HR Records',
     authority: 'discord-roles-plus-hr-approval',

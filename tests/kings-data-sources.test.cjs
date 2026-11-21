@@ -42,6 +42,10 @@ test('each source owns only its verified fields; Discord join and VTC join are n
   assert.equal(sourceFor('tmp_vtc_join_date').key,'tmpVtc');
   assert.equal(sourceFor('online_now').key,'liveOnline');
   assert.equal(sourceFor('approved_award_winner').key,'awards');
+  assert.equal(sourceFor('hr_driver_admission_decision').key,'hrAdmissions');
+  assert.equal(sourceFor('hr_driver_return_decision').key,'hrAdmissions');
+  assert.equal(sourceFor('hr_approval_ticket_ref').key,'hrAdmissions');
+  assert.equal(SOURCES.hrAdmissions.status,'opt-in-source-not-yet-configured');
   assert.equal(sourceFor('verified_active_subscription').key,'supporter');
   assert.equal(sourceFor('discord_joined_at'),null);
   assert.equal(sourceFor('unverified_player_nickname'),null);

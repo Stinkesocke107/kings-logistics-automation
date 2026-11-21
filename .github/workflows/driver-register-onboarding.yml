@@ -8,6 +8,8 @@ on:
       - '.github/workflows/driver-register-onboarding.yml'
       - 'driver-tmp-vtc-register-review.js'
       - 'hr-driver-intake-review.js'
+      - 'hr-driver-decision-source.js'
+      - 'hr-driver-decision-audit.js'
       - 'kings-data-sources.js'
   schedule:
     # Once daily, 07:17 UTC (08:17 CET / 09:17 CEST).
@@ -38,6 +40,8 @@ jobs:
           node --check driver-identity-register.js
           node --check kings-data-sources.js
           node --check hr-driver-intake-review.js
+          node --check hr-driver-decision-source.js
+          node --check hr-driver-decision-audit.js
           node --check driver-loyalty-register.js
           node --check driver-welcome-register-review.js
           node --check driver-tmp-vtc-register-review.js
@@ -46,3 +50,9 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           KINGS_TMP_VTC_REVIEW_MODE: audit-driver-only-publish
         run: node driver-tmp-vtc-register-review.js
+
+      - name: Read-only HR first-admission and returner decision evidence
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_HR_DECISIONS_CHANNEL_ID: ${{ secrets.KINGS_HR_DECISIONS_CHANNEL_ID }}
+        run: node hr-driver-decision-audit.js
