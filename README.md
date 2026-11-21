@@ -6,6 +6,7 @@ Automation systems and tools for Kings Logistics.
 
 - [Current workflow inventory](docs/KINGS-ALL-SYSTEMS-INVENTORY.md) — 44 registered workflows (32 scheduled, 12 on-demand) as of 21 November 2026.
 - [Kings Data Sources Masterplan](docs/KINGS-DATA-SOURCES-MASTERPLAN.md) — authoritative private Discord Driver ID/join-date register, data-source field ownership, future Driver onboarding, privacy boundaries and planned Staff/Partner/Event/Award sources.
+- [Kings Staff & Leadership Data Sources](docs/KINGS-STAFF-DATA-SOURCES.md) — verified Discord Staff-role coverage separately from TMP VTC Staff classifications and not-yet-configured human Staff appointment decisions.
 - [HR admissions and private case view](docs/KINGS-HR-ADMISSION-DECISIONS.md) — independent human approval evidence, confidential individual-case review and manually gated Discord publication; not a replacement for the original Kings joining-date register.
 - [Kings Social Video News retirement](SOCIAL-NEWS-SETUP.md) — the unused YouTube automation was retired; TruckersMP News and external PostPing continue.
 
