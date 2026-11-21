@@ -161,6 +161,14 @@ function activeDriverSourceCoverage(register, activeDiscordDriverIds, at=new Dat
     }
     set.add(String(rawId));
   }
+  if (!set.size) {
+    return Object.freeze({
+      status:'no-active-drivers',
+      activeDrivers:0,registered:null,missing:null,
+      platformLinksPresent:null,
+      authority:'management-approved-private-discord'
+    });
+  }
   if (!registeredSourceAvailable(register)) {
     return Object.freeze({
       status:'source-unavailable',
