@@ -1,6 +1,6 @@
 # Kings Logistics Automation — Final Core Documentation
 
-**Documentation date:** 30 September 2026  
+> **HISTORISCHER STAND (30. September 2026):** Dieser technische Baseline-Leitfaden ist ein Zeitdokument und nicht der verbindliche November-2026-Produktionszustand. Aktueller Einstiegspunkt: [Kings System- und Betriebshandbuch (21.11.2026)](KINGS-AUTOMATION-OPERATING-GUIDE-2026-11-21.md). Für den echten aktuellen Stand gelten die aktiven `.github/workflows/`, `kings-workflow-registry.js` und verifizierte Live-Runs. Alte Healthy-/Freeze-Vermerke beweisen keine aktuelle Map-API-Gesundheit.\n\n**Documentation date:** 30 September 2026  
 **Repository:** `Stinkesocke107/kings-logistics-automation`  
 **Production branch:** `main`  
 **Runtime:** GitHub Actions + Node.js 24  
