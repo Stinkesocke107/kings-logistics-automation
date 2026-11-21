@@ -324,21 +324,6 @@ function webhookBase() {
   return STATS_DISCORD_WEBHOOK_URL.split('?')[0].replace(/\/$/, '');
 }
 
-async function createMessage(embed) {
-  const url = new URL(STATS_DISCORD_WEBHOOK_URL);
-  url.searchParams.set('wait', 'true');
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ embeds: [embed], allowed_mentions: { parse: [] } }),
-    signal: AbortSignal.timeout(15000)
-  });
-  if (!response.ok) throw new Error(`Statistics Discord create failed: HTTP ${response.status} - ${await response.text()}`);
-  const message = await response.json();
-  if (!message?.id) throw new Error('Discord did not return a Statistics message ID.');
-  return String(message.id);
-}
-
 async function updateMessage(messageId, embed) {
   const response = await fetch(`${webhookBase()}/messages/${messageId}`, {
     method: 'PATCH',
@@ -346,20 +331,18 @@ async function updateMessage(messageId, embed) {
     body: JSON.stringify({ embeds: [embed], allowed_mentions: { parse: [] } }),
     signal: AbortSignal.timeout(15000)
   });
-  if (response.status === 404) return false;
-  if (!response.ok) throw new Error(`Statistics Discord update failed: HTTP ${response.status} - ${await response.text()}`);
+  if (response.status === 404) throw new Error('Statistics stored Discord message missing or webhook ownership changed; refusing duplicate publication.');
+  if (!response.ok) throw new Error(`Statistics Discord update failed: HTTP ${response.status}.`);
   return true;
 }
 
 async function syncDiscord(state, embed) {
-  if (state.messageId && await updateMessage(state.messageId, embed)) {
-    console.log('Existing Kings Statistics message updated.');
-    return false;
+  if (!/^\d{17,20}$/.test(String(state?.messageId || ''))) {
+    throw new Error('Statistics stored Discord message ID missing or invalid; refusing duplicate publication.');
   }
-
-  state.messageId = await createMessage(embed);
-  console.log(`New Kings Statistics message created: ${state.messageId}`);
-  return true;
+  await updateMessage(state.messageId, embed);
+  console.log('Existing Kings Statistics message updated.');
+  return false;
 }
 
 async function main() {
