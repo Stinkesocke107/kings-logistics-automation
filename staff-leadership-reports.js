@@ -447,6 +447,10 @@ async function runDaily(state, reportState) {
     messageId: reportState.messageIds.daily,
     createWithoutDiscovery: true
   });
+  if (result.action === 'suppressed') {
+    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    return;
+  }
   reportState.messageIds.daily = result.messageId || reportState.messageIds.daily;
 
   if (!reportState.publishedDailyKeys.includes(period.key)) reportState.publishedDailyKeys.push(period.key);
@@ -475,6 +479,10 @@ async function runWeekly(state, reportState) {
     messageId: reportState.messageIds.weekly,
     createWithoutDiscovery: true
   });
+  if (result.action === 'suppressed') {
+    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    return;
+  }
   reportState.messageIds.weekly = result.messageId || reportState.messageIds.weekly;
 
   const record = {
@@ -518,6 +526,10 @@ async function runMonthly(state, reportState) {
     messageId: reportState.messageIds.monthly,
     createWithoutDiscovery: true
   });
+  if (result.action === 'suppressed') {
+    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    return;
+  }
   reportState.messageIds.monthly = result.messageId || reportState.messageIds.monthly;
 
   const record = {
