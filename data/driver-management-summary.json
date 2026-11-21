@@ -27,71 +27,7 @@
     "oneToTwoYears": 27,
     "twoToThreeYears": 7,
     "threeYearsPlus": 1,
-    "unknown": 0,
-    "longestServing": [
-      {
-        "tmpId": 4891248,
-        "username": "Stinkesocke107",
-        "joinDate": "2023-07-09T19:25:36.000Z",
-        "tenureDays": 1230
-      },
-      {
-        "tmpId": 5419500,
-        "username": "Magierjuwel",
-        "joinDate": "2024-03-19T21:42:42.000Z",
-        "tenureDays": 976
-      },
-      {
-        "tmpId": 5318474,
-        "username": "Paul Brandt",
-        "joinDate": "2024-04-22T19:19:44.000Z",
-        "tenureDays": 942
-      },
-      {
-        "tmpId": 5358213,
-        "username": "Taser00700",
-        "joinDate": "2024-06-25T21:42:19.000Z",
-        "tenureDays": 878
-      },
-      {
-        "tmpId": 5655769,
-        "username": "JackyJack",
-        "joinDate": "2024-10-19T21:14:31.000Z",
-        "tenureDays": 762
-      }
-    ],
-    "newestDrivers": [
-      {
-        "tmpId": 5662742,
-        "username": "4Noah4",
-        "joinDate": "2026-11-21T15:11:34.000Z",
-        "tenureDays": 0
-      },
-      {
-        "tmpId": 6266493,
-        "username": "Ahmad_SY",
-        "joinDate": "2026-11-21T01:15:51.000Z",
-        "tenureDays": 0
-      },
-      {
-        "tmpId": 265673,
-        "username": "ItsHarryUK",
-        "joinDate": "2026-11-08T12:13:30.000Z",
-        "tenureDays": 13
-      },
-      {
-        "tmpId": 6403863,
-        "username": "TyrantDiablos",
-        "joinDate": "2026-11-04T17:55:35.000Z",
-        "tenureDays": 16
-      },
-      {
-        "tmpId": 3321675,
-        "username": "Bohm33d",
-        "joinDate": "2026-11-01T06:16:04.000Z",
-        "tenureDays": 20
-      }
-    ]
+    "unknown": 0
   },
   "rules": {
     "infoDays": 7,
