@@ -848,62 +848,6 @@ function buildDiscordEmbeds(
 // CREATE / UPDATE DISCORD MESSAGE
 // ======================================================
 
-async function createDiscordMessage(
-  embeds
-) {
-  const response =
-    await fetch(
-      `${DISCORD_WEBHOOK_URL}?wait=true`,
-      {
-        method:
-          "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body:
-          JSON.stringify({
-            content:
-              "",
-
-            embeds
-          })
-      }
-    );
-
-  if (!response.ok) {
-    const errorText =
-      await response.text();
-
-    throw new Error(
-      `Discord message creation failed: HTTP ${response.status} - ${errorText}`
-    );
-  }
-
-  const message =
-    await response.json();
-
-  if (
-    !message ||
-    !message.id
-  ) {
-    throw new Error(
-      "Discord did not return a Live Tracker message ID."
-    );
-  }
-
-  console.log("");
-  console.log(
-    "New Discord Live Tracker message created successfully."
-  );
-
-  return String(
-    message.id
-  );
-}
-
 async function updateDiscordMessage(
   players
 ) {
@@ -924,9 +868,7 @@ async function updateDiscordMessage(
     getStoredDiscordMessageId();
 
   if (!messageId) {
-    return createDiscordMessage(
-      embeds
-    );
+    throw new Error('Live Tracker stored Discord message ID missing or invalid; refusing to create another message.');
   }
 
   const editUrl =
@@ -964,25 +906,11 @@ async function updateDiscordMessage(
     return messageId;
   }
 
-  if (
-    response.status ===
-    404
-  ) {
-    console.warn(
-      "Stored Live Tracker message cannot be edited by the current webhook. Creating a new message."
-    );
-
-    return createDiscordMessage(
-      embeds
-    );
+  if (response.status === 404) {
+    throw new Error('Live Tracker stored Discord message is missing or webhook ownership changed; refusing duplicate publication.');
   }
 
-  const errorText =
-    await response.text();
-
-  throw new Error(
-    `Discord update failed: HTTP ${response.status} - ${errorText}`
-  );
+  throw new Error(`Live Tracker Discord update failed: HTTP ${response.status}.`);
 }
 
 // ======================================================
