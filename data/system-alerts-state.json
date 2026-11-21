@@ -140,6 +140,16 @@
         "maxAgeMinutes": 90
       },
       "firstAlertedAt": "2026-11-21T22:42:15.566Z"
+    },
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
+      "details": {
+        "runId": 44961263261,
+        "completedAt": "2026-11-21T23:20:34Z"
+      },
+      "firstAlertedAt": "2026-11-21T23:20:56.532Z"
     }
   },
   "pending": {}
