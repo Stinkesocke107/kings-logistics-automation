@@ -696,7 +696,7 @@ test('Loyalty Discord integration: dry-run cannot mutate and live touches cosmet
   assert.ok(changes.some(x=>x.url.includes('/100000000000000001/roles/')));
   assert.ok(changes.some(x=>x.url.includes('/100000000000000003/roles/')));
   assert.ok(changes.every(x=>!x.url.includes('/100000000000000004/')));
-  assert.ok(changes.every(x=>/\\/roles\\/(201|21[0-7])$/.test(x.url)),'Never mutate Driver, Staff or other Kings roles');
+  assert.ok(changes.every(x=>/\/roles\/(201|21[0-7])$/.test(x.url)),'Never mutate Driver, Staff or other Kings roles');
   assert.ok(!changes.some(x=>x.url.endsWith('/roles/1204836048845410405')));
   assert.equal(live.files.has('data/driver-loyalty-roles.json'),false);
 
