@@ -69,3 +69,29 @@ test('Discord Kings System Monitor aggregates every area without stale leadershi
     assert.match(output,/healthy$/,group);
   }
 });
+
+
+test('published workflow inventory stays synchronized with the source registry', () => {
+  const doc=fs.readFileSync(path.join(root,'docs','KINGS-ALL-SYSTEMS-INVENTORY.md'),'utf8');
+  const count=WORKFLOW_REGISTRY.length;
+  assert.ok(doc.includes('('+count+' aktive Workflows)'), 'Public inventory heading must show current count');
+  assert.ok(doc.includes('**'+count+' erfasst**'), 'Public inventory summary must show current count');
+  assert.ok(doc.includes('**'+SCHEDULED_WORKFLOWS.length+' automatisch eingeplant**'), 'Scheduled count in documentation must match registry');
+  assert.ok(doc.includes('**'+ON_DEMAND_WORKFLOWS.length+' ohne eigenen Dauer-Zeitplan**'), 'On-demand count in documentation must match registry');
+
+  // Only Markdown rows with real workflow filenames count. Historic numbers
+  // in narrative text must never accidentally satisfy the live inventory.
+  const rows=[...doc.matchAll(/^\| `([\w-]+\.yml)` \| ([^|]+)\|/gm)]
+    .map(([,file,operation])=>({file,operation:operation.trim()}));
+  assert.deepEqual(rows.map(row=>row.file).sort(),
+    WORKFLOW_REGISTRY.map(workflow=>workflow.file).sort(),
+    'Each actual workflow must appear exactly once in the published inventory');
+
+  const operationByFile=new Map(rows.map(({file,operation})=>[file,operation]));
+  for (const workflow of WORKFLOW_REGISTRY) {
+    const operation=operationByFile.get(workflow.file);
+    if (workflow.mode==='scheduled') assert.equal(operation,'Automatisch',workflow.file);
+    else if (workflow.mode==='manual') assert.equal(operation,'Nur manuell',workflow.file);
+    else assert.match(operation,/^Bei Codeänderungen/,workflow.file);
+  }
+});
