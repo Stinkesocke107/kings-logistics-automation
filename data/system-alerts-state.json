@@ -96,5 +96,12 @@
       "firstAlertedAt": "2026-11-21T08:52:18.553Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-schedule-late:driver-register-onboarding.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-21T16:04:26.143Z",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding scheduled run started 482 minutes after its UTC slot."
+    }
+  }
 }
