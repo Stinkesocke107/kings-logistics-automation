@@ -277,7 +277,8 @@ test('Discord-only private audit publishes missing active Kings Driver IDs witho
   };
   const result=await review({token:'test-token',transport,mode:'audit-driver-only-preview'});
   assert.equal(result.type,'audit-driver-only');
-  assert.deepEqual(result.counts,{currentDrivers:2,registered:1,missingRecords:1,complete:false});
+  assert.deepEqual(result.counts,{currentDrivers:2,registered:1,missingRecords:1,
+    platformLinksPresent:1,sourceStatus:'incomplete',complete:false});
   const published=result.pages.map(p=>p.content).join('\n');
   assert.ok(result.pages.every(p=>p.marker.startsWith('👑 **Kings Driver Registration Queue | ')));
   assert.ok(published.includes(D2));
