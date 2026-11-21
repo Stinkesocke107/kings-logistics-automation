@@ -19,6 +19,12 @@ const CONVOY_CHANNEL='1550619865805754378';
 const STAFF_TITLE='Kings Staff Leadership — Live Role Overview';
 const MONITOR_MARKER='👑 **Kings Systems — Live Monitor**';
 const CONVOY_MARKER='👑 **Kings Logistics | Convoy Overview**';
+ // Proven existing fixed targets from successful Kings production writers:
+ // system-monitoring run 44949376230 / convoy-checker run 44948817547.
+ // Both originals are older than the latest 100 channel messages; look them up
+ // directly by ID, and inspect recent history separately for duplicates.
+ const MONITOR_FIXED_MESSAGE_ID='1551779478269599746';
+ const CONVOY_FIXED_MESSAGE_ID='1550990101838954508';
 
 function read(file){
  try{return JSON.parse(fs.readFileSync(path.join(ROOT,'data',file),'utf8'));}
@@ -73,7 +79,7 @@ function verifyOutage(message,title) {
  if(!field||!String(field.value||'').includes('Unavailable — not zero'))
    return 'outage-online-unavailable-field-missing';
  const desc=String(embed.description||'');
- if(!desc.includes('temporarily unavailable')||!desc.includes('not being marked online or offline'))
+ if(!desc.includes('temporarily unavailable')||!/(?:No one is|not) being marked online or offline/i.test(desc))
    return 'outage-explanation-missing';
  return null;
 }
@@ -143,6 +149,17 @@ function verifyConvoyOverview(messages,botId,now=Date.now()){
    return 'convoy-overview-contract-missing';
  return null;
 }
+async function ownedFixedAndRecent(channelId,messageId,headers){
+ if(!validId(channelId)||!validId(messageId))throw Error('invalid fixed target configuration');
+ const [fixed,recent]=await Promise.all([
+   getJson(API+'/channels/'+channelId+'/messages/'+messageId,headers),
+   getJson(API+'/channels/'+channelId+'/messages?limit=100',headers)
+ ]);
+ if(!Array.isArray(recent)||String(fixed?.id||'')!==String(messageId))
+   throw Error('message query has no trusted fixed-message evidence');
+ // The fixed message may be in the recent page; count it only once.
+ return [fixed,...recent.filter(m=>String(m?.id||'')!==String(fixed.id))];
+}
 function findUnique(channels,name){
  const norm=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]/g,'');
  const selected=channels.filter(x=>[0,5].includes(Number(x?.type))&&norm(x?.name)===norm(name));
@@ -189,11 +206,11 @@ async function main(){
  const monitorId=Array.isArray(channels)?findUnique(channels,'system-monitor'):null;
  reports.push(await inspectKey('system-monitor-content',async()=>{
    if(!monitorId)return 'monitor-destination-missing';
-   const messages=await getJson(API+'/channels/'+monitorId+'/messages?limit=100',readOnly);
+   const messages=await ownedFixedAndRecent(monitorId,MONITOR_FIXED_MESSAGE_ID,readOnly);
    return verifyMonitor(messages,id,now);
  }));
  reports.push(await inspectKey('convoy-overview-content',async()=>{
-   const messages=await getJson(API+'/channels/'+CONVOY_CHANNEL+'/messages?limit=100',readOnly);
+   const messages=await ownedFixedAndRecent(CONVOY_CHANNEL,CONVOY_FIXED_MESSAGE_ID,readOnly);
    return verifyConvoyOverview(messages,id,now);
  }));
  for(const row of reports){
@@ -208,4 +225,4 @@ if(require.main===module)main().catch(()=>{
  console.error('Kings read-only publication content audit incomplete; no Discord writes attempted.');
  process.exitCode=1;
 });
-module.exports={OUTAGE,validId,ageOk,sourceIsFresh,webhookUrl,webhookIdentity,verifyOutage,verifyNormal,verifyStaff,verifyNews,verifyMonitor,verifyConvoyOverview,findUnique};
+module.exports={OUTAGE,validId,ageOk,sourceIsFresh,webhookUrl,webhookIdentity,verifyOutage,verifyNormal,verifyStaff,verifyNews,verifyMonitor,verifyConvoyOverview,findUnique,ownedFixedAndRecent,MONITOR_FIXED_MESSAGE_ID,CONVOY_FIXED_MESSAGE_ID};
