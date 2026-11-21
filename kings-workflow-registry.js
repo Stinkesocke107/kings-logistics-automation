@@ -117,6 +117,15 @@ const WORKFLOW_REGISTRY = Object.freeze(
       "severity": "critical"
     },
     {
+      "file": "driver-register-onboarding.yml",
+      "label": "Driver Registration Onboarding",
+      "mode": "scheduled",
+      "area": "Drivers",
+      "maxAgeMinutes": 2160,
+      "severity": "warning",
+      "optionalUntilFirstRun": true
+    },
+    {
       "file": "driver-tmp-vtc-review.yml",
       "label": "TruckersMP Driver VTC Date Review",
       "mode": "on-change",

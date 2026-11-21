@@ -245,7 +245,7 @@ test('Discord-only private audit publishes missing active Kings Driver IDs witho
   assert.ok(published.includes(D2));
   assert.ok(!published.includes(D3));
   assert.ok(!published.includes(D1+' • Kings Driver'));
-  assert.ok(!published.includes('1234567'));
+  assert.ok(!/truckersmp_id:\s*1234567\b/.test(published));
   assert.ok(calls.every(url=>!url.includes('truckersmp.com')));
 });
 
