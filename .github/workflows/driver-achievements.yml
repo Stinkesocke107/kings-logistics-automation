@@ -11,6 +11,11 @@ on:
         options:
           - dry-run
           - live
+      confirm_role_removals:
+        description: "I privately reviewed planned removals and authorize a maximum of five managed Loyalty-role removals (only effective with manual live mode)."
+        required: false
+        default: false
+        type: boolean
 
   push:
     branches: [main]
@@ -88,6 +93,7 @@ jobs:
           DISCORD_GUILD_ID: '1114967437788577792'
           DRIVER_LOYALTY_REGISTER_CHANNEL_ID: '1572736232969084948'
           DRIVER_LOYALTY_ROLE_MODE: ${{ steps.loyalty_mode.outputs.mode }}
+          DRIVER_LOYALTY_ROLE_REMOVALS_CONFIRMATION: ${{ github.event_name == 'workflow_dispatch' && inputs.confirm_role_removals == true && 'confirmed' || '' }}
         run: node driver-loyalty-roles.js
 
       # Scheduled/push read-only previews must also refresh the privacy-safe

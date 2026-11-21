@@ -12,7 +12,7 @@ const SUMMARY_FILE = path.join(__dirname, 'data', 'driver-loyalty-roles-summary.
 const DISCORD_API = 'https://discord.com/api/v10';
 const MANAGE_ROLES = 1n << 28n;
 const ADMINISTRATOR = 1n << 3n;
-const MAX_ROLE_REMOVALS_PER_RUN = 25;
+const MAX_ROLE_REMOVALS_PER_RUN = 5;
 const UMBRELLA_LABEL = 'Driver Loyalty';
 // Verified against the currently authoritative Driver Updates production log.
 // Do not confuse the real 77-member role with the similar 7-member separator role.
@@ -182,6 +182,27 @@ function planDiscordLoyalty(members, managed, now = new Date(), register = {enab
   }
   return { changes, stats };
 }
+// A manual live run must never fall back to Discord guild joined_at: it is
+// NOT the original Kings joining date. Destructive tier changes additionally
+// require a second explicit operator confirmation.
+function ensureLiveMutationAuthorized(plan, register, mode = SYNC_MODE,
+  removalConfirmation = process.env.DRIVER_LOYALTY_ROLE_REMOVALS_CONFIRMATION) {
+  if (mode !== 'live') return true;
+  if (!register?.enabled || !(register.records instanceof Map)) {
+    throw new Error('Live Loyalty sync blocked: the private original Kings joining-date register is unavailable.');
+  }
+  if (!Number.isInteger(plan?.stats?.roleRemovals) || plan.stats.roleRemovals < 0) {
+    throw new Error('Live Loyalty sync blocked: invalid role-removal count.');
+  }
+  if (plan.stats.roleRemovals > MAX_ROLE_REMOVALS_PER_RUN) {
+    throw new Error('Live Loyalty sync blocked: too many role removals; private management review required.');
+  }
+  if (plan.stats.roleRemovals > 0 && removalConfirmation !== 'confirmed') {
+    throw new Error('Live Loyalty removals blocked: explicit separate removal confirmation required after private review.');
+  }
+  return true;
+}
+
 async function discord(pathname, options = {}) {
   const method = String(options.method || 'GET').toUpperCase();
   if (SYNC_MODE !== 'live' && method !== 'GET') {
@@ -194,8 +215,8 @@ async function discord(pathname, options = {}) {
     signal: AbortSignal.timeout(15000)
   });
   const body = await response.text();
-  if (!response.ok) throw new Error('Discord ' + method + ' ' + pathname + ' HTTP ' +
-    response.status + ': ' + body.slice(0, 200));
+  if (!response.ok) throw new Error('Discord Loyalty request failed: ' + method +
+    ' HTTP ' + response.status + ' (member IDs and response body withheld).');
   return body ? JSON.parse(body) : null;
 }
 async function listGuildMembers() {
@@ -269,6 +290,9 @@ async function main() {
     channelName: process.env.DRIVER_LOYALTY_REGISTER_CHANNEL_NAME
   });
   const plan = planDiscordLoyalty(members, managed, new Date(), register);
+  // Fail before the first PUT/DELETE if the original Kings join-date register
+  // is missing or a role removal has not been separately confirmed.
+  ensureLiveMutationAuthorized(plan, register);
   const hierarchy = botCanManageRoles(botMember, roles, managed);
 
   if (SYNC_MODE === 'live' && (!hierarchy.hasManageRoles || hierarchy.blocked.length)) {
