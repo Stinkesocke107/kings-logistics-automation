@@ -10,6 +10,7 @@ on:
       - 'leadership-dashboard.js'
       - 'hr-driver-register-status.js'
       - 'discord-fixed-message-audit.js'
+      - 'discord-channel-inventory-audit.js'
       - 'driver-leadership-reports.js'
       - 'driver-weekly-summary.js'
       - 'hr-leadership-reports.js'
@@ -56,6 +57,7 @@ jobs:
           node --check management-monthly-report.js
           node --check weekly-reports-verifier-v2.js
           node --check discord-fixed-message-audit.js
+          node --check discord-channel-inventory-audit.js
 
       - name: Verify existing fixed Discord messages (read-only, no posts)
         env:
@@ -69,3 +71,9 @@ jobs:
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
           CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
         run: node discord-fixed-message-audit.js
+
+      - name: Verify mapped Kings Discord channels (read-only, no posts or member reads)
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+        run: node discord-channel-inventory-audit.js
