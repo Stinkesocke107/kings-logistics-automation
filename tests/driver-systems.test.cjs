@@ -457,6 +457,8 @@ test('Loyalty workflow never publishes Leadership achievements while Driver Upda
 
 
 test('legacy TMP achievement messages cannot claim automatic loyalty roles or wrong Kings joining dates', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
   const source = fs.readFileSync(path.join(__dirname, '../driver-achievements.js'), 'utf8');
   assert.match(source, /original Management-verified Kings joining date/);
   assert.match(source, /Loyalty role changes are processed separately and require authorization/);
