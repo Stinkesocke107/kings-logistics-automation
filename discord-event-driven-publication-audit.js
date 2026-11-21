@@ -16,13 +16,39 @@ function read(name){
 function status(key,state,reason){return {key,status:state,reason};}
 function validId(value){return SNOWFLAKE.test(String(value||''));}
 function timestamp(value){const ms=Date.parse(value||'');return Number.isFinite(ms)?ms:null;}
-async function getJson(url,headers={}){
-  const response=await fetch(url,{
-    method:'GET',headers:{Accept:'application/json',...headers},
-    signal:AbortSignal.timeout(15000)
-  });
-  if(!response.ok)throw Error('discord-read-error');
-  return response.json();
+async function getJson(url,headers={},transport=fetch,wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))){
+  const retryCodes=new Set([429,500,502,503,504]);
+  for(let attempt=0;attempt<3;attempt++){
+    let response;
+    try{
+      response=await transport(url,{
+        method:'GET',headers:{Accept:'application/json',...headers},
+        signal:AbortSignal.timeout(15000)
+      });
+    }catch{
+      if(attempt===2)throw Error('discord-read-network-failed');
+      await wait(Math.min(2500,(attempt+1)*700));
+      continue;
+    }
+    if(retryCodes.has(response.status)){
+      if(attempt===2)throw Error('discord-read-transient-exhausted');
+      const seconds=Number(response.headers?.get?.('retry-after'));
+      const delay=Number.isFinite(seconds)&&seconds>0
+        ? Math.min(10000,Math.ceil(seconds*1000))
+        : Math.min(2500,(attempt+1)*700);
+      await wait(delay);
+      continue;
+    }
+    if(!response.ok)throw Error('discord-read-http-'+response.status);
+    try{
+      const data=await response.json();
+      if(!data||typeof data!=='object')throw Error('discord-read-invalid-json');
+      return data;
+    }catch{
+      throw Error('discord-read-invalid-json');
+    }
+  }
+  throw Error('discord-read-unavailable');
 }
 function botHeaders(){
   return {Authorization:'Bot '+TOKEN,'User-Agent':'Kings Public Event Audit/1.0'};
@@ -163,7 +189,19 @@ async function alertsAudit(){
 }
 async function safely(name,callback){
   try{return await callback();}
-  catch{return status(name,'UNVERIFIED','read-only-proof-unavailable');}
+  catch(error){
+    // Only emit standardized non-sensitive failure classes; never raw API
+    // responses, URLs, member content, or webhook credentials.
+    const known=new Set([
+      'discord-read-network-failed','discord-read-transient-exhausted',
+      'discord-read-invalid-json','discord-read-unavailable','webhook-unconfigured',
+      'webhook-target-mismatch'
+    ]);
+    const message=String(error?.message||'');
+    const reason=known.has(message)?message:
+      /^discord-read-http-(401|403|404)$/.test(message)?message:'read-only-proof-unavailable';
+    return status(name,'UNVERIFIED',reason);
+  }
 }
 async function main(){
   if(!TOKEN)throw Error('Kings Bot auth unavailable');
@@ -187,4 +225,4 @@ if(require.main===module)main().catch(()=>{
   console.error('Kings event-driven read-only publication audit incomplete; no Discord writes attempted');
   process.exitCode=1;
 });
-module.exports={checkMonthlyMessage,checkChangelogMessages,milestoneExpectation,staffExpectation,alertMessageIsTechnical,boundedMessages};
+module.exports={checkMonthlyMessage,checkChangelogMessages,milestoneExpectation,staffExpectation,alertMessageIsTechnical,boundedMessages,getJson};
