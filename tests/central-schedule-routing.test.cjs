@@ -39,19 +39,16 @@ test('central scheduler recovery script is valid Bash and reads each producer sn
   assert.equal((script.match(/snapshot="\$\(managed_run_snapshot "\$workflow"\)"/g)||[]).length,1);
 });
 
-test('delayed daily Loyalty schedule uses only live-mode, bounded recovery with a persisted completion proof', () => {
+test('delayed daily Loyalty cannot trigger unapproved LIVE role writes via scheduler', () => {
   const scheduler=workflow('central-scheduler');
   const achievements=workflow('driver-achievements');
-  assert.match(scheduler,/recover_missed_daily_loyalty\(\)/);
-  assert.match(scheduler,/data\/driver-loyalty-roles-summary\.json/);
-  assert.match(scheduler,/last_epoch" -ge "\$due"/);
-  assert.match(scheduler,/due \+ 3600/);
-  assert.match(scheduler,/active_managed_run "\$snapshot"/);
-  assert.match(scheduler,/latest_completed_run "\$snapshot"/);
-  assert.ok(scheduler.includes('-f "inputs[role_sync_mode]=live"'), 'Fallback must not default to manual dry-run');
-  assert.match(scheduler,/dispatch_if_due news-production-verification\.yml 4500\s+recover_missed_daily_loyalty/);
+  assert.doesNotMatch(scheduler,/recover_missed_daily_loyalty/);
+  assert.doesNotMatch(scheduler,/inputs\[role_sync_mode\]=live/);
+  assert.doesNotMatch(scheduler,/actions\/workflows\/driver-achievements\.yml\/dispatches/);
+  assert.match(scheduler,/automatic role sync disabled/);
   assert.match(achievements,/DRIVER_LOYALTY_ROLE_MODE: \$\{\{ steps\.loyalty_mode\.outputs\.mode \}\}/);
-  assert.match(achievements,/if \[ "\$GITHUB_EVENT_NAME" = "schedule" \]; then[\s\S]*?MODE="live"/);
+  assert.match(achievements,/if \[ "\$GITHUB_EVENT_NAME" = "schedule" \]; then\s+MODE="dry-run"/);
+  assert.match(achievements,/elif \[ "\$GITHUB_EVENT_NAME" = "workflow_dispatch" \] && \[ "\$REQUESTED_MODE" = "live" \]; then/);
 });
 
 test('verification follows successful real producers, with independent hourly fallback', () => {

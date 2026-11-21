@@ -139,3 +139,12 @@ Die **Driver-Registrierung** wird täglich um 07:17 UTC (08:17 MEZ / 09:17 MESZ)
 - Insbesondere nach verspäteten GitHub-Cron-Läufen können echte Warnungen für Probation, Staff Leadership, Self-Healing oder andere Systeme erscheinen; das ist ein Signal für ein Produktionsproblem, nicht etwas, das wir aus den Prüfungen entfernen sollten.
 - Nicht alle 44 Workflows wurden im Rahmen dieser Änderung manuell ausgelöst: Manuelle Restore- oder Import-Werkzeuge sollen **niemals** nur zu Testzwecken echte Daten/Discord-Rechte verändern.
 - Ein erfolgreicher Offline-Test beweist Quellcode-/Konfigurationskonsistenz, nicht 24/7 Betriebszuverlässigkeit. Für eine Produktionsfreigabe echte Ausführung, Datenfrische und Discord-Zustellung über mindestens einen sinnvollen Zeitraum beobachten (für wöchentliche/monatliche Berichte über den entsprechenden Zeitraum).
+
+## Sicherheitskorrektur: Loyalty Live-Rollenänderungen nur nach autorisierter manueller Freigabe
+
+Der frühere Central-Scheduler-Fallback durfte einen ausgelassenen täglichen Loyalty-Lauf automatisch per `workflow_dispatch` im Modus `live` nachholen. Dies widerspricht dem seit PR #85/#90 dokumentierten operativen Grundsatz, dass Scheduled/Push nur `dry-run` sind und Live-Rollenänderungen privat vorab geprüft und explizit freigegeben werden müssen. **Dieser Fallback wurde aus `central-scheduler.yml` entfernt.**
+
+- Automatische Driver Loyalty Schedule-/Push-Runs sind **weiterhin strikt `dry-run`**.
+- `role_sync_mode=live` muss im bestehenden `driver-achievements.yml` bewusst manuell gewählt und nach geplanter Rollenaktion separat überprüft werden. Removal-Freigabe ist zusätzlich erforderlich.
+- Central Scheduler darf keine unbeaufsichtigte Personal-/Loyalty-Rollenänderung nachholen, auch nicht bei ausbleibendem Cron-Lauf.
+- Ein ausgefallener tatsächlicher manueller Live-Sync wird nicht als automatisch ausgeführt dargestellt; die Management-Entscheidung bleibt offen. Kein Rollen-Write durch diesen Sicherheits-Patch.
