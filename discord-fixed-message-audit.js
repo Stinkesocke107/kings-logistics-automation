@@ -61,6 +61,34 @@ function targets() {
     }))
   ];
 }
+
+// Only an aggregate status comparison, never member names or player records.
+// This validates what the two live Leadership embeds actually display using
+// the same Driver Management source that the producing dashboard reads.
+function expectedDriverObservation(summary, at = Date.now()) {
+  if (summary?.onlineObservationStatus !== 'verified-live') return 'Unavailable';
+  const count=summary.onlineNow;
+  if (!Number.isSafeInteger(count) || count<0 ||
+      (Number.isSafeInteger(summary.currentDrivers) && count>summary.currentDrivers)) {
+    return 'Unavailable';
+  }
+  const timestamp=Date.parse(summary.updatedAt || '');
+  if (!Number.isFinite(timestamp) || timestamp>at+5*60000 || at-timestamp>160*60000) {
+    return 'Unavailable';
+  }
+  return String(count);
+}
+function driverEmbeddedDataMatches(target, message) {
+  if (target.key !== 'driver' && target.key !== 'management') return true;
+  const driver=storedJson('driver-management-summary.json');
+  if (!driver || !Number.isSafeInteger(driver.currentDrivers) || driver.currentDrivers<0) return false;
+  const values=(message.embeds || []).flatMap(embed=>
+    Array.isArray(embed?.fields) ? embed.fields.map(field=>String(field?.value || '')) : []
+  ).join('\n');
+  return values.includes('VTC Drivers **'+driver.currentDrivers+'**') &&
+    values.includes('Online **'+expectedDriverObservation(driver)+'**');
+}
+
 async function inspect(target, transport=fetch) {
   if (!target.url || (LEADERSHIP.some(item=>item.key===target.key) && !BOT_TOKEN)) {
     return {label:target.label,status:'UNVERIFIED',reason:'configuration-or-stored-id-missing'};
@@ -76,6 +104,9 @@ async function inspect(target, transport=fetch) {
     if (!message || typeof message!=='object' || !validId(message.id) ||
         !Array.isArray(message.embeds) || message.embeds.length===0) {
       return {label:target.label,status:'UNVERIFIED',reason:'message-or-embed-invalid'};
+    }
+    if (!driverEmbeddedDataMatches(target,message)) {
+      return {label:target.label,status:'UNVERIFIED',reason:'driver-roster-or-online-status-drift'};
     }
     // Never output or store message bodies, embeds, IDs or player information.
     return {label:target.label,status:'VERIFIED',reason:'message-readable-with-embed'};
