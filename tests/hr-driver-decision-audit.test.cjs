@@ -86,7 +86,9 @@ test('authorized HR decisions verify first admission and return approvals for cu
     status:'complete-evidence',activeDrivers:2,originalIdentityRegistered:2,
     approvedFirst:1,approvedReturn:1,conflictingDecisions:0,
     approvedWithoutIdentity:0,noFormalDecisionEvidence:0,
-    verifiedDecisionEvents:2,authority:'hr-human-approved-private-discord'
+    verifiedDecisionEvents:2,authority:'hr-human-approved-private-discord',
+    privateCaseReviewCount:0,privateCaseViewPages:2,
+    legacyNoFormalEvidence:0
   });
   assert.ok(mock.calls.length>=7);
   assert.ok(mock.calls.every(c=>c.method==='GET'));
@@ -103,6 +105,9 @@ test('historical current Drivers without a stored HR decision remain NOT VERIFIE
   assert.equal(result.status,'partial-evidence');
   assert.equal(result.noFormalDecisionEvidence,2);
   assert.equal(result.approvedFirst,0);
+  assert.equal(result.privateCaseReviewCount,0);
+  assert.equal(result.privateCaseViewPages,1);
+  assert.equal(result.legacyNoFormalEvidence,2);
   assert.equal(result.conflictingDecisions,0);
 });
 
@@ -136,4 +141,49 @@ test('workflow checks decision source in existing daily audit but never writes H
   assert.doesNotMatch(script,/method:\s*['"](?:POST|PATCH|DELETE)['"]/);
   assert.doesNotMatch(script,/writeFileSync\(|appendFileSync\(/);
   assert.doesNotMatch(script,/console\.log\([^\n]*(?:discordId|ticketId|message\.content|approvedBy)/);
+});
+
+
+test('only authorized private callback receives HR identifiers; public audit output stays aggregate-only',async()=>{
+  const mock=mockServer();
+  let confidentialPages=null;
+  const result=await auditHrDecisions({
+    token:'fake-private',channelId:DECISIONS,transport:mock.transport,
+    privateCaseSink:async pages=>{confidentialPages=pages;}
+  });
+  assert.equal(result.privateCaseViewPages,2);
+  assert.equal(result.privateCaseReviewCount,0);
+  assert.ok(confidentialPages);
+  const detail=confidentialPages.map(p=>p.content).join('\\n');
+  assert.ok(detail.includes(A));
+  assert.ok(detail.includes(B));
+  assert.ok(detail.includes('HR ticket ID: 1777777777777777771'));
+  const safe=JSON.stringify(result);
+  for(const privateToken of [A,B,MGR,'1777777777777777771','2021-02-02']){
+    assert.ok(!safe.includes(privateToken),'Public aggregate must never include HR case details');
+  }
+  assert.ok(mock.calls.every(c=>c.method==='GET'));
+});
+
+test('without protected source configuration no private HR report is produced or sent',async()=>{
+  let calls=0,sinkCalls=0;
+  const r=await auditHrDecisions({
+    token:'fake',channelId:'',transport:async()=>{calls++;throw Error('No fetch');},
+    privateCaseSink:async()=>{sinkCalls++;}
+  });
+  assert.equal(r.status,'not-configured');
+  assert.equal(calls,0);
+  assert.equal(sinkCalls,0);
+});
+
+test('insecure decision source is rejected before confidential private pages reach a sink',async()=>{
+  const mock=mockServer({hrChannel:{...channel(DECISIONS),permission_overwrites:[
+    {id:GUILD,type:0,deny:'0',allow:'1024'}
+  ]}});
+  let sinkCalls=0;
+  await assert.rejects(auditHrDecisions({
+    token:'fake',channelId:DECISIONS,transport:mock.transport,
+    privateCaseSink:async()=>{sinkCalls++;}
+  }),/deny View Channel/);
+  assert.equal(sinkCalls,0);
 });
