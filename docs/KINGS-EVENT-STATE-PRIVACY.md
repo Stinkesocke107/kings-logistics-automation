@@ -18,3 +18,10 @@ Der erste berechtigte **nicht-Preview**-Lauf liest den alten State im Speicher u
 5. Ebenso das separat gefundene unverschlüsselte Legacy-Convoy-Archiv prüfen: Issue #100.
 
 **Grenzen:** Die Änderung ist bewusst auf Event Leadership State beschränkt; keine Änderungen an Driver-/Staff-/HR-Rollen, originalen Kings-Beitrittsdaten, Tracker-Onlinezahlen oder Event-Freigaben. Der konkrete Produktivlauf wird nicht durch diesen Pull Request ausgelöst.
+
+## 8. Einmalige State-Migration ohne Discord-Veröffentlichung
+Das bestehende Event Leadership `verify`-Job wird auf einem **Code-Push nach main** nun einmalig und idempotent um einen reinen State-Migrationsschritt erweitert (`scripts/migrate-event-leadership-state.js`). Der Schritt verwendet das bestehende private Secret, authentifiziert bestehende verschlüsselte Container und konvertiert nur bei erkennbarem, vollständig geprüftem alten Klartextzustand.
+
+Die Ausführung benutzt weder Discord-Bot-Token noch Discord-Netzwerkaufrufe. Nach erfolgreicher Konvertierung commitet sie ausschließlich `data/event-leadership-report-state.json` mittels des vorhandenen Safe-Push-Skripts; bei konkurrierender Änderung/fehlendem Key wird **abgebrochen**, statt fremde Inhalte zu überschreiben. Ein erneuter Code-Push ist dann no-op.
+
+**Nach der ersten produktiven Ausführung kontrollieren:** `encrypted === true` in `main`, nur `version`, `encrypted`, `algorithm`, `iv`, `authTag`, `ciphertext` als Containerfelder; keine Klartext-Personenlisten. Alte Commit-Historie bleibt davon unberührt.
