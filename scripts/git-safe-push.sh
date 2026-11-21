@@ -44,6 +44,35 @@ if [ "${#UNTRACKED_DATA[@]}" -gt 0 ]; then
   exit 1
 fi
 
+# Defense in depth against a producer still running an older checkout:
+# reject a public Driver summary containing per-person names, IDs or join dates
+# even when the commit was rebased onto a newer, privacy-safe main branch.
+validate_public_driver_privacy() {
+  local summary_file="data/driver-management-summary.json"
+  if [ ! -f "$summary_file" ]; then
+    return 0
+  fi
+  if ! node - "$summary_file" <<'NODE'
+const fs=require('fs');
+let json;
+try { json=JSON.parse(fs.readFileSync(process.argv[2],'utf8')); }
+catch { process.exit(1); }
+if (!json?.tenure || Array.isArray(json.tenure) || typeof json.tenure!=='object') {
+  process.exit(1);
+}
+if (Object.hasOwn(json.tenure,'longestServing') ||
+    Object.hasOwn(json.tenure,'newestDrivers')) {
+  process.exit(1);
+}
+const forbidden=/"(?:tmpId|username|joinDate|tenureDays|discordUserId)"\\s*:/;
+if (forbidden.test(JSON.stringify(json.tenure))) process.exit(1);
+NODE
+  then
+    echo "Safe push blocked personalized Driver data in the public summary; use current aggregate-only producer."
+    return 1
+  fi
+}
+
 retry_delay() {
   local attempt="$1"
   echo $((BASE_DELAY * attempt + RANDOM % 3))
@@ -114,6 +143,11 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
 
   if ! validate_rebased_json "origin/$BRANCH"; then
     echo "Safe push stopped because rebased JSON state is invalid."
+    exit 1
+  fi
+
+  if ! validate_public_driver_privacy; then
+    echo "Safe push stopped by Driver public-data privacy guard."
     exit 1
   fi
 
