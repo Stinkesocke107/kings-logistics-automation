@@ -7,6 +7,8 @@
 const {loadRegister}=require('./driver-loyalty-register');
 const {currentDrivers}=require('./driver-welcome-register-review');
 const {REGISTER_CHANNEL_ID}=require('./driver-register-completeness');
+const {buildPrivateHrCaseView,privateHrCasePages}=require('./hr-driver-case-view');
+const {publishPrivateHrCasePages}=require('./hr-driver-case-publisher');
 const {
   assertPrivateHrDecisionChannel,verifyHrDecisionMessages,
   auditCurrentHrDecisions,MAX_EVENTS
@@ -19,8 +21,12 @@ const ID=/^\d{17,20}$/;
 async function auditHrDecisions({
   token=process.env.DISCORD_BOT_TOKEN,
   channelId=process.env.KINGS_HR_DECISIONS_CHANNEL_ID,
-  transport=fetch
+  transport=fetch,
+  privateCaseSink=null
 }={}) {
+  if(privateCaseSink!==null && typeof privateCaseSink!=='function') {
+    throw new Error('Private HR case renderer must be an authorized in-memory callback.');
+  }
   if(!channelId) {
     // A missing decision channel is not evidence of HR approval. No network,
     // no name, ID, date or member record is read or written in this case.
@@ -95,7 +101,23 @@ async function auditHrDecisions({
     events.push(...batch);
     if(batch.length<100) {
       const evidence=verifyHrDecisionMessages(events,memberships,roles,guild.owner_id);
-      return auditCurrentHrDecisions(drivers,privateIdentityRegister,evidence);
+      const aggregate=auditCurrentHrDecisions(drivers,privateIdentityRegister,evidence);
+      // Individual IDs/tickets/original dates are rendered exclusively in
+      // memory, AFTER both protected sources have passed permission checks.
+      const privateView=buildPrivateHrCaseView(
+        drivers,privateIdentityRegister,evidence
+      );
+      const pages=privateHrCasePages(privateView);
+      if(privateCaseSink)await privateCaseSink(pages,{
+        token,transport,sourceChannelId:channelId,guildId:GUILD,
+        roles,members:memberships,ownerId:guild.owner_id,botId:bot.id
+      });
+      return Object.freeze({
+        ...aggregate,
+        privateCaseReviewCount:privateView.cases.filter(x=>x.needsHumanReview).length,
+        privateCaseViewPages:pages.length,
+        legacyNoFormalEvidence:privateView.stats.unverifiedHistoricalDecision
+      });
     }
     before=String(batch.at(-1)?.id||'');
     if(!ID.test(before))throw new Error('Invalid private HR decision history cursor.');
@@ -104,7 +126,21 @@ async function auditHrDecisions({
 }
 
 async function main() {
-  const result=await auditHrDecisions();
+  const publishRequested=process.env.KINGS_HR_CASE_VIEW_PUBLISH==='confirmed';
+  if(publishRequested && (!process.env.KINGS_HR_DECISIONS_CHANNEL_ID ||
+      !process.env.KINGS_HR_CASE_VIEW_CHANNEL_ID)) {
+    throw new Error('Private HR case view publication requires both approved, separate private channels.');
+  }
+  let publication=null;
+  const result=await auditHrDecisions({
+    privateCaseSink:publishRequested ? async(pages,context)=>{
+      // This callback is invoked ONLY after the decision source and original
+      // Kings identity register have both passed authorized access checks.
+      publication=await publishPrivateHrCasePages({
+        ...context,pages,channelId:process.env.KINGS_HR_CASE_VIEW_CHANNEL_ID
+      });
+    } : null
+  });
   if(result.status==='not-configured') {
     console.log('Private HR Driver decision source: NOT CONFIGURED. No historic HR approvals inferred.');
     return;
@@ -119,7 +155,15 @@ async function main() {
     '; conflicting decision evidence: '+result.conflictingDecisions+
     '; approved without original identity: '+result.approvedWithoutIdentity+
     '; historical decisions without verified evidence: '+result.noFormalDecisionEvidence+
-    '. No HR actions or Discord writes performed.');
+    '; private HR cases needing human review: '+result.privateCaseReviewCount+
+    '; private case pages prepared in memory: '+result.privateCaseViewPages+
+    '. No HR or personnel actions performed.'+
+    (publishRequested ? ' Confidential case pages refreshed only in the verified private HR report channel.' :
+      ' No Discord case-report writes performed.'));
+  if(publication)console.log('Private HR case view manually refreshed: '+
+    publication.pageCount+' pages, '+publication.created+' created, '+
+    publication.updated+' updated, '+publication.archived+
+    ' previous pages safely cleared. No case IDs or tickets logged.');
 }
 if(require.main===module)main().catch(()=>{
   console.error('Private HR Driver decision verification failed; no personal details published.');

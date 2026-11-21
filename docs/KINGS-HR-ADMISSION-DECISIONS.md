@@ -82,3 +82,34 @@ Der Scanner gibt **niemals** `POST`, `PATCH` oder `DELETE` an Discord aus. Auch 
 6. Bei wachsender Datenmenge über den professionellen verschlüsselten, revisionsfähigen Kings Driver Hub umziehen, ohne zwei konkurrierende editierbare Freigabequellen zu schaffen.
 
 **Leitprinzip:** *HR genehmigt die Aufnahme. Management bestätigt Original-Kings-Daten. Discord zeigt aktuelle Rollen. Keiner dieser drei Nachweise ersetzt die anderen.*
+
+
+## 7. Private HR-Einzelfallübersicht – vorbereitet und manuell freigabepflichtig
+
+Zusätzlich zur menschlich bestätigten Entscheidungsquelle gibt es jetzt die technisch vorbereitete **Kings HR Driver Case View**. Sie dient berechtigten HR-/Management-Personen zur Einzelfall-Nachprüfung und ist **kein** öffentliches Discord-Dashboard.
+
+### Welche Fälle die Ansicht unterscheidet
+
+- **Verified approved first:** Eine menschliche Erstaufnahmeentscheidung mit bestätigter aktueller Discord-Driver-Rolle und gültigem Original-Kings-Identitätsregister.
+- **Verified approved return:** Eine ausdrückliche menschliche Rückkehrentscheidung mit bestätigter Original-Identität. Das ist kein automatisches Zurücksetzen/Ändern des Kings-Beitrittsdatums.
+- **Active role with declined/revoked decision:** Echte widersprüchliche HR-Evidenz bei noch bestehender Driver-Rolle – **manuell prüfen**, niemals automatisch Rolle entziehen.
+- **Approved without original identity:** Dokumentierte HR-Freigabe, aber fehlender Original-Kings-Datensatz – Management prüft die Stammdaten. Kein automatisch geschätztes Datum.
+- **Missing original identity and HR decision:** Aktueller Driver ohne gültige Stammdaten und formalen HR-Beleg – Einzelfallprüfung für tatsächliche Neuaufnahme oder Rückkehr.
+- **Registered historical Driver without formal HR evidence:** **Nur aggregiert zählen**, nicht automatisch als „ungenehmigt“ oder „abgelehnt“ kennzeichnen. Die bestehende Identität allein beweist zwar keine HR-Freigabe, aber auch keinen Aufnahmefehler.
+
+Die Ansicht stellt auf einer Übersichtsseite ausschließlich Summen dar. Einzelne Fälle werden in eigenen **vertraulichen Seiten** angezeigt, höchstens zehn Fälle pro Seite (automatische sichere Seitenteilung). Discord-IDs, interne Ticketreferenzen und der Status der originalen Kings-Identität sind ausschließlich für diesen geschützten Kanal bestimmt und erscheinen **niemals** in öffentlichen GitHub-Dateien oder Actions-Protokollen.
+
+### Private Discord-Veröffentlichung – nur nach ausdrücklicher Freigabe
+
+1. Der CEO / das berechtigte HR-Management richtet **zwei voneinander getrennte private Textkanäle** ein beziehungsweise bestätigt sie: `hr-driver-decisions` als **menschliche Entscheidungsquelle** und beispielsweise `hr-driver-case-view` als **ausschließlich interne Bot-Anzeige**. Diese Kanäle dürfen auch nicht das bestehende private Driver Identity Register ersetzen.
+2. Beide Kanäle müssen nachweisbar privat sein: `@everyone` hat **kein** View Channel, nur zugelassene HR-/Management-Leitung und der Kings Systems Bot dürfen lesen. Die Automatisierung lehnt andere View-Overwrites und fremde Administrator-Rollen ab.
+3. Die exakten Kanal-IDs nur als GitHub Actions Secrets hinterlegen: `KINGS_HR_DECISIONS_CHANNEL_ID` und `KINGS_HR_CASE_VIEW_CHANNEL_ID`. Die Namen allein werden **nicht** als Quelle angenommen.
+4. Die eigentlichen HR-Entscheidungen werden **manuell und tatsächlich nach Ticketprüfung** im geschützten `hr-driver-decisions`-Kanal dokumentiert. Keine erfundenen oder rückdatierten Freigaben.
+5. Erst nach bewusster HR-/CEO-Freigabe den bestehenden GitHub Actions Workflow **Kings Driver Register Onboarding Check** über `workflow_dispatch` starten und die standardmäßig **deaktivierte** Checkbox `publish_private_hr_case_view` ausdrücklich einschalten. Ohne Checkbox bzw. bei täglichen/Push-Läufen bleibt die Prüfung **read-only**.
+6. Bei diesem gezielt autorisierten Lauf wird die Entscheidungshistorie vorab gelesen und auf HR-Autor, Originaldatum und beide privaten Kanalrechte geprüft. Erst danach darf der Bot **nur im separaten geschützten Case-View-Kanal** eigene Case-View-Nachrichten erstellen/aktualisieren.
+7. Bestehende, eindeutig erkannte Bot-Case-View-Seiten werden **bearbeitet** statt doppelt gepostet. Wenn sich die Fallzahl verkleinert, werden alte überschüssige Bot-Seiten inhaltsarm **archiviert und von bisherigen Personendaten bereinigt** – ohne Nachrichten zu löschen. Fremde Nachrichten werden nicht verändert. Bei doppelten/früher nicht sicher überprüfbaren Nachrichten oder zu vielen Kanalnachrichten wird die Veröffentlichung verweigert.
+8. Öffentliche Workflow-Logs enthalten **nur** die Anzahl vorbereiteter/aktualisierter/archivierter privater Seiten und zusammengefasste HR-Evidenzdaten. Keine Discord-ID, HR-Ticket-ID, HR-Autor-ID, private Entscheidung oder ursprüngliches Kings-Beitrittsdatum.
+
+**Aktueller Status (21. November 2026):** Technik und manueller Freigabeschalter sind vorbereitet. Ein tatsächlich eingerichteter, freigegebener HR-Entscheidungskanal und der separate geschützte View-Kanal sind **noch nicht bestätigt**. Ohne beide korrekt konfigurierten Quellen gibt es weiterhin keine veröffentlichte HR-Fallübersicht. Dies ist der gewünschte sichere Zustand, kein Fehler, der durch eine Veröffentlichung in einem allgemeinen HR-/Driver-Kanal umgangen werden sollte.
+
+**Datenschutzgrenze:** Aufbewahrung privater Fälle, HR-Entscheidungen und Ticket-Daten muss durch Kings Policy und geltende Datenschutzanforderungen geregelt werden. Ein Discord-Textkanal ersetzt langfristig keinen privaten, revisionsfähigen HR-Datenspeicher mit rollen- und zweckgebundener Berechtigung.

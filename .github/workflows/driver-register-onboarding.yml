@@ -2,6 +2,12 @@ name: Kings Driver Register Onboarding Check
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_private_hr_case_view:
+        description: 'Manually publish private HR case pages only after approved separate HR channel configuration (never on schedule/push).'
+        type: boolean
+        required: false
+        default: false
   push:
     branches: [main]
     paths:
@@ -10,6 +16,8 @@ on:
       - 'hr-driver-intake-review.js'
       - 'hr-driver-decision-source.js'
       - 'hr-driver-decision-audit.js'
+      - 'hr-driver-case-view.js'
+      - 'hr-driver-case-publisher.js'
       - 'kings-data-sources.js'
   schedule:
     # Once daily, 07:17 UTC (08:17 CET / 09:17 CEST).
@@ -42,6 +50,8 @@ jobs:
           node --check hr-driver-intake-review.js
           node --check hr-driver-decision-source.js
           node --check hr-driver-decision-audit.js
+          node --check hr-driver-case-view.js
+          node --check hr-driver-case-publisher.js
           node --check driver-loyalty-register.js
           node --check driver-welcome-register-review.js
           node --check driver-tmp-vtc-register-review.js
@@ -55,4 +65,6 @@ jobs:
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           KINGS_HR_DECISIONS_CHANNEL_ID: ${{ secrets.KINGS_HR_DECISIONS_CHANNEL_ID }}
+          KINGS_HR_CASE_VIEW_CHANNEL_ID: ${{ secrets.KINGS_HR_CASE_VIEW_CHANNEL_ID }}
+          KINGS_HR_CASE_VIEW_PUBLISH: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_private_hr_case_view == true && 'confirmed' || '' }}
         run: node hr-driver-decision-audit.js
