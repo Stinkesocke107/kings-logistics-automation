@@ -67,3 +67,19 @@ test('Fixed Live publishing scripts contain no automatic new-message or delete o
     assert.match(code,/refusing duplicate publication|refusing to create another message/,file);
   }
 });
+
+
+for(const mode of ['tracker','statistics','central']){
+  test(mode+': Discord server failure does not expose response payload in CI',async()=>{
+    const s=targets(mode,async(_url,options)=>{
+      assert.equal(options.method,'PATCH');
+      return new Response('sample-secret-should-not-appear',{status:503});
+    });
+    await assert.rejects(runSync(mode,s),error=>{
+      assert.match(error.message,/HTTP 503/);
+      assert.doesNotMatch(error.message,/sample-secret-should-not-appear/);
+      return true;
+    });
+    assert.deepEqual(s.calls.map(call=>call.options.method),['PATCH']);
+  });
+}
