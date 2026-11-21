@@ -53,17 +53,6 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "stale-data:data/driver-achievements-summary.json": {
-      "severity": "warning",
-      "system": "Driver Achievement data",
-      "message": "Driver Achievement data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-11-18T18:10:28.175Z",
-        "ageMinutes": 2401,
-        "maxAgeMinutes": 2400
-      },
-      "firstAlertedAt": "2026-11-20T10:12:14.175Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -84,16 +73,6 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-20T21:26:00.793Z"
-    },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 44837457306,
-        "completedAt": "2026-11-20T23:32:05Z"
-      },
-      "firstAlertedAt": "2026-11-20T23:32:29.391Z"
     },
     "workflow-overdue:live-tracker.yml": {
       "severity": "critical",
