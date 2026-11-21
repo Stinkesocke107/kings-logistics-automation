@@ -12,7 +12,7 @@ const z=(s)=>new Date(s).getTime();
 
 test('Kings daily UTC schedule: eight-hour late onboarding run is still flagged despite success',()=>{
   const due='2026-11-21T07:17:00.000Z';
-  const late='2026-11-21T15:19:53Z';
+  const late='2026-11-21T15:19:53.000Z';
   const r=assessDailyUtcSchedule([run(late)],{...config,now:'2026-11-21T16:05:00Z'});
   assert.equal(r.status,'late');
   assert.equal(r.expectedAt,due);
