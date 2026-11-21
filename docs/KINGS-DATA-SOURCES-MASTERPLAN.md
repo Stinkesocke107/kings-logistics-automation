@@ -136,6 +136,8 @@ Nicht für alles neue Kanäle anlegen. Nur Informationen, die von Menschen **ver
 
 **Erster Integrationsschritt (21. November 2026):** Die tägliche private Driver-Register-Prüfung und der vorhandene private VTC-Abgleich verwenden die gemeinsame, read-only `activeDriverSourceCoverage()`-Validierung. Eine scheinbar vorhandene ID ohne übereinstimmendes originales Kings-Beitrittsdatum wird nicht mehr als unproblematisch behandelt; die privaten Berichte bleiben bei der bestehenden Management-/Driver-Leadership-Verteilung. Das ist noch keine Integration von Driver Hub, Website oder anderen Abteilungen.
 
+**Zweiter Integrationsschritt (21. November 2026):** Auch die bestehende Loyalty-Automatisierung gleicht ihre **rein aggregierten** aktiven Driver-Zähler, den Anteil registrierter Original-Kings-Beitrittsdaten und die Zahl der vorhandenen Plattformverknüpfungen gegen die gemeinsame private Quellenprüfung ab. Ein Widerspruch blockiert den Lauf vor etwaigen Rollenänderungen. Öffentliche Statusdateien dürfen nur Summen und Quellenstatus erhalten. Zeitgesteuerte Läufe bleiben unverändert `dry-run`; für manuelle Live-Rollenänderungen gelten die zusätzliche Originalregister- und Entfernungsfreigabe aus PR #85.
+
 **Phase C — zukünftige Driver-Abläufe:** HR-Freigabe → Rollenstatus überprüfen → Original-Datum/IDs im privaten Register durch berechtigte Person bestätigen → private Completeness-Audit → autorisierte Folgesysteme aktualisieren. Fehlende Felder bleiben sichtbar, aber nicht öffentlich.
 
 **Phase D — Staff, Partner, Events und Awards:** konkrete Feldschemata, Eigentümer und Genehmigungsabläufe separat fertigstellen; zunächst nicht automatisch neue Channels, Nachrichten oder Rollen anlegen.
