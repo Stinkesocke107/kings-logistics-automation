@@ -63,7 +63,7 @@ test('daily onboarding refuses missing or inconsistent private Kings source with
     '\nkings_join_date: 2.2.2024',at);
   const active=[{discordId:D1,role:'Driver'}];
   assert.throws(()=>driverOnlyAuditPages(active,{enabled:false,
-    records:new Map(),identities:new Map()},at),/source is unavailable/);
+    records:new Map(),identities:new Map()},at),/private Kings Driver registry is unavailable/);
   const mismatch={enabled:true,records:new Map([[D1,new Date('2025-03-03T00:00:00Z')]]),
     identities:new Map([[D1,identity]])};
   assert.throws(()=>driverOnlyAuditPages(active,mismatch,at),/consistency/);
@@ -278,7 +278,7 @@ test('Discord-only private audit publishes missing active Kings Driver IDs witho
   const result=await review({token:'test-token',transport,mode:'audit-driver-only-preview'});
   assert.equal(result.type,'audit-driver-only');
   assert.deepEqual(result.counts,{currentDrivers:2,registered:1,missingRecords:1,
-    platformLinksPresent:1,sourceStatus:'incomplete',complete:false});
+    pendingHrIntakeCases:1,platformLinksPresent:1,sourceStatus:'incomplete',complete:false});
   const published=result.pages.map(p=>p.content).join('\n');
   assert.ok(result.pages.every(p=>p.marker.startsWith('👑 **Kings Driver Registration Queue | ')));
   assert.ok(published.includes(D2));
