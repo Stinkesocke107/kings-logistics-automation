@@ -4,12 +4,12 @@
   "service": "truckersmp-map-live",
   "healthKey": "live-systems--truckersmp-map-live",
   "status": "down",
-  "consecutiveFailures": 293,
+  "consecutiveFailures": 294,
   "lastSuccessAt": "2026-10-09T00:08:05.549Z",
   "recoveredAt": "2026-10-09T00:08:05.549Z",
   "lastError": "This operation was aborted",
-  "circuitOpenUntil": "2026-11-21T21:49:38.392Z",
-  "updatedAt": "2026-11-21T21:48:38.392Z",
-  "lastFailureAt": "2026-11-21T21:48:38.392Z",
+  "circuitOpenUntil": "2026-11-21T21:51:59.516Z",
+  "updatedAt": "2026-11-21T21:50:59.516Z",
+  "lastFailureAt": "2026-11-21T21:50:59.516Z",
   "lastErrorCode": "20"
 }
