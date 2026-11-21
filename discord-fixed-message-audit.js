@@ -87,7 +87,7 @@ async function inspect(target, transport=fetch) {
     };
   }
 }
-async function audit(transport=fetch) {
+async function main(transport=fetch) {
   const result=[];
   for(const target of targets()){
     const status=await inspect(target,transport);
@@ -101,7 +101,7 @@ async function audit(transport=fetch) {
   }
   return result;
 }
-audit().catch(error=>{
+main().catch(error=>{
   console.error('Kings fixed Discord delivery audit:',error.message);
   process.exitCode=1;
 });
