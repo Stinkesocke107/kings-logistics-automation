@@ -1,7 +1,7 @@
 {
-  "version": 1,
+  "version": 2,
   "mode": "manual-recognition-only",
-  "updatedAt": "2026-09-21T21:30:00.000Z",
+  "updatedAt": "2026-11-21T15:33:06.501Z",
   "awards": [
     {
       "id": "driver-of-the-month",
@@ -14,23 +14,25 @@
       "id": "staff-of-the-month",
       "name": "Staff of the Month",
       "scope": "staff",
+      "includesLeadership": true,
       "cadence": "monthly",
       "assignment": "human-leadership-only"
     },
     {
-      "id": "high-staff-of-the-month",
-      "name": "High Staff of the Month",
-      "scope": "high-staff",
+      "id": "recruiter-of-the-month",
+      "name": "Recruiter of the Month",
+      "scope": "recruiter",
       "cadence": "monthly",
       "assignment": "human-leadership-only"
     },
     {
-      "id": "staff-excellence",
-      "name": "Staff Excellence Award",
-      "scope": "staff",
-      "cadence": "as-needed",
+      "id": "photo-of-the-month",
+      "name": "Photo of the Month",
+      "scope": "photo",
+      "winningLiveryRecognition": true,
+      "cadence": "monthly",
       "assignment": "human-leadership-only"
     }
   ],
-  "note": "Kings Systems may track and display awards, but it must never automatically select winners, change roles, unlock permissions, or make personnel decisions. Award recipients are chosen by human Kings Leadership."
+  "note": "The only four active monthly Kings Logistics awards are Driver of the Month, Staff of the Month (including all Leadership levels), Recruiter of the Month and Photo of the Month (winning livery recognition). High Staff of the Month and Excellence awards are retired for new monthly awards, while their historical recipient records remain preserved. Kings Systems must never automatically select winners, change roles, unlock permissions, or make personnel decisions. Awards are decided by human Kings Leadership."
 }
