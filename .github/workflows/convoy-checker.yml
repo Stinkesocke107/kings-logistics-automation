@@ -98,6 +98,19 @@ jobs:
           DISCORD_WRITE_MODE: 'false'
         run: node convoy-checker.js
 
+      # CEO-authorized one-time emergency recovery. This remains a dry-run for
+      # every other convoy producer; only exact marker + official event/time
+      # validation + existing-message dedupe can authorize this single bot post.
+      - name: Send one-time SHL 36859 Driver reminder (CEO-authorized, duplicate-safe)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[shl-reminder-36859]')
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_ONE_TIME_SHL_RECOVERY: explicit-ceo-authorized-36859
+        run: |
+          node --check scripts/one-time/shl-36859-driver-reminder.js
+          node --test tests/shl-one-time-driver-reminder.test.cjs
+          node scripts/one-time/shl-36859-driver-reminder.js
+
       - name: Auto-fill convoy data from TruckersMP Event ID
         id: convoy_stage_1
         continue-on-error: true
