@@ -18,6 +18,7 @@ on:
     branches: [main]
     paths:
       - 'convoy-*.js'
+      - 'scripts/one-time/shl-36859-driver-reminder.js'
       - 'event-leadership-overview.js'
       - 'kings-convoy-announcements.js'
       - 'convoy-e2e-dry-run.js'
