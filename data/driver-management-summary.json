@@ -1,26 +1,26 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-21T12:43:46.240Z",
-  "currentDrivers": 110,
+  "updatedAt": "2026-11-21T15:17:48.023Z",
+  "currentDrivers": 111,
   "onlineNow": null,
   "onlineObservationStatus": "unavailable",
-  "joinedLast7Days": 1,
-  "joinedLast30Days": 6,
+  "joinedLast7Days": 2,
+  "joinedLast30Days": 7,
   "leftLast7Days": 2,
   "leftLast30Days": 7,
   "activity": {
-    "grace": 2,
-    "active": 12,
+    "grace": 3,
+    "active": 11,
     "approvedLeave": 0,
-    "info7Days": 7,
+    "info7Days": 8,
     "attention14Days": 8,
     "hrReview30Days": 81,
     "unknown": 0
   },
   "tenure": {
-    "known": 110,
-    "under1Month": 6,
+    "known": 111,
+    "under1Month": 7,
     "oneToThreeMonths": 6,
     "threeToSixMonths": 29,
     "sixToTwelveMonths": 34,
@@ -62,6 +62,12 @@
     ],
     "newestDrivers": [
       {
+        "tmpId": 5662742,
+        "username": "4Noah4",
+        "joinDate": "2026-11-21T15:11:34.000Z",
+        "tenureDays": 0
+      },
+      {
         "tmpId": 6266493,
         "username": "Ahmad_SY",
         "joinDate": "2026-11-21T01:15:51.000Z",
@@ -84,12 +90,6 @@
         "username": "Bohm33d",
         "joinDate": "2026-11-01T06:16:04.000Z",
         "tenureDays": 20
-      },
-      {
-        "tmpId": 5036090,
-        "username": "stamkour",
-        "joinDate": "2026-10-29T21:12:02.000Z",
-        "tenureDays": 22
       }
     ]
   },
