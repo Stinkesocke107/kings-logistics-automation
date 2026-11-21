@@ -46,9 +46,10 @@ test('production Driver and Management Leadership views reject contradictory sta
   const driver=s.run('buildDriver('+payload+','+now+')');
   const management=s.run('buildManagement('+payload+')');
   const text=JSON.stringify(driver)+' '+JSON.stringify(management);
-  assert.match(text,/VTC Drivers \\*\\*111\\*\\*/);
-  assert.match(text,/Online \\*\\*Unavailable\\*\\*/);
-  assert.doesNotMatch(text,/Online \\*\\*9\\*\\*/);
+  assert.ok(text.includes('VTC Drivers **111**'));
+  assert.ok(text.includes('Online **Unavailable**'));
+  assert.ok(!text.includes('Online **9**'));
+
 });
 
 test('actual Leadership cards display genuine observed zero without claiming an outage',()=>{
