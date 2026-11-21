@@ -4,6 +4,7 @@
 // Event Finalizer. Does not read Discord messages, publish reminders,
 // change status, assign roles, or log people/slot images/thread details.
 const fs=require('node:fs');
+const {archivedReminderReady}=require('./convoy-archived-reminder-policy');
 const path=require('node:path');
 const REPORT=path.join(__dirname,'output','convoy-check-results.json');
 const FUTURE_WINDOW_SECONDS=24*60*60;
@@ -32,7 +33,8 @@ function approvedUpcoming(report,nowUnix=Math.floor(Date.now()/1000)){
   const secondsUntil=meetingUnix-nowUnix;
   if(secondsUntil<=0||secondsUntil>FUTURE_WINDOW_SECONDS)continue;
   const blocked=[];
-  if(item.archived)blocked.push('archived-thread');
+  if(item.archived&&!archivedReminderReady(item,nowUnix))
+   blocked.push('archived-approval-or-evidence-not-ready');
   if(item.locked)blocked.push('locked-thread');
   if(item.status!=='Scheduled')blocked.push('final-status-not-scheduled');
   if(item.validation?.complete!==true)blocked.push('required-fields-not-finalized');
