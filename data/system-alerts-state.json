@@ -53,27 +53,6 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "workflow-failed:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure.",
-      "details": {
-        "runId": 44881447980,
-        "completedAt": "2026-11-21T07:43:56Z"
-      },
-      "firstAlertedAt": "2026-11-21T08:52:18.553Z"
-    },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 540
-      },
-      "firstAlertedAt": "2026-11-21T08:52:18.553Z"
-    },
     "workflow-schedule-late:driver-register-onboarding.yml": {
       "severity": "warning",
       "system": "Driver Registration Onboarding",
@@ -87,16 +66,6 @@
         "runId": 44918599295
       },
       "firstAlertedAt": "2026-11-21T16:06:07.968Z"
-    },
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "severity": "warning",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
-      "details": {
-        "runId": 44934211673,
-        "completedAt": "2026-11-21T18:12:47Z"
-      },
-      "firstAlertedAt": "2026-11-21T18:24:25.506Z"
     },
     "workflow-failed:live-tracker.yml": {
       "severity": "critical",
@@ -118,6 +87,17 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-21T19:04:19.125Z"
+    },
+    "stale-data:data/driver-management-summary.json": {
+      "severity": "critical",
+      "system": "Driver Management data",
+      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-21T16:28:08.215Z",
+        "ageMinutes": 200,
+        "maxAgeMinutes": 160
+      },
+      "firstAlertedAt": "2026-11-21T19:48:53.016Z"
     }
   },
   "pending": {}
