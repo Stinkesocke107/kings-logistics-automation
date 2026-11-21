@@ -455,6 +455,10 @@ async function runDaily(report, overview, state) {
     content,
     userAgent: 'Kings Logistics Event Leadership Reports/2.0'
   });
+  if (result.action === 'suppressed') {
+    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    return;
+  }
 
   state.lastSnapshot = current;
   state.changeLog.push(...changes);
@@ -484,6 +488,10 @@ async function runWeekly(report, overview, state) {
     content,
     userAgent: 'Kings Logistics Event Leadership Reports/2.0'
   });
+  if (result.action === 'suppressed') {
+    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    return;
+  }
 
   const record = {
     key: period.key,
@@ -524,6 +532,10 @@ async function runMonthly(report, overview, state) {
     content,
     userAgent: 'Kings Logistics Event Leadership Reports/2.0'
   });
+  if (result.action === 'suppressed') {
+    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    return;
+  }
 
   const record = {
     key: period.key,

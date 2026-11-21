@@ -512,6 +512,10 @@ async function runDaily(driverState, hrState, loaState, reportState) {
     content,
     userAgent: 'Kings Logistics HR Leadership Reports/2.0'
   });
+  if (result.action === 'suppressed') {
+    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    return;
+  }
 
   if (!reportState.publishedDailyKeys.includes(key)) reportState.publishedDailyKeys.push(key);
   saveReportState(reportState);
@@ -537,6 +541,10 @@ async function runMonthly(driverState, hrState, loaState, reportState) {
     content,
     userAgent: 'Kings Logistics HR Leadership Reports/2.0'
   });
+  if (result.action === 'suppressed') {
+    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    return;
+  }
 
   const record = {
     key: period.key,
