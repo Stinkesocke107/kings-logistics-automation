@@ -4,7 +4,7 @@ Automation systems and tools for Kings Logistics.
 
 ## Documentation
 
-- [Current workflow inventory](docs/KINGS-ALL-SYSTEMS-INVENTORY.md) — 42 active workflows as of November 2026.
+- [Current workflow inventory](docs/KINGS-ALL-SYSTEMS-INVENTORY.md) — 44 registered workflows (32 scheduled, 12 on-demand) as of 21 November 2026.
 - [Kings Social Video News retirement](SOCIAL-NEWS-SETUP.md) — the unused YouTube automation was retired; TruckersMP News and external PostPing continue.
 
 - [Point 22 Self-Healing Stress Test — 1 October 2026](docs/self-healing-stress-2026-10-01.md) — controlled failure matrix, corrupt-state fail-closed recovery, Discord 429 hardening and the post-Point-22 Core v1.2 baseline.
@@ -19,7 +19,7 @@ Automation systems and tools for Kings Logistics.
 
 - Baseline ID: `KINGS-CORE-BASELINE-2026-10-01-P22`
 - Reference branch: `baseline/core-v1.2-point22-2026-10-01`
-- Verified repository HEAD: `023b2cb28495175ea7d328ef5b4b96017d44cdc9`
+- Historical verified baseline commit (1 October 2026): `023b2cb28495175ea7d328ef5b4b96017d44cdc9` (not the current production `main` HEAD)
 - Protected Core files: `115`
 - Core SHA-256 fingerprint: `d48743e08f9e6efe21531d5787cc31a27461920969b9f80695f96edd4343216d`
 - Baseline checks: `19/19`
@@ -34,9 +34,9 @@ Runtime state under `data/**` remains mutable by design and may continue to be u
 
 ## Verification
 
-Run `node --test tests/*.test.cjs` with Node.js 24. The post-Point-22 Core suite passes **107/107 tests** with **0 failures** and **0 skipped**.
+Run `node --test tests/*.test.cjs` with Node.js 24. The historical post-Point-22 baseline passed 107/107 tests at its reference commit; this number is **not** the current test total. Consult the latest GitHub `system-tests.yml` run for current counts and results.
 
-Point 22 additionally verifies **9/9 controlled Self-Healing stress scenarios** and **21/21 stress acceptance checks**. The final post-stress system state is `HEALTHY` with **0 Critical Issues** and **0 Warnings**.
+Point 22 additionally verifies **9/9 controlled Self-Healing stress scenarios** and **21/21 stress acceptance checks**. The **historical isolated test state** was `HEALTHY` with 0 Critical Issues and 0 Warnings. This is not a guarantee of live production health: as of 21 November 2026 the external map API outage leaves the active System Monitor `UNHEALTHY`.
 
 The repository contains dedicated read-only/isolated verifiers for API resilience, Git/state hardening, weekly reports, monthly reports, public convoy announcements, backup/recovery, the complete Core E2E chain, Safe Self-Healing, the Self-Healing stress matrix and the Stable Core Baseline gate.
 
@@ -93,6 +93,8 @@ Cooldowns, attempt budgets, duplicate-run suppression and a complete post-repair
 - Monitoring runs twice per hour and requires a final `HEALTHY` state
 
 ## Production status
+
+**Current operating note (21 November 2026):** Live Tracker/Statistics cannot refresh full TruckersMP online-player observations while the external map provider is unavailable. The current System Monitor truthfully reports 6 critical incidents and 2 warnings; existing Discord outage messages preserve the last verified state. See [production audit](docs/KINGS-PRODUCTION-AUDIT-2026-11-21.md), [independent provider assessment](docs/live-tracker-backup-map-source-2026-11-21.md), and [map-source issue](https://github.com/Stinkesocke107/kings-logistics-automation/issues/72). Offline CI success is not a live-production recovery.
 
 - Point 19 — Final Documentation: **COMPLETE**
 - Point 20 — Stable Core Baseline / Core Freeze: **COMPLETE**
