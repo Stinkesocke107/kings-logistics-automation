@@ -16,7 +16,7 @@ const STATISTICS_FILE = path.join(__dirname, 'data', 'statistics.json');
 const HR_FILE = path.join(__dirname, 'data', 'hr-probation.json');
 const MONTHLY_REPORT_STATE_FILE = path.join(__dirname, 'data', 'monthly-report-state.json');
 const MILESTONE_FILE = path.join(__dirname, 'data', 'milestones.json');
-const ACHIEVEMENT_SUMMARY_FILE = path.join(__dirname, 'data', 'driver-achievements-summary.json');
+const LOYALTY_SUMMARY_FILE = path.join(__dirname, 'data', 'driver-loyalty-roles-summary.json');
 const AWARDS_CATALOG_FILE = path.join(__dirname, 'data', 'awards-catalog.json');
 const STAFF_SUMMARY_FILE = path.join(__dirname, 'data', 'staff-management-summary.json');
 
@@ -109,7 +109,7 @@ function reportingStatus(statistics, monthlyReportState) {
   };
 }
 
-function recognitionStatus(milestones, achievements, awardsCatalog, fallbackMembers) {
+function recognitionStatus(milestones, loyalty, awardsCatalog, fallbackMembers) {
   const members = number(milestones?.memberCountAtLastUpdate, fallbackMembers);
   let nextMilestone = null;
   for (let milestone = 150; milestone <= 1000; milestone += 50) {
@@ -118,29 +118,32 @@ function recognitionStatus(milestones, achievements, awardsCatalog, fallbackMemb
       break;
     }
   }
-
-  const counts = achievements?.counts && typeof achievements.counts === 'object'
-    ? achievements.counts
-    : {};
   const awardTypes = Array.isArray(awardsCatalog?.awards) ? awardsCatalog.awards.length : 0;
-
+  // The historical TMP achievements file uses VTC membership and historical
+  // estimates. Current Kings Loyalty is exclusively the private, verified
+  // Kings joining-date register, represented here by safe aggregate counts.
+  const valid = loyalty?.source === 'management-private-kings-date-register' &&
+    loyalty.registrationChannelActive === true &&
+    Number.isInteger(loyalty.currentDrivers) && loyalty.currentDrivers >= 0 &&
+    Number.isInteger(loyalty.eligibleForLoyaltyTier) &&
+    loyalty.eligibleForLoyaltyTier >= 0 &&
+    loyalty.eligibleForLoyaltyTier <= loyalty.currentDrivers &&
+    Number.isInteger(loyalty.registeredKingsDates) &&
+    loyalty.registeredKingsDates >= 0 &&
+    loyalty.registeredKingsDates <= loyalty.currentDrivers &&
+    freshness(loyalty.updatedAt, 2400).ok;
   return {
     members,
     reachedMilestones: Array.isArray(milestones?.reachedMilestones) ? milestones.reachedMilestones.length : 0,
     nextMilestone,
     remaining: nextMilestone ? Math.max(0, nextMilestone - members) : 0,
-    trackedDrivers: number(achievements?.trackedCurrentDrivers),
-    upcoming30Days: number(achievements?.upcoming30Days),
-    counts: {
-      oneMonth: number(counts['1m']),
-      threeMonths: number(counts['3m']),
-      sixMonths: number(counts['6m']),
-      oneYear: number(counts['1y']),
-      twoYears: number(counts['2y']),
-      threeYears: number(counts['3y']),
-      fourYears: number(counts['4y']),
-      fiveYears: number(counts['5y'])
-    },
+    loyalty: valid ? {
+      currentDrivers: loyalty.currentDrivers,
+      eligible: loyalty.eligibleForLoyaltyTier,
+      registeredDates: loyalty.registeredKingsDates,
+      updatedAt: loyalty.updatedAt
+    } : null,
+    loyaltyUpdatedAt: loyalty?.updatedAt || null,
     awardTypes
   };
 }
@@ -201,7 +204,7 @@ async function discord(pathname, options = {}) {
   });
 
   const text = await response.text();
-  if (!response.ok) throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+  if (!response.ok) throw new Error(`Discord API ${response.status} during ${method} Management Overview request (response body withheld).`);
   if (!text) return null;
   try { return JSON.parse(text); } catch { return text; }
 }
@@ -282,7 +285,13 @@ function buildEmbed(driver, live, statistics, hr, events, reports, recognition, 
   const completedProbation = reviews.filter((review) => review.status === 'completed').length;
 
   const currentDrivers = number(driver?.currentDrivers, number(live?.members));
-  const online = number(live?.online, number(driver?.onlineNow));
+  // Never transform an unavailable observation or a stale tracker snapshot
+  // into a credible online count. The independently updated TMP VTC roster
+  // is not evidence of current player presence.
+  const onlineVerified = driver?.onlineObservationStatus === 'verified-live' &&
+    freshness(driver?.updatedAt, 120).ok &&
+    Number.isInteger(driver?.onlineNow) && driver.onlineNow >= 0;
+  const online = onlineVerified ? String(driver.onlineNow) : 'Unavailable';
   const info = number(activity.info7Days);
   const attention = number(activity.attention14Days);
   const hrReview = number(activity.hrReview30Days);
@@ -309,7 +318,7 @@ function buildEmbed(driver, live, statistics, hr, events, reports, recognition, 
     : 'No department assignments detected';
 
   const staffText = staff.available
-    ? `Current Staff: **${staff.currentStaff}** • Tracked VTC Staff Roles: **${staff.staffRoles}**\n` +
+    ? `VTC-classified Staff: **${staff.currentStaff}** • Tracked VTC Staff Roles: **${staff.staffRoles}**\n` +
       `30d: **${staff.changes.joinedStaff} joined** • **${staff.changes.roleChanges} role changes** • **${staff.changes.leftStaff} left**\n` +
       `Departments: ${departmentText}\n` +
       `Read-only Staff monitoring — detailed roster and changes remain in **staff-leadership**.`
@@ -323,7 +332,7 @@ function buildEmbed(driver, live, statistics, hr, events, reports, recognition, 
       {
         name: '🚛 Driver Management',
         value:
-          `Current Drivers: **${currentDrivers}** • Online: **${online}**\n` +
+          `TruckersMP VTC Drivers: **${currentDrivers}** • Online: **${online}**\n` +
           `Grace: **${grace}** • Info 7d: **${info}** • Attention 14d: **${attention}** • HR Review 30d: **${hrReview}**\n` +
           `Approved Leave: **${approvedLeave}** • Joined 30d: **${number(driver?.joinedLast30Days)}** • Left 30d: **${number(driver?.leftLast30Days)}**`,
         inline: false
@@ -347,7 +356,7 @@ function buildEmbed(driver, live, statistics, hr, events, reports, recognition, 
         name: '📈 Statistics & Reporting',
         value:
           `Statistics History: **${reports.retainedDays} days** • Current Month: **${reports.currentMonthDays} recorded days**\n` +
-          `Hourly Samples Today: **${reports.hourlySamplesToday}** • All-Time Tracked Peak: **${reports.allTimePeak}**\n` +
+          `Hourly Samples Today: **${statsFresh.ok ? reports.hourlySamplesToday : 'Unavailable (statistics stale)'}** • Historical Tracked Peak: **${reports.allTimePeak}**\n` +
           `Latest Published Monthly Report: **${reports.latestPublishedMonth || 'none tracked yet'}** • Schedule: **1st of each month, 10:00 UTC**`,
         inline: false
       },
@@ -355,9 +364,11 @@ function buildEmbed(driver, live, statistics, hr, events, reports, recognition, 
         name: '👑 Milestones & Recognition',
         value:
           `${nextMilestoneText}\n` +
-          `Loyalty: **1m ${recognition.counts.oneMonth}** • **3m ${recognition.counts.threeMonths}** • **6m ${recognition.counts.sixMonths}** • **1y ${recognition.counts.oneYear}**\n` +
-          `Long-Term: **2y ${recognition.counts.twoYears}** • **3y ${recognition.counts.threeYears}** • **4y ${recognition.counts.fourYears}** • **5y ${recognition.counts.fiveYears}**\n` +
-          `Upcoming Loyalty Achievements (30d): **${recognition.upcoming30Days}** • Manual Award Types: **${recognition.awardTypes}**\n` +
+          (recognition.loyalty
+            ? `Private Kings Loyalty: **${recognition.loyalty.eligible}/${recognition.loyalty.currentDrivers}** eligible • Original joining dates recorded: **${recognition.loyalty.registeredDates}**\n` +
+              `Last register sync: ${discordTimestamp(recognition.loyalty.updatedAt)}\n`
+            : `Private Kings Loyalty: **Unavailable / stale** • Last source update: ${discordTimestamp(recognition.loyaltyUpdatedAt)}\n`) +
+          `No per-tier or 30-day prediction is inferred from historical TMP achievements. • Manual Award Types: **${recognition.awardTypes}**\n` +
           `Awards remain **human Leadership decisions** — no automatic winner, role or permission changes.`,
         inline: false
       },
@@ -430,12 +441,12 @@ async function main() {
   const hr = loadHrState();
   const monthlyReportState = readJson(MONTHLY_REPORT_STATE_FILE, { publishedMonths: [] });
   const milestones = readJson(MILESTONE_FILE, { reachedMilestones: [] });
-  const achievementSummary = readJson(ACHIEVEMENT_SUMMARY_FILE, { counts: {} });
+  const loyaltySummary = readJson(LOYALTY_SUMMARY_FILE, null);
   const awardsCatalog = readJson(AWARDS_CATALOG_FILE, { awards: [] });
   const staffSummary = readJson(STAFF_SUMMARY_FILE, null);
 
   const reports = reportingStatus(statistics, monthlyReportState);
-  const recognition = recognitionStatus(milestones, achievementSummary, awardsCatalog, number(driver.currentDrivers, number(live.members)));
+  const recognition = recognitionStatus(milestones, loyaltySummary, awardsCatalog, number(driver.currentDrivers, number(live.members)));
   const staff = staffStatus(staffSummary);
   const channel = await resolveManagementChannel();
   const events = await getEventStatus();
@@ -449,7 +460,7 @@ async function main() {
   console.log(`Statistics history days: ${reports.retainedDays}`);
   console.log(`Current month recorded days: ${reports.currentMonthDays}`);
   console.log(`Next member milestone: ${recognition.nextMilestone || 'all configured reached'} (${recognition.remaining} remaining)`);
-  console.log(`Loyalty achievements upcoming in 30 days: ${recognition.upcoming30Days}`);
+  console.log(`Private Loyalty register source available: ${Boolean(recognition.loyalty)}`);
   console.log(`Manual award types configured: ${recognition.awardTypes}`);
   console.log(`Current Staff: ${staff.available ? staff.currentStaff : 'unavailable'}`);
   console.log(`Staff VTC roles tracked: ${staff.available ? staff.staffRoles : 'unavailable'}`);
