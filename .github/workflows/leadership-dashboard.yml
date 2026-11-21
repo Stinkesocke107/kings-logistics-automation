@@ -8,6 +8,7 @@ on:
       - main
     paths:
       - 'leadership-dashboard.js'
+      - 'hr-driver-register-status.js'
       - 'leadership-message-sync.js'
       - '.github/workflows/leadership-dashboard.yml'
 
@@ -44,6 +45,7 @@ jobs:
         run: |
           node --check leadership-message-sync.js
           node --check leadership-dashboard.js
+          node --check hr-driver-register-status.js
 
       - name: Update one Leadership message per channel
         env:
