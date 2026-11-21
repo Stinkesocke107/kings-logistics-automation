@@ -214,8 +214,8 @@ async function main(){
     console.log('Private Kings Driver register audit: '+
       result.counts.registered+'/'+result.counts.currentDrivers+
       ' active Discord Kings Drivers recorded, '+
-      result.counts.linkedVtc+'/'+result.counts.vtc+
-      ' active Kings Driver VTC links (of '+result.counts.vtc+' total VTC accounts), '+
+      result.counts.linkedVtc+'/'+result.counts.currentDrivers+
+      ' active Kings Driver VTC links (VTC roster: '+result.counts.vtc+' accounts), '+
       result.counts.missingRecords+' missing register records, '+
       result.counts.missingTmp+' records missing TMP IDs, '+
       result.counts.notOnVtc+' noncurrent VTC IDs, '+
