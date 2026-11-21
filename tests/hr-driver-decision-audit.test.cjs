@@ -53,7 +53,7 @@ function mockServer({decisions=[
   const transport=async (url,opts)=>{
     calls.push({url,method:opts.method,headers:opts.headers});
     assert.equal(opts.method,'GET');
-    const request=new URL(url),p=request.pathname.replace(/^\\/api\\/v10/,'');
+    const request=new URL(url),p=request.pathname.replace(/^\/api\/v10/,'');
     let value;
     if(p==='/guilds/'+GUILD+'/roles')value=roles;
     else if(p==='/guilds/'+GUILD+'/members')value=members;
