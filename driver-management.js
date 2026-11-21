@@ -272,23 +272,14 @@ function buildTenureSummary(drivers, now = Date.now()) {
     else buckets.threeYearsPlus += 1;
   }
 
-  known.sort((a, b) => b.days - a.days || String(a.driver.username).localeCompare(String(b.driver.username)));
+  // Aggregate counts do not require sorting, driver names or dates.
 
-  const toSummaryDriver = ({ driver, days }) => ({
-    tmpId: driver.tmpId,
-    username: driver.username,
-    joinDate: driver.joinDate || driver.firstObservedAt || null,
-    tenureDays: days
-  });
-
+  // This JSON summary is committed to a PUBLIC repository. Publish only
+  // aggregate membership statistics; retain personal driver records in the
+  // encrypted private state for authorized Leadership views.
   return {
     known: known.length,
-    ...buckets,
-    longestServing: known.slice(0, 5).map(toSummaryDriver),
-    newestDrivers: [...known]
-      .sort((a, b) => a.days - b.days || String(a.driver.username).localeCompare(String(b.driver.username)))
-      .slice(0, 5)
-      .map(toSummaryDriver)
+    ...buckets
   };
 }
 

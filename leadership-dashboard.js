@@ -194,9 +194,15 @@ function buildDriver(data, now = Date.now()) {
     `VTC Drivers **${s.currentDrivers ?? current.length}** • Online **${verifiedLiveOnline(s, now)}** • Grace **${s.activity?.grace ?? 0}** • LOA **${s.activity?.approvedLeave ?? 0}**\n` +
     `Activity: Active **${s.activity?.active ?? 0}** • Info **${s.activity?.info7Days ?? 0}** • Attention **${s.activity?.attention14Days ?? 0}** • HR Review **${s.activity?.hrReview30Days ?? 0}**\n` +
     `Activity data are advisory and use the last verified observations.`;
+  // Resolve named newest drivers only from decrypted, authorized Leadership
+  // state, NEVER from the public Driver Management aggregate summary.
+  const newestPrivate = current.filter(driver => date(driver.joinDate || driver.firstObservedAt))
+    .sort((a, b) => date(b.joinDate || b.firstObservedAt).getTime() -
+      date(a.joinDate || a.firstObservedAt).getTime())
+    .slice(0, 5);
   const daily =
     `Joined **${joined.length}** • Left **${left.length}** • Restored **${restored.length}** • New review levels **${reviewChanges.length}** • LOA +**${loaStarted.length}** / ended **${loaEnded.length}**\n` +
-    `Newest: ${shortPeople(t.newestDrivers || [], 3)}`;
+    `Newest: ${shortPeople(newestPrivate, 3)}`;
   const weekly = w
     ? `${fmtKey(w.key)} • Drivers **${w.currentDrivers}** • Joined **${w.joined}** • Left **${w.left}** • Net **${signed(w.netGrowth)}** • Open Reviews **${w.openReviews}** • Restored **${w.restored}**`
     : 'No completed weekly report yet.';
