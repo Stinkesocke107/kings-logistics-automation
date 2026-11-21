@@ -327,7 +327,7 @@ function buildMessage(driverState, data, privateDriverRegisterStatus = null) {
     '',
     '# 👥 HR & Probation',
     '',
-    `**Current Drivers:** ${data.current.length}`,
+    `**Tracked TruckersMP VTC Drivers:** ${data.current.length}`,
     `**Joined last 7 days:** ${data.joinedLast7Days.length}`,
     `**In Probation:** ${data.probationActive.length}`,
     `**Open Probation Reviews:** ${data.probationReviews.length}`,
