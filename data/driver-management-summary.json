@@ -1,26 +1,26 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-21T00:52:11.859Z",
-  "currentDrivers": 109,
+  "updatedAt": "2026-11-21T01:29:05.420Z",
+  "currentDrivers": 110,
   "onlineNow": null,
   "onlineObservationStatus": "unavailable",
-  "joinedLast7Days": 0,
-  "joinedLast30Days": 5,
+  "joinedLast7Days": 1,
+  "joinedLast30Days": 6,
   "leftLast7Days": 2,
-  "leftLast30Days": 8,
+  "leftLast30Days": 7,
   "activity": {
-    "grace": 1,
-    "active": 15,
+    "grace": 2,
+    "active": 14,
     "approvedLeave": 0,
-    "info7Days": 4,
+    "info7Days": 5,
     "attention14Days": 8,
     "hrReview30Days": 81,
     "unknown": 0
   },
   "tenure": {
-    "known": 109,
-    "under1Month": 5,
+    "known": 110,
+    "under1Month": 6,
     "oneToThreeMonths": 6,
     "threeToSixMonths": 29,
     "sixToTwelveMonths": 34,
@@ -62,6 +62,12 @@
     ],
     "newestDrivers": [
       {
+        "tmpId": 6266493,
+        "username": "Ahmad_SY",
+        "joinDate": "2026-11-21T01:15:51.000Z",
+        "tenureDays": 0
+      },
+      {
         "tmpId": 265673,
         "username": "ItsHarryUK",
         "joinDate": "2026-11-08T12:13:30.000Z",
@@ -84,12 +90,6 @@
         "username": "stamkour",
         "joinDate": "2026-10-29T21:12:02.000Z",
         "tenureDays": 22
-      },
-      {
-        "tmpId": 6368423,
-        "username": "Mason111",
-        "joinDate": "2026-10-27T20:29:55.000Z",
-        "tenureDays": 24
       }
     ]
   },
