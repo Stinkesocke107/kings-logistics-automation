@@ -6,6 +6,9 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/driver-register-onboarding.yml'
+      - 'driver-tmp-vtc-register-review.js'
+      - 'hr-driver-intake-review.js'
+      - 'kings-data-sources.js'
   schedule:
     # Once daily, 07:17 UTC (08:17 CET / 09:17 CEST).
     - cron: '17 7 * * *'
@@ -34,6 +37,7 @@ jobs:
         run: |
           node --check driver-identity-register.js
           node --check kings-data-sources.js
+          node --check hr-driver-intake-review.js
           node --check driver-loyalty-register.js
           node --check driver-welcome-register-review.js
           node --check driver-tmp-vtc-register-review.js
