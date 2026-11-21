@@ -48,6 +48,21 @@ Alle verwenden in dieser Prüfung nur Discord GET. Die produktive Code-Änderung
 
 Zusätzliche Prüfroutinen: `discord-event-driven-publication-audit.js`, `discord-driver-public-updates-audit.js`. Keine produktiven Discord-Nachrichten, Rollen oder HR/Staff/Driver-Daten wurden für den Test erstellt oder verändert.
 
+## 2b. Öffentliche Convoy-Ankündigungen und alte Leadership-Nachweise (21.11.2026)
+
+**Öffentliche Convoy-Nachrichten – [Live-Run 44955311413](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/44955311413)**:
+- Das bereits historisch akzeptierte Kings Monthly Convoy #12 / TruckersMP Event 35810 wurde direkt anhand seiner gespeicherten Discord-Nachrichten-ID, des Bot-Owners und des passenden Event-ID-/URL-Markers verifiziert.
+- Das zuletzt erreichbare Fenster aus **100** öffentlichen Discord-Nachrichten wurde nach bot-eigenen Kings-Convoy-Posts durchsucht. Die im Fenster sichtbaren eigenen Ankündigungen bestanden die Vertragsprüfung auf Event-ID und Event-Link, öffentliche 2h-/Starting-Now-Kennzeichnung, keine unerwarteten Rollenmentions und keine doppelten Event-IDs **innerhalb dieses begrenzten Fensters**.
+- Der separat bestehende aktuelle Convoy-Verifier [44953085965](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/44953085965) fand beim letzten ausgewerteten Lauf **null aktive Quelleinträge**. Der erfolgreiche Workflow-Status ist damit **kein Nachweis**, dass ein unmittelbar zukünftiges Event tatsächlich in seinem 2h-Fenster angekündigt wurde. Nachweis der künftigen Fälligkeit und des konkreten Versands bleibt offen, ohne Test-Konvoi oder Test-Ping.
+
+**Alte Einzel-Leadership-Reports – [Live-Run 44955985452](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/44955985452)**:
+- `legacy-staff-daily`, `legacy-staff-weekly`, `legacy-staff-monthly` und `legacy-management-weekly`: **4 × NOT_VISIBLE**. Die im Legacy-State gespeicherten Original-IDs wurden direkt abgefragt, aber nicht mehr als Nachrichten abgerufen. Ein nicht sichtbarer Beitrag ist weder ein aktueller Report noch Beweis, wann/warum er entfernt oder unzugänglich wurde.
+- Die vier Legacy-Workflow-Gruppen Driver, HR, Staff und Events haben `LEADERSHIP_CONSOLIDATED_ONLY: 'true'`, sodass `leadership-message-sync.js` den Status `suppressed` zurückgibt. Historische Caller schrieben trotzdem `publishedDailyKeys`/Perioden-Snapshots. **PR #122** hat an **zehn** Stellen verhindert, dass `suppressed` zukünftig als Veröffentlichung checkpointet wird (**467/467** Tests).
+- Alte `published...`-Keys wurden **nicht** pauschal gelöscht oder rückwirkend umdatiert. Sie sind allein **kein** Zustellnachweis; separate Reconciliation unter [Issue #123](https://github.com/Stinkesocke107/kings-logistics-automation/issues/123).
+- Der aktuelle produktive Leadership-Betrieb läuft über die bereits separat geprüften **fünf konsolidierten Dashboards**, nicht die alten täglichen/monatlichen Einzelmeldungen. Ein historisches `NOT_VISIBLE` erzeugt **keine** automatische Neuveröffentlichung.
+
+**Prüfskripte:** `discord-public-convoy-content-audit.js`, `discord-legacy-leadership-evidence-audit.js`. Beide sind reine Discord-GET-Leser; bei unzuverlässigen Source- oder Content-Verträgen melden sie `UNVERIFIED`, nicht einen behaupteten Live-Erfolg.
+
 ## 3. Offene Public-Inhaltsprüfungen
 
 | System | Tatsächliche Ausgangslage | Nächster Prüfauftrag |
@@ -56,9 +71,9 @@ Zusätzliche Prüfroutinen: `discord-event-driven-publication-audit.js`, `discor
 | Driver Updates | Neueste erreichbare Driver-Update-Webhook-Nachricht und sichere Einzel-Erwähnung verifiziert | Alte Join/Leave-/Promotion-Posts nicht vollständig einzeln belegbar; verschlüsselte künftige Message-Evidence prüfen (#119) |
 | Milestones | Webhook korrekt zugeordnet; `data/milestones.json` enthält derzeit keine erreichten Schwellenwerte | Keine Test-Publikation erzeugen; nächstes echtes Ereignis auf nur einen korrekten Post prüfen |
 | Staff Public Updates | Direkter Discord-Zielkanal bestätigt; letzter geprüfter Status meldete 0 neue Posts | Echte Staff-Event-Publikation nur bei autorisiertem Ereignis prüfen, nicht für einen Test erfinden |
-| Public Kings Convoy Announcements | Kanal bestätigt; separat bereits frühere reale Publikationsbelege | Nächste echte 2h-/Start-Ankündigung, Timing, Slot und Duplikate gegen Events prüfen |
+| Public Kings Convoy Announcements | Akzeptiertes historisches Event 35810 und zuletzt sichtbare öffentliche Posts direkt bei Discord geprüft | Nächste **wirklich fällige** 2h-/Start-Ankündigung, Timing/Slot und vollständige Deduplizierung weiter prüfen |
 | System Alerts | Aktuelle bot-eigene technische Nachricht in den letzten 100 Kanalnachrichten bestätigt | Historische Alarm-/Resolve-Ketten und Source-Reconciliation weiter prüfen, ohne User IDs zu loggen |
-| Monthly Reports / weitere Leadership Reports | Gespeicherte **September-/Oktober-2026-Monatsberichte** inklusive Oktober-Convoy-Backfill direkt geprüft | Sonstige monatliche Leadership-/HR-/Event-/Driver-Berichtstexte separat gegen Berechtigungen und Veröffentlichungstermine kontrollieren |
+| Monthly Reports / weitere Leadership Reports | Zwei aktive Monatsreports geprüft; alte Staff Daily/Weekly/Monthly und Management Weekly unter gespeicherten IDs **NOT_VISIBLE**; konsolidierte Dashboards bleiben aktuell | Historische falsche `published`-Keys nicht als Zustellung werten; #123. Weitere autorisierte Content-/Berechtigungsprüfung bleibt offen |
 | PostPing, Galaxy, externe Bots | Extern administrierte Systeme, nicht vollständig durch GitHub-Inventur abgedeckt | Mit zuständiger Bot-Konfiguration und separat legitimierter read-only Discord-Sicht prüfen |
 
 ## 4. Historische Changelog-Abweichungen (redaktionell, nicht heimlich ändern)
