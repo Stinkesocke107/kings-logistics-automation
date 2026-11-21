@@ -3,6 +3,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const { syncTextMessage } = require('./leadership-message-sync');
+const { encryptEventState, decryptEventState } = require('./event-leadership-state');
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -133,9 +134,19 @@ function defaultState() {
   };
 }
 
+function eventStateSecret() {
+  const secret = process.env.EVENT_LEADERSHIP_STATE_KEY || process.env.DRIVER_STATE_KEY;
+  if (!secret || Buffer.byteLength(String(secret), 'utf8') < 32) {
+    throw new Error('Event Leadership private state key is missing or too short.');
+  }
+  return String(secret);
+}
+
 function loadState() {
-  const state = readJson(STATE_PATH, null);
-  if (!state) return defaultState();
+  const secret = eventStateSecret();
+  const stored = readJson(STATE_PATH, null);
+  if (!stored) return defaultState();
+  const state = decryptEventState(stored, secret);
   const base = defaultState();
   return {
     ...base,
@@ -161,7 +172,7 @@ function saveState(state) {
   state.publishedMonthlyKeys = state.publishedMonthlyKeys.slice(-36);
   state.weeklyReports = state.weeklyReports.slice(-104);
   state.monthlyReports = state.monthlyReports.slice(-24);
-  writeJson(STATE_PATH, state);
+  writeJson(STATE_PATH, encryptEventState(state, eventStateSecret()));
 }
 
 function escapeMarkdown(value = '') {
