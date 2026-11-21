@@ -1,6 +1,8 @@
 # Kings Logistics – Automation Inventory
 
-Status: cleanup in progress (2026-10-17). **Do not infer deletion safety from this file alone.**
+Status: historical cleanup record (2026-10-17), last reconciled against the current registry on 2026-11-21. **Do not infer deletion safety from this file alone.**
+
+**Current inventory (2026-11-21):** 44 `.github/workflows/*.yml` files; 32 scheduled and 12 on-change/manual, matching `kings-workflow-registry.js` and `docs/KINGS-ALL-SYSTEMS-INVENTORY.md`. The subsequent historical counts (49 → 44 → 43 → 42) are retained as a dated change history, not the live count. The two additional current workflows are `driver-register-onboarding.yml` (scheduled, private idempotent audit) and `driver-tmp-vtc-review.yml` (controlled review / on-change verification). No historical import or role mutation is enabled by this update.
 
 ## Verified removals
 - Removed `.github/workflows/statistics.yml`: redundant manual-only invocation of Statistics and Central Overview; these run automatically via `live-tracker.yml`.
