@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const {currentStaffRoleSnapshot}=require('./kings-staff-role-source');
 const API = 'https://discord.com/api/v10';
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -47,11 +48,21 @@ function selectRole(roles,members,label) {
   return candidates[0];
 }
 function makeEmbed(members, roles) {
-  const selected=HIERARCHY.map(label=>({label, role:selectRole(roles,members,label)}));
-  const staffIds=new Set(selected.map(x=>x.role.id));
-  const total=members.filter(m=>(m.roles||[]).some(r=>staffIds.has(r))).length;
-  const fields=selected.map(x=>({name:x.label,value:'**'+x.role.assigned+'** members',inline:true}));
-  return {title:'👔 '+MARKER,description:'Current Staff structure based on **live Discord roles**. Members holding multiple hierarchy roles are counted once in the total, but once per assigned role.',color:0x182DFF,fields:[{name:'Total unique Staff members',value:'**'+total+'**',inline:false},...fields],footer:{text:'Kings Logistics • Live Discord role snapshot • Read-only'},timestamp:new Date().toISOString()};
+  const snapshot=currentStaffRoleSnapshot(members,roles);
+  const fields=snapshot.roleCounts.map(r=>({
+    name:r.label,value:'**'+r.count+'** members',inline:true
+  }));
+  return {title:'👔 '+MARKER,
+    description:'Current Discord Staff hierarchy roles only. A role does NOT prove an HR-approved Staff appointment, its original date or a department decision. TruckersMP VTC Staff classification is a separate source.',
+    color:0x182DFF,
+    fields:[
+      {name:'Total unique Staff members',value:'**'+snapshot.uniqueStaffRoleHolders+'**',inline:false},
+      ...fields,
+      {name:'Staff appointment / HR authorization',value:'**Not verified** — no authorized HR Staff appointment register connected.',inline:false}
+    ],
+    footer:{text:'Kings Logistics • Verified Discord role snapshot • Advisory only'},
+    timestamp:snapshot.observedAt
+  };
 }
 async function main() {
   const [members,roles,target,bot]=await Promise.all([allMembers(),discord('/guilds/'+GUILD+'/roles'),channel(),discord('/users/@me')]);
