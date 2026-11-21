@@ -50,6 +50,10 @@ function targets() {
       return {
         key:item.key,label:item.label,
         url:webhookMessageUrl(process.env[item.secret],state?.[item.idKey]),
+        expectedMessageId:state?.[item.idKey] || null,
+        ownerType:'webhook',
+        expectedWebhookId:(webhookMessageUrl(process.env[item.secret],state?.[item.idKey]) || '')
+          .match(/\/webhooks\/(\d{15,22})\/[^/]+\/messages\/\d+$/)?.[1] || null,
         headers:{Accept:'application/json'}
       };
     }),
@@ -58,6 +62,9 @@ function targets() {
       url:validId(item.channel)&&validId(leadershipState?.messageIds?.[item.key])
         ? DISCORD_API+'/channels/'+item.channel+'/messages/'+leadershipState.messageIds[item.key]
         : null,
+      expectedMessageId:leadershipState?.messageIds?.[item.key] || null,
+      expectedChannelId:item.channel,
+      ownerType:'bot',
       headers:{Accept:'application/json',Authorization:'Bot '+BOT_TOKEN,'User-Agent':'Kings Logistics Fixed Message Audit/1.0'}
     }))
   ];
@@ -112,8 +119,45 @@ function hrEmbeddedDataMatches(target, message) {
   );
 }
 
-async function inspect(target, transport=fetch) {
-  if (!target.url || (LEADERSHIP.some(item=>item.key===target.key) && !BOT_TOKEN)) {
+// Check the ORIGINAL Discord message and its actual publisher, not only whether
+// some embed can be read from a stored URL. Return a generic status for public CI.
+function verifyMessageIdentity(target,message,botId) {
+  if (!validId(target.expectedMessageId) ||
+      String(message?.id || '')!==String(target.expectedMessageId))
+    return 'fixed-message-id-mismatch';
+  if (target.ownerType==='webhook') {
+    if (!validId(target.expectedWebhookId) ||
+        String(message?.webhook_id || '')!==String(target.expectedWebhookId))
+      return 'fixed-webhook-owner-mismatch';
+  } else if (target.ownerType==='bot') {
+    if (!validId(botId) ||
+        String(message?.author?.id || '')!==String(botId))
+      return 'fixed-bot-owner-mismatch';
+    if (!validId(target.expectedChannelId) ||
+        String(message?.channel_id || '')!==String(target.expectedChannelId))
+      return 'fixed-leadership-channel-mismatch';
+  } else {
+    return 'fixed-publisher-type-unverified';
+  }
+  return null;
+}
+
+async function getBotIdentity(transport=fetch) {
+  if (!BOT_TOKEN) return null;
+  try {
+    const response=await transport(DISCORD_API+'/users/@me',{
+      method:'GET',
+      headers:{Accept:'application/json',Authorization:'Bot '+BOT_TOKEN},
+      signal:AbortSignal.timeout(12000)
+    });
+    if (!response.ok) return null;
+    const bot=await response.json();
+    return validId(bot?.id)?String(bot.id):null;
+  } catch { return null; }
+}
+
+async function inspect(target, transport=fetch, botId=null) {
+  if (!target.url || (target.ownerType==='bot' && !BOT_TOKEN)) {
     return {label:target.label,status:'UNVERIFIED',reason:'configuration-or-stored-id-missing'};
   }
   try {
@@ -128,6 +172,8 @@ async function inspect(target, transport=fetch) {
         !Array.isArray(message.embeds) || message.embeds.length===0) {
       return {label:target.label,status:'UNVERIFIED',reason:'message-or-embed-invalid'};
     }
+    const identityIssue=verifyMessageIdentity(target,message,botId);
+    if (identityIssue) return {label:target.label,status:'UNVERIFIED',reason:identityIssue};
     if (!driverEmbeddedDataMatches(target,message)) {
       return {label:target.label,status:'UNVERIFIED',reason:'driver-roster-or-online-status-drift'};
     }
@@ -146,8 +192,13 @@ async function inspect(target, transport=fetch) {
 }
 async function main(transport=fetch) {
   const result=[];
-  for(const target of targets()){
-    const status=await inspect(target,transport);
+  const fixedTargets=targets();
+  // Identify the actual Kings Bot once, only when Leadership messages exist.
+  // A missing/failed read must fail closed, never silently accept another bot.
+  const botId=fixedTargets.some(target=>target.ownerType==='bot' && target.url)
+    ? await getBotIdentity(transport) : null;
+  for(const target of fixedTargets){
+    const status=await inspect(target,transport,botId);
     result.push(status);
     console.log('[Kings Discord Read-Only] '+status.label+': '+status.status+' ('+status.reason+')');
   }
