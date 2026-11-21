@@ -12,13 +12,13 @@ const paths={
 test('legacy Leader reports never checkpoint a suppressed Discord publication',()=>{
  for(const [file,expected] of Object.entries(paths)){
    const src=fs.readFileSync(path.join(__dirname,'..',file),'utf8');
-   const matches=[...src.matchAll(/  const result = await syncTextMessage\(\{[\s\S]*?\n  \}\);[\s\S]*?(?=\n  (?:const|if|reportState\.messageIds|state\.lastSnapshot))/g)];
-   assert.equal(matches.length,expected,file+' has an unreviewed sync call');
-   for(const match of matches){
-     assert.match(match[0],/if \(result\.action === 'suppressed'\) \{[\s\S]*?return;[\s\S]*?\}/,file);
-     const guard=match[0].indexOf("if (result.action === 'suppressed')");
-     const save=match[0].search(/saveReportState\(|saveState\(|publishedDailyKeys\.push|publishedMonthlyKeys\.push|publishedWeeklyKeys\.push|lastSnapshot\s*=/);
-     assert.ok(save<0||save>guard,file+' must not save before suppression check');
+   const calls=[...src.matchAll(/  const result = await syncTextMessage\(\{[\s\S]*?\n  \}\);/g)];
+   const guarded=[...src.matchAll(/  const result = await syncTextMessage\(\{[\s\S]*?\n  \}\);\n  if \(result\.action === 'suppressed'\) \{[\s\S]*?\n    return;\n  \}/g)];
+   assert.equal(calls.length,expected,file+' has an unexpected number of sync calls');
+   assert.equal(guarded.length,expected,file+' did not guard every sync immediately after delivery');
+   for(const match of guarded){
+     assert.match(match[0],/no publication state or snapshots recorded/,file);
+     assert.doesNotMatch(match[0],/saveReportState\(|saveState\(|publishedDailyKeys\.push|publishedMonthlyKeys\.push|publishedWeeklyKeys\.push|lastSnapshot\s*=/,file);
    }
  }
 });
