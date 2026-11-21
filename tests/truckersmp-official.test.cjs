@@ -132,7 +132,9 @@ test('Official server API outage retains prior honest unavailable display withou
  await s.run('main()');
  assert.equal(s.process.exitCode,0,'Optional official source failure must not hide the real tracker failure');
  assert.equal(payloads.length,1);
- assert.equal(payloads[0].embeds[0].fields.length,2);
+ assert.equal(payloads[0].embeds[0].fields.length,3);
  assert.match(payloads[0].embeds[0].fields[1].value,/Unavailable/);
+ assert.match(payloads[0].embeds[0].fields[2].value,/110 registered VTC members/);
+ assert.doesNotMatch(JSON.stringify(payloads[0]),/undefined players|110 Currently Online/);
  assert.equal(s.files.get('data/live-tracker-snapshot.json'),files['data/live-tracker-snapshot.json']);
 });
