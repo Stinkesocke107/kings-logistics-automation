@@ -1,0 +1,84 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {sandbox}=require('./sandbox.cjs');
+
+const id='1559442670441730079';
+const webhook='https://discord.com/api/webhooks/123456789012345678/fake-secret?wait=true';
+const body={id,embeds:[{title:'Kings fixed status'}]};
+const response=()=>new Response(JSON.stringify(body),{status:200,headers:{'content-type':'application/json'}});
+function setup(fetcher=async()=>response(),options={}){
+ const files={
+  'data/live-tracker-snapshot.json':JSON.stringify({discordMessageId:id}),
+  'data/statistics.json':JSON.stringify({messageId:id}),
+  'data/central-overview.json':JSON.stringify({messageId:id}),
+  'data/leadership-dashboard-state.json':JSON.stringify({messageIds:{
+    driver:id,hr:id,staff:id,event:id,management:id
+  }}),
+  ...options.files
+ };
+ const env={
+  DISCORD_BOT_TOKEN:'read-only-test-token',
+  DISCORD_WEBHOOK_URL:webhook,
+  STATS_DISCORD_WEBHOOK_URL:webhook,
+  CENTRAL_OVERVIEW_WEBHOOK_URL:webhook,
+  ...options.env
+ };
+ return sandbox('discord-fixed-message-audit.js',{files,env,fetch:fetcher});
+}
+
+test('fixed message audit checks exactly 8 existing Discord messages via GET only',async()=>{
+ const s=setup(async(_url,request)=>{
+  assert.equal(request.method,'GET');
+  return response();
+ });
+ const result=await s.run('main()');
+ assert.equal(result.length,8);
+ assert.ok(result.every(x=>x.status==='VERIFIED'));
+ assert.deepEqual(s.calls.map(c=>c.options.method),Array(8).fill('GET'));
+ assert.equal(s.calls.filter(c=>c.url.includes('/channels/')).length,5);
+ assert.equal(s.calls.filter(c=>c.url.includes('/webhooks/')).length,3);
+ assert.ok(s.calls.some(c=>c.url.includes('/messages/'+id)));
+});
+
+test('missing stored fixed message ID and no token fail closed without Discord write',async()=>{
+ const s=setup(async()=>{throw Error('Network must never be invoked for misconfigured targets');},{
+  files:{'data/live-tracker-snapshot.json':'{}',
+         'data/statistics.json':'{}',
+         'data/central-overview.json':'{}',
+         'data/leadership-dashboard-state.json':'{}'},
+  env:{DISCORD_WEBHOOK_URL:'',STATS_DISCORD_WEBHOOK_URL:'',CENTRAL_OVERVIEW_WEBHOOK_URL:''}
+ });
+ await assert.rejects(s.run('main()'),/could not be independently verified/);
+ assert.equal(s.calls.length,0);
+});
+
+test('404 and missing embeds are audit failures and do not trigger POST/PATCH/DELETE',async()=>{
+ const s=setup(async(_url,request)=>{
+  assert.equal(request.method,'GET');
+  if(_url.includes('/webhooks/'))return new Response('missing',{status:404});
+  return new Response(JSON.stringify({id,embeds:[]}),{status:200});
+ });
+ await assert.rejects(s.run('main()'),/could not be independently verified/);
+ assert.equal(s.calls.length,8);
+ assert.ok(s.calls.every(x=>x.options.method==='GET'));
+});
+
+test('webhook URLs are allowlisted to Discord HTTPS and fixed message IDs',()=>{
+ const s=setup();
+ assert.equal(s.run('webhookMessageUrl("http://discord.com/api/webhooks/123456789012345678/secret",'+JSON.stringify(id)+')'),null);
+ assert.equal(s.run('webhookMessageUrl("https://evil.example/api/webhooks/123456789012345678/secret",'+JSON.stringify(id)+')'),null);
+ assert.equal(s.run('webhookMessageUrl("https://discord.com.evil.example/api/webhooks/123456789012345678/secret",'+JSON.stringify(id)+')'),null);
+ const target=s.run('webhookMessageUrl('+JSON.stringify(webhook)+','+JSON.stringify(id)+')');
+ assert.ok(target.endsWith('/messages/'+id));
+ assert.ok(!target.includes('wait=true'));
+});
+
+test('audit source cannot write to Discord or persist private message content',()=>{
+ const source=fs.readFileSync(path.join(__dirname,'..','discord-fixed-message-audit.js'),'utf8');
+ assert.doesNotMatch(source,/method:\s*['"](?:POST|PATCH|DELETE)['"]/);
+ assert.doesNotMatch(source,/writeFileSync\(|appendFileSync\(/);
+ assert.doesNotMatch(source,/console\.log\([^\n]*(?:target\.url|JSON\.stringify\(message|message\.embeds)/);
+});
