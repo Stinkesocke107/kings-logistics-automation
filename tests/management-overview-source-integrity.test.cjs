@@ -73,5 +73,5 @@ test('Management source file does not read deprecated TMP achievements summary a
   assert.doesNotMatch(source,/driver-achievements-summary\.json/);
   assert.match(source,/driver-loyalty-roles-summary\.json/);
   assert.match(source,/onlineObservationStatus === 'verified-live'/);
-  assert.match(source,/source === 'management-private-kings-date-register'/);
+  assert.match(source,/loyalty\\?\\.source === 'management-private-kings-date-register'/);
 });
