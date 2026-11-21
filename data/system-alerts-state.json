@@ -97,6 +97,27 @@
         "completedAt": "2026-11-21T18:12:47Z"
       },
       "firstAlertedAt": "2026-11-21T18:24:25.506Z"
+    },
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
+      "details": {
+        "runId": 44938851546,
+        "completedAt": "2026-11-21T19:03:57Z"
+      },
+      "firstAlertedAt": "2026-11-21T19:04:19.125Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-21T19:04:19.125Z"
     }
   },
   "pending": {}
