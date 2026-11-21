@@ -69,10 +69,11 @@ jobs:
           KINGS_TMP_VTC_REVIEW_MODE: audit-preview
         run: node driver-tmp-vtc-register-review.js
 
-      # One-time user-authorized private diagnostic. This executes ONLY for
-      # the explicitly titled merge commit; normal pushes are read-only.
-      # The Leadership upsert is idempotent on re-runs. It publishes only
-      # links to the protected register, never private identity data.
+      # CEO-authorized one-time private active Driver register audit.
+      # Publish missing Kings Driver Discord IDs and verification exceptions
+      # only in the access-controlled driver-leadership channel. The public
+      # GitHub logs remain aggregate-only; no register or role writes.
+      # The explicitly titled commit activates this one-time report.
       - name: Publish private correction links once for Kings Management
         if: startsWith(github.event.head_commit.message, 'Run private Kings Driver register diagnostics')
         env:
