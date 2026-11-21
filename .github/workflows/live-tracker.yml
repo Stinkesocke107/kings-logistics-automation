@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/workflows/live-tracker.yml'
       - 'tracker.js'
+      - 'scripts/map-provider-diagnostic.js'
       - 'tracker-driver-identity.js'
       - 'driver-loyalty-register.js'
       - 'driver-identity-register.js'
@@ -51,6 +52,14 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "24"
+
+      # Limited, read-only candidate sampling on the specific one-time change.
+      # Never activate a backup based on this result. No member names/IDs
+      # or positions are written to logs, files or Discord.
+      - name: One-time Doko and Trucky candidate diagnostics
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, 'One-time source probe')
+        continue-on-error: true
+        run: node scripts/map-provider-diagnostic.js
 
       - name: Update Kings Live Tracker
         id: live_tracker
