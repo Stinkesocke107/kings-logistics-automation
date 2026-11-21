@@ -4,12 +4,12 @@
   "service": "ETS2Map area",
   "healthKey": "driver-management--ets2map-area",
   "status": "down",
-  "consecutiveFailures": 38,
+  "consecutiveFailures": 39,
   "lastSuccessAt": "2026-10-09T00:08:21.101Z",
   "recoveredAt": "2026-10-09T00:08:21.101Z",
   "lastError": "This operation was aborted",
-  "circuitOpenUntil": "2026-11-21T01:30:05.419Z",
-  "updatedAt": "2026-11-21T01:29:05.419Z",
-  "lastFailureAt": "2026-11-21T01:29:05.419Z",
+  "circuitOpenUntil": "2026-11-21T02:48:09.087Z",
+  "updatedAt": "2026-11-21T02:47:09.087Z",
+  "lastFailureAt": "2026-11-21T02:47:09.087Z",
   "lastErrorCode": "20"
 }
