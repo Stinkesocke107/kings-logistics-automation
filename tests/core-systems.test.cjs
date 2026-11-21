@@ -356,3 +356,39 @@ test('noncritical city API failures keep verified Kings VTC online player counts
   assert.equal(players[0].tmpId,1234);
   assert.equal(players[0].city,'Location unavailable');
 });
+
+
+test('map outages never fetch unnecessary optional city metadata',async()=>{
+  const calls=[];
+  const s=sandbox('tracker.js',{fetch:async url=>{
+    calls.push(url);
+    if(url.includes('/v2/servers'))return new Response(JSON.stringify({
+      error:false,response:[{online:true,mapid:1,name:'Simulation 1',game:'ETS2',players:10}]
+    }),{status:200});
+    if(url.includes('tracker.ets2map.com'))return new Response('outage',{status:503});
+    if(url.includes('locations_'))throw Error('city metadata should never load after failed map');
+    throw Error('Unexpected API request '+url);
+  }});
+  await assert.rejects(s.run('getKingsOnline()'),/Only 0\/1 live TruckersMP server checks succeeded/);
+  assert.equal(calls.some(url=>url.includes('locations_')),false);
+});
+
+test('verified players can resolve city after complete coverage without leaking in-memory coordinates',async()=>{
+  const s=sandbox('tracker.js',{fetch:async url=>{
+    if(url.includes('/v2/servers'))return new Response(JSON.stringify({
+      error:false,response:[{online:true,mapid:1,name:'Simulation 1',game:'ETS2',players:1}]
+    }),{status:200});
+    if(url.includes('tracker.ets2map.com'))return new Response(JSON.stringify({
+      Success:true,Data:[{VtcId:64284,MpId:123,Name:'Kings Member',X:10,Y:20}]
+    }),{status:200});
+    if(url.includes('locations_'))return new Response(JSON.stringify([
+      {type:'city',name:'Test City',x:10,y:20}
+    ]),{status:200});
+    throw Error('Unexpected request '+url);
+  }});
+  const players=await s.run('getKingsOnline()');
+  assert.equal(players.length,1);
+  assert.equal(players[0].city,'Test City');
+  assert.equal(Object.hasOwn(players[0],'X'),false);
+  assert.equal(Object.hasOwn(players[0],'Y'),false);
+});

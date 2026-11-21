@@ -339,27 +339,9 @@ function getNearestCity(
 // ======================================================
 
 async function getKingsOnline() {
-  console.log(
-    "Loading city data..."
-  );
-
-  const [
-    ets2Cities,
-    atsCities
-  ] =
-    await Promise.all([
-      getOptionalCities(ETS2_LOCATIONS_URL, "ETS2"),
-
-      getOptionalCities(ATS_LOCATIONS_URL, "ATS")
-    ]);
-
-  console.log(
-    `Loaded ${ets2Cities.length} ETS2 cities.`
-  );
-
-  console.log(
-    `Loaded ${atsCities.length} ATS cities.`
-  );
+  // The player map is the critical dependency. Do NOT spend API calls and
+  // time on optional city labels until every official server was verified.
+  // This prevents the city API's own outages from delaying recovery checks.
 
   const servers =
     await getServers();
@@ -415,51 +397,17 @@ async function getKingsOnline() {
               ) ===
               KINGS_VTC_ID
           )
-          .map(player => {
-            let cities = [];
-
-            if (
-              server.game ===
-              "ATS"
-            ) {
-              cities =
-                atsCities;
-            } else if (
-              server.game ===
-              "ETS2"
-            ) {
-              cities =
-                ets2Cities;
-            }
-
-            return {
-              name:
-                player.Name,
-
-              tmpId:
-                Number(
-                  player.MpId
-                ),
-
-              game:
-                server.game,
-
-              server:
-                server.name,
-
-              city:
-                cities.length > 0
-                  ? getNearestCity(
-                      player.X,
-                      player.Y,
-                      cities
-                    )
-                  : "Location unavailable",
-
-              isEvent:
-                server.isEvent
-            };
-          });
+          .map(player => ({
+            name: player.Name,
+            tmpId: Number(player.MpId),
+            game: server.game,
+            server: server.name,
+            // Temporary in-memory coordinates for the optional city labels.
+            // They are removed before the public tracker or state sees them.
+            X: player.X,
+            Y: player.Y,
+            isEvent: server.isEvent
+          }));
 
       kingsOnline.push(
         ...kingsPlayers
@@ -514,9 +462,24 @@ async function getKingsOnline() {
     );
   }
 
-  return Array.from(
-    uniquePlayers.values()
-  );
+  // City metadata is cosmetic; download only once a *complete* player
+  // scan has succeeded. Failed city APIs must not invalidate verified players.
+  const [ets2Cities, atsCities] = await Promise.all([
+    getOptionalCities(ETS2_LOCATIONS_URL, "ETS2"),
+    getOptionalCities(ATS_LOCATIONS_URL, "ATS")
+  ]);
+  const safePlayers = Array.from(uniquePlayers.values()).map(player => {
+    const cities = player.game === "ATS" ? atsCities : ets2Cities;
+    const { X, Y, ...safe } = player;
+    return {
+      ...safe,
+      city: cities.length && Number.isFinite(X) && Number.isFinite(Y)
+        ? getNearestCity(X, Y, cities)
+        : "Location unavailable"
+    };
+  });
+  // No coordinates leave this function or enter persisted snapshots.
+  return safePlayers;
 }
 
 // ======================================================
