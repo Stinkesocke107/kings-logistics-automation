@@ -98,26 +98,35 @@
         "maxAgeMinutes": 160
       },
       "firstAlertedAt": "2026-11-21T19:48:53.016Z"
+    },
+    "workflow-failed:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 44942781913,
+        "completedAt": "2026-11-21T19:49:10Z"
+      },
+      "firstAlertedAt": "2026-11-21T20:34:04.269Z"
+    },
+    "workflow-overdue:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-11-21T20:34:04.269Z"
     }
   },
   "pending": {
-    "workflow-failed:final-freeze-verification.yml": {
+    "workflow-failed:staff-leadership-live-overview.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-21T19:50:34.514Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
-    },
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-21T19:50:34.514Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-21T19:50:34.514Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "firstSeenAt": "2026-11-21T20:34:04.269Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure."
     }
   }
 }
