@@ -7,6 +7,7 @@
 const {loadRegister}=require('./driver-loyalty-register');
 const {currentDrivers}=require('./driver-welcome-register-review');
 const {REGISTER_CHANNEL_ID}=require('./driver-register-completeness');
+const {buildPrivateHrCaseView,privateHrCasePages}=require('./hr-driver-case-view');
 const {
   assertPrivateHrDecisionChannel,verifyHrDecisionMessages,
   auditCurrentHrDecisions,MAX_EVENTS
@@ -19,8 +20,12 @@ const ID=/^\d{17,20}$/;
 async function auditHrDecisions({
   token=process.env.DISCORD_BOT_TOKEN,
   channelId=process.env.KINGS_HR_DECISIONS_CHANNEL_ID,
-  transport=fetch
+  transport=fetch,
+  privateCaseSink=null
 }={}) {
+  if(privateCaseSink!==null && typeof privateCaseSink!=='function') {
+    throw new Error('Private HR case renderer must be an authorized in-memory callback.');
+  }
   if(!channelId) {
     // A missing decision channel is not evidence of HR approval. No network,
     // no name, ID, date or member record is read or written in this case.
@@ -95,7 +100,20 @@ async function auditHrDecisions({
     events.push(...batch);
     if(batch.length<100) {
       const evidence=verifyHrDecisionMessages(events,memberships,roles,guild.owner_id);
-      return auditCurrentHrDecisions(drivers,privateIdentityRegister,evidence);
+      const aggregate=auditCurrentHrDecisions(drivers,privateIdentityRegister,evidence);
+      // Individual IDs/tickets/original dates are rendered exclusively in
+      // memory, AFTER both protected sources have passed permission checks.
+      const privateView=buildPrivateHrCaseView(
+        drivers,privateIdentityRegister,evidence
+      );
+      const pages=privateHrCasePages(privateView);
+      if(privateCaseSink)await privateCaseSink(pages);
+      return Object.freeze({
+        ...aggregate,
+        privateCaseReviewCount:privateView.cases.filter(x=>x.needsHumanReview).length,
+        privateCaseViewPages:pages.length,
+        legacyNoFormalEvidence:privateView.stats.unverifiedHistoricalDecision
+      });
     }
     before=String(batch.at(-1)?.id||'');
     if(!ID.test(before))throw new Error('Invalid private HR decision history cursor.');
@@ -119,6 +137,8 @@ async function main() {
     '; conflicting decision evidence: '+result.conflictingDecisions+
     '; approved without original identity: '+result.approvedWithoutIdentity+
     '; historical decisions without verified evidence: '+result.noFormalDecisionEvidence+
+    '; private HR cases needing human review: '+result.privateCaseReviewCount+
+    '; private case pages prepared in memory: '+result.privateCaseViewPages+
     '. No HR actions or Discord writes performed.');
 }
 if(require.main===module)main().catch(()=>{
