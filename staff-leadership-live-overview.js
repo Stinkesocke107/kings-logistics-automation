@@ -79,7 +79,7 @@ async function main() {
     catch {throw Error('Corrupt Staff live overview state; refusing to reset or recreate');}
     if(stored?.version!==1 ||
        String(stored?.channelId||'')!==String(target.id) ||
-       !/^\\d{17,20}$/.test(String(stored?.messageId||''))){
+       !/^\d{17,20}$/.test(String(stored?.messageId||''))){
       throw Error('Invalid or conflicting Staff live overview ownership state; refusing to publish');
     }
   }
@@ -103,7 +103,7 @@ async function main() {
       throw Error('Staff live overview message history not exhaustive; refusing publication');
     const owned=recent.filter(m=>String(m.author?.id||'')===String(bot.id) &&
       m.embeds?.some(e=>e.title?.includes(MARKER)));
-    if(owned.length!==1 || !/^\\d{17,20}$/.test(String(owned[0]?.id||'')))
+    if(owned.length!==1 || !/^\d{17,20}$/.test(String(owned[0]?.id||'')))
       throw Error('Staff live overview needs exactly one verified existing bot-owned message');
     messageId=owned[0].id;
   }
@@ -114,8 +114,8 @@ async function main() {
   fs.writeFileSync(STATE,JSON.stringify({
     version:1,channelId:target.id,messageId,
     updatedAt:new Date().toISOString(),
-    totalStaff:Number(embed.fields[0].value.replace(/\\D/g,''))
-  },null,2)+'\\n');
+    totalStaff:Number(embed.fields[0].value.replace(/\D/g,''))
+  },null,2)+'\n');
   console.log('Live Staff hierarchy overview updated; unique Staff '+embed.fields[0].value+'; message identity preserved.');
 }
 main().catch(e=>{console.error('Kings Staff hierarchy overview failed: '+String(e?.message||'unknown error'));process.exitCode=1;});
