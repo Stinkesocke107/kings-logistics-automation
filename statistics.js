@@ -86,6 +86,8 @@ function loadLiveSnapshot() {
 
   return {
     updatedAt,
+    // Authoritative public membership: full TruckersMP Kings VTC roster,
+    // including VTC-only members without the Discord Kings Driver role.
     members: number(snapshot.members),
     activity: {
       totalOnline: number(snapshot.online),

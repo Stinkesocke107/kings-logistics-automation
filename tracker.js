@@ -119,7 +119,9 @@ function getStoredDiscordMessageId() {
 }
 
 // ======================================================
-// KINGS MEMBER COUNT
+// KINGS MEMBER COUNT — ALL OFFICIAL TRUCKERSMP VTC MEMBERS
+// This count is independent of Discord, Trial/Driver roles and the private
+// identity register. VTC-only members belong to Kings and must be included.
 // ======================================================
 
 async function getMemberCount() {
@@ -1025,6 +1027,8 @@ async function start() {
       getMemberCount()
     ]);
 
+  // The private register adds an optional identityLinked display marker only.
+  // It must NEVER filter Kings VTC players or change VTC membership/online totals.
   // Match only explicitly registered TruckersMP IDs via the private
   // Management-authored Kings Driver identity register. Never persist,
   // display or log the underlying Discord IDs or Kings joining dates.
