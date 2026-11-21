@@ -131,5 +131,12 @@
       "firstAlertedAt": "2026-11-21T20:35:27.682Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-21T21:46:39.879Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
+    }
+  }
 }
