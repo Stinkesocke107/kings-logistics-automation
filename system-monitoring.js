@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { resilientFetchJson } = require('./api-resilience');
 const { operationalReadinessFromIssues } = require('./system-health-readiness');
+const {assessDailyUtcSchedule} = require('./scheduled-cadence-health');
 
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'data');
@@ -457,6 +458,25 @@ async function checkWorkflow(config, issues) {
   const encodedFile = encodeURIComponent(config.file);
   const data = await githubJson(`/repos/${GITHUB_REPOSITORY}/actions/workflows/${encodedFile}/runs?branch=main&per_page=30`);
   const allRuns = Array.isArray(data?.workflow_runs) ? data.workflow_runs : [];
+  // A successful but severely delayed daily cron must not be reported as
+  // punctual solely because the workflow's last-success freshness is green.
+  // Also check the actual expected UTC slot, never count manual/push runs
+  // as a scheduled delivery. No catch-up jobs or Discord posts are launched.
+  const scheduleCadence = config.dailyUtcSchedule
+    ? assessDailyUtcSchedule(allRuns, config.dailyUtcSchedule)
+    : null;
+  if (scheduleCadence && scheduleCadence.status !== 'on-time') {
+    const missing = scheduleCadence.status === 'missing';
+    issues.push(issue(
+      `workflow-schedule-${missing ? 'missing' : 'late'}:${config.file}`,
+      'warning',
+      config.label,
+      missing
+        ? `${config.label} did not deliver the expected daily scheduled run within the grace period.`
+        : `${config.label} scheduled run started ${scheduleCadence.delayMinutes} minutes after its UTC slot.`,
+      scheduleCadence
+    ));
+  }
   // Monitor operational executions, not CI-only push checks. A code-push
   // verifier failure should stay visible in GitHub CI without recursively
   // marking unrelated live producers unhealthy. Convoy dry-runs must not count
@@ -482,7 +502,7 @@ async function checkWorkflow(config, issues) {
         `${config.label} has no workflow runs.`
       ));
     }
-    return { ...config, exists: true, ok: Boolean(config.optionalUntilFirstRun), latestRun: null, noRunsYet: true };
+    return { ...config, exists: true, ok: Boolean(config.optionalUntilFirstRun) && (!scheduleCadence || scheduleCadence.status === 'on-time'), latestRun: null, noRunsYet: true, scheduleCadence };
   }
 
   const latest = runs[0];
@@ -526,8 +546,11 @@ async function checkWorkflow(config, issues) {
     Number.isFinite(age) &&
     age <= config.maxAgeMinutes
   );
-  let ok = true;
+  let ok = !scheduleCadence || scheduleCadence.status === 'on-time';
   const reasons = [];
+  if (scheduleCadence && scheduleCadence.status !== 'on-time') {
+    reasons.push('schedule-' + scheduleCadence.status);
+  }
 
   if (!Number.isFinite(age) || age > config.maxAgeMinutes) {
     if (recentActiveRun) {
@@ -575,6 +598,7 @@ async function checkWorkflow(config, issues) {
     maxAgeMinutes: config.maxAgeMinutes,
     ageMinutes: Number.isFinite(age) ? age : null,
     reasons,
+    scheduleCadence,
     latestRun: {
       id: latest.id,
       event: latest.event,
