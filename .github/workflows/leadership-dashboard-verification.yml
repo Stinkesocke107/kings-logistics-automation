@@ -1,11 +1,14 @@
 name: Kings Leadership Dashboard Verification
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
       - 'leadership-message-sync.js'
+      - 'leadership-dashboard.js'
+      - 'discord-fixed-message-audit.js'
       - 'driver-leadership-reports.js'
       - 'driver-weekly-summary.js'
       - 'hr-leadership-reports.js'
@@ -50,3 +53,17 @@ jobs:
           node --check management-weekly-overview-v3.js
           node --check management-monthly-report.js
           node --check weekly-reports-verifier-v2.js
+          node --check discord-fixed-message-audit.js
+
+      - name: Verify existing fixed Discord messages (read-only, no posts)
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DRIVER_LEADERSHIP_CHANNEL_ID: '1551675577226887229'
+          HR_LEADERSHIP_CHANNEL_ID: '1383508442857340969'
+          STAFF_LEADERSHIP_CHANNEL_ID: '1551675877178474526'
+          EVENT_LEADERSHIP_CHANNEL_ID: '1551675735633297418'
+          MANAGEMENT_OVERVIEW_CHANNEL_ID: '1492936683304517792'
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
+          CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
+        run: node discord-fixed-message-audit.js
