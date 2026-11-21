@@ -24,6 +24,12 @@ Die Discord-Staff-Struktur nutzt bereits die fünf vorhandenen Hierarchierollen 
 - `kings-data-sources.js` unterscheidet `staff` (Discord-Hierarchie), `staffVtc` (TMP-Klassifikation) und `staffAppointments` (geplante menschliche Personalentscheidung) als drei **separate Feldquellen**.
 - Keine neuen Discord-Kanäle, keine Personalentscheidungen, Rollenänderungen oder zusätzlichen automatischen Personendatenimporte.
 
+## Schutz der festen Staff-Discord-Nachricht und der GitHub-Protokolle
+
+Die bestehenden Staff-Synchronisierungen verarbeiten vertrauliche Mitgliederdaten im Arbeitsspeicher beziehungsweise in geschützten, verschlüsselten Staff-State-Dateien. **Discord-API-Fehler dürfen deren originale HTTP-Antworten nicht in öffentlichen GitHub Actions Logs wiedergeben.** `staff-management.js` und das tatsächliche feste `staff-leadership-live-overview.js` protokollieren bei Discord-Fehlern deshalb nur noch die HTTP-Statuskategorie, niemals Response-Body, private Felder oder komplette Discord-Message-URLs.
+
+Das Staff Leadership Live Role Overview ist **update-only**: Jede reguläre Aktualisierung prüft zunächst die vorhandene, gespeicherte **bot-eigene** Nachricht und verändert nur genau diese. Wenn die bekannte Nachricht bei Discord fehlt (HTTP 404), der Autor oder Titel abweicht, die gespeicherte Kanal-ID falsch ist oder die Kanalhistorie keine eindeutige bot-eigene Nachricht beweist, bricht die Automatisierung ab. Sie erzeugt **keine automatische zweite Nachricht**. Eine erstmalige Veröffentlichung oder Wiederherstellung benötigt eine eigene, bewusst freigegebene manuelle Maßnahme. Die aktuelle Staff-Rollenzählung bleibt ausschließlich lesend und verändert keine Personalrollen.
+
 ## Nächster Staff-Register-Ausbauschritt (noch nicht aktiv)
 
 Für **aktuelle und zukünftige Staff-Mitglieder** wäre nach CEO/HR-Freigabe eine unabhängige, private Quelle für bestätigte Ernennungs-/Positionsdaten sinnvoll. Sie sollte mindestens diese **fachlich notwendigen Felder** enthalten, ohne unnötige personenbezogene Informationen:

@@ -12,12 +12,17 @@ const HIERARCHY = ['Head Management', 'Management', 'Director', 'Team Lead', 'St
 function norm(v) { return String(v || '').normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' '); }
 async function discord(route, method='GET', body) {
   if (!TOKEN) throw Error('DISCORD_BOT_TOKEN is missing');
-  if (method !== 'GET' && !/^\/channels\/\d+\/messages(?:\/\d+)?$/.test(route)) throw Error('Write outside message endpoints blocked');
-  if (!['GET','POST','PATCH'].includes(method)) throw Error('Discord method blocked');
+  // This is an UPDATE-ONLY dashboard. A bot must never silently replace a
+  // missing stored message with another post or modify Staff roles/members.
+  if (!['GET','PATCH'].includes(method)) throw Error('Staff role dashboard method blocked');
+  if(method==='PATCH' && !/^\/channels\/\d{17,20}\/messages\/\d{17,20}$/.test(route))
+    throw Error('Staff role dashboard write outside fixed message blocked');
   const response = await fetch(API+route, {method, headers:{Authorization:'Bot '+TOKEN,'Content-Type':'application/json'}, body:body?JSON.stringify(body):undefined, signal:AbortSignal.timeout(20000)});
   const result = await response.text();
-  if (!response.ok) throw Error('Discord '+response.status+' '+route+': '+result.slice(0,400));
-  return result ? JSON.parse(result) : null;
+  if (!response.ok) throw Error('Discord API HTTP '+response.status+' (body and path withheld)');
+  if(!result)return null;
+  try{return JSON.parse(result);}
+  catch{throw Error('Discord API returned invalid JSON (body withheld)');}
 }
 async function allMembers() {
   const result = []; let after = '';
@@ -69,23 +74,48 @@ async function main() {
   if (!bot?.id) throw Error('Cannot verify Kings Bot identity; refusing dashboard write');
   const embed=makeEmbed(members,roles);
   let stored=null;
-  if(fs.existsSync(STATE)) { try {stored=JSON.parse(fs.readFileSync(STATE,'utf8'));}catch {throw Error('Corrupt live overview state; refusing to reset');} }
-  let messageId=stored?.messageId||null;
+  if(fs.existsSync(STATE)) {
+    try {stored=JSON.parse(fs.readFileSync(STATE,'utf8'));}
+    catch {throw Error('Corrupt Staff live overview state; refusing to reset or recreate');}
+    if(stored?.version!==1 ||
+       String(stored?.channelId||'')!==String(target.id) ||
+       !/^\d{17,20}$/.test(String(stored?.messageId||''))){
+      throw Error('Invalid or conflicting Staff live overview ownership state; refusing to publish');
+    }
+  }
+  if(String(target?.guild_id||'')!==String(GUILD))
+    throw Error('Staff live overview channel belongs to a different guild');
   const payload={embeds:[embed],allowed_mentions:{parse:[]}};
+  let messageId=stored?.messageId||null;
   if(messageId) {
-    try {
-      const old=await discord('/channels/'+target.id+'/messages/'+messageId);
-      if(String(old?.author?.id||'')!==String(bot.id) || !old?.embeds?.some(e=>e.title?.includes(MARKER))) throw Error('Stored message does not belong to Kings Bot live overview');
-    } catch(error) { if(!String(error.message).includes('Discord 404 ')) throw error; messageId=null; }
-  }
-  if(!messageId) {
+    // No GET 404 -> silent discovery/POST fallbacks; never duplicate a fixed
+    // dashboard when the original message was removed or access changed.
+    const old=await discord('/channels/'+target.id+'/messages/'+messageId);
+    if(String(old?.author?.id||'')!==String(bot.id) ||
+       !old?.embeds?.some(e=>e.title?.includes(MARKER)))
+      throw Error('Stored Staff live overview is not bot-owned or has wrong title');
+  } else {
+    // Migration of an already existing bot-owned dashboard is allowed.
+    // Initial publication, duplicate owned messages and partial 100-message
+    // history require an explicit manual recovery outside this automation.
     const recent=await discord('/channels/'+target.id+'/messages?limit=100');
-    const own=recent.find(m=>String(m.author?.id||'')===String(bot.id) && m.embeds?.some(e=>e.title?.includes(MARKER)));
-    messageId=own?.id||null;
+    if(!Array.isArray(recent)||recent.length>=100)
+      throw Error('Staff live overview message history not exhaustive; refusing publication');
+    const owned=recent.filter(m=>String(m.author?.id||'')===String(bot.id) &&
+      m.embeds?.some(e=>e.title?.includes(MARKER)));
+    if(owned.length!==1 || !/^\d{17,20}$/.test(String(owned[0]?.id||'')))
+      throw Error('Staff live overview needs exactly one verified existing bot-owned message');
+    messageId=owned[0].id;
   }
-  const sent=await discord('/channels/'+target.id+'/messages'+(messageId?'/'+messageId:''),messageId?'PATCH':'POST',payload);
+  const sent=await discord('/channels/'+target.id+'/messages/'+messageId,'PATCH',payload);
+  if(String(sent?.id||'')!==String(messageId))
+    throw Error('Staff live overview Discord PATCH did not confirm stored message ID');
   fs.mkdirSync(path.dirname(STATE),{recursive:true});
-  fs.writeFileSync(STATE,JSON.stringify({version:1,channelId:target.id,messageId:sent.id,updatedAt:new Date().toISOString(),totalStaff:Number(embed.fields[0].value.replace(/\D/g,''))},null,2)+'\n');
-  console.log('Live Staff hierarchy overview '+(messageId?'updated':'created')+'; unique Staff '+embed.fields[0].value+'; message '+sent.id);
+  fs.writeFileSync(STATE,JSON.stringify({
+    version:1,channelId:target.id,messageId,
+    updatedAt:new Date().toISOString(),
+    totalStaff:Number(embed.fields[0].value.replace(/\D/g,''))
+  },null,2)+'\n');
+  console.log('Live Staff hierarchy overview updated; unique Staff '+embed.fields[0].value+'; message identity preserved.');
 }
-main().catch(e=>{console.error(e);process.exitCode=1;});
+main().catch(e=>{console.error('Kings Staff hierarchy overview failed: '+String(e?.message||'unknown error'));process.exitCode=1;});

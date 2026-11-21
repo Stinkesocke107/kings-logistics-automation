@@ -164,10 +164,13 @@ async function discord(pathname, options = {}) {
 
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+    // Public Actions logs must not contain Discord error bodies, channel paths,
+    // Staff identities, roles or message payloads returned by the provider.
+    throw new Error(`Discord API HTTP ${response.status} (response details withheld)`);
   }
   if (!text) return null;
-  try { return JSON.parse(text); } catch { return text; }
+  try { return JSON.parse(text); }
+  catch { throw new Error('Discord API returned invalid JSON (response body withheld)'); }
 }
 
 function normalizeName(value = '') {
