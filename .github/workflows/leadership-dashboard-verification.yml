@@ -11,6 +11,8 @@ on:
       - 'hr-driver-register-status.js'
       - 'discord-fixed-message-audit.js'
       - 'discord-leadership-content-audit.js'
+      - 'discord-protected-channel-access-audit.js'
+      - 'tests/discord-protected-channel-access-audit.test.cjs'
       - 'tests/discord-leadership-content-audit.test.cjs'
       - 'discord-channel-inventory-audit.js'
       - 'discord-publication-content-audit.js'
@@ -68,6 +70,7 @@ jobs:
           node --check weekly-reports-verifier-v2.js
           node --check discord-fixed-message-audit.js
           node --check discord-leadership-content-audit.js
+          node --check discord-protected-channel-access-audit.js
           node --check discord-channel-inventory-audit.js
           node --check discord-publication-content-audit.js
           node --check discord-webhook-destination-audit.js
@@ -96,6 +99,16 @@ jobs:
         run: |
           node --test tests/discord-leadership-content-audit.test.cjs
           node discord-leadership-content-audit.js
+
+      - name: Audit protected Kings Driver register and optional HR channel access (read-only)
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          KINGS_HR_DECISIONS_CHANNEL_ID: ${{ secrets.KINGS_HR_DECISIONS_CHANNEL_ID }}
+          KINGS_HR_CASE_VIEW_CHANNEL_ID: ${{ secrets.KINGS_HR_CASE_VIEW_CHANNEL_ID }}
+        run: |
+          node --test tests/discord-protected-channel-access-audit.test.cjs
+          node discord-protected-channel-access-audit.js
 
       - name: Verify mapped Kings Discord channels (read-only, no posts or member reads)
         env:
