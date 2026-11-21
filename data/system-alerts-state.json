@@ -108,14 +108,17 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-21T18:14:57.394Z"
+    },
+    "workflow-failed:staff-leadership-live-overview.yml": {
+      "severity": "warning",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
+      "details": {
+        "runId": 44934211673,
+        "completedAt": "2026-11-21T18:12:47Z"
+      },
+      "firstAlertedAt": "2026-11-21T18:24:25.506Z"
     }
   },
-  "pending": {
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-21T18:14:57.394Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
