@@ -52,11 +52,30 @@ const SOURCES = Object.freeze({
     noPublicPersonalData: true
   }),
   staff: Object.freeze({
-    name: 'Verified Kings Staff Roles and Encrypted HR Records',
-    authority: 'discord-roles-plus-hr-approval',
-    status: 'active',
+    name: 'Current Kings Discord Staff Hierarchy Role Holders',
+    authority: 'live-discord-guild',
+    status: 'active-roles-only',
     privacy: 'restricted',
-    fields: Object.freeze(['current_staff_assignment','staff_appointment_date']),
+    fields: Object.freeze(['current_staff_assignment','current_staff_role_membership']),
+    noPublicPersonalData: true
+  }),
+  staffAppointments: Object.freeze({
+    name: 'Human-approved Kings Staff Appointments and Departments',
+    authority: 'human-approved-private-staff-register',
+    status: 'planned-not-configured',
+    privacy: 'restricted',
+    fields: Object.freeze([
+      'staff_appointment_date','approved_staff_appointment',
+      'approved_staff_department','approved_staff_departure'
+    ]),
+    noPublicPersonalData: true
+  }),
+  staffVtc: Object.freeze({
+    name: 'Official TruckersMP VTC Staff Role Classification',
+    authority: 'official-truckersmp-api',
+    status: 'active-separate-classification',
+    privacy: 'aggregate-public',
+    fields: Object.freeze(['tmp_vtc_staff_classification']),
     noPublicPersonalData: true
   }),
   awards: Object.freeze({
