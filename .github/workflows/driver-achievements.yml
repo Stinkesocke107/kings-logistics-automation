@@ -53,8 +53,10 @@ jobs:
         env:
           REQUESTED_MODE: ${{ inputs.role_sync_mode }}
         run: |
+          # Scheduled and push runs are strictly read-only previews.
+          # Role writes require an explicit manual workflow_dispatch opt-in.
           if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
-            MODE="live"
+            MODE="dry-run"
           elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$REQUESTED_MODE" = "live" ]; then
             MODE="live"
           else
@@ -79,7 +81,7 @@ jobs:
           DRIVER_LOYALTY_ROLE_MODE: dry-run
         run: node driver-loyalty-roles.js
 
-      - name: Sync Driver Loyalty Discord roles
+      - name: Verify Kings Driver Loyalty role plan (read-only unless manually authorized)
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -129,9 +131,9 @@ jobs:
           console.log(`- Current Drivers: **${s.currentDrivers}**`);
           console.log(`- Matched on Discord: **${s.matchedCurrentDrivers}**`);
           console.log(`- Eligible for Loyalty tier: **${s.eligibleForLoyaltyTier}**`);
-          console.log(`- No linked/public Discord: **${s.noLinkedDiscord}**`);
-          console.log(`- Linked Discord not on Kings server: **${s.linkedDiscordNotOnGuild}**`);
-          console.log(`- TruckersMP profile errors: **${s.truckersmpProfileErrors}**`);
+          console.log(`- Verified original Kings joining dates: **${s.registeredKingsDates}**`);
+          console.log(`- Drivers awaiting original Kings registration: **${s.unregisteredDrivers}**`);
+          console.log(`- Joining-date authority: **${s.source}**`);
           console.log(`- Role additions / removals: **${s.roleAdditions} / ${s.roleRemovals}**`);
           NODE
           fi

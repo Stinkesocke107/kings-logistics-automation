@@ -405,7 +405,7 @@ async function sendAchievementAlerts(channel, achievements) {
         `**${definition.label}**`,
         ...lines,
         '',
-        '🎉 TruckersMP milestone reached! Eligible full Kings Drivers also receive their Discord Loyalty roles automatically. Discord role tiers use the Kings Discord join date and may differ from this TruckersMP achievement.'
+        '🎉 TruckersMP VTC membership milestone reached. Official Kings Driver Loyalty uses the original Management-verified Kings joining date and the active Discord Kings Driver role. Loyalty role changes are processed separately and require authorization.'
       ].join('\n');
 
       if (content.length > 2000) {

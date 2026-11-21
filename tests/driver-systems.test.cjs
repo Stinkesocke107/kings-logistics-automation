@@ -444,12 +444,24 @@ test('Loyalty workflow never publishes Leadership achievements while Driver Upda
   assert.ok(preflight >= 0 && roleSync > preflight, 'Daily role sync and safe preflight must remain');
   assert.doesNotMatch(workflow, /run: node driver-achievements\.js|Update Driver Achievements/);
   assert.match(workflow, /run: node driver-loyalty-roles\.js/);
+  assert.match(workflow, /if \[ "\$GITHUB_EVENT_NAME" = "schedule" \]; then\s+MODE="dry-run"/);
+  assert.match(workflow, /if \[ "\$GITHUB_EVENT_NAME" = "workflow_dispatch" \] && \[ "\$REQUESTED_MODE" = "live" \]; then\s+MODE="live"/);
+  assert.match(workflow, /Verified original Kings joining dates/);
+  assert.match(workflow, /Drivers awaiting original Kings registration/);
+  assert.doesNotMatch(workflow, /No linked\/public Discord|TruckersMP profile errors/);
   assert.match(updates, /buildDriverUpdatePayload\('joined', member\)/);
   assert.match(updates, /buildDriverUpdatePayload\('promoted', member\)/);
   assert.doesNotMatch(leadership, /### 🕒 Membership & Tenure|data\.tenure\.averageDays/);
   assert.match(leadership, /### 🚛 Driver Development/);
 });
 
+
+test('legacy TMP achievement messages cannot claim automatic loyalty roles or wrong Kings joining dates', () => {
+  const source = fs.readFileSync(path.join(__dirname, '../driver-achievements.js'), 'utf8');
+  assert.match(source, /original Management-verified Kings joining date/);
+  assert.match(source, /Loyalty role changes are processed separately and require authorization/);
+  assert.doesNotMatch(source, /also receive their Discord Loyalty roles automatically/);
+});
 
 test('Driver Achievements handles month-end and leap-year anniversaries', () => {
   const s = sandbox('driver-achievements.js');
