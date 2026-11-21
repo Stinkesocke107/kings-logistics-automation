@@ -65,7 +65,7 @@ jobs:
       # A channel permission error is visible in the step without exposing
       # register records; external API failures cannot masquerade as success.
       - name: Read-only Kings private Driver register completion audit
-        if: "!startsWith(github.event.head_commit.message, 'Run private Kings Driver register diagnostics')"
+        if: "${{ !startsWith(github.event.head_commit.message, 'Run private Kings Driver register diagnostics') && !startsWith(github.event.head_commit.message, 'Run private Kings Driver VTC verification') }}"
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
@@ -83,6 +83,16 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           KINGS_TMP_VTC_REVIEW_MODE: audit-driver-only-publish
+        run: node driver-tmp-vtc-register-review.js
+
+      # One-time CEO-authorized private TruckersMP VTC roster discrepancy
+      # report. Never place Discord IDs or private dates in GitHub logs.
+      - name: Publish private active Kings Driver VTC mismatch report
+        if: startsWith(github.event.head_commit.message, 'Run private Kings Driver VTC verification')
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          KINGS_TMP_VTC_REVIEW_MODE: audit-publish
         run: node driver-tmp-vtc-register-review.js
 
   review:

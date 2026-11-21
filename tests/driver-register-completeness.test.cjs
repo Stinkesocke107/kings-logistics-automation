@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {compareRegister,auditPages,REPORT_PREFIX}=require('../driver-register-completeness');
-const {review,cleanupObsoleteAuditPages}=require('../driver-tmp-vtc-register-review');
+const {review,driverOnlyAuditPages,cleanupObsoleteAuditPages}=require('../driver-tmp-vtc-register-review');
 
 const GUILD='1114967437788577792';
 const REGISTER='1572736232969084948';
@@ -241,6 +241,7 @@ test('Discord-only private audit publishes missing active Kings Driver IDs witho
   assert.equal(result.type,'audit-driver-only');
   assert.deepEqual(result.counts,{currentDrivers:2,registered:1,missingRecords:1,complete:false});
   const published=result.pages.map(p=>p.content).join('\n');
+  assert.ok(result.pages.every(p=>p.marker.startsWith('👑 **Kings Driver Registration Queue | ')));
   assert.ok(published.includes(D2));
   assert.ok(!published.includes(D3));
   assert.ok(!published.includes(D1+' • Kings Driver'));
@@ -278,6 +279,39 @@ test('old audit cleanup removes only bot-authored expired audit pages',async()=>
   assert.equal(deleted,1);
   assert.deepEqual(removed,['/channels/'+DEST+'/messages/900000000000000005']);
 });
+test('daily onboarding queue cleanup never removes private VTC mismatch audit reports',async()=>{
+  const queuePrefix='👑 **Kings Driver Registration Queue | ';
+  const cleanupTarget=queuePrefix+'Missing Discord 1/1**';
+  const vtcSummary=REPORT_PREFIX+'Summary**';
+  const deleted=[];
+  const transport=async(url,options)=>{
+    const p=url.replace('https://discord.com/api/v10','');
+    if(options.method==='GET'){
+      if(p==='/users/@me') return new Response(JSON.stringify({id:BOT}),{status:200});
+      if(p.includes('/messages?')) return new Response(JSON.stringify([
+        {id:'900000000000000041',author:{id:BOT},content:cleanupTarget},
+        {id:'900000000000000042',author:{id:BOT},content:vtcSummary},
+        {id:'900000000000000043',author:{id:MANAGER},content:cleanupTarget}
+      ]),{status:200});
+    }
+    if(options.method==='DELETE'){
+      deleted.push(p);
+      return new Response(null,{status:204});
+    }
+    throw Error('Unexpected request');
+  };
+  const deletedCount=await cleanupObsoleteAuditPages({
+    token:'test',channelId:DEST,markers:[queuePrefix+'Summary**'],
+    prefix:queuePrefix,transport
+  });
+  assert.equal(deletedCount,1);
+  assert.deepEqual(deleted,['/channels/'+DEST+'/messages/900000000000000041']);
+  await assert.rejects(cleanupObsoleteAuditPages({
+    token:'test',channelId:DEST,markers:[vtcSummary],
+    prefix:queuePrefix,transport
+  }), /cleanup scope/);
+});
+
 test('existing VTC review workflow exposes only manual register audit modes',()=>{
   const text=fs.readFileSync(path.join(__dirname,'../.github/workflows/driver-tmp-vtc-review.yml'),'utf8');
   assert.match(text,/audit-preview/);

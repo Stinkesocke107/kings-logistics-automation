@@ -12,6 +12,7 @@ const {inspectRegisterMessages,diagnosticPages}=require('./driver-register-forma
 const GUILD='1114967437788577792';
 const TMP_API='https://api.truckersmp.com/v2';
 const DISCORD_API='https://discord.com/api/v10';
+const QUEUE_PREFIX='👑 **Kings Driver Registration Queue | ';
 function delay(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 async function getJson(url, headers={}, transport=fetch, attempts=2) {
   let error=null;
@@ -67,7 +68,7 @@ function driverOnlyAuditPages(drivers, identities, checkedAt=new Date()){
   if(!active.length)throw Error('No active Kings Driver role holders to audit.');
   const missing=active.filter(d=>!identities.has(d.discordId));
   const stamp=checkedAt.toISOString().replace('T',' ').slice(0,16)+' UTC';
-  const header=REPORT_PREFIX+'Summary**';
+  const header=QUEUE_PREFIX+'Summary**';
   const summary=[
     header,'**Active Kings Driver registration review** • '+stamp,
     'Discord Kings Driver roles: **'+active.length+'**',
@@ -83,7 +84,7 @@ function driverOnlyAuditPages(drivers, identities, checkedAt=new Date()){
   const pages=[{marker:header,content:summary}];
   for(let i=0;i<missing.length;i+=15){
     const batch=missing.slice(i,i+15);
-    const marker=REPORT_PREFIX+'Missing Discord '+(1+Math.floor(i/15))+'/';
+    const marker=QUEUE_PREFIX+'Missing Discord '+(1+Math.floor(i/15))+'/';
     const content=[
       marker+Math.ceil(missing.length/15)+'**',
       '**Active Kings Driver members missing from the private Driver Register**',
@@ -210,7 +211,11 @@ async function review({token,transport=fetch,mode='preview'}) {
 }
 // Remove only obsolete, BOT-authored pages from this specific Kings audit.
 // Never delete human messages, other Leadership reports or private register data.
-async function cleanupObsoleteAuditPages({token,channelId,markers,transport=fetch}) {
+async function cleanupObsoleteAuditPages({token,channelId,markers,transport=fetch,prefix=REPORT_PREFIX}) {
+  if(![REPORT_PREFIX,QUEUE_PREFIX].includes(prefix) ||
+     !Array.isArray(markers) || !markers.every(m=>String(m).startsWith(prefix))) {
+    throw Error('Unrecognized private Kings audit cleanup scope.');
+  }
   const headers={Authorization:'Bot '+token,'User-Agent':'Kings Driver Register Audit/1.0'};
   const me=await getJson(DISCORD_API+'/users/@me',headers,transport);
   if(!/^\d{17,20}$/.test(String(me?.id||'')))throw Error('Cannot validate audit publisher identity.');
@@ -225,7 +230,7 @@ async function cleanupObsoleteAuditPages({token,channelId,markers,transport=fetc
     for(const message of messages){
       const text=String(message?.content||'');
       if(String(message?.author?.id||'')!==String(me.id) ||
-         !text.startsWith(REPORT_PREFIX) ||
+         !text.startsWith(prefix) ||
          markers.some(marker=>text.includes(marker)))continue;
       if(!/^\d{17,20}$/.test(String(message.id||'')))continue;
       const response=await transport(DISCORD_API+'/channels/'+channelId+'/messages/'+message.id,{
@@ -296,7 +301,8 @@ async function main(){
   }
   if(['audit','audit-diagnostics','audit-driver-only'].includes(result.type)){
     const deleted=await cleanupObsoleteAuditPages({token,channelId:result.channelId,
-      markers:result.pages.map(page=>page.marker)});
+      markers:result.pages.map(page=>page.marker),
+      prefix:result.type==='audit-driver-only'?QUEUE_PREFIX:REPORT_PREFIX});
     console.log('Private Kings Driver Register audit published ('+result.type+'); '+
       deleted+' outdated bot-owned audit pages removed. No register or role writes.');
   }else console.log('Published VTC review candidates to private Driver Leadership; no register or role writes.');
