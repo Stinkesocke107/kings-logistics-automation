@@ -94,6 +94,14 @@ test('coverage for current Driver roles excludes Trial, former and VTC-only reco
   assert.equal(JSON.stringify(partial).includes('2021-02-02'),false);
 });
 
+test('no active Discord Kings Driver roles is never mislabeled complete',()=>{
+  const result=activeDriverSourceCoverage(approved,[],at);
+  assert.equal(result.status,'no-active-drivers');
+  assert.equal(result.activeDrivers,0);
+  assert.equal(result.registered,null);
+  assert.equal(result.missing,null);
+});
+
 test('bad active roles and inconsistent private original dates never appear complete',()=>{
   assert.throws(()=>activeDriverSourceCoverage(approved,[A,A],at),/invalid or contains duplicates/);
   assert.throws(()=>activeDriverSourceCoverage(approved,['unverified-nickname'],at),/invalid or contains duplicates/);
