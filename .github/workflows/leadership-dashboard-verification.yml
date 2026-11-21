@@ -8,6 +8,7 @@ on:
     paths:
       - 'leadership-message-sync.js'
       - 'leadership-dashboard.js'
+      - 'hr-driver-register-status.js'
       - 'discord-fixed-message-audit.js'
       - 'driver-leadership-reports.js'
       - 'driver-weekly-summary.js'
@@ -44,6 +45,7 @@ jobs:
       - name: Verify Leadership dashboard scripts
         run: |
           node --check leadership-message-sync.js
+          node --check hr-driver-register-status.js
           node --check driver-leadership-reports.js
           node --check driver-weekly-summary.js
           node --check hr-leadership-reports.js
