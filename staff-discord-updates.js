@@ -159,7 +159,7 @@ async function discord(pathname, options = {}) {
 
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+    throw new Error(`Discord API ${response.status} during ${method} request (details withheld from public CI logs).`);
   }
 
   if (!text) return null;
@@ -237,14 +237,14 @@ async function truckersMpDiscordSnowflake(tmpId) {
         const seconds = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 15;
         const waitMs = Math.ceil(Math.min(Math.max(seconds, 1), 60) * 1000);
         console.warn(
-          `TruckersMP player API rate limited at TMP ${tmpId}; waiting ${Math.ceil(waitMs / 1000)}s.`
+          `TruckersMP player API rate limited; retrying after ${Math.ceil(waitMs / 1000)}s.`
         );
         await sleep(waitMs);
         continue;
       }
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${text.slice(0, 300)}`);
+        throw new Error(`TruckersMP player API returned HTTP ${response.status}.`);
       }
 
       const payload = text ? JSON.parse(text) : null;
@@ -315,7 +315,7 @@ async function buildTruckersMpCrossCheck(staffState, loyaltyMappings, guildMembe
         await sleep(1100);
       } catch (error) {
         console.warn(
-          `TruckersMP Discord verification failed for ${person.username} (TMP ${tmpId}): ${error.message}`
+          `TruckersMP Discord verification unavailable for a Staff candidate (${error?.name === 'TimeoutError' || error?.name === 'AbortError' ? 'timeout' : 'request failed'}).`
         );
       }
     }
@@ -411,25 +411,18 @@ function resolveHierarchyRoles(roles, members) {
 
     if (ranked.length > 1 && ranked[0].score === ranked[1].score && ranked[0].assignments === ranked[1].assignments) {
       throw new Error(
-        `Ambiguous Discord Staff hierarchy role "${definition.label}": ` +
-        ranked.map((item) =>
-          `${item.role.name} (${item.role.id}, assignments ${item.assignments})`
-        ).join(', ')
+        `Ambiguous Discord Staff hierarchy role "${definition.label}" (${ranked.length} competing candidates).`
       );
     }
 
     const selected = ranked[0];
     console.log(
-      `Hierarchy role ${definition.label}: selected "${selected.role.name}" ` +
-      `(${selected.role.id}) with ${selected.assignments} member assignment(s).`
+      `Hierarchy role ${definition.label}: selected one role with ${selected.assignments} member assignment(s).`
     );
 
     if (ranked.length > 1) {
       console.log(
-        '  Ignored same-name candidate(s): ' +
-        ranked.slice(1).map((item) =>
-          `"${item.role.name}" (${item.role.id}, assignments ${item.assignments})`
-        ).join(', ')
+        `  Ignored ${ranked.length - 1} same-name hierarchy candidate(s).`
       );
     }
 
@@ -609,8 +602,7 @@ function detectChanges(previous, currentStaff, currentTmpIds) {
 
     if (!snapshotsEqual(old, current)) {
       console.log(
-        `- ${current.username} | Staff role structure changed without upward hierarchy promotion: ` +
-        `${old.hierarchyLabel || 'Unknown'} -> ${current.hierarchyLabel || 'Unknown'} | no public promotion post`
+        `Staff role structure changed without an upward promotion (no public announcement).`
       );
     }
 
@@ -800,14 +792,14 @@ async function publishEvent(channel, botId, event) {
   const existing = await findExistingPublicPost(channel.id, botId, event);
   if (existing) {
     console.log(
-      `- ${event.type} | ${event.username} | duplicate suppressed by existing message ${existing.id}`
+      `Staff event ${event.type}: duplicate suppressed using an existing bot-owned message.`
     );
     return { action: 'already-published', messageId: existing.id };
   }
 
   if (MODE !== 'live') {
     console.log(
-      `- ${event.type} | ${event.username} | DRY-RUN would publish in #${channel.name}`
+      `Staff event ${event.type}: DRY-RUN would publish in configured Staff channel.`
     );
     return { action: 'dry-run', messageId: null };
   }
@@ -821,7 +813,7 @@ async function publishEvent(channel, botId, event) {
   });
 
   console.log(
-    `- ${event.type} | ${event.username} | published message ${sent?.id || 'unknown'} in #${channel.name}`
+    `Staff event ${event.type}: published to configured Staff channel; message evidence ${sent?.id ? 'present' : 'missing'}.`
   );
   return { action: 'published', messageId: sent?.id || null };
 }
@@ -871,12 +863,8 @@ async function main() {
     `exact-name fallback ${crossCheck.sourceCounts.uniqueExactNameMatch}`
   );
   if (crossCheck.unresolved.length) console.log(`TruckersMP Staff without a safe Discord match: ${crossCheck.unresolved.length}`);
-  for (const person of currentStaff) {
-    console.log(
-      `Staff member: ${person.username} | hierarchy: ${person.hierarchyLabel} | primary: ${person.primaryRole} | TMP: ${person.truckersmpVerified ? `verified ${person.tmpId}` : 'not verified'} | roles: ` +
-      person.roleNames.join(' || ')
-    );
-  }
+  // Staff identities and complete role memberships stay in the encrypted state,
+  // never in public GitHub job logs.
   console.log(`Public Staff Updates channel: #${channel.name} (${channel.id})`);
 
   let state = loadState();
@@ -961,11 +949,7 @@ async function main() {
   }
 
   if (sourceMismatches.length) {
-    for (const mismatch of sourceMismatches) {
-      console.warn(
-        `ADVISORY SOURCE MISMATCH: ${mismatch.type} | ${mismatch.username} | ${mismatch.reason}`
-      );
-    }
+    console.warn(`Staff cross-source advisory mismatches: ${sourceMismatches.length} (identity details withheld).`);
   }
 
   if (MODE === 'live') {
@@ -992,7 +976,7 @@ async function main() {
     authority: 'discord',
     truckersmpCrossCheckMode: 'advisory-only',
     crossCheckSources: crossCheck.sourceCounts,
-    mismatchDetails: [...sourceMismatches, ...crossCheck.unresolved].slice(0, 50),
+    // Do not serialize per-person mismatch details in the public aggregate summary.
     ...counts,
     published,
     duplicatesSuppressed: duplicate,
