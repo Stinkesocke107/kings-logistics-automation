@@ -165,3 +165,38 @@ test('ordinary Management or unrelated service role with global Admin is still s
  const result=await A.audit({transport:mockTransport({roles,members})});
  assert.equal(result.code,'ASSIGNED_PRIVATE_REVIEW_REQUIRED');
 });
+
+
+test('Galaxy managed role may be non-admin while real Galaxy bot obtains Admin through a separate assigned role',async()=>{
+  const galaxyRole=base().roles.map(role=>role.id===GALAXY_ROLE?{...role,permissions:'0'}:role);
+  const members=[
+    {user:{id:OWNER},roles:[]},
+    {user:{id:GALAXY_BOT,bot:true},roles:[GALAXY_ROLE,OTHER_ROLE]},
+    {user:{id:USER},roles:[]}
+  ];
+  const galaxyBotMember={user:{id:GALAXY_BOT,bot:true},roles:[GALAXY_ROLE,OTHER_ROLE]};
+  const result=await A.audit({transport:mockTransport({roles:galaxyRole,members,galaxyBotMember})});
+  assert.equal(result.code,'NO_OTHER_ADMIN_ASSIGNMENTS_OBSERVED');
+  const candidates=A.roleCandidates(galaxyRole,BOT,GUILD);
+  assert.deepEqual(candidates.identities,[OTHER_ROLE]);
+  assert.deepEqual(candidates.galaxy,[{roleId:GALAXY_ROLE,botId:GALAXY_BOT}]);
+});
+
+test('Sharing Galaxy bot supplemental Administrator role with a human still fails closed',async()=>{
+  const galaxyRole=base().roles.map(role=>role.id===GALAXY_ROLE?{...role,permissions:'0'}:role);
+  const members=[
+    {user:{id:OWNER},roles:[]},
+    {user:{id:GALAXY_BOT,bot:true},roles:[GALAXY_ROLE,OTHER_ROLE]},
+    {user:{id:USER},roles:[OTHER_ROLE]}
+  ];
+  const galaxyBotMember={user:{id:GALAXY_BOT,bot:true},roles:[GALAXY_ROLE,OTHER_ROLE]};
+  assert.equal((await A.audit({transport:mockTransport({roles:galaxyRole,members,galaxyBotMember})})).code,'ASSIGNED_PRIVATE_REVIEW_REQUIRED');
+});
+
+test('Missing valid Galaxy managed role or missing effective Administrator is NOT a verified CEO-plus-Galaxy policy',async()=>{
+  const noGalaxyRole=base().roles.filter(role=>role.id!==GALAXY_ROLE);
+  assert.equal((await A.audit({transport:mockTransport({roles:noGalaxyRole})})).code,'GALAXY_MANAGED_ROLE_NOT_FOUND');
+  const notAdmin=base().roles.filter(role=>role.id!==OTHER_ROLE).map(role=>
+     role.id===GALAXY_ROLE?{...role,permissions:'0'}:role);
+  assert.equal((await A.audit({transport:mockTransport({roles:notAdmin})})).code,'GALAXY_ADMIN_NOT_DETECTED');
+});
