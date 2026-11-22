@@ -1,7 +1,7 @@
 {
   "version": 2,
   "initializedAt": "2026-09-17T22:19:52.000Z",
-  "updatedAt": "2026-11-22T02:36:57.174Z",
+  "updatedAt": "2026-11-22T21:07:01.608Z",
   "currentDrivers": 74,
   "members": [],
   "events": [
@@ -204,6 +204,10 @@
     {
       "type": "leave",
       "occurredAt": "2026-11-22T02:36:57.174Z"
+    },
+    {
+      "type": "name_change",
+      "occurredAt": "2026-11-22T21:07:01.608Z"
     }
   ]
 }
