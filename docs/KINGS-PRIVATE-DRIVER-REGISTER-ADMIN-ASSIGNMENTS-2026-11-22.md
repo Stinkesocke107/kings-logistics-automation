@@ -1,5 +1,19 @@
 # Kings Logistics – Private Driver Register: Administrator-Zuweisungen (22.11.2026)
 
+## CEO-Freigabe (22.11.2026) – präzisierte Administrator-Policy
+
+Der Kings CEO bestätigt, dass **ausschließlich die CEO-Rolle und der Galaxy-Bot** Administrator-Rechte im Kings Discord besitzen sollen. Galaxy wird für Ticket-System und Moderations-/Ban-Befehle genutzt. **Das ist eine ausdrücklich akzeptierte technische Zugriffsmöglichkeit des Galaxy-Bots auf geschützte Kanäle.** Keine Rollen, Berechtigungen oder Channel-Overrides werden durch diese Codeänderung geändert.
+
+Die vorherige Zuordnung "unapproved Administrator" war bezogen auf diese ausdrückliche Galaxy-Freigabe zu grob. Der neue Audit:
+- Akzeptiert **nur** exakt benannte CEO-Rollen als menschliche Administrator-Policy-Ausnahme; gewöhnliches Head Management, Management und Staff erhalten nicht automatisch die Ausnahme.
+- Akzeptiert **nur** eine als `Galaxy` oder `Galaxy Bot` benannte, von Discord **verwaltete** Bot-Rolle mit `tags.bot_id`, deren Bot-Mitglied über die offizielle Discord GET-API als `user.bot === true` und mit genau dieser Rolle bestätigt wurde. Ein Rollenname allein reicht niemals.
+- Prüft alle weiteren Rollen mit Administrator-Berechtigung weiterhin via **vollständiger anonymer Zuweisungsprüfung**. Ein zusätzlicher vergebener Admin-Role bleibt `ASSIGNED_PRIVATE_REVIEW_REQUIRED`.
+- Verweigert eine grüne Meldung, wenn Galaxy nicht eindeutig als echter Bot nachgewiesen werden kann (`GALAXY_IDENTITY_UNVERIFIED`).
+- `APPROVED_CEO_AND_GALAXY_ONLY` bestätigt ausschließlich die **geprüfte Rollenstruktur zum Zeitpunkt des Laufs**, nicht den historischen Nachrichten-Zugriff und nicht eine generelle datenschutzrechtliche Freigabe aller externen Bot-Integrationen.
+
+Die strukturelle Kanalprüfung darf ihren `ADVISORY`-Status behalten, weil sie bewusst **keine** Mitglieder-/Bot-Zuweisungen prüft. Erst die separate Identitätsprüfung kann diese fehlende Beweisdimension abdecken.
+
+
 ## Was Issue #130 belegt – und was nicht
 
 Der bestehende strukturelle Audit kontrolliert @everyone-Deny, Channel-Overrides, Rollenmetadaten und Bot-Leserechte des privaten Driver Registers. Er meldet eine mögliche Administrator-Ausnahme, ohne die tatsächlichen Rollenzuweisungen zu prüfen. Discord Administrator kann Channel-Overrides umgehen. Daraus ergibt sich **kein Nachweis eines tatsächlichen Datenzugriffs oder Datenschutzvorfalls**.
