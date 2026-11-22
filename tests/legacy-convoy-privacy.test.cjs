@@ -61,9 +61,10 @@ test('actual tracked Legacy archive projection preserves every event and operati
   assert.equal(p.convoys.length,tracked.convoys.length);
   for(let i=0;i<p.convoys.length;i++){
     const current=p.convoys[i],prior=tracked.convoys[i];
-    for(const field of ['legacyId','eventId','eventUnix','eventDate','meetingTime','confirmedKingsSlot','slotStatus','game','route']){
+    for(const field of ['eventId','eventUnix','eventDate','meetingTime','confirmedKingsSlot','slotStatus','game','route']){
       assert.deepEqual(current[field],prior[field]);
     }
+    assert.equal(current.legacyId,publicLegacyId(prior));
     assert.equal(Boolean(current.kingsSlotImage),Boolean(prior.kingsSlotImage));
   }
   assert.equal(hasUnredactedPrivateNotes(p),false);
