@@ -109,16 +109,26 @@
       },
       "firstAlertedAt": "2026-11-21T22:42:15.566Z"
     },
-    "workflow-overdue:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window.",
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
       "details": {
-        "latestActivityAt": "2026-11-21T19:00:13Z",
-        "ageMinutes": 221,
-        "maxAgeMinutes": 90
+        "runId": 44964956014,
+        "completedAt": "2026-11-22T00:06:24Z"
       },
-      "firstAlertedAt": "2026-11-21T22:42:15.566Z"
+      "firstAlertedAt": "2026-11-22T00:06:50.248Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-22T00:06:50.248Z"
     }
   },
   "pending": {}
