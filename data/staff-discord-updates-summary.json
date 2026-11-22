@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "live",
-  "updatedAt": "2026-11-22T21:07:12.483Z",
+  "updatedAt": "2026-11-22T21:50:30.559Z",
   "currentStaff": 12,
   "truckersmpCurrentStaff": 15,
   "crossConfirmedStaff": 6,
@@ -13,10 +13,10 @@
     "verifiedDriverMapping": 5,
     "uniqueExactNameMatch": 0
   },
-  "joined": 1,
+  "joined": 0,
   "promotions": 0,
   "left": 0,
-  "published": 1,
+  "published": 0,
   "duplicatesSuppressed": 0,
   "dryRunPosts": 0,
   "baselineCreated": false,
