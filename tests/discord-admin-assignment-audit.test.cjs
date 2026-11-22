@@ -81,9 +81,9 @@ test('full roster with assigned outside Admin role -> review required, no user i
  assert.doesNotMatch(JSON.stringify(result),new RegExp(USER+'|'+OTHER_ROLE));
 });
 test('full roster with no nonowner assignment -> no assignment observed',async()=>{
- assert.equal((await A.audit({transport:mockTransport()})).code,'NO_NONOWNER_ASSIGNMENTS_OBSERVED');
+ assert.equal((await A.audit({transport:mockTransport()})).code,'NO_OTHER_ADMIN_ASSIGNMENTS_OBSERVED');
  const members=[{user:{id:OWNER},roles:[OTHER_ROLE]},{user:{id:USER},roles:[]}];
- assert.equal((await A.audit({transport:mockTransport({members})})).code,'NO_NONOWNER_ASSIGNMENTS_OBSERVED');
+ assert.equal((await A.audit({transport:mockTransport({members})})).code,'NO_OTHER_ADMIN_ASSIGNMENTS_OBSERVED');
 });
 test('lack of privileged member-list access cannot be reported as a privacy clearance',async()=>{
  assert.equal((await A.audit({transport:mockTransport({membersUnavailable:true})})).code,'INCONCLUSIVE_MEMBER_LIST');
