@@ -98,26 +98,35 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-22T00:06:50.248Z"
-    }
-  },
-  "pending": {
+    },
     "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-22T00:42:06.820Z",
+      "severity": "warning",
       "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
+      "message": "Safe Self-Healing latest completed run ended with failure.",
+      "details": {
+        "runId": 44967597988,
+        "completedAt": "2026-11-22T00:40:07Z"
+      },
+      "firstAlertedAt": "2026-11-22T00:45:48.027Z"
     },
     "workflow-no-runs:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-22T00:42:06.820Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has no workflow runs."
+      "message": "Final Freeze Verification has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-11-22T00:45:48.027Z"
     },
     "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-22T00:42:06.820Z",
+      "severity": "warning",
       "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
+      "message": "Safe Self-Healing has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-11-22T00:45:48.027Z"
     }
-  }
+  },
+  "pending": {}
 }
