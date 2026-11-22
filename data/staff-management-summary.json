@@ -1,9 +1,9 @@
 {
   "version": 1,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-21T01:47:34.977Z",
-  "currentStaff": 14,
-  "trackedStaffRecords": 17,
+  "updatedAt": "2026-11-22T21:06:56.031Z",
+  "currentStaff": 15,
+  "trackedStaffRecords": 18,
   "staffRoles": [
     {
       "id": 177880,
@@ -211,28 +211,29 @@
     "Official Streamer": 4,
     "Event Coordinator": 3,
     "Developer": 2,
+    "Director": 2,
     "Management": 2,
     "CEO": 1,
     "Community Support Moderator": 1,
-    "Director": 1,
     "Driver Services Director": 1,
     "Driver Services Management": 1,
     "Event Coordination Lead": 1,
+    "HR Director": 1,
     "HR Management": 1,
     "HR Recruiter": 1,
     "Team Lead": 1
   },
   "departmentCounts": {
     "General Staff": 10,
-    "Management": 4,
+    "Management": 5,
     "Events": 3,
+    "HR & Recruitment": 3,
     "Development": 2,
     "Driver Services": 2,
-    "HR & Recruitment": 2,
     "Community Support": 1
   },
   "changesLast30Days": {
-    "joinedStaff": 6,
+    "joinedStaff": 7,
     "roleChanges": 0,
     "leftStaff": 2
   },
