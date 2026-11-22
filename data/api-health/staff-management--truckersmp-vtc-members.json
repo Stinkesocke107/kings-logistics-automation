@@ -3,13 +3,13 @@
   "namespace": "staff-management",
   "service": "truckersmp-vtc-members",
   "healthKey": "staff-management--truckersmp-vtc-members",
-  "status": "healthy",
-  "consecutiveFailures": 0,
+  "status": "degraded",
+  "consecutiveFailures": 1,
   "lastSuccessAt": "2026-11-03T04:45:34.358Z",
   "recoveredAt": "2026-11-03T04:45:34.358Z",
-  "lastError": null,
+  "lastError": "truckersmp-vtc-members: HTTP 502",
   "circuitOpenUntil": null,
-  "updatedAt": "2026-11-03T04:45:34.358Z",
-  "lastFailureAt": "2026-11-03T03:45:57.490Z",
+  "updatedAt": "2026-11-22T00:47:15.007Z",
+  "lastFailureAt": "2026-11-22T00:47:15.007Z",
   "lastErrorCode": null
 }
