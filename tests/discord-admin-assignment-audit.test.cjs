@@ -200,3 +200,41 @@ test('Missing valid Galaxy managed role or missing effective Administrator is NO
      role.id===GALAXY_ROLE?{...role,permissions:'0'}:role);
   assert.equal((await A.audit({transport:mockTransport({roles:notAdmin})})).code,'GALAXY_ADMIN_NOT_DETECTED');
 });
+
+
+test('Galaxy is detected from verified bot account even when managed role has unrelated display name',async()=>{
+ const roles=base().roles.filter(r=>r.id!==OTHER_ROLE).map(r=>
+  r.id===GALAXY_ROLE?{...r,name:'Ticket Manager'}:r
+ );
+ const galaxyBotMember={user:{id:GALAXY_BOT,bot:true,username:'Galaxy'},roles:[GALAXY_ROLE]};
+ const calls=[];
+ const result=await A.audit({transport:mockTransport({roles,galaxyBotMember,onRequest:(u)=>calls.push(u)})});
+ assert.equal(result.code,'APPROVED_CEO_AND_GALAXY_ONLY');
+ assert.ok(!calls.some(x=>/\/messages/.test(x)));
+ assert.ok(calls.every(x=>!x.includes('/guilds/'+GUILD+'/members?')),'no human roster needed when CEO/Galaxy only roles exist');
+});
+
+test('renamed managed role with real Galaxy bot acquiring Admin through extra role still scans human assignments',async()=>{
+ const roles=base().roles.map(r=>r.id===GALAXY_ROLE?{...r,name:'Ticket Manager',permissions:'0'}:r);
+ const galaxyBotMember={user:{id:GALAXY_BOT,bot:true,username:'Galaxy'},roles:[GALAXY_ROLE,OTHER_ROLE]};
+ const members=[
+  {user:{id:OWNER},roles:[]},
+  {user:{id:GALAXY_BOT,bot:true},roles:[GALAXY_ROLE,OTHER_ROLE]},
+  {user:{id:USER},roles:[]}
+ ];
+ assert.equal((await A.audit({transport:mockTransport({roles,galaxyBotMember,members})})).code,
+  'NO_OTHER_ADMIN_ASSIGNMENTS_OBSERVED');
+ members[2].roles=[OTHER_ROLE];
+ assert.equal((await A.audit({transport:mockTransport({roles,galaxyBotMember,members})})).code,
+  'ASSIGNED_PRIVATE_REVIEW_REQUIRED');
+});
+test('managed bot role with arbitrary renamed account is not falsely identified as Galaxy',async()=>{
+ const roles=base().roles.filter(r=>r.id!==OTHER_ROLE).map(r=>
+  r.id===GALAXY_ROLE?{...r,name:'Ticket Manager'}:r);
+ const galaxyBotMember={user:{id:GALAXY_BOT,bot:true,username:'Someone Else'},roles:[GALAXY_ROLE]};
+ const outcome=await A.audit({transport:mockTransport({roles,galaxyBotMember})});
+ assert.equal(outcome.code,'GALAXY_IDENTITY_UNVERIFIED');
+ assert.equal(A.galaxyAccountLabel('GalaxyBot'),true);
+ assert.equal(A.galaxyAccountLabel('Galaxy Ticket Bot'),true);
+ assert.equal(A.galaxyAccountLabel('Galaxy Logistics'),false);
+});
