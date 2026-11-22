@@ -49,3 +49,9 @@ Die neue Ergänzung überprüft ausschließlich die momentane Administrator-Roll
 - Vollständig synthetische Regressionstests für zugewiesene/unzugewiesene Administrator-Rollen, Owner-Ausnahme, GUILD_MEMBERS-Intent-Fehler, 1001-Member-Pagination, fehlerhafte Channel-Overrides und fehlende Rollenbeweise.
 - Der Leadership Dashboard Verification Workflow führt den neuen Prüfungsschritt beratend, read-only und ohne Mitglieder-/Rollen-Namensausgaben aus.
 - Erfolgreicher GitHub-Workflow ist kein vollständiger Privacy-Nachweis bei INCONCLUSIVE oder ASSIGNED_PRIVATE_REVIEW_REQUIRED.
+
+## Galaxy-Bot: unabhängige Erkennung bei umbenannter managed Rolle
+
+Der Live-Audit vom 22.11.2026 konnte zunächst keine **exakt** mit `Galaxy` oder `Galaxy Bot` beschriftete Discord-managed Rolle nachweisen. Der Anzeigename einer verwalteten Bot-Rolle ist aber nicht zwingend mit dem Bot-Account-Namen identisch. Deshalb bewertet die aktuelle Prüfversion ausschließlich **eindeutig** als Galaxy identifizierte **Discord-managed Botkonten** (kontrolliert über `tags.bot_id`, `member.user.bot === true`, aktuelle Mitgliedschaft und tatsächlich zugewiesene managed Bot-Rolle). Ein Mensch oder eine gewöhnliche Rolle, die nur Galaxy heißt, wird nicht akzeptiert. Unter den Discord-managed Botkonten muss **genau ein** Galaxy-Kandidat eindeutig verifiziert sein; unvollständige GET-Abfragen / mehrere Kandidaten führen zu `GALAXY_IDENTITY_UNVERIFIED`.
+
+Globales Administratorrecht kann über die managed Rolle **oder** über eine zusätzliche Rolle vergeben sein. Bei zusätzlichen Admin-Rollen wird die vollständige Member-Rollenverteilung weiterhin auf **andere Mitglieder als den verifizierten Galaxy-Bot und Server-Owner** geprüft. Keine Rollen-/Kanaländerung, keine Ausgabe von Bot-IDs, Rollen oder User-Daten.
