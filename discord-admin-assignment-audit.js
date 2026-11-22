@@ -5,7 +5,10 @@
 // Every Discord request is GET. No private channel messages are fetched.
 // Without full, valid member pagination it MUST NOT claim no assignments.
 const {assessChannel,TARGETS}=require('./discord-protected-channel-access-audit');
-const {normalizeRoleName}=require('./driver-loyalty-register');
+function normalizeRoleName(name) {
+  return String(name||'').normalize('NFKD').toLowerCase()
+    .replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+}
 const {PERMISSIONS}=require('./discord-permission-audit');
 const GUILD=process.env.DISCORD_GUILD_ID||'1114967437788577792';
 const TOKEN=process.env.DISCORD_BOT_TOKEN||'';
