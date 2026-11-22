@@ -51,6 +51,7 @@ function publicLegacyId(source) {
   if (typeof source==='string' && /^legacy-public-v2-[0-9a-f]{24}$/.test(source)) return source;
   const value=String(source?.legacyId || source?.sourceThreadId || source || '');
   if (!value || value==='[object Object]') throw Error('Legacy source identity missing.');
+  if (/^legacy-public-v2-[0-9a-f]{24}$/.test(value)) return value;
   return 'legacy-public-v2-'+crypto.createHash('sha256')
     .update('kings-legacy-public-identity-v2\0').update(value).digest('hex').slice(0,24);
 }
@@ -185,6 +186,7 @@ function assertPublicLegacyArchiveSafe(output) {
   validateArchive(output);
   const forbiddenKeys=new Set([
     'sourceThreadId','sourceThreadName','sourceMonthChannelId','sourceThreadArchived',
+    'channelId','guildId','discordId','discordUserId',
     'sourceMessageId','messageId','attachmentId','capturedUrl','messageUrl',
     'accompanyingText','sourceUnavailableReason','preservedAt','threadId',
     'filename','contentType','imageUrl','uploaderId','ownerId','authorId'
