@@ -9,6 +9,7 @@ const P=require('../discord-permission-audit').PERMISSIONS;
 const GUILD='1114967437788577792',BOT='1404524559214051499';
 const OWNER='1800000000000000001',BOT_ROLE='1800000000000000002';
 const MANAGEMENT_ROLE='1800000000000000003',OTHER_ROLE='1800000000000000004';
+const CEO_ROLE='1800000000000000005',GALAXY_ROLE='1800000000000000006',GALAXY_BOT='1800000000000000007';
 const USER='1800000000000000025';
 const bit=(...names)=>names.reduce((a,n)=>a|P[n],0n).toString();
 function base(){
@@ -16,6 +17,8 @@ function base(){
   {id:GUILD,name:'@everyone',permissions:'0'},
   {id:MANAGEMENT_ROLE,name:'Management',permissions:'0'},
   {id:BOT_ROLE,name:'Kings Systems',permissions:bit('READ_MESSAGE_HISTORY'),tags:{bot_id:BOT}},
+  {id:CEO_ROLE,name:'CEO',permissions:bit('ADMINISTRATOR')},
+  {id:GALAXY_ROLE,name:'Galaxy',permissions:bit('ADMINISTRATOR'),managed:true,tags:{bot_id:GALAXY_BOT}},
   {id:OTHER_ROLE,name:'Unrelated Role',permissions:bit('ADMINISTRATOR')}
  ];
  const channel={id:'1572736232969084948',guild_id:GUILD,type:0,
@@ -28,7 +31,7 @@ function base(){
 }
 function mockTransport({roles=base().roles,channel=base().channel,
  members=[{user:{id:OWNER},roles:[]},{user:{id:USER},roles:[]}],
- membersUnavailable=false,onRequest=()=>{}}={}){
+ membersUnavailable=false,galaxyBotMember={user:{id:GALAXY_BOT,bot:true},roles:[GALAXY_ROLE]},onRequest=()=>{}}={}){
  return async (url,options)=>{
   onRequest(url,options);
   const p=new URL(url).pathname.replace(/^\/api\/v10/,'');
@@ -36,6 +39,7 @@ function mockTransport({roles=base().roles,channel=base().channel,
   if(p==='/guilds/'+GUILD+'/roles')return new Response(JSON.stringify(roles));
   if(p==='/guilds/'+GUILD+'/channels')return new Response(JSON.stringify([channel]));
   if(p==='/guilds/'+GUILD+'/members/'+BOT)return new Response(JSON.stringify({roles:[BOT_ROLE]}));
+  if(p==='/guilds/'+GUILD+'/members/'+GALAXY_BOT)return galaxyBotMember?new Response(JSON.stringify(galaxyBotMember)):new Response('{}',{status:404});
   if(p==='/guilds/'+GUILD)return new Response(JSON.stringify({id:GUILD,owner_id:OWNER}));
   if(p==='/guilds/'+GUILD+'/members'){
    if(membersUnavailable)return new Response('{}',{status:403});
@@ -60,9 +64,9 @@ test('Discord allowlist permits only necessary GETs and blocks other member/mess
 });
 test('unrelated Admin role metadata detected; legitimate Management and bot roles excluded',()=>{
  const {roles}=base();
- assert.deepEqual(A.roleCandidates(roles,BOT,GUILD),{guildWide:false,identities:[OTHER_ROLE]});
+ assert.deepEqual(A.roleCandidates(roles,BOT,GUILD),{guildWide:false,identities:[OTHER_ROLE],galaxy:[{roleId:GALAXY_ROLE,botId:GALAXY_BOT}]});
  const trusted=[...roles,{id:'1900000000000000000',name:'Head Management',permissions:bit('ADMINISTRATOR')}];
- assert.deepEqual(A.roleCandidates(trusted,BOT,GUILD).identities,[OTHER_ROLE]);
+ assert.deepEqual(A.roleCandidates(trusted,BOT,GUILD).identities,[OTHER_ROLE,'1900000000000000000']);
  const everyoneAdmin=roles.map(r=>r.id===GUILD?{...r,permissions:bit('ADMINISTRATOR')}:r);
  assert.equal(A.roleCandidates(everyoneAdmin,BOT,GUILD).guildWide,true);
 });
@@ -88,7 +92,7 @@ test('no unapproved Administrator role avoids unnecessary roster enumeration',as
  const roles=base().roles.filter(r=>r.id!==OTHER_ROLE);
  const urls=[];
  const result=await A.audit({transport:mockTransport({roles,onRequest:(u)=>urls.push(u)})});
- assert.equal(result.code,'NO_UNAPPROVED_ADMIN_ROLES');
+ assert.equal(result.code,'APPROVED_CEO_AND_GALAXY_ONLY');
  assert.ok(!urls.some(u=>/members\?/.test(u)));
 });
 test('guild-wide Administrator and broad channel grants remain hard structural review',async()=>{
@@ -117,4 +121,47 @@ test('audit source has no Discord writes, message reads, identity logging or sto
  assert.doesNotMatch(s,/(?:writeFileSync|appendFileSync|unlinkSync|readdirSync)\(/);
  assert.doesNotMatch(s,/console\.log\([^;\n]*(?:member\.|role\.|owner_id|memberId|user\.id)/);
  assert.doesNotMatch(s,/\/channels\/[^'"\n]*\/messages/);
+});
+
+test('only the real managed Galaxy bot role and explicitly named CEO role are administrator exceptions',async()=>{
+ const roles=base().roles.filter(r=>r.id!==OTHER_ROLE);
+ const result=await A.audit({transport:mockTransport({roles})});
+ assert.equal(result.code,'APPROVED_CEO_AND_GALAXY_ONLY');
+ const names=roles.filter(A.isCeoAdminRole);
+ assert.deepEqual(names.map(r=>r.id),[CEO_ROLE]);
+ assert.equal(A.isCeoAdminRole({name:'Management'}),false);
+ assert.equal(A.isCeoAdminRole({name:'Head Management'}),false);
+ assert.equal(A.isGalaxyManagedBotRole(roles.find(r=>r.id===GALAXY_ROLE)),true);
+ assert.equal(A.isGalaxyManagedBotRole({name:'Galaxy',managed:false,tags:{bot_id:GALAXY_BOT}}),false);
+ assert.equal(A.isGalaxyManagedBotRole({name:'Galaxy',managed:true,tags:{}}),false);
+});
+
+test('role called Galaxy is NOT an approved exception without managed tag and matching verified bot identity',async()=>{
+ const roles=base().roles;
+ for(const variant of [
+  {name:'Galaxy',managed:false,tags:{bot_id:GALAXY_BOT}},
+  {name:'Galaxy',managed:true,tags:{}},
+  {name:'Unknown Bot',managed:true,tags:{bot_id:GALAXY_BOT}}
+ ]){
+  const unsafe=roles.map(r=>r.id===GALAXY_ROLE?{...r,...variant}:r);
+  assert.equal(A.roleCandidates(unsafe,BOT,GUILD).identities.includes(GALAXY_ROLE),true);
+ }
+ for(const member of [
+  null,
+  {user:{id:GALAXY_BOT,bot:false},roles:[GALAXY_ROLE]},
+  {user:{id:GALAXY_BOT,bot:true},roles:[]},
+  {user:{id:USER,bot:true},roles:[GALAXY_ROLE]}
+ ]){
+  const result=await A.audit({transport:mockTransport({roles:roles.filter(r=>r.id!==OTHER_ROLE),galaxyBotMember:member})});
+  assert.equal(result.code,'GALAXY_IDENTITY_UNVERIFIED');
+ }
+});
+
+test('ordinary Management or unrelated service role with global Admin is still subject to an assignment review',async()=>{
+ const ordinary='1800000000000000099';
+ const roles=base().roles.filter(r=>r.id!==OTHER_ROLE)
+  .concat([{id:ordinary,name:'Management',permissions:bit('ADMINISTRATOR')}]);
+ const members=[{user:{id:OWNER},roles:[]},{user:{id:USER},roles:[ordinary]}];
+ const result=await A.audit({transport:mockTransport({roles,members})});
+ assert.equal(result.code,'ASSIGNED_PRIVATE_REVIEW_REQUIRED');
 });
