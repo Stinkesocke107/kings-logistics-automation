@@ -77,19 +77,12 @@ NODE
 # plaintext staff notes into the public Legacy JSON (including after rebase).
 validate_public_legacy_privacy() {
   [ -f data/legacy-convoys-private.json ] || return 0
-  node - <<'NODE'
-const fs = require('node:fs');
-let data;
-try { data=JSON.parse(fs.readFileSync('data/legacy-convoys.json','utf8')); }
-catch { process.exit(1); }
-if (!Array.isArray(data?.convoys)) process.exit(1);
-const leak=data.convoys.some(item =>
-  item?.sourceNotes?.some(x=>x?.text) ||
-  item?.slotEvidence?.some(x=>x?.text) ||
-  item?.kingsSlotImages?.some(x=>x?.accompanyingText) ||
-  item?.kingsSlotImage?.accompanyingText);
-if (leak) process.exit(1);
-NODE
+  # The public projection must have ZERO raw Staff messages and ZERO private
+  # Discord thread/message/attachment IDs or links, including after a rebase.
+  if ! node scripts/verify-legacy-public-privacy.js; then
+    echo "Safe push blocked public Legacy archive privacy leak; encrypted-only source required."
+    return 1
+  fi
 }
 
 retry_delay() {

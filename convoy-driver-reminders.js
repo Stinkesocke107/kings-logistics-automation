@@ -1,12 +1,14 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const { discordTimestamp } = require('./convoy-time-utils');
+const { decryptLegacyArchive, publicLegacyId, assertPublicLegacyArchiveSafe } = require('./legacy-convoy-privacy');
 const { archivedReminderReady } = require('./convoy-archived-reminder-policy');
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
 const REPORT_PATH = 'output/convoy-check-results.json';
 const LEGACY_PATH = 'data/legacy-convoys.json';
+const LEGACY_PRIVATE_PATH = 'data/legacy-convoys-private.json';
 
 const REMINDER_CHANNEL_ID = process.env.DISCORD_CONVOY_REMINDER_CHANNEL_ID || null;
 const REMINDER_CHANNEL_NAME = process.env.DISCORD_CONVOY_REMINDER_CHANNEL_NAME || 'convoy-reminders';
@@ -186,6 +188,29 @@ async function resolveDriverRole() {
   throw new Error(`Could not find a Discord role matching "${DRIVER_ROLE_NAME}".`);
 }
 
+function loadPrivateLegacyEvidence() {
+  if (!fs.existsSync(LEGACY_PRIVATE_PATH) ||
+      !process.env.LEGACY_PRIVATE_STATE_KEY) {
+    console.warn('Legacy reminder evidence unavailable: encrypted private state or key missing.');
+    return new Map();
+  }
+  let original;
+  try {
+    const stored=JSON.parse(fs.readFileSync(LEGACY_PRIVATE_PATH,'utf8'));
+    original=decryptLegacyArchive(stored,process.env.LEGACY_PRIVATE_STATE_KEY);
+  } catch {
+    console.warn('Legacy reminder evidence failed integrity validation; no private data disclosed.');
+    return new Map();
+  }
+  const index=new Map();
+  for (const item of original.convoys) {
+    const key=publicLegacyId(item);
+    if (index.has(key)) throw new Error('Legacy private source identity collision.');
+    index.set(key,item);
+  }
+  return index;
+}
+
 function loadLegacyReminderItems(report) {
   if (!fs.existsSync(LEGACY_PATH)) return [];
 
@@ -196,6 +221,11 @@ function loadLegacyReminderItems(report) {
     throw new Error(`Legacy Convoy data is invalid: ${error.message}`);
   }
 
+  // The public snapshot must contain only safe event metadata, never the
+  // original Discord thread, message, attachment IDs or image URLs.
+  assertPublicLegacyArchiveSafe(data);
+  const privateEvidence=loadPrivateLegacyEvidence();
+
   const centerEventIds = new Set(
     (report.threads || [])
       .map((item) => item?.eventId ? String(item.eventId) : null)
@@ -205,6 +235,7 @@ function loadLegacyReminderItems(report) {
   const items = [];
   let duplicatesSuppressed = 0;
   let notReminderEligible = 0;
+  let privateEvidenceUnavailable = 0;
 
   for (const legacy of Array.isArray(data?.convoys) ? data.convoys : []) {
     const eventId = legacy?.eventId ? String(legacy.eventId) : null;
@@ -214,8 +245,18 @@ function loadLegacyReminderItems(report) {
       continue;
     }
 
-    if (!legacy?.confirmedKingsSlot || !legacy?.kingsSlot || !legacy?.kingsSlotImage || !legacy?.eventTimeValid || !legacy?.eventUnix) {
+    if (!legacy?.confirmedKingsSlot || !legacy?.kingsSlot || !legacy?.kingsSlotImage?.available || !legacy?.eventTimeValid || !legacy?.eventUnix) {
       notReminderEligible += 1;
+      continue;
+    }
+
+    const evidence=privateEvidence.get(legacy.legacyId);
+    if (!evidence || !evidence.confirmedKingsSlot ||
+        String(evidence.eventId || '')!==String(eventId || '') ||
+        Number(evidence.eventUnix)!==Number(legacy.eventUnix) ||
+        !evidence.sourceThreadId || !evidence.kingsSlotImage?.messageId ||
+        !evidence.kingsSlotImage?.attachmentId) {
+      privateEvidenceUnavailable += 1;
       continue;
     }
 
@@ -227,12 +268,14 @@ function loadLegacyReminderItems(report) {
       archived: false,
       locked: false,
       status: 'Scheduled',
-      threadId: String(legacy.sourceThreadId || legacy.legacyId),
+      threadId: String(evidence.sourceThreadId),
       name: legacy.name || legacy.sourceThreadName || 'Legacy Convoy',
       eventId,
       eventUnix: Number(legacy.eventUnix),
       eventTimeValid: true,
-      kingsSlotImage: legacy.kingsSlotImage || null,
+      // Loaded only in this authenticated GitHub Actions job; never written
+      // into public data or workflow artifacts.
+      kingsSlotImage: evidence.kingsSlotImage,
       validation: {
         checks: { kingsSlotConfirmed: true },
         parsed: {
@@ -257,7 +300,7 @@ function loadLegacyReminderItems(report) {
   }
 
   console.log(
-    `Legacy Driver reminder feed: ${items.length} eligible; ${duplicatesSuppressed} Convoy Center duplicate(s) suppressed; ${notReminderEligible} pending/incomplete legacy convoy(s) kept out of reminders.`
+    `Legacy Driver reminder feed: ${items.length} eligible with protected slot image; ${duplicatesSuppressed} Convoy Center duplicate(s) suppressed; ${notReminderEligible} pending/incomplete; ${privateEvidenceUnavailable} lacking private proof (no reminder).`
   );
 
   return items;
