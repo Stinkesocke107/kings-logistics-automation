@@ -6,10 +6,10 @@ Der Kings CEO bestätigt, dass **ausschließlich die CEO-Rolle und der Galaxy-Bo
 
 Die vorherige Zuordnung "unapproved Administrator" war bezogen auf diese ausdrückliche Galaxy-Freigabe zu grob. Der neue Audit:
 - Akzeptiert **nur** exakt benannte CEO-Rollen als menschliche Administrator-Policy-Ausnahme; gewöhnliches Head Management, Management und Staff erhalten nicht automatisch die Ausnahme.
-- Akzeptiert **nur** eine als `Galaxy` oder `Galaxy Bot` benannte, von Discord **verwaltete** Bot-Rolle mit `tags.bot_id`, deren Bot-Mitglied über die offizielle Discord GET-API als `user.bot === true` und mit genau dieser Rolle bestätigt wurde. Ein Rollenname allein reicht niemals.
+- Akzeptiert den **Galaxy-Bot als Principal**, nicht pauschal jede Rolle mit seinem Namen: Die als `Galaxy` oder `Galaxy Bot` benannte, Discord-verwaltete Bot-Rolle muss per `tags.bot_id` und Live-Member-GET als echter Bot nachgewiesen werden. Galaxy kann seine Administratorrechte entweder direkt über diese managed-Rolle **oder durch eine zusätzlich zugewiesene Rolle** erhalten. Bei einer zusätzlichen globalen Admin-Rolle prüft der Audit vollständig, dass **kein anderes nicht freigegebenes Mitglied** diese Rechte dadurch erhält. Ein Rollenname allein reicht niemals.
 - Prüft alle weiteren Rollen mit Administrator-Berechtigung weiterhin via **vollständiger anonymer Zuweisungsprüfung**. Ein zusätzlicher vergebener Admin-Role bleibt `ASSIGNED_PRIVATE_REVIEW_REQUIRED`.
 - Verweigert eine grüne Meldung, wenn Galaxy nicht eindeutig als echter Bot nachgewiesen werden kann (`GALAXY_IDENTITY_UNVERIFIED`).
-- `APPROVED_CEO_AND_GALAXY_ONLY` bestätigt ausschließlich die **geprüfte Rollenstruktur zum Zeitpunkt des Laufs**, nicht den historischen Nachrichten-Zugriff und nicht eine generelle datenschutzrechtliche Freigabe aller externen Bot-Integrationen.
+- `APPROVED_CEO_AND_GALAXY_ONLY` gilt bei direkt administrativer managed Galaxy Rolle und ausschließlich CEO. `NO_OTHER_ADMIN_ASSIGNMENTS_OBSERVED` bedeutet, dass eine **separate** Admin-Rolle durch das ganze Member-Audit nur bei Galaxy (oder Guild-Owner) zugeordnet war; diese Rolle bleibt separat zu überwachen, da spätere Zuweisungen möglich sind. Beide Aussagen betreffen ausschließlich den Prüfzeitpunkt; sie erlauben keine Zugriffsbehauptungen über die Vergangenheit.
 
 Die strukturelle Kanalprüfung darf ihren `ADVISORY`-Status behalten, weil sie bewusst **keine** Mitglieder-/Bot-Zuweisungen prüft. Erst die separate Identitätsprüfung kann diese fehlende Beweisdimension abdecken.
 
