@@ -4,7 +4,8 @@
 // but NEVER logs or persists human user IDs, role IDs, names or member objects.
 // Every Discord request is GET. No private channel messages are fetched.
 // Without full, valid member pagination it MUST NOT claim no assignments.
-const {assessChannel,authorizedRole,TARGETS}=require('./discord-protected-channel-access-audit');
+const {assessChannel,TARGETS}=require('./discord-protected-channel-access-audit');
+const {normalizeRoleName}=require('./driver-loyalty-register');
 const {PERMISSIONS}=require('./discord-permission-audit');
 const GUILD=process.env.DISCORD_GUILD_ID||'1114967437788577792';
 const TOKEN=process.env.DISCORD_BOT_TOKEN||'';
@@ -17,18 +18,54 @@ function isAdmin(role){
   try{return (BigInt(role?.permissions??'0')&PERMISSIONS.ADMINISTRATOR)===PERMISSIONS.ADMINISTRATOR;}
   catch{return false;}
 }
-function roleCandidates(roles,botId,guildId=GUILD){
+// The CEO has approved exactly two Administrator principals:
+// (1) the CEO role, (2) Galaxy's dedicated Discord-managed bot role.
+// Broad Management/Staff roles are NOT authorized for global Administrator.
+// Role labels alone never authorize Galaxy: Discord must provide the managed
+// bot-role tag AND the bot's live member identity must be checked.
+const CEO_ROLE_NAMES=new Set(['ceo','ceo founder','kings ceo','kings ceo founder']);
+function isCeoAdminRole(role) {
+  return CEO_ROLE_NAMES.has(normalizeRoleName(role?.name));
+}
+function isGalaxyManagedBotRole(role) {
+  const name=normalizeRoleName(role?.name);
+  return role?.managed===true &&
+    (name==='galaxy'||name==='galaxy bot') &&
+    SNOWFLAKE.test(String(role?.tags?.bot_id||''));
+}
+function roleCandidates(roles,botId,guildId=GUILD) {
   if(!Array.isArray(roles)||!SNOWFLAKE.test(String(botId||''))||
      !SNOWFLAKE.test(String(guildId||'')))throw Error('role-metadata-unavailable');
+  if(new Set(roles.map(r=>String(r?.id))).size!==roles.length)throw Error('duplicate-role-metadata');
   if(roles.some(role=>String(role.id)===String(guildId)&&isAdmin(role)))
-    return {guildWide:true,identities:[]};
-  const candidate=roles.filter(role=>
+    return {guildWide:true,identities:[],galaxy:[]};
+  const galaxy=roles.filter(role=>isAdmin(role)&&isGalaxyManagedBotRole(role))
+    .map(role=>({roleId:String(role.id),botId:String(role.tags.bot_id)}));
+  const identities=roles.filter(role=>
     String(role?.id)!==String(guildId) &&
     SNOWFLAKE.test(String(role?.id||'')) &&
-    isAdmin(role) && !authorizedRole(role,'management',botId)
+    isAdmin(role) &&
+    !isCeoAdminRole(role) &&
+    !isGalaxyManagedBotRole(role)
   ).map(role=>String(role.id));
-  if(new Set(roles.map(r=>String(r.id))).size!==roles.length)throw Error('duplicate-role-metadata');
-  return {guildWide:false,identities:candidate};
+  return {guildWide:false,identities,galaxy};
+}
+async function verifyGalaxyBot(galaxy,transport=fetch) {
+  // No blanket exemption for a role merely named "Galaxy". Only a unique,
+  // managed role belonging to a live Discord bot *and actually assigned to
+  // that same bot account* is the CEO-approved service-bot exception.
+  if(!Array.isArray(galaxy)||galaxy.length!==1)
+    return false;
+  const target=galaxy[0];
+  if(!SNOWFLAKE.test(target.roleId)||!SNOWFLAKE.test(target.botId))
+    return false;
+  try {
+    const member=await getJson('/guilds/'+GUILD+'/members/'+target.botId,transport);
+    return member?.user?.bot===true &&
+      String(member.user.id)===target.botId &&
+      Array.isArray(member.roles) &&
+      member.roles.map(String).includes(target.roleId);
+  } catch {return false}
 }
 
 function status(code, detail){
@@ -108,7 +145,10 @@ async function audit({transport=fetch}={}){
     return status('STRUCTURAL_REVIEW_REQUIRED','private Driver Register permission contract is not verified');
   const candidates=roleCandidates(roles,bot.id);
   if(candidates.guildWide)return status('GUILD_WIDE_ADMINISTRATOR','@everyone holds Administrator; register channel overwrite cannot protect data');
-  if(candidates.identities.length===0)return status('NO_UNAPPROVED_ADMIN_ROLES','structural role metadata has no extra Administrator bypass role; owner and explicitly authorized roles remain outside this check');
+  if(!await verifyGalaxyBot(candidates.galaxy,transport))
+    return status('GALAXY_IDENTITY_UNVERIFIED','the approved Galaxy bot-managed Administrator role could not be independently verified');
+  if(candidates.identities.length===0)
+    return status('APPROVED_CEO_AND_GALAXY_ONLY','only the explicitly approved CEO role and verified Galaxy bot-managed role hold Administrator in role metadata');
   try {
     return await scanMemberAssignments(candidates.identities,{transport,ownerId:guild.owner_id});
   }catch{
@@ -120,7 +160,8 @@ function main(){
     // Public GitHub Actions logs contain only the standard status code and
     // generic audit contract. NEVER log role/member IDs, names or counts.
     console.log('[Kings Driver Register Administrator Assignment] '+result.code);
-    if(result.code.startsWith('INCONCLUSIVE')||result.code==='ASSIGNED_PRIVATE_REVIEW_REQUIRED'||
+    if(result.code.startsWith('INCONCLUSIVE')||result.code==='GALAXY_IDENTITY_UNVERIFIED'||
+       result.code==='ASSIGNED_PRIVATE_REVIEW_REQUIRED'||
        result.code==='GUILD_WIDE_ADMINISTRATOR'||result.code==='STRUCTURAL_REVIEW_REQUIRED')
       console.log('::warning::Kings protected register Administrator-assignment review is not cleared; private CEO/Management policy verification is required.');
     else
@@ -132,4 +173,4 @@ if(require.main===module)main().catch(()=>{
   console.error('Kings Administrator-assignment read-only audit unavailable; no privacy clearance claimed. No identities logged.');
   process.exitCode=1;
 });
-module.exports={isAdmin,roleCandidates,routeAllowed,scanMemberAssignments,audit,status};
+module.exports={isAdmin,isCeoAdminRole,isGalaxyManagedBotRole,roleCandidates,verifyGalaxyBot,routeAllowed,scanMemberAssignments,audit,status};
