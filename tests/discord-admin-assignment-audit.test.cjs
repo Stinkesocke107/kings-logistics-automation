@@ -81,9 +81,9 @@ test('full roster with assigned outside Admin role -> review required, no user i
  assert.doesNotMatch(JSON.stringify(result),new RegExp(USER+'|'+OTHER_ROLE));
 });
 test('full roster with no nonowner assignment -> no assignment observed',async()=>{
- assert.equal((await A.audit({transport:mockTransport()})).code,'NO_NONOWNER_ASSIGNMENTS_OBSERVED');
+ assert.equal((await A.audit({transport:mockTransport()})).code,'NO_OTHER_ADMIN_ASSIGNMENTS_OBSERVED');
  const members=[{user:{id:OWNER},roles:[OTHER_ROLE]},{user:{id:USER},roles:[]}];
- assert.equal((await A.audit({transport:mockTransport({members})})).code,'NO_NONOWNER_ASSIGNMENTS_OBSERVED');
+ assert.equal((await A.audit({transport:mockTransport({members})})).code,'NO_OTHER_ADMIN_ASSIGNMENTS_OBSERVED');
 });
 test('lack of privileged member-list access cannot be reported as a privacy clearance',async()=>{
  assert.equal((await A.audit({transport:mockTransport({membersUnavailable:true})})).code,'INCONCLUSIVE_MEMBER_LIST');
@@ -164,4 +164,39 @@ test('ordinary Management or unrelated service role with global Admin is still s
  const members=[{user:{id:OWNER},roles:[]},{user:{id:USER},roles:[ordinary]}];
  const result=await A.audit({transport:mockTransport({roles,members})});
  assert.equal(result.code,'ASSIGNED_PRIVATE_REVIEW_REQUIRED');
+});
+
+
+test('Galaxy managed role may be non-admin while real Galaxy bot obtains Admin through a separate assigned role',async()=>{
+  const galaxyRole=base().roles.map(role=>role.id===GALAXY_ROLE?{...role,permissions:'0'}:role);
+  const members=[
+    {user:{id:OWNER},roles:[]},
+    {user:{id:GALAXY_BOT,bot:true},roles:[GALAXY_ROLE,OTHER_ROLE]},
+    {user:{id:USER},roles:[]}
+  ];
+  const galaxyBotMember={user:{id:GALAXY_BOT,bot:true},roles:[GALAXY_ROLE,OTHER_ROLE]};
+  const result=await A.audit({transport:mockTransport({roles:galaxyRole,members,galaxyBotMember})});
+  assert.equal(result.code,'NO_OTHER_ADMIN_ASSIGNMENTS_OBSERVED');
+  const candidates=A.roleCandidates(galaxyRole,BOT,GUILD);
+  assert.deepEqual(candidates.identities,[OTHER_ROLE]);
+  assert.deepEqual(candidates.galaxy,[{roleId:GALAXY_ROLE,botId:GALAXY_BOT}]);
+});
+
+test('Sharing Galaxy bot supplemental Administrator role with a human still fails closed',async()=>{
+  const galaxyRole=base().roles.map(role=>role.id===GALAXY_ROLE?{...role,permissions:'0'}:role);
+  const members=[
+    {user:{id:OWNER},roles:[]},
+    {user:{id:GALAXY_BOT,bot:true},roles:[GALAXY_ROLE,OTHER_ROLE]},
+    {user:{id:USER},roles:[OTHER_ROLE]}
+  ];
+  const galaxyBotMember={user:{id:GALAXY_BOT,bot:true},roles:[GALAXY_ROLE,OTHER_ROLE]};
+  assert.equal((await A.audit({transport:mockTransport({roles:galaxyRole,members,galaxyBotMember})})).code,'ASSIGNED_PRIVATE_REVIEW_REQUIRED');
+});
+
+test('Missing valid Galaxy managed role or missing effective Administrator is NOT a verified CEO-plus-Galaxy policy',async()=>{
+  const noGalaxyRole=base().roles.filter(role=>role.id!==GALAXY_ROLE);
+  assert.equal((await A.audit({transport:mockTransport({roles:noGalaxyRole})})).code,'GALAXY_MANAGED_ROLE_NOT_FOUND');
+  const notAdmin=base().roles.filter(role=>role.id!==OTHER_ROLE).map(role=>
+     role.id===GALAXY_ROLE?{...role,permissions:'0'}:role);
+  assert.equal((await A.audit({transport:mockTransport({roles:notAdmin})})).code,'GALAXY_ADMIN_NOT_DETECTED');
 });
