@@ -64,16 +64,6 @@
       },
       "firstAlertedAt": "2026-11-21T19:48:53.016Z"
     },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 49,
-        "latestCount": 33
-      },
-      "firstAlertedAt": "2026-11-22T08:51:45.049Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -115,14 +105,21 @@
         "maxAgeMinutes": 30
       },
       "firstAlertedAt": "2026-11-22T10:21:04.878Z"
+    },
+    "workflow-schedule-missing:driver-register-onboarding.yml": {
+      "severity": "warning",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period.",
+      "details": {
+        "status": "missing",
+        "expectedAt": "2026-11-22T07:17:00.000Z",
+        "actualAt": null,
+        "delayMinutes": null,
+        "graceMinutes": 120,
+        "latestScheduledAt": "2026-11-21T15:19:53.000Z"
+      },
+      "firstAlertedAt": "2026-11-22T12:00:12.241Z"
     }
   },
-  "pending": {
-    "workflow-schedule-missing:driver-register-onboarding.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-22T10:21:04.878Z",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period."
-    }
-  }
+  "pending": {}
 }
