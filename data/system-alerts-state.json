@@ -67,17 +67,6 @@
       },
       "firstAlertedAt": "2026-11-21T16:06:07.968Z"
     },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-21T19:04:19.125Z"
-    },
     "stale-data:data/driver-management-summary.json": {
       "severity": "critical",
       "system": "Driver Management data",
@@ -130,16 +119,6 @@
         "maxAgeMinutes": 90
       },
       "firstAlertedAt": "2026-11-21T22:42:15.566Z"
-    },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 44961263261,
-        "completedAt": "2026-11-21T23:20:34Z"
-      },
-      "firstAlertedAt": "2026-11-21T23:20:56.532Z"
     }
   },
   "pending": {}
