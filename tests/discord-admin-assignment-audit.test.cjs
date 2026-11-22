@@ -31,7 +31,7 @@ function mockTransport({roles=base().roles,channel=base().channel,
  membersUnavailable=false,onRequest=()=>{}}={}){
  return async (url,options)=>{
   onRequest(url,options);
-  const p=new URL(url).pathname;
+  const p=new URL(url).pathname.replace(/^\/api\/v10/,'');
   if(p==='/users/@me')return new Response(JSON.stringify({id:BOT}));
   if(p==='/guilds/'+GUILD+'/roles')return new Response(JSON.stringify(roles));
   if(p==='/guilds/'+GUILD+'/channels')return new Response(JSON.stringify([channel]));
