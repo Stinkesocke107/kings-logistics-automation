@@ -76,6 +76,47 @@ async function verifyGalaxyBot(galaxy,roles,transport=fetch) {
   } catch {return {valid:false,botId:null,hasAdministrator:false}}
 }
 
+// A bot's *managed role name* can differ from its bot account name. Discover
+// only Discord-managed bot accounts, then verify bot=true, managed role
+// assignment, and a unique Galaxy-labeled bot identity. Never whitelist an
+// arbitrary role named "Galaxy" or a human nickname.
+function galaxyAccountLabel(value) {
+  const name=normalizeRoleName(value);
+  return name==='galaxy' || name==='galaxybot' || name==='galaxy bot' ||
+    /^galaxy (?:tickets?|support|ticket bot)$/.test(name);
+}
+async function discoverGalaxyBot(roles,transport=fetch) {
+  const managed=roles.filter(role=>role?.managed===true &&
+    SNOWFLAKE.test(String(role?.tags?.bot_id||'')));
+  if(managed.length===0)return {valid:false,reason:'GALAXY_MANAGED_ROLE_NOT_FOUND'};
+  if(managed.length>32)return {valid:false,reason:'GALAXY_IDENTITY_UNVERIFIED'};
+  const byId=new Map(roles.map(role=>[String(role.id),role]));
+  const matches=[];
+  // Inspects only managed BOT accounts. No human member roster or private
+  // messages are read at this stage. Any incomplete bot lookup fails closed.
+  for(const role of managed){
+    const botId=String(role.tags.bot_id),roleId=String(role.id);
+    let member;
+    try {
+      member=await getJson('/guilds/'+GUILD+'/members/'+botId,transport);
+    } catch {
+      return {valid:false,reason:'GALAXY_IDENTITY_UNVERIFIED'};
+    }
+    if(member?.user?.bot!==true||String(member.user.id)!==botId||
+       !Array.isArray(member.roles)||!member.roles.map(String).includes(roleId)){
+      return {valid:false,reason:'GALAXY_IDENTITY_UNVERIFIED'};
+    }
+    if(galaxyAccountLabel(role.name)||
+       galaxyAccountLabel(member.user.username)||
+       galaxyAccountLabel(member.user.global_name)){
+      matches.push({botId,roleId,hasAdministrator:member.roles.some(id=>
+        isAdmin(byId.get(String(id))))});
+    }
+  }
+  if(matches.length!==1)return {valid:false,reason:'GALAXY_IDENTITY_UNVERIFIED'};
+  return {valid:true,reason:null,...matches[0]};
+}
+
 function status(code, detail){
   return Object.freeze({code,detail});
 }
@@ -154,19 +195,19 @@ async function audit({transport=fetch}={}){
     return status('STRUCTURAL_REVIEW_REQUIRED','private Driver Register permission contract is not verified');
   const candidates=roleCandidates(roles,bot.id);
   if(candidates.guildWide)return status('GUILD_WIDE_ADMINISTRATOR','@everyone holds Administrator; register channel overwrite cannot protect data');
-  // An exact "Galaxy" bot label is not enough: only a Discord-managed role
-  // and its matching live bot-member identity qualify for this exception.
-  if(candidates.galaxy.length===0)
-    return status('GALAXY_MANAGED_ROLE_NOT_FOUND','a uniquely named managed Galaxy bot role was not found');
-  const galaxy=await verifyGalaxyBot(candidates.galaxy,roles,transport);
+  // A managed role can be renamed independently of its actual bot account.
+  // Discover a UNIQUE verified Galaxy bot using Discord-managed tags and
+  // account identity without printing any roles or IDs to public logs.
+  const galaxy=await discoverGalaxyBot(roles,transport);
   if(!galaxy.valid)
-    return status('GALAXY_IDENTITY_UNVERIFIED','Discord-managed Galaxy bot role could not be matched to its verified bot guild-member');
+    return status(galaxy.reason,'Galaxy bot identity cannot be uniquely verified from live managed-bot metadata');
   if(!galaxy.hasAdministrator)
     return status('GALAXY_ADMIN_NOT_DETECTED','verified Galaxy bot has no Administrator role in the guild roles it holds');
-  if(candidates.identities.length===0)
+  const otherAdminRoles=candidates.identities.filter(id=>id!==galaxy.roleId);
+  if(otherAdminRoles.length===0)
     return status('APPROVED_CEO_AND_GALAXY_ONLY','only the CEO and verified Galaxy managed bot role hold Administrator in role metadata');
   try {
-    const other=await scanMemberAssignments(candidates.identities,{
+    const other=await scanMemberAssignments(otherAdminRoles,{
       transport,ownerId:guild.owner_id,approvedGalaxyBotId:galaxy.botId
     });
     if(other.code==='NO_NONOWNER_ASSIGNMENTS_OBSERVED')
@@ -196,4 +237,4 @@ if(require.main===module)main().catch(()=>{
   console.error('Kings Administrator-assignment read-only audit unavailable; no privacy clearance claimed. No identities logged.');
   process.exitCode=1;
 });
-module.exports={isAdmin,isCeoAdminRole,isGalaxyManagedBotRole,roleCandidates,verifyGalaxyBot,routeAllowed,scanMemberAssignments,audit,status};
+module.exports={isAdmin,isCeoAdminRole,isGalaxyManagedBotRole,galaxyAccountLabel,roleCandidates,verifyGalaxyBot,discoverGalaxyBot,routeAllowed,scanMemberAssignments,audit,status};
