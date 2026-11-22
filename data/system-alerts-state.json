@@ -85,27 +85,6 @@
       },
       "firstAlertedAt": "2026-11-22T08:51:45.049Z"
     },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 45011953685,
-        "completedAt": "2026-11-22T10:20:41Z"
-      },
-      "firstAlertedAt": "2026-11-22T10:21:04.878Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-22T10:21:04.878Z"
-    },
     "workflow-schedule-late:driver-register-onboarding.yml": {
       "severity": "warning",
       "system": "Driver Registration Onboarding",
@@ -119,14 +98,17 @@
         "runId": 45037284393
       },
       "firstAlertedAt": "2026-11-22T15:43:08.223Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 60,
+        "latestCount": 33
+      },
+      "firstAlertedAt": "2026-11-22T19:32:21.741Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-22T17:58:41.722Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
-    }
-  }
+  "pending": {}
 }
