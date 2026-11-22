@@ -78,12 +78,26 @@
       },
       "firstAlertedAt": "2026-11-21T19:48:53.016Z"
     },
-    "workflow-no-runs:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-11-22T00:45:48.027Z"
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
+      "details": {
+        "runId": 44998391518,
+        "completedAt": "2026-11-22T07:28:48Z"
+      },
+      "firstAlertedAt": "2026-11-22T07:29:12.049Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-22T07:29:12.049Z"
     }
   },
   "pending": {}
