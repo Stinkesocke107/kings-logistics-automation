@@ -106,27 +106,6 @@
       },
       "firstAlertedAt": "2026-11-23T08:17:20.256Z"
     },
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure.",
-      "details": {
-        "runId": 45158311442,
-        "completedAt": "2026-11-23T10:42:28Z"
-      },
-      "firstAlertedAt": "2026-11-23T10:50:39.022Z"
-    },
-    "workflow-overdue:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-11-23T10:50:39.022Z"
-    },
     "workflow-schedule-missing:driver-register-onboarding.yml": {
       "severity": "warning",
       "system": "Driver Registration Onboarding",
@@ -142,5 +121,12 @@
       "firstAlertedAt": "2026-11-23T10:50:39.022Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-23T14:29:05.580Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
+    }
+  }
 }
