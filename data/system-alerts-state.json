@@ -64,20 +64,6 @@
       },
       "firstAlertedAt": "2026-11-21T19:48:53.016Z"
     },
-    "workflow-schedule-late:driver-register-onboarding.yml": {
-      "severity": "warning",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding scheduled run started 478 minutes after its UTC slot.",
-      "details": {
-        "status": "late",
-        "expectedAt": "2026-11-22T07:17:00.000Z",
-        "actualAt": "2026-11-22T15:15:23.000Z",
-        "delayMinutes": 478,
-        "graceMinutes": 120,
-        "runId": 45037284393
-      },
-      "firstAlertedAt": "2026-11-22T15:43:08.223Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -121,5 +107,24 @@
       "firstAlertedAt": "2026-11-23T08:17:20.256Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-23T10:43:04.624Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-23T10:43:04.624Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
+    },
+    "workflow-schedule-missing:driver-register-onboarding.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-23T10:43:04.624Z",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period."
+    }
+  }
 }
