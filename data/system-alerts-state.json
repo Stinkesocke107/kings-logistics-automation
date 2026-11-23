@@ -99,16 +99,40 @@
       },
       "firstAlertedAt": "2026-11-22T20:20:18.352Z"
     },
-    "convoy-completeness-stale": {
+    "workflow-failed:live-tracker.yml": {
       "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with failure.",
       "details": {
-        "ageMinutes": 221,
-        "latestCount": 33
+        "runId": 45137251332,
+        "completedAt": "2026-11-23T08:16:50Z"
       },
-      "firstAlertedAt": "2026-11-23T07:42:25.346Z"
+      "firstAlertedAt": "2026-11-23T08:17:20.256Z"
+    },
+    "workflow-overdue:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 30
+      },
+      "firstAlertedAt": "2026-11-23T08:17:20.256Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-23T08:17:20.256Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-23T08:17:20.256Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
+    }
+  }
 }
