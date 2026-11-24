@@ -6,19 +6,19 @@
 
 The user cannot host a server. The default operating path is **GitHub Actions + outbound Discord REST API**, not a paid VPS, Docker deployment or 24/7 WebSocket bot.
 
-A short-lived GitHub-hosted Node.js runner attempts the private update at UTC minutes **07, 22, 37, 52**. These are best-effort scheduled runs; GitHub may delay/drop them. The bot can update Discord messages while it appears offline. This does not need the bot to run continuously.
+The **existing Kings Convoy Checker** already runs on GitHub Actions every 15 minutes. A new optional Event Capacity stage has been added to that existing workflow, rather than creating a second workflow that would require new registry/monitoring entries. It uses the same short-lived GitHub-hosted Node.js runner. These are best-effort scheduled runs; GitHub may delay/drop them. The bot can update Discord messages while it appears offline. This does not need the bot to run continuously.
 
 Discord real-time slash commands, buttons and modal interactions require a reachable HTTP interactions endpoint or an online Gateway. GitHub Actions alone does **not** provide this. A later no-hosting management implementation can poll private Discord text requests, verify the author and current roles using Discord REST, and respond in a later run; it will not be real-time.
 
 ## Added draft files
 
-- .github/workflows/kings-event-capacity-github-only.yml
+- .github/workflows/convoy-checker.yml (existing workflow; optional guarded Event Capacity step and manual capacity_action input)
 - scripts/event-capacity-github-actions.js
 - event-capacity-github-only.js
 - tests/event-capacity-github-only.test.cjs
 - tests/event-capacity-github-actions-runner.test.cjs
 
-The workflow only schedules on the default main branch and its running job is gated behind an explicit repository opt-in. Until approved and merged, this branch cannot start the periodic workflow. Manual preview does not need the opt-in, channel IDs, bot token or network.
+The existing Convoy Checker already schedules on the default main branch. Its new Event Capacity step runs on schedule **only when an explicit repository variable opts in**; normal Convoy Checker behavior remains unchanged when the variable is absent. The draft branch cannot modify the live workflow. Manual dry-run/preview mode does not need the opt-in, channel IDs, bot token or network. The new capacity_action input defaults to off.
 
 ## Current safe functionality
 
@@ -47,10 +47,10 @@ GitHub Settings → Secrets and variables → Actions:
 A secure rollout sequence:
 1. Review the draft, tests, new channel/role permissions, bot permissions and release scope. Require the CEO's explicit merge/activation approval.
 2. Merge reviewed code to main, leave opt-in false.
-3. Run GitHub workflow manually with mode **preview**: no Discord actions or credentials required.
+3. Dispatch the existing Kings Convoy Checker on main with mode **dry-run** and capacity_action **preview**: the Capacity preview itself makes no Discord calls. Existing Convoy Checker dry-run steps still execute as defined.
 4. Create an empty private Event Capacity text channel, set exact channel/role IDs, ensure bot can View Channel, Read Message History and Send Messages and ensure only authorized staff may view.
-5. With owner approval, set opt-in true and dispatch mode **bootstrap** once. In the private Discord channel, enable Developer Mode, select the bot message and Copy Message ID. No IDs are printed to public GitHub logs.
-6. Set the message ID variable; dispatch mode **sync** once. Confirm the same bot message updates safely.
+5. With owner approval, set opt-in true and dispatch the existing Kings Convoy Checker with mode **dry-run** and capacity_action **bootstrap** once. In the private Discord channel, enable Developer Mode, select the bot message and Copy Message ID. No IDs are printed to public GitHub logs.
+6. Set the message ID variable; dispatch the Convoy Checker with mode **dry-run** and capacity_action **sync** once. Confirm the same bot message updates safely.
 7. Allow scheduled runs, monitor the workflows. Any missed schedule, bad permissions or stale source must not claim slots are free.
 
 ## Remaining functionality to implement WITHOUT a self-hosted bot
