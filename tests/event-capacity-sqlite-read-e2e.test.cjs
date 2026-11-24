@@ -77,14 +77,14 @@ function fixture(){
     snapshot:{...source,attestation},
     metadata:{runId:RUN,attempt:1,ledgerRevision:0,sourceVerified:true}};
 }
-function withPrivateStore(fn){
+async function withPrivateStore(fn){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'kings-sqlite-e2e-'));
   fs.chmodSync(dir,0o700);
   const store=createPrivateSqliteSnapshotStore({
     directory:dir,scope:SCOPE,encryptionSecret:STORAGE_SECRET,
     signingSecret:SIGN_SECRET,nowMs:()=>NOW
   });
-  try{assert.equal(store.commitSnapshot(fixture()),true);return fn(store);}
+  try{assert.equal(store.commitSnapshot(fixture()),true);return await fn(store);}
   finally{store.close();fs.rmSync(dir,{recursive:true,force:true});}
 }
 test('Protected stored snapshot reaches only signed authorized ephemeral calendar',async()=>
