@@ -4,6 +4,7 @@
 // this module does not register commands, send responses or hold credentials.
 const {readSignedInteraction,authorizeSignedInteraction}=require('./event-capacity-discord-auth');
 const {validateLedger,privateDecisions}=require('./event-capacity-decision-ledger');
+const {verifyPrivateSnapshot}=require('./event-capacity-snapshot-attestation');
 const {adaptConvoyReports}=require('./event-capacity-adapter');
 const {evaluate}=require('./event-capacity-core');
 const {detailProjection,sanitizeDiscord,dateValid}=require('./event-capacity-day-view');
@@ -50,10 +51,16 @@ async function handlePrivateCapacityRead({signed,authorization,loadTrustedSnapsh
   }catch{fail();}
   if(!snapshot||typeof snapshot!=='object'||
      !snapshot.report||!snapshot.overview||!snapshot.ledger)fail();
-  try{validateLedger(snapshot.ledger,{guildId,forumId});}catch{fail();}
+  let sourceProof;
+  try{
+    validateLedger(snapshot.ledger,{guildId,forumId});
+    sourceProof=verifyPrivateSnapshot(snapshot,{
+      scope:{guildId,forumId},secret:authorization.snapshotSecret,nowMs
+    });
+  }catch{fail();}
   try{
     const input=adaptConvoyReports(snapshot.report,snapshot.overview,{
-      nowMs,trustedSource:snapshot.integrityVerified===true,
+      nowMs,trustedSource:sourceProof.verified===true&&snapshot.integrityVerified===true,
       expectedGuildId:guildId,expectedForumId:forumId,
       classifications:privateDecisions(snapshot.ledger)
     });
