@@ -183,3 +183,35 @@ test('Reject malformed state audits or unknown scope before encryption',()=>{
   assert.throws(()=>validateLedger({...s,scope:OTHER},SCOPE));
   assert.throws(()=>sealLedger({...s,history:[]},KEY));
 });
+
+test('Changing Partner to External invalidates prior monthly/daily exception approval',()=>{
+  let s=classify(begin(),'Partner Convoy');
+  s=applyDecision(s,cmd(s,'exception',true),CEO,AT);
+  assert.equal(s.entries['event:1234'].exception.approvedByRole,'CEO');
+  s=classify(s,'External Convoy');
+  assert.equal(s.entries['event:1234'].exception,null);
+});
+test('Rescheduling invalidates old quota exception, requiring fresh management approval',()=>{
+  let s=classify(begin(),'Partner Convoy');
+  s=applyDecision(s,cmd(s,'departure','2027-03-20T16:00:00Z'),STAFF,AT);
+  s=applyDecision(s,cmd(s,'exception',true),CEO,AT);
+  s=applyDecision(s,cmd(s,'reschedule','2027-03-21T16:00:00Z'),STAFF,AT);
+  assert.equal(s.entries['event:1234'].exception,null);
+  assert.equal(s.entries['event:1234'].rescheduleHistory.length,1);
+});
+test('An accepted departure cannot be silently changed without reschedule history',()=>{
+  let s=classify(begin(),'Partner Convoy');
+  s=applyDecision(s,cmd(s,'departure','2027-03-20T16:00:00Z'),STAFF,AT);
+  assert.throws(()=>applyDecision(s,cmd(s,'departure','2027-03-21T16:00:00Z'),STAFF,AT));
+  assert.equal(s.entries['event:1234'].departureAtUtc,'2027-03-20T16:00:00.000Z');
+  assert.equal(s.entries['event:1234'].rescheduleHistory.length,0);
+});
+test('Revoking departure clears linked reschedule status and stale exceptions',()=>{
+  let s=classify(begin(),'Partner Convoy');
+  s=applyDecision(s,cmd(s,'departure','2027-03-20T16:00:00Z'),STAFF,AT);
+  s=applyDecision(s,cmd(s,'exception',true),CEO,AT);
+  s=applyDecision(s,cmd(s,'revoke-departure',null),LEAD,AT);
+  assert.equal(s.entries['event:1234'].departureVerified,false);
+  assert.equal(s.entries['event:1234'].exception,null);
+  assert.equal(s.entries['event:1234'].status,null);
+});
