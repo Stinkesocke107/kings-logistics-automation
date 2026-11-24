@@ -35,7 +35,7 @@ function zip(entries){
     header.writeUInt32LE(crc,16);
     header.writeUInt32LE(compressed.length,20);header.writeUInt32LE(bytes.length,24);
     header.writeUInt16LE(name.length,28);
-    header.writeUInt32LE(0o100600<<16,38);
+    header.writeUInt32LE((0o100600*0x10000)>>>0,38);
     header.writeUInt32LE(offset,42);
     central.push(header,name);
     offset+=local.length+name.length+compressed.length;
