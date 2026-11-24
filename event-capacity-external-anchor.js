@@ -44,14 +44,19 @@ function createExternallyAnchoredSnapshotStore({store,anchor,scope}={}){
     if(!same(local,remote))fail();
     return {local,remote};
   }
-  async function readCursor(){
-    await checkPair();
-    try{return await store.readCursor();}catch{fail();}
+  async function consistentRead(name){
+    const before=await checkPair();
+    let value;
+    try{value=await store[name]();}catch{fail();}
+    // An independent import racing with a dashboard request must never
+    // return a source from a different encrypted revision than the one
+    // verified at request start.
+    const after=await checkPair();
+    if(!same(before.local,after.local))fail();
+    return value;
   }
-  async function readLatest(){
-    await checkPair();
-    try{return await store.readLatest();}catch{fail();}
-  }
+  async function readCursor(){return consistentRead('readCursor');}
+  async function readLatest(){return consistentRead('readLatest');}
   async function commitSnapshot(input){
     if(!input||!isDeepStrictEqual(scopeOf(input.scope),expected))fail();
     const {local,remote}=await checkPair();
