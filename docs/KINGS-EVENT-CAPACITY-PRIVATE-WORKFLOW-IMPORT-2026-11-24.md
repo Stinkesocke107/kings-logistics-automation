@@ -59,3 +59,11 @@ Inside a separately authenticated Kings-owned backend, create the reader via cre
 **Do not run this flow with live credentials inside public GitHub Actions logs or this repository.** Providing an authenticatedService:true flag does not authenticate the server by itself. A real trust boundary, secret management, encrypted private storage, rollback resistance, retention and deletion handling still need to be deployed and audited.
 
 The GitHub reader is code only; no new GitHub token was connected, no real workflow artifact was opened and no production import was executed during this change.
+
+## 2026-11-25: Import transaction invariant (draft; not a live implementation)
+
+The importer requires a trusted `commitSnapshot({ scope, expected, next, snapshot, metadata })` callback. A cursor-only `commitCursor` callback is **not accepted**. The callback must atomically commit BOTH (a) the encrypted, scope-bound, attested source snapshot and (b) the monotonic source cursor in one durable private database transaction, conditional on the expected cursor/revision. Only return `true` after the complete transaction is durably committed. On concurrency conflict, encryption failure, database failure or partial write, fail closed and leave the prior committed snapshot+cursor pair intact.
+
+**Why:** moving the cursor without durably storing the snapshot could skip a valid Convoy Checker report forever after a process crash. Returning an in-memory snapshot alone is not a persistence guarantee.
+
+The draft now tests that the combined callback receives the signed snapshot and matching cursor, refuses cursor-only implementations and rejects storage failures without returning a trusted result. These are **synthetic offline tests**. No private production database, host, Discord channel, bot, roles, backup or real authenticated Convoy Center data was provisioned. The callback contract does not by itself guarantee a correct database implementation. A real transactional, encrypted and anti-rollback-protected implementation must be separately built, security reviewed and tested before any release.
