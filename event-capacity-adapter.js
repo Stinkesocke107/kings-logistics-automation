@@ -4,7 +4,8 @@
 // All output is PRIVATE event data; do not commit report results to public Git.
 const {timestamp,evaluate}=require('./event-capacity-core');
 const TYPES=new Set(['Kings Convoy','Partner Convoy','External Convoy']);
-const APPROVERS=new Set(['Event Coordination','Event Leadership','CEO']);
+const CLASSIFICATION_APPROVERS=new Set(['Event Coordination','Event Leadership','CEO']);
+const EXCEPTION_APPROVERS=new Set(['Event Management','CEO']);
 const STATUS_PENDING=new Set(['Submitted','Needs Information','Ready for Approval','Pending','Tentative']);
 const STATUS_ACCEPTED=new Set(['Scheduled','Completed','Rescheduled']);
 
@@ -27,8 +28,16 @@ function sourceIssue(issues,code,ref){
 }
 function approvedDecision(decision){
   return decision&&typeof decision==='object'&&decision.approved===true&&
-    APPROVERS.has(decision.approvedByRole)&&typeof decision.evidenceRef==='string'&&
+    CLASSIFICATION_APPROVERS.has(decision.approvedByRole)&&typeof decision.evidenceRef==='string'&&
     decision.evidenceRef.trim().length>0;
+}
+function verifiedException(decision){
+  // Exception approval is independent of event classification. Never promote
+  // a coordinator's classification attestation to an over-quota approval.
+  const exception=decision?.exception;
+  return !!(exception?.approved===true&&
+    EXCEPTION_APPROVERS.has(exception.approvedByRole)&&
+    typeof exception.evidenceRef==='string'&&exception.evidenceRef.trim());
 }
 function trustedStaffStatus(item){
   const staff=item?.staffStatus;
@@ -129,8 +138,8 @@ function normalizedCenter(item,decisions,now,maxAge,issues){
     rescheduleApproved:manual&&privateDecision.rescheduleApproved===true,
     dataConflict,
     // A verified exception is a distinct protected decision, never inferred.
-    exceptionApprovedBy:manual&&['Event Management','CEO'].includes(privateDecision.exceptionApprovedBy)
-      ?privateDecision.exceptionApprovedBy:null
+    exceptionApprovedBy:verifiedException(privateDecision)
+      ?privateDecision.exception.approvedByRole:null
   };
 }
 function normalizedLegacy(item,issues){
@@ -159,7 +168,21 @@ function adaptConvoyReports(report,overview,options={}){
   const sameScope=typeof options.expectedGuildId==='string'&&options.expectedGuildId===report.guildId&&
     options.expectedGuildId===overview.guildId&&typeof options.expectedForumId==='string'&&
     options.expectedForumId===report.forumId&&options.expectedForumId===overview.forumId;
-  const fresh=sourceTrusted&&sameScope&&validAge(report.finalization?.finalizedAt,now,maxAge)&&
+  const countThreads=report.threads.length;
+  const nonIgnored=report.threads.filter(x=>x&&!x.ignored);
+  const nonTest=nonIgnored.filter(x=>!x.testThread&&
+    !/^\s*\[?test\]?(?:\s|[-_:])/i.test(String(x.name||'')));
+  const legacyRecords=overview.registeredConvoys.filter(x=>x&&x.source==='legacy-calendar');
+  const coverageVerified=Number.isSafeInteger(report.summary?.totalThreads)&&
+    report.summary.totalThreads===countThreads&&
+    Number.isSafeInteger(report.summary?.actualConvoys)&&
+    report.summary.actualConvoys===nonIgnored.length&&
+    Number.isSafeInteger(overview.overall?.realConvoySubmissions)&&
+    overview.overall.realConvoySubmissions===nonTest.length&&
+    Number.isSafeInteger(overview.overall?.legacyImportedConvoys)&&
+    overview.overall.legacyImportedConvoys>=legacyRecords.length;
+  const fresh=sourceTrusted&&sameScope&&coverageVerified&&
+    validAge(report.finalization?.finalizedAt,now,maxAge)&&
     validAge(overview.generatedAt,now,maxAge)&&
     timestamp(overview.generatedAt)>=timestamp(report.finalization?.finalizedAt)&&
     !report.threads.some(x=>!x?.ignored&&!x?.testThread&&x?.error)&&
@@ -184,7 +207,7 @@ function adaptConvoyReports(report,overview,options={}){
   }
   // Frozen legacy data has inferred status/type: include it to expose
   // uncertainties, never secretly count inferred legacy acceptance.
-  const legacy=overview.registeredConvoys.filter(x=>x&&x.source==='legacy-calendar');
+  const legacy=legacyRecords;
   for(const item of legacy)normalized.push(normalizedLegacy(item,issues));
   if(Number(overview.overall?.legacyImportedConvoys??legacy.length)<legacy.length){
     sourceIssue(issues,'legacy-source-coverage-contradiction',null);
