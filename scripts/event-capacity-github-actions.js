@@ -5,12 +5,13 @@ const {createPrivateGitHubReader}=require('../event-capacity-github-source');
 const {verifySourceFreshness,createDiscordRest,publishGithubOnlyStatus}
   =require('../event-capacity-github-only');
 async function main(env=process.env){
-  if(env.KINGS_EVENT_CAPACITY_ENABLED!=='true'||
-    env.GITHUB_REF!=='refs/heads/main'||
+  if(env.GITHUB_REF!=='refs/heads/main'||
     !['schedule','workflow_dispatch'].includes(env.GITHUB_EVENT_NAME))
     throw Error('Kings Event Capacity action is not enabled for this trusted main workflow.');
   const mode=env.KINGS_EVENT_CAPACITY_MODE||
     (env.GITHUB_EVENT_NAME==='schedule'?'sync':'preview');
+  if(mode!=='preview'&&env.KINGS_EVENT_CAPACITY_ENABLED!=='true')
+    throw Error('Kings Event Capacity Discord writes were not enabled.');
   if(!['preview','sync','bootstrap'].includes(mode)||
     mode==='bootstrap'&&env.GITHUB_EVENT_NAME!=='workflow_dispatch')
     throw Error('Kings Event Capacity action mode not authorized.');
