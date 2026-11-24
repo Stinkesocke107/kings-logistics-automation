@@ -14,6 +14,15 @@ const PATH='capacity-data/decisions.encrypted.json';
 const MAX_FILE=850*1024; // GitHub Contents API full-content safety bound.
 const MAX_HTTP=2*1024*1024;
 const REPO=/^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/;
+function checkedRepository(value){
+  if(typeof value!=='string'||!REPO.test(value))fail();
+  const [owner,name]=value.split('/');
+  // Do not let a crafted owner/repo normalize the fixed API URL outside
+  // its intended path. Case-insensitive public source rejection follows.
+  if([owner,name].some(x=>x==='.'||x==='..'||x.startsWith('.')||
+    x.endsWith('.')||x.includes('..')))fail();
+  return value;
+}
 const SNOWFLAKE=/^\d{17,22}$/;
 const HEX=/^[a-f0-9]{40}$/;
 const HASH=/^[a-f0-9]{64}$/;
@@ -65,8 +74,8 @@ function createPrivateGitHubLedgerVault({
   repository,token,secret,scope,anchor,transport=fetch
 }={}){
   const checked=scopeOf(scope);
-  if(!REPO.test(String(repository||''))||
-    repository.toLowerCase()==='stinkesocke107/kings-logistics-automation'||
+  checkedRepository(repository);
+  if(repository.toLowerCase()==='stinkesocke107/kings-logistics-automation'||
     typeof token!=='string'||token.length<20||token.length>1024||
     /[\r\n]/.test(token)||
     typeof secret!=='string'||Buffer.byteLength(secret,'utf8')<32||
