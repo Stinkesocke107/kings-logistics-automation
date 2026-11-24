@@ -38,3 +38,24 @@ The snapshot attestation is HMAC-bound to the report, Overview and encrypted-led
 - Explicit approval by Kings Logistics CEO before merging or enabling, with a safe migration from old advisory limits.
 
 **Public GitHub Actions artifacts can contain sensitive data. DO NOT upload decrypted reports or private staff decisions to this public repository or CI logs.** This draft intentionally only contains generic code and synthetic test inputs.
+
+## Private GitHub API transport (new development module)
+
+The new file event-capacity-github-source.js implements the issuer-side **read-only GitHub REST client**. A protected host injects a narrowly scoped GitHub read token at runtime. The client:
+
+- requests immutable run metadata and artifacts only through fixed API URLs under the Kings repository;
+- requires a complete artifact listing, never silently accepts a missing second page;
+- obtains an immutable artifact ID ZIP, checks source response bounds (25 MiB maximum ZIP) and uses the validated in-memory ZIP decoder;
+- follows at most one HTTPS redirect to an explicitly allowed GitHub Actions/blob CDN suffix, and **never forwards the GitHub Authorization header** or bot tokens to the download URL;
+- rejects invalid redirect hosts, HTTP errors, unexpected API responses, oversized downloads and unknown identities with generic errors;
+- writes no files, logs or data by itself.
+
+Tests in tests/event-capacity-github-source.test.cjs exercise private API token isolation, redirection, malformed metadata, oversized responses and server-side request safety.
+
+### Prototype integration contract
+
+Inside a separately authenticated Kings-owned backend, create the reader via createPrivateGitHubReader({token: privateReadOnlyToken}) and pass reader.getRun, reader.getArtifacts and reader.readArtifact to importPrivateConvoySnapshot alongside protected loadLedger, readCursor and commitCursor services. The importer verifies successful live workflow metadata, the ZIP/metadata size, exact report inventory, valid ledger scope, signed snapshot and atomic cursor advancement.
+
+**Do not run this flow with live credentials inside public GitHub Actions logs or this repository.** Providing an authenticatedService:true flag does not authenticate the server by itself. A real trust boundary, secret management, encrypted private storage, rollback resistance, retention and deletion handling still need to be deployed and audited.
+
+The GitHub reader is code only; no new GitHub token was connected, no real workflow artifact was opened and no production import was executed during this change.
