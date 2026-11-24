@@ -13,6 +13,16 @@ on:
         options:
           - dry-run
           - live
+      capacity_action:
+        description: "GitHub-only Event Capacity (off, preview, bootstrap, sync)"
+        required: false
+        default: "off"
+        type: choice
+        options:
+          - "off"
+          - preview
+          - bootstrap
+          - sync
 
   push:
     branches: [main]
@@ -31,6 +41,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: kings-convoy-checker
@@ -253,6 +264,39 @@ jobs:
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_OVERVIEW_CHANNEL_ID: '1550619865805754378'
         run: node convoy-overview-discord.js
+
+      # Event Capacity uses this already scheduled GitHub-hosted runner:
+      # no second workflow, no VPS, and no live Discord Gateway.
+      # Default OFF; manual preview is read-only even without credentials.
+      - name: Kings Event Capacity (GitHub-only opt-in)
+        id: event_capacity_github_only
+        continue-on-error: true
+        if: >-
+          (github.event_name == 'schedule' && vars.KINGS_EVENT_CAPACITY_ENABLED == 'true') ||
+          (github.event_name == 'workflow_dispatch' &&
+            (inputs.capacity_action == 'preview' ||
+              (vars.KINGS_EVENT_CAPACITY_ENABLED == 'true' &&
+                (inputs.capacity_action == 'bootstrap' || inputs.capacity_action == 'sync'))))
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_EVENT_CAPACITY_ENABLED: ${{ vars.KINGS_EVENT_CAPACITY_ENABLED }}
+          KINGS_EVENT_CAPACITY_MODE: ${{ github.event_name == 'schedule' && 'sync' || inputs.capacity_action }}
+          KINGS_EVENT_CAPACITY_GUILD_ID: '1114967437788577792'
+          KINGS_EVENT_CAPACITY_CHANNEL_ID: ${{ vars.KINGS_EVENT_CAPACITY_CHANNEL_ID }}
+          KINGS_EVENT_CAPACITY_MESSAGE_ID: ${{ vars.KINGS_EVENT_CAPACITY_MESSAGE_ID }}
+          KINGS_EVENT_COORDINATION_ROLE_ID: ${{ vars.KINGS_EVENT_COORDINATION_ROLE_ID }}
+          KINGS_EVENT_LEADERSHIP_ROLE_ID: ${{ vars.KINGS_EVENT_LEADERSHIP_ROLE_ID }}
+          KINGS_EVENT_CEO_ROLE_ID: ${{ vars.KINGS_EVENT_CEO_ROLE_ID }}
+        run: |
+          node --check event-capacity-github-only.js
+          node --check scripts/event-capacity-github-actions.js
+          node --test tests/event-capacity-github-only.test.cjs tests/event-capacity-github-actions-runner.test.cjs
+          node scripts/event-capacity-github-actions.js
+
+      - name: Note optional Event Capacity errors without masking Convoy health
+        if: steps.event_capacity_github_only.outcome == 'failure'
+        run: echo "::warning::Optional GitHub-only Event Capacity run failed; do not treat availability as verified."
 
       - name: Dry-run safety summary
         if: steps.mode.outputs.dry_run == 'true'
