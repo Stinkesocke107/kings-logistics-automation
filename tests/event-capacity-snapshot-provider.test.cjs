@@ -46,3 +46,17 @@ test('Malformed configuration cannot create a protected source reader',()=>{
   assert.throws(()=>createPrivateCapacitySnapshotReader({scope:{...SCOPE,guildId:'bad'},
     store:{readLatest:()=>latest}}));
 });
+
+test('Asynchronous independent checkpoint service must complete before source is returned',async()=>{
+  let requested=0;
+  const reader=createPrivateCapacitySnapshotReader({scope:SCOPE,
+    store:{readLatest:async()=>{requested++;return latest;}}});
+  assert.equal(await reader(SCOPE),snapshot);
+  assert.equal(requested,1);
+});
+test('Asynchronous rejected external checkpoint is sanitized without leaking private source',async()=>{
+  const reader=createPrivateCapacitySnapshotReader({scope:SCOPE,
+    store:{readLatest:async()=>{throw Error('PRIVATE-ANCHOR-SECRET-DO-NOT-LEAK');}}});
+  await assert.rejects(reader(SCOPE),err=>
+    !String(err).includes('PRIVATE-ANCHOR-SECRET-DO-NOT-LEAK'));
+});
