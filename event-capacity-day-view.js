@@ -41,7 +41,8 @@ function duplicateKey(item){
 function displayRecord(item,guildId,duplicated){
   const type=TYPES[item.eventType];
   const verifiedType=item.eventTypeVerified===true&&!!type;
-  const validStatus=item.statusVerified===true;
+  const validStatus=item.statusVerified===true&&
+    (ACCEPTED.has(item.status)||PENDING.has(item.status)||item.status==='Cancelled');
   const isConfirmed=validStatus&&ACCEPTED.has(item.status)&&
     item.departureVerified===true&&timestamp(item.departureAtUtc)!==null&&
     verifiedType&&(item.status!=='Rescheduled'||item.rescheduleApproved===true);
@@ -105,7 +106,13 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
   // Warning links are private internal artifacts, but status descriptions are
   // synthesized exclusively from fixed enums and trusted time fields.
   const issuesForDay=capacity.issues.filter(issue=>issue.day===day).length;
+  const safeWarnings=new Set([
+    'combined-day-over-limit','partner-month-over-limit',
+    'external-month-over-limit','departure-under-two-hours',
+    'meeting-end-overlap'
+  ]);
   const knownWarnings=(capacity.warnings||[]).filter(w=>
+    safeWarnings.has(w.code)&&
     w.day===day||((w.first||w.second)&&
       (w.first&&[...grouped.keys()].includes(w.first)||
        w.second&&[...grouped.keys()].includes(w.second))))
