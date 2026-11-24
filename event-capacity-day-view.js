@@ -111,11 +111,13 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
     'external-month-over-limit','departure-under-two-hours',
     'meeting-end-overlap'
   ]);
+  const dayEventIds=new Set(grouped.keys());
   const knownWarnings=(capacity.warnings||[]).filter(w=>
-    safeWarnings.has(w.code)&&
-    w.day===day||((w.first||w.second)&&
-      (w.first&&[...grouped.keys()].includes(w.first)||
-       w.second&&[...grouped.keys()].includes(w.second))))
+    safeWarnings.has(w.code)&&(
+      w.day===day||
+      (w.first&&dayEventIds.has(w.first))||
+      (w.second&&dayEventIds.has(w.second))
+    ))
     .map(w=>w.code);
   return {
     version:1,visibility:'PRIVATE_ONLY',readOnly:true,
