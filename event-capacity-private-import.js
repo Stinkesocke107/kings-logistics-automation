@@ -66,7 +66,7 @@ function assertCursor(cursor,runInfo,ledgerRevision){
 }
 async function importPrivateConvoySnapshot({
   scope,nowMs=Date.now(),runId,secret,expectedRepo=REPO,
-  getRun,getArtifacts,readArtifact,loadLedger,readCursor,commitCursor,
+  getRun,getArtifacts,readArtifact,loadLedger,readCursor,commitSnapshot,
   authenticatedService=false
 }={}){
   // Reject direct CLI/user/web input; callbacks are from a trusted isolated
@@ -74,7 +74,7 @@ async function importPrivateConvoySnapshot({
   if(authenticatedService!==true||typeof expectedRepo!=='string'||
      expectedRepo!==REPO||!ID.test(String(runId||''))||
      !Number.isFinite(nowMs)||
-     [getRun,getArtifacts,readArtifact,loadLedger,readCursor,commitCursor]
+     [getRun,getArtifacts,readArtifact,loadLedger,readCursor,commitSnapshot]
        .some(x=>typeof x!=='function'))fail();
   let run,artifacts,contents,ledger,cursor;
   try{
@@ -106,18 +106,23 @@ async function importPrivateConvoySnapshot({
       scope,secret,runId:run.id,attempt:run.attempt,nowMs,trustedProducer:true
     });
   }catch{fail();}
+  const protectedSnapshot={...snapshot,attestation};
+  const metadata={runId:run.id,attempt:run.attempt,
+    ledgerRevision:ledger.revision,sourceVerified:true};
   let saved;
   try{
-    // This operation must be an atomic, durable CAS in a private DB. Return
-    // false on concurrent advancement or unexpected previous revision.
-    // The HMAC is never published to a public workflow artifact.
-    saved=await commitCursor({scope,expected:cursor,next:advance});
+    // Required atomic durable DB transaction: persist the encrypted snapshot
+    // AND its monotonic cursor together. Never advance a cursor alone: a
+    // crash after cursor-only advancement would make the source unrecoverable.
+    // This trusted callback must verify expected CAS state, encrypt private
+    // content, commit both values and return true only after durable success.
+    // No GitHub artifact, public CI log, or Discord message receives the data.
+    saved=await commitSnapshot({scope,expected:cursor,next:advance,
+      snapshot:protectedSnapshot,metadata});
   }catch{fail();}
   if(saved!==true)fail();
   // Returned snapshot is ephemeral and MUST remain in protected process
   // memory / encrypted service transport, not be posted to Discord.
-  return {snapshot:{...snapshot,attestation},
-    metadata:{runId:run.id,attempt:run.attempt,
-      ledgerRevision:ledger.revision,sourceVerified:true}};
+  return {snapshot:protectedSnapshot,metadata};
 }
 module.exports={assertRun,assertArtifact,assertCursor,importPrivateConvoySnapshot};
