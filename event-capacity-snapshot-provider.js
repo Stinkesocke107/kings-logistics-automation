@@ -15,7 +15,9 @@ function createPrivateCapacitySnapshotReader({scope,store}={}){
     if(String(guildId)!==expected.guildId||
       String(forumId)!==expected.forumId)fail();
     let latest;
-    try{latest=store.readLatest();}catch{fail();}
+    // The externally anchored store is async: await BOTH local and remote
+    // checkpoint checks before reading or exposing any private source.
+    try{latest=await store.readLatest();}catch{fail();}
     if(!latest||!latest.snapshot||!latest.metadata||
       latest.metadata.sourceVerified!==true||
       latest.snapshot.integrityVerified!==true||
