@@ -59,7 +59,8 @@ function apply(input,command,actor,at){
     if(command.sourceVerified!==true||!ID.test(command.changeKey||'')||
       !Array.isArray(command.fields)||!command.fields.length||
       command.fields.some(x=>!FIELDS.has(x))||
-      !Array.isArray(command.publications)||command.publications.length>1000)fail();
+      !Array.isArray(command.publications)||command.publications.length===0||
+      command.publications.length>1000)fail();
     if(s.changeKeys.includes(command.changeKey))return input; // no duplicate cycle
     const seen=new Set();
     for(const item of command.publications){
