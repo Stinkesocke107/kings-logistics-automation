@@ -40,9 +40,23 @@ function validateChannelPrivacy(channel,roles,config,{botId}={}){
     String(channel.guild_id)!==config.guildId||
     ![0,5].includes(channel.type)||!Array.isArray(channel.permission_overwrites)||
     !Array.isArray(roles)||!roles.length)fail();
-  const known=new Set(roles.map(r=>String(r.id)));
   const allowed=new Set(Object.values(config.roles));
-  if([...allowed].some(x=>!known.has(x)))fail();
+  const known=new Set();
+  for(const role of roles){
+    if(!role||!GUILD.test(String(role.id||''))||
+      known.has(String(role.id))||
+      typeof role.permissions!=='string'||
+      !/^\d{1,22}$/.test(role.permissions))fail();
+    const id=String(role.id);
+    known.add(id);
+    // Discord guild Administrator bypasses channel-specific View denies.
+    // Do not falsely describe the channel as restricted when any other
+    // guild role has this bypass. Owner access is a Discord platform
+    // exception and still needs explicit operational review.
+    if(!allowed.has(id)&&(BigInt(role.permissions)&8n)!==0n)fail();
+  }
+  if(!known.has(config.guildId)||
+    [...allowed].some(x=>!known.has(x)))fail();
   const guildEveryone=channel.permission_overwrites.filter(x=>
     x.type===0&&String(x.id)===config.guildId);
   if(guildEveryone.length!==1||(mask(guildEveryone[0].deny)&VIEW)!==VIEW||
