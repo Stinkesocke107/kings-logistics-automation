@@ -9,6 +9,7 @@ const {adaptConvoyReports}=require('./event-capacity-adapter');
 const {evaluate}=require('./event-capacity-core');
 const {detailProjection,sanitizeDiscord,dateValid}=require('./event-capacity-day-view');
 const {projectDashboard,ephemeralResponse}=require('./event-capacity-dashboard');
+const {project:searchProjection,discordResponse:searchResponse,validateFilters}=require('./event-capacity-search');
 const ERROR='Kings Event Capacity private dashboard request not authorized or ready.';
 function fail(){throw new Error(ERROR);}
 function parseCommand(input){
@@ -20,6 +21,30 @@ function parseCommand(input){
     return {kind:'calendar'};
   if(!Array.isArray(options)||options.length!==1)return null;
   const sub=options[0];
+  if(sub&&sub.type===1&&sub.name==='search'){
+    const values=sub.options===undefined?[]:sub.options;
+    if(!Array.isArray(values)||values.length>10)return null;
+    const mapping={date_from:'dateFrom',date_to:'dateTo',type:'type',
+      status:'status',quality:'quality',conflict:'conflict',
+      exception:'exception',event_id:'eventId',sort:'sort'};
+    const filters={},seen=new Set();
+    let page=1;
+    for(const option of values){
+      if(!option||typeof option.name!=='string'||seen.has(option.name))return null;
+      seen.add(option.name);
+      if(option.name==='page'){
+        if(option.type!==4||!Number.isSafeInteger(option.value)||
+          option.value<1||option.value>1000)return null;
+        page=option.value;
+      }else{
+        const key=mapping[option.name];
+        if(!key||option.type!==3||typeof option.value!=='string')return null;
+        filters[key]=option.value;
+      }
+    }
+    try{validateFilters(filters);}catch{return null;}
+    return {kind:'search',filters,page};
+  }
   if(!sub||sub.type!==1||sub.name!=='day'||!Array.isArray(sub.options)||
      sub.options.length<1||sub.options.length>2)return null;
   const date=sub.options.filter(x=>x&&x.name==='date'&&x.type===3);
@@ -70,6 +95,11 @@ async function handlePrivateCapacityRead({signed,authorization,loadTrustedSnapsh
     if(query.kind==='day'){
       return sanitizeDiscord(detailProjection(input,capacity,query.date,{
         guildId,page:query.page
+      }));
+    }
+    if(query.kind==='search'){
+      return searchResponse(searchProjection(input,capacity,{
+        guildId,filters:query.filters,page:query.page,nowMs
       }));
     }
     return ephemeralResponse(projectDashboard(capacity,{nowMs}));
