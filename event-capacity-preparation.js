@@ -133,13 +133,22 @@ function matchesConflict(tasks,ref){
 }
 function planChecklists(events,opts={}){
   if(!Array.isArray(events)||events.length>50000||!Array.isArray(opts.existingTasks||[]))fail();
-  const results=[],seen=new Set(),issues=[];
+  const results=[],issues=[],counts=new Map();
+  // First collect all identities. If two source records claim the same event,
+  // neither is eligible for confident task creation until reconciled.
+  for(const event of events){
+    if(!event||!ACCEPTED.has(event.status)||event.statusVerified!==true)continue;
+    try{const ref=eventRef(event);counts.set(ref,(counts.get(ref)||0)+1);}
+    catch{issues.push('Invalid event identity');}
+  }
+  const processed=new Set();
   for(const event of events){
     if(!event||!ACCEPTED.has(event.status)||event.statusVerified!==true)continue;
     let ref;
-    try{ref=eventRef(event);}catch{issues.push('Invalid event identity');continue;}
-    if(seen.has(ref)){issues.push('Duplicate event identity');continue;}
-    seen.add(ref);
+    try{ref=eventRef(event);}catch{continue;}
+    if(processed.has(ref))continue;
+    processed.add(ref);
+    if(counts.get(ref)!==1){issues.push('Duplicate event identity');continue;}
     try{
       results.push(proposedChecklist(event,{...opts,
         milestone:opts.milestones?.[ref]||null}));
