@@ -153,7 +153,7 @@ test('Rendered day detail is ephemeral and excludes untrusted names and raw Even
   assert.equal(result.data.content.includes('secret'),false);
   assert.equal(result.data.content.includes('@everyone'),false);
   assert.match(result.data.content,/not proof of event participation/);
-  assert.match(result.data.content,/Planning Completed/);
+  assert.match(JSON.stringify(result.data.embeds),/Planning Completed/);
 });
 test('Private detail refuses invalid scope, page size and malformed sources',()=>{
   const c=evaluate([],{dataFresh:true});
@@ -163,4 +163,16 @@ test('Private detail refuses invalid scope, page size and malformed sources',()=
   assert.throws(()=>detailProjection(a,c,'2027-03-20',{guildId:GUILD,pageSize:100}));
   assert.throws(()=>detailProjection({events:null,dataFresh:true},c,'2027-03-20',{guildId:GUILD}));
   assert.throws(()=>sanitizeDiscord({visibility:'PUBLIC_ONLY',items:[]}));
+});
+
+test('Ten detailed records fit Discord message limits with separate private embed fields',()=>{
+  const items=Array.from({length:10},(_,i)=>entry('event-'+i,'Partner Convoy'));
+  const response=sanitizeDiscord(project(items));
+  assert.equal(response.data.embeds.length,1);
+  assert.equal(response.data.embeds[0].fields.length,10);
+  assert.ok(response.data.content.length<=2000);
+  for(const field of response.data.embeds[0].fields){
+    assert.ok(field.name.length<=256);
+    assert.ok(field.value.length<=1024);
+  }
 });
