@@ -128,3 +128,63 @@ test('Command from incorrect channel or forum context cannot reach private data'
     authorization:{...auth(),channelId:'222222222222222222'}
   })));
 });
+
+function dayCommand(date='2027-03-20',page=null){
+  const options=[{name:'date',type:3,value:date}];
+  if(page!==null)options.push({name:'page',type:4,value:page});
+  return signed({name:'event-capacity',options:[{name:'day',type:1,options}]});
+}
+test('Signed day command shows a private UTC daily detail from one scoped snapshot',async()=>{
+  let loaded=0;
+  const result=await handlePrivateCapacityRead(params({
+    signed:dayCommand(),
+    loadTrustedSnapshot:async()=>{
+      loaded++;return snapshot();
+    }
+  }));
+  assert.equal(loaded,1);
+  assert.equal(result.type,4);
+  assert.equal(result.data.flags,64);
+  assert.deepEqual(result.data.allowed_mentions,{parse:[]});
+  assert.match(result.data.content,/2027-03-20 UTC/);
+  assert.match(result.data.content,/Remaining combined slots/);
+});
+test('Date option with an invalid UTC calendar date is denied before private data loads',async()=>{
+  let calls=0;
+  await assert.rejects(handlePrivateCapacityRead(params({
+    signed:dayCommand('2027-02-30'),
+    loadTrustedSnapshot:async()=>{calls++;return snapshot();}
+  })));
+  assert.equal(calls,0);
+});
+test('Unknown subcommand options are denied before private data loads',async()=>{
+  let calls=0;
+  const bad=signed({name:'event-capacity',
+    options:[{name:'day',type:1,options:[{name:'date',type:3,value:'2027-03-20'},
+      {name:'unknown',type:3,value:'test'}]}]});
+  await assert.rejects(handlePrivateCapacityRead(params({
+    signed:bad,loadTrustedSnapshot:async()=>{calls++;return snapshot();}
+  })));
+  assert.equal(calls,0);
+});
+test('Day detail pagination requires positive integer page and existing results',async()=>{
+  const result=await handlePrivateCapacityRead(params({signed:dayCommand('2027-03-20',1)}));
+  assert.match(result.data.content,/Page 1\/1/);
+  await assert.rejects(handlePrivateCapacityRead(params({signed:dayCommand('2027-03-20',0)})));
+  await assert.rejects(handlePrivateCapacityRead(params({signed:dayCommand('2027-03-20',2)})));
+});
+test('A valid day command must still pass current Discord role authorization',async()=>{
+  let loads=0;
+  await assert.rejects(handlePrivateCapacityRead(params({
+    signed:dayCommand(),authorization:auth([]),
+    loadTrustedSnapshot:async()=>{loads++;return snapshot();}
+  })));
+  assert.equal(loads,0);
+});
+test('Unverified source day view refuses to label open slots as verified',async()=>{
+  const result=await handlePrivateCapacityRead(params({
+    signed:dayCommand(),loadTrustedSnapshot:async()=>snapshot({integrityVerified:false})
+  }));
+  assert.match(result.data.content,/Availability unverified/);
+  assert.match(result.data.content,/Data Outdated/);
+});
