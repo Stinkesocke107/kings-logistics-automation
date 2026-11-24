@@ -6,6 +6,7 @@
 const {timestamp}=require('./event-capacity-core');
 const {validateLedger}=require('./event-capacity-decision-ledger');
 const {signPrivateSnapshot}=require('./event-capacity-snapshot-attestation');
+const {parsePrivateConvoyArchive}=require('./event-capacity-private-archive');
 const ERROR='Kings Event Capacity protected import was not authorized or verified.';
 const REPO='Stinkesocke107/kings-logistics-automation';
 const WORKFLOW='.github/workflows/convoy-checker.yml';
@@ -83,9 +84,11 @@ async function importPrivateConvoySnapshot({
     // The protected loader must enforce ZIP bomb limits, exact two JSON
     // members, no symlinks/path traversal and a combined output-size cap.
     // No raw report, ZIP bytes or secrets may be logged or stored in public Git.
-    contents=await readArtifact({repository:REPO,runId:run.id,
+    const archive=await readArtifact({repository:REPO,runId:run.id,
       runAttempt:run.attempt,artifactId:artifacts.id,maxArchiveBytes:MAX_ARCHIVE,
       requiredFiles:['convoy-check-results.json','convoy-overview.json']});
+    if(!Buffer.isBuffer(archive)||archive.length!==artifacts.bytes)fail();
+    contents=parsePrivateConvoyArchive(archive);
     ledger=await loadLedger({scope});
     cursor=await readCursor({scope});
   }catch{fail();}
