@@ -176,3 +176,22 @@ test('Ten detailed records fit Discord message limits with separate private embe
     assert.ok(field.value.length<=1024);
   }
 });
+
+test('Forged status and warning codes are not copied into private Discord output',()=>{
+  const bad=entry('malicious','Partner Convoy','2027-03-20','@everyone fake-confirmed',{
+    statusVerified:true
+  });
+  const events=[bad];
+  const capacity=evaluate(events,{dataFresh:true});
+  capacity.warnings.push({
+    code:'<@everyone> fake alert',
+    first:'event:malicious',
+    second:'event:malicious'
+  });
+  const view=detailProjection({events,dataFresh:true},capacity,'2027-03-20',{guildId:GUILD});
+  const response=sanitizeDiscord(view);
+  assert.equal(view.items[0].state,'Needs Verification');
+  assert.equal(view.items[0].status,'Status Unverified');
+  assert.equal(JSON.stringify(response).includes('@everyone'),false);
+  assert.equal(JSON.stringify(response).includes('fake alert'),false);
+});
