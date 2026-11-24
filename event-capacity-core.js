@@ -79,7 +79,9 @@ function evaluate(input,options={}){
     if(status==='Cancelled')continue;
     if(PENDING.has(status)){pending.push({id,status});continue;}
     if(status==='Rescheduled'&&item.rescheduleApproved!==true){
-      issue('reschedule-awaiting-approval',id,dateHint(item));continue;
+      // Previous confirmed allocation cannot be released from an unapproved move
+      // without a reconciled historical ledger; block unverified availability.
+      issue('reschedule-awaiting-approval',id);continue;
     }
     const type=TYPES[item.eventType];
     if(!type||item.eventTypeVerified!==true){
