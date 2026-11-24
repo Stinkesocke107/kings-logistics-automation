@@ -64,41 +64,6 @@
       },
       "firstAlertedAt": "2026-11-21T19:48:53.016Z"
     },
-    "workflow-failed:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure.",
-      "details": {
-        "runId": 45063708916,
-        "completedAt": "2026-11-22T20:00:08Z"
-      },
-      "firstAlertedAt": "2026-11-22T20:20:18.352Z"
-    },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 540
-      },
-      "firstAlertedAt": "2026-11-22T20:20:18.352Z"
-    },
-    "workflow-schedule-late:driver-register-onboarding.yml": {
-      "severity": "warning",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding scheduled run started 716 minutes after its UTC slot.",
-      "details": {
-        "status": "late",
-        "expectedAt": "2026-11-23T07:17:00.000Z",
-        "actualAt": "2026-11-23T19:13:25.000Z",
-        "delayMinutes": 716,
-        "graceMinutes": 120,
-        "runId": 45246665218
-      },
-      "firstAlertedAt": "2026-11-23T21:43:38.816Z"
-    },
     "workflow-failed:live-tracker.yml": {
       "severity": "critical",
       "system": "Live Tracker / Statistics",
@@ -121,5 +86,12 @@
       "firstAlertedAt": "2026-11-24T06:10:12.524Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-schedule-missing:driver-register-onboarding.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-24T10:27:27.530Z",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period."
+    }
+  }
 }
