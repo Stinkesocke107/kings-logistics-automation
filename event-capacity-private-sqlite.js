@@ -93,7 +93,15 @@ function createPrivateSqliteSnapshotStore({
   }
   function getUnverifiedRecord(){
     const row=db.prepare('SELECT envelope FROM capacity_snapshots WHERE scope_key=?').get(scopeKey);
-    if(!row)return null;
+    if(!row){
+      // Missing local state cannot reset an independently anchored import.
+      if(externalMinimumRevision!==null){
+        let minimum;
+        try{minimum=externalMinimumRevision({scope:checked});}catch{fail();}
+        if(!Number.isSafeInteger(minimum)||minimum!==0)fail();
+      }
+      return null;
+    }
     const record=unprotect(row.envelope);
     if(!record||record.version!==1||!cursorShape(record.cursor)||
       !Number.isSafeInteger(record.revision)||record.revision<1||
@@ -123,7 +131,8 @@ function createPrivateSqliteSnapshotStore({
     db.exec('PRAGMA secure_delete=ON; PRAGMA trusted_schema=OFF;');
     db.exec('CREATE TABLE IF NOT EXISTS capacity_snapshots ('+
       'scope_key TEXT PRIMARY KEY, envelope BLOB NOT NULL)');
-    checkFile(filename);
+    // The private 0700 parent protects new SQLite files during creation.
+    // Apply 0600 before checking file mode; ordinary umask may create 0644.
     if(process.platform!=='win32')fs.chmodSync(filename,0o600);
     checkFile(filename);
   }catch{
