@@ -25,10 +25,15 @@ function report(threads=[item()]){
   return {guildId:GUILD,forumId:FORUM,generatedAt:'2027-03-20T11:53:00Z',
     finalization:{finalizedAt:'2027-03-20T11:55:00Z'},summary:{totalThreads:threads.length,actualConvoys:threads.length},threads};
 }
-function overview(registeredConvoys=[]){
+function overview(legacyConvoys=[]){
+  const center={
+    source:'convoy-center',eventId:'10',threadId:'10',status:'Scheduled',
+    departureAtUtc:'2027-03-20T16:00:00Z'
+  };
   return {guildId:GUILD,forumId:FORUM,generatedAt:'2027-03-20T11:56:00Z',
-    overall:{convoyReadErrors:0,legacyImportedConvoys:registeredConvoys.length,realConvoySubmissions:1},
-    registeredConvoys};
+    overall:{convoyReadErrors:0,legacyImportedConvoys:legacyConvoys.length,
+      legacyDuplicatesSuppressed:0,realConvoySubmissions:1},
+    registeredConvoys:[center,...legacyConvoys]};
 }
 function decision(type='Partner Convoy',extra={}){
   return {approved:true,approvedByRole:'Event Coordination',evidenceRef:'private-verification-ref',eventType:type,
@@ -155,4 +160,24 @@ test('Recognized staff identity without verified authorization role is not suffi
   const r=evaluateConvoyReports(report([src]),overview(),{...O,classifications:{'event:10':decision()}});
   assert.equal(r.capacity.counted,0);
   assert.equal(r.capacity.issues.some(x=>x.code==='unverified-status'),true);
+});
+
+test('A matching count but different Center Event ID blocks verified availability',()=>{
+  const suspect=overview();
+  suspect.registeredConvoys[0].eventId='another-event';
+  const r=evaluateConvoyReports(report(),suspect,{
+    ...O,classifications:{'event:10':decision()}
+  });
+  assert.equal(r.adapter.dataFresh,false);
+  assert.equal(r.capacity.globalUncertainty,true);
+  assert.ok(r.adapter.issues.some(x=>x.code==='overview-center-identity-conflict'));
+});
+test('An Overview status mismatch blocks source freshness despite equal counts',()=>{
+  const suspect=overview();
+  suspect.registeredConvoys[0].status='Cancelled';
+  const r=evaluateConvoyReports(report(),suspect,{
+    ...O,classifications:{'event:10':decision()}
+  });
+  assert.equal(r.adapter.dataFresh,false);
+  assert.equal(r.capacity.globalUncertainty,true);
 });
