@@ -45,7 +45,7 @@ All require the existing approved private channel, exact role IDs, current Disco
 - **No live authorization:** no real Discord role/channel IDs have been validated and no production event classification was updated.
 - **No real bot hosting:** the design deliberately runs on the existing GitHub-hosted Convoy Checker runner.
 - **No private plaintext in public CI:** user IDs, raw messages, event refs, internal case notes or decisions are not printed or committed.
-- **Message Content:** Discord permission/privileged intent for reading member message bodies must be available and approved if needed.
+- **Message Content:** Discord permission/privileged intent for reading member message bodies must be available and approved if needed. Blank human message bodies (which may indicate missing Message Content access) fail closed as an unavailable evidence inbox, not a fabricated zero-review result.
 - **Actual decision promotion** requires independent durable event-source binding, explicit final human authorization, an audited revisioned private record, backup/restore verification and CEO launch approval.
 
 Files: event-capacity-github-decision-evidence.js and tests/event-capacity-github-decision-evidence.test.cjs; read-only integration via event-capacity-github-only.js and scripts/event-capacity-github-actions.js.
