@@ -118,6 +118,10 @@ async function inspectStaffEvidence({
     if(!m||!SNOWFLAKE.test(String(m.id||''))||
       seen.has(String(m.id))||String(m.channel_id)!==c.channelId)fail();
     seen.add(String(m.id));
+    // Missing Message Content privileged access may yield blank bodies.
+    // Zero visible proposals is NOT evidence of an empty Staff inbox.
+    // Attachments-only/blank human posts are also conservatively unresolved.
+    if(m.author?.bot!==true&&!m.webhook_id&&m.content==='')fail();
     const matched=eligibleMessage(m,c.channelId,nowMs,String(bot.id));
     if(matched)candidates.push(matched);
   }
