@@ -198,3 +198,11 @@ test('Source duplication, even if records appear identical, refuses all proof',a
     threadId:'777777777777777778'});
   await assert.rejects(inspect({},fake));
 });
+
+test('Missing Discord Message Content fails closed rather than claiming zero Staff proposals',async()=>{
+  const request=command('888888888888888888','');
+  const {client}=harness({messages:[request]});
+  await assert.rejects(inspectStaffEvidence({
+    client,config,...reports(),nowMs:NOW
+  }));
+});
