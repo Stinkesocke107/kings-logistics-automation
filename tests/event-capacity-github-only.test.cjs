@@ -232,3 +232,64 @@ test('Incomplete role-permission inventory cannot certify a private channel',()=
   assert.throws(()=>validateChannelPrivacy(sourceChannel(),roleList,
     configCheck(config),{botId:BOT}));
 });
+
+
+test('Opted-in source-bound Staff review reports only aggregate counts, never approval',async()=>{
+  const supplied={
+    reviewCandidates:2,needsHumanReview:1,conflicts:1,
+    sourceDisagreements:0,unknownSource:0,
+    approvalsApplied:0,freeSlotsCertified:false
+  };
+  let inspections=0;
+  const verified=await verifySourceFreshness(
+    readerForPreview(zipForPreview()),NOW,async ({report,overview,nowMs})=>{
+      inspections++;
+      assert.equal(report.guildId,GUILD);
+      assert.equal(overview.guildId,GUILD);
+      assert.equal(nowMs,NOW);
+      return supplied;
+    });
+  assert.equal(inspections,1);
+  assert.equal(verified.sourceAvailable,true);
+  assert.equal(verified.classificationsVerified,false);
+  assert.equal(verified.verifiedFreeSlots,false);
+  assert.equal(verified.evidenceStatus,'Review Candidates');
+  const body=messageFor({sourceAvailable:verified.sourceAvailable,
+    evidenceStatus:verified.evidenceStatus,
+    evidenceAggregate:verified.evidenceAggregate,nowMs:NOW});
+  assert.match(body,/2 review candidate/);
+  assert.match(body,/None is an approval/);
+  assert.match(body,/No free slots are confirmed/);
+});
+test('Unreachable Staff evidence review is separately Unavailable without faking source outage',async()=>{
+  const verified=await verifySourceFreshness(
+    readerForPreview(zipForPreview()),NOW,async ()=>{
+      throw Error('PRIVATE-EVIDENCE-DETAILS-NEVER-LOG');
+    });
+  assert.equal(verified.sourceAvailable,true);
+  assert.equal(verified.evidenceStatus,'Unavailable');
+  assert.equal(verified.evidenceAggregate,null);
+  assert.equal(verified.verifiedFreeSlots,false);
+  const rendered=messageFor({sourceAvailable:true,
+    evidenceStatus:verified.evidenceStatus,nowMs:NOW});
+  assert.match(rendered,/Staff evidence review: Unavailable/);
+  assert.equal(rendered.includes('PRIVATE-EVIDENCE'),false);
+});
+test('Fabricated proof of free slots cannot cross the read-only source boundary',async()=>{
+  const forged=await verifySourceFreshness(readerForPreview(zipForPreview()),
+    NOW,async()=>({
+      reviewCandidates:1,needsHumanReview:0,conflicts:0,
+      sourceDisagreements:0,unknownSource:0,
+      approvalsApplied:1,freeSlotsCertified:true
+    }));
+  assert.equal(forged.sourceAvailable,true);
+  assert.equal(forged.evidenceStatus,'Unavailable');
+  assert.equal(forged.evidenceAggregate,null);
+  assert.throws(()=>messageFor({
+    sourceAvailable:true,evidenceStatus:'Review Candidates',
+    evidenceAggregate:{
+      reviewCandidates:1,conflicts:0,approvalsApplied:1,
+      freeSlotsCertified:true
+    },nowMs:NOW
+  }));
+});
