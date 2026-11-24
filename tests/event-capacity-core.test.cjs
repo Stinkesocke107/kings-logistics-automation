@@ -141,7 +141,9 @@ test('Verified availability requires explicit fresh source and is category speci
   assert.equal(dayAvailability(fresh,'2027-03-20').partnerAvailableVerified,true);
   assert.equal(dayAvailability(fresh,'2027-03-20').externalAvailableVerified,true);
   const records=[];
-  for(let i=0;i<20;i++)records.push(from(100+i,'Partner Convoy','2027-03-21T16:00:00Z'));
+  for(let i=0;i<20;i++)records.push(from(100+i,'Partner Convoy','2027-03-21T16:00:00Z','Scheduled',{
+    meetingAtUtc:'2027-03-21T15:00:00Z',plannedEndAtUtc:'2027-03-21T20:00:00Z'
+  }));
   const full=evaluate(records,{dataFresh:true});
   const day=dayAvailability(full,'2027-03-22');
   assert.equal(day.partnerAvailableVerified,false);
