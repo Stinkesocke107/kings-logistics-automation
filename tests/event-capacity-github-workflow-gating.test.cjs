@@ -23,6 +23,8 @@ test('GitHub host receives only configured identities and existing bot secret',(
   assert.match(workflow,/actions:\s*read/);
   assert.match(workflow,/KINGS_EVENT_CAPACITY_CHANNEL_ID/);
   assert.match(workflow,/KINGS_EVENT_CAPACITY_MESSAGE_ID/);
+  assert.match(workflow,/KINGS_EVENT_CAPACITY_COMMANDS_ENABLED/);
+  assert.match(workflow,/event-capacity-github-staff-commands\.test\.cjs/);
   assert.match(workflow,/KINGS_EVENT_COORDINATION_ROLE_ID/);
   assert.match(workflow,/KINGS_EVENT_LEADERSHIP_ROLE_ID/);
   assert.match(workflow,/KINGS_EVENT_CEO_ROLE_ID/);
