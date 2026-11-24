@@ -7,7 +7,7 @@ const {timestamp}=require('./event-capacity-core');
 const CODES=Object.freeze({
   badShape:'inventory-malformed',reportCount:'report-inventory-mismatch',
   overviewCount:'overview-center-inventory-mismatch',
-  duplicate:'center-duplicate-thread-id',missing:'overview-center-entry-missing',
+  duplicate:'center-duplicate-thread-id',duplicateEvent:'center-duplicate-event-id',missing:'overview-center-entry-missing',
   orphan:'overview-center-orphan',duplicateCenter:'overview-center-duplicate',
   identity:'overview-center-identity-conflict',
   status:'overview-center-status-conflict',
@@ -54,12 +54,18 @@ function reconcileSourceInventory(report,overview){
   }
   const knownByThread=new Map();
   const centerEventIds=new Set();
+  const eventOwners=new Map();
   for(const source of active){
     const ref=key(source);
     if(!ref){add(CODES.invalidRecord);continue;}
     if(knownByThread.has(ref)){add(CODES.duplicate);continue;}
     knownByThread.set(ref,source);
-    if(eventId(source))centerEventIds.add(eventId(source));
+    const id=eventId(source);
+    if(id){
+      centerEventIds.add(id);
+      if(eventOwners.has(id)&&eventOwners.get(id)!==ref)add(CODES.duplicateEvent);
+      eventOwners.set(id,ref);
+    }
   }
   const registeredByThread=new Map();
   for(const source of overviewCenter){
