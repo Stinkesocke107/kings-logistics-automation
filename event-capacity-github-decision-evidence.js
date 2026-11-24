@@ -30,7 +30,9 @@ function parseEvidence(content){
     // Absolute UTC only. No inferred local timezone or human parsing.
     if(!/^20\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:00Z$/.test(raw))return null;
     const at=timestamp(raw);
-    if(at===null||new Date(at).toISOString()!==raw)return null;
+    // Canonical exact-minute UTC without milliseconds: ISO serialization
+    // adds '.000Z', which must not reject a valid YYYY-MM-DDTHH:MM:00Z.
+    if(at===null||new Date(at).toISOString().replace('.000Z','Z')!==raw)return null;
     value=raw;
   }
   return Object.freeze({ref,field,value});
