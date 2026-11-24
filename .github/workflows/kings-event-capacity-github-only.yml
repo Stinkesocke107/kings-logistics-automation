@@ -27,7 +27,8 @@ concurrency:
 
 jobs:
   private-event-capacity:
-    if: github.ref == 'refs/heads/main' && vars.KINGS_EVENT_CAPACITY_ENABLED == 'true'
+    # Preview may run safely before opt-in; scheduled Discord writes cannot.
+    if: github.ref == 'refs/heads/main' && (vars.KINGS_EVENT_CAPACITY_ENABLED == 'true' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'preview'))
     runs-on: ubuntu-latest
     timeout-minutes: 7
     env:
