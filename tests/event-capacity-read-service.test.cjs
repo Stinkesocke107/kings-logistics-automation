@@ -63,7 +63,7 @@ function snapshot(changes={}){
     overview:{
       guildId:GUILD,forumId:FORUM,
       generatedAt:'2027-03-20T11:57:00Z',
-      overall:{convoyReadErrors:0,realConvoySubmissions:0,legacyImportedConvoys:0},
+      overall:{convoyReadErrors:0,realConvoySubmissions:0,legacyImportedConvoys:0,legacyDuplicatesSuppressed:0},
       registeredConvoys:[]
     },
     ledger:createEmptyLedger({guildId:GUILD,forumId:FORUM},'2027-03-20T11:55:00Z'),
