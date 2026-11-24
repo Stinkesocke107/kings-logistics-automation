@@ -51,7 +51,7 @@ function cursorShape(value){
 function createPrivateSqliteSnapshotStore({
   directory,scope,encryptionSecret,signingSecret,
   repositoryRoot=__dirname,nowMs=()=>Date.now(),
-  externalMinimumRevision=null
+  externalMinimumRevision=null,enableIsolatedRestore=false
 }={}){
   const checked=checkedScope(scope);
   if(typeof encryptionSecret!=='string'||
@@ -216,7 +216,65 @@ function createPrivateSqliteSnapshotStore({
       .update(Buffer.from(row.envelope)).digest('hex');
     return Object.freeze({revision:rec.revision,digest});
   }
+  function exportEncryptedRecord(){
+    ensureOpen();
+    const proof=checkpoint();
+    if(!proof)return null;
+    const row=db.prepare('SELECT envelope FROM capacity_snapshots WHERE scope_key=?')
+      .get(scopeKey);
+    if(!row||!(row.envelope instanceof Uint8Array))fail();
+    // This is already AES-GCM ciphertext, not plaintext. Backup service must
+    // add independent at-rest encryption and never return it to Discord/CI.
+    return Object.freeze({version:1,checkpoint:proof,
+      envelope:Buffer.from(row.envelope)});
+  }
+  function restoreIntoEmptyIsolatedStore(record){
+    ensureOpen();
+    // Deliberately non-production escape hatch for tested isolated restore.
+    // A truthy flag alone is NOT operator authentication or authorization.
+    if(enableIsolatedRestore!==true||!record||record.version!==1||
+      !(record.envelope instanceof Uint8Array)||
+      record.envelope.length<29||record.envelope.length>MAX_CIPHERTEXT||
+      !record.checkpoint||!Number.isSafeInteger(record.checkpoint.revision)||
+      !/^[a-f0-9]{64}$/.test(record.checkpoint.digest))fail();
+    const saved=unprotect(record.envelope);
+    if(!saved||saved.version!==1||saved.revision!==record.checkpoint.revision||
+      !cursorShape(saved.cursor)||saved.snapshot?.integrityVerified!==true||
+      saved.snapshot.attestation?.runId!==saved.cursor.runId||
+      saved.snapshot.attestation?.attempt!==saved.cursor.attempt||
+      saved.metadata?.runId!==saved.cursor.runId||
+      saved.metadata?.ledgerRevision!==saved.cursor.ledgerRevision)fail();
+    try{
+      validateLedger(saved.snapshot.ledger,checked);
+      verifyPrivateSnapshot(saved.snapshot,{scope:checked,secret:signingSecret,
+        nowMs:nowMs()});
+    }catch{fail();}
+    const digest=crypto.createHash('sha256')
+      .update(DOMAIN+'\0'+scopeKey+'\0')
+      .update(Buffer.from(record.envelope)).digest('hex');
+    if(digest!==record.checkpoint.digest)fail();
+    db.exec('BEGIN IMMEDIATE');
+    try{
+      // NEVER overwrite existing state. Production restore requires
+      // separate leadership approval and independent-anchor reconciliation.
+      const existing=db.prepare('SELECT 1 AS found FROM capacity_snapshots WHERE scope_key=?')
+        .get(scopeKey);
+      if(existing)fail();
+      if(externalMinimumRevision!==null){
+        const min=externalMinimumRevision({scope:checked});
+        if(min!==0)fail();
+      }
+      db.prepare('INSERT INTO capacity_snapshots(scope_key,envelope) VALUES(?,?)')
+        .run(scopeKey,Buffer.from(record.envelope));
+      db.exec('COMMIT');
+    }catch{
+      try{db.exec('ROLLBACK');}catch{}
+      fail();
+    }
+    return checkpoint();
+  }
   function close(){if(!closed){closed=true;db.close();}}
-  return Object.freeze({readCursor,readLatest,commitSnapshot,checkpoint,close});
+  return Object.freeze({readCursor,readLatest,commitSnapshot,checkpoint,
+    exportEncryptedRecord,restoreIntoEmptyIsolatedStore,close});
 }
 module.exports={createPrivateSqliteSnapshotStore};
