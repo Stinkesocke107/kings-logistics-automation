@@ -131,3 +131,28 @@ test('Duplicate Event IDs are not counted twice and source conflict requires rev
   assert.equal(r.capacity.counted,0);
   assert.equal(r.capacity.issues.some(x=>x.code==='conflicting-duplicate'),true);
 });
+
+test('Classification approval does not authorize a quota exception by itself',()=>{
+  const forged=decision('Partner Convoy',{exceptionApprovedBy:'CEO'});
+  const r=evaluateConvoyReports(report(),overview(),{...O,classifications:{'event:10':forged}});
+  assert.equal(r.capacity.days['2027-03-20'].approvedExceptions,0);
+});
+test('Independently documented Event Management exception is counted, never changes limits',()=>{
+  const proof=decision('Partner Convoy',{exception:{approved:true,approvedByRole:'Event Management',evidenceRef:'private-exception'}}); 
+  const r=evaluateConvoyReports(report(),overview(),{...O,classifications:{'event:10':proof}});
+  assert.equal(r.capacity.days['2027-03-20'].approvedExceptions,1);
+  assert.equal(r.capacity.limits.combinedDaily,2);
+});
+test('Missing or contradictory source inventory fails closed',()=>{
+  const partial=report();
+  partial.summary.totalThreads=2;
+  const r=evaluateConvoyReports(partial,overview(),{...O,classifications:{'event:10':decision()}});
+  assert.equal(r.adapter.dataFresh,false);
+  assert.equal(r.capacity.globalUncertainty,true);
+});
+test('Recognized staff identity without verified authorization role is not sufficient',()=>{
+  const src=item(10,'Scheduled',{staffStatus:{status:'Scheduled',authorId:'synthetic-staff',matchedRoleIds:[],roleSource:'message.member'}});
+  const r=evaluateConvoyReports(report([src]),overview(),{...O,classifications:{'event:10':decision()}});
+  assert.equal(r.capacity.counted,0);
+  assert.equal(r.capacity.issues.some(x=>x.code==='unverified-status'),true);
+});
