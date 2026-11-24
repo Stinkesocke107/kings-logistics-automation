@@ -16,7 +16,7 @@ const overwrites=[
 ];
 const sourceChannel=()=>({id:CHANNEL,guild_id:GUILD,type:0,
   permission_overwrites:overwrites.map(x=>({...x}))});
-const availableRoles=()=>[GUILD,COORD,LEAD,CEO].map(id=>({id,name:'synthetic'}));
+const availableRoles=()=>[GUILD,COORD,LEAD,CEO].map(id=>({id,name:'synthetic',permissions:'66560'}));
 function stub({message=null,channel=null,recent=[]}={}){
   const calls={me:0,channel:0,roles:0,read:0,edit:0,create:0,recent:0};
   const client={
@@ -217,4 +217,18 @@ test('Completed GitHub run does not make an old or tampered report fresh',async(
   const zip=zipForPreview();zip[55]^=255;
   const tampered=await verifySourceFreshness(readerForPreview(zip),NOW);
   assert.equal(tampered.sourceAvailable,false);
+});
+
+test('Unexpected Administrator role bypass is rejected even when @everyone is denied',()=>{
+  const roleList=[...availableRoles(),{
+    id:'555555555555555555',permissions:'8',name:'Unapproved Administrator'
+  }];
+  assert.throws(()=>validateChannelPrivacy(sourceChannel(),roleList,
+    configCheck(config),{botId:BOT}));
+});
+test('Incomplete role-permission inventory cannot certify a private channel',()=>{
+  const roleList=availableRoles();
+  delete roleList[0].permissions;
+  assert.throws(()=>validateChannelPrivacy(sourceChannel(),roleList,
+    configCheck(config),{botId:BOT}));
 });
