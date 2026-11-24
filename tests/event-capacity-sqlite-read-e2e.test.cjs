@@ -8,6 +8,7 @@ const path=require('node:path');
 const {createEmptyLedger}=require('../event-capacity-decision-ledger');
 const {signPrivateSnapshot}=require('../event-capacity-snapshot-attestation');
 const {createPrivateSqliteSnapshotStore}=require('../event-capacity-private-sqlite');
+const {createExternallyAnchoredSnapshotStore}=require('../event-capacity-external-anchor');
 const {createPrivateCapacitySnapshotReader}=require('../event-capacity-snapshot-provider');
 const {handlePrivateCapacityRead}=require('../event-capacity-read-service');
 
@@ -125,5 +126,32 @@ test('Truly expired encrypted source cannot serve a private calendar',async()=>
       }));
       assert.ok(store.readCursor());
     }finally{old.close();}
+  })
+);
+
+test('Independent async checkpoint, SQLite, and signed private search agree on one scope',async()=>
+  withPrivateStore(async store=>{
+    const highwater=store.checkpoint();
+    const anchored=createExternallyAnchoredSnapshotStore({
+      scope:SCOPE,store,
+      anchor:{
+        load:async({scope})=>{
+          assert.deepEqual(scope,SCOPE);
+          return highwater;
+        },
+        compareAndAdvance:async()=>false
+      }
+    });
+    const reader=createPrivateCapacitySnapshotReader({scope:SCOPE,store:anchored});
+    const result=await handlePrivateCapacityRead({
+      signed:signed({name:'event-capacity',
+        options:[{name:'search',type:1,options:[]}]}),
+      authorization:auth(),nowMs:NOW,loadTrustedSnapshot:reader
+    });
+    assert.equal(result.type,4);
+    assert.equal(result.data.flags,64);
+    assert.deepEqual(result.data.allowed_mentions,{parse:[]});
+    assert.match(result.data.content,/Private Event Search/);
+    assert.match(result.data.content,/Results: 0/);
   })
 );
