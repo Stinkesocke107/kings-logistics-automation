@@ -83,7 +83,7 @@ function makeArtifactZip(data=reports()){
     centralHeader.writeUInt32LE(bytes.length,20);
     centralHeader.writeUInt32LE(bytes.length,24);
     centralHeader.writeUInt16LE(filename.length,28);
-    centralHeader.writeUInt32LE(0o100600<<16,38);
+    centralHeader.writeUInt32LE((0o100600*0x10000)>>>0,38);
     centralHeader.writeUInt32LE(offset,42);
     local.push(header,filename,bytes);central.push(centralHeader,filename);
     offset+=header.length+filename.length+bytes.length;
