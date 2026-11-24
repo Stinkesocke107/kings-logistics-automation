@@ -5,6 +5,8 @@ const {createPrivateGitHubReader}=require('../event-capacity-github-source');
 const {verifySourceFreshness,createDiscordRest,publishGithubOnlyStatus}
   =require('../event-capacity-github-only');
 const {pollPrivateStaffCommands}=require('../event-capacity-github-staff-commands');
+const {inspectStaffEvidence,publicSafeAggregate}
+  =require('../event-capacity-github-decision-evidence');
 async function main(env=process.env){
   if(env.GITHUB_REF!=='refs/heads/main'||
     !['schedule','workflow_dispatch'].includes(env.GITHUB_EVENT_NAME))
@@ -39,10 +41,18 @@ async function main(env=process.env){
     return {state:result.state};
   }
   const reader=createPrivateGitHubReader({token:env.GITHUB_TOKEN});
-  const freshness=await verifySourceFreshness(reader);
   const client=createDiscordRest({token:env.DISCORD_BOT_TOKEN});
+  const inspect=env.KINGS_EVENT_CAPACITY_EVIDENCE_ENABLED==='true'
+    ?async ({report,overview,nowMs})=>publicSafeAggregate(
+      await inspectStaffEvidence({
+        client,config,report,overview,nowMs
+      })
+    ):null;
+  const freshness=await verifySourceFreshness(reader,Date.now(),inspect);
   const result=await publishGithubOnlyStatus({
-    client,config,mode:'sync',sourceAvailable:freshness.sourceAvailable
+    client,config,mode:'sync',sourceAvailable:freshness.sourceAvailable,
+    evidenceStatus:freshness.evidenceStatus||null,
+    evidenceAggregate:freshness.evidenceAggregate||null
   });
   // Separate CEO-gated, delayed read-only text replies. This does not
   // enable Discord slash commands, approvals, state writes or staff tasks.
