@@ -37,3 +37,10 @@ Focused synthetic Node tests cover combinations, stale/duplicate source behavior
 ## Still required for launch
 
 A real protected host + workload authentication, independent checkpoint service, authorized source and event history reconciliation, private database for tasks/filters/audit, real Discord command registration and role/channel permissions, operational E2E/privacy tests, backup/restore evidence and explicit Kings CEO approval. **Do not merge PR #143 into main or run it against real Kings staff records until these gates pass.**
+
+
+## Async anchored read integration regression
+
+The signed private read-service provider now **awaits** the externally anchored store's asynchronous \`readLatest()\` call before allowing the snapshot into the command handler. This closes a mismatch between the original synchronous local SQLite prototype and the real external highwater wrapper's Promise-based API. Synthetic tests cover a valid asynchronous checkpoint, rejected asynchronous anchor errors with sanitized messages, and the complete encrypted SQLite → externally checked read → signed Discord \`event-capacity search\` path.
+
+**Important:** These synthetic tests exercise the interface and enforce the gate, not real Discord roles, a deployed independent anchor or a live private host.
