@@ -64,27 +64,6 @@
       },
       "firstAlertedAt": "2026-11-21T19:48:53.016Z"
     },
-    "workflow-failed:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure.",
-      "details": {
-        "runId": 45374631567,
-        "completedAt": "2026-11-24T10:27:45Z"
-      },
-      "firstAlertedAt": "2026-11-24T11:56:33.056Z"
-    },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 540
-      },
-      "firstAlertedAt": "2026-11-24T11:56:33.056Z"
-    },
     "workflow-failed:live-tracker.yml": {
       "severity": "critical",
       "system": "Live Tracker / Statistics",
@@ -121,12 +100,5 @@
       "firstAlertedAt": "2026-11-24T22:20:06.260Z"
     }
   },
-  "pending": {
-    "workflow-failed:system-monitoring.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-24T22:20:06.260Z",
-      "system": "System Monitoring",
-      "message": "System Monitoring latest completed run ended with cancelled."
-    }
-  }
+  "pending": {}
 }
