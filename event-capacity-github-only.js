@@ -153,6 +153,8 @@ function createDiscordRest({token,transport=fetch}={}){
   return Object.freeze({
     me:()=>api('GET','/users/@me'),
     roles:guildId=>api('GET','/guilds/'+snowflake(guildId)+'/roles'),
+    member:(guildId,userId)=>api('GET','/guilds/'+snowflake(guildId)+
+      '/members/'+snowflake(userId)),
     channel:channelId=>api('GET','/channels/'+snowflake(channelId)),
     message:(channelId,messageId)=>api('GET','/channels/'+snowflake(channelId)+
       '/messages/'+snowflake(messageId)),
