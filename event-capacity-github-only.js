@@ -5,11 +5,14 @@
 const {assertRun,assertArtifact}=require('./event-capacity-private-import');
 const {parsePrivateConvoyArchive}=require('./event-capacity-private-archive');
 const {reconcileSourceInventory}=require('./event-capacity-source-reconcile');
+const {timestamp}=require('./event-capacity-core');
 const ERROR='Kings Event Capacity GitHub-only publication rejected.';
 const GUILD=/^\d{17,22}$/;
 const VIEW=1024n;
 const SEND=2048n;
 const REPO='Stinkesocke107/kings-logistics-automation';
+const EXPECTED_GUILD='1114967437788577792';
+const EXPECTED_FORUM='1550619824005062697';
 const MARKER='**Kings Event Capacity | GitHub Actions**';
 function fail(){throw new Error(ERROR);}
 function snowflake(v){if(!GUILD.test(String(v||'')))fail();return String(v);}
@@ -78,7 +81,18 @@ async function verifySourceFreshness(reader,nowMs=Date.now()){
       requiredFiles:['convoy-check-results.json','convoy-overview.json']});
     if(!Buffer.isBuffer(bytes)||bytes.length!==artifact.bytes)fail();
     const data=parsePrivateConvoyArchive(bytes);
-    if(reconcileSourceInventory(data.report,data.overview).ok!==true)fail();
+    if(data.report?.guildId!==EXPECTED_GUILD||
+      data.overview?.guildId!==EXPECTED_GUILD||
+      data.report?.forumId!==EXPECTED_FORUM||
+      data.overview?.forumId!==EXPECTED_FORUM||
+      reconcileSourceInventory(data.report,data.overview).ok!==true)fail();
+    const created=timestamp(data.report.generatedAt);
+    const finished=timestamp(data.report.finalization?.finalizedAt);
+    const updated=timestamp(data.overview.generatedAt);
+    if(created===null||finished===null||updated===null||
+      created>finished||finished>updated||
+      updated-created>60*60000||updated>nowMs+60000||
+      nowMs-updated>30*60000)fail();
     // Source provenance verified; human classification/acceptance/exception
     // decisions have NOT been independently verified in GitHub-only mode.
     return Object.freeze({sourceAvailable:true,runId:run.id,
