@@ -131,3 +131,90 @@ test('Missing, stale or denied GitHub source cannot be treated as verified avail
   assert.deepEqual(data,{sourceAvailable:false,runId:null,
     classificationsVerified:false,verifiedFreeSlots:false});
 });
+
+
+function crc32(bytes){
+  let c=0xffffffff;
+  for(const b of bytes){
+    c^=b;
+    for(let i=0;i<8;i++)c=c&1?(c>>>1)^0xedb88320:c>>>1;
+  }
+  return (c^0xffffffff)>>>0;
+}
+function zipForPreview(overviewTime='2027-03-20T11:57:00Z'){
+  const objs={
+    'convoy-check-results.json':{
+      guildId:GUILD,forumId:'1550619824005062697',
+      generatedAt:'2027-03-20T11:54:00Z',
+      finalization:{finalizedAt:'2027-03-20T11:56:00Z'},
+      summary:{totalThreads:0,actualConvoys:0},threads:[]
+    },
+    'convoy-overview.json':{
+      guildId:GUILD,forumId:'1550619824005062697',
+      generatedAt:overviewTime,
+      overall:{realConvoySubmissions:0,convoyReadErrors:0,
+        legacyImportedConvoys:0,legacyDuplicatesSuppressed:0},
+      registeredConvoys:[]
+    }
+  };
+  const locals=[],centrals=[];
+  let offset=0;
+  for(const [name,obj] of Object.entries(objs)){
+    const filename=Buffer.from(name),bytes=Buffer.from(JSON.stringify(obj));
+    const hash=crc32(bytes),local=Buffer.alloc(30),central=Buffer.alloc(46);
+    local.writeUInt32LE(0x04034b50,0);local.writeUInt16LE(20,4);
+    local.writeUInt16LE(0x800,6);local.writeUInt32LE(hash,14);
+    local.writeUInt32LE(bytes.length,18);local.writeUInt32LE(bytes.length,22);
+    local.writeUInt16LE(filename.length,26);
+    central.writeUInt32LE(0x02014b50,0);central.writeUInt16LE(0x0314,4);
+    central.writeUInt16LE(20,6);central.writeUInt16LE(0x800,8);
+    central.writeUInt32LE(hash,16);central.writeUInt32LE(bytes.length,20);
+    central.writeUInt32LE(bytes.length,24);central.writeUInt16LE(filename.length,28);
+    central.writeUInt32LE((0o100600*0x10000)>>>0,38);
+    central.writeUInt32LE(offset,42);
+    locals.push(local,filename,bytes);centrals.push(central,filename);
+    offset+=local.length+filename.length+bytes.length;
+  }
+  const idx=Buffer.concat(centrals),end=Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50,0);end.writeUInt16LE(2,8);
+  end.writeUInt16LE(2,10);end.writeUInt32LE(idx.length,12);
+  end.writeUInt32LE(offset,16);
+  return Buffer.concat([...locals,idx,end]);
+}
+function readerForPreview(bytes,metadata={}){
+  const runId='45502949674',sha='1'.repeat(40);
+  return {
+    getLatestScheduledRun:async()=>({runId,attempt:1}),
+    getRun:async()=>({
+      id:Number(runId),name:'Kings Convoy Checker',
+      path:'.github/workflows/convoy-checker.yml',
+      repository:{full_name:'Stinkesocke107/kings-logistics-automation'},
+      head_repository:{full_name:'Stinkesocke107/kings-logistics-automation'},
+      head_branch:'main',head_sha:sha,status:'completed',conclusion:'success',
+      event:'schedule',run_attempt:1,run_started_at:'2027-03-20T11:53:00Z',
+      updated_at:'2027-03-20T11:59:00Z',...metadata
+    }),
+    getArtifacts:async()=>[{
+      id:70000000001,name:'kings-convoy-reports',expired:false,
+      size_in_bytes:bytes.length,
+      workflow_run:{id:Number(runId),head_sha:sha,head_branch:'main'}
+    }],
+    readArtifact:async()=>bytes
+  };
+}
+test('Valid completed Kings scheduled ZIP is checked but never certifies free slots',async()=>{
+  const verified=await verifySourceFreshness(readerForPreview(zipForPreview()),NOW);
+  assert.equal(verified.sourceAvailable,true);
+  assert.equal(verified.classificationsVerified,false);
+  assert.equal(verified.verifiedFreeSlots,false);
+  assert.match(messageFor({sourceAvailable:verified.sourceAvailable,nowMs:NOW}),
+    /Needs Verification/);
+});
+test('Completed GitHub run does not make an old or tampered report fresh',async()=>{
+  const old=await verifySourceFreshness(readerForPreview(
+    zipForPreview('2027-03-20T10:57:00Z')),NOW);
+  assert.equal(old.sourceAvailable,false);
+  const zip=zipForPreview();zip[55]^=255;
+  const tampered=await verifySourceFreshness(readerForPreview(zip),NOW);
+  assert.equal(tampered.sourceAvailable,false);
+});
