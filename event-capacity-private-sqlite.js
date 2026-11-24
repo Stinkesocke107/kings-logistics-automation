@@ -246,8 +246,15 @@ function createPrivateSqliteSnapshotStore({
       saved.metadata?.ledgerRevision!==saved.cursor.ledgerRevision)fail();
     try{
       validateLedger(saved.snapshot.ledger,checked);
+      const issuedAt=Date.parse(saved.snapshot.attestation?.issuedAt);
+      const current=nowMs();
+      if(!Number.isFinite(issuedAt)||!Number.isFinite(current)||
+        issuedAt>current+60000)fail();
+      // Historical archives must be test-restorable after 30 minutes.
+      // Verify the ORIGINAL HMAC at its signed historical time; the standard
+      // readLatest() still requires the current 30-minute freshness window.
       verifyPrivateSnapshot(saved.snapshot,{scope:checked,secret:signingSecret,
-        nowMs:nowMs()});
+        nowMs:issuedAt});
     }catch{fail();}
     const digest=crypto.createHash('sha256')
       .update(DOMAIN+'\0'+scopeKey+'\0')
