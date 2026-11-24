@@ -3,6 +3,7 @@
 // capacity engine. No Discord, network, filesystem, write or publish access.
 // All output is PRIVATE event data; do not commit report results to public Git.
 const {timestamp,evaluate}=require('./event-capacity-core');
+const {reconcileSourceInventory}=require('./event-capacity-source-reconcile');
 const TYPES=new Set(['Kings Convoy','Partner Convoy','External Convoy']);
 const CLASSIFICATION_APPROVERS=new Set(['Event Coordination','Event Leadership','CEO']);
 const EXCEPTION_APPROVERS=new Set(['Event Management','CEO']);
@@ -173,6 +174,8 @@ function adaptConvoyReports(report,overview,options={}){
   const nonTest=nonIgnored.filter(x=>!x.testThread&&
     !/^\s*\[?test\]?(?:\s|[-_:])/i.test(String(x.name||'')));
   const legacyRecords=overview.registeredConvoys.filter(x=>x&&x.source==='legacy-calendar');
+  const sourceReconciliation=reconcileSourceInventory(report,overview);
+  for(const code of sourceReconciliation.issues)sourceIssue(issues,code,null);
   const coverageVerified=Number.isSafeInteger(report.summary?.totalThreads)&&
     report.summary.totalThreads===countThreads&&
     Number.isSafeInteger(report.summary?.actualConvoys)&&
@@ -181,7 +184,7 @@ function adaptConvoyReports(report,overview,options={}){
     overview.overall.realConvoySubmissions===nonTest.length&&
     Number.isSafeInteger(overview.overall?.legacyImportedConvoys)&&
     overview.overall.legacyImportedConvoys>=legacyRecords.length;
-  const fresh=sourceTrusted&&sameScope&&coverageVerified&&
+  const fresh=sourceTrusted&&sameScope&&coverageVerified&&sourceReconciliation.ok&&
     validAge(report.finalization?.finalizedAt,now,maxAge)&&
     validAge(overview.generatedAt,now,maxAge)&&
     timestamp(overview.generatedAt)>=timestamp(report.finalization?.finalizedAt)&&
