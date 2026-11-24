@@ -1,0 +1,64 @@
+name: Kings Event Capacity - GitHub Only (Draft)
+
+# No PR-branch scheduler. Requires explicit owner opt-in on main.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Preview only, bootstrap empty private channel, or sync existing bot message
+        required: true
+        default: preview
+        type: choice
+        options:
+          - preview
+          - bootstrap
+          - sync
+  schedule:
+    # 15-minute attempt; GitHub runners may start late.
+    - cron: '7,22,37,52 * * * *'
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: kings-event-capacity-github-only
+  cancel-in-progress: false
+
+jobs:
+  private-event-capacity:
+    if: github.ref == 'refs/heads/main' && vars.KINGS_EVENT_CAPACITY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+      KINGS_EVENT_CAPACITY_ENABLED: ${{ vars.KINGS_EVENT_CAPACITY_ENABLED }}
+      KINGS_EVENT_CAPACITY_MODE: ${{ github.event_name == 'schedule' && 'sync' || inputs.mode }}
+      KINGS_EVENT_CAPACITY_GUILD_ID: '1114967437788577792'
+      KINGS_EVENT_CAPACITY_CHANNEL_ID: ${{ vars.KINGS_EVENT_CAPACITY_CHANNEL_ID }}
+      KINGS_EVENT_CAPACITY_MESSAGE_ID: ${{ vars.KINGS_EVENT_CAPACITY_MESSAGE_ID }}
+      KINGS_EVENT_COORDINATION_ROLE_ID: ${{ vars.KINGS_EVENT_COORDINATION_ROLE_ID }}
+      KINGS_EVENT_LEADERSHIP_ROLE_ID: ${{ vars.KINGS_EVENT_LEADERSHIP_ROLE_ID }}
+      KINGS_EVENT_CEO_ROLE_ID: ${{ vars.KINGS_EVENT_CEO_ROLE_ID }}
+    steps:
+      - name: Checkout trusted main branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Check hosting-free Event Capacity modules
+        run: |
+          node --check event-capacity-github-only.js
+          node --check scripts/event-capacity-github-actions.js
+
+      - name: Verify private-channel safety on synthetic data
+        run: node --test tests/event-capacity-github-only.test.cjs
+
+      - name: Run GitHub-only Event Capacity worker
+        run: node scripts/event-capacity-github-actions.js
