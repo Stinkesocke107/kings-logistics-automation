@@ -77,10 +77,11 @@ function validateChannelPrivacy(channel,roles,config,{botId}={}){
   // admin must explicitly verify current effective Discord permissions.
   return true;
 }
-async function verifySourceFreshness(reader,nowMs=Date.now()){
+async function verifySourceFreshness(reader,nowMs=Date.now(),onVerifiedEvidence=null){
   if(!reader||typeof reader.getLatestScheduledRun!=='function'||
     typeof reader.getRun!=='function'||typeof reader.getArtifacts!=='function'||
-    typeof reader.readArtifact!=='function'||!Number.isFinite(nowMs))fail();
+    typeof reader.readArtifact!=='function'||!Number.isFinite(nowMs)||
+    onVerifiedEvidence!==null&&typeof onVerifiedEvidence!=='function')fail();
   try{
     const candidate=await reader.getLatestScheduledRun({repository:REPO,nowMs});
     const run=assertRun(await reader.getRun({repository:REPO,runId:candidate.runId}),
@@ -107,16 +108,40 @@ async function verifySourceFreshness(reader,nowMs=Date.now()){
       created>finished||finished>updated||
       updated-created>60*60000||updated>nowMs+60000||
       nowMs-updated>30*60000)fail();
+    // Optional Staff evidence inspection is deliberately non-authoritative:
+    // it returns counts only, never private actor IDs or Event references.
+    let evidenceAggregate=null;
+    let evidenceStatus=onVerifiedEvidence?'Unavailable':'Disabled';
+    if(onVerifiedEvidence){
+      try{
+        const value=await onVerifiedEvidence({
+          report:data.report,overview:data.overview,nowMs
+        });
+        if(!value||value.approvalsApplied!==0||
+          value.freeSlotsCertified!==false||
+          !Number.isSafeInteger(value.reviewCandidates)||
+          value.reviewCandidates<0||value.reviewCandidates>12||
+          !['needsHumanReview','conflicts','sourceDisagreements','unknownSource']
+            .every(x=>Number.isSafeInteger(value[x])&&value[x]>=0&&
+              value[x]<=value.reviewCandidates))fail();
+        evidenceAggregate=Object.freeze({...value});
+        evidenceStatus='Review Candidates';
+      }catch{
+        evidenceStatus='Unavailable';
+      }
+    }
     // Source provenance verified; human classification/acceptance/exception
     // decisions have NOT been independently verified in GitHub-only mode.
     return Object.freeze({sourceAvailable:true,runId:run.id,
-      classificationsVerified:false,verifiedFreeSlots:false});
+      classificationsVerified:false,verifiedFreeSlots:false,
+      ...(onVerifiedEvidence?{evidenceStatus,evidenceAggregate}:{})});
   }catch{
     return Object.freeze({sourceAvailable:false,runId:null,
       classificationsVerified:false,verifiedFreeSlots:false});
   }
 }
-function messageFor({sourceAvailable=false,nowMs=Date.now()}={}){
+function messageFor({sourceAvailable=false,nowMs=Date.now(),
+  evidenceStatus=null,evidenceAggregate=null}={}){
   if(typeof sourceAvailable!=='boolean'||!Number.isFinite(nowMs))fail();
   const firstMonth=new Date(nowMs).toISOString().slice(0,7);
   const lines=[];
@@ -127,12 +152,32 @@ function messageFor({sourceAvailable=false,nowMs=Date.now()}={}){
     lines.push('**'+month+' UTC** · ? Availability unverified');
   }
   const status=sourceAvailable?'Needs Verification':'Data Outdated';
+  let evidenceLine='';
+  if(evidenceStatus!==null){
+    if(!['Disabled','Unavailable','Review Candidates'].includes(evidenceStatus))fail();
+    if(evidenceStatus==='Review Candidates'){
+      if(!sourceAvailable||!evidenceAggregate||
+        evidenceAggregate.approvalsApplied!==0||
+        evidenceAggregate.freeSlotsCertified!==false||
+        !Number.isSafeInteger(evidenceAggregate.reviewCandidates)||
+        evidenceAggregate.reviewCandidates<0||evidenceAggregate.reviewCandidates>12||
+        !Number.isSafeInteger(evidenceAggregate.conflicts)||
+        evidenceAggregate.conflicts<0||
+        evidenceAggregate.conflicts>evidenceAggregate.reviewCandidates)fail();
+      evidenceLine='Recent Staff evidence submissions: '+
+        evidenceAggregate.reviewCandidates+' review candidate(s) · '+
+        evidenceAggregate.conflicts+' conflicting. None is an approval.\n';
+    }else if(evidenceStatus==='Unavailable'){
+      evidenceLine='Staff evidence review: Unavailable / Needs Verification.\n';
+    }
+  }
   return MARKER+'\n'+
     '**Status: '+status+'**\n'+
     (sourceAvailable?
       'Convoy Center report source checked. Staff classification and accepted status need separate verification.\n':
       'No current verified Convoy Center report was available.\n')+
     lines.join('\n')+'\n'+
+    evidenceLine+
     'Limits: 2 Partner + External per UTC day; 20 Partner / 20 External per UTC month; Kings events unlimited.\n'+
     '**No free slots are confirmed by this preview.** No events or approvals are changed.';
 }
@@ -181,9 +226,12 @@ function createDiscordRest({token,transport=fetch}={}){
   });
 }
 async function publishGithubOnlyStatus({client,config,sourceAvailable=false,
-  mode='preview',manualDispatch=false,nowMs=Date.now()}={}){
+  mode='preview',manualDispatch=false,nowMs=Date.now(),
+  evidenceStatus=null,evidenceAggregate=null}={}){
   if(!['preview','sync','bootstrap'].includes(mode)||!Number.isFinite(nowMs))fail();
-  const content=messageFor({sourceAvailable,nowMs});
+  const content=messageFor({
+    sourceAvailable,nowMs,evidenceStatus,evidenceAggregate
+  });
   // A no-network preview needs no Discord token, channel or role IDs.
   if(mode==='preview')return Object.freeze({state:'Preview',content});
   const c=configCheck(config);
