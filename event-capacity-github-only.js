@@ -152,10 +152,11 @@ function createDiscordRest({token,transport=fetch}={}){
 }
 async function publishGithubOnlyStatus({client,config,sourceAvailable=false,
   mode='preview',manualDispatch=false,nowMs=Date.now()}={}){
-  const c=configCheck(config);
   if(!['preview','sync','bootstrap'].includes(mode)||!Number.isFinite(nowMs))fail();
   const content=messageFor({sourceAvailable,nowMs});
+  // A no-network preview needs no Discord token, channel or role IDs.
   if(mode==='preview')return Object.freeze({state:'Preview',content});
+  const c=configCheck(config);
   if(!client||['me','roles','channel','message','recent','create','edit']
     .some(k=>typeof client[k]!=='function'))fail();
   // Live Discord writing requires explicit opt-in in the workflow AND a real,
