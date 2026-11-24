@@ -141,3 +141,15 @@ test('Reject unknown overview sources rather than silently trusting them',()=>{
   assert.equal(r.ok,false);
   assert.ok(has(r,'overview-center-inventory-mismatch'));
 });
+
+test('Two different Center threads sharing an Event ID cannot be treated as verified free capacity',()=>{
+  const r=result(a=>{
+    a.report.threads.push({...a.report.threads[0],threadId:'101'});
+    a.report.summary.totalThreads=2;
+    a.report.summary.actualConvoys=2;
+    a.overview.overall.realConvoySubmissions=2;
+    a.overview.registeredConvoys.push({...a.overview.registeredConvoys[0],threadId:'101'});
+  });
+  assert.equal(r.ok,false);
+  assert.ok(has(r,'center-duplicate-event-id'));
+});
