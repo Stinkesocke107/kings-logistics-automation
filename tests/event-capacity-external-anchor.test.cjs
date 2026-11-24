@@ -91,3 +91,27 @@ test('The checkpoint contract rejects invalid digest and rollback proof',()=>{
   assert.throws(()=>checkpoint({revision:1,digest:'bad'}));
   assert.throws(()=>checkpoint({revision:1,digest:HASH1,privateData:'leaked'}));
 });
+
+test('Protected reads fail closed if source revision changes during the read',async()=>{
+  const original={revision:1,digest:HASH1};
+  let local={...original},remote={...original};
+  const wrapped=createExternallyAnchoredSnapshotStore({
+    scope:SCOPE,
+    store:{
+      checkpoint:async()=>local,
+      readCursor:async()=>{
+        local={revision:2,digest:HASH2};remote={revision:2,digest:HASH2};
+        return {runId:'100002',attempt:1,ledgerRevision:0};
+      },
+      readLatest:async()=>{
+        local={revision:2,digest:HASH2};remote={revision:2,digest:HASH2};
+        return {privateSnapshot:true};
+      },
+      commitSnapshot:async()=>true
+    },
+    anchor:{load:async()=>remote,compareAndAdvance:async()=>true}
+  });
+  await assert.rejects(wrapped.readCursor());
+  local={...original};remote={...original};
+  await assert.rejects(wrapped.readLatest());
+});
