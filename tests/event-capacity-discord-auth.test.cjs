@@ -149,3 +149,21 @@ test('Unauthorized API errors are not returned with token or sensitive URL',asyn
     return true;
   });
 });
+
+test('An unrelated Administrator role is a private-channel privacy blocker',async()=>{
+  const roles=[
+    role(GUILD,'65536'),role(COORD),role(LEAD),role(MANAGEMENT),
+    role(CEO),role(UNKNOWN,'8')
+  ];
+  const f=fixture([COORD],{roles});
+  await assert.rejects(authorizeSignedInteraction({...signed(),...f}));
+});
+test('An authorized CEO Administrator role does not authorize unrelated non-CEO members',async()=>{
+  const roles=[
+    role(GUILD,'65536'),role(COORD),role(LEAD),role(MANAGEMENT),
+    role(CEO,'66568'),role(UNKNOWN)
+  ];
+  const f=fixture([COORD],{roles});
+  const result=await authorizeSignedInteraction({...signed(),...f});
+  assert.deepEqual(result.actor.verifiedRoles,['Event Coordination']);
+});
