@@ -51,7 +51,8 @@ function evaluate(input,options={}){
   if(!Array.isArray(input))throw new TypeError('Expected normalized event array');
   const issues=[],warnings=[],pending=[],days={},months={},counted=[];
   const uncertainDates=new Set(),uncertainMonths=new Set();
-  let globalUncertainty=options.dataFresh===false;
+  // A verified freshness signal is mandatory before claiming available capacity.
+  let globalUncertainty=options.dataFresh!==true;
   function issue(code,id,day=null){
     issues.push({code,id,day:day||null});
     if(day){uncertainDates.add(day);uncertainMonths.add(day.slice(0,7));}
@@ -146,7 +147,9 @@ function dayAvailability(result,day){
   const monthly=result.months[month]||{partner:0,external:0,kings:0,partnerRemaining:LIMITS.partnerMonthly,externalRemaining:LIMITS.externalMonthly};
   const verified=!(result.globalUncertainty||result.uncertainDates.includes(day)||result.uncertainMonths.includes(month));
   const remaining=Math.max(0,LIMITS.combinedDaily-daily.combined);
-  return {day,month,verified,daily,monthly,remaining,freeVerified:verified&&remaining>0&&
-    monthly.partnerRemaining>0&&monthly.externalRemaining>0};
+  const partnerAvailableVerified=verified&&remaining>0&&monthly.partnerRemaining>0;
+  const externalAvailableVerified=verified&&remaining>0&&monthly.externalRemaining>0;
+  return {day,month,verified,daily,monthly,remaining,partnerAvailableVerified,
+    externalAvailableVerified,freeVerified:partnerAvailableVerified||externalAvailableVerified};
 }
 module.exports={LIMITS,TYPES,timestamp,evaluate,dayAvailability};
