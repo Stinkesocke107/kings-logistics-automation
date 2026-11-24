@@ -132,3 +132,20 @@ test('The evaluator has no side effects on event inputs',()=>{
   evaluate([a]);
   assert.equal(JSON.stringify(a),original);
 });
+
+test('Verified availability requires explicit fresh source and is category specific',()=>{
+  const base=[from(1,'Partner Convoy','2027-03-20T16:00:00Z')];
+  const unknown=evaluate(base);
+  assert.equal(dayAvailability(unknown,'2027-03-20').verified,false);
+  const fresh=evaluate(base,{dataFresh:true});
+  assert.equal(dayAvailability(fresh,'2027-03-20').partnerAvailableVerified,true);
+  assert.equal(dayAvailability(fresh,'2027-03-20').externalAvailableVerified,true);
+  const records=[];
+  for(let i=0;i<20;i++)records.push(from(100+i,'Partner Convoy','2027-03-21T16:00:00Z',{
+  }));
+  const full=evaluate(records,{dataFresh:true});
+  const day=dayAvailability(full,'2027-03-22');
+  assert.equal(day.partnerAvailableVerified,false);
+  assert.equal(day.externalAvailableVerified,true);
+  assert.equal(day.freeVerified,true);
+});
