@@ -69,6 +69,14 @@ function checkPrivateChannel(channel,roles,config,guildId,channelId,memberId,mem
   }
   if(!byId.has(String(guildId)))fail();
   for(const id of Object.values(config))if(!byId.has(id))fail();
+  // Discord Administrator bypasses channel overwrites. A role that is not
+  // among the three authorized dashboard roles can expose a private channel,
+  // even without any explicit VIEW_CHANNEL overwrite.
+  const dashboardRoleIds=new Set(ACCESS.map(label=>config[label]));
+  for(const role of roles){
+    if(has(BigInt(String(role.permissions)),PERMISSIONS.ADMINISTRATOR)&&
+      !dashboardRoleIds.has(String(role.id)))fail();
+  }
   const overwriteKeys=new Set();
   const everyone=channel.permission_overwrites.filter(o=>
     String(o.id)===String(guildId)&&Number(o.type)===0);
