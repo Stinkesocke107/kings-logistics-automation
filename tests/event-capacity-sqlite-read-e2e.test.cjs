@@ -84,7 +84,7 @@ async function withPrivateStore(fn){
     directory:dir,scope:SCOPE,encryptionSecret:STORAGE_SECRET,
     signingSecret:SIGN_SECRET,nowMs:()=>NOW
   });
-  try{assert.equal(store.commitSnapshot(fixture()),true);return await fn(store);}
+  try{assert.equal(store.commitSnapshot(fixture()),true);return await fn(store,dir);}
   finally{store.close();fs.rmSync(dir,{recursive:true,force:true});}
 }
 test('Protected stored snapshot reaches only signed authorized ephemeral calendar',async()=>
@@ -111,14 +111,19 @@ test('Role-revoked Discord user cannot trigger protected database lookup',async(
     assert.equal(reads,0);
   })
 );
-test('Expired encrypted snapshot cannot serve a verified free-capacity dashboard',async()=>
-  withPrivateStore(async store=>{
-    const reader=createPrivateCapacitySnapshotReader({scope:SCOPE,store:{
-      readLatest:()=>{throw Error('private source expired');}
-    }});
-    await assert.rejects(handlePrivateCapacityRead({
-      signed:signed(),authorization:auth(),nowMs:NOW,loadTrustedSnapshot:reader
-    }),error=>!String(error).includes('private source expired'));
-    assert.ok(store.readCursor());
+test('Truly expired encrypted source cannot serve a private calendar',async()=>
+  withPrivateStore(async (store,dir)=>{
+    const old=createPrivateSqliteSnapshotStore({
+      directory:dir,scope:SCOPE,encryptionSecret:STORAGE_SECRET,
+      signingSecret:SIGN_SECRET,nowMs:()=>NOW+3600*1000
+    });
+    try{
+      assert.ok(old.readCursor());
+      const reader=createPrivateCapacitySnapshotReader({scope:SCOPE,store:old});
+      await assert.rejects(handlePrivateCapacityRead({
+        signed:signed(),authorization:auth(),nowMs:NOW,loadTrustedSnapshot:reader
+      }));
+      assert.ok(store.readCursor());
+    }finally{old.close();}
   })
 );
