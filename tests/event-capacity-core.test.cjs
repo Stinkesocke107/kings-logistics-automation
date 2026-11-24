@@ -1,0 +1,134 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {evaluate,dayAvailability,timestamp,LIMITS}=require('../event-capacity-core');
+
+const from=(id,type,departure,status='Scheduled',other={})=>({
+  eventId:String(id),eventType:type,eventTypeVerified:true,status,statusVerified:true,
+  departureAtUtc:departure,departureVerified:true,
+  meetingAtUtc:'2027-03-20T15:00:00Z',
+  plannedEndAtUtc:'2027-03-20T20:00:00Z',
+  ...other
+});
+test('Policy cap: Partner + External share two daily slots; Kings stays unlimited',()=>{
+  const r=evaluate([
+    from(1,'Partner Convoy','2027-03-20T16:00:00Z'),
+    from(2,'External Convoy','2027-03-20T17:00:00Z'),
+    from(3,'Kings Convoy','2027-03-20T18:00:00Z'),
+    from(4,'Kings Convoy','2027-03-20T19:00:00Z')
+  ]);
+  assert.deepEqual([r.days['2027-03-20'].combined,r.days['2027-03-20'].kings],[2,2]);
+  assert.equal(r.days['2027-03-20'].remaining,0);
+  assert.equal(LIMITS.combinedDaily,2);
+});
+test('A third Partner/External on the same day is over limit regardless of subtype',()=>{
+  const r=evaluate([
+    from(1,'External Convoy','2027-03-20T16:00:00Z'),
+    from(2,'Partner Convoy','2027-03-20T17:00:00Z'),
+    from(3,'External Convoy','2027-03-20T18:00:00Z')
+  ]);
+  assert.equal(r.days['2027-03-20'].combined,3);
+  assert.equal(r.warnings.find(x=>x.code==='combined-day-over-limit').limit,2);
+});
+test('Partner and External each have 20 separate monthly slots',()=>{
+  const items=[];
+  for(let i=0;i<21;i++)items.push(from(100+i,'Partner Convoy','2027-03-20T16:00:00Z'));
+  for(let i=0;i<20;i++)items.push(from(200+i,'External Convoy','2027-03-21T16:00:00Z'));
+  const r=evaluate(items);
+  assert.equal(r.months['2027-03'].partner,21);
+  assert.equal(r.months['2027-03'].external,20);
+  assert.ok(r.warnings.some(x=>x.code==='partner-month-over-limit'));
+  assert.ok(!r.warnings.some(x=>x.code==='external-month-over-limit'));
+});
+test('UTC departure rather than meeting or metadata eventDate determines allocation',()=>{
+  const r=evaluate([from(1,'Partner Convoy','2027-04-01T00:15:00+02:00','Scheduled',{
+    meetingAtUtc:'2027-03-31T21:00:00Z',plannedEndAtUtc:'2027-04-01T01:00:00Z',
+    possibleUtcDate:'2027-04-01'
+  })]);
+  assert.equal(r.days['2027-03-31'].combined,1);
+  assert.equal(r.months['2027-03'].partner,1);
+  assert.equal(r.days['2027-04-01'],undefined);
+});
+test('Pending statuses do not count; completed retains original quota, not attendance evidence',()=>{
+  const r=evaluate([
+    from(1,'Partner Convoy','2027-03-20T16:00:00Z','Completed'),
+    from(2,'Partner Convoy','2027-03-20T17:00:00Z','Submitted'),
+    from(3,'External Convoy','2027-03-20T18:00:00Z','Ready for Approval'),
+    from(4,'Partner Convoy','2027-03-20T19:00:00Z','Cancelled')
+  ]);
+  assert.equal(r.counted,1);
+  assert.equal(r.pending.length,2);
+  assert.equal(r.attendanceInferred,false);
+});
+test('Rescheduling counts only at the new verified accepted date',()=>{
+  const candidate=from(1,'Partner Convoy','2027-03-21T16:00:00Z','Rescheduled',{
+    meetingAtUtc:'2027-03-21T15:00:00Z',plannedEndAtUtc:'2027-03-21T18:00:00Z'
+  });
+  const pending=evaluate([candidate]);
+  assert.equal(pending.counted,0);
+  assert.equal(dayAvailability(pending,'2027-03-21').verified,false);
+  const approved=evaluate([{...candidate,rescheduleApproved:true}]);
+  assert.equal(approved.days['2027-03-21'].partner,1);
+  assert.equal(approved.days['2027-03-20'],undefined);
+});
+test('Identical duplicate Event IDs count once; contradictory duplicates block verified free',()=>{
+  const a=from(1,'Partner Convoy','2027-03-20T16:00:00Z');
+  const identical=evaluate([a,{...a,threadId:'secondary'}]);
+  assert.equal(identical.counted,1);
+  const conflicting=evaluate([a,{...a,eventType:'External Convoy'}]);
+  assert.equal(conflicting.counted,0);
+  assert.ok(conflicting.issues.some(x=>x.code==='conflicting-duplicate'));
+  assert.equal(dayAvailability(conflicting,'2027-03-20').verified,false);
+});
+test('Missing official type, UTC departure, source verification or end fails closed',()=>{
+  const items=[
+    from(1,'Partner Convoy',null,'Scheduled',{possibleUtcDate:'2027-03-20'}),
+    from(2,'Partner Convoy','2027-03-20T17:00:00Z','Scheduled',{eventTypeVerified:false}),
+    from(3,'Partner Convoy','2027-03-20T18:00:00Z','Scheduled',{plannedEndAtUtc:null})
+  ];
+  const r=evaluate(items);
+  assert.equal(r.counted,1);
+  assert.equal(dayAvailability(r,'2027-03-20').verified,false);
+  assert.ok(r.issues.some(x=>x.code==='unverified-departure'));
+  assert.ok(r.issues.some(x=>x.code==='end-time-unknown'));
+});
+test('Stale source never produces verified availability',()=>{
+  const r=evaluate([],{dataFresh:false});
+  assert.equal(dayAvailability(r,'2027-03-20').freeVerified,false);
+  assert.equal(dayAvailability(r,'2027-03-20').verified,false);
+});
+test('2h departure gap is advisory and crosses UTC midnight',()=>{
+  const r=evaluate([
+    from(1,'Kings Convoy','2027-03-20T23:30:00Z','Scheduled',{
+      meetingAtUtc:'2027-03-20T23:00:00Z',plannedEndAtUtc:'2027-03-21T01:00:00Z'
+    }),
+    from(2,'External Convoy','2027-03-21T00:30:00Z','Scheduled',{
+      meetingAtUtc:'2027-03-21T00:00:00Z',plannedEndAtUtc:'2027-03-21T02:00:00Z'
+    })
+  ]);
+  const w=r.warnings.find(x=>x.code==='departure-under-two-hours');
+  assert.equal(w.minutesApart,60);
+  assert.equal(r.warnings.find(x=>x.code==='meeting-end-overlap').priorityConflict,true);
+  assert.equal(r.days['2027-03-21'].external,1);
+});
+test('Exception approval is recorded but never raises the actual cap',()=>{
+  const records=[from(1,'Partner Convoy','2027-03-20T16:00:00Z'),from(2,'External Convoy','2027-03-20T17:00:00Z'),from(3,'Partner Convoy','2027-03-20T18:00:00Z','Scheduled',{exceptionApprovedBy:'Event Management'})];
+  const r=evaluate(records);
+  assert.equal(r.days['2027-03-20'].combined,3);
+  assert.equal(r.days['2027-03-20'].approvedExceptions,1);
+  assert.equal(r.days['2027-03-20'].remaining,0);
+  assert.equal(r.warnings.find(x=>x.code==='combined-day-over-limit').approvedExceptions,1);
+});
+test('Strict timezone parsing never guesses and rejects overflow dates',()=>{
+  assert.equal(timestamp('2027-03-20T16:00:00Z'),Date.parse('2027-03-20T16:00:00Z'));
+  assert.equal(timestamp('2027-03-20T17:00:00+01:00'),Date.parse('2027-03-20T16:00:00Z'));
+  assert.equal(timestamp('2027-03-20T16:00:00'),null);
+  assert.equal(timestamp('2027-02-31T16:00:00Z'),null);
+  assert.equal(timestamp('2027-03-20T16:00:00+14:30'),null);
+});
+test('The evaluator has no side effects on event inputs',()=>{
+  const a=from(1,'Partner Convoy','2027-03-20T16:00:00Z');
+  const original=JSON.stringify(a);
+  evaluate([a]);
+  assert.equal(JSON.stringify(a),original);
+});
