@@ -114,6 +114,9 @@ function applyDecision(input,command,actor,at){
   switch(command.action){
     case 'classification':
       if(!TYPES.has(command.value))fail();
+      // Approval belongs to a specific category. Do not carry a quota
+      // exception across a change from Partner to External (or Kings).
+      if(record.eventType!==command.value)record.exception=null;
       record.approved=true;
       record.eventType=command.value;
       record.approvedByRole=role;
@@ -123,6 +126,9 @@ function applyDecision(input,command,actor,at){
       break;
     case 'departure':
       if(!validIso(command.value))fail();
+      // A changed verified departure is a reschedule/correction requiring
+      // its own audited decision, never an untracked in-place overwrite.
+      if(record.departureVerified&&record.departureAtUtc!==iso(command.value))fail();
       record.departureAtUtc=iso(command.value);
       record.departureVerified=true;
       record.rescheduleApproved=false;
@@ -150,6 +156,8 @@ function applyDecision(input,command,actor,at){
       record.departureVerified=true;
       record.rescheduleApproved=true;
       record.status='Rescheduled';
+      // An exception is not transferable across capacity dates/months.
+      record.exception=null;
       // An old meeting/end may no longer describe the new time slot.
       record.meetingAtUtc=null;
       record.meetingVerified=false;
@@ -167,11 +175,15 @@ function applyDecision(input,command,actor,at){
       record.approvedByRole=null;
       record.evidenceRef=null;
       record.exception=null;
+      record.rescheduleApproved=false;
+      record.status=null;
       break;
     case 'revoke-departure':
       record.departureAtUtc=null;
       record.departureVerified=false;
       record.rescheduleApproved=false;
+      record.status=null;
+      record.exception=null;
       break;
     case 'revoke-meeting':
       record.meetingAtUtc=null;
