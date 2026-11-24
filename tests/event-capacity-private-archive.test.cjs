@@ -120,7 +120,7 @@ test('Rejects symbolic link ZIP member from Unix metadata',()=>{
   const a=zip(files());
   const central=a.indexOf(Buffer.from([0x50,0x4b,0x01,0x02]));
   const tampered=Buffer.from(a);
-  tampered.writeUInt32LE(0o120777<<16,central+38);
+  tampered.writeUInt32LE((0o120777*0x10000)>>>0,central+38);
   assert.throws(()=>parsePrivateConvoyArchive(tampered));
 });
 test('Rejects non-Buffer payload and trailing extraneous bytes',()=>{
