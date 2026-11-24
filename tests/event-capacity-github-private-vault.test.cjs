@@ -158,6 +158,9 @@ test('Public repo and the Kings public code repo are forbidden as a private data
   assert.equal(f.getFile(),null);
   assert.throws(()=>f.create({repository:'Stinkesocke107/kings-logistics-automation'}));
   assert.throws(()=>f.create({repository:'../../repo'}));
+  assert.throws(()=>f.create({repository:'../private'}));
+  assert.throws(()=>f.create({repository:'KingsPrivate/..'}));
+  assert.throws(()=>f.create({repository:'KingsPrivate/.hidden'}));
 });
 test('GitHub SHA compare-and-swap conflict cannot silently overwrite an old decision',async()=>{
   const f=fixture(),vault=f.create();
