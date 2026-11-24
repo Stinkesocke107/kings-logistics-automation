@@ -4,10 +4,12 @@ const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const {handlePrivateCapacityRead}=require('../event-capacity-read-service');
 const {createEmptyLedger}=require('../event-capacity-decision-ledger');
+const {signPrivateSnapshot}=require('../event-capacity-snapshot-attestation');
 const GUILD='1114967437788577792',FORUM='1550619824005062697';
 const CHANNEL='1550619865805754378',USER='111111111111111111';
 const COORD='333333333333333333',LEAD='444444444444444444',CEO='666666666666666666';
 const NOW=Date.parse('2027-03-20T12:00:00Z');
+const SNAP_SECRET='synthetic-test-private-capacity-snapshot-signing-secret-v1';
 const {publicKey,privateKey}=crypto.generateKeyPairSync('ed25519');
 const PUBLIC=publicKey.export({format:'der',type:'spki'}).subarray(-32).toString('hex');
 let next=0;
@@ -39,7 +41,7 @@ function auth(memberRoles=[COORD]){
   return {
     guildId:GUILD,forumId:FORUM,channelId:CHANNEL,
     roleIds:{'Event Coordination':COORD,'Event Leadership':LEAD,'CEO':CEO},
-    botToken:'SYNTHETIC_TEST_ONLY',
+    botToken:'SYNTHETIC_TEST_ONLY',snapshotSecret:SNAP_SECRET,
     consumeInteractionId:async id=>{if(seen.has(id))return false;seen.add(id);return true;},
     transport:async url=>{
       const route=new URL(url).pathname;
@@ -52,10 +54,10 @@ function auth(memberRoles=[COORD]){
   };
 }
 function snapshot(changes={}){
-  return {
+  const source={
     integrityVerified:true,
     report:{
-      guildId:GUILD,forumId:FORUM,
+      guildId:GUILD,forumId:FORUM,generatedAt:'2027-03-20T11:54:00Z',
       summary:{totalThreads:0,actualConvoys:0},
       finalization:{finalizedAt:'2027-03-20T11:56:00Z'},
       threads:[]
@@ -69,6 +71,11 @@ function snapshot(changes={}){
     ledger:createEmptyLedger({guildId:GUILD,forumId:FORUM},'2027-03-20T11:55:00Z'),
     ...changes
   };
+  return {...source,attestation:signPrivateSnapshot(source,{
+    scope:{guildId:GUILD,forumId:FORUM},
+    secret:SNAP_SECRET,runId:'45502949674',attempt:1,
+    nowMs:NOW,trustedProducer:true
+  })};
 }
 function params(extra={}){
   return {signed:signed(),authorization:auth(),nowMs:NOW,
@@ -187,4 +194,29 @@ test('Unverified source day view refuses to label open slots as verified',async(
   }));
   assert.match(result.data.content,/Availability unverified/);
   assert.match(result.data.content,/Data Outdated/);
+});
+
+test('Private read rejects a report modified after successful issuer attestation',async()=>{
+  await assert.rejects(handlePrivateCapacityRead(params({
+    loadTrustedSnapshot:async()=>{
+      const source=snapshot();
+      source.report.summary.totalThreads=999;
+      return source;
+    }
+  })));
+});
+test('Private read rejects an unsigned report even when integrityVerified flag is true',async()=>{
+  await assert.rejects(handlePrivateCapacityRead(params({
+    loadTrustedSnapshot:async()=>{
+      const source=snapshot();
+      delete source.attestation;
+      return source;
+    }
+  })));
+});
+test('Private read refuses a wrong private snapshot-signing key',async()=>{
+  await assert.rejects(handlePrivateCapacityRead(params({
+    authorization:{...auth(),snapshotSecret:'incorrect-synthetic-signing-secret-long-enough'},
+    loadTrustedSnapshot:async()=>snapshot()
+  })));
 });
