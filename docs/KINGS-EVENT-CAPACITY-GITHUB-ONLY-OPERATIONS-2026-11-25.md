@@ -68,3 +68,34 @@ A secure rollout sequence:
 GitHub schedule is best effort. For public repositories, scheduled workflows may be automatically disabled after 60 days without repository activity. This requires monitoring and manual recovery. A green offline CI result does not prove the real Discord setup, historical source completeness, or the actual absence of private permission leaks.
 
 Production main, existing Convoy Checker rules, accepted statuses, public messages and Discord roles stay unchanged until separate owner authorization.
+
+
+## Hosting-free Staff read commands (new draft)
+
+The existing GitHub-only runner now has a **second independent opt-in** for private read-only Staff text commands. The code remains disabled when this variable is absent/false:
+
+- GitHub Actions repository variable: KINGS_EVENT_CAPACITY_COMMANDS_ENABLED — must be exactly true **in addition to** KINGS_EVENT_CAPACITY_ENABLED=true and a successful approved private dashboard setup.
+- Existing Convoy Checker 15-minute scheduled workflow runs the normal Event Capacity status update, then optionally reads recent messages in the same private channel using outbound Discord REST. There is still **no separate hosted bot, WebSocket Gateway, or incoming HTTP endpoint**.
+- Staff can type precisely these commands in the private channel:
+  - !capacity help
+  - !capacity status
+  - !capacity month YYYY-MM
+  - !capacity day YYYY-MM-DD
+- Responses appear as ordinary **delayed message replies** (not native slash commands, dropdowns, ephemeral messages, tickets, or staff approval buttons). The bot disables author, role and everyone mentions.
+- The first release is deliberately **READ ONLY**. It does not accept, cancel, reschedule or classify an Event, grant an exception, close a task, change a private ledger, or claim free capacity. Day/month outputs show the correct capacity *policy limits* but leave **actual accepted usage and free places unverified** until independently evidenced historical Staff decisions are available.
+
+### Permission and dedupe constraints
+
+Before processing, the runner validates the exact allowed guild and channel, the three current authorized role IDs, @everyone View deny and current guild role definitions. In particular, **an unrelated guild Administrator role is treated as a possible permission bypass** and prevents the private Staff-command worker from answering. Discord guild-owner exceptions remain subject to an explicit independent permission review. Every individual author is rechecked against Discord's **current guild member roles**; cached or self-asserted roles are not accepted.
+
+The runner reads at most **99 recent messages** (requests yielding a full 100-message page refuse processing due to ambiguous deduplication). It only examines unedited, recent (35-minute window) exact commands, re-reads each original message, confirms it has not been changed or deleted, rechecks the current private channel/roles and current author membership, then replies to at most **two** eligible commands per GitHub run.
+
+It detects prior bot answers using Discord message references. This is **bounded best-effort idempotence**, not an indefinitely durable exactly-once guarantee: deleted replies, an overloaded/busy channel or scheduler delays can prevent replies. For critical human decisions, a **separate protected durable audit and idempotency service is still required**. No critical writes are enabled in this workflow.
+
+The application's **Message Content privileged intent/permission** must be available for the bot to read other members' message content through Discord APIs. If Discord returns blank or restricted content, there are no processable commands; never fall back to pretending a slash command was received. Review current Discord Developer Portal settings and application eligibility before activating. The bot must also have View Channel, Read Message History and Send Messages permissions in the restricted channel.
+
+No raw staff command contents, user IDs, bot token, ticket information or private event history are logged to public GitHub CI. The source code includes synthetic fixtures only.
+
+### Remaining gaps
+
+A protected 24-month Staff audit store, immutable human decision validation, source history reconciliation, departmental tasks/approved exceptions and fully verified capacity remain open. The GitHub-only Staff command parser is not a substitute for independent evidence. A true real-time native Discord slash UI continues to require a hosted receiver or live Gateway and is **not** promised by this GitHub-only operation.
