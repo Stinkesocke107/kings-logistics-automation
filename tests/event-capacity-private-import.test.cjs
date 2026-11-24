@@ -24,7 +24,7 @@ function run(patch={}){
 function artifact(patch={}){
   return {
     id:Number(ARTID),name:'kings-convoy-reports',expired:false,
-    size_in_bytes:12000,workflow_run:{id:Number(RUNID),head_sha:SHA,head_branch:'main'},
+    size_in_bytes:makeArtifactZip().length,workflow_run:{id:Number(RUNID),head_sha:SHA,head_branch:'main'},
     ...patch
   };
 }
@@ -49,6 +49,53 @@ function reports(){
     }
   };
 }
+
+function crc32(bytes){
+  let c=0xffffffff;
+  for(const x of bytes){c^=x;for(let i=0;i<8;i++)c=c&1?(c>>>1)^0xedb88320:c>>>1;}
+  return (c^0xffffffff)>>>0;
+}
+function makeArtifactZip(data=reports()){
+  // Fixed small ZIP fixture (stored, no external library or private data).
+  const local=[],central=[];
+  let offset=0;
+  for(const [name,obj] of [
+    ['convoy-check-results.json',data.report],
+    ['convoy-overview.json',data.overview]
+  ]){
+    const filename=Buffer.from(name);
+    const bytes=Buffer.from(JSON.stringify(obj));
+    const hash=crc32(bytes);
+    const header=Buffer.alloc(30);
+    header.writeUInt32LE(0x04034b50,0);
+    header.writeUInt16LE(20,4);
+    header.writeUInt16LE(0x800,6);
+    header.writeUInt32LE(hash,14);
+    header.writeUInt32LE(bytes.length,18);
+    header.writeUInt32LE(bytes.length,22);
+    header.writeUInt16LE(filename.length,26);
+    const centralHeader=Buffer.alloc(46);
+    centralHeader.writeUInt32LE(0x02014b50,0);
+    centralHeader.writeUInt16LE(0x0314,4);
+    centralHeader.writeUInt16LE(20,6);
+    centralHeader.writeUInt16LE(0x800,8);
+    centralHeader.writeUInt32LE(hash,16);
+    centralHeader.writeUInt32LE(bytes.length,20);
+    centralHeader.writeUInt32LE(bytes.length,24);
+    centralHeader.writeUInt16LE(filename.length,28);
+    centralHeader.writeUInt32LE(0o100600<<16,38);
+    centralHeader.writeUInt32LE(offset,42);
+    local.push(header,filename,bytes);central.push(centralHeader,filename);
+    offset+=header.length+filename.length+bytes.length;
+  }
+  const index=Buffer.concat(central);
+  const end=Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50,0);
+  end.writeUInt16LE(2,8);end.writeUInt16LE(2,10);
+  end.writeUInt32LE(index.length,12);end.writeUInt32LE(offset,16);
+  return Buffer.concat([...local,index,end]);
+}
+
 function harness(overrides={}){
   const calls={runs:0,artifacts:0,contents:0,ledger:0,readCursor:0,commit:0};
   const credentials={scope:SCOPE,nowMs:NOW,runId:RUNID,secret:SECRET,
@@ -66,7 +113,7 @@ function harness(overrides={}){
       assert.equal(req.runAttempt,1);
       assert.equal(req.maxArchiveBytes,25*1024*1024);
       assert.deepEqual(req.requiredFiles,['convoy-check-results.json','convoy-overview.json']);
-      return reports();
+      return makeArtifactZip();
     },
     loadLedger:async()=>{calls.ledger++;return createEmptyLedger(SCOPE,'2027-03-20T11:00:00Z');},
     readCursor:async()=>{calls.readCursor++;return null;},
@@ -149,7 +196,7 @@ test('Artifact provenance mismatch fails closed without private download',async(
 });
 test('Source inventory mismatch cannot advance the private import cursor',async()=>{
   const {credentials,calls}=harness({readArtifact:async()=>{
-    const r=reports();r.overview.registeredConvoys[0].eventId='wrong';return r;
+    const r=reports();r.overview.registeredConvoys[0].eventId='wrong';return makeArtifactZip(r);
   }});
   await assert.rejects(importPrivateConvoySnapshot(credentials));
   assert.equal(calls.commit,0);
@@ -187,4 +234,22 @@ test('A caller cannot redirect import to a different repository',async()=>{
   const {credentials,calls}=harness({expectedRepo:'external/attacker'});
   await assert.rejects(importPrivateConvoySnapshot(credentials));
   assert.equal(calls.runs,0);
+});
+
+test('Protected importer refuses malformed non-ZIP archive bytes before cursor advancement',async()=>{
+  const {credentials,calls}=harness({readArtifact:async()=>Buffer.from('{}')});
+  await assert.rejects(importPrivateConvoySnapshot(credentials));
+  assert.equal(calls.commit,0);
+});
+test('Protected importer refuses ZIP archive size inconsistent with GitHub metadata',async()=>{
+  const {credentials,calls}=harness({getArtifacts:async()=>[
+    artifact({size_in_bytes:makeArtifactZip().length+100})
+  ]});
+  await assert.rejects(importPrivateConvoySnapshot(credentials));
+  assert.equal(calls.commit,0);
+});
+test('Protected importer rejects an untrusted object instead of raw ZIP bytes',async()=>{
+  const {credentials,calls}=harness({readArtifact:async()=>reports()});
+  await assert.rejects(importPrivateConvoySnapshot(credentials));
+  assert.equal(calls.commit,0);
 });
