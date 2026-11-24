@@ -10,7 +10,7 @@ const O={
 function item(id=10,status='Scheduled',more={}){
   const s=String(id);
   return {
-    threadId:s,eventId:s,name:'Test convoy',status,
+    threadId:s,eventId:s,name:'Sample convoy',status,
     staffStatus:{status,authorId:'synthetic-staff',matchedRoleIds:['mock-role'],roleSource:'message.member'},
     validation:{parsed:{eventType:'Partner Convoy',departureAtUtc:'2027-03-20T16:00:00Z'}},
     truckersmpSync:{ok:true,authoritative:true,syncedAt:'2027-03-20T11:55:00Z'},
@@ -123,7 +123,7 @@ test('Adapter must not return staff identifiers or raw confidential descriptions
   const text=JSON.stringify(r);
   assert.equal(text.includes('synthetic-staff'),false);
   assert.equal(text.includes('private-verification-ref'),false);
-  assert.equal(text.includes('Test convoy'),false);
+  assert.equal(text.includes('Sample convoy'),false);
 });
 test('Duplicate Event IDs are not counted twice and source conflict requires review',()=>{
   const a=item(10),b={...item(10),threadId:'alternate-thread',duplicateEventId:true};
