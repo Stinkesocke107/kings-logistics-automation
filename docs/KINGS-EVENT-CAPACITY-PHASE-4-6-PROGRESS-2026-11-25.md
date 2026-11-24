@@ -36,6 +36,13 @@
 - Aggregate-only CSV projection; no people, private event IDs, staff records or timestamps embedded.
 - Actual PDF generation, protected delivery, 24-month retention and encrypted archive require the private backend.
 
+
+### event-capacity-milestones.js
+- Private chronological Upcoming Milestones view, 10 per page, confirmed milestone tags only.
+- Read-only reminder proposals for open preparations at the 14-day and 3-day UTC departure windows; no reminders for Ready, Completed or Cancelled events.
+- Stable milestone reminder dedupe keys include verified event identity, milestone type, stage and approved departure time so reschedules are independently reviewable.
+- No actual assigned-person lookup, Discord ping, send history or notification delivery occurs in the module. Those require verified private integrations.
+
 ## Remaining launch blockers (not simulated away)
 
 1. Authenticated and independently attested **real** Convoy Center report ingestion with current production data, permission review and legacy reconciliation.
