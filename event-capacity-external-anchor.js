@@ -77,6 +77,12 @@ function createExternallyAnchoredSnapshotStore({store,anchor,scope}={}){
     await checkPair();
     return true;
   }
-  return Object.freeze({readCursor,readLatest,commitSnapshot,verifyCheckpoint:checkPair});
+  async function exportEncryptedRecord(){
+    await checkPair();
+    if(typeof store.exportEncryptedRecord!=='function')fail();
+    try{return await store.exportEncryptedRecord();}catch{fail();}
+  }
+  return Object.freeze({readCursor,readLatest,commitSnapshot,
+    verifyCheckpoint:checkPair,exportEncryptedRecord});
 }
 module.exports={createExternallyAnchoredSnapshotStore,checkpoint};
