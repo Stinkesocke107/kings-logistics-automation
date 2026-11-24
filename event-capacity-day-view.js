@@ -144,29 +144,41 @@ function sanitizeDiscord(response){
     response.capacityVerified?'Remaining combined slots: **'+response.remaining+'**':
       '**Availability unverified — do not confirm an open slot.**',
     'Status: '+(response.sourceVerified?'Source checked':'Data Outdated / Needs Verification'),
-    'Items: '+response.total+' | Page '+response.page+'/'+response.pages
+    'Events: '+response.total+' | Page '+response.page+'/'+response.pages
   ];
-  for(const [index,row] of response.items.entries()){
-    const who=(response.page-1)*10+index+1;
-    const time=row.departureUnix===null?'time unverified':'<t:'+row.departureUnix+':F>';
-    const location=row.link?' · [Convoy Center]('+row.link+')':'';
-    const extra=row.warnings.length?' · '+row.warnings.join(', '):'';
-    text.push(who+'. **'+row.type+'** | '+row.state+' | '+time+location);
-    text.push('   '+row.status+extra);
-    if(row.meetingUnix!==null)text.push('   Meeting <t:'+row.meetingUnix+':t>');
-    if(row.endUnix!==null)text.push('   Planned End <t:'+row.endUnix+':t>');
-  }
-  if(response.issuesForDay)text.push('Needs Attention on this UTC day: '+response.issuesForDay+' data issue(s).');
+  if(response.issuesForDay)text.push('Needs Attention: '+response.issuesForDay+' issue(s) on this UTC date.');
   if(response.unplacedSourceRecords)text.push(
     'Some source events have no reliable UTC date and could not be assigned to this day.'
   );
   if(response.warnings.length)text.push('Scheduling warnings: '+response.warnings.join(', '));
   text.push('Planning status is not proof of event participation. No event was modified.');
-  const rendered=text.join('\n');
-  // Discord content max 2000 chars. Do not truncate away critical safety text.
-  if(rendered.length>2000)fail();
+  const summary=text.join('\n');
+  if(summary.length>2000)fail();
+  const fields=response.items.map((row,index)=>{
+    const num=(response.page-1)*10+index+1;
+    const time=row.departureUnix===null?'time unverified':'<t:'+row.departureUnix+':F>';
+    const location=row.link?'[Convoy Center]('+row.link+')':null;
+    const details=[
+      row.status+' · Departure '+time,
+      row.meetingUnix!==null?'Meeting <t:'+row.meetingUnix+':t>':null,
+      row.endUnix!==null?'Planned End <t:'+row.endUnix+':t>':null,
+      row.warnings.length?'Checks: '+row.warnings.join(', '):null,
+      location
+    ].filter(Boolean).join('\n');
+    if(details.length>1024)fail();
+    return {name:String(num)+'. '+row.type+' | '+row.state,value:details,inline:false};
+  });
   return {
-    type:4,data:{flags:64,allowed_mentions:{parse:[]},content:rendered}
+    type:4,data:{
+      flags:64,allowed_mentions:{parse:[]},content:summary,
+      embeds:[{
+        title:'Kings Convoy Center | '+response.day+' UTC',
+        description:'Private scheduled, pending and conflicting records. Times use your Discord local timezone.',
+        color:1584639,
+        fields,
+        footer:{text:'PRIVATE / READ ONLY · Max. 10 records per page'}
+      }]
+    }
   };
 }
 module.exports={detailProjection,sanitizeDiscord,dateValid};
