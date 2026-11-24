@@ -117,9 +117,12 @@ function harness(overrides={}){
     },
     loadLedger:async()=>{calls.ledger++;return createEmptyLedger(SCOPE,'2027-03-20T11:00:00Z');},
     readCursor:async()=>{calls.readCursor++;return null;},
-    commitCursor:async({expected,next})=>{
-      calls.commit++;assert.equal(expected,null);
-      assert.deepEqual(next,{runId:RUNID,attempt:1,ledgerRevision:0});return true;
+    commitSnapshot:async({scope,expected,next,snapshot,metadata})=>{
+      calls.commit++;assert.deepEqual(scope,SCOPE);assert.equal(expected,null);
+      assert.deepEqual(next,{runId:RUNID,attempt:1,ledgerRevision:0});
+      assert.equal(verifyPrivateSnapshot(snapshot,{scope:SCOPE,secret:SECRET,nowMs:NOW}).verified,true);
+      assert.deepEqual(metadata,{runId:RUNID,attempt:1,ledgerRevision:0,sourceVerified:true});
+      return true;
     },...overrides
   };
   return {credentials,calls};
@@ -216,9 +219,25 @@ test('Rollback cursor rejects stale accepted run before recording a new snapshot
   assert.equal(calls.commit,0);
 });
 test('Transaction CAS failure does not return a trusted private dashboard snapshot',async()=>{
-  const {credentials,calls}=harness({commitCursor:async()=>false});
+  const {credentials,calls}=harness({commitSnapshot:async()=>false});
   await assert.rejects(importPrivateConvoySnapshot(credentials));
   assert.equal(calls.contents,1);
+});
+test('A cursor-only persistence callback cannot mark a source snapshot imported',async()=>{
+  const {credentials,calls}=harness({commitSnapshot:undefined,commitCursor:async()=>true});
+  await assert.rejects(importPrivateConvoySnapshot(credentials));
+  assert.equal(calls.runs,0);
+});
+test('Private snapshot write failure cannot advance the import state or leak details',async()=>{
+  const {credentials,calls}=harness({commitSnapshot:async()=>{
+    calls.commit++;
+    throw Error('secret private event approval: do not show');
+  }});
+  await assert.rejects(importPrivateConvoySnapshot(credentials),error=>{
+    assert.equal(String(error).includes('private event approval'),false);
+    return true;
+  });
+  assert.equal(calls.commit,1);
 });
 test('Producer/import errors do not leak private identity or credentials',async()=>{
   const {credentials}=harness({readArtifact:async()=>{
