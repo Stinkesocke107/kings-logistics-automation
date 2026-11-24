@@ -28,7 +28,7 @@ The adapter's \`trustedSource: true\` setting is a **declarative integration gat
 - reconciled thread counts and legacy coverage metadata;
 - no known report read errors.
 
-Before a Kings Event type can count, the future restricted private classification ledger must supply a reviewed event-specific record. Synthetic prototype shape:
+Before a Kings Event type can count, the restricted private classification ledger must supply a reviewed event-specific record. **Only the encrypted ledger container is accepted by the manual shadow loader.** The following is a **synthetic in-memory adapter projection** of the private decrypted data, not a plaintext file format to store or upload:
 
 \`\`\`json
 {
@@ -62,7 +62,7 @@ For an authorized protected test environment only, configure \`DISCORD_GUILD_ID\
 
 ## Next implementation gates
 
-1. Integrate a private, authenticated classification/approval + end-time ledger, with explicit revocation and event history; no public Git plaintext state.
+1. **Complete the production trust boundary for the new encrypted ledger**: authenticated server-side Discord role checks, current event scope, proof validation, transactional persistence, monotonic revision/rollback protection, correct 24-month personal-log retention, 90-day backups and required deletion propagation.
 2. Audit the exact authoritative Staff role mapping and public/archived Convoy Center behavior in a controlled environment. Read-only shadow compare against verified event snapshots.
 3. Add immutable original allocation for accepted historical events and human-approved reschedules. The current pure engine intentionally fails closed on unresolved rescheduling.
 4. Add independent reliable source adapters for other officially supported platforms rather than guessing from TMP.
