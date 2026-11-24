@@ -281,6 +281,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           KINGS_EVENT_CAPACITY_ENABLED: ${{ vars.KINGS_EVENT_CAPACITY_ENABLED }}
+          KINGS_EVENT_CAPACITY_COMMANDS_ENABLED: ${{ vars.KINGS_EVENT_CAPACITY_COMMANDS_ENABLED }}
           KINGS_EVENT_CAPACITY_MODE: ${{ github.event_name == 'schedule' && 'sync' || inputs.capacity_action }}
           KINGS_EVENT_CAPACITY_GUILD_ID: '1114967437788577792'
           KINGS_EVENT_CAPACITY_CHANNEL_ID: ${{ vars.KINGS_EVENT_CAPACITY_CHANNEL_ID }}
@@ -290,8 +291,9 @@ jobs:
           KINGS_EVENT_CEO_ROLE_ID: ${{ vars.KINGS_EVENT_CEO_ROLE_ID }}
         run: |
           node --check event-capacity-github-only.js
+          node --check event-capacity-github-staff-commands.js
           node --check scripts/event-capacity-github-actions.js
-          node --test tests/event-capacity-github-only.test.cjs tests/event-capacity-github-actions-runner.test.cjs
+          node --test tests/event-capacity-github-only.test.cjs tests/event-capacity-github-actions-runner.test.cjs tests/event-capacity-github-staff-commands.test.cjs
           node scripts/event-capacity-github-actions.js
 
       - name: Note optional Event Capacity errors without masking Convoy health
