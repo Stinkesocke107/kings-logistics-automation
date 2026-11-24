@@ -4,6 +4,7 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const {evaluateConvoyReports}=require('./event-capacity-adapter');
+const {unsealLedger,privateDecisions}=require('./event-capacity-decision-ledger');
 
 function outsideWorkingTree(filename,cwd=process.cwd()){
   const file=fs.realpathSync(filename);
@@ -19,8 +20,12 @@ function loadPrivateDecisions(env=process.env){
   if(!location)return {};
   if(!path.isAbsolute(location))throw new Error('Private decisions require an absolute external path');
   const content=JSON.parse(fs.readFileSync(outsideWorkingTree(location),'utf8'));
-  if(!content||typeof content!=='object'||Array.isArray(content))throw new Error('Invalid private decisions object');
-  return content;
+  // Private state MUST be authenticated/encrypted. Reject legacy plain JSON:
+  // keys and staff approvals never belong in a public Git repository.
+  const state=unsealLedger(content,env.KINGS_EVENT_CAPACITY_STATE_KEY,{
+    guildId:env.DISCORD_GUILD_ID,forumId:env.DISCORD_CONVOY_FORUM_ID
+  });
+  return privateDecisions(state);
 }
 function summarize(result){
   const adapter=result.adapter||{};
