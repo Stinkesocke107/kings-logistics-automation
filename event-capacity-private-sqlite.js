@@ -205,10 +205,16 @@ function createPrivateSqliteSnapshotStore({
     ensureOpen();
     const rec=getUnverifiedRecord();
     if(!rec)return null;
+    // Commit to the EXACT encrypted record bytes, not only cursor/revision.
+    // Two different records at the same cursor/revision must never share an
+    // independently anchored checkpoint.
+    const row=db.prepare('SELECT envelope FROM capacity_snapshots WHERE scope_key=?')
+      .get(scopeKey);
+    if(!row||!(row.envelope instanceof Uint8Array))fail();
     const digest=crypto.createHash('sha256')
-      .update(JSON.stringify({scope:checked,cursor:rec.cursor,revision:rec.revision}))
-      .digest('hex');
-    return {revision:rec.revision,digest};
+      .update(DOMAIN+'\0'+scopeKey+'\0')
+      .update(Buffer.from(row.envelope)).digest('hex');
+    return Object.freeze({revision:rec.revision,digest});
   }
   function close(){if(!closed){closed=true;db.close();}}
   return Object.freeze({readCursor,readLatest,commitSnapshot,checkpoint,close});
