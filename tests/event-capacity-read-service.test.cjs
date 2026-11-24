@@ -220,3 +220,47 @@ test('Private read refuses a wrong private snapshot-signing key',async()=>{
     loadTrustedSnapshot:async()=>snapshot()
   })));
 });
+
+
+function searchCommand(options=[]){
+  return signed({name:'event-capacity',options:[
+    {name:'search',type:1,options}
+  ]});
+}
+test('Signed search command returns private ephemeral ten-per-page view',async()=>{
+  const response=await handlePrivateCapacityRead(params({
+    signed:searchCommand([{name:'date_from',type:3,value:'2027-03-01'},
+      {name:'type',type:3,value:'Partner Convoy'},{name:'page',type:4,value:1}])
+  }));
+  assert.equal(response.type,4);
+  assert.equal(response.data.flags,64);
+  assert.equal(response.data.embeds.length,1);
+  assert.deepEqual(response.data.allowed_mentions,{parse:[]});
+  assert.match(response.data.content,/Private Event Search/);
+  assert.match(response.data.content,/Page 1\/1/);
+});
+test('Signed private search requires a current authorized Discord role before source lookup',async()=>{
+  let lookups=0;
+  await assert.rejects(handlePrivateCapacityRead(params({
+    signed:searchCommand(),authorization:auth([]),
+    loadTrustedSnapshot:async()=>{lookups++;return snapshot();}
+  })));
+  assert.equal(lookups,0);
+});
+test('Malformed or duplicate search filters reject before any protected data load',async()=>{
+  for(const options of [
+    [{name:'date_from',type:3,value:'2027-02-30'}],
+    [{name:'status',type:3,value:'@everyone'}],
+    [{name:'type',type:3,value:'Partner Convoy'},
+      {name:'type',type:3,value:'Kings Convoy'}],
+    [{name:'extra',type:3,value:'anything'}],
+    [{name:'page',type:4,value:0}]
+  ]){
+    let reads=0;
+    await assert.rejects(handlePrivateCapacityRead(params({
+      signed:searchCommand(options),
+      loadTrustedSnapshot:async()=>{reads++;return snapshot();}
+    })));
+    assert.equal(reads,0);
+  }
+});
