@@ -2,6 +2,7 @@
 // Restricted GitHub Actions REST transport for the private Kings import host.
 // No calls until the host invokes a method. No secrets/data written or logged.
 // GitHub's ZIP redirect receives NO Authorization header; host allowlisted.
+const {assertRun}=require('./event-capacity-private-import');
 const ERROR='Kings Event Capacity GitHub source read failed.';
 const REPO='Stinkesocke107/kings-logistics-automation';
 const BASE='https://api.github.com/repos/'+REPO;
@@ -113,6 +114,29 @@ function createPrivateGitHubReader({token,transport=fetch}={}){
     if(!download||download.status!==200||download.ok!==true)fail();
     return boundedBody(download,MAX_ZIP);
   }
-  return Object.freeze({getRun,getArtifacts,readArtifact});
+  async function getLatestScheduledRun({repository,nowMs=Date.now()}={}){
+    checkRepo(repository);
+    if(!Number.isFinite(nowMs))fail();
+    // Discovery is intentionally SCHEDULE-ONLY: manually dispatched runs may
+    // be dry-runs unless explicitly reviewed and requested by run ID.
+    const results=await getJson('/actions/workflows/convoy-checker.yml/runs'+
+      '?branch=main&status=success&event=schedule&per_page=20');
+    if(!Number.isSafeInteger(results.total_count)||results.total_count<0||
+      !Array.isArray(results.workflow_runs)||results.workflow_runs.length>20)fail();
+    const eligible=[];
+    for(const run of results.workflow_runs){
+      if(run?.event!=='schedule')continue;
+      try{
+        const verified=assertRun(run,{nowMs});
+        eligible.push(verified);
+      }catch{
+        // A stale, mismatched or incomplete run is not a verified source.
+      }
+    }
+    if(eligible.length===0)fail();
+    eligible.sort((a,b)=>BigInt(a.id)>BigInt(b.id)?-1:BigInt(a.id)<BigInt(b.id)?1:0);
+    return Object.freeze({runId:eligible[0].id,attempt:eligible[0].attempt});
+  }
+  return Object.freeze({getRun,getArtifacts,readArtifact,getLatestScheduledRun});
 }
 module.exports={createPrivateGitHubReader,redirectHostAllowed};
