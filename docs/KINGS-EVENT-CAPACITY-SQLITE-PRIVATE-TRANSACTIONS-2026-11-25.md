@@ -42,3 +42,8 @@ Require green current-head CI, separate live-source/privacy/permission review, p
 ## Protected read-service integration seam
 
 Added \`event-capacity-snapshot-provider.js\` and focused synthetic tests. Its narrowly scoped \`createPrivateCapacitySnapshotReader({scope,store})\` checks the requested guild/forum before calling \`store.readLatest()\`, rejects invalid/stale/unverified payloads without returning sensitive error messages, and returns the private snapshot only to the existing signed, role-checked read-service. It is a library-level adapter, **not** an HTTP endpoint or deployed Discord listener. The existing \`event-capacity-read-service.js\` independently verifies attestation and permissions.
+
+
+## Synthetic signed-read integration test
+
+\`tests/event-capacity-sqlite-read-e2e.test.cjs\` joins the actual encrypted SQLite test file, scoped \`loadTrustedSnapshot\` provider and \`handlePrivateCapacityRead\` using a **synthetically signed** Discord HTTP interaction and stubbed roles/channel REST. It verifies ephemeral private calendar response, rejected revoked roles *before* storage access, and a genuinely expired encrypted source rejection. This test does **not** establish real Kings Discord role permissions, live application hosting, production backup, or independent rollback protection.
