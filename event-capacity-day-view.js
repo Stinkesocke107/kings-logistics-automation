@@ -77,6 +77,7 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
     !dateValid(day)||!Number.isSafeInteger(page)||page<1||page>1000||
     pageSize!==10||!/^\d{17,22}$/.test(String(guildId||'')))fail();
   const capacityDay=dayAvailability(capacity,day);
+  const verified=adapter.dataFresh===true&&capacityDay.verified;
   const grouped=new Map();
   let unplaced=0;
   for(const item of adapter.events){
@@ -112,10 +113,10 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
   return {
     version:1,visibility:'PRIVATE_ONLY',readOnly:true,
     day,sourceVerified:adapter.dataFresh===true&&!capacity.globalUncertainty,
-    capacityVerified:capacityDay.verified,
+    capacityVerified:verified,
     combinedUsed:capacityDay.daily.combined,
     baseLimit:LIMITS.combinedDaily,
-    remaining:capacityDay.verified?capacityDay.remaining:null,
+    remaining:verified?capacityDay.remaining:null,
     monthly:{
       partnerUsed:capacityDay.monthly.partner,
       partnerLimit:LIMITS.partnerMonthly,
@@ -123,8 +124,8 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
       externalLimit:LIMITS.externalMonthly
     },
     approvedExceptions:capacityDay.daily.approvedExceptions||0,
-    partnerAvailableVerified:capacityDay.partnerAvailableVerified,
-    externalAvailableVerified:capacityDay.externalAvailableVerified,
+    partnerAvailableVerified:verified&&capacityDay.partnerAvailableVerified,
+    externalAvailableVerified:verified&&capacityDay.externalAvailableVerified,
     unplacedSourceRecords:unplaced,
     issuesForDay,warnings:[...new Set(knownWarnings)].sort(),
     total:items.length,page,pages,
