@@ -37,3 +37,8 @@ The importer already expects \`commitSnapshot({scope,expected,next,snapshot,meta
 ## Release gate
 
 Require green current-head CI, separate live-source/privacy/permission review, protected persistence+restore proof, end-to-end Discord proof, then **explicit CEO approval**. Do not merge this draft or alter main-branch convoy admission rules based on this isolated prototype alone.
+
+
+## Protected read-service integration seam
+
+Added \`event-capacity-snapshot-provider.js\` and focused synthetic tests. Its narrowly scoped \`createPrivateCapacitySnapshotReader({scope,store})\` checks the requested guild/forum before calling \`store.readLatest()\`, rejects invalid/stale/unverified payloads without returning sensitive error messages, and returns the private snapshot only to the existing signed, role-checked read-service. It is a library-level adapter, **not** an HTTP endpoint or deployed Discord listener. The existing \`event-capacity-read-service.js\` independently verifies attestation and permissions.
