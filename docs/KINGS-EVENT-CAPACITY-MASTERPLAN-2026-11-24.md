@@ -158,3 +158,16 @@ These are *implementation evidence*, not a request to reopen product decisions:
 - Define acceptance evidence for reported actual participation separately from completed planning status.
 
 **Release posture: DESIGN CONFIRMED / IMPLEMENTATION IN PROGRESS / LIVE NOT ENABLED.**
+
+
+## Owner update – Hosting constraint (25 November 2026)
+
+The Kings CEO cannot run or host a 24/7 bot server. **GitHub Actions is the required first-choice runtime** for Kings Event Capacity. No independently paid VPS/hosted Discord Gateway is a release prerequisite for scheduled read-only channel summaries, outgoing reminders, periodic source verification or report generation.
+
+The existing Kings Convoy Checker scheduled GitHub workflow is reused via a **default-off optional Event Capacity step**, avoiding duplicate schedules and keeping system workflow inventory stable. It runs only on main after reviewed release and explicit GitHub repository-variable opt-in. The private Discord dashboard uses the Bot REST API to edit one preexisting bot-owned message in the restricted channel, never a public post.
+
+**Important Discord limitation:** real-time application slash commands, dropdowns, modals and interaction callbacks require an always-running Gateway or reachable HTTPS interaction endpoint. GitHub Actions cannot itself receive those interaction events. An unhosted alternative is scheduled polling of carefully verified private Discord staff text commands and posting delayed replies; this is separately gated and does not yet implement mutating management commands.
+
+The first Github-only status preview deliberately shows **Needs Verification** or **Data Outdated**, without certified free slots, until real approved classifications, accepted status history and signed decisions can be reconciled using a durable GitHub/Discord-compatible private storage design. Standalone SQLite on an ephemeral GitHub runner is not persistent. Do not commit plaintext staff/organizer/acceptance data to this public source repository.
+
+Implementation and rollout details: docs/KINGS-EVENT-CAPACITY-GITHUB-ONLY-OPERATIONS-2026-11-25.md. Earlier private-host architecture is optional research/prototype for features needing stronger state, not a mandatory separate server for routine GitHub-only operations.
