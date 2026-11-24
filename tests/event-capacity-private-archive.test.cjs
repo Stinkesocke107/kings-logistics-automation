@@ -82,9 +82,11 @@ test('Rejects ZIP path traversal and duplicate normalized filenames',()=>{
 test('Rejects archive with a truncated or corrupted checksum',()=>{
   const data=zip(files());
   const tampered=Buffer.from(data);
-  const at=tampered.indexOf(Buffer.from('"threads"'));
-  assert.ok(at>0);
-  tampered[at]^=1;
+  // The member is DEFLATE-compressed, so source JSON plaintext is not
+  // directly present inside the ZIP. Corrupt the actual compressed payload.
+  const firstDataAt=30+tampered.readUInt16LE(26)+tampered.readUInt16LE(28);
+  assert.ok(firstDataAt<tampered.length-22);
+  tampered[firstDataAt]^=1;
   assert.throws(()=>parsePrivateConvoyArchive(tampered));
   assert.throws(()=>parsePrivateConvoyArchive(data.subarray(0,data.length-10)));
 });
