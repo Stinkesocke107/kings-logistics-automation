@@ -4,6 +4,7 @@
 const {createPrivateGitHubReader}=require('../event-capacity-github-source');
 const {verifySourceFreshness,createDiscordRest,publishGithubOnlyStatus}
   =require('../event-capacity-github-only');
+const {pollPrivateStaffCommands}=require('../event-capacity-github-staff-commands');
 async function main(env=process.env){
   if(env.GITHUB_REF!=='refs/heads/main'||
     !['schedule','workflow_dispatch'].includes(env.GITHUB_EVENT_NAME))
@@ -43,8 +44,20 @@ async function main(env=process.env){
   const result=await publishGithubOnlyStatus({
     client,config,mode:'sync',sourceAvailable:freshness.sourceAvailable
   });
+  // Separate CEO-gated, delayed read-only text replies. This does not
+  // enable Discord slash commands, approvals, state writes or staff tasks.
+  // Discord private message history is a bounded dedupe aid, not durable
+  // proof of exactly-once delivery across deleted replies / busy channels.
+  let handled=0;
+  if(env.KINGS_EVENT_CAPACITY_COMMANDS_ENABLED==='true'){
+    const commands=await pollPrivateStaffCommands({
+      client,config,sourceAvailable:freshness.sourceAvailable
+    });
+    handled=commands.replied;
+  }
   return {state:result.state,sourceAvailable:freshness.sourceAvailable,
-    classificationsVerified:false,verifiedFreeSlots:false};
+    classificationsVerified:false,verifiedFreeSlots:false,
+    staffReadReplies:handled};
 }
 if(require.main===module){
   main().then(result=>{
