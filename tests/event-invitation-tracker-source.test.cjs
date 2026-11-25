@@ -4,6 +4,10 @@ const assert=require('node:assert/strict');
 const {GUILD,FORUM,MODES,readEntry,eventIdFrom,summarizeTracker,
   readInvitationTracker,trustedInvitationObservation}=require('../event-invitation-tracker-source');
 const NOW=Date.parse('2026-11-25T15:00:00Z');
+test('uses CEO-confirmed Invitation Tracker channel ID instead of retired assumed forum ID',()=>{
+  assert.equal(FORUM,'1457797580703531143');
+  assert.notEqual(FORUM,'1567471010436087949');
+});
 const A='777777777777777777',B='888888888888888888',C='999999999999999999';
 const IDs=['111111111111111111','222222222222222222','333333333333333333'];
 const tags=['444444444444444441','444444444444444442','444444444444444443'];
