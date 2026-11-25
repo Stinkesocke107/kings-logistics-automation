@@ -794,3 +794,57 @@ test('Manual Kings join date overrides Discord join date only for recorded full 
   assert.equal(plan.changes.find(x=>x.userId===unregistered),undefined,'Unregistered Driver keeps existing tier');
   assert.deepEqual([...plan.changes.find(x=>x.userId===trial).remove],['11','22'],'Trial is excluded and only old cosmetic roles are cleaned');
 });
+
+test('Driver Management treats empty official server directory as unknown, never verified zero',async()=>{
+  const s=sandbox('driver-management.js',{fetch:async url=>{
+    assert.ok(url.includes('/v2/servers'));
+    return new Response(JSON.stringify({error:false,response:[]}),{status:200});
+  }});
+  const result=await s.run('getOnlineObservation()');
+  assert.equal(result.available,false);
+  assert.equal(result.onlineMap,null);
+  assert.equal(s.calls.length,1,'Missing server list must never produce a fake map result');
+});
+
+test('Driver Management cannot silently skip malformed online server metadata',async()=>{
+  const s=sandbox('driver-management.js',{fetch:async url=>{
+    assert.ok(url.includes('/v2/servers'));
+    return new Response(JSON.stringify({error:false,response:[
+      {online:true,name:'Bad server',game:'ETS2',players:24}
+    ]}),{status:200});
+  }});
+  const result=await s.run('getOnlineObservation()');
+  assert.equal(result.available,false);
+  assert.equal(result.onlineMap,null);
+  assert.equal(s.calls.length,1);
+});
+
+test('Driver Management accepts true zero only for verified empty official servers',async()=>{
+  const s=sandbox('driver-management.js',{fetch:async url=>{
+    assert.ok(url.includes('/v2/servers'),'No map provider request for verified empty servers');
+    return new Response(JSON.stringify({error:false,response:[
+      {online:true,name:'Empty ETS2',mapid:1,game:'ETS2',players:0},
+      {online:true,name:'Empty ATS',mapid:2,game:'ATS',players:0}
+    ]}),{status:200});
+  }});
+  const result=await s.run('getOnlineObservation()');
+  assert.equal(result.available,true);
+  assert.equal(result.onlineMap.size,0);
+  assert.equal(s.calls.length,1);
+});
+
+test('Driver Management does not interpret string zero player counts as verified empty',async()=>{
+  const s=sandbox('driver-management.js',{fetch:async url=>{
+    if(url.includes('/v2/servers'))return new Response(JSON.stringify({error:false,response:[
+      {online:true,name:'Simulation 1',mapid:1,game:'ETS2',players:'0'}
+    ]}),{status:200});
+    assert.ok(url.includes('tracker.ets2map.com'));
+    return new Response(JSON.stringify({Success:true,Data:[
+      {VtcId:64284,MpId:14351,Name:'Member'}
+    ]}),{status:200});
+  }});
+  const result=await s.run('getOnlineObservation()');
+  assert.equal(result.available,true);
+  assert.equal(result.onlineMap.size,1);
+  assert.equal(s.calls.length,2);
+});
