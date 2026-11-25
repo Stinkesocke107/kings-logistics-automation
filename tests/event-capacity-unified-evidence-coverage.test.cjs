@@ -44,7 +44,7 @@ test('Old channel source list, tracker and 24-month scan assemble with strict no
 test('Missing archived stream is visible in the combined Event-Team 24-month overview',()=>{
   const r=audit(x=>{
     x.paginationInput.scans=x.paginationInput.scans.filter(
-      s=>s.stream!=='archived-private');
+      s=>s.stream!=='archived-public');
   });
   assert.equal(r.historyPageReceiptChecks.missingStreams,1);
   assert.equal(r.counters.historyMonthsWithIncompleteScanClaims,24);
@@ -55,7 +55,7 @@ test('Staff claimed every check complete but the original archived stream is sti
   const r=audit(x=>{
     x.monthlyClaims=[monthClaim('2026-10')];
     x.paginationInput.scans=x.paginationInput.scans.filter(
-      s=>s.stream!=='archived-private');
+      s=>s.stream!=='archived-public');
   });
   assert.equal(r.counters.historyMonthsWithClaimedCompleteChecksButMissingSource,1);
   assert.equal(r.historyMonths.find(m=>m.month==='2026-10').monthHistoricalCoverageCertified,false);
@@ -128,7 +128,7 @@ test('Private 24-month Discord preview is ephemeral with safe output length and 
   assert.equal(reply.data.embeds[0].description.split('\n').length,25);
   assert.equal(reply.data.embeds[0].color,0x182DFF);
   for(const raw of ['990000000000000000','990000000000000001',
-    '990000000000000002','evt100','inv1','cursor1','PRIVATE KEY','@everyone'])
+    '990000000000000002','evt100','inv1','2026-11-24T15:00:00.000Z','PRIVATE KEY','@everyone'])
     assert.equal(text.includes(raw),false);
   assert.match(text,/No Discord data read/);
 });
