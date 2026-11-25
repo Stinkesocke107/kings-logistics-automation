@@ -13,6 +13,8 @@ const {adaptConvoyReports}=require('./event-capacity-adapter');
 const {evaluate,LIMITS,dayAvailability,timestamp}
   =require('./event-capacity-core');
 const {dateValid}=require('./event-capacity-day-view');
+const {POLICY,dailyLimitForUtcDate,reviewDailyCount}
+  =require('./event-capacity-policy');
 const {isDeepStrictEqual}=require('node:util');
 const ERROR='Kings Event Capacity private known-usage projection unavailable.';
 const GUILD='1114967437788577792';
@@ -88,15 +90,17 @@ function knownUsageFromVerifiedInputs({
     const day=month+'-'+String(d).padStart(2,'0');
     if(!dateValid(day))fail();
     const current=dayAvailability(capacity,day);
+    const daily=reviewDailyCount({day,partner:current.daily.partner||0,
+      external:current.daily.external||0,kings:current.daily.kings||0});
     days.push(Object.freeze({
       day,knownPartnerAccepted:current.daily.partner||0,
       knownExternalAccepted:current.daily.external||0,
       knownKingsAccepted:current.daily.kings||0,
       knownCombinedAccepted:current.daily.combined||0,
-      dailyLimit:LIMITS.combinedDaily,
+      dailyLimit:dailyLimitForUtcDate(day),
       approvedExceptions:current.daily.approvedExceptions||0,
-      limitReachedByKnownEvents:current.daily.combined>=LIMITS.combinedDaily,
-      knownOverLimit:current.daily.combined>LIMITS.combinedDaily,
+      limitReachedByKnownEvents:daily.observedPlanningLimitReached,
+      knownOverLimit:daily.planningOverLimit,
       remainingVerified:null,partnerFreeVerified:false,
       externalFreeVerified:false,freeSlotsCertified:false
     }));
@@ -119,17 +123,21 @@ function knownUsageFromVerifiedInputs({
     freeSlotsCertified:false,attendanceInferred:false,
     capacityVerified:false,availabilityStatus:'Needs Verification',
     limits:{
-      combinedDaily:LIMITS.combinedDaily,
-      partnerMonthly:LIMITS.partnerMonthly,
-      externalMonthly:LIMITS.externalMonthly,
-      departureGapMinutes:LIMITS.departureGapMinutes
+      policyId:POLICY.policyId,
+      weekdayCombined:POLICY.weekdayCombinedMax,
+      weekendCombined:POLICY.weekendCombinedMax,
+      partnerDaily:POLICY.partnerDailyMax,
+      externalDaily:POLICY.externalDailyMax,
+      partnerMonthly:null,externalMonthly:null,
+      departureGapMinutes:POLICY.minimumDepartureGapMinutes,
+      actualFreeSlotsCertified:false
     },
     monthUsage:{
       knownPartnerAccepted:mcounts.partner||0,
       knownExternalAccepted:mcounts.external||0,
       knownKingsAccepted:mcounts.kings||0,
-      partnerMonthlyLimitReached:(mcounts.partner||0)>=LIMITS.partnerMonthly,
-      externalMonthlyLimitReached:(mcounts.external||0)>=LIMITS.externalMonthly,
+      partnerMonthlyLimitReached:false,
+      externalMonthlyLimitReached:false,
       approvedExceptions:mcounts.approvedExceptions||0,
       partnerRemainingVerified:null,externalRemainingVerified:null
     },
