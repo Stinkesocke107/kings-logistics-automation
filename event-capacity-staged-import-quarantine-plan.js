@@ -56,6 +56,26 @@ function channelRow(row){
     row.claimedDeletedCount,row.currentThreadsRead,row.archivedThreadsRead,
     row.deletedThreadsReviewed,row.editHistoryReviewed]);
 }
+function sourceEvidenceFingerprint(snapshot,pagination,secret){
+  // Private HMAC binds all pagination status, content digests, cursors and
+  // tracker feed coverage flags. Never release the input/raw identifiers.
+  const channels=pagination.channels.map(c=>[
+    c.channelId,c.channelKind,c.firstCoveredMonth,c.lastCoveredMonth
+  ]).sort((a,b)=>a[0].localeCompare(b[0]));
+  const streams=pagination.scans.map(row=>[
+    row.channelId,row.stream,
+    row.pages.map(p=>[p.index,p.requestCursor,p.nextCursor,
+      p.hasMore,p.status,p.itemCount,p.responseDigest,p.fetchedAtUtc])
+  ]).sort((a,b)=>a[0].localeCompare(b[0])||a[1].localeCompare(b[1]));
+  const t=snapshot.tracker;
+  return createHmac('sha256',secret)
+    .update(sig(['kings-staged-paginated-source-evidence-v1',
+      snapshot.guildId,snapshot.firstMonth,snapshot.finalMonth,
+      snapshot.nowMs,channels,streams,
+      t===null?['tracker-absent']:[
+        t.configured,t.connected,t.claimsComplete]]))
+    .digest('hex');
+}
 function inconsistent(rows){
   if(!rows||rows.length<2)return false;
   return new Set(rows.map(r=>sig([
@@ -148,6 +168,8 @@ function createKingsStagedImportQuarantinePlan({
       .update(sig(['kings-staged-plan-v1',previous.guildId,
         review.firstMonth,review.finalMonth,
         review.earlierClaimTimestampUtc,review.laterClaimTimestampUtc,
+        sourceEvidenceFingerprint(previous,previousPagination,reviewSecret),
+        sourceEvidenceFingerprint(current,currentPagination,reviewSecret),
         items.map(x=>[x.kind,x.itemKey,x.status,x.privateChangeSeal])
       ])).digest('hex');
     return Object.freeze({
