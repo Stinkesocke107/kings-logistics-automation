@@ -62,3 +62,12 @@ The offline historical journal and encrypted segmented archive are now joined to
 
 This does **not** create a private GitHub repository, put real event data in storage, provide trusted owner highwater freshness, implement protected multi-file writes, recover lost commits or verify 24-month source coverage. The reader is intentionally **NOT** imported by the production GitHub Actions runner; the Event Capacity system remains disabled and PR #143 stays Draft. Full same-HEAD CI, private write + recovery protocol, real historical evidence, Discord permissions and explicit CEO authorization remain required.
 
+
+## Owner-approved historical archive GitHub CAS writer (25 November 2026, DRAFT only)
+
+A **one-signed-transition-at-a-time historical private archive write prototype** was added as `event-capacity-historical-github-writer.js`, with synthetic GitHub CAS tests in `tests/event-capacity-historical-github-writer.test.cjs`. It validates the prior and candidate **offline owner-signed archive receipts**, fully decrypts/validates the candidate, reads/verifies the old private archive, checks the entire old journal is an exact immutable prefix, stages content-addressed encrypted segments without overwriting them, and uses the old Git blob SHA as a last-step compare-and-swap on the private `current.json` manifest. The new archive is re-read and checked before a success state is returned. Changes to the read-only adapter provide the verified index Git SHA and SHA-256 for this guard. The draft source is **not imported by any scheduled workflow**.
+
+An ambiguous GitHub write can already be durable despite the API throwing; the writer therefore fails closed without retry/rollback, possibly leaving orphan encrypted segments or a switched index awaiting independent human reconciliation. Its positive response explicitly says `StoredPendingIndependentOwnerHighwater`, not capacity-certified or historical source-complete. **It does not implement the independently retained owner receipt, checkpoint witness, real identity/source verification, 24-month retention, 90-day backups or crash-repair operator flow.** These remain mandatory release blockers.
+
+Eight new synthetic GitHub writer test scenarios and a live-workflow isolation gate were added. **A full GitHub CI success for current PR HEAD has not been observed**, and no live or manual `capacity_preview` run, real private repo operation, Discord command or production activation took place. Detailed contract: `docs/KINGS-EVENT-CAPACITY-HISTORICAL-GITHUB-WRITER-2026-11-25.md`.
+
