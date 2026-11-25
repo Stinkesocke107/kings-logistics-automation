@@ -71,7 +71,22 @@ function parsePrivateConvoyArchive(zip){
     if(!(flags&8)&&(zip.readUInt32LE(off+14)!==crc||
         zip.readUInt32LE(off+18)!==size||
         zip.readUInt32LE(off+22)!==decoded))fail();
-    spans.push([off,through]);
+    // GitHub Actions ZIPs use a bit-3 data descriptor after each
+    // compressed member (usually signature 0x08074b50 + CRC and lengths).
+    // Verify it against central-directory metadata; otherwise a malformed
+    // descriptor could be silently ignored while data is treated as valid.
+    let memberEnd=through;
+    if(flags&8){
+      const signed=through+4<=centralStart&&
+        zip.readUInt32LE(through)===0x08074b50;
+      const descriptorAt=through+(signed?4:0);
+      if(descriptorAt+12>centralStart||
+        zip.readUInt32LE(descriptorAt)!==crc||
+        zip.readUInt32LE(descriptorAt+4)!==size||
+        zip.readUInt32LE(descriptorAt+8)!==decoded)fail();
+      memberEnd=descriptorAt+12;
+    }
+    spans.push([off,memberEnd]);
     total+=decoded;
     if(total>MAX_TOTAL)fail();
     let contents;
@@ -85,7 +100,8 @@ function parsePrivateConvoyArchive(zip){
   }
   if(pos!==eocd)fail();
   spans.sort((a,b)=>a[0]-b[0]);
-  for(let i=1;i<spans.length;i++)if(spans[i][0]<spans[i-1][1])fail();
+  if(spans[0][0]!==0||spans.at(-1)[1]!==centralStart)fail();
+  for(let i=1;i<spans.length;i++)if(spans[i][0]!==spans[i-1][1])fail();
   if(NEEDED.some(name=>!files.has(name)))fail();
   function decode(name){
     let text;
