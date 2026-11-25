@@ -46,6 +46,8 @@ test('A remote history ahead of the retained owner floor remains human review on
   assert.equal(out.retainedHistoricalPrefixVerified,true);
   assert.equal(out.currentRetainedReceiptMatchesRemote,false);
   assert.equal(out.remoteAtOrAboveRetainedFloor,true);
+  assert.equal(out.signedRemoteCheckpointMatchesOwnerReceipt,true);
+  assert.equal(out.encryptedArchiveCiphertextBytesVerifiedHere,false);
   assert.equal(out.latestRemoteHighwaterIndependentlyConfirmed,false);
   assert.equal(out.humanReviewRequired,true);
   assert.equal(out.remoteWritePerformed,false);
