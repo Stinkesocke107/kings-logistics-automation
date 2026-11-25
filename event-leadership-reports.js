@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { syncTextMessage } = require('./leadership-message-sync');
 const { encryptEventState, decryptEventState } = require('./event-leadership-state');
+const {appendPrivateLeadershipReview} = require('./event-history-leadership-bridge');
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -441,7 +442,8 @@ async function runDaily(report, overview, state) {
     : [];
 
   const channel = await resolveChannel();
-  const content = buildDailyMessage(changes, snapshot);
+  const content = appendPrivateLeadershipReview(
+    buildDailyMessage(changes, snapshot),report,overview);
 
   if (PREVIEW) {
     console.log(`PREVIEW Event Daily Changes: ${changes.length} changes; private report content withheld from CI logs.`);
@@ -473,7 +475,8 @@ async function runWeekly(report, overview, state) {
   const changes = changesInPeriod(state, period);
   const snapshot = operationalSnapshot(report, overview);
   const previous = state.weeklyReports.filter((item) => item.key !== period.key).at(-1) || null;
-  const content = buildWeeklyMessage(period, changes, snapshot, previous);
+  const content = appendPrivateLeadershipReview(
+    buildWeeklyMessage(period, changes, snapshot, previous),report,overview);
   const channel = await resolveChannel();
 
   if (PREVIEW) {
@@ -517,7 +520,8 @@ async function runMonthly(report, overview, state) {
   const changes = changesInPeriod(state, period);
   const snapshot = operationalSnapshot(report, overview);
   const previous = state.monthlyReports.filter((item) => item.key !== period.key).at(-1) || null;
-  const content = buildMonthlyMessage(period, stats, changes, snapshot, previous);
+  const content = appendPrivateLeadershipReview(
+    buildMonthlyMessage(period, stats, changes, snapshot, previous),report,overview);
   const channel = await resolveChannel();
 
   if (PREVIEW) {
