@@ -10,7 +10,7 @@ const {checkedReport}
 const {validateLedger,privateDecisions}
   =require('./event-capacity-decision-ledger');
 const {adaptConvoyReports}=require('./event-capacity-adapter');
-const {evaluate,LIMITS,dayAvailability,timestamp}
+const {evaluate,dayAvailability,timestamp}
   =require('./event-capacity-core');
 const {dateValid}=require('./event-capacity-day-view');
 const {POLICY,dailyLimitForUtcDate,reviewDailyCount}
