@@ -1,3 +1,28 @@
+## CEO decision — THREE NEW dedicated PRIVATE repositories (25 November 2026)
+
+**Approved design choice:** create **three entirely new, individually PRIVATE GitHub repositories** under the owner's `Stinkesocke107` account; do **NOT** repurpose either of the existing private `kings-logistics-automation-archive` or `kings-logistics-automation-public` repositories.
+
+**Planned repositories (explicit owner approval to create; NOT YET CREATED):**
+
+- `Stinkesocke107/kings-event-capacity-history` — encrypted historical Event data and owner-signed lifecycle journal records.
+- `Stinkesocke107/kings-event-capacity-witness` — independently reviewed checkpoint/witness records, separated from the data repository.
+- `Stinkesocke107/kings-event-capacity-backups` — separately encrypted daily archive backup objects.
+
+**Provisioning status (verified by the linked GitHub account repository list):**
+- [x] Three new, separate repository roles explicitly approved by CEO.
+- [x] Dedicated names and account selected; existing repos remain untouched.
+- [ ] CEO creates EACH repository in the GitHub web interface with **Private** visibility and **Add README**, producing a `main` default branch. Repository creation is **not available in the currently connected GitHub action set**.
+- [ ] Verify all three exact repositories are visible and private, have real `main` branch commits and no unexpected collaborators.
+- [ ] Review branch protection/rulesets individually; reported GitHub `protected` flags alone do not prove security.
+- [ ] Plan separate minimal repository-restricted credentials, with independent owner custody and public verification key; **do not place tokens or offline owner signing private key in chat/public source/GitHub Actions**.
+- [ ] Approve narrow real private repository metadata verification and a synthetic-data-only pilot **after** permission review; no real historical Event writes until a separate release authorization.
+
+**Safe one-time owner setup steps:** Open GitHub's new repository page for each of the three exact names, choose `Stinkesocke107` as owner, `Private` visibility, turn on `Add README`, keep other initialization defaults simple, and click `Create repository`. Never make the repositories public. The assistant can verify repo metadata through the existing connected GitHub integration **after** they are created and accessible, but cannot create GitHub repositories or grant installation access from this conversation.
+
+**Safety status:** approved architecture does NOT mean deployed infrastructure. `main`, PR #143 release status, Discord, existing private repositories and the running Convoy Checker remain unchanged. No `capacity_preview`, source migration, key provisioning or production activation has been approved.
+
+---
+
 # Kings Event Capacity — Private Storage Owner Handoff / Einrichtungsplan
 
 **25 November 2026 — Draft PR #143, NOT enabled.**
