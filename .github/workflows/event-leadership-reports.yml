@@ -10,6 +10,7 @@ on:
         type: choice
         options:
           - invitation-check
+          - capacity-check
           - daily-preview
           - daily-publish
           - weekly-preview
@@ -27,6 +28,8 @@ on:
       - 'event-invitation-tracker-readonly-proof.js'
       - 'event-history-leadership-bridge.js'
       - 'event-capacity-pilot-source.js'
+      - 'event-capacity-real-source-preview.js'
+      - 'convoy-planning-limits.js'
       - '.github/workflows/event-leadership-reports.yml'
 
   schedule:
@@ -70,6 +73,7 @@ jobs:
           node --check event-leadership-observation.js
           node --check event-invitation-tracker-source.js
           node --check event-history-real-source-preview.js
+          node --check event-capacity-real-source-preview.js
           node --check scripts/migrate-event-leadership-state.js
 
       # Strict read-only operational proof of the newly connected systems.
@@ -94,6 +98,7 @@ jobs:
             fi
           done
           node event-history-real-source-preview.js
+          node event-capacity-real-source-preview.js
 
       - name: Migrate existing Event Leadership state to encrypted storage without Discord writes
         env:
@@ -137,8 +142,41 @@ jobs:
           DISCORD_INVITATION_TAG_IDS: ${{ secrets.DISCORD_INVITATION_TAG_IDS }}
         run: node event-invitation-tracker-readonly-proof.js
 
+  # Staff-initiated, protected source proof for #12 Capacity. This job is
+  # GET-only, never publishes Events, pushes state or alters Discord.
+  capacity_source_verify:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.report == 'capacity-check'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Build private source through GET-only existing Convoy Center pipeline
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
+          DISCORD_WRITE_MODE: 'false'
+          CONVOY_FINALIZE_WRITE_MODE: 'false'
+          KINGS_VTC_NAME: 'Kings Logistics'
+        run: |
+          set -euo pipefail
+          for script in convoy-checker.js convoy-truckersmp-sync.js convoy-finalize.js convoy-overview.js; do
+            if ! node "$script" >/dev/null 2>&1; then
+              echo "::warning::Kings Event Capacity: GET-only source pipeline unavailable; details withheld."
+              exit 1
+            fi
+          done
+          node event-capacity-real-source-preview.js
+
   report:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'push' && inputs.report != 'invitation-check'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'push' && inputs.report != 'invitation-check' && inputs.report != 'capacity-check'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
