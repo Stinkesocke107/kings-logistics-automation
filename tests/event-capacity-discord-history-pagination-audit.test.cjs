@@ -12,10 +12,10 @@ test('Complete claimed Discord pages are not provider-authenticated or free-slot
   assert.equal(r.monthRows.length,24);
   assert.equal(r.suppliedCurrentForumClaims,1);
   assert.equal(r.suppliedLegacyChannelClaims,1);
-  assert.equal(r.suppliedScanClaims,4);
-  assert.equal(r.suppliedPageClaims,5);
-  assert.equal(r.suppliedMessageCountClaims,5);
-  assert.equal(r.claimedCompletedStreams,4);
+  assert.equal(r.suppliedScanClaims,3);
+  assert.equal(r.suppliedPageClaims,4);
+  assert.equal(r.suppliedMessageCountClaims,4);
+  assert.equal(r.claimedCompletedStreams,3);
   assert.equal(r.untrustedPaginationClaimsInternallyComplete,true);
   assert.equal(r.providerPaginationAuthenticityVerified,false);
   assert.equal(r.original24MonthHistoryCompletelyAuthenticated,false);
@@ -29,8 +29,8 @@ test('Month grid distinguishes a known older source month from other source clai
   assert.equal(r.monthRows.find(x=>x.month==='2026-09').claimedChannelSources,1);
   assert.ok(r.monthRows.every(x=>x.availableSlotsCertified===false));
 });
-test('Missing archived-private stream creates gap even if active/public history was scanned',()=>{
-  const r=review(x=>{x.scans=x.scans.filter(x=>x.stream!=='archived-private');});
+test('Missing archived-public forum stream creates a gap despite complete active history',()=>{
+  const r=review(x=>{x.scans=x.scans.filter(x=>x.stream!=='archived-public');});
   assert.equal(r.streamsMissingScanClaims,1);
   assert.equal(r.untrustedPaginationClaimsInternallyComplete,false);
   assert.ok(has(r,'required-source-stream-not-scanned'));
@@ -38,56 +38,57 @@ test('Missing archived-private stream creates gap even if active/public history 
 });
 test('Broken page cursor continuity flags incomplete source without losing old month coverage',()=>{
   const r=review(x=>{
-    x.scans[0].pages[1].requestCursor='different';
+    x.scans[1].pages[1].requestCursor='2026-11-23T15:00:00.000Z';
   });
   assert.equal(r.brokenCursorChains,1);
   assert.ok(has(r,'pagination-cursor-chain-broken'));
   assert.equal(r.monthRows.find(x=>x.month==='2026-10').claimedChannelSources,2);
 });
 test('Unfinished pagination has more pages even if the last fetched page parsed',()=>{
-  const r=review(x=>{x.scans[0].pages=[page(0,null,'more',true)];});
+  const r=review(x=>{x.scans[1].pages=[page(0,null,'2026-11-24T15:00:00.000Z',true)];});
   assert.equal(r.unfinishedPageStreams,1);
-  assert.equal(r.claimedCompletedStreams,3);
+  assert.equal(r.claimedCompletedStreams,2);
   assert.ok(has(r,'source-pagination-not-finished'));
 });
 test('Claiming more pages without a next cursor is broken and unfinished',()=>{
   const r=review(x=>{
-    x.scans[0].pages=[page(0,null,null,true)];
+    x.scans[1].pages=[page(0,null,null,true)];
   });
   assert.equal(r.brokenCursorChains,1);
   assert.equal(r.unfinishedPageStreams,1);
 });
 test('Ending a scan with a fabricated next cursor fails structural completeness',()=>{
   const r=review(x=>{
-    x.scans[0].pages=[page(0,null,'unused',false)];
+    x.scans[1].pages=[page(0,null,'2026-11-24T15:00:00.000Z',false)];
   });
   assert.equal(r.brokenCursorChains,1);
   assert.equal(r.untrustedPaginationClaimsInternallyComplete,false);
 });
 test('Duplicate page cursor is detected even if indexes are sequential',()=>{
   const r=review(x=>{
-    x.scans[0].pages=[
-      page(0,null,'cursor1',true),
-      page(1,'cursor1','cursor1',true),
-      page(2,'cursor1',null,false)
+    x.scans[1].pages=[
+      page(0,null,'2026-11-24T15:00:00.000Z',true),
+      page(1,'2026-11-24T15:00:00.000Z',
+        '2026-11-24T15:00:00.000Z',true),
+      page(2,'2026-11-24T15:00:00.000Z',null,false)
     ];
   });
   assert.equal(r.brokenCursorChains,1);
   assert.ok(has(r,'pagination-cursor-chain-broken'));
 });
 test('Out of order page indexes are not accepted as a complete scan',()=>{
-  const r=review(x=>{x.scans[0].pages[1].index=9;});
+  const r=review(x=>{x.scans[1].pages[1].index=9;});
   assert.equal(r.brokenCursorChains,1);
 });
 test('Forbidden source page is a provider-permission gap, not a complete archive',()=>{
   const r=review(x=>{
-    x.scans[2].pages=[page(0,null,null,false,{
+    x.scans[1].pages=[page(0,null,null,false,{
       status:'forbidden',itemCount:0
     })];
   });
   assert.equal(r.failedPageRequests,1);
   assert.ok(has(r,'source-page-access-or-provider-error'));
-  assert.equal(r.claimedCompletedStreams,3);
+  assert.equal(r.claimedCompletedStreams,2);
   assert.equal(r.providerPaginationAuthenticityVerified,false);
 });
 test('Rate limited and missing source pages remain independent failure evidence',()=>{
@@ -110,7 +111,7 @@ test('Cannot claim 24-month coverage when some calendar months have no channel c
 test('Empty source stream pages are unknown, never a verified empty source',()=>{
   const r=review(x=>{x.scans[0].pages=[];});
   assert.equal(r.unfinishedPageStreams,1);
-  assert.equal(r.claimedCompletedStreams,3);
+  assert.equal(r.claimedCompletedStreams,2);
   assert.equal(r.original24MonthHistoryCompletelyAuthenticated,false);
 });
 test('Duplicate channel identifiers and duplicate scan streams reject input',()=>{
@@ -122,7 +123,7 @@ test('Duplicate channel identifiers and duplicate scan streams reject input',()=
 test('Unknown channel or incompatible forum/text stream refuse source claims',()=>{
   const a=fixture();a.scans[0].channelId='990000000000000099';
   assert.throws(()=>check(a));
-  const b=fixture();b.scans[3].stream='archived-public';
+  const b=fixture();b.scans[2].stream='archived-public';
   assert.throws(()=>check(b));
 });
 test('A missing current forum and an invented second current forum are refused',()=>{
@@ -163,7 +164,7 @@ test('Secrets and raw Discord message data are rejected as undeclared receipt fi
 });
 test('No channel ID, cursor, original digest or review key material leaves the audit',()=>{
   const r=review(),output=JSON.stringify(r);
-  for(const v of [G,C,L,'cursor1',h('page0'),'synthetic private source review key'])
+  for(const v of [G,C,L,'2026-11-24T15:00:00.000Z',h('page0'),'synthetic private source review key'])
     assert.equal(output.includes(v),false);
   assert.ok(r.issueItems.every(x=>/^discord-history:[a-f0-9]{32}$/.test(x.issueKey)));
   assert.equal(r.currentDiscordReaderExecutedHere,false);
