@@ -104,13 +104,13 @@ test('Missing meeting/end times match only if both sources are missing',()=>{
   assert.equal(r.preparationReady,false);
   assert.equal(r.bookingReviewReasonCount>=6,true);
 });
-test('Current observed quota conflict is preserved without adding the candidate',()=>{
+test('Current two Partner quota reaches per-category cap without counting proposed candidate',()=>{
   const e=event();
   const items=[
     {eventId:'other-a',eventType:'Partner Convoy',eventTypeVerified:true,
       status:'Scheduled',statusVerified:true,departureVerified:true,
       departureAtUtc:BASE+'18:00:00Z'},
-    {eventId:'other-b',eventType:'External Convoy',eventTypeVerified:true,
+    {eventId:'other-b',eventType:'Partner Convoy',eventTypeVerified:true,
       status:'Scheduled',statusVerified:true,departureVerified:true,
       departureAtUtc:BASE+'19:00:00Z'}
   ];
