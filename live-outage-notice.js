@@ -152,11 +152,14 @@ async function main(){
   for(const config of SETTINGS){
     try{
       const result=await updateExisting(config,official);
-      if(config.label==='Live Tracker' && (result.reason==='no-target' || result.reason==='not-found')){
-        // Without an existing Tracker message the fallback is NOT operational.
-        // Do not report a successful degraded run when nothing was published.
+      if(result.reason==='no-target' || result.reason==='not-found'){
+        // Every Kings Live Systems display has a fixed existing Discord
+        // message. One missing display leaves a stale online count visible,
+        // even when the Tracker itself was updated successfully. Fail the
+        // fallback job instead of reporting a misleading green status.
+        // No automatic message creation or deletion is permitted.
         problems++;
-        console.error('Live Tracker: fallback cannot update the existing Discord message.');
+        console.error(config.label+': fallback cannot update its existing Discord message.');
       }
     }
     catch(error){
