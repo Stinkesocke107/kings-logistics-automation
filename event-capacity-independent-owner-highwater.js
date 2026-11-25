@@ -9,6 +9,7 @@ const {verifyHistoricalArchivePin}
 const {verifyHistoricalJournal}
   =require('./event-capacity-historical-lifecycle-journal');
 const {isDeepStrictEqual}=require('node:util');
+const {createHash}=require('node:crypto');
 const ERROR='Kings Event Capacity independent owner highwater comparison failed.';
 const HEX=/^[a-f0-9]{64}$/;
 function fail(){throw new Error(ERROR);}
@@ -113,5 +114,68 @@ function compareRemoteHistoryToOfflineHighwater({
     });
   }catch{fail();}
 }
+
+/*
+ * OFFLINE fingerprint: the human must record this digest separately from both
+ * cards (e.g. printed recovery record). Computing it here never certifies
+ * actual off-GitHub retention, independent media, latestness or permissions.
+ */
+function fingerprintSignedOfflineOwnerFloor({
+  retainedOwnerCard,scope,ownerPublicKey,nowMs=Date.now()
+}={}){
+  try{
+    const expected=prepareOfflineOwnerHighwaterCard({
+      ownerReceipt:retainedOwnerCard?.receipt,scope,ownerPublicKey,nowMs
+    });
+    if(!isDeepStrictEqual(retainedOwnerCard,expected))fail();
+    const receipt=expected.receipt,p=receipt.payload;
+    return createHash('sha256')
+      .update('kings-event-capacity-offline-owner-floor-fingerprint-v1\0')
+      .update(JSON.stringify({
+        version:1,scope:p.scope,revision:p.revision,tip:p.tip,
+        archiveDigest:p.archiveDigest,issuedAt:p.issuedAt,
+        signature:receipt.signature
+      }))
+      .digest('hex');
+  }catch{fail();}
+}
+/*
+ * Compare two independently SUPPLIED copies and an externally recorded
+ * fingerprint. This detects mismatched, malformed, forged, stale-copied
+ * receipts only relative to that independently supplied fingerprint.
+ * Never interpret two matching in-memory objects as physical custody proof.
+ */
+function inspectOfflineOwnerRecoveryCopies({
+  primaryCard,recoveryCard,expectedFingerprint,
+  scope,ownerPublicKey,nowMs=Date.now()
+}={}){
+  try{
+    if(primaryCard===recoveryCard||typeof expectedFingerprint!=='string'||
+      !HEX.test(expectedFingerprint))fail();
+    const primary=fingerprintSignedOfflineOwnerFloor({
+      retainedOwnerCard:primaryCard,scope,ownerPublicKey,nowMs
+    });
+    const recovery=fingerprintSignedOfflineOwnerFloor({
+      retainedOwnerCard:recoveryCard,scope,ownerPublicKey,nowMs
+    });
+    if(primary!==recovery||primary!==expectedFingerprint||
+      !isDeepStrictEqual(primaryCard,recoveryCard))fail();
+    return Object.freeze({
+      visibility:'PRIVATE_ONLY',readOnly:true,
+      state:'Signed Offline Copies Match Recorded Fingerprint',
+      bothSignedCopiesCryptographicallyVerified:true,
+      bothCopiesMatchRecordedFingerprint:true,
+      independentMediaCustodyProvenByCode:false,
+      independentlyRetainedLatestHighwaterProven:false,
+      remoteArchiveIntegrityProvenByThisCheck:false,
+      remoteHistoryReviewed:false,
+      humanCustodyAndFreshnessReviewRequired:true,
+      wroteAnyFile:false,updatedHighwater:false,
+      safeToActivate:false,freeSlotsCertified:false
+    });
+  }catch{fail();}
+}
+
 module.exports={prepareOfflineOwnerHighwaterCard,
-  compareRemoteHistoryToOfflineHighwater};
+  compareRemoteHistoryToOfflineHighwater,
+  fingerprintSignedOfflineOwnerFloor,inspectOfflineOwnerRecoveryCopies};
