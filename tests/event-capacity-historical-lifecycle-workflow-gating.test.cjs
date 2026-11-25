@@ -51,3 +51,24 @@ test('Historical GitHub archive reader is read-only and not part of live capacit
   assert.match(reader,/freeSlotsCertified:false/);
   assert.doesNotMatch(reader,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
 });
+
+test('Owner-pinned private archive writer cannot silently activate via GitHub Actions',()=>{
+  const runner=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  const workflow=fs.readFileSync(path.join(root,
+    '.github/workflows/convoy-checker.yml'),'utf8');
+  const writer=fs.readFileSync(path.join(root,
+    'event-capacity-historical-github-writer.js'),'utf8');
+  assert.doesNotMatch(runner,/event-capacity-historical-github-writer/);
+  assert.doesNotMatch(workflow,/event-capacity-historical-github-writer/);
+  assert.doesNotMatch(workflow,/KINGS_EVENT_CAPACITY_HISTORICAL_WRITE_ENABLED/);
+  assert.match(writer,/ownerReceiptRetentionRequired:true/);
+  assert.match(writer,/sourceEvidenceAuthenticityVerified:false/);
+  assert.match(writer,/historicalCoverageCertified:false/);
+  assert.match(writer,/freeSlotsCertified:false/);
+  assert.match(writer,/openEncryptedHistoricalArchive/);
+  assert.match(writer,/createPrivateHistoricalArchiveReader/);
+  assert.match(writer,/method:'GET'/);
+  assert.doesNotMatch(writer,/method:'(?:DELETE|PATCH|POST)'/);
+  assert.doesNotMatch(writer,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
+});
