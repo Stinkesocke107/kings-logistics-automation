@@ -36,6 +36,9 @@ test('Kings Event Operations #18 combines #12/#13/#14/#15/#16 advisory source fl
     eventTypeUnclassified:3,
     calendarDaysNeedingReview:2,
     daysOverThreeSourceClaims:1,
+    partnerMonthsOver20:0,
+    externalMonthsOver20:0,
+    daysWithShortDepartureGap:0,
     historyMonthsWithoutClaims:20,
     invitationsMissingEventLinks:1,
     invitationDuplicateEventLinks:0,
@@ -88,6 +91,9 @@ test('missing and stale Event or Invitation source cannot become invented zero w
   assert.equal(missing.eventSource,'UNAVAILABLE');
   assert.equal(missing.invitationSource,'UNAVAILABLE');
   assert.equal(missing.review.calendarDaysNeedingReview,null);
+  assert.equal(missing.review.partnerMonthsOver20,null);
+  assert.equal(missing.review.externalMonthsOver20,null);
+  assert.equal(missing.review.daysWithShortDepartureGap,null);
   assert.deepEqual(operationsWorklist(missing).map(x=>x.code),[
     'CONVOY_SOURCE_UNAVAILABLE','INVITATION_SOURCE_UNAVAILABLE'
   ]);
@@ -121,6 +127,12 @@ test('validated Event Operations triage appears only on existing Event and Manag
   assert.match(field.value,/Classify \*\*3\*\*/);
   assert.doesNotMatch(field.value,/automatic approve|book available/i);
   assert.equal(event.title,'📅 Kings Event Leadership Dashboard');
+  const capacity=event.fields.find(x=>x.name.includes('Event Capacity'));
+  assert.ok(capacity);
+  assert.match(capacity.value,/3 total\/day/);
+  assert.match(capacity.value,/Partner months above 20/);
+  assert.match(capacity.value,/UTC days with departures <2h apart/);
+  assert.match(capacity.value,/No free slots certified/);
   const queue=event.fields.find(x=>x.name.includes('Review Order'));
   assert.ok(queue);
   assert.match(queue.value,/Review UTC days above 3 source-claimed convoys/);
@@ -136,8 +148,35 @@ test('validated Event Operations triage appears only on existing Event and Manag
   const management=s.run('buildManagement('+JSON.stringify(data)+', {}, {}, {}, {})');
   assert.ok(management.fields.some(x=>x.name.includes('Event Operations')));
   assert.equal(management.title,'👑 Kings Management Leadership Dashboard');
+  assert.ok(management.fields.some(x=>x.name.includes('Event Capacity')));
   assert.match(JSON.stringify(management),/Suggested next Staff review/);
   assert.ok(Object.hasOwn(WORK_LABELS,'VERIFY_FORUM_TAG_MAPPING'));
+});
+test('capacity monthly ceiling and departure-spacing warnings reach priority-ordered Event Operations tasks',()=>{
+  const f=observationFixtures();
+  f.eventSourceObservation.futurePartnerMonthsOver20=1;
+  f.eventSourceObservation.futureExternalMonthsOver20=2;
+  f.eventSourceObservation.futureDaysWithShortDepartureGap=1;
+  const ops=observeOperations(f);
+  assert.equal(ops.eventSource,'RECONCILED');
+  assert.equal(ops.review.partnerMonthsOver20,1);
+  assert.equal(ops.review.externalMonthsOver20,2);
+  assert.equal(ops.review.daysWithShortDepartureGap,1);
+  const rows=operationsWorklist(ops);
+  assert.deepEqual(rows.slice(0,4).map(x=>x.code),[
+    'REVIEW_DAILY_CAP','REVIEW_PARTNER_MONTH_CAP',
+    'REVIEW_EXTERNAL_MONTH_CAP','REVIEW_EVENT_TYPES'
+  ]);
+  assert.ok(rows.some(x=>x.code==='REVIEW_DEPARTURE_SPACING'&&
+    x.priority==='NORMAL'&&x.owner==='Event Coordinators'));
+  assert.match(renderOperationsReview(ops),/Partner months >20 \*\*1\*\*/);
+  assert.match(renderOperationsReview(ops),/External months >20 \*\*2\*\*/);
+  assert.match(renderOperationsReview(ops),/UTC days with <2h gap \*\*1\*\*/);
+  assert.match(renderOperationsWorklist(ops),/20 Partner convoy claims/);
+  assert.equal(ops.bookingsCreated,0);
+  assert.equal(ops.staffAssignmentsChanged,0);
+  assert.ok(renderOperationsReview(ops).length<=1024);
+  assert.ok(renderOperationsWorklist(ops).length<=1024);
 });
 test('Operations module is pure; no privileged writes, notifications or separate systems',()=>{
   const fs=require('node:fs'),path=require('node:path');
