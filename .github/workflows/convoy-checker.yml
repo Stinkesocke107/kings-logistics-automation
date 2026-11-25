@@ -13,6 +13,11 @@ on:
         options:
           - dry-run
           - live
+      invitation_readonly_probe:
+        description: 'GET-only private Invitation source preflight (manual dry-run only)'
+        required: false
+        type: boolean
+        default: false
       capacity_action:
         description: "GitHub-only Capacity (off, preview, preflight, source-preflight, bootstrap, sync)"
         required: false
@@ -446,3 +451,21 @@ jobs:
             echo "::warning::Convoy Driver reminders hit a transient delivery failure. Core Convoy/Event health remains valid and reminders will retry on the next run."
           fi
           node -e "if ((process.env.CORE_OUTCOMES || '').split(',').includes('failure')) { console.error('One or more core convoy stages failed; inspect the reports and logs.'); process.exit(1); }"
+
+      # Deliberately reuses the EXISTING Kings Convoy Checker manual workflow.
+      # Never fires on schedules, push, PR, live mode, or default-off inputs.
+      - name: Kings Event Invitation source GET-only preflight (manual dry-run only)
+        if: >-
+          github.event_name == 'workflow_dispatch' &&
+          github.ref == 'refs/heads/main' &&
+          inputs.mode == 'dry-run' &&
+          inputs.capacity_action == 'off' &&
+          inputs.invitation_readonly_probe == true
+        env:
+          KINGS_INVITATION_READONLY_PROBE: 'true'
+          KINGS_INVITATION_CONVOY_MODE: ${{ inputs.mode }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID: ${{ secrets.KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID }}
+          KINGS_EVENT_INVITATION_STAFF_ROLE_IDS: ${{ vars.KINGS_EVENT_INVITATION_STAFF_ROLE_IDS }}
+          KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS: ${{ vars.KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS }}
+        run: node scripts/event-invitation-readonly-probe.js
