@@ -17,8 +17,17 @@ test('legacy Leader reports never checkpoint a suppressed Discord publication',(
    assert.equal(calls.length,expected,file+' has an unexpected number of sync calls');
    assert.equal(guarded.length,expected,file+' did not guard every sync immediately after delivery');
    for(const match of guarded){
-     assert.match(match[0],/no publication state or snapshots recorded/,file);
-     assert.doesNotMatch(match[0],/saveReportState\(|saveState\(|publishedDailyKeys\.push|publishedMonthlyKeys\.push|publishedWeeklyKeys\.push|lastSnapshot\s*=/,file);
+     if(file==='event-leadership-reports.js'){
+       // A source-only observation may be encrypted and saved even when the
+       // former Discord report is suppressed; publishing and historical
+       // change snapshots must still NOT be checkpointed as delivered.
+       assert.match(match[0],/Legacy Leadership publication suppressed/,file);
+       assert.match(match[0],/updateSourceObservation\(state,report,overview\)/,file);
+       assert.doesNotMatch(match[0],/publishedDailyKeys\.push|publishedMonthlyKeys\.push|publishedWeeklyKeys\.push|lastSnapshot\s*=/,file);
+     } else {
+       assert.match(match[0],/no publication state or snapshots recorded/,file);
+       assert.doesNotMatch(match[0],/saveReportState\(|saveState\(|publishedDailyKeys\.push|publishedMonthlyKeys\.push|publishedWeeklyKeys\.push|lastSnapshot\s*=/,file);
+     }
    }
  }
 });

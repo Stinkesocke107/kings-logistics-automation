@@ -5,6 +5,7 @@ const path = require('path');
 const { syncTextMessage } = require('./leadership-message-sync');
 const { encryptEventState, decryptEventState } = require('./event-leadership-state');
 const {appendPrivateLeadershipReview} = require('./event-history-leadership-bridge');
+const {buildEventObservation} = require('./event-leadership-observation');
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -433,6 +434,19 @@ async function post(channel, content) {
   });
 }
 
+// A suppressed legacy report is NOT a publication, but it may record a
+// separately reconciled, encrypted, read-only source observation for the
+// existing consolidated Event/Management dashboard. Do not touch publish keys.
+function updateSourceObservation(state,report,overview) {
+  try {
+    state.eventSourceObservation=buildEventObservation(report,overview);
+    return true;
+  } catch {
+    console.warn('Kings Event Calendar/History source observation UNVERIFIED; previous observation not refreshed.');
+    return false;
+  }
+}
+
 async function runDaily(report, overview, state) {
   const key = new Date().toISOString().slice(0, 10);
   const current = snapshotOf(report);
@@ -458,9 +472,11 @@ async function runDaily(report, overview, state) {
     userAgent: 'Kings Logistics Event Leadership Reports/2.0'
   });
   if (result.action === 'suppressed') {
-    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    if (updateSourceObservation(state,report,overview)) saveState(state);
+    console.log('Legacy Leadership publication suppressed; only reconciled read-only source observation may be saved.');
     return;
   }
+  updateSourceObservation(state,report,overview);
 
   state.lastSnapshot = current;
   state.changeLog.push(...changes);
@@ -492,9 +508,11 @@ async function runWeekly(report, overview, state) {
     userAgent: 'Kings Logistics Event Leadership Reports/2.0'
   });
   if (result.action === 'suppressed') {
-    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    if (updateSourceObservation(state,report,overview)) saveState(state);
+    console.log('Legacy Leadership publication suppressed; only reconciled read-only source observation may be saved.');
     return;
   }
+  updateSourceObservation(state,report,overview);
 
   const record = {
     key: period.key,
@@ -537,9 +555,11 @@ async function runMonthly(report, overview, state) {
     userAgent: 'Kings Logistics Event Leadership Reports/2.0'
   });
   if (result.action === 'suppressed') {
-    console.log('Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded.');
+    if (updateSourceObservation(state,report,overview)) saveState(state);
+    console.log('Legacy Leadership publication suppressed; only reconciled read-only source observation may be saved.');
     return;
   }
+  updateSourceObservation(state,report,overview);
 
   const record = {
     key: period.key,

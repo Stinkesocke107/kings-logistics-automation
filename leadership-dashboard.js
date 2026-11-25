@@ -4,6 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { syncEmbedMessage } = require('./leadership-message-sync');
+const {decryptEventState}=require('./event-leadership-state');
+const {trustedEventObservation}=require('./event-leadership-observation');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -56,6 +58,15 @@ function readJson(file, fallback = null) {
   if (!fs.existsSync(file)) return fallback;
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
   catch (error) { throw new Error(`Invalid JSON in ${path.basename(file)}: ${error.message}`); }
+}
+// The Event Leadership report state is encrypted at rest in the public repo.
+function readPrivateEventReports() {
+  const container=readJson(FILES.eventReports,null);
+  if(container===null)return {lastSnapshot:null,changeLog:[],
+    weeklyReports:[],monthlyReports:[],eventSourceObservation:null};
+  if(container?.encrypted!==true)
+    throw Error('Kings Event Leadership state is not encrypted');
+  return decryptEventState(container,String(DRIVER_STATE_KEY));
 }
 function writeJson(file, value) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -172,7 +183,7 @@ function loadAll() {
     hrReports: readJson(FILES.hrReports, {}),
     hrWeekly: readJson(FILES.hrWeekly, {}),
     staffReports: readJson(FILES.staffReports, {}),
-    eventReports: readJson(FILES.eventReports, {}),
+    eventReports: readPrivateEventReports(),
     managementWeekly: readJson(FILES.managementWeekly, {}),
     managementMonthly: readJson(FILES.managementMonthly, {})
   };
@@ -289,27 +300,41 @@ function buildStaff(data, now = Date.now()) {
 }
 
 function buildEvent(data, now = Date.now()) {
-  const start = now - DAY_MS;
-  const snapshot = data.eventReports.lastSnapshot || [];
-  const changes = (data.eventReports.changeLog || []).filter((c) => recent(c.at, start));
-  const count = (status) => snapshot.filter((e) => e.status === status).length;
-  const upcoming = snapshot
-    .filter((e) => Number(e.eventUnix || 0) * 1000 >= now && e.status !== 'Cancelled')
-    .sort((a,b) => Number(a.eventUnix || 0) - Number(b.eventUnix || 0))
-    .slice(0,3)
-    .map((e) => `${e.eventDate || '?'} — ${String(e.name || 'Event').slice(0,45)}`)
-    .join('\n') || 'No upcoming tracked events.';
-  const w = latest(data.eventReports.weeklyReports);
-  const m = latest(data.eventReports.monthlyReports);
+  const state=data.eventReports||{};
+  const observed=trustedEventObservation(state.eventSourceObservation,now);
+  const w=latest(state.weeklyReports);
+  const m=latest(state.monthlyReports);
+  const refreshed=observed
+    ? '<t:'+Math.floor(Date.parse(observed.observedAt)/1000)+':R>'
+    : null;
+  const sourceLine=observed
+    ? 'Reconciled **read-only source observation** '+refreshed+
+      ' · Tracked **'+observed.tracked+'** · Source Scheduled **'+
+      observed.scheduled+'** · Ready **'+observed.readyForApproval+
+      '** · Needs Info **'+observed.needsInformation+
+      '** · Completed **'+observed.completed+'**. Source status is not a Staff approval.'
+    : 'Unavailable — no recent reconciled Event source. Historical snapshots are not treated as live or as zero events.';
+  const calendarLine=observed
+    ? '12-month planning review: unclassified **'+observed.futureUnclassified+
+      '** · UTC days needing review **'+observed.futureDaysRequiringReview+
+      '** · over 3/day **'+observed.futureDaysOverDailyLimit+
+      '**.\n24-month history source claims: Center **'+
+      observed.historyCenterClaims+'**, Legacy **'+observed.historyLegacyClaims+
+      '** · months with claims **'+observed.historyMonthsWithClaims+
+      '/24** · without claims **'+observed.historyMonthsWithoutClaims+
+      '** · undated **'+observed.historyUndatedClaims+
+      '**. Historical coverage **not verified**. No available slots certified.'
+    : 'Calendar and historical coverage unverified. No available slots certified.';
   return {
     title: '📅 Kings Event Leadership Dashboard',
-    description: 'One fixed Event Operations dashboard. Verified convoy attendance/history remains a separate statistics dataset.',
+    description: 'One fixed Event Operations dashboard. Verified convoy attendance/history remains a separate statistics dataset. Source review is advisory, not Staff approval. Private data stay encrypted.',
     color: KINGS_BLUE,
     fields: [
-      field('🔵 Live Overview', `Tracked **${snapshot.length}** • Scheduled **${count('Scheduled')}** • Ready **${count('Ready for Approval')}** • Needs Info **${count('Needs Information')}** • Completed **${count('Completed')}**\nNext events:\n${upcoming}`),
-      field('🟢 Last 24 Hours', `Recorded Event changes **${changes.length}** • Added **${changes.filter(c=>c.type==='event_added').length}** • Updated **${changes.filter(c=>c.type==='event_changed').length}** • Removed **${changes.filter(c=>c.type==='event_removed').length}**`),
-      field('🟣 Last Completed Week', w ? `${fmtKey(w.key)} • Tracked **${w.realConvoys}** • Scheduled **${w.scheduled}** • Ready **${w.ready}** • Needs Info **${w.needsInfo}** • Changes **${w.changes}**` : 'No completed weekly report yet.'),
-      field('👑 Last Completed Month', m ? `${fmtKey(m.key)} • Counted **${m.counted}** • Completed **${m.completed}** • Cancelled **${m.cancelled}** • Scheduled **${m.scheduled}** • Needs Info **${m.needsInfo}**` : 'No completed monthly report yet.')
+      field('🔵 Live Overview',sourceLine),
+      field('🟢 Last 24 Hours', 'A verified Event change feed is not currently available from the legacy publication-only state. See the current Convoy Center for individual changes.'),
+      field('🟣 Last Completed Week', w ? fmtKey(w.key)+' • Tracked **'+w.realConvoys+'** • Scheduled **'+w.scheduled+'** • Ready **'+w.ready+'** • Needs Info **'+w.needsInfo+'** • Changes **'+w.changes+'**' : 'No completed verified weekly report yet.'),
+      field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
+      field('🗓️ Calendar / History — Source Review',calendarLine)
     ],
     footer: { text: 'Kings Logistics • Event Leadership • Internal operations' },
     timestamp: nowISO()
@@ -321,20 +346,20 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
   const mm = latest(data.managementMonthly.monthlyReports);
   const ds = data.driverSummary;
   const ss = data.staffSummary;
-  const eventSnap = data.eventReports.lastSnapshot || [];
-  const eventNeeds = eventSnap.filter((e) => e.status === 'Needs Information').length;
-  const eventReady = eventSnap.filter((e) => e.status === 'Ready for Approval').length;
+  const eventSource=trustedEventObservation(data.eventReports?.eventSourceObservation);
+  const eventNeeds=eventSource?.needsInformation||0;
+  const eventReady=eventSource?.readyForApproval||0;
   const hrOpen = (data.hr.reviews || []).filter((r) => reviewStatus(r) !== 'completed').length;
   const attention = (ds.activity?.attention14Days || 0) + (ds.activity?.hrReview30Days || 0) + hrOpen + eventNeeds + eventReady;
   return {
     title: '👑 Kings Management Leadership Dashboard',
-    description: `One fixed Management dashboard. Drivers count the full TruckersMP VTC roster; Staff count uses VTC Staff classification. Discord role-member counts are separate. Current attention indicators: **${attention}**.`,
+    description: `One fixed Management dashboard. Drivers count the full TruckersMP VTC roster; Staff count uses VTC Staff classification. Discord role-member counts are separate. Current attention indicators: **${attention}** (Event attention excluded if source unavailable).`,
     color: KINGS_BLUE,
     fields: [
       field('🚛 VTC Drivers — Live', `VTC Drivers **${ds.currentDrivers ?? 0}** • Online **${verifiedLiveOnline(ds)}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
       field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
-      field('📅 Events — Live', `Tracked **${eventSnap.length}** • Scheduled **${eventSnap.filter(e=>e.status==='Scheduled').length}** • Ready **${eventReady}** • Needs Info **${eventNeeds}**`),
+      field('📅 Events — Live', eventSource ? `Reconciled source: Tracked **${eventSource.tracked}** • Source Scheduled **${eventSource.scheduled}** • Ready **${eventReady}** • Needs Info **${eventNeeds}** (advisory, not approval)` : 'Unavailable — no recent reconciled Event source; historical state is not a verified zero.'),
       field('🟣 Last Completed Week', dw ? `${fmtKey(dw.key)} • Drivers **${dw.members}** • Joined **${dw.joined}** • Left **${dw.left}** • Net **${signed(dw.netGrowth)}** • Staff **${dw.currentStaff ?? ss.currentStaff ?? 0}** • Active Event Threads **${dw.activeEventThreads ?? 0}** • Weekly Peak **${dw.weeklyPeak ?? 0}**` : 'No completed Management weekly report yet.'),
       field('👑 Last Completed Month', mm ? `${fmtKey(mm.key)} • Drivers **${mm.drivers}** • Driver Net **${signed(mm.driverNetGrowth)}** • Staff **${mm.staff}** • Staff Net **${signed(mm.staffNetGrowth)}** • Open Reviews **${mm.openReviews}** • Event Issues **${mm.eventIssues}**` : 'No completed Management monthly report yet.')
     ],
