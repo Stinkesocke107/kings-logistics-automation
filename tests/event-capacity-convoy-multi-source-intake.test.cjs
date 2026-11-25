@@ -127,6 +127,12 @@ test('Duplicate channel IDs, threads and tracker invitations are rejected',()=>{
   assert.throws(()=>audit({convoyRecords:[...f.convoyRecords,f.convoyRecords[0]]}));
   assert.throws(()=>audit({tracker:{...f.tracker,records:[trackerRecord(),trackerRecord()]}}));
 });
+test('One Discord thread ID claimed by two different parent channels fails closed',()=>{
+  const f=fixture();
+  f.convoyRecords[1]={...f.convoyRecords[1],threadId:THREAD};
+  assert.throws(()=>reconcileKingsMultiSourceConvoys(f),
+    /Kings Event Capacity multi-source channel intake refused/);
+});
 test('Wrong guild, missing primary channel, spoofed legacy primary and foreign channel reject',()=>{
   const f=fixture();
   assert.throws(()=>audit({guildId:'123'}));
