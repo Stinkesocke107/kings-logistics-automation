@@ -21,7 +21,7 @@ function project(items,day='2027-03-20',options={}){
     guildId:GUILD,page:options.page||1
   });
 }
-test('The authorized private detail shows 2 shared partner/external slots, Kings separately',()=>{
+test('Private detail reports source counts with Saturday 5/day limit, no free booking',()=>{
   const view=project([
     entry('a','Partner Convoy'),
     entry('b','External Convoy'),
@@ -29,9 +29,11 @@ test('The authorized private detail shows 2 shared partner/external slots, Kings
   ]);
   assert.equal(view.visibility,'PRIVATE_ONLY');
   assert.equal(view.readOnly,true);
-  assert.equal(view.capacityVerified,true);
+  assert.equal(view.capacityVerified,false);
+  assert.equal(view.sourceVerified,true);
+  assert.equal(view.baseLimit,5);
   assert.equal(view.combinedUsed,2);
-  assert.equal(view.remaining,0);
+  assert.equal(view.remaining,null);
   assert.equal(view.total,3);
   assert.deepEqual(view.items.map(i=>i.type).sort(),['Kings','Official Partner','Other External']);
   assert.ok(view.items.every(i=>i.state==='Accepted'));
@@ -44,7 +46,7 @@ test('Pending convoys are shown but do not occupy confirmed capacity',()=>{
     })
   ]);
   assert.equal(view.combinedUsed,1);
-  assert.equal(view.remaining,1);
+  assert.equal(view.remaining,null);
   assert.equal(view.total,2);
   assert.equal(view.items.find(x=>x.state==='Pending').counted,false);
   assert.equal(view.items.find(x=>x.state==='Pending').departureUnix,null);
