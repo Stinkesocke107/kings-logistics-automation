@@ -1,7 +1,7 @@
 'use strict';
 // Aggregate operational proof only: no Discord tokens, message IDs, driver
 // records or position data are allowed in this public repository state file.
-const fs=require('node:fs');
+const fs=require('fs');
 const path=require('node:path');
 const FILE=path.join(__dirname,'data','live-systems-delivery.json');
 const DISPLAYS=Object.freeze(['Live Tracker','Advanced Statistics','Central Overview']);
