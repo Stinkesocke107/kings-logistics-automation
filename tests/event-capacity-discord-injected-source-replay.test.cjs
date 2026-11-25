@@ -167,7 +167,7 @@ test('Can pass replay receipts to the existing 24-month offline pagination audit
     scans:[one.privateReceiptDoNotLog]
   });
   assert.equal(result.suppliedScanClaims,1);
-  assert.equal(result.streamsMissingScanClaims,2);
+  assert.equal(result.streamsMissingScanClaims,1);
   assert.equal(result.providerPaginationAuthenticityVerified,false);
   assert.equal(result.freeSlotsCertified,false);
 });
