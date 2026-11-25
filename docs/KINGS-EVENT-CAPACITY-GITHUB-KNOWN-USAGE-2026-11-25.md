@@ -28,11 +28,11 @@ The new \`event-capacity-github-known-usage.js\` returns a private **KnownAccept
 - Selected UTC month and one entry for every UTC day, including leap years.
 - Known accepted Partner, Other External and Kings-owned counts by UTC day and month, and combined external daily usage.
 - Explicit indicators when known accepted events already reach/exceed daily or monthly limits; these are policy risk indicators, not automatic rejections.
-- Explicit approved-exception counts, missing-data counts, source inventory issues, unreconciled legacy records, two-hour advisories and meeting/end overlaps.
+- Explicit approved-exception counts, disputed/possibly occupied event counts, missing-data counts, source inventory issues, unreconciled legacy records, two-hour advisories and meeting/end overlaps.
 - No raw Event IDs, organizers, Discord member IDs, decision references or private texts in the returned projection.
 - **remainingVerified: null**, **freeSlotsCertified: false**, **partnerFreeVerified: false**, **externalFreeVerified: false**, **historicalReconciliationVerified: false** until separately verified complete historical acceptance and cancellations exist.
 
-A missing or unclear accepted event may be absent from the known count, so the count is a **minimum**, not an authoritative total. A zero in this projection must **NEVER** be interpreted as an open quota slot.
+A missing or unclear accepted event may be absent from the known count, so the count is a **minimum**, not an authoritative total. **Events with a known Staff-versus-source category/departure conflict are excluded from the proven minimum** and shown separately as disputed records/possible occupancy; they must still block any verified-free inference. A zero in this projection must **NEVER** be interpreted as an open quota slot.
 
 ## Trust boundaries
 
