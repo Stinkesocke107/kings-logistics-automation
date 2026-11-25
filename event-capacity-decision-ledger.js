@@ -16,6 +16,33 @@ const ACTIONS=new Set([
 ]);
 const REF=/^(?:event|thread):[a-zA-Z0-9_-]{1,128}$/;
 const ERROR='Kings Event Capacity private ledger validation or authorization failed.';
+const SNOWFLAKE=/^\d{17,22}$/;
+const SOURCE_RUN=/^[1-9]\d{5,19}$/;
+const SHA256=/^[a-f0-9]{64}$/;
+const SIGNED_DISCORD_PROOF=/^discord:(\d{17,22}):review:(\d{17,22})$/;
+const MAX_SOURCE_AGE_MS=45*60*1000;
+function validatedReviewProof(p,ref,action,actorId,evidenceRef,at){
+  if(!p||typeof p!=='object'||Array.isArray(p)||
+    Object.keys(p).sort().join(',')!==
+      'evidenceMessageId,reviewMessageId,reviewerId,sourceAttempt,sourceDigest,sourceRunId,submitterId,verifiedAt,version'||
+    p.version!==1||
+    ![p.evidenceMessageId,p.reviewMessageId,p.reviewerId,p.submitterId]
+      .every(v=>typeof v==='string'&&SNOWFLAKE.test(v))||
+    !SOURCE_RUN.test(String(p.sourceRunId||''))||
+    !Number.isSafeInteger(p.sourceAttempt)||p.sourceAttempt<1||
+    p.sourceAttempt>100||
+    !SHA256.test(String(p.sourceDigest||''))||
+    p.evidenceMessageId===p.reviewMessageId||
+    p.reviewerId===p.submitterId||
+    actorId!==p.reviewerId||
+    !['classification','departure','end'].includes(action)||
+    evidenceRef!=='discord:'+p.evidenceMessageId+':review:'+p.reviewMessageId||
+    !validIso(p.verifiedAt)||!validIso(at)||
+    timestamp(p.verifiedAt)>timestamp(at)||
+    timestamp(at)-timestamp(p.verifiedAt)>MAX_SOURCE_AGE_MS)fail();
+  return structuredClone(p);
+}
+
 
 function fail(){throw new Error(ERROR);}
 function validIso(value){return typeof value==='string'&&timestamp(value)!==null;}
@@ -65,12 +92,22 @@ function validateLedger(state,expectedScope){
       if(!h||!validIso(h.previousDepartureAtUtc)||!validIso(h.newDepartureAtUtc))fail();
     }
   }
+  const usedEvidence=new Set(),usedReviews=new Set();
   for(let i=0;i<state.history.length;i++){
     const h=state.history[i];
     if(!h||typeof h!=='object'||!REF.test(h.ref)||!ACTIONS.has(h.action)||
        !Number.isSafeInteger(h.revision)||h.revision!==i+1||
        !validIso(h.at)||typeof h.actorId!=='string'||!h.actorId.trim()||
        !validEvidence(h.evidenceRef))fail();
+    if(SIGNED_DISCORD_PROOF.test(h.evidenceRef)&&!h.reviewProof)fail();
+    if(h.reviewProof!==undefined){
+      const p=validatedReviewProof(h.reviewProof,h.ref,h.action,
+        h.actorId,h.evidenceRef,h.at);
+      if(usedEvidence.has(p.evidenceMessageId)||
+        usedReviews.has(p.reviewMessageId))fail();
+      usedEvidence.add(p.evidenceMessageId);
+      usedReviews.add(p.reviewMessageId);
+    }
   }
   return state;
 }
@@ -105,6 +142,16 @@ function applyDecision(input,command,actor,at){
      !Number.isSafeInteger(command.expectedRevision)||
      command.expectedRevision!==input.revision||
      !validEvidence(command.evidenceRef)||!validIso(at))fail();
+  const hasProof=command.reviewProof!==undefined;
+  if(SIGNED_DISCORD_PROOF.test(command.evidenceRef)!==hasProof)fail();
+  let reviewProof;
+  if(hasProof){
+    reviewProof=validatedReviewProof(command.reviewProof,command.ref,
+      command.action,actor?.id,command.evidenceRef,at);
+    if(input.history.some(h=>
+      h.reviewProof?.evidenceMessageId===reviewProof.evidenceMessageId||
+      h.reviewProof?.reviewMessageId===reviewProof.reviewMessageId))fail();
+  }
   const role=verifiedRole(actor,
     ['exception','revoke-exception'].includes(command.action)?EXCEPTION:STAFF);
   const state=structuredClone(input);
@@ -204,6 +251,7 @@ function applyDecision(input,command,actor,at){
   state.history.push({
     revision:state.revision,ref,action:command.action,
     actorId:actor.id,actorRole:role,evidenceRef:command.evidenceRef,
+    ...(hasProof?{reviewProof}:{}),
     at:state.updatedAt,before,after:structuredClone(record)
   });
   return validateLedger(state);
