@@ -225,3 +225,30 @@ test('Private storage preflight and large segmented backups cannot silently acti
   assert.match(vault,/request\('PUT'/);
   assert.doesNotMatch(vault,/request\('DELETE'/);
 });
+
+test('GitHub Free three-private-repo plan does not permit public sensitive archive publishing',()=>{
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const root=path.resolve(__dirname,'..');
+  const publicBoundary=fs.readFileSync(path.join(root,
+    'event-capacity-public-single-repo-boundary.js'),'utf8');
+  const publicRunner=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  const workflow=fs.readFileSync(path.join(root,
+    '.github/workflows/convoy-checker.yml'),'utf8');
+  const handoff=fs.readFileSync(path.join(root,
+    'docs/KINGS-EVENT-CAPACITY-GITHUB-FREE-SECRETS-AND-ACCESS-2026-11-25.md'),'utf8');
+  assert.match(publicBoundary,/PUBLIC_CODE_AND_ANONYMOUS_STATUS_ONLY/);
+  assert.match(publicBoundary,/confidentialDataAllowed:false/);
+  assert.match(publicBoundary,/encryptedHistoricalPayloadAllowed:false/);
+  assert.match(publicBoundary,/productionActivated:false/);
+  assert.equal(fs.existsSync(path.join(root,
+    'event-capacity-public-opaque-backup.js')),false);
+  assert.doesNotMatch(publicRunner,/event-capacity-public-single-repo-boundary/);
+  assert.doesNotMatch(workflow,/event-capacity-public-single-repo-boundary/);
+  assert.match(handoff,/kings-event-capacity-history/);
+  assert.match(handoff,/kings-event-capacity-witness/);
+  assert.match(handoff,/kings-event-capacity-backups/);
+  assert.match(handoff,/GitHub Free/);
+  assert.match(handoff,/Do not create secrets until after that verification/);
+});
