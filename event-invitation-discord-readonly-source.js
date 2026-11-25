@@ -44,7 +44,7 @@ function bits(x){
 function has(v,bit){return (v&bit)===bit;}
 function channelAuthorization({channel,roles,bot,me,guildId,channelId,staffIds,adminIds}){
   if(!plain(channel)||channel.id!==channelId||channel.guild_id!==guildId||
-    channel.type!==0||!Array.isArray(channel.permission_overwrites)||
+    ![0,15].includes(channel.type)||!Array.isArray(channel.permission_overwrites)||
     channel.permission_overwrites.length>100||!Array.isArray(roles)||
     roles.length===0||roles.length>500||!plain(bot)||
     bot.user?.id!==me.id||!Array.isArray(bot.roles))fail();
@@ -141,6 +141,13 @@ async function scanKingsInvitationDiscordSource({client,config,asOfUtc}={}){
       channel,roles,bot,me,guildId:config.guildId,
       channelId:config.channelId,staffIds,adminIds
     });
+    if(channel.type===15){
+      const {scanKingsInvitationForumContent}
+        =require('./event-invitation-discord-forum-readonly');
+      return await scanKingsInvitationForumContent({
+        get,config,asOfUtc,channel,roles,staffIds,authorization
+      });
+    }
     const messages=[],seen=new Set();
     let before=null,exhausted=false;
     for(let page=0;page<MAX_PAGES;page++){
