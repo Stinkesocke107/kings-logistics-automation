@@ -75,9 +75,12 @@ jobs:
           CAPACITY_ACTION: ${{ inputs.capacity_action }}
           PUSH_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          # A manually dispatched capacity-only permission preflight must
-          # NEVER turn into live Convoy writes, even if mode=live is selected.
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$CAPACITY_ACTION" = "preflight" ]; then
+          # A manually selected Event Capacity action is a dedicated
+          # capacity-only invocation. It must never execute Convoy stages,
+          # even if mode=live was selected by the dispatcher.
+          CAPACITY_ONLY="false"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [[ "$CAPACITY_ACTION" =~ ^(preview|preflight|bootstrap|sync)$ ]]; then
+            CAPACITY_ONLY="true"
             DRY_RUN="true"
           elif [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
             DRY_RUN="false"
@@ -90,9 +93,12 @@ jobs:
           fi
 
           echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
+          echo "capacity_only=$CAPACITY_ONLY" >> "$GITHUB_OUTPUT"
           echo "Convoy dry-run mode: $DRY_RUN"
+          echo "Manual capacity-only mode: $CAPACITY_ONLY"
 
       - name: Verify convoy safety engines
+        if: steps.mode.outputs.capacity_only != 'true'
         run: |
           node --check convoy-checker.js
           node --check convoy-finalize.js
@@ -105,6 +111,7 @@ jobs:
           node --check convoy-imminent-readiness.js
 
       - name: Run convoy checker
+        if: steps.mode.outputs.capacity_only != 'true'
         id: convoy_stage_0
         continue-on-error: true
         env:
@@ -119,7 +126,7 @@ jobs:
       - name: Auto-fill convoy data from TruckersMP Event ID
         id: convoy_stage_1
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           KINGS_VTC_NAME: 'Kings Logistics'
@@ -128,7 +135,7 @@ jobs:
       - name: Finalize TruckersMP data and Kings overrides
         id: convoy_stage_2
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -138,7 +145,7 @@ jobs:
       - name: Audit imminent approved convoy reminder eligibility (read-only, no messages)
         id: convoy_reminder_readiness
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         run: |
           node --test tests/convoy-imminent-readiness.test.cjs
           node convoy-imminent-readiness.js
@@ -146,7 +153,7 @@ jobs:
       - name: Send one-time convoy notifications
         id: convoy_stage_3
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -156,7 +163,7 @@ jobs:
       - name: Handle post-convoy follow-up
         id: convoy_stage_4
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -164,6 +171,7 @@ jobs:
         run: node convoy-reminders.js
 
       - name: Check internal Convoy Driver reminders
+        if: steps.mode.outputs.capacity_only != 'true'
         id: convoy_stage_5
         continue-on-error: true
         env:
@@ -177,6 +185,7 @@ jobs:
         run: node convoy-driver-reminders.js
 
       - name: Check Kings-only convoy announcements
+        if: steps.mode.outputs.capacity_only != 'true'
         id: convoy_stage_6
         continue-on-error: true
         env:
@@ -197,7 +206,7 @@ jobs:
       - name: Archive finished convoy threads
         id: convoy_stage_7
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -205,12 +214,13 @@ jobs:
         run: node convoy-archive.js
 
       - name: Verify convoy completeness
+        if: steps.mode.outputs.capacity_only != 'true'
         id: convoy_completeness
         continue-on-error: true
         run: node convoy-completeness.js
 
       - name: Persist healthy convoy count baseline
-        if: steps.mode.outputs.dry_run != 'true' && steps.convoy_completeness.outcome == 'success'
+        if: (steps.mode.outputs.dry_run != 'true' && steps.convoy_completeness.outcome == 'success') && steps.mode.outputs.capacity_only != 'true'
         run: |
           if [ -n "$(git status --porcelain -- data/convoy-completeness-state.json)" ]; then
             git config user.name "Kings Logistics Automation"
@@ -229,6 +239,7 @@ jobs:
           fi
 
       - name: Generate convoy overview statistics
+        if: steps.mode.outputs.capacity_only != 'true'
         id: convoy_stage_8
         continue-on-error: true
         env:
@@ -238,7 +249,7 @@ jobs:
 
       - name: Notify Event Leadership about new planning conflicts
         id: convoy_planning_alerts
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -246,7 +257,7 @@ jobs:
 
       - name: Persist sent planning alert keys
         id: convoy_planning_state
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         run: |
           if [ -z "$(git status --porcelain -- data/convoy-planning-alert-state.json)" ]; then
             echo "No new convoy planning warnings."
@@ -264,7 +275,7 @@ jobs:
       - name: Sync convoy overview to Discord
         id: convoy_stage_9
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -321,8 +332,24 @@ jobs:
             exit 1
           fi
 
+      - name: Require manually requested Event Capacity publication outcome
+        if: github.event_name == 'workflow_dispatch' && (inputs.capacity_action == 'bootstrap' || inputs.capacity_action == 'sync' || inputs.capacity_action == 'preview')
+        env:
+          CAPACITY_OUTCOME: ${{ steps.event_capacity_github_only.outcome }}
+        run: |
+          if [ "$CAPACITY_OUTCOME" != "success" ]; then
+            echo "::error::Requested Event Capacity action failed. No Convoy stages were run in this capacity-only invocation."
+            exit 1
+          fi
+
+      - name: Event Capacity capacity-only summary
+        if: steps.mode.outputs.capacity_only == 'true'
+        run: |
+          echo "Manual Event Capacity-only invocation completed; no Convoy operational stages were run."
+          echo "This does not certify free Event slots or historical source completeness."
+
       - name: Dry-run safety summary
-        if: steps.mode.outputs.dry_run == 'true'
+        if: (steps.mode.outputs.dry_run == 'true') && steps.mode.outputs.capacity_only != 'true'
         run: |
           echo "Convoy read-only preflight completed; skipped stages are NOT E2E verified."
           echo "Convoy checker writes were disabled."
@@ -331,7 +358,7 @@ jobs:
           echo "Other mutating convoy steps were skipped."
 
       - name: Upload convoy reports
-        if: always()
+        if: (always()) && steps.mode.outputs.capacity_only != 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: kings-convoy-reports
@@ -345,7 +372,7 @@ jobs:
           retention-days: 14
 
       - name: Save API Health State
-        if: ${{ always() && steps.mode.outputs.dry_run != 'true' }}
+        if: (${{ always() && steps.mode.outputs.dry_run != 'true' }}) && steps.mode.outputs.capacity_only != 'true'
         run: |
           if [ ! -d data/api-health ] || [ -z "$(git status --porcelain -- data/api-health)" ]; then
             echo "No API health state changes to save."
@@ -372,7 +399,7 @@ jobs:
       # auxiliary and retries on the next run, so a transient Discord rate limit
       # must not mark the entire Convoy / Event System as failed.
       - name: Require successful convoy planning notification and persistence
-        if: always() && steps.mode.outputs.dry_run != 'true'
+        if: (always() && steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           ALERT_OUTCOME: ${{ steps.convoy_planning_alerts.outcome }}
           STATE_OUTCOME: ${{ steps.convoy_planning_state.outcome }}
@@ -383,7 +410,7 @@ jobs:
           fi
 
       - name: Require convoy completeness
-        if: always()
+        if: (always()) && steps.mode.outputs.capacity_only != 'true'
         env:
           COMPLETENESS_OUTCOME: ${{ steps.convoy_completeness.outcome }}
         run: |
@@ -393,7 +420,7 @@ jobs:
           fi
 
       - name: Require successful convoy stages
-        if: always()
+        if: (always()) && steps.mode.outputs.capacity_only != 'true'
         env:
           CORE_OUTCOMES: ${{ join(fromJSON(format('["{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}"]', steps.convoy_stage_0.outcome, steps.convoy_stage_1.outcome, steps.convoy_stage_2.outcome, steps.convoy_stage_3.outcome, steps.convoy_stage_4.outcome, steps.convoy_stage_6.outcome, steps.convoy_stage_7.outcome, steps.convoy_stage_8.outcome, steps.convoy_stage_9.outcome)), ',') }}
           DRIVER_REMINDER_OUTCOME: ${{ steps.convoy_stage_5.outcome }}
