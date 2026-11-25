@@ -5,6 +5,12 @@ on:
     branches: [main]
     paths: ['**.js', 'tests/**', 'scripts/**', '.github/workflows/**']
   workflow_dispatch:
+    inputs:
+      capacity_preview:
+        description: 'Run the GitHub-only Event Capacity metadata preview (no Discord or event writes)'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
   actions: read
@@ -31,6 +37,22 @@ jobs:
           node -e "const fs=require('fs');const d=fs.readFileSync('driver-updates.js','utf8');const i=fs.readFileSync('data-integrity.js','utf8');const a=d.match(/const DRIVER_AUTHORITY\\s*=\\s*'([^']+)'/);const b=i.match(/const authorityOk = data\\.driverUpdates\\?\\.authority === '([^']+)'/);if(!a||!b||a[1]!==b[1]){console.error('Driver authority mismatch between publisher and monitoring');process.exit(1)}"
       - name: Run isolated regression and integration tests
         run: node --test tests/*.test.cjs
+
+      # Opt-in on main; automatic only on the separate trusted PR for validation.
+      # No Discord/Staff/private-store secret and no artifact downloads.
+      - name: Kings Capacity read-only GitHub metadata preview
+        if: >-
+          (github.event_name == 'workflow_dispatch' && inputs.capacity_preview == true) ||
+          (github.event_name == 'pull_request' &&
+           github.event.pull_request.head.repo.full_name == github.repository &&
+           github.event.pull_request.base.ref == 'main' &&
+           github.event.pull_request.head.ref == 'feature/event-capacity-readonly-main-preview-2026-11')
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          GITHUB_INPUT_CAPACITY_PREVIEW: ${{ inputs.capacity_preview }}
+          KINGS_CAPACITY_READONLY_PREVIEW: 'true'
+        run: node event-capacity-readonly-preview.js
 
       # Restricted public-safe real GitHub metadata diagnostic for PR #143.
       # No Discord bot token, no staff archive or private ledger access.
