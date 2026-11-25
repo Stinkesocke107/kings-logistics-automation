@@ -134,3 +134,15 @@ When a restricted synthetic private pilot is actually ready and needs account se
 - [ ] Still required: authenticated original Convoy Center Event evidence, genuinely independently stored owner highwater and encrypted backups, real restricted GitHub credentials, Discord Staff permissions, privacy and two-person decision checks, approved synthetic private pilot, and explicit CEO go-live decision.
 
 **Zero real Event data imported, zero Tokens/Secrets/owner private keys created, zero private repo workers activated, zero automated Event approvals, and no changes to public `main` or the live Convoy Checker. PR #143 remains DRAFT. The exact-current-HEAD CI result must be independently checked before calling this batch regression-green.**
+
+## Historical allocation holds and full synthetic safety composition — 25 November 2026
+
+**DRAFT-only engineering; CEO immediate task remains NONE.**
+
+- [x] Hardened the signed-vs-original-source historical review: a previously signed in-window booking rescheduled outside the 24-month window must remain a human review gap; an archived original source requires separate evidence review; unsupported `Scheduled` ↔ `Rescheduled` equivalence is no longer accepted; future-issued owner reviews are rejected at earlier inspection times.
+- [x] Implemented `event-capacity-historical-reservation-holds.js` with cryptographically verified **provisional historical Partner/External holds** for previously accepted or authorized-rescheduled UTC dates. `cancel`, `complete` and `reschedule` never automatically release a previously approved date. Kings-hosted convoys do not use partner/external quotas. A count of zero is **NOT** evidence of available capacity.
+- [x] Extended `event-capacity-private-safety-overview.js` with an **optional redacted historical-holds view** showing private month, count and limit warnings, without Event IDs or signatures and without granting authority.
+- [x] Added end-to-end **synthetic and fully offline** software test composition spanning five mock scoped GitHub App credentials, signed history, original-source gap audit, provisional old/new dates, 90-day backup gap report, AES-GCM segmented synthetic restore and CEO safety summary.
+- [x] Added focused negative tests and production isolation check. Runbook: `docs/KINGS-EVENT-CAPACITY-HISTORICAL-EVIDENCE-AND-RECOVERY-GAPS-2026-11-25.md`.
+
+**Still blocked:** authentic 24-month Event source coverage and legacy/deleted material, independently retained latest owner-signed highwater, provider-verified private runtime permissions, real backup storage and isolated host recovery, Staff role/practical approval checks, privacy review and separately authorized synthetic pilot followed by CEO production approval. This batch creates **NO** production data, private Github credentials, secrets, workers, Discord tickets or automatic event acceptance.
