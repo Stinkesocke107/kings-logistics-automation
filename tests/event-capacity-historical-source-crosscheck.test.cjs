@@ -130,3 +130,15 @@ test('Duplicate current source Event IDs are refused instead of suppressing them
   duplicate.threadId='700000000000000011';
   assert.throws(()=>x.scan([event(),duplicate]));
 });
+
+test('A current Completed status without a signed historical complete transition remains review-only',()=>{
+  const x=setup();x.add();
+  const unverified=x.scan([event('Completed')]);
+  assert.ok(reasons(unverified).includes('current-source-completed-without-signed-completion'));
+  assert.equal(unverified.freeSlotsCertified,false);
+  assert.equal(unverified.staffDecisionsCommitted,false);
+  x.add('event:10','complete',UTC,'2027-03-20T11:38:00.000Z');
+  const signed=x.scan([event('Completed')]);
+  assert.equal(reasons(signed).includes('current-source-completed-without-signed-completion'),false);
+  assert.equal(signed.historicalCoverageCertified,false);
+});
