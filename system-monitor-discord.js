@@ -99,6 +99,31 @@ function freshnessLine(health, file, label) {
   return `${yesNoIcon(Boolean(item.ok))} **${label}:** ${item.ok ? 'Healthy' : 'Needs review'}`;
 }
 
+// A provider outage and an operational fallback are distinct facts.
+// The overall critical API/data findings remain unchanged and must still
+// block full-live production readiness until complete coverage is restored.
+function liveMapAvailabilityLine(health) {
+  const services = health.data?.apiHealth?.services;
+  const service = Array.isArray(services)
+    ? services.find(item => item?.service === 'truckersmp-map-live' ||
+        String(item?.file || '').endsWith('live-systems--truckersmp-map-live.json'))
+    : null;
+  const liveWorkflow = workflow(health, 'live-tracker.yml');
+  const freshness = Array.isArray(health.data?.freshness) ? health.data.freshness : [];
+  const trackerSnapshot = freshness.find(item => item.file === 'data/live-tracker-snapshot.json');
+
+  if (service?.status === 'down' || service?.status === 'degraded') {
+    if (liveWorkflow?.ok === true) {
+      return '🟡 🗺️ **Live player map:** Provider unavailable; last Live Systems workflow delivered the official-data fallback. Kings online: **Unavailable (not 0)**.';
+    }
+    return '🔴 🗺️ **Live player map:** Provider unavailable; fallback delivery not verified.';
+  }
+  if (service?.status === 'healthy' && liveWorkflow?.ok === true && trackerSnapshot?.ok === true) {
+    return '🟢 🗺️ **Live player map:** Verified live source and Tracker snapshot available.';
+  }
+  return '⚪ 🗺️ **Live player map:** Source or delivery not verified.';
+}
+
 function ratioLine(icon, label, healthy, total) {
   const good = Number(healthy || 0);
   const count = Number(total || 0);
@@ -155,6 +180,7 @@ function buildMessage(health) {
     '',
     '**All Kings Automation Areas**',
     workflowGroupLine(health, 'Live Data', 'Live Tracker & Statistics'),
+    liveMapAvailabilityLine(health),
     workflowGroupLine(health, 'Drivers', 'Drivers, Probation & Awards'),
     workflowGroupLine(health, 'HR & Staff', 'HR & Staff Systems'),
     workflowGroupLine(health, 'Convoys', 'Convoy Center & Events'),
