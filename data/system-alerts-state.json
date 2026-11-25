@@ -105,14 +105,28 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-25T10:31:15.729Z"
+    },
+    "workflow-schedule-missing:driver-register-onboarding.yml": {
+      "severity": "warning",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period.",
+      "details": {
+        "status": "missing",
+        "expectedAt": "2026-11-25T07:17:00.000Z",
+        "actualAt": null,
+        "delayMinutes": null,
+        "graceMinutes": 120,
+        "latestScheduledAt": "2026-11-24T18:51:46.000Z"
+      },
+      "firstAlertedAt": "2026-11-25T12:47:18.446Z"
     }
   },
   "pending": {
-    "workflow-schedule-missing:driver-register-onboarding.yml": {
+    "workflow-failed:system-monitoring.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-25T10:31:15.729Z",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period."
+      "firstSeenAt": "2026-11-25T12:47:18.446Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
     }
   }
 }
