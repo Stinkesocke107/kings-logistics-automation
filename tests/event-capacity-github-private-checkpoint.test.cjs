@@ -6,6 +6,8 @@ const {createPrivateGitHubCheckpoint}
   =require('../event-capacity-github-private-checkpoint');
 const {createPrivateGitHubLedgerVault}
   =require('../event-capacity-github-private-vault');
+const {createGithubOnlyPrivateDecisionStorage}
+  =require('../event-capacity-github-private-storage');
 const SCOPE={guildId:'1114967437788577792',
   forumId:'1550619824005062697'};
 const OTHER={guildId:'222222222222222222',
@@ -284,4 +286,29 @@ test('Simultaneous rollback of both repos is NOT detected; require external owne
   // signed state. A signed checkpoint alone does not make Git monotonic.
   f.repos[WITNESS].file=older;
   assert.deepEqual(await w.load({scope:SCOPE}),{revision:0,digest:D1});
+});
+
+test('Composition factory enforces distinct repositories, tokens and cryptographic keys',async()=>{
+  const f=suite();
+  const options={
+    dataRepository:DATA,checkpointRepository:WITNESS,
+    dataToken:DTOKEN,checkpointToken:WTOKEN,
+    ledgerSecret:LKEY,checkpointSecret:WKEY,
+    scope:SCOPE,transport:f.transport
+  };
+  for(const invalid of [
+    {checkpointRepository:DATA},
+    {checkpointRepository:DATA.toLowerCase()},
+    {checkpointToken:DTOKEN},
+    {checkpointSecret:LKEY}
+  ])assert.throws(()=>createGithubOnlyPrivateDecisionStorage({
+    ...options,...invalid
+  }));
+  const pair=createGithubOnlyPrivateDecisionStorage(options);
+  const saved=await pair.vault.initializeEmpty({at:AT});
+  assert.deepEqual(await pair.checkpoint.load({scope:SCOPE}),
+    saved.checkpoint);
+  assert.equal((await pair.vault.read()).ledger.revision,0);
+  assert.equal(f.repos[DATA].commits,1);
+  assert.equal(f.repos[WITNESS].commits,1);
 });
