@@ -61,6 +61,10 @@ test('one failed map scan keeps the fallback running but skips every map-depende
   assert.match(persistence,/if: always\(\)/);
   assert.match(persistence,/data\/api-health/);
   assert.match(persistence,/data\/live-tracker-snapshot\.json/);
+  assert.match(persistence,/data\/live-systems-delivery\.json/);
+  const full=step('Record full Live Systems delivery evidence');
+  assert.match(full,/steps\.live_tracker\.outcome == 'success'/);
+  assert.match(full,/recordVerifiedLive/);
 });
 
 test('missing stored tracker message is an honest degraded-mode failure, not a green run',async()=>{
@@ -93,6 +97,12 @@ test('fallback without any map or official API still displays unavailable (never
   }});
   await s.run('main()');
   assert.equal(s.process.exitCode,0);
+  const proof=JSON.parse(s.files.get('data/live-systems-delivery.json'));
+  assert.equal(proof.mode,'fallback-delivered');
+  assert.equal(proof.source,'status-only');
+  assert.equal(proof.allDisplaysVerified,true);
+  assert.equal(proof.displaysVerified.length,3);
+  assert.equal(proof.sourceSnapshotAt,snapshot.updatedAt);
   assert.equal(sent.length,3);
   assert.deepEqual(sent[0].allowed_mentions,{parse:[]});
   assert.match(sent[0].embeds[0].description,/temporarily unavailable/);
@@ -115,6 +125,10 @@ test('missing Statistics target is not silently treated as a working live fallba
   await s.run('main()');
   assert.equal(s.process.exitCode,1);
   assert.equal(patches.length,2,'Other available displays are still made safe');
+  const proof=JSON.parse(s.files.get('data/live-systems-delivery.json'));
+  assert.equal(proof.mode,'fallback-incomplete');
+  assert.equal(proof.allDisplaysVerified,false);
+  assert.equal(proof.displaysVerified.length,2);
   assert.ok(!patches.some(url=>url.includes('statistics-token')));
   assert.ok(s.calls.every(call=>['GET','PATCH'].includes(call.options.method)));
   assert.equal(JSON.parse(s.files.get('data/live-tracker-snapshot.json')).updatedAt,snapshot.updatedAt);
