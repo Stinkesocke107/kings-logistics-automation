@@ -15,7 +15,7 @@ function observeOperations({eventSourceObservation=null,
     staffDecisionsVerified:false,calendarAvailabilityCertified:false,
     invitationsSent:0,bookingsCreated:0,staffAssignmentsChanged:0,
     eventSource:e?'RECONCILED':'UNAVAILABLE',
-    invitationSource:i?'RECONCILED':'UNAVAILABLE',
+    invitationSource:i?(i.tagSchemaVerified?'RECONCILED':'INVITATIONS_READABLE_TAGS_UNVERIFIED'):'UNAVAILABLE',
     review:Object.freeze({
       eventTypeUnclassified:e?e.futureUnclassified:null,
       calendarDaysNeedingReview:e?e.futureDaysRequiringReview:null,
@@ -42,8 +42,10 @@ function renderOperationsReview(status){
     ?'Convoy source UNAVAILABLE — consult current Convoy Center; do not infer an empty calendar.'
     :'Current Convoy Center/Calendar source is reconciled for advisory review, not approvals.';
   const invitationWarning=status.invitationSource==='UNAVAILABLE'
-    ?'Invitation source UNAVAILABLE — check private Tracker forum, access and official tags.'
-    :'Private Invitation Tracker source is readable; response labels are NOT independently approved.';
+    ?'Invitation source UNAVAILABLE — check private Tracker forum and source access.'
+    :status.invitationSource==='INVITATIONS_READABLE_TAGS_UNVERIFIED'
+      ?'Invitation replies readable; Forum lifecycle tags UNVERIFIED — Event Coordinators must review actual tag naming manually.'
+      :'Private Invitation Tracker source is readable; response labels are NOT independently approved.';
   const text=[
     'Event Coordination / Event Coordination Lead — manual review, no auto approval.',
     sourceWarning,

@@ -57,7 +57,12 @@ function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowM
     if(typeof tag?.id!=='string'||typeof tag?.name!=='string')refuse();
     if(MODES.includes(tag.name))knownTags.set(tag.id,tag.name);
   }
-  if(new Set(knownTags.values()).size!==3)refuse('FORUM_TAGS_MISSING');
+  // The existing forum may use different tags. Continue a complete GET-only
+  // invitation inventory but NEVER infer status from unknown tag labels.
+  // Missing/duplicate policy tags make the status lifecycle unverified,
+  // not all VTC invitation replies unreadable.
+  const tagSchemaVerified=MODES.every(mode=>
+    [...knownTags.values()].filter(name=>name===mode).length===1);
   const centerIds=centerReport?.mode==='READ_ONLY'&&
     Array.isArray(centerReport.threads)
     ?new Set(centerReport.threads.filter(x=>x&&!x.error&&!x.ignored&&
@@ -116,6 +121,7 @@ function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowM
   }
   const result=Object.freeze({
     version:1,readOnly:true,sourceForumVerified:true,
+    tagSchemaVerified,
     invitationDecisionsVerified:false,staffApprovalsVerified:false,
     bookingsCreated:0,observedAt:new Date(nowMs).toISOString(),
     ...count
@@ -128,6 +134,7 @@ function trustedInvitationObservation(x,nowMs=Date.now()){
     !Number.isSafeInteger(nowMs)||nowMs<=0||
     x.version!==1||x.readOnly!==true||
     x.sourceForumVerified!==true||
+    typeof x.tagSchemaVerified!=='boolean'||
     x.invitationDecisionsVerified!==false||
     x.staffApprovalsVerified!==false||x.bookingsCreated!==0||
     typeof x.observedAt!=='string'||!/Z$/.test(x.observedAt))return null;
@@ -142,7 +149,7 @@ function trustedInvitationObservation(x,nowMs=Date.now()){
     x.linkedToCenter>x.eventLinksRecorded)return null;
   // Disallow accidental unencrypted personal/event fields in this value.
   if(Object.keys(x).some(k=>![
-    'version','readOnly','sourceForumVerified','invitationDecisionsVerified',
+    'version','readOnly','sourceForumVerified','tagSchemaVerified','invitationDecisionsVerified',
     'staffApprovalsVerified','bookingsCreated','observedAt',...FIELD_NAMES
   ].includes(k)))return null;
   return x;

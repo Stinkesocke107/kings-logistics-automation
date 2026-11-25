@@ -70,6 +70,7 @@ test('counts all invited VTCs, including declined ones, but never duplicates or 
   assert.equal(x.recordedDeclined,1);
   assert.equal(x.recordedPending,1);
   assert.equal(x.replyNotRecorded,0);
+  assert.equal(x.tagSchemaVerified,true);
   assert.equal(x.invitationDecisionsVerified,false);
   assert.equal(x.bookingsCreated,0);
   assert.equal(trustedInvitationObservation(x,NOW),x);
@@ -77,6 +78,31 @@ test('counts all invited VTCs, including declined ones, but never duplicates or 
   for(const privateValue of ['First VTC','Other VTC','Third VTC','123456789012345678',
     '123456-event','777777777777777777',GUILD,FORUM,'10101','20202','30303'])
     assert.equal(output.includes(privateValue),false,privateValue);
+});
+test('mismatched private Forum tag names preserve invitation replies without inventing statuses',()=>{
+  const f=fixture();
+  f.forum.available_tags=[
+    {id:tags[0],name:'Event Invites - WIP'},
+    {id:tags[1],name:'Finished Invitations'},
+    {id:tags[2],name:'Old Convoy'}
+  ];
+  const x=summarizeTracker(f);
+  assert.equal(x.sourceForumVerified,true);
+  assert.equal(x.tagSchemaVerified,false);
+  assert.equal(x.convoyThreads,3);
+  assert.equal(x.invitedVtcs,3);
+  assert.equal(x.recordedAccepted,1);
+  assert.equal(x.recordedDeclined,1);
+  assert.equal(x.recordedPending,1);
+  assert.equal(x.tagIssues,3);
+  assert.equal(x.ongoingThreads,0);
+  assert.equal(x.doneThreads,0);
+  assert.equal(x.completedThreads,0);
+  assert.equal(x.invitationDecisionsVerified,false);
+  assert.equal(x.bookingsCreated,0);
+  assert.equal(trustedInvitationObservation(x,NOW),x);
+  assert.equal(trustedInvitationObservation({...x,tagSchemaVerified:'yes'},NOW),null);
+  assert.doesNotMatch(JSON.stringify(x),/WIP|Finished Invitations|Old Convoy/);
 });
 test('invalid tags, incomplete source, stale claims and unsupported fields fail closed',()=>{
   const f=fixture();
@@ -171,6 +197,33 @@ test('existing encrypted Event state feeds existing Event and Management dashboa
   const stale=s.run('buildEvent({eventReports:readPrivateEventReports()},'+(NOW+37*3600000)+')');
   assert.match(JSON.stringify(stale),/private Invitation Tracker source missing, stale/);
   assert.doesNotMatch(JSON.stringify(stale),/invites \*\*3\*\*/);
+});
+test('Leadership keeps verified reply inventory but withholds unresolved Forum lifecycle status totals',()=>{
+  const {encryptEventState}=require('../event-leadership-state');
+  const {sandbox}=require('./sandbox.cjs');
+  const f=fixture();
+  f.forum.available_tags=[{id:tags[0],name:'Different Forum Tag'}];
+  const observation=summarizeTracker(f);
+  assert.equal(observation.tagSchemaVerified,false);
+  const state={
+    version:1,createdAt:new Date(NOW).toISOString(),
+    updatedAt:new Date(NOW).toISOString(),lastSnapshot:null,
+    changeLog:[],publishedDailyKeys:[],publishedWeeklyKeys:[],
+    publishedMonthlyKeys:[],weeklyReports:[],monthlyReports:[],
+    invitationSourceObservation:observation
+  };
+  const sealed=encryptEventState(state,'x'.repeat(32));
+  const s=sandbox('leadership-dashboard.js',{files:{
+    'data/event-leadership-report-state.json':JSON.stringify(sealed)
+  }});
+  const event=s.run('buildEvent({eventReports:readPrivateEventReports()},'+NOW+')');
+  const invitation=event.fields.find(x=>x.name.includes('Invitation Tracker'));
+  assert.ok(invitation.value.includes('documented unique VTC invites **3**'));
+  assert.match(invitation.value,/Forum lifecycle tag names UNVERIFIED/);
+  assert.ok(!invitation.value.includes('ongoing **0**'));
+  const operations=event.fields.find(x=>x.name.includes('Event Operations'));
+  assert.match(operations.value,/Forum lifecycle tags UNVERIFIED/);
+  assert.doesNotMatch(JSON.stringify(event),/First VTC|Different Forum Tag/);
 });
 test('only existing GET-only source and encrypted reporting are wired; no invitation sender or booking engine',()=>{
   const fs=require('node:fs');
