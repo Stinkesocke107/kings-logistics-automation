@@ -106,3 +106,17 @@ A standalone `event-capacity-historical-github-backup-vault.js` and nine synthet
 
 Because this adapter was committed *after* the successful 1,111-test run, **a new same-HEAD complete CI pass is required** before treating the latest draft as regression-green. No user manual `capacity_preview`, Discord write, private repo creation, merge or feature activation has occurred.
 
+
+## Larger protected historical-read integration development (25 November 2026, DRAFT only)
+
+Three further draft-side components have been added, with a signed-completion evidence gap closed:
+
+1. `event-capacity-historical-authenticated-crosscheck.js` composes fixed-source GitHub scheduled Convoy Checker verification, the caller-provided owner-pinned private decision-ledger reader, and the independently owner-signed private historical encrypted archive reader. It double-reads all three and aborts on source/report drift, ledger checkpoint changes, or changed historical archive index and signed records. Test-injectable pure composition **does not claim source origin authentication**. The concrete gateway only labels its fixed trusted source and private archive paths after successful verification; it still cannot attest complete history or independent **latest** owner highwater.
+2. `event-capacity-historical-owner-receipt-audit.js` detects missing, out-of-order, forged and stale Ed25519 offline owner-signed historical archive receipts; an externally **supplied** checkpoint is only a structural match, NOT proof of separate real custody or latest freshness.
+3. `event-capacity-historical-review-workboard-bundle.js` produces already-deduplicated read-only human-review task previews and discards the result if the private Workboard changes between reads, but no actor/permission is authenticated and no task is created.
+4. A current Convoy Center `Completed` status **without a historical signed `complete` transition** is now explicitly flagged for review; this neither proves actual attendance nor releases an event slot.
+
+New tests check double-read race rejection, poisoned source/archive/ledger, receipt gaps and forged signatures, Workboard changed revisions or changed same-revision content, and no automatic production imports. Detailed documentation: `docs/KINGS-EVENT-CAPACITY-TRIPLE-READ-HISTORY-WORKBOARD-2026-11-25.md`.
+
+**No merge, production workflow/Discord/real private repo change, real key provisioning or manual `capacity_preview` was performed.** The latest CI must finish green on the *exact* latest PR head before this integration can be considered regression-tested. Real authentic complete historical evidence, independent monotonic external owner highwater, private data and backup governance, 24m/90d operations, actual effective Discord permissions, and CEO launch authorization remain unsatisfied.
+
