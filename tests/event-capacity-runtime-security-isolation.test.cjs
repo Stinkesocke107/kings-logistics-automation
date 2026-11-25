@@ -14,7 +14,8 @@ const newModules=[
   'event-capacity-private-issued-grant-metadata-audit',
   'event-capacity-historical-evidence-gap-audit',
   'event-capacity-backup-90day-recovery-audit',
-  'event-capacity-private-safety-overview'
+  'event-capacity-private-safety-overview',
+  'event-capacity-historical-reservation-holds'
 ];
 test('New credential policy and synthetic restoration cannot activate live Convoy Checker',()=>{
   const live=fs.readFileSync(path.join(root,
@@ -107,4 +108,14 @@ test('Private CEO safety overview refuses automatic Event slot or go-live author
   assert.match(src,/explicitCEOProductionApprovalVerified:false/);
   assert.match(src,/originalPrivateEventSourcesAuthenticated:false/);
   assert.match(src,/operationsPerformed:0/);
+});
+
+test('Conservative historic holds never release rescheduled, cancelled or completed slots without human review',()=>{
+  const src=fs.readFileSync(path.join(root,
+    'event-capacity-historical-reservation-holds.js'),'utf8');
+  assert.match(src,/verifyHistoricalJournal/);
+  assert.match(src,/cancellationsNeverAutoRelease:true/);
+  assert.match(src,/previousDatesNeverAutoReleaseAfterReschedule:true/);
+  assert.match(src,/staffDecisionsCommitted:false/);
+  assert.match(src,/freeSlotsCertified:false/);
 });
