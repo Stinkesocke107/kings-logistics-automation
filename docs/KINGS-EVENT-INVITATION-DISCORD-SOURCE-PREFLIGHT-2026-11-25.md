@@ -18,7 +18,8 @@ Configure in existing source repository Actions settings only after permission a
 1. Actions Secret KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID — exact verified PRIVATE source channel ID.
 2. Actions Variable KINGS_EVENT_INVITATION_STAFF_ROLE_IDS — comma-separated exact authorized Kings Event Staff role IDs.
 3. Actions Variable KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS — comma-separated independently verified authorized Administrator role IDs. Unapproved Admin roles block the preflight.
-4. Existing Actions Secret DISCORD_BOT_TOKEN is used for GET requests. Do not paste credentials into chat. Prefer a separate read-only token/bot identity after scope review, because existing bot tokens can grant more than read access.
+4. Actions Variable KINGS_EVENT_INVITATION_EXTERNAL_ROLE_IDS — separate comma-separated explicitly authorized external invite-tracker contributor role IDs, if used. Do NOT add external members to internal STAFF_ROLE_IDS. An empty/missing value authorizes no external roles and the read refuses any unexpected external VIEW override.
+5. Existing Actions Secret DISCORD_BOT_TOKEN is used for GET requests. Do not paste credentials into chat. Prefer a separate read-only token/bot identity after scope review, because existing bot tokens can grant more than read access.
 
 Source channel must be a private TEXT channel (type 0) or the already existing private invite-tracker FORUM (type 15), in Guild 1114967437788577792, explicitly deny @everyone VIEW, and allow the current authorized Staff and Bot VIEW/READ. Historical Staff role membership is NOT proven by current membership.
 
@@ -57,3 +58,11 @@ The private in-memory report can be passed to the existing Event Invitation and 
 Remaining real source, organizer-response, historical, private storage/backup and authorization release gates remain open. Software-only CI success is not go-live authorization.
 
 The existing forum mode deliberately returns only a private, anonymized unverified source review. It has no trustworthy per-VTC recipient IDs, accepted/rejected organizer evidence or canonical departure dates sufficient to populate the structured lifecycle/calendar. Those mappings must be independently validated with Convoy Center and human Event Coordination before any automatic calendar projection. A code-only forum scan is a discovery tool, not the completed outbound source-of-truth.
+
+## External Event invitation contributors (additional code-only review)
+
+The Kings CEO confirmed that the existing external **[EXT] Event** role may also enter invitation records in the existing private invite-tracker forum. Keep this category distinct from Event Coordinator, Event Coordination Lead, Event Director, Event Management and Head Management Event. Configure its verified role ID only in the separate GitHub Actions Variable **KINGS_EVENT_INVITATION_EXTERNAL_ROLE_IDS**; never commit the real private channel ID or any bot token into this public repository.
+
+The forum reader checks the author's current role membership and effective VIEW plus READ_MESSAGE_HISTORY permissions. It returns only anonymous candidate counts, including a separate count of currently authorized external contributor authors. No original organizer reply, historical membership, identity proof, capacity reservation, invitation delivery or accepted Kings Event is inferred.
+
+The strict structured text record reader continues to require **internal Event Staff authors**. External roles may see the source channel when explicitly allowlisted, but cannot create trusted structured lifecycle records or authorize status changes, and external Staff privileges are never assumed. An overlapping internal/external role list, unexpected Administrator roles or missing permission checks fails closed. No live Discord API operation was performed by this development change; owner must still independently verify all source privacy and global Administrator exceptions, before enabling any existing manual GET-only job.

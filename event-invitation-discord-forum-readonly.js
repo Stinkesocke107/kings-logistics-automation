@@ -18,7 +18,7 @@ function time(x){
 }
 function has(value,bit){return (value&bit)===bit;}
 async function scanKingsInvitationForumContent({
-  get,config,asOfUtc,channel,roles,staffIds,authorization
+  get,config,asOfUtc,channel,roles,staffIds,externalIds,authorization
 }={}){
   try{
     if(typeof get!=='function'||!plain(config)||
@@ -26,7 +26,7 @@ async function scanKingsInvitationForumContent({
       !plain(channel)||channel.id!==config.channelId||
       channel.guild_id!==GUILD||channel.type!==15||
       !Array.isArray(roles)||!(staffIds instanceof Set)||
-      !authorization?.byId)fail();
+      !(externalIds instanceof Set)||!authorization?.byId)fail();
     const at=time(asOfUtc),threads=[],unique=new Set();
     function addThread(row){
       if(!plain(row)||!ID.test(row.id)||row.parent_id!==config.channelId||
@@ -69,7 +69,7 @@ async function scanKingsInvitationForumContent({
     }
     if(!archivesDone)fail();
     let candidateEntries=0,missingEventLinks=0,ambiguousEventLinks=0;
-    const authors=new Set();
+    const authors=new Set(),externalAuthors=new Set();
     for(const thread of threads){
       const found=new Set();
       const texts=[];
@@ -124,11 +124,15 @@ async function scanKingsInvitationForumContent({
         new Set(member.roles).size!==member.roles.length||
         !member.roles.every(x=>typeof x==='string'&&ID.test(x)&&
           authorization.byId.has(x))||
-        !member.roles.some(x=>staffIds.has(x)))fail();
+        !member.roles.some(x=>staffIds.has(x)||externalIds.has(x)))fail();
       const p=effectiveChannelPermissions(channel,GUILD,id,member.roles,
         basePermissions(GUILD,member.roles,roles));
       if(!has(p,PERMISSIONS.VIEW_CHANNEL)||
         !has(p,PERMISSIONS.READ_MESSAGE_HISTORY))fail();
+      // External role supplies untrusted candidate forum entries, NOT an
+      // internal Staff status, verified invitation or approval.
+      if(!member.roles.some(x=>staffIds.has(x))&&
+        member.roles.some(x=>externalIds.has(x)))externalAuthors.add(id);
     }
     return Object.freeze({
       version:1,visibility:'PRIVATE_ONLY',readOnly:true,
@@ -139,6 +143,7 @@ async function scanKingsInvitationForumContent({
       threadsWithoutSingleEventLink:missingEventLinks,
       threadsWithAmbiguousEventLinks:ambiguousEventLinks,
       currentlyAuthorizedEntryAuthors:authors.size,
+      externalContributorEntryAuthorClaims:externalAuthors.size,
       structuredInvitationLifecycleImported:0,
       historicalEventCoverageVerified:false,
       organizerRepliesIndependentlyVerified:false,

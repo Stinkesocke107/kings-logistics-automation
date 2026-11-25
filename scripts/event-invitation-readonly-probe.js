@@ -15,6 +15,12 @@ function idCsv(raw){
     new Set(ids).size!==ids.length)fail();
   return ids;
 }
+function optionalExternalIds(raw){
+  // Empty means no external role is authorized by this runtime. If a real
+  // channel grants VIEW to [EXT] Event, the scan safely refuses until this
+  // separate variable is explicitly configured.
+  return raw===undefined||raw===''?[]:idCsv(raw);
+}
 function configFromEnvironment(env){
   if(env.GITHUB_EVENT_NAME!=='workflow_dispatch'||
     env.GITHUB_REF!=='refs/heads/main'||
@@ -24,10 +30,16 @@ function configFromEnvironment(env){
     env.DISCORD_BOT_TOKEN.length<30||
     env.DISCORD_BOT_TOKEN.length>512||
     !SNOW.test(env.KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID||''))fail();
+  const staffRoleIds=idCsv(env.KINGS_EVENT_INVITATION_STAFF_ROLE_IDS);
+  const authorizedAdminRoleIds=idCsv(env.KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS);
+  const externalContributorRoleIds=optionalExternalIds(
+    env.KINGS_EVENT_INVITATION_EXTERNAL_ROLE_IDS);
+  if(staffRoleIds.some(x=>authorizedAdminRoleIds.includes(x)||
+      externalContributorRoleIds.includes(x))||
+    externalContributorRoleIds.some(x=>authorizedAdminRoleIds.includes(x)))fail();
   return {
     guildId:GUILD,channelId:env.KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID,
-    staffRoleIds:idCsv(env.KINGS_EVENT_INVITATION_STAFF_ROLE_IDS),
-    authorizedAdminRoleIds:idCsv(env.KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS)
+    staffRoleIds,authorizedAdminRoleIds,externalContributorRoleIds
   };
 }
 // One allowlisted endpoint family; never accept an arbitrary URL, host, verb,

@@ -42,7 +42,7 @@ function bits(x){
   return BigInt(x);
 }
 function has(v,bit){return (v&bit)===bit;}
-function channelAuthorization({channel,roles,bot,me,guildId,channelId,staffIds,adminIds}){
+function channelAuthorization({channel,roles,bot,me,guildId,channelId,staffIds,adminIds,externalIds}){
   if(!plain(channel)||channel.id!==channelId||channel.guild_id!==guildId||
     ![0,15].includes(channel.type)||!Array.isArray(channel.permission_overwrites)||
     channel.permission_overwrites.length>100||!Array.isArray(roles)||
@@ -54,7 +54,7 @@ function channelAuthorization({channel,roles,bot,me,guildId,channelId,staffIds,a
     bits(role.permissions);
     byId.set(role.id,role);
   }
-  if(!byId.has(guildId)||[...staffIds,...adminIds].some(x=>!byId.has(x)))fail();
+  if(!byId.has(guildId)||[...staffIds,...adminIds,...externalIds].some(x=>!byId.has(x)))fail();
   const botIds=ids(bot.roles,1,100);
   if([...botIds].some(x=>!byId.has(x)))fail();
   const seen=new Set();
@@ -69,7 +69,7 @@ function channelAuthorization({channel,roles,bot,me,guildId,channelId,staffIds,a
       everybodyDenied=true;
     }
     if(has(allow,PERMISSIONS.VIEW_CHANNEL)&&!staffIds.has(o.id)&&
-      !adminIds.has(o.id)&&!botIds.has(o.id)&&!(o.type===1&&o.id===me.id))fail();
+      !externalIds.has(o.id)&&!adminIds.has(o.id)&&!botIds.has(o.id)&&!(o.type===1&&o.id===me.id))fail();
     if(o.type===1&&o.id!==me.id)fail();
   }
   if(!everybodyDenied)fail();
@@ -123,7 +123,13 @@ async function scanKingsInvitationDiscordSource({client,config,asOfUtc}={}){
     const now=utc(asOfUtc);
     const staffIds=ids(config.staffRoleIds,1,20);
     const adminIds=ids(config.authorizedAdminRoleIds,1,20);
-    if([...staffIds].some(x=>adminIds.has(x)))fail();
+    // Explicitly separate external invitation contributors from internal Staff.
+    // External authors may contribute FORUM source claims only, never
+    // structured status records, accepted bookings or verified approvals.
+    const externalIds=ids(config.externalContributorRoleIds??[],0,20);
+    if([...staffIds].some(x=>adminIds.has(x)||externalIds.has(x))||
+      [...externalIds].some(x=>adminIds.has(x))||
+      externalIds.has(config.guildId))fail();
     const get=async path=>{
       if(typeof path!=='string'||path.length>250||!path.startsWith('/'))fail();
       let r;
@@ -139,13 +145,13 @@ async function scanKingsInvitationDiscordSource({client,config,asOfUtc}={}){
     const bot=await get('/guilds/'+config.guildId+'/members/'+me.id);
     const authorization=channelAuthorization({
       channel,roles,bot,me,guildId:config.guildId,
-      channelId:config.channelId,staffIds,adminIds
+      channelId:config.channelId,staffIds,adminIds,externalIds
     });
     if(channel.type===15){
       const {scanKingsInvitationForumContent}
         =require('./event-invitation-discord-forum-readonly');
       return await scanKingsInvitationForumContent({
-        get,config,asOfUtc,channel,roles,staffIds,authorization
+        get,config,asOfUtc,channel,roles,staffIds,externalIds,authorization
       });
     }
     const messages=[],seen=new Set();
@@ -178,7 +184,7 @@ async function scanKingsInvitationDiscordSource({client,config,asOfUtc}={}){
         member.user.bot===true||!Array.isArray(member.roles))fail();
       const authorRoles=ids(member.roles,0,100);
       if([...authorRoles].some(x=>!authorization.byId.has(x))||
-        ![...authorRoles].some(x=>staffIds.has(x)))fail();
+        ![...authorRoles].some(x=>staffIds.has(x)))fail(); // structured claims: internal Staff only
       const p=effectiveChannelPermissions(channel,config.guildId,author,
         [...authorRoles],basePermissions(config.guildId,[...authorRoles],roles));
       if(!has(p,PERMISSIONS.VIEW_CHANNEL)||

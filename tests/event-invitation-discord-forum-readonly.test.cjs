@@ -9,7 +9,7 @@ const G='1114967437788577792',F='990000000000000001',
   BOT='990000000000000002',HUMAN='990000000000000003',
   STAFF='990000000000000004',ADMIN='990000000000000005',
   BOTROLE='990000000000000006',T='990000000000000101',
-  OTHER='990000000000000199',M1='990000000000000201',
+  OTHER='990000000000000199',EXT='990000000000000177',M1='990000000000000201',
   M2='990000000000000202',NOW='2026-11-25T21:00:00.000Z';
 const P=1024n,H=65536n;
 const ow=(id,type,allow=0n,deny=0n)=>({
@@ -20,7 +20,8 @@ function fixture(){
   const raw={
     me:{id:BOT,bot:true},
     roles:[{id:G,permissions:'0'},{id:STAFF,permissions:'0'},
-      {id:ADMIN,permissions:'8'},{id:BOTROLE,permissions:'0'}],
+      {id:ADMIN,permissions:'8'},{id:BOTROLE,permissions:'0'},
+      {id:EXT,permissions:'0'}],
     channel:{id:F,guild_id:G,type:15,permission_overwrites:[
       ow(G,0,0n,P),ow(STAFF,0,P|H),ow(BOTROLE,0,P|H)]},
     bot:{user:{id:BOT,bot:true},roles:[BOTROLE]},
@@ -134,4 +135,59 @@ test('GET-only runtime registers only authenticated forum-child thread IDs and r
   await client.get('/channels/'+T+'/messages?limit=100');
   await assert.rejects(()=>client.get('/channels/'+OTHER+'/messages?limit=100'));
   await assert.rejects(()=>client.get('/channels/'+T+'/messages?limit=100&after='+M1));
+});
+
+test('External invitation role is a separate forum contributor, NEVER internal Event Staff',async()=>{
+  const f=fixture();
+  f.config.externalContributorRoleIds=[EXT];
+  f.raw.channel.permission_overwrites.push(ow(EXT,0,P|H));
+  f.raw.author.roles=[EXT];
+  const r=await scan(f);
+  assert.equal(r.staffInvitationEntryClaims,1);
+  assert.equal(r.externalContributorEntryAuthorClaims,1);
+  assert.equal(r.currentlyAuthorizedEntryAuthors,1);
+  assert.equal(r.structuredInvitationLifecycleImported,0);
+  assert.equal(r.organizerRepliesIndependentlyVerified,false);
+  assert.equal(r.eventBookingsCreated,0);
+  assert.equal(r.staffApprovalsCommitted,0);
+  assert.equal(r.safeToActivate,false);
+  assert.equal(JSON.stringify(r).includes(EXT),false);
+});
+test('External view overwrite without separate explicit allowed role fails closed',async()=>{
+  const f=fixture();
+  f.raw.channel.permission_overwrites.push(ow(EXT,0,P|H));
+  await assert.rejects(()=>scan(f));
+});
+test('Configured external role does not authorize arbitrary outsiders or staff impostors',async()=>{
+  const f=fixture();
+  f.config.externalContributorRoleIds=[EXT];
+  f.raw.channel.permission_overwrites.push(ow(EXT,0,P|H));
+  f.raw.author.roles=[];
+  await assert.rejects(()=>scan(f));
+  const g=fixture();
+  g.config.externalContributorRoleIds=[EXT];
+  g.raw.channel.permission_overwrites.push(ow(EXT,0,P|H));
+  g.raw.author.roles=[BOTROLE];
+  await assert.rejects(()=>scan(g));
+});
+test('External authors must have effective forum VIEW and READ_MESSAGE_HISTORY',async()=>{
+  const f=fixture();
+  f.config.externalContributorRoleIds=[EXT];
+  f.raw.channel.permission_overwrites.push(ow(EXT,0,P));
+  f.raw.author.roles=[EXT];
+  await assert.rejects(()=>scan(f));
+});
+test('External role cannot be Administrator nor overlap internal/approved Admin roles',async()=>{
+  const f=fixture();
+  f.config.externalContributorRoleIds=[EXT];
+  f.raw.channel.permission_overwrites.push(ow(EXT,0,P|H));
+  f.raw.author.roles=[EXT];
+  f.raw.roles.find(x=>x.id===EXT).permissions='8';
+  await assert.rejects(()=>scan(f));
+  const g=fixture();
+  g.config.externalContributorRoleIds=[STAFF];
+  await assert.rejects(()=>scan(g));
+  const h=fixture();
+  h.config.externalContributorRoleIds=[ADMIN];
+  await assert.rejects(()=>scan(h));
 });
