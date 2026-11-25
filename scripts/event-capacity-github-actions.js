@@ -11,19 +11,23 @@ const {monthlyFromReports}
   =require('../event-capacity-live-calendar-summary');
 const {inspectKingsPrivateEventCapacityChannel}
   =require('../event-capacity-private-channel-preflight');
+const {inspectKingsEventSourcePreflight}
+  =require('../event-capacity-source-preflight');
 async function main(env=process.env){
   if(env.GITHUB_REF!=='refs/heads/main'||
     !['schedule','workflow_dispatch'].includes(env.GITHUB_EVENT_NAME))
     throw Error('Kings Event Capacity action is not enabled for this trusted main workflow.');
   const mode=env.KINGS_EVENT_CAPACITY_MODE||
     (env.GITHUB_EVENT_NAME==='schedule'?'sync':'preview');
-  if(!['preview','preflight'].includes(mode)&&
+  if(!['preview','preflight','source-preflight'].includes(mode)&&
     env.KINGS_EVENT_CAPACITY_ENABLED!=='true')
     throw Error('Kings Event Capacity Discord writes were not enabled.');
-  if(!['preview','preflight','sync','bootstrap'].includes(mode)||
-    ['bootstrap','preflight'].includes(mode)&&
-      env.GITHUB_EVENT_NAME!=='workflow_dispatch'|| 
-    mode==='preflight'&&env.CONVOY_DRY_RUN!=='true')
+  if(!['preview','preflight','source-preflight','sync','bootstrap']
+    .includes(mode)||
+    ['bootstrap','preflight','source-preflight'].includes(mode)&&
+      env.GITHUB_EVENT_NAME!=='workflow_dispatch'||
+    ['preflight','source-preflight'].includes(mode)&&
+      env.CONVOY_DRY_RUN!=='true')
     throw Error('Kings Event Capacity action mode not authorized.');
   const config={
     guildId:env.KINGS_EVENT_CAPACITY_GUILD_ID,
@@ -35,6 +39,17 @@ async function main(env=process.env){
       CEO:env.KINGS_EVENT_CEO_ROLE_ID
     }
   };
+  // Manual source-only check reads the latest SUCCESSFUL SCHEDULED
+  // Convoy ZIP, validates its inventory and projects the same 12-month
+  // calendar as live sync. It never needs a Discord token/channel/role.
+  if(mode==='source-preflight'){
+    const reader=createPrivateGitHubReader({token:env.GITHUB_TOKEN});
+    const result=await inspectKingsEventSourcePreflight({reader});
+    console.log('Kings Event Capacity GitHub source preflight:',result.status);
+    if(result.status!=='SOURCE_CALENDAR_PREVIEW_READY')
+      throw Error('Kings Event Capacity source calendar not verified.');
+    return {state:result.status,readOnly:true,discordWrites:0};
+  }
   // CEO-invoked preparation check: Discord GET requests only, requires
   // an actual bot credential but deliberately bypasses the WRITE enable flag.
   // No arbitrary account/channel/Staff details or token ever reach job logs.
