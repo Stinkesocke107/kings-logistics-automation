@@ -24,6 +24,10 @@ function utc(x){
   return x;
 }
 function snow(x){if(typeof x!=='string'||!ID.test(x))fail();return x;}
+function getKingsDiscordRequiredStreams(sourceKind){
+  if(typeof sourceKind!=='string'||!Object.hasOwn(STREAMS,sourceKind))fail();
+  return Object.freeze([...STREAMS[sourceKind]]);
+}
 function makeKingsDiscordReadOnlyRequest({
   guildId,channelId,sourceKind,stream,before=null,limit=100
 }={}){
@@ -166,4 +170,4 @@ function reduceKingsDiscordReadOnlyPage({request,response,fetchedAtUtc}={}){
   }catch{fail();}
 }
 module.exports={makeKingsDiscordReadOnlyRequest,
-  reduceKingsDiscordReadOnlyPage};
+  reduceKingsDiscordReadOnlyPage,getKingsDiscordRequiredStreams};
