@@ -72,3 +72,29 @@ test('Owner-pinned private archive writer cannot silently activate via GitHub Ac
   assert.doesNotMatch(writer,/method:'(?:DELETE|PATCH|POST)'/);
   assert.doesNotMatch(writer,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
 });
+
+test('Historical recovery, offsite backup and retention planner are not live workflows',()=>{
+  const runner=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  const workflow=fs.readFileSync(path.join(root,
+    '.github/workflows/convoy-checker.yml'),'utf8');
+  const names=['event-capacity-historical-github-recovery',
+    'event-capacity-historical-offsite-backup',
+    'event-capacity-historical-retention-plan'];
+  for(const name of names){
+    const source=fs.readFileSync(path.join(root,name+'.js'),'utf8');
+    assert.equal(runner.includes(name),false);
+    assert.equal(workflow.includes(name),false);
+    assert.doesNotMatch(source,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
+    assert.match(source,/freeSlotsCertified:false/);
+  }
+  const recovery=fs.readFileSync(path.join(root,names[0]+'.js'),'utf8');
+  assert.doesNotMatch(recovery,/method:'(?:PUT|POST|PATCH|DELETE)'/);
+  assert.match(recovery,/humanReconciliationRequired:true/);
+  const backup=fs.readFileSync(path.join(root,names[1]+'.js'),'utf8');
+  assert.match(backup,/productionRestorePerformed:false/);
+  assert.match(backup,/offsiteStoragePerformed:false/);
+  const policy=fs.readFileSync(path.join(root,names[2]+'.js'),'utf8');
+  assert.match(policy,/retentionActionsAutomated:false/);
+  assert.match(policy,/deletedBackups:0/);
+});
