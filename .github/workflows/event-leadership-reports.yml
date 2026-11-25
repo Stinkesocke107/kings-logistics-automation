@@ -21,6 +21,8 @@ on:
       - main
     paths:
       - 'event-leadership-reports.js'
+      - 'event-leadership-observation.js'
+      - 'event-history-leadership-bridge.js'
       - '.github/workflows/event-leadership-reports.yml'
 
   schedule:
@@ -60,6 +62,7 @@ jobs:
           node --check event-leadership-reports.js
           node --check event-leadership-state.js
           node --check event-history-leadership-bridge.js
+          node --check event-leadership-observation.js
           node --check event-history-real-source-preview.js
           node --check scripts/migrate-event-leadership-state.js
 
