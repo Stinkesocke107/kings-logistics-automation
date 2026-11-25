@@ -110,3 +110,17 @@ test('Legacy evidence remains readable but is never incorrectly upgraded to revi
   assert.equal(first.history[0].reviewProof,undefined);
   assert.equal(validateLedger(first,SCOPE),first);
 });
+
+test('Event Coordination alone cannot insert a purported two-person confirmation',()=>{
+  const s=begin();
+  assert.throws(()=>applyDecision(s,command(s),{
+    id:REVIEWER,source:'trusted-server-gateway',
+    verifiedRoles:['Event Coordination']
+  },AT));
+});
+test('Tampered leadership role in serialized history cannot bypass audit validation',()=>{
+  const s=applyDecision(begin(),command(begin()),actor,AT);
+  const modified=structuredClone(s);
+  modified.history[0].actorRole='Event Coordination';
+  assert.throws(()=>validateLedger(modified,SCOPE));
+});
