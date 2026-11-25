@@ -113,9 +113,12 @@ function evaluate(input) {
       });
     }
   }
+  // Attribute a cross-midnight spacing warning to the later departure's UTC
+  // day, matching the 12-month Calendar and #12 human-review aggregate.
+  // This changes the review notice key only, never an Event or Staff decision.
   const timed = records.filter(r => r.departureMs !== null).sort((a,b)=>a.departureMs-b.departureMs);
   for (let i=0;i<timed.length;i++) for (let j=i+1;j<timed.length && timed[j].departureMs-timed[i].departureMs<LIMITS.separationMinutes*60000;j++) {
-    warnings.push({ code: 'departure-under-two-hours', period: timed[i].date, first: timed[i].id, second: timed[j].id, minutesApart: Math.round((timed[j].departureMs-timed[i].departureMs)/60000) });
+    warnings.push({ code: 'departure-under-two-hours', period: timed[j].date, first: timed[i].id, second: timed[j].id, minutesApart: Math.round((timed[j].departureMs-timed[i].departureMs)/60000) });
   }
   // Classified and/or undated Center claims are incomplete historical
   // evidence. NEVER calculate or publish certified remaining/bookable slots.
