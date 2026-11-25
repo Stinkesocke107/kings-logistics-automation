@@ -4,6 +4,7 @@
 // snapshots are NOT proof of original Discord completeness, Staff approval,
 // parking/slot availability or a real reservation. Never write or approve.
 const {LIMITS}=require('./event-capacity-core');
+const {POLICY,dailyLimitForUtcDate}=require('./event-capacity-policy');
 const ERROR='Kings Event Booking safety review refused.';
 const CATEGORIES=Object.freeze(['Kings Convoy','Partner Convoy','External Convoy']);
 function fail(){throw new Error(ERROR);}
@@ -28,10 +29,15 @@ function verifiedProjection(calendar,date){
     calendar.complete24MonthHistoryCertified!==false||
     calendar.year!==year||calendar.selectedMonth!==month||
     !plain(calendar.policy)||
-    calendar.policy.combinedDaily!==LIMITS.combinedDaily||
-    calendar.policy.partnerMonthly!==LIMITS.partnerMonthly||
-    calendar.policy.externalMonthly!==LIMITS.externalMonthly||
+    calendar.policy.id!==POLICY.policyId||
+    calendar.policy.weekdayCombined!==POLICY.weekdayCombinedMax||
+    calendar.policy.weekendCombined!==POLICY.weekendCombinedMax||
+    calendar.policy.partnerDaily!==POLICY.partnerDailyMax||
+    calendar.policy.externalDaily!==POLICY.externalDailyMax||
+    calendar.policy.partnerMonthly!==null||
+    calendar.policy.externalMonthly!==null||
     calendar.policy.kingsConvoysQuotaExempt!==true||
+    calendar.policy.actualBookingCapacityCertified!==false||
     !Array.isArray(calendar.months)||calendar.months.length!==12||
     !Array.isArray(calendar.days))fail();
   for(let i=0;i<12;i++){
@@ -83,29 +89,33 @@ function projectKingsEventBookingSafetyReview({calendar,request}={}){
       month=date.slice(0,7),projection=verifiedProjection(calendar,date),
       d=projection.day,m=projection.month,
       quotaExempt=request.category==='Kings Convoy',
-      categoryMonth=request.category==='Partner Convoy'?'partner':'external',
-      monthlyLimit=request.category==='Partner Convoy'?
-        LIMITS.partnerMonthly:LIMITS.externalMonthly;
+      categoryIsPartner=request.category==='Partner Convoy',
+      sourceCategoryCount=categoryIsPartner?
+        d.snapshotPartner:d.snapshotExternal,
+      historicCategoryCount=categoryIsPartner?
+        d.historicalPartnerProvisional:d.historicalExternalProvisional,
+      categoryDailyLimit=categoryIsPartner?
+        LIMITS.partnerDaily:LIMITS.externalDaily,
+      dailyMax=dailyLimitForUtcDate(date);
     const dailyLimitObserved=!quotaExempt&&
-      d.snapshotCombined>=LIMITS.combinedDaily;
-    const monthlyLimitObserved=!quotaExempt&&
-      m.currentSnapshot[categoryMonth]>=monthlyLimit;
+      (d.snapshotCombined>=dailyMax||
+        sourceCategoryCount>=categoryDailyLimit);
+    const monthlyLimitObserved=false;
     const historicalDailyHoldAtLimit=!quotaExempt&&
       d.historicalCombinedProvisional!==null&&
-      d.historicalCombinedProvisional>=LIMITS.combinedDaily;
-    const historicalMonthlyHoldAtLimit=!quotaExempt&&
-      (m.signedHistoricalProvisional[categoryMonth]??-1)>=monthlyLimit;
+      (d.historicalCombinedProvisional>=dailyMax||
+        historicCategoryCount!==null&&
+          historicCategoryCount>=categoryDailyLimit);
+    // Historical signed month flags describe the superseded policy only.
+    const historicalMonthlyHoldAtLimit=false;
     const reasons=['ORIGINAL_SOURCE_AND_STAFF_REVIEW_REQUIRED',
       'EVENT_IDENTITY_NOT_VERIFIED','PARKING_SLOT_NOT_VERIFIED',
       'DEPARTURE_SPACING_AND_FULL_OVERLAP_NOT_CHECKED'];
     if(meeting===null)reasons.push('MEETING_TIME_MISSING');
     if(end===null)reasons.push('PLANNED_END_MISSING');
     if(dailyLimitObserved)reasons.push('OBSERVED_DAILY_LIMIT_REACHED');
-    if(monthlyLimitObserved)reasons.push('OBSERVED_MONTHLY_LIMIT_REACHED');
     if(historicalDailyHoldAtLimit)
       reasons.push('PROVISIONAL_HISTORICAL_DAILY_HOLD_AT_LIMIT');
-    if(historicalMonthlyHoldAtLimit)
-      reasons.push('PROVISIONAL_HISTORICAL_MONTHLY_HOLD_AT_LIMIT');
     if(d.historicalCombinedProvisional===null)
       reasons.push('DAILY_HISTORICAL_HOLDS_MISSING');
     if(m.evidenceGapsReported===null)
@@ -158,14 +168,17 @@ function renderKingsEventBookingSafetyPreview(r){
     // A private preview is still untrusted input: never display a forged
     // "no quota warning" claim inconsistent with its own snapshot counts.
     const isKings=r.category==='Kings Convoy',
-      expectedDaily=!isKings&&s.dailyPartner+s.dailyExternal>=LIMITS.combinedDaily,
-      expectedMonthly=!isKings&&(
-        r.category==='Partner Convoy'?s.monthlyPartner:s.monthlyExternal
-      )>=(r.category==='Partner Convoy'?
-        LIMITS.partnerMonthly:LIMITS.externalMonthly);
+      categoryDaily=r.category==='Partner Convoy'?s.dailyPartner:s.dailyExternal,
+      categoryMax=r.category==='Partner Convoy'?
+        LIMITS.partnerDaily:LIMITS.externalDaily,
+      expectedDaily=!isKings&&
+        (s.dailyPartner+s.dailyExternal>=dailyLimitForUtcDate(r.utcDate)||
+        categoryDaily>=categoryMax),
+      expectedMonthly=false;
     if(r.quotaExempt!==isKings||
       r.observedDailyLimitReached!==expectedDaily||
-      r.observedMonthlyLimitReached!==expectedMonthly)fail();
+      r.observedMonthlyLimitReached!==expectedMonthly||
+      r.provisionalHistoricalMonthlyHoldAtLimit!==false)fail();
     const allowed=new Set([
       'ORIGINAL_SOURCE_AND_STAFF_REVIEW_REQUIRED',
       'EVENT_IDENTITY_NOT_VERIFIED','PARKING_SLOT_NOT_VERIFIED',
@@ -197,8 +210,8 @@ function renderKingsEventBookingSafetyPreview(r){
       r.category+' | '+r.utcDate+' (UTC)\n'+
       'Observed day: P'+s.dailyPartner+' E'+s.dailyExternal+
       ' | Month: P'+s.monthlyPartner+' E'+s.monthlyExternal+'\n'+
-      'Observed quota review: day '+(r.observedDailyLimitReached?'YES':'not flagged')+
-      ' | month '+(r.observedMonthlyLimitReached?'YES':'not flagged')+'\n'+
+      'Observed daily policy review: '+(r.observedDailyLimitReached?'YES':'not flagged')+
+      ' | monthly quota: not adopted'+'\n'+
       'Evidence checks: '+alerts.length+' review reasons\n'+
       '**No slots certified, reserved or approved. Human review required.**';
     if(content.length>2000)fail();
