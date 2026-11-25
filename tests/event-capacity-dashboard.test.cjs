@@ -24,7 +24,7 @@ test('Three UTC months visible without changing the event records',()=>{
   assert.equal(d.visibility,'PRIVATE_ONLY');
   assert.equal(JSON.stringify(source),before);
 });
-test('Combined daily maximum two, category totals and unlimited Kings count',()=>{
+test('Current source counts are shown without implying available Sunday bookings',()=>{
   const d=view([
     event(1,'Partner Convoy','2027-03-20'),
     event(2,'External Convoy','2027-03-20'),
@@ -32,25 +32,26 @@ test('Combined daily maximum two, category totals and unlimited Kings count',()=
     event(4,'Kings Convoy','2027-03-20')
   ]);
   const day=d.months[0].days.find(x=>x.date==='2027-03-20');
-  assert.equal(day.status,'Full');
+  assert.equal(day.status,'Unverified');
   assert.equal(day.combinedUsed,2);
   assert.equal(day.kings,2);
   assert.equal(day.partner,1);
   assert.equal(day.external,1);
-  assert.equal(day.remaining,0);
+  assert.equal(day.remaining,null);
 });
-test('Single accepted external day shows Limited not Full',()=>{
+test('Single reported external remains unverified as a bookable slot',()=>{
   const d=view([event(1,'External Convoy','2027-03-20')]);
   const day=d.months[0].days.find(x=>x.date==='2027-03-20');
-  assert.equal(day.status,'Limited');
-  assert.equal(day.remaining,1);
+  assert.equal(day.status,'Unverified');
+  assert.equal(day.remaining,null);
+  assert.equal(day.reportedPlanningRoom,4);
 });
-test('Fresh verified day with no accepted events is Available',()=>{
+test('Fresh current source with no events is still not proven free',()=>{
   const d=view([]);
-  assert.equal(d.months[0].days.find(x=>x.date==='2027-03-20').status,'Available');
+  assert.equal(d.months[0].days.find(x=>x.date==='2027-03-20').status,'Unverified');
   assert.equal(d.months[0].monthly.partner,0);
 });
-test('Missing source freshness blocks false green Available across all months',()=>{
+test('Missing source freshness blocks any misleading capacity green status',()=>{
   const d=view([],{fresh:false});
   assert.equal(d.sourceStatus,'Data Outdated / Unverified');
   assert.equal(d.months[0].days.find(x=>x.date==='2027-03-20').status,'Unverified');
@@ -65,7 +66,7 @@ test('Unverified end time leaves the particular day unverified, not free',()=>{
   assert.equal(day.remaining,null);
   assert.equal(day.combinedUsed,1);
 });
-test('Approved exception appears explicitly, quota stays two not three',()=>{
+test('Approved exception is visible as a claim, not a verified free slot',()=>{
   const items=[
     event(1,'External Convoy','2027-03-20'),
     event(2,'Partner Convoy','2027-03-20'),
@@ -73,20 +74,23 @@ test('Approved exception appears explicitly, quota stays two not three',()=>{
   ];
   const d=view(items);
   const day=d.months[0].days.find(x=>x.date==='2027-03-20');
-  assert.equal(day.status,'Full');
-  assert.equal(day.quotaConflict,true);
+  assert.equal(day.status,'Unverified');
+  assert.equal(day.quotaConflict,false);
   assert.equal(day.approvedExceptions,1);
   assert.equal(day.combinedUsed,3);
-  assert.equal(d.policy.combinedDaily,2);
+  assert.equal(d.policy.weekdayCombined,3);
+  assert.equal(d.policy.weekendCombined,5);
+  assert.equal(d.policy.partnerDaily,2);
 });
-test('Monthly Partner quota exhausted while external remains creates Limited day',()=>{
+test('Twenty monthly partner claims no longer impose retired monthly quota',()=>{
   const records=[];
   for(let i=1;i<=20;i++)records.push(event(i,'Partner Convoy','2027-03-'+String(i).padStart(2,'0')));
   const d=view(records),day=d.months[0].days.find(x=>x.date==='2027-03-21');
-  assert.equal(day.status,'Limited');
+  assert.equal(day.status,'Unverified');
   assert.equal(day.partnerAvailableVerified,false);
-  assert.equal(day.externalAvailableVerified,true);
+  assert.equal(day.externalAvailableVerified,false);
   assert.equal(d.months[0].monthly.partner,20);
+  assert.equal(d.months[0].monthly.partnerRemaining,null);
 });
 test('Ephemeral response is never a public dashboard and has no personal event details',()=>{
   const d=view([event(1,'Partner Convoy','2027-03-20')]);
