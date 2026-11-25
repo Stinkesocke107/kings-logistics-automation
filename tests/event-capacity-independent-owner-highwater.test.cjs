@@ -6,7 +6,8 @@ const {setup}=require('./fixtures/event-capacity-historical-github-fixture.cjs')
 const {issueHistoricalArchivePinOffline}
   =require('../event-capacity-historical-github-reader');
 const {
-  prepareOfflineOwnerHighwaterCard,compareRemoteHistoryToOfflineHighwater
+  prepareOfflineOwnerHighwaterCard,compareRemoteHistoryToOfflineHighwater,
+  fingerprintSignedOfflineOwnerFloor,inspectOfflineOwnerRecoveryCopies
 }=require('../event-capacity-independent-owner-highwater');
 const SCOPE={guildId:'1114967437788577792',forumId:'1550619824005062697'};
 const NOW=Date.parse('2027-05-20T12:00:00.000Z');
@@ -154,4 +155,107 @@ test('Private event IDs, archive data and offline keys are absent from compariso
     assert.equal(json.includes(sensitive),false);
   assert.equal(result.historicalCoverageCertified,false);
   assert.equal(result.freeSlotsCertified,false);
+});
+
+test('Two signed offline recovery copies match one externally supplied fingerprint without claiming custody',()=>{
+  const {x,card}=specimen();
+  const copy=structuredClone(card);
+  const expectedFingerprint=fingerprintSignedOfflineOwnerFloor({
+    retainedOwnerCard:card,scope:SCOPE,ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  });
+  assert.match(expectedFingerprint,/^[a-f0-9]{64}$/);
+  const result=inspectOfflineOwnerRecoveryCopies({
+    primaryCard:card,recoveryCard:copy,expectedFingerprint,
+    scope:SCOPE,ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  });
+  assert.equal(result.bothSignedCopiesCryptographicallyVerified,true);
+  assert.equal(result.bothCopiesMatchRecordedFingerprint,true);
+  assert.equal(result.independentMediaCustodyProvenByCode,false);
+  assert.equal(result.independentlyRetainedLatestHighwaterProven,false);
+  assert.equal(result.safeToActivate,false);
+  assert.equal(result.freeSlotsCertified,false);
+  assert.equal(JSON.stringify(result).includes('event:100'),false);
+});
+test('Recovery audit rejects a mismatched, missing or reformatted external fingerprint',()=>{
+  const {x,card}=specimen();
+  const pin=fingerprintSignedOfflineOwnerFloor({
+    retainedOwnerCard:card,scope:SCOPE,ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  });
+  for(const value of [undefined,'',pin.toUpperCase(),'0'.repeat(64),'a'.repeat(12)]){
+    assert.throws(()=>inspectOfflineOwnerRecoveryCopies({
+      primaryCard:card,recoveryCard:structuredClone(card),
+      expectedFingerprint:value,scope:SCOPE,
+      ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+    }));
+  }
+});
+test('Owner recovery cards must be separate objects; duplicates are not evidence of independent custody',()=>{
+  const {x,card}=specimen();
+  const pin=fingerprintSignedOfflineOwnerFloor({
+    retainedOwnerCard:card,scope:SCOPE,ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  });
+  assert.throws(()=>inspectOfflineOwnerRecoveryCopies({
+    primaryCard:card,recoveryCard:card,expectedFingerprint:pin,
+    scope:SCOPE,ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  }));
+});
+test('Two authentic but different dated owner-signed receipts are not silently treated as the same backup',()=>{
+  const {x,card}=specimen();
+  const other=issueHistoricalArchivePinOffline({
+    checkpoint:x.prior.checkpoint,scope:SCOPE,
+    ownerPrivateKey:x.ownerPrivateKey,issuedAt:'2027-05-19T10:00:00.000Z'
+  });
+  const another=prepareOfflineOwnerHighwaterCard({
+    ownerReceipt:other,scope:SCOPE,ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  });
+  const pin=fingerprintSignedOfflineOwnerFloor({
+    retainedOwnerCard:card,scope:SCOPE,ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  });
+  assert.throws(()=>inspectOfflineOwnerRecoveryCopies({
+    primaryCard:card,recoveryCard:another,
+    expectedFingerprint:pin,scope:SCOPE,
+    ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  }));
+});
+test('Fake recovery copy, changed card metadata and wrong signing identity fail closed',()=>{
+  const {x,card}=specimen();
+  const pin=fingerprintSignedOfflineOwnerFloor({
+    retainedOwnerCard:card,scope:SCOPE,ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  });
+  const tampered=structuredClone(card);
+  tampered.receipt.payload.archiveDigest='0'.repeat(64);
+  const wrongFlag=structuredClone(card);wrongFlag.independentlyRetained=true;
+  const unexpected=structuredClone(card);unexpected.token='private token';
+  const otherKey=crypto.generateKeyPairSync('ed25519').publicKey.export({
+    format:'pem',type:'spki'
+  });
+  for(const copy of [tampered,wrongFlag,unexpected]){
+    assert.throws(()=>inspectOfflineOwnerRecoveryCopies({
+      primaryCard:card,recoveryCard:copy,expectedFingerprint:pin,
+      scope:SCOPE,ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+    }),e=>{
+      assert.doesNotMatch(String(e),/private token|event:100/);
+      return true;
+    });
+  }
+  assert.throws(()=>inspectOfflineOwnerRecoveryCopies({
+    primaryCard:card,recoveryCard:structuredClone(card),expectedFingerprint:pin,
+    scope:SCOPE,ownerPublicKey:otherKey,nowMs:NOW
+  }));
+});
+test('Offline fingerprint is tied to the signed scope and bounded verification time',()=>{
+  const {x,card}=specimen();
+  assert.throws(()=>fingerprintSignedOfflineOwnerFloor({
+    retainedOwnerCard:card,
+    scope:{...SCOPE,forumId:'999999999999999999'},
+    ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  }));
+  assert.throws(()=>fingerprintSignedOfflineOwnerFloor({
+    retainedOwnerCard:{...card,sourceCompletenessProven:true},
+    scope:SCOPE,ownerPublicKey:x.ownerPublicKey,nowMs:NOW
+  }));
+  assert.throws(()=>fingerprintSignedOfflineOwnerFloor({
+    retainedOwnerCard:card,scope:SCOPE,
+    ownerPublicKey:x.ownerPublicKey,nowMs:-1
+  }));
 });
