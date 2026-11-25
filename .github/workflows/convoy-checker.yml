@@ -1,6 +1,6 @@
 name: Kings Convoy Checker
 # Core Event health excludes transient Driver reminder delivery failures.
-run-name: Kings Convoy Checker (${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'schedule' && 'live' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[convoy-live]') && 'live' || 'dry-run')) }})
+run-name: Kings Convoy Checker (${{ github.event_name == 'workflow_dispatch' && inputs.capacity_action != 'off' && inputs.capacity_action || (github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'schedule' && 'live' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[convoy-live]') && 'live' || 'dry-run'))) }})
 
 on:
   workflow_dispatch:
@@ -13,6 +13,23 @@ on:
         options:
           - dry-run
           - live
+      invitation_readonly_probe:
+        description: 'GET-only private Invitation source preflight (manual dry-run only)'
+        required: false
+        type: boolean
+        default: false
+      capacity_action:
+        description: "GitHub-only Capacity (off, preview, preflight, source-preflight, bootstrap, sync)"
+        required: false
+        default: "off"
+        type: choice
+        options:
+          - "off"
+          - preview
+          - preflight
+          - source-preflight
+          - bootstrap
+          - sync
 
   push:
     branches: [main]
@@ -31,6 +48,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: kings-convoy-checker
@@ -60,9 +78,17 @@ jobs:
         shell: bash
         env:
           REQUESTED_MODE: ${{ inputs.mode }}
+          CAPACITY_ACTION: ${{ inputs.capacity_action }}
           PUSH_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+          # A manually selected Event Capacity action is a dedicated
+          # capacity-only invocation. It must never execute Convoy stages,
+          # even if mode=live was selected by the dispatcher.
+          CAPACITY_ONLY="false"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [[ "$CAPACITY_ACTION" =~ ^(preview|preflight|source-preflight|bootstrap|sync)$ ]]; then
+            CAPACITY_ONLY="true"
+            DRY_RUN="true"
+          elif [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
             DRY_RUN="false"
           elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$REQUESTED_MODE" = "live" ]; then
             DRY_RUN="false"
@@ -73,9 +99,12 @@ jobs:
           fi
 
           echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
+          echo "capacity_only=$CAPACITY_ONLY" >> "$GITHUB_OUTPUT"
           echo "Convoy dry-run mode: $DRY_RUN"
+          echo "Manual capacity-only mode: $CAPACITY_ONLY"
 
       - name: Verify convoy safety engines
+        if: steps.mode.outputs.capacity_only != 'true'
         run: |
           node --check convoy-checker.js
           node --check convoy-finalize.js
@@ -88,6 +117,7 @@ jobs:
           node --check convoy-imminent-readiness.js
 
       - name: Run convoy checker
+        if: steps.mode.outputs.capacity_only != 'true'
         id: convoy_stage_0
         continue-on-error: true
         env:
@@ -102,7 +132,7 @@ jobs:
       - name: Auto-fill convoy data from TruckersMP Event ID
         id: convoy_stage_1
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           KINGS_VTC_NAME: 'Kings Logistics'
@@ -111,7 +141,7 @@ jobs:
       - name: Finalize TruckersMP data and Kings overrides
         id: convoy_stage_2
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -121,7 +151,7 @@ jobs:
       - name: Audit imminent approved convoy reminder eligibility (read-only, no messages)
         id: convoy_reminder_readiness
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         run: |
           node --test tests/convoy-imminent-readiness.test.cjs
           node convoy-imminent-readiness.js
@@ -129,7 +159,7 @@ jobs:
       - name: Send one-time convoy notifications
         id: convoy_stage_3
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -139,7 +169,7 @@ jobs:
       - name: Handle post-convoy follow-up
         id: convoy_stage_4
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -147,6 +177,7 @@ jobs:
         run: node convoy-reminders.js
 
       - name: Check internal Convoy Driver reminders
+        if: steps.mode.outputs.capacity_only != 'true'
         id: convoy_stage_5
         continue-on-error: true
         env:
@@ -160,6 +191,7 @@ jobs:
         run: node convoy-driver-reminders.js
 
       - name: Check Kings-only convoy announcements
+        if: steps.mode.outputs.capacity_only != 'true'
         id: convoy_stage_6
         continue-on-error: true
         env:
@@ -180,7 +212,7 @@ jobs:
       - name: Archive finished convoy threads
         id: convoy_stage_7
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -188,12 +220,13 @@ jobs:
         run: node convoy-archive.js
 
       - name: Verify convoy completeness
+        if: steps.mode.outputs.capacity_only != 'true'
         id: convoy_completeness
         continue-on-error: true
         run: node convoy-completeness.js
 
       - name: Persist healthy convoy count baseline
-        if: steps.mode.outputs.dry_run != 'true' && steps.convoy_completeness.outcome == 'success'
+        if: (steps.mode.outputs.dry_run != 'true' && steps.convoy_completeness.outcome == 'success') && steps.mode.outputs.capacity_only != 'true'
         run: |
           if [ -n "$(git status --porcelain -- data/convoy-completeness-state.json)" ]; then
             git config user.name "Kings Logistics Automation"
@@ -212,6 +245,7 @@ jobs:
           fi
 
       - name: Generate convoy overview statistics
+        if: steps.mode.outputs.capacity_only != 'true'
         id: convoy_stage_8
         continue-on-error: true
         env:
@@ -221,7 +255,7 @@ jobs:
 
       - name: Notify Event Leadership about new planning conflicts
         id: convoy_planning_alerts
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -229,7 +263,7 @@ jobs:
 
       - name: Persist sent planning alert keys
         id: convoy_planning_state
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         run: |
           if [ -z "$(git status --porcelain -- data/convoy-planning-alert-state.json)" ]; then
             echo "No new convoy planning warnings."
@@ -247,15 +281,97 @@ jobs:
       - name: Sync convoy overview to Discord
         id: convoy_stage_9
         continue-on-error: true
-        if: steps.mode.outputs.dry_run != 'true'
+        if: (steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           DISCORD_CONVOY_OVERVIEW_CHANNEL_ID: '1550619865805754378'
         run: node convoy-overview-discord.js
 
+      # Manual source-preflight verifies the real scheduled Convoy ZIP
+      # privately using GitHub Actions read-only API requests. No Discord.
+      # Event Capacity uses this already scheduled GitHub-hosted runner:
+      # no second workflow, no VPS, and no live Discord Gateway.
+      # Default OFF; manual preview is read-only even without credentials.
+      - name: Kings Event Capacity (GitHub-only opt-in)
+        id: event_capacity_github_only
+        continue-on-error: true
+        if: >-
+          (github.event_name == 'schedule' && vars.KINGS_EVENT_CAPACITY_ENABLED == 'true') ||
+          (github.event_name == 'workflow_dispatch' &&
+            (inputs.capacity_action == 'preview' ||
+              inputs.capacity_action == 'preflight' ||
+              inputs.capacity_action == 'source-preflight' ||
+              (vars.KINGS_EVENT_CAPACITY_ENABLED == 'true' &&
+                (inputs.capacity_action == 'bootstrap' || inputs.capacity_action == 'sync'))))
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          # Do not inject the real Discord secret into preview/source-only
+          # runs. The other modes still use the existing protected bot secret.
+          DISCORD_BOT_TOKEN: ${{ github.event_name == 'workflow_dispatch' && (inputs.capacity_action == 'preview' || inputs.capacity_action == 'source-preflight') && 'READ_ONLY_NO_DISCORD_TOKEN' || secrets.DISCORD_BOT_TOKEN }}
+          KINGS_EVENT_CAPACITY_ENABLED: ${{ vars.KINGS_EVENT_CAPACITY_ENABLED }}
+          KINGS_EVENT_CAPACITY_COMMANDS_ENABLED: ${{ vars.KINGS_EVENT_CAPACITY_COMMANDS_ENABLED }}
+          KINGS_EVENT_CAPACITY_EVIDENCE_ENABLED: ${{ vars.KINGS_EVENT_CAPACITY_EVIDENCE_ENABLED }}
+          KINGS_EVENT_CAPACITY_MODE: ${{ github.event_name == 'schedule' && 'sync' || inputs.capacity_action }}
+          CONVOY_DRY_RUN: ${{ steps.mode.outputs.dry_run }}
+          KINGS_EVENT_CAPACITY_GUILD_ID: '1114967437788577792'
+          KINGS_EVENT_CAPACITY_CHANNEL_ID: ${{ vars.KINGS_EVENT_CAPACITY_CHANNEL_ID }}
+          KINGS_EVENT_CAPACITY_MESSAGE_ID: ${{ vars.KINGS_EVENT_CAPACITY_MESSAGE_ID }}
+          KINGS_EVENT_COORDINATION_ROLE_ID: ${{ vars.KINGS_EVENT_COORDINATION_ROLE_ID }}
+          KINGS_EVENT_LEADERSHIP_ROLE_ID: ${{ vars.KINGS_EVENT_LEADERSHIP_ROLE_ID }}
+          KINGS_EVENT_CEO_ROLE_ID: ${{ vars.KINGS_EVENT_CEO_ROLE_ID }}
+        run: |
+          node --check event-capacity-github-only.js
+          node --check event-capacity-private-channel-preflight.js
+          node --check event-capacity-source-preflight.js
+          node --check event-capacity-github-staff-commands.js
+          node --check event-capacity-github-decision-evidence.js
+          node --check scripts/event-capacity-github-actions.js
+          node --test tests/event-capacity-github-only.test.cjs tests/event-capacity-private-channel-preflight.test.cjs tests/event-capacity-source-preflight.test.cjs tests/event-capacity-github-actions-runner.test.cjs tests/event-capacity-github-staff-commands.test.cjs tests/event-capacity-github-decision-evidence.test.cjs
+          node scripts/event-capacity-github-actions.js
+
+      - name: Note optional Event Capacity errors without masking Convoy health
+        if: steps.event_capacity_github_only.outcome == 'failure'
+        run: echo "::warning::Optional GitHub-only Event Capacity run failed; do not treat availability as verified."
+
+      - name: Require GitHub Event Calendar source readiness when requested
+        if: github.event_name == 'workflow_dispatch' && inputs.capacity_action == 'source-preflight'
+        env:
+          SOURCE_PREFLIGHT_OUTCOME: ${{ steps.event_capacity_github_only.outcome }}
+        run: |
+          if [ "$SOURCE_PREFLIGHT_OUTCOME" != "success" ]; then
+            echo "::error::Scheduled Convoy ZIP to Calendar preflight did not pass. No Discord or Event writes were attempted."
+            exit 1
+          fi
+
+      - name: Require private Event Capacity preflight readiness when explicitly requested
+        if: github.event_name == 'workflow_dispatch' && inputs.capacity_action == 'preflight'
+        env:
+          PREFLIGHT_OUTCOME: ${{ steps.event_capacity_github_only.outcome }}
+        run: |
+          if [ "$PREFLIGHT_OUTCOME" != "success" ]; then
+            echo "::error::Private Event Capacity configuration check did not pass; no Discord writes were attempted."
+            exit 1
+          fi
+
+      - name: Require manually requested Event Capacity publication outcome
+        if: github.event_name == 'workflow_dispatch' && (inputs.capacity_action == 'bootstrap' || inputs.capacity_action == 'sync' || inputs.capacity_action == 'preview')
+        env:
+          CAPACITY_OUTCOME: ${{ steps.event_capacity_github_only.outcome }}
+        run: |
+          if [ "$CAPACITY_OUTCOME" != "success" ]; then
+            echo "::error::Requested Event Capacity action failed. No Convoy stages were run in this capacity-only invocation."
+            exit 1
+          fi
+
+      - name: Event Capacity capacity-only summary
+        if: steps.mode.outputs.capacity_only == 'true'
+        run: |
+          echo "Manual Event Capacity-only invocation completed; no Convoy operational stages were run."
+          echo "This does not certify free Event slots or historical source completeness."
+
       - name: Dry-run safety summary
-        if: steps.mode.outputs.dry_run == 'true'
+        if: (steps.mode.outputs.dry_run == 'true') && steps.mode.outputs.capacity_only != 'true'
         run: |
           echo "Convoy read-only preflight completed; skipped stages are NOT E2E verified."
           echo "Convoy checker writes were disabled."
@@ -264,7 +380,7 @@ jobs:
           echo "Other mutating convoy steps were skipped."
 
       - name: Upload convoy reports
-        if: always()
+        if: (always()) && steps.mode.outputs.capacity_only != 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: kings-convoy-reports
@@ -278,7 +394,7 @@ jobs:
           retention-days: 14
 
       - name: Save API Health State
-        if: ${{ always() && steps.mode.outputs.dry_run != 'true' }}
+        if: ${{ always() && steps.mode.outputs.dry_run != 'true' && steps.mode.outputs.capacity_only != 'true' }}
         run: |
           if [ ! -d data/api-health ] || [ -z "$(git status --porcelain -- data/api-health)" ]; then
             echo "No API health state changes to save."
@@ -305,7 +421,7 @@ jobs:
       # auxiliary and retries on the next run, so a transient Discord rate limit
       # must not mark the entire Convoy / Event System as failed.
       - name: Require successful convoy planning notification and persistence
-        if: always() && steps.mode.outputs.dry_run != 'true'
+        if: (always() && steps.mode.outputs.dry_run != 'true') && steps.mode.outputs.capacity_only != 'true'
         env:
           ALERT_OUTCOME: ${{ steps.convoy_planning_alerts.outcome }}
           STATE_OUTCOME: ${{ steps.convoy_planning_state.outcome }}
@@ -316,7 +432,7 @@ jobs:
           fi
 
       - name: Require convoy completeness
-        if: always()
+        if: (always()) && steps.mode.outputs.capacity_only != 'true'
         env:
           COMPLETENESS_OUTCOME: ${{ steps.convoy_completeness.outcome }}
         run: |
@@ -326,7 +442,7 @@ jobs:
           fi
 
       - name: Require successful convoy stages
-        if: always()
+        if: (always()) && steps.mode.outputs.capacity_only != 'true'
         env:
           CORE_OUTCOMES: ${{ join(fromJSON(format('["{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}"]', steps.convoy_stage_0.outcome, steps.convoy_stage_1.outcome, steps.convoy_stage_2.outcome, steps.convoy_stage_3.outcome, steps.convoy_stage_4.outcome, steps.convoy_stage_6.outcome, steps.convoy_stage_7.outcome, steps.convoy_stage_8.outcome, steps.convoy_stage_9.outcome)), ',') }}
           DRIVER_REMINDER_OUTCOME: ${{ steps.convoy_stage_5.outcome }}
@@ -335,3 +451,22 @@ jobs:
             echo "::warning::Convoy Driver reminders hit a transient delivery failure. Core Convoy/Event health remains valid and reminders will retry on the next run."
           fi
           node -e "if ((process.env.CORE_OUTCOMES || '').split(',').includes('failure')) { console.error('One or more core convoy stages failed; inspect the reports and logs.'); process.exit(1); }"
+
+      # Deliberately reuses the EXISTING Kings Convoy Checker manual workflow.
+      # Never fires on schedules, push, PR, live mode, or default-off inputs.
+      - name: Kings Event Invitation source GET-only preflight (manual dry-run only)
+        if: >-
+          github.event_name == 'workflow_dispatch' &&
+          github.ref == 'refs/heads/main' &&
+          inputs.mode == 'dry-run' &&
+          inputs.capacity_action == 'off' &&
+          inputs.invitation_readonly_probe == true
+        env:
+          KINGS_INVITATION_READONLY_PROBE: 'true'
+          KINGS_INVITATION_CONVOY_MODE: ${{ inputs.mode }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID: ${{ secrets.KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID }}
+          KINGS_EVENT_INVITATION_STAFF_ROLE_IDS: ${{ vars.KINGS_EVENT_INVITATION_STAFF_ROLE_IDS }}
+          KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS: ${{ vars.KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS }}
+          KINGS_EVENT_INVITATION_EXTERNAL_ROLE_IDS: ${{ vars.KINGS_EVENT_INVITATION_EXTERNAL_ROLE_IDS }}
+        run: node scripts/event-invitation-readonly-probe.js

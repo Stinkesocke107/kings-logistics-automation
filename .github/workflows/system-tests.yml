@@ -53,3 +53,18 @@ jobs:
           GITHUB_INPUT_CAPACITY_PREVIEW: ${{ inputs.capacity_preview }}
           KINGS_CAPACITY_READONLY_PREVIEW: 'true'
         run: node event-capacity-readonly-preview.js
+
+      # Restricted public-safe real GitHub metadata diagnostic for PR #143.
+      # No Discord bot token, no staff archive or private ledger access.
+      - name: Kings Event Capacity safe PR live GitHub metadata preflight
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.number == 143 &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event.pull_request.head.ref == 'feature/event-capacity-foundation-2026-11'
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          KINGS_EVENT_CAPACITY_PREFLIGHT_ONLY: 'true'
+        run: node event-capacity-github-live-preflight.js
