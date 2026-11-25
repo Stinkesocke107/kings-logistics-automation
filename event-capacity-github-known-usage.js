@@ -124,11 +124,11 @@ function knownUsageFromVerifiedInputs({
     capacityVerified:false,availabilityStatus:'Needs Verification',
     limits:{
       policyId:POLICY.policyId,
-      weekdayCombined:POLICY.weekdayCombinedMax,
-      weekendCombined:POLICY.weekendCombinedMax,
-      partnerDaily:POLICY.partnerDailyMax,
-      externalDaily:POLICY.externalDailyMax,
-      partnerMonthly:null,externalMonthly:null,
+      combinedDaily:POLICY.dailyTotalMax,
+      partnerMonthly:POLICY.partnerMonthlyMax,
+      externalMonthly:POLICY.externalMonthlyMax,
+      kingsMonthly:null,weeklyMax:null,kingsQuotaExempt:false,
+      priorityOrder:POLICY.priorityOrder,
       departureGapMinutes:POLICY.minimumDepartureGapMinutes,
       actualFreeSlotsCertified:false
     },
@@ -136,8 +136,10 @@ function knownUsageFromVerifiedInputs({
       knownPartnerAccepted:mcounts.partner||0,
       knownExternalAccepted:mcounts.external||0,
       knownKingsAccepted:mcounts.kings||0,
-      partnerMonthlyLimitReached:false,
-      externalMonthlyLimitReached:false,
+      partnerMonthlyLimitReached:
+        (mcounts.partner||0)>=POLICY.partnerMonthlyMax,
+      externalMonthlyLimitReached:
+        (mcounts.external||0)>=POLICY.externalMonthlyMax,
       approvedExceptions:mcounts.approvedExceptions||0,
       partnerRemainingVerified:null,externalRemainingVerified:null
     },
