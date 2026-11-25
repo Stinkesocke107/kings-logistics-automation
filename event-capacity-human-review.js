@@ -88,10 +88,14 @@ function validOriginal(message,{messageId,authorId,content,channelId},nowMs){
     nowMs-issued>WINDOW)fail();
 }
 async function verifyHumanReview({
-  client,config,proposal,challenge,sourceRunId,ledgerRevision,
+  client,config,scope,proposal,challenge,sourceRunId,ledgerRevision,
   reviewMessageId,nowMs=Date.now(),secret
 }={}){
   const c=configCheck(config);
+  if(!scope||!SNOWFLAKE.test(String(scope.guildId||''))||
+    !SNOWFLAKE.test(String(scope.forumId||''))||
+    String(scope.guildId)!==c.guildId)fail();
+  const checkedScope={guildId:c.guildId,forumId:String(scope.forumId)};
   if(!client||['me','channel','roles','member','message']
     .some(x=>typeof client[x]!=='function')||
     !SNOWFLAKE.test(String(reviewMessageId||''))||
@@ -102,7 +106,7 @@ async function verifyHumanReview({
     ledgerRevision,at:challenge.at});
   if(!isDeepStrictEqual(Object.fromEntries(
     Object.entries(proof).map(([k,v])=>[k,challenge[k]])),proof)||
-    challenge.code!==reviewMac(proof,secret,c))fail();
+    challenge.code!==reviewMac(proof,secret,checkedScope))fail();
   let me,channel,roles,original,review,submitter,approver;
   try{
     // Re-fetch the original evidence, independent reviewer message, and
