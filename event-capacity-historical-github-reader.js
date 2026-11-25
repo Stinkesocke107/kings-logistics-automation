@@ -204,7 +204,9 @@ function createPrivateHistoricalArchiveReader({
       verifyHistoricalArchivePin({receipt:ownerReceipt,scope:s,
         ownerPublicKey,nowMs:nowMs()});
       return Object.freeze({journal:verified.journal,
-        checkpoint:verified.checkpoint,repositoryVerifiedPrivate:true,
+        checkpoint:verified.checkpoint,indexSha:first.sha,
+        indexDigest:crypto.createHash('sha256').update(first.bytes).digest('hex'),
+        repositoryVerifiedPrivate:true,
         encryptedArchiveIntegrityVerified:true,
         historicalCoverageCertified:false,sourceEvidenceAuthenticityVerified:false,
         freeSlotsCertified:false});
