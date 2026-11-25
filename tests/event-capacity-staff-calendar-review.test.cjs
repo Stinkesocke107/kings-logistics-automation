@@ -59,13 +59,14 @@ test('One private 12-month year overview and selected April calendar are project
     '2027-07','2027-08','2027-09','2027-10','2027-11','2027-12'
   ]);
   assert.equal(r.days.length,30);
-  assert.equal(r.policy.weekdayCombined,3);
-  assert.equal(r.policy.weekendCombined,5);
-  assert.equal(r.policy.partnerDaily,2);
-  assert.equal(r.policy.externalDaily,2);
-  assert.equal(r.policy.partnerMonthly,null);
-  assert.equal(r.policy.externalMonthly,null);
-  assert.equal(r.policy.kingsConvoysQuotaExempt,true);
+  assert.equal(r.policy.dailyTotal,3);
+  assert.equal(r.policy.partnerMonthly,20);
+  assert.equal(r.policy.externalMonthly,20);
+  assert.equal(r.policy.kingsMonthly,null);
+  assert.equal(r.policy.weeklyMax,null);
+  assert.equal(r.policy.kingsConvoysQuotaExempt,false);
+  assert.deepEqual([...r.policy.priorityOrder],
+    ['Kings Convoy','Partner Convoy','External Convoy']);
   assert.equal(r.freeSlotsCertified,false);
   assert.equal(r.safeToActivate,false);
 });
@@ -73,7 +74,7 @@ test('Snapshot Partner 1 and the same signed Partner historical hold 1 are not a
   const r=build(),april=r.months[3],day=r.days.find(x=>x.utcDate==='2027-04-20');
   assert.equal(april.currentSnapshot.partner,1);
   assert.equal(april.signedHistoricalProvisional.partner,1);
-  assert.equal(day.snapshotCombined,1);
+  assert.equal(day.snapshotCombined,2);
   assert.equal(day.historicalCombinedProvisional,1);
   assert.equal(day.knownCurrentAndHistoricalCountsNotAdditive,true);
   assert.equal(r.currentAndHistoricalCountsNeverAddedTogether,true);
@@ -143,16 +144,17 @@ test('Four current Tuesday source claims exceed the 3/day review threshold',()=>
   assert.equal(day.status,'Daily Quota Conflict — Human Review');
   assert.equal(day.canApprove,false);
 });
-test('Historic 20/month source totals are informational, not a current monthly limit',()=>{
+test('21 monthly Partner source claims exceed the current 20/month planning quota',()=>{
   const f=fixture();const items=Array.from({length:21},(_,i)=>
     item('p'+i,'Partner Convoy','2027-04-'+String(i+1).padStart(2,'0')));
   f.capacity=evaluate(items,{dataFresh:true});
   const r=projectKingsStaffCalendarReview(f),month=r.months[3];
   assert.equal(month.currentSnapshot.partner,21);
   assert.equal(month.currentSnapshot.external,0);
-  assert.notEqual(month.monthStatus,'Monthly Quota Conflict — Human Review');
-  assert.equal(month.monthlyPartnerLimit,null);
-  assert.equal(month.monthlyExternalLimit,null);
+  assert.equal(month.monthStatus,'Current Monthly Quota Conflict — Human Review');
+  assert.equal(month.currentMonthlyOverLimit,true);
+  assert.equal(month.monthlyPartnerLimit,20);
+  assert.equal(month.monthlyExternalLimit,20);
   assert.equal(month.remainingPartnerSlots,null);
   assert.equal(month.remainingExternalSlots,null);
 });
@@ -207,7 +209,7 @@ test('Malicious or malformed policy, calendar selection and evidence source fail
   assert.throws(()=>build({selectedMonth:'2027-13'}));
   assert.throws(()=>build({selectedMonth:'2028-04'}));
   assert.throws(()=>build({capacity:{...f.capacity,limits:{
-    ...f.capacity.limits,combinedDaily:3
+    ...f.capacity.limits,combinedDaily:5
   }}}));
   assert.throws(()=>build({historicalEvidenceReport:{
     ...f.historicalEvidenceReport,freeSlotsCertified:true
