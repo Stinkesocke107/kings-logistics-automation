@@ -78,8 +78,8 @@ test('Urgent conflict recommends Leadership review but cannot grant leadership r
   assert.equal(view.staffTasksCreated,0);
 });
 test('Multiple distinct disagreements produce deterministic private deduped proposals',()=>{
-  const second=item('capacity-crosscheck:'+'c'.repeat(40),
-    'signed-history-departure-conflict');
+  const second={...item('capacity-crosscheck:'+'c'.repeat(40),
+    'signed-history-departure-conflict'),priority:'Urgent'};
   const input=report([item(),second]);
   const a=proposeHistoricalWorkboardTasks({audit:input,workboard:board(),scope:SCOPE});
   const b=proposeHistoricalWorkboardTasks({audit:input,workboard:board(),scope:SCOPE});
