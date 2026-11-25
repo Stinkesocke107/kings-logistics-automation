@@ -111,8 +111,10 @@ test('suppressed legacy Event messages can refresh encrypted observations withou
   const root=path.resolve(__dirname,'..');
   const reports=fs.readFileSync(path.join(root,'event-leadership-reports.js'),'utf8');
   const dashboard=fs.readFileSync(path.join(root,'leadership-dashboard.js'),'utf8');
-  assert.equal((reports.match(/if \(updateSourceObservation\(state,report,overview\)\) saveState\(state\);/g)||[]).length,3);
+  assert.equal((reports.match(/if \(sourceUpdated \|\| invitationUpdated\) saveState\(state\);/g)||[]).length,3);
   assert.match(reports,/Legacy Leadership publication suppressed/);
+  assert.match(reports,/readInvitationTracker\(/);
+  assert.match(reports,/invitationSourceObservation/);
   assert.match(dashboard,/eventReports: readPrivateEventReports\(\)/);
   assert.match(dashboard,/trustedEventObservation\(data\.eventReports\?\.eventSourceObservation\)/);
   assert.doesNotMatch(dashboard,/eventReports: readJson\(FILES\.eventReports, \{\}\)/);

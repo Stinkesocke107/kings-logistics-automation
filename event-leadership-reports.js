@@ -6,6 +6,7 @@ const { syncTextMessage } = require('./leadership-message-sync');
 const { encryptEventState, decryptEventState } = require('./event-leadership-state');
 const {appendPrivateLeadershipReview} = require('./event-history-leadership-bridge');
 const {buildEventObservation} = require('./event-leadership-observation');
+const {readInvitationTracker} = require('./event-invitation-tracker-source');
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1114967437788577792';
@@ -447,7 +448,7 @@ function updateSourceObservation(state,report,overview) {
   }
 }
 
-async function runDaily(report, overview, state) {
+async function runDaily(report, overview, state, invitationUpdated=false) {
   const key = new Date().toISOString().slice(0, 10);
   const current = snapshotOf(report);
   const snapshot = operationalSnapshot(report, overview);
@@ -472,8 +473,9 @@ async function runDaily(report, overview, state) {
     userAgent: 'Kings Logistics Event Leadership Reports/2.0'
   });
   if (result.action === 'suppressed') {
-    if (updateSourceObservation(state,report,overview)) saveState(state);
-    console.log('Legacy Leadership publication suppressed; only reconciled read-only source observation may be saved.');
+    const sourceUpdated=updateSourceObservation(state,report,overview);
+    if (sourceUpdated || invitationUpdated) saveState(state);
+    console.log('Legacy Leadership publication suppressed; only reconciled read-only source observations may be saved.');
     return;
   }
   updateSourceObservation(state,report,overview);
@@ -486,7 +488,7 @@ async function runDaily(report, overview, state) {
   console.log(`Event Daily dashboard ${result.action} in #${channel.name}; changes since last snapshot: ${changes.length}.`);
 }
 
-async function runWeekly(report, overview, state) {
+async function runWeekly(report, overview, state, invitationUpdated=false) {
   const period = previousCompletedWeek();
   const changes = changesInPeriod(state, period);
   const snapshot = operationalSnapshot(report, overview);
@@ -508,8 +510,9 @@ async function runWeekly(report, overview, state) {
     userAgent: 'Kings Logistics Event Leadership Reports/2.0'
   });
   if (result.action === 'suppressed') {
-    if (updateSourceObservation(state,report,overview)) saveState(state);
-    console.log('Legacy Leadership publication suppressed; only reconciled read-only source observation may be saved.');
+    const sourceUpdated=updateSourceObservation(state,report,overview);
+    if (sourceUpdated || invitationUpdated) saveState(state);
+    console.log('Legacy Leadership publication suppressed; only reconciled read-only source observations may be saved.');
     return;
   }
   updateSourceObservation(state,report,overview);
@@ -532,7 +535,7 @@ async function runWeekly(report, overview, state) {
   console.log(`Event Weekly dashboard ${result.action} for ${period.key} in #${channel.name}.`);
 }
 
-async function runMonthly(report, overview, state) {
+async function runMonthly(report, overview, state, invitationUpdated=false) {
   const period = previousCompletedMonth();
   const stats = monthStats(overview, period.key);
   const changes = changesInPeriod(state, period);
@@ -555,8 +558,9 @@ async function runMonthly(report, overview, state) {
     userAgent: 'Kings Logistics Event Leadership Reports/2.0'
   });
   if (result.action === 'suppressed') {
-    if (updateSourceObservation(state,report,overview)) saveState(state);
-    console.log('Legacy Leadership publication suppressed; only reconciled read-only source observation may be saved.');
+    const sourceUpdated=updateSourceObservation(state,report,overview);
+    if (sourceUpdated || invitationUpdated) saveState(state);
+    console.log('Legacy Leadership publication suppressed; only reconciled read-only source observations may be saved.');
     return;
   }
   updateSourceObservation(state,report,overview);
@@ -582,10 +586,26 @@ async function main() {
   if (!report || !overview) throw new Error('Fresh convoy report/overview is missing.');
 
   const state = loadState();
+  let invitationUpdated=false;
+  // Existing private Forum #15. Strictly GET-only and aggregates-only.
+  // A missing permission, incomplete archived scan or malformed source must
+  // not falsely become zero invitations or affect Event/Calendar approvals.
+  if (!PREVIEW) {
+    try {
+      // The independent Convoy Center snapshot must reconcile first.
+      buildEventObservation(report,overview);
+      state.invitationSourceObservation=await readInvitationTracker({
+        token:DISCORD_BOT_TOKEN,centerReport:report
+      });
+      invitationUpdated=true;
+    } catch {
+      console.warn('Kings Event Invitation Tracker: SOURCE_UNAVAILABLE; existing observations not refreshed.');
+    }
+  }
 
-  if (REPORT_MODE === 'daily') return runDaily(report, overview, state);
-  if (REPORT_MODE === 'weekly') return runWeekly(report, overview, state);
-  if (REPORT_MODE === 'monthly') return runMonthly(report, overview, state);
+  if (REPORT_MODE === 'daily') return runDaily(report, overview, state,invitationUpdated);
+  if (REPORT_MODE === 'weekly') return runWeekly(report, overview, state,invitationUpdated);
+  if (REPORT_MODE === 'monthly') return runMonthly(report, overview, state,invitationUpdated);
 
   throw new Error(`Unsupported EVENT_LEADERSHIP_REPORT_MODE: ${REPORT_MODE}`);
 }
