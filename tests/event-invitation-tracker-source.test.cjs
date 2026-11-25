@@ -71,7 +71,7 @@ test('counts all invited VTCs, including declined ones, but never duplicates or 
   assert.equal(trustedInvitationObservation(x,NOW),x);
   const output=JSON.stringify(x);
   for(const privateValue of ['First VTC','Other VTC','Third VTC','123456789012345678',
-    '123456-event','777777777777777777',G,FORUM,'10101','20202','30303'])
+    '123456-event','777777777777777777',GUILD,FORUM,'10101','20202','30303'])
     assert.equal(output.includes(privateValue),false,privateValue);
 });
 test('invalid tags, incomplete source, stale claims and unsupported fields fail closed',()=>{
