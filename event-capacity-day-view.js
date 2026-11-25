@@ -99,7 +99,12 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
     return row;
   });
   const rank={Accepted:0,Pending:1,'Data Conflict':2,'Needs Verification':3,Cancelled:4};
+  const priority={Kings:0,'Official Partner':1,'Other External':2};
   items.sort((a,b)=>rank[a.state]-rank[b.state]||
+    // Prioritize only NEW unconfirmed/Pending requests; confirmed Events
+    // never get moved, reapproved or displaced by this read-only ordering.
+    (a.state==='Pending'&&b.state==='Pending'?
+      (priority[a.type]??3)-(priority[b.type]??3):0)||
     (a.departureUnix??Number.MAX_SAFE_INTEGER)-(b.departureUnix??Number.MAX_SAFE_INTEGER)||
     a.type.localeCompare(b.type));
   const pages=Math.max(1,Math.ceil(items.length/pageSize));
@@ -108,8 +113,8 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
   // synthesized exclusively from fixed enums and trusted time fields.
   const issuesForDay=capacity.issues.filter(issue=>issue.day===day).length;
   const safeWarnings=new Set([
-    'combined-day-over-limit','partner-day-over-limit',
-    'external-day-over-limit','departure-under-two-hours',
+    'combined-day-over-limit','partner-month-over-limit',
+    'external-month-over-limit','departure-under-two-hours',
     'meeting-end-overlap'
   ]);
   const dayEventIds=new Set(grouped.keys());
@@ -129,9 +134,9 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
     remaining:null,
     monthly:{
       partnerUsed:capacityDay.monthly.partner,
-      partnerLimit:null,
+      partnerLimit:LIMITS.partnerMonthly,
       externalUsed:capacityDay.monthly.external,
-      externalLimit:null
+      externalLimit:LIMITS.externalMonthly
     },
     approvedExceptions:capacityDay.daily.approvedExceptions||0,
     partnerAvailableVerified:false,
@@ -148,16 +153,17 @@ function sanitizeDiscord(response){
     response.partnerAvailableVerified!==false||
     response.externalAvailableVerified!==false||
     response.baseLimit!==dailyLimitForUtcDate(response.day)||
-    response.monthly?.partnerLimit!==null||
-    response.monthly?.externalLimit!==null||
+    response.monthly?.partnerLimit!==LIMITS.partnerMonthly||
+    response.monthly?.externalLimit!==LIMITS.externalMonthly||
     !Array.isArray(response.items)||response.items.length>10)fail();
   const text=[
     '**Kings Event Capacity | '+response.day+' UTC**',
-    'Reported Partner + External: **'+response.combinedUsed+'/'+response.baseLimit+'**'+
+    'Reported Kings + Partner + External: **'+response.combinedUsed+'/'+response.baseLimit+'**'+
       (response.approvedExceptions?' | Approved exceptions: '+response.approvedExceptions:''),
     'Monthly reported: Partner '+response.monthly.partnerUsed+
-      ' | External '+response.monthly.externalUsed+
-      ' (no approved monthly cap)',
+      '/20 | External '+response.monthly.externalUsed+
+      '/20 | Kings no monthly maximum',
+    'For NEW unconfirmed requests: Kings > Partner > External (Staff review only).',
     '**Availability unverified — do not confirm an open slot.**',
     'Status: '+(response.sourceVerified?'Source checked':'Data Outdated / Needs Verification'),
     'Events: '+response.total+' | Page '+response.page+'/'+response.pages
