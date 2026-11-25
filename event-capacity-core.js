@@ -2,16 +2,15 @@
 // Kings Event Capacity v1: pure, read-only and fail-closed. NOT wired to live jobs.
 // Input is a normalized adapter snapshot; *_Verified fields must be established
 // by authorized upstream sources, never inferred from a public host or name.
-const {POLICY,dailyLimitForUtcDate,reviewDailyCount}
+const {POLICY,dailyLimitForUtcDate,reviewDailyCount,reviewMonthlyCount}
   =require('./event-capacity-policy');
 const LIMITS=Object.freeze({
   policyId:POLICY.policyId,
-  weekdayCombined:POLICY.weekdayCombinedMax,
-  weekendCombined:POLICY.weekendCombinedMax,
-  partnerDaily:POLICY.partnerDailyMax,
-  externalDaily:POLICY.externalDailyMax,
-  combinedDaily:null,
-  partnerMonthly:null,externalMonthly:null,
+  combinedDaily:POLICY.dailyTotalMax,
+  partnerMonthly:POLICY.partnerMonthlyMax,
+  externalMonthly:POLICY.externalMonthlyMax,
+  kingsMonthly:null,weeklyMax:null,categoryDailyMax:null,
+  kingsQuotaExempt:false,priorityOrder:POLICY.priorityOrder,
   departureGapMinutes:POLICY.minimumDepartureGapMinutes
 });
 const TYPES=Object.freeze({'Kings Convoy':'kings','Partner Convoy':'partner','External Convoy':'external'});
@@ -106,10 +105,11 @@ function evaluate(input,options={}){
     const dayCounts=(days[day]??={kings:0,partner:0,external:0,combined:0,approvedExceptions:0});
     const monthCounts=(months[month]??={kings:0,partner:0,external:0,approvedExceptions:0});
     dayCounts[type]++;monthCounts[type]++;
-    if(type!=='kings')dayCounts.combined++;
+    // The daily maximum is GLOBAL: Kings also consumes one of three.
+    dayCounts.combined++;
     // This field is evidence provided by the trusted adapter: approval must
     // be role-checked and logged upstream; the evaluator never grants it.
-    if(type!=='kings'&&item.exceptionApprovedBy==='Event Management'||type!=='kings'&&item.exceptionApprovedBy==='CEO'){
+    if(item.exceptionApprovedBy==='Event Management'||item.exceptionApprovedBy==='CEO'){
       dayCounts.approvedExceptions++;monthCounts.approvedExceptions++;
     }
     if(item.dataConflict===true)issue('data-conflict',id,day);
@@ -131,21 +131,27 @@ function evaluate(input,options={}){
     c.remaining=null;
     c.planningRemaining=Math.max(0,review.limit-c.combined);
     c.approvedExceptions=Math.min(c.approvedExceptions,c.combined);
-    if(c.combined>review.limit)
+    if(review.planningOverLimit)
       warnings.push({code:'combined-day-over-limit',day,
         count:c.combined,limit:review.limit,
         approvedExceptions:c.approvedExceptions});
-    if(c.partner>LIMITS.partnerDaily)
-      warnings.push({code:'partner-day-over-limit',day,
-        count:c.partner,limit:LIMITS.partnerDaily});
-    if(c.external>LIMITS.externalDaily)
-      warnings.push({code:'external-day-over-limit',day,
-        count:c.external,limit:LIMITS.externalDaily});
   }
-  for(const c of Object.values(months)){
-    // Monthly counts remain informational until a new monthly policy is
-    // explicitly adopted. The retired 20+20 caps MUST NOT be enforced.
+  for(const [month,c] of Object.entries(months)){
+    const review=reviewMonthlyCount({month,partner:c.partner,
+      external:c.external,kings:c.kings});
+    c.partnerOverLimit=review.partner>review.partnerLimit;
+    c.externalOverLimit=review.external>review.externalLimit;
+    c.partnerLimitReached=review.partnerAtLimit;
+    c.externalLimitReached=review.externalAtLimit;
+    // A planning count does not prove an approved bookable place or a
+    // released historical reservation.
     c.partnerRemaining=null;c.externalRemaining=null;
+    if(c.partnerOverLimit)
+      warnings.push({code:'partner-month-over-limit',month,
+        count:c.partner,limit:LIMITS.partnerMonthly});
+    if(c.externalOverLimit)
+      warnings.push({code:'external-month-over-limit',month,
+        count:c.external,limit:LIMITS.externalMonthly});
   }
   const timed=[...counted].sort((a,b)=>a.departure-b.departure);
   for(let i=0;i<timed.length;i++)for(let j=i+1;j<timed.length;j++){
@@ -186,10 +192,10 @@ function dayAvailability(result,day){
     remaining:null,planningRemaining:Math.max(0,dayLimit-daily.combined),
     partnerPlanningWithinLimit:sourceSnapshotVerified&&
       !review.observedPlanningLimitReached&&
-      daily.partner<LIMITS.partnerDaily,
+      monthly.partner<LIMITS.partnerMonthly,
     externalPlanningWithinLimit:sourceSnapshotVerified&&
       !review.observedPlanningLimitReached&&
-      daily.external<LIMITS.externalDaily,
+      monthly.external<LIMITS.externalMonthly,
     partnerAvailableVerified:false,externalAvailableVerified:false,
     freeVerified:false};
 }
