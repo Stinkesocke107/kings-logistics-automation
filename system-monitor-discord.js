@@ -111,17 +111,37 @@ function liveMapAvailabilityLine(health) {
   const liveWorkflow = workflow(health, 'live-tracker.yml');
   const freshness = Array.isArray(health.data?.freshness) ? health.data.freshness : [];
   const trackerSnapshot = freshness.find(item => item.file === 'data/live-tracker-snapshot.json');
+  const proof = health.data?.liveDelivery;
+  const at = Date.parse(proof?.checkedAt || '');
+  const ageMs = Date.now() - at;
+  const recent = Number.isFinite(at) && at > 0 && ageMs >= -5*60*1000 && ageMs <= 25*60*1000;
+  const required = ['Live Tracker','Advanced Statistics','Central Overview'];
+  const allDisplays = proof?.allDisplaysVerified === true &&
+    Array.isArray(proof.displaysVerified) &&
+    required.every(name => proof.displaysVerified.includes(name));
+  const liveRunOk = liveWorkflow?.ok === true;
 
   if (service?.status === 'down' || service?.status === 'degraded') {
-    if (liveWorkflow?.ok === true) {
-      return '🟡 🗺️ **Live player map:** Provider unavailable; last Live Systems workflow delivered the official-data fallback. Kings online: **Unavailable (not 0)**.';
+    if (recent && allDisplays && liveRunOk && proof?.mode === 'fallback-delivered') {
+      if (proof.source === 'official-vtc-and-servers' || proof.source === 'official-vtc-only') {
+        return '🟡 🗺️ **Live player map:** Provider down; official-data fallback verified on all 3 displays. Kings online: **Unavailable (not 0)**.';
+      }
+      if (proof.source === 'recent-roster') {
+        return '🟡 🗺️ **Live player map:** Provider down; recent roster fallback verified on all 3 displays. Kings online: **Unavailable**.';
+      }
+      if (proof.source === 'status-only') {
+        return '🟡 🗺️ **Live player map:** Provider down; unavailability notices delivered. Official feed also unavailable.';
+      }
     }
-    return '🔴 🗺️ **Live player map:** Provider unavailable; fallback delivery not verified.';
+    return '🔴 🗺️ **Live player map:** Provider down; no recent proof of complete fallback delivery.';
   }
-  if (service?.status === 'healthy' && liveWorkflow?.ok === true && trackerSnapshot?.ok === true) {
-    return '🟢 🗺️ **Live player map:** Verified live source and Tracker snapshot available.';
+  if (service?.status === 'healthy' && liveRunOk && trackerSnapshot?.ok === true &&
+      recent && allDisplays && proof?.mode === 'verified-live' &&
+      proof?.source === 'verified-map' &&
+      proof?.sourceSnapshotAt === trackerSnapshot.updatedAt) {
+    return '🟢 🗺️ **Live player map:** Full source and all 3 displays verified.';
   }
-  return '⚪ 🗺️ **Live player map:** Source or delivery not verified.';
+  return '⚪ 🗺️ **Live player map:** Full source or delivery not verified.';
 }
 
 function ratioLine(icon, label, healthy, total) {
