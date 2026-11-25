@@ -35,10 +35,13 @@ function inspectKingsSourceChannelEvidenceClaims({channelInventory,convoyRecords
         !SNOW.test(record.threadId)||
         !['current','archived','deleted','legacy'].includes(record.sourceKind))
         fail();
-      const key=record.channelId+':'+record.threadId;
-      if(seen.has(key))fail();
-      seen.add(key);
+      // Discord thread IDs are unique across channels, not just within one.
+      // A thread assigned to two parent channels is contradictory evidence.
+      if(seen.has(record.threadId))fail();
+      seen.add(record.threadId);
       const row=rows.get(record.channelId);
+      if((row.kind==='current'&&record.sourceKind==='legacy')||
+        (row.kind==='legacy'&&record.sourceKind==='current'))fail();
       row.observed++;
       if(record.sourceKind==='archived')row.observedArchived++;
       if(record.sourceKind==='deleted')row.observedDeleted++;
