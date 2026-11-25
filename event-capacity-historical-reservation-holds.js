@@ -20,15 +20,14 @@ function reviewSignedHistoricalReservationHolds({
     const proof=verifyHistoricalJournal(journal,{scope,ownerPublicKey});
     if(proof.verified!==true||proof.historicalCoverageCertified!==false)fail();
     const dates=new Map(),byMonth={partner:new Set(),external:new Set()};
-    const allAccepted=new Set();
     for(const {payload} of journal.history){
+      if(Date.parse(payload.reviewedAt)>nowMs+60000)fail();
       if(!['accept','reschedule'].includes(payload.action))continue;
       // Historical signed transitions are the only basis for this report.
       // Kings-organized convoys remain exempt from external/partner quotas.
       const category=payload.category==='Partner Convoy'?'partner':
         payload.category==='External Convoy'?'external':null;
       if(!category)continue;
-      allAccepted.add(payload.ref);
       const date=payload.departureAtUtc.slice(0,10);
       if(date.slice(0,7)!==month)continue;
       const reservation=dates.get(date)??{partner:new Set(),external:new Set()};
