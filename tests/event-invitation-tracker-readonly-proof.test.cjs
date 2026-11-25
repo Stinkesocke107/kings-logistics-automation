@@ -41,7 +41,7 @@ test('real-source proof fails closed on read failure without logging original er
   const x=await execute(true);
   assert.equal(x.status,'SOURCE_UNAVAILABLE');
   assert.equal(x.exitCode,1);
-  assert.match(x.warnings.join('\n'),/SOURCE_UNAVAILABLE/);
+  assert.match(x.warnings.join('\n'),/SOURCE_UNAVAILABLE \(SOURCE_INCONSISTENT\)/);
   assert.doesNotMatch(x.warnings.join('\n'),new RegExp(x.marker));
 });
 test('production workflow isolates real private-source review from core Event reporting jobs',()=>{
