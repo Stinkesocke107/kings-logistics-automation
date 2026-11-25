@@ -12,6 +12,44 @@
 
 **What it does NOT prove:** The function cannot know where `retainedOwnerCard` was kept or that the supplied floor is genuinely the most recent independently retained record. A malicious actor controlling both a mutable remote repository and the only copy of the floor can cause rollback. The owner must protect and verify an **actual independently retained latest** signed checkpoint. A different GitHub repository under the same account is not independent custody. Neither valid receipt nor intact journal proves all archived/deleted Convoys were captured.
 
+## Offline two-copy recovery review — NEW DRAFT ONLY
+
+The new pure helpers `fingerprintSignedOfflineOwnerFloor` and
+`inspectOfflineOwnerRecoveryCopies` in `event-capacity-independent-owner-highwater.js`
+verify the existing Ed25519-signed owner receipt, calculate a domain-separated
+SHA-256 fingerprint over its revision, tip, archive digest, scope, issuance
+date and signature, and compare **two separately supplied** cards to a
+**separately recorded** exact fingerprint. Mismatches, forged signatures,
+stale/different signed copies, unexpected fields, and wrong scope/key are denied.
+The helpers perform no network access, export, receipt update, key generation,
+signing or Event decision. Independent custody and latestness remain unproven.
+
+**Owner-operated procedure for a future separately approved synthetic pilot:**
+
+1. Create and sign a synthetic checkpoint on an isolated owner-controlled device.
+   NEVER import the Ed25519 owner PRIVATE signing key into GitHub Actions,
+   a GitHub repository, ChatGPT or Discord.
+2. Generate the card offline. Export one copy to an owner-controlled primary
+   offline medium, and another to an independently controlled recovery medium
+   or provider. Export is a human action, not performed by the code.
+3. Record the SHA-256 fingerprint on a **third separately controlled record**
+   (preferably a printed offline record). Do not publish the card in the public repo.
+4. During owner review, privately read both independently retained copies and
+   the separately recorded fingerprint, and run the two-copy audit.
+   Then use `compareRemoteHistoryToOfflineHighwater` to check signed remote
+   history against the retained signed owner floor. If remote is ahead,
+   require separate human review and a new offline signing/custody ceremony.
+   Never automatically advance the highwater.
+5. For an actual recovery drill, simulate GitHub/account loss and independently
+   obtain both copies, verify the fingerprint, and recover/reverify the real
+   encrypted archive. In-memory synthetic tests are not recovery drills.
+
+**Blocked until separately authorized:** real token/key provisioning, Event
+migration, real backup workers, secrets, merge, production activation, or
+automated available-slot claims. Two matching objects cannot prove that
+copies are on independent media or are the latest owner checkpoint; a matching
+signed digest alone does not prove archive ciphertext was retrieved and hashed.
+
 ## Private GitHub request allowlist: additional defense, not a permission grant
 
 `event-capacity-private-runtime-request-guard.js` exports `createKingsPrivateGithubRequestGuard({role,mode,transport})` for exactly three roles:
@@ -24,7 +62,7 @@
 
 A transport **strictly rejects** cross-repo URLs, unexpected GitHub methods (`DELETE`, `PATCH`, `POST`), arbitrary paths, encoded traversal, wrong refs/branches, malformed base64, missing CAS SHA on the history index, any overwrite SHA on immutable segments/backups, bad calendar dates, unexpected request fields and excessive payloads. A rejected request never reaches the injected network transport. A transport error is generically redacted and not automatically retried.
 
-The request guard validates the **requested** URL and method. It does NOT establish the actual fine-grained scopes, custody or expiration of the token inside the `Authorization` header. It does NOT prove that opaque bytes are encrypted or that the remote write succeeded. The final production pilot must use independently provisioned credentials with **GitHub-restricted repository rights**, credential rotation/revocation controls and read-after-write verification. Existing GitHub connection for one-time setup reported administrative rights to all three stores and is NOT a suitable proof of separate runtime least privilege.
+The request guard additionally pins GitHub's media Accept header, optional API-version header, safe User-Agent format, and JSON-only PUT Content-Type; unexpected header values and embedded newlines are refused before transport. The request guard validates the **requested** URL and method. It does NOT establish the actual fine-grained scopes, custody or expiration of the token inside the `Authorization` header. It does NOT prove that opaque bytes are encrypted or that the remote write succeeded. The final production pilot must use independently provisioned credentials with **GitHub-restricted repository rights**, credential rotation/revocation controls and read-after-write verification. Existing GitHub connection for one-time setup reported administrative rights to all three stores and is NOT a suitable proof of separate runtime least privilege.
 
 ## GitHub Free-compatible future runtime plan (not enabled)
 
