@@ -11,7 +11,10 @@ const newModules=[
   'event-capacity-private-runtime-installation-scope-probe',
   'event-capacity-private-runtime-scope-bundle',
   'event-capacity-synthetic-pilot-hold-audit',
-  'event-capacity-private-issued-grant-metadata-audit'
+  'event-capacity-private-issued-grant-metadata-audit',
+  'event-capacity-historical-evidence-gap-audit',
+  'event-capacity-backup-90day-recovery-audit',
+  'event-capacity-private-safety-overview'
 ];
 test('New credential policy and synthetic restoration cannot activate live Convoy Checker',()=>{
   const live=fs.readFileSync(path.join(root,
@@ -78,4 +81,30 @@ test('A redacted token issuance shape validator must not itself issue GitHub App
   assert.match(src,/authenticGithubProviderResponseVerified:false/);
   assert.match(src,/safeForPrivateSyntheticWrites:false/);
   assert.doesNotMatch(src,/createInstallationAccessToken|\/access_tokens['"]/);
+});
+
+test('Offline historical evidence audit never authenticates the source by itself',()=>{
+  const src=fs.readFileSync(path.join(root,
+    'event-capacity-historical-evidence-gap-audit.js'),'utf8');
+  assert.match(src,/verifyHistoricalJournal/);
+  assert.match(src,/originalSourceRecordsIndependentlyAuthenticated:false/);
+  assert.match(src,/sourceInventoryCompletenessVerified:false/);
+  assert.match(src,/anyEventDecisionCommitted:false/);
+  assert.match(src,/reviewItemsCreatedInDiscord:0/);
+});
+test('Ninety day backup audit never creates backups, deletes files or pretends a real restore',()=>{
+  const src=fs.readFileSync(path.join(root,
+    'event-capacity-backup-90day-recovery-audit.js'),'utf8');
+  assert.match(src,/monthlyIndependentRecoveryDrillVerified:false/);
+  assert.match(src,/automaticDeletions:0/);
+  assert.match(src,/backupWritesPerformed:0/);
+  assert.match(src,/independentOffsiteStorageCustodyVerified:false/);
+});
+test('Private CEO safety overview refuses automatic Event slot or go-live authority',()=>{
+  const src=fs.readFileSync(path.join(root,
+    'event-capacity-private-safety-overview.js'),'utf8');
+  assert.match(src,/eventAvailabilityCertified:false/);
+  assert.match(src,/explicitCEOProductionApprovalVerified:false/);
+  assert.match(src,/originalPrivateEventSourcesAuthenticated:false/);
+  assert.match(src,/operationsPerformed:0/);
 });
