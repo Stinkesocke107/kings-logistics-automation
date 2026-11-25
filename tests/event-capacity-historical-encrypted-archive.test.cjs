@@ -97,3 +97,13 @@ test('A different archive revision cannot be opened with an earlier owner-pinned
   assert.throws(()=>x.open({archive:latest.archive,checkpoint:previous.checkpoint}));
   assert.throws(()=>x.open({archive:previous.archive,checkpoint:latest.checkpoint}));
 });
+test('Signed historical cancellation survives archive restore without certifying capacity release',()=>{
+  const x=setup();x.add();
+  x.add({action:'cancel',reviewed:'2027-04-01T11:00:00.000Z'});
+  const {archive,checkpoint}=x.seal();
+  const saved=x.open({archive,checkpoint});
+  assert.equal(saved.journal.events['event:20271'].status,'Cancelled');
+  assert.equal(saved.journal.freeSlotsCertified,false);
+  assert.equal('slotReleasedVerified' in saved.journal,false);
+  assert.equal(saved.historicalCoverageCertified,false);
+});
