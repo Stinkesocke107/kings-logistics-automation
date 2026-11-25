@@ -5,17 +5,32 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 const REPORT='output/convoy-planning-limits.json';
 const STATE='data/convoy-planning-alert-state.json';
-function keyOf(w){const stable=w.code==='external-month-threshold'?[w.code,w.period,w.threshold]:w.code==='departure-under-two-hours'?[w.code,...[w.first,w.second].sort()]:[w.code,w.period];return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex').slice(0,24);}
+function keyOf(w){
+  const threshold=w.code==='external-month-threshold'||w.code==='partner-month-threshold';
+  const stable=threshold?[w.code,w.period,w.threshold]:
+    w.code==='departure-under-two-hours'?[w.code,...[w.first,w.second].sort()]:
+    [w.code,w.period];
+  return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex').slice(0,24);
+}
 function pending(warnings,state){
   const sent=new Set(Array.isArray(state?.sent)?state.sent:[]);
   return (warnings||[]).map(w=>({key:keyOf(w),warning:w})).filter(x=>!sent.has(x.key));
 }
 function describe(w){
-  if(w.code==='external-month-threshold')return 'External Convoys: '+w.count+'/20 in '+w.period+' (threshold '+w.threshold+'/20).';
-  if(w.code==='external-month-over-limit')return 'External Convoys exceed monthly limit: '+w.count+'/20 in '+w.period+'.';
-  if(w.code==='external-day-over-limit')return 'External Convoys exceed daily limit: '+w.count+'/2 on '+w.period+'.';
-  if(w.code==='partner-day-over-limit')return 'Partner Convoys exceed daily limit: '+w.count+'/3 on '+w.period+'.';
-  if(w.code==='departure-under-two-hours')return 'Departure conflict: '+w.first+' and '+w.second+' are '+w.minutesApart+' minutes apart (minimum 120).';
+  if(w.code==='external-month-threshold'||w.code==='partner-month-threshold'){
+    const type=w.code.startsWith('partner')?'Partner':'External';
+    return type+' Convoy source claims: '+w.count+'/20 in '+w.period+
+      ' (review threshold '+w.threshold+'/20; not automatic approval).';
+  }
+  if(w.code==='external-month-over-limit'||w.code==='partner-month-over-limit'){
+    const type=w.code.startsWith('partner')?'Partner':'External';
+    return type+' Convoy source claims exceed the 20/month planning limit: '+
+      w.count+'/20 in '+w.period+'. Staff review required; no existing approval is displaced.';
+  }
+  if(w.code==='total-day-over-limit')return 'Combined Kings + Partner + External Convoy source claims: '+
+    w.count+'/3 on '+w.period+' (UTC); Staff review required, no automatic refusal or reschedule.';
+  if(w.code==='departure-under-two-hours')return 'Departure spacing review: '+w.first+' and '+w.second+
+    ' are '+w.minutesApart+' minutes apart (under 120 minutes is WARNING ONLY, not automatic refusal).';
   return 'Planning advisory: '+w.code;
 }
 async function main(){
@@ -28,7 +43,13 @@ async function main(){
   const activeWarnings=report.warnings.filter(w=>String(w.period||'').slice(0,7)>=monthNow);
   const notices=pending(activeWarnings,existing);
   if(!notices.length){console.log('No new convoy planning warnings.');return;}
-  if(process.env.CONVOY_DRY_RUN==='true'){console.log('Read-only: '+notices.map(n=>describe(n.warning)).join(' | '));return;}
+  if(process.env.CONVOY_DRY_RUN==='true'){
+    // PUBLIC Actions logs: never print Staff/Event names, event IDs, links
+    // or routes when running a restricted dry-run.
+    console.log('Read-only Kings capacity planning advisories: '+notices.length+
+      ' new warning(s); private event details withheld.');
+    return;
+  }
   const token=process.env.DISCORD_BOT_TOKEN;
   const guild=process.env.DISCORD_GUILD_ID;
   if(!token||!guild)throw Error('Discord settings missing');

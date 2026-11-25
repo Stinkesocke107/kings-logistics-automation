@@ -1,6 +1,11 @@
 'use strict';
 // Pure, advisory-only planning rules. No Discord writes or status changes.
-const LIMITS = Object.freeze({ externalMonthly: 20, externalDaily: 2, partnerDaily: 3, separationMinutes: 120 });
+// The binding Kings Event Capacity policy applies to ALL UTC days alike.
+// These are ADVISORY source-claim thresholds, not booking permissions.
+const LIMITS = Object.freeze({
+  dailyTotal: 3, partnerMonthly: 20, externalMonthly: 20,
+  kingsMonthly: null, separationMinutes: 120
+});
 const TYPES = new Set(['Kings Convoy', 'Partner Convoy', 'External Convoy']);
 // A Kings-hosted event is publicly verifiable from the authoritative
 // TruckersMP event's VTC host. Never infer Kings partner/friend status here:
@@ -18,7 +23,10 @@ function typeOf(value) {
   return [...TYPES].find(type => type.toLowerCase() === valueText) || null;
 }
 function dateFrom(value) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) ? value : null;
+  const text=String(value||'');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(text))return null;
+  const ms=Date.parse(text+'T00:00:00Z');
+  return Number.isFinite(ms)&&new Date(ms).toISOString().slice(0,10)===text?text:null;
 }
 // TruckersMP supplies UTC timestamps like "2027-03-20 16:00:00" without
 // a timezone suffix. Only this known API format may omit an explicit zone.
@@ -40,7 +48,15 @@ function evaluate(input) {
     let type = typeOf(original.validation?.parsed?.eventType || original.eventType);
     const verified = type ? null : publiclyVerifiedKingsHost(original);
     if (verified) type = verified.type;
-    const date = dateFrom(original.validation?.parsed?.eventDate || original.eventDate);
+    const rawStart = original.departureAtUtc || original.validation?.parsed?.departureAtUtc;
+    const departureMs = departureMsFrom(rawStart);
+    // A verified departure instant always determines the actual UTC planning
+    // day/month, even if the display eventDate is in another timezone.
+    // When no departure is verified, retain the tentative day only for
+    // conservative Staff review. This never certifies a free slot.
+    const date = Number.isFinite(departureMs)
+      ? new Date(departureMs).toISOString().slice(0,10)
+      : dateFrom(original.validation?.parsed?.eventDate || original.eventDate);
     if (!date) continue;
     const key = original.eventId ? 'event:' + String(original.eventId) : 'thread:' + String(original.threadId || original.legacyId || '');
     if (seen.has(key)) continue;
@@ -57,8 +73,6 @@ function evaluate(input) {
       });
       continue;
     }
-    const rawStart = original.departureAtUtc || original.validation?.parsed?.departureAtUtc;
-    const departureMs = departureMsFrom(rawStart);
     if (!Number.isFinite(departureMs)) missingDepartures.push({ threadId: original.threadId || null, eventId: original.eventId || null, date, type });
     records.push({ id: key, threadId: original.threadId || null, name: original.name || null, type, date, departureMs: Number.isFinite(departureMs) ? departureMs : null });
   }
@@ -71,17 +85,43 @@ function evaluate(input) {
     months[month][field]++; days[r.date][field]++;
   }
   for (const [month, counts] of Object.entries(months)) {
-    for (const threshold of [15,18,20]) if (counts.external >= threshold) warnings.push({ code: 'external-month-threshold', period: month, threshold, count: counts.external });
-    if (counts.external > LIMITS.externalMonthly) warnings.push({ code: 'external-month-over-limit', period: month, count: counts.external, limit: LIMITS.externalMonthly });
+    for (const category of ['external','partner']) {
+      const monthlyLimit = category==='external'?LIMITS.externalMonthly:LIMITS.partnerMonthly;
+      for (const threshold of [15,18,20]) {
+        if (counts[category] >= threshold) {
+          warnings.push({
+            code: category+'-month-threshold', period: month,
+            threshold, count: counts[category]
+          });
+        }
+      }
+      if (counts[category] > monthlyLimit) {
+        warnings.push({
+          code: category+'-month-over-limit', period: month,
+          count: counts[category], limit: monthlyLimit
+        });
+      }
+    }
   }
   for (const [day, counts] of Object.entries(days)) {
-    if (counts.external > LIMITS.externalDaily) warnings.push({ code: 'external-day-over-limit', period: day, count: counts.external, limit: LIMITS.externalDaily });
-    if (counts.partner > LIMITS.partnerDaily) warnings.push({ code: 'partner-day-over-limit', period: day, count: counts.partner, limit: LIMITS.partnerDaily });
+    const combined = counts.external + counts.partner + counts.kings;
+    counts.total=combined;
+    if (combined > LIMITS.dailyTotal) {
+      warnings.push({
+        code:'total-day-over-limit', period:day,
+        count:combined, limit:LIMITS.dailyTotal
+      });
+    }
   }
   const timed = records.filter(r => r.departureMs !== null).sort((a,b)=>a.departureMs-b.departureMs);
   for (let i=0;i<timed.length;i++) for (let j=i+1;j<timed.length && timed[j].departureMs-timed[i].departureMs<LIMITS.separationMinutes*60000;j++) {
     warnings.push({ code: 'departure-under-two-hours', period: timed[i].date, first: timed[i].id, second: timed[j].id, minutesApart: Math.round((timed[j].departureMs-timed[i].departureMs)/60000) });
   }
-  return { version:1, mode:'advisory-only', limits:LIMITS, months, days, warnings, unknownTypes, missingDepartures, resolvedEventTypes, counted:records.length };
+  // Classified and/or undated Center claims are incomplete historical
+  // evidence. NEVER calculate or publish certified remaining/bookable slots.
+  return { version:2, mode:'advisory-only', limits:LIMITS, months, days,
+    warnings, unknownTypes, missingDepartures, resolvedEventTypes,
+    counted:records.length, freeSlotsCertified:false,
+    historicalApprovalsVerified:false, sourceClaimsOnly:true };
 }
 module.exports = { evaluate, typeOf, LIMITS };
