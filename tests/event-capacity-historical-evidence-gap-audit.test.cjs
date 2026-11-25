@@ -188,3 +188,13 @@ test('Archived source record requires separate original evidence review even if 
   assert.equal(result.months.find(x=>x.month==='2027-04').archivedOrDeletedClaims,1);
   assert.equal(result.counters.monthsIndependentlySourceVerified,0);
 });
+
+test('Future-issued owner historical reviews are not valid at an earlier inspection',()=>{
+  const s=scenario();
+  assert.throws(()=>s.audit({
+    nowMs:Date.parse('2027-03-15T12:00:00.000Z')
+  }));
+  const result=s.audit({nowMs:NOW});
+  assert.equal(result.signedJournalIntegrityVerified,true);
+  assert.equal(result.freeSlotsCertified,false);
+});
