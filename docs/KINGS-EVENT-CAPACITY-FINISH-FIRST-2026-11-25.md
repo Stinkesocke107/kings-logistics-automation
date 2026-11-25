@@ -140,3 +140,20 @@ A concrete CEO handoff checklist in `docs/KINGS-EVENT-CAPACITY-PRIVATE-STORAGE-O
 
 See `docs/KINGS-EVENT-CAPACITY-GITHUB-FREE-SECRETS-AND-ACCESS-2026-11-25.md` for the exact up-to-date key/access boundary. PR #143 remains DRAFT; real data movement, paid feature activation, live Discord writes, merge and `capacity_preview` are NOT authorized.
 
+
+## Three GitHub Free PRIVATE repositories — Access verified and safely initialized (25 November 2026)
+
+The owner completed the GitHub App authorization. The live connected GitHub repository metadata and selected-installation listing **independently confirmed all three** exact private repositories, their existing `main` branches and unarchived state:
+
+- `Stinkesocke107/kings-event-capacity-history` — PRIVATE, `main`, purpose README and accidental-secret `.gitignore` verified.
+- `Stinkesocke107/kings-event-capacity-witness` — PRIVATE, `main`, purpose README and accidental-secret `.gitignore` verified.
+- `Stinkesocke107/kings-event-capacity-backups` — PRIVATE, `main`, purpose README and accidental-secret `.gitignore` verified.
+
+Installation `162599792` remains **selected-repositories**, not unrestricted all-repo access. No archived/disabled repo was encountered. The private repos' `main` branches were changed **only to install non-secret purpose/readme/ignore guardrails**, no real Event data. The PUBLIC `main` and running Convoy Checker are unchanged.
+
+The connected actor currently reports **admin/maintain/push rights** over all three, which are NOT a safe minimum-permission future worker identity. No private Ed25519 owner signing keys, archive/backup decryption secrets, cross-repo PATs or Actions secrets were provisioned. GitHub Free private repo paid branch protection is NOT assumed.
+
+A fixed-role **offline verification module**, `event-capacity-github-free-topology-audit.js`, rejects missing/reordered/non-private/archived/wrong-default-branch repositories and missing selected installation access; reports observed broad actor write privileges but NEVER claims safe release, least-privilege runtime credentials or certified free slots. Added synthetic tests and live-workflow isolation gating.
+
+**Canonical owner register is now updated:** `docs/KINGS-EVENT-CAPACITY-PRIVATE-STORAGE-OWNER-HANDOFF-2026-11-25.md`. **No additional CEO setup action is required immediately.** Next engineering phase is minimum-permission runtime identity design and independent owner-highwater handling, then an explicitly approved *synthetic-only* private test; authenticated historical completeness, independent backup, retention/restore, privacy, effective Discord roles and CEO launch signoff remain release blockers.
+
