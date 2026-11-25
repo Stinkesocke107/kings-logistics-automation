@@ -60,6 +60,17 @@ test('Duplicate channel identities and repeated source thread claims fail closed
   const g=sample();g.convoyRecords.push({...g.convoyRecords[1]});
   assert.throws(()=>check(g));
 });
+test('Thread identity cannot appear under two channels or the wrong channel kind',()=>{
+  const repeated=sample();
+  repeated.convoyRecords[1].threadId=C;
+  assert.throws(()=>check(repeated));
+  const wrongLegacy=sample();
+  wrongLegacy.convoyRecords[0].sourceKind='legacy';
+  assert.throws(()=>check(wrongLegacy));
+  const wrongCurrent=sample();
+  wrongCurrent.convoyRecords[1].sourceKind='current';
+  assert.throws(()=>check(wrongCurrent));
+});
 test('Invalid source types, missing channel, and claimed totals are refused',()=>{
   const f=sample();f.convoyRecords[0].sourceKind='secret';
   assert.throws(()=>check(f));
