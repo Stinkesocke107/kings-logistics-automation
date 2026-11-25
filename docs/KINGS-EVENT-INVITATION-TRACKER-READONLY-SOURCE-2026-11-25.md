@@ -48,3 +48,7 @@ The job has a limited `contents: read` GitHub permission, is bounded to eight mi
 ## Safe diagnosis after initial live check
 
 The first genuine `invitation_source_verify` job returned `SOURCE_UNAVAILABLE`. Do **not** treat this as a verified-live invitation inventory. The follow-up diagnostic keeps the same fail-closed behavior but attaches a fixed, allowlisted category (for example `ACCESS_DENIED`, `FORUM_MISMATCH`, `FORUM_TAGS_MISSING`, `ARCHIVE_PAGE_INCOMPLETE`, `MESSAGE_PAGE_INCOMPLETE`, `STARTER_NOT_FOUND`). It never emits response bodies, forum messages, VTC names, IDs or raw exceptions. The operator may then examine the specific access/configuration gap privately and must not enable write permissions just to silence the diagnostic.
+
+### Narrowing an Access Denied source
+
+Live read-only production check returned `ACCESS_DENIED` on 25 November 2026. The diagnostic now differentiates *which GET endpoint* was denied: `ACCESS_DENIED_FORUM` (Forum metadata), `ACCESS_DENIED_ACTIVE` (Guild active threads), `ACCESS_DENIED_ARCHIVE` (archived forum threads), or `ACCESS_DENIED_MESSAGES` (individual thread replies). These are fixed codes without channel/thread IDs or raw API details. Resolving access remains a separate authorized Discord configuration action; no automation is permitted to grant itself additional roles or permissions.
