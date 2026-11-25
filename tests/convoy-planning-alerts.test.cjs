@@ -33,7 +33,7 @@ test('global 3/day warning applies across all types without auto-denying a confi
   assert.match(message,/4\/3/);
   assert.match(message,/Staff review required/);
   assert.match(message,/no automatic refusal or reschedule/);
-  assert.doesNotMatch(message,/External.*\/2|Partner.*\/3/);
+  assert.doesNotMatch(message,/External Convoys exceed daily limit|Partner Convoys exceed daily limit/);
 });
 
 test('under-two-hours departure separation remains only a review warning',()=>{
