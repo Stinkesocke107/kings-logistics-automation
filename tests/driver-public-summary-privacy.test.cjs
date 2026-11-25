@@ -75,3 +75,42 @@ test('shared Kings safe-push helper refuses stale checkouts that reintroduce nam
   assert.ok(shell.includes("Object.hasOwn(json.tenure,'longestServing')"));
   assert.ok(shell.includes("Object.hasOwn(json.tenure,'newestDrivers')"));
 });
+
+test('Driver LOA writer publishes only aggregate tenure buckets, even when old source contains names',()=>{
+  const s=sandbox('driver-loa.js');
+  const drivers=[driver(11,'PrivateDriverOne',earlier),driver(12,'PrivateDriverTwo',recent)];
+  const publicBuckets=s.run('buildTenureSummary('+JSON.stringify(drivers)+')');
+  assert.equal(publicBuckets.known,2);
+  assert.equal(publicBuckets.under1Month,1);
+  assert.equal(publicBuckets.oneToThreeMonths,1);
+  assert.deepEqual(Object.keys(publicBuckets).sort(),
+    ['known','under1Month','oneToThreeMonths','threeToSixMonths','sixToTwelveMonths',
+      'oneToTwoYears','twoToThreeYears','threeYearsPlus','unknown'].sort());
+  const serialized=JSON.stringify(publicBuckets);
+  for(const forbidden of ['PrivateDriverOne','PrivateDriverTwo','tmpId','username','joinDate','tenureDays',
+    'longestServing','newestDrivers']){
+    assert.ok(!serialized.includes(forbidden),'LOA public summary exposed '+forbidden);
+  }
+});
+
+test('Driver LOA updateSummary removes any legacy named tenure rankings rather than republishing them',()=>{
+  const files={'data/driver-management-summary.json':JSON.stringify({
+    version:2,currentDrivers:2,tenure:{known:2,
+      longestServing:[{tmpId:11,username:'PrivateDriverOne',joinDate:earlier,tenureDays:40}],
+      newestDrivers:[{tmpId:12,username:'PrivateDriverTwo',joinDate:recent,tenureDays:2}]}
+  })};
+  const s=sandbox('driver-loa.js',{files});
+  const state={updatedAt:now,drivers:[
+    driver(11,'PrivateDriverOne',earlier),driver(12,'PrivateDriverTwo',recent)
+  ]};
+  const next=s.run('updateSummary('+JSON.stringify(state)+')');
+  const saved=s.files.get('data/driver-management-summary.json');
+  assert.equal(next.version,3);
+  assert.equal(next.currentDrivers,2);
+  assert.equal(next.tenure.known,2);
+  assert.equal(Object.hasOwn(next.tenure,'longestServing'),false);
+  assert.equal(Object.hasOwn(next.tenure,'newestDrivers'),false);
+  assert.equal(JSON.parse(saved).tenure.known,2);
+  assert.doesNotMatch(saved,/"(?:tmpId|username|joinDate|tenureDays|discordUserId)"\\s*:/);
+  assert.doesNotMatch(saved,/PrivateDriverOne|PrivateDriverTwo/);
+});
