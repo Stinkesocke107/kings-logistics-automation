@@ -4,17 +4,22 @@
 // NOT authenticate the provider, discover undisclosed channels, or recover
 // edited/deleted messages. Never auto-release or approve Event Capacity.
 const {createHmac}=require('node:crypto');
+const {getKingsDiscordRequiredStreams}=require('./event-capacity-discord-rest-readonly-contract');
 const ERROR='Kings Event Capacity Discord history scan audit invalid.';
 const ID=/^[1-9]\d{16,21}$/;
 const YM=/^20\d{2}-(?:0[1-9]|1[0-2])$/;
 const TS=/^20\d{2}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/;
 const SHA=/^[a-f0-9]{64}$/;
-const CURSOR=/^[A-Za-z0-9_-]{1,128}$/;
-const TYPES={
-  'current-forum':['active','archived-public','archived-private'],
-  'legacy-forum':['active','archived-public','archived-private'],
-  'legacy-text':['messages']
-};
+const TYPES=Object.freeze([
+  'current-forum','legacy-forum','legacy-thread-parent','legacy-text'
+]);
+function cursor(value,stream){
+  if(typeof value!=='string')fail();
+  if(stream==='messages')return ID.test(value);
+  if(stream==='active')return false; // Discord guild active threads are unpaged
+  return TS.test(value)&&Number.isFinite(Date.parse(value))&&
+    new Date(value).toISOString()===value;
+}
 function fail(){throw new Error(ERROR);}
 function object(x){return x!==null&&typeof x==='object'&&!Array.isArray(x)&&
   Object.getPrototypeOf(x)===Object.prototype;}
@@ -68,7 +73,7 @@ function auditKingsDiscordHistoryPagination({
     for(const ch of channels){
       exact(ch,['channelId','channelKind','firstCoveredMonth','lastCoveredMonth']);
       if(typeof ch.channelId!=='string'||!ID.test(ch.channelId)||
-        channelMap.has(ch.channelId)||!Object.hasOwn(TYPES,ch.channelKind))fail();
+        channelMap.has(ch.channelId)||!TYPES.includes(ch.channelKind))fail();
       const first=ym(ch.firstCoveredMonth),last=ym(ch.lastCoveredMonth);
       if(first>last||first<start||last>end)fail();
       if(ch.channelKind==='current-forum')currentForums++;
@@ -81,13 +86,14 @@ function auditKingsDiscordHistoryPagination({
       exact(receipt,['channelId','stream','pages']);
       if(typeof receipt.channelId!=='string'||!channelMap.has(receipt.channelId)||
         typeof receipt.stream!=='string'||
-        !TYPES[channelMap.get(receipt.channelId).kind].includes(receipt.stream)||
+        !getKingsDiscordRequiredStreams(channelMap.get(receipt.channelId).kind).includes(receipt.stream)||
         !Array.isArray(receipt.pages)||receipt.pages.length>500)fail();
       const k=receipt.channelId+':'+receipt.stream;
       if(scanMap.has(k))fail();
       let broken=false,failed=false,unfinished=false;
       let expected=null,complete=false;
       const cursors=new Set();
+      if(receipt.stream==='active'&&receipt.pages.length>1)fail();
       for(const [i,page] of receipt.pages.entries()){
         exact(page,['index','requestCursor','nextCursor','hasMore',
           'status','itemCount','responseDigest','fetchedAtUtc']);
@@ -97,10 +103,18 @@ function auditKingsDiscordHistoryPagination({
         const at=date(page.fetchedAtUtc);
         if(at>nowMs+60000)fail();
         const count=safe(page.itemCount,1000);
-        if(page.requestCursor!==null&&
-          (typeof page.requestCursor!=='string'||!CURSOR.test(page.requestCursor)))fail();
-        if(page.nextCursor!==null&&
-          (typeof page.nextCursor!=='string'||!CURSOR.test(page.nextCursor)))fail();
+        if(page.requestCursor!==null&&!cursor(page.requestCursor,receipt.stream))fail();
+        if(page.nextCursor!==null&&!cursor(page.nextCursor,receipt.stream))fail();
+        if(receipt.stream==='active'&&
+          (page.requestCursor!==null||page.nextCursor!==null||page.hasMore))fail();
+        if(page.requestCursor!==null&&page.nextCursor!==null){
+          // A valid cursor must progress strictly backwards through source
+          // history, not repeat or jump forward and hide missing old pages.
+          const next=receipt.stream==='messages'?
+            BigInt(page.nextCursor)<BigInt(page.requestCursor):
+            Date.parse(page.nextCursor)<Date.parse(page.requestCursor);
+          if(!next)broken=true;
+        }
         if(i!==page.index||page.requestCursor!==expected||
           (page.requestCursor!==null&&cursors.has(page.requestCursor)))broken=true;
         if(page.requestCursor!==null)cursors.add(page.requestCursor);
@@ -131,7 +145,7 @@ function auditKingsDiscordHistoryPagination({
     const incompleteByChannel=new Map();
     for(const [id,ch] of channelMap){
       let incomplete=0;
-      for(const stream of TYPES[ch.kind]){
+      for(const stream of getKingsDiscordRequiredStreams(ch.kind)){
         const state=scanMap.get(id+':'+stream);
         if(!state){
           missingStreams++;incomplete++;
