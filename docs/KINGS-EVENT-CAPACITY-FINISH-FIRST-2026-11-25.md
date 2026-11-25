@@ -129,3 +129,14 @@ An **offline encrypted segmented backup** codec (`event-capacity-historical-segm
 
 A concrete CEO handoff checklist in `docs/KINGS-EVENT-CAPACITY-PRIVATE-STORAGE-OWNER-HANDOFF-2026-11-25.md` now records what is done, what an administrator must approve (three private repositories, separate token rights, independently held signing and encryption keys, authentic archived source evidence), and which deployment checks still block release. **No private repos, tokens, secrets, real history or production changes were made.** These are draft modules with synthetic GitHub API regression tests and live workflow gating. Current-head full CI must pass before claiming code regression validation.
 
+
+## Final owner-approved storage decision — GitHub Free and THREE dedicated PRIVATE repos (25 November 2026)
+
+**This current decision overrides the temporary one-public-repository idea and any older claims that three private repos are unnecessary.** The code and public-safe metadata remain in the PUBLIC `Stinkesocke107/kings-logistics-automation`; private Event histories, witness receipts, and encrypted backups belong respectively in `Stinkesocke107/kings-event-capacity-history`, `Stinkesocke107/kings-event-capacity-witness`, and `Stinkesocke107/kings-event-capacity-backups`. The owner reports having created the three private repos; this has NOT yet been independently verified because GitHub App installation `162599792` is still configured with a selected-repository list containing only the previous three existing Kings repositories.
+
+**Owner's ONE immediate action:** Visit https://github.com/settings/installations/162599792, choose `Configure`, keep `Only select repositories`, add the three `kings-event-capacity-*` repos, and Save. **No secrets, tokens, private signing key or public archive upload should be performed yet.** The assistant can then check actual private repo metadata/access, decide minimum repository-scoped keys and proceed through a controlled read-only security pilot. The existing connector cannot extend its installation privileges by itself.
+
+**GitHub Free constraints:** Unlimited private repositories and repository-level Actions Secrets are available; do NOT assume paid private branch protection/rulesets or paid private Environment Secrets/reviewer gates. External signed highwater, separate key custody, limited-scope credentials, non-secret public code and manual approvals remain mandatory. The offline public ciphertext packing prototype was deleted; the strict anonymous public metadata guard was retained and tested. Three GitHub repos belonging to one account are **not** independently administered disaster-recovery storage.
+
+See `docs/KINGS-EVENT-CAPACITY-GITHUB-FREE-SECRETS-AND-ACCESS-2026-11-25.md` for the exact up-to-date key/access boundary. PR #143 remains DRAFT; real data movement, paid feature activation, live Discord writes, merge and `capacity_preview` are NOT authorized.
+
