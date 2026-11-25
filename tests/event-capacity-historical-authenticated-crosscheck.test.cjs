@@ -155,9 +155,9 @@ test('Unauthenticated source data and wrong scope are refused',async()=>{
   });
   await assert.rejects(read(x));
   const y=makeFixture();
-  await assert.rejects(createStableHistoricalCrosscheck({
+  assert.throws(()=>createStableHistoricalCrosscheck({
     ...y.args,scope:{...SCOPE,forumId:'999999999999999999'}
-  }).read());
+  }));
 });
 test('Uncaught private transport errors produce only a generic safe error',async()=>{
   const x=makeFixture();
