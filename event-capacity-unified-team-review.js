@@ -23,6 +23,11 @@ function projectKingsUnifiedEventTeamReview(input){
     if(!status||states.some(k=>!Object.hasOwn(status,k)))fail();
     const statusTotal=states.reduce((n,k)=>n+count(status[k]),0);
     if(statusTotal!==count(c.outboundInvitationClaims))fail();
+    const calendar=bridge.calendar;
+    if(calendar.visibility!=='PRIVATE_ONLY'||calendar.safeToActivate!==false||
+      calendar.freeSlotsCertified!==false||calendar.months.length!==12)fail();
+    const calendarQuotaConflicts=calendar.months.filter(m=>
+      m.monthStatus==='Monthly Quota Conflict — Human Review').length;
     if(count(b.outboundTrackerClaimedInvitations)!==
       count(c.outboundInvitationClaims)||
       count(b.trackerClaimedLinkedEvents)!==
@@ -31,6 +36,10 @@ function projectKingsUnifiedEventTeamReview(input){
       visibility:'PRIVATE_ONLY',readOnly:true,
       year:bridge.calendar.year,selectedMonth:bridge.calendar.selectedMonth,
       sourceCounts:Object.freeze({
+        calendarMonths:count(calendar.months.length),
+        calendarMonthsWithoutSignedHolds:count(calendar.monthsWithoutSignedHoldReport),
+        calendarMonthsOutsideOriginalEvidence:count(calendar.monthsOutside24MonthEvidenceReview),
+        calendarMonthsWithQuotaConflicts:count(calendarQuotaConflicts),
         currentCenterClaims:count(b.convoyCenterClaimedThreads),
         olderChannelClaims:count(b.olderChannelClaimedThreads),
         frozenLegacyClaims:b.frozenLegacyClaimedConvoys===null?null:
@@ -82,6 +91,9 @@ function renderKingsUnifiedEventTeamReviewPreview(r){
     if(!status||statuses.some(k=>!Object.hasOwn(status,k)))fail();
     if(statuses.reduce((sum,k)=>sum+count(status[k]),0)!==
       c.outboundInvitations)fail();
+    if(c.calendarMonths!==12||
+      ['calendarMonthsWithoutSignedHolds','calendarMonthsOutsideOriginalEvidence',
+        'calendarMonthsWithQuotaConflicts'].some(k=>count(c[k])>12))fail();
     return Object.freeze({type:4,data:{
       flags:64,allowed_mentions:{parse:[]},
       content:'**Kings Event-Team — Offline Evidence Review**\n'+
@@ -92,6 +104,8 @@ function renderKingsUnifiedEventTeamReviewPreview(r){
         ' | Accepted '+status.Accepted+' | Unknown '+status.Unknown+'\n'+
         'Old/wrong dates '+c.staleOrWrongDeparture+
         ' | Status reviews '+c.outboundAcceptedVsCenterConflict+'\n'+
+        'Calendar 12 months | Holds missing '+c.calendarMonthsWithoutSignedHolds+
+        ' | Original evidence not supplied '+c.calendarMonthsOutsideOriginalEvidence+'\n'+
         'Archive/deleted contradictions '+
           c.archiveCountContradictions+'/'+c.deletionCountContradictions+
         '\n**No live Discord access. No certified free slots.**',

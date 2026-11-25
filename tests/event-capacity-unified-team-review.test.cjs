@@ -45,6 +45,16 @@ test('Outgoing Accepted with Center Cancelled cannot become valid confirmed book
   assert.equal(r.realEventsApproved,0);
   assert.equal(r.discordMessagesSent,0);
 });
+test('Private Event Calendar review exposes missing evidence months, not free slots',()=>{
+  const r=review(input());
+  assert.equal(r.sourceCounts.calendarMonths,12);
+  assert.equal(r.sourceCounts.calendarMonthsWithoutSignedHolds,12);
+  assert.equal(r.sourceCounts.calendarMonthsOutsideOriginalEvidence,12);
+  assert.equal(r.sourceCounts.calendarMonthsWithQuotaConflicts,0);
+  assert.match(JSON.stringify(render(r)),/Original evidence not supplied 12/);
+  assert.equal(r.freeSlotsCertified,false);
+  assert.equal(r.realEventsApproved,0);
+});
 test('Missing canonical links still appear without fuzzy matching',()=>{
   const r=review(input(x=>{x.tracker.records[0].eventId=null;}));
   assert.equal(r.sourceCounts.missingLinks,1);
@@ -104,4 +114,6 @@ test('Forged success and real Discord claims are refused by the renderer',()=>{
   assert.throws(()=>render({...r,outboundTrackerActuallyRead:true}));
   assert.throws(()=>render({...r,sourceCounts:{...r.sourceCounts,
     outboundByStatus:{...r.sourceCounts.outboundByStatus,Accepted:99}}}));
+  assert.throws(()=>render({...r,sourceCounts:{...r.sourceCounts,
+    calendarMonthsOutsideOriginalEvidence:99}}));
 });
