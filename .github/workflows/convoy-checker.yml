@@ -25,9 +25,10 @@ on:
       - '.github/workflows/convoy-checker.yml'
 
   schedule:
-    # Every 15 minutes. GitHub-hosted scheduled runs can start late;
-    # alerting monitors real execution rather than assuming punctual delivery.
-    - cron: '*/15 * * * *'
+    # Every 15 minutes, shifted away from :00/:15/:30/:45 UTC.
+    # GitHub may delay/drop scheduled jobs during high Actions load;
+    # actual source freshness must still be verified before use.
+    - cron: '7,22,37,52 * * * *'
 
 permissions:
   contents: write
