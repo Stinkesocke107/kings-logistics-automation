@@ -5,6 +5,12 @@
 // events. They must NEVER be added into an authoritative occupancy total.
 // Never advertise remaining/available slots from an incomplete source.
 const {LIMITS}=require('./event-capacity-core');
+const {POLICY,dailyLimitForUtcDate}=require('./event-capacity-policy');
+// HISTORICAL FLAGS are frozen evidence under old 2/day and 20/month rules.
+// They are NOT current Kings booking limits.
+const LEGACY_SIGNED_HOLD_LIMITS=Object.freeze({
+  combinedDaily:2,partnerMonthly:20,externalMonthly:20
+});
 const {projectMonth}=require('./event-capacity-dashboard');
 const ERROR='Kings Event Capacity private staff calendar review invalid.';
 const YEAR=/^20\d{2}$/;
@@ -24,9 +30,13 @@ function isoDay(x){
 }
 function checkSnapshot(c){
   if(!plain(c)||!plain(c.limits)||
-    c.limits.combinedDaily!==LIMITS.combinedDaily||
-    c.limits.partnerMonthly!==LIMITS.partnerMonthly||
-    c.limits.externalMonthly!==LIMITS.externalMonthly||
+    c.limits.policyId!==POLICY.policyId||
+    c.limits.weekdayCombined!==POLICY.weekdayCombinedMax||
+    c.limits.weekendCombined!==POLICY.weekendCombinedMax||
+    c.limits.partnerDaily!==POLICY.partnerDailyMax||
+    c.limits.externalDaily!==POLICY.externalDailyMax||
+    c.limits.partnerMonthly!==null||
+    c.limits.externalMonthly!==null||
     typeof c.globalUncertainty!=='boolean'||!plain(c.days)||
     !plain(c.months)||!Array.isArray(c.issues)||
     !Array.isArray(c.warnings)||
@@ -78,9 +88,9 @@ function checkHolds(h){
     typeof h.monthOverStandardPartnerLimit!=='boolean'||
     typeof h.monthOverStandardExternalLimit!=='boolean'||
     h.monthOverStandardPartnerLimit!==
-      (p.partnerUniqueHistoricalEventsInMonth>LIMITS.partnerMonthly)||
+      (p.partnerUniqueHistoricalEventsInMonth>LEGACY_SIGNED_HOLD_LIMITS.partnerMonthly)||
     h.monthOverStandardExternalLimit!==
-      (p.externalUniqueHistoricalEventsInMonth>LIMITS.externalMonthly))fail();
+      (p.externalUniqueHistoricalEventsInMonth>LEGACY_SIGNED_HOLD_LIMITS.externalMonthly))fail();
   const seen=new Set();let sum=0,exceeded=0;
   for(const d of h.days){
     if(!plain(d)||isoDay(d.utcDate).slice(0,7)!==h.month||
@@ -89,8 +99,8 @@ function checkHolds(h){
     seen.add(d.utcDate);
     const a=count(d.partnerProvisionalHolds),b=count(d.externalProvisionalHolds);
     if(count(d.combinedProvisionalHolds)!==a+b||
-      d.exceedsStandardDailyLimit!==(a+b>LIMITS.combinedDaily))fail();
-    sum+=a+b;if(a+b>LIMITS.combinedDaily)exceeded++;
+      d.exceedsStandardDailyLimit!==(a+b>LEGACY_SIGNED_HOLD_LIMITS.combinedDaily))fail();
+    sum+=a+b;if(a+b>LEGACY_SIGNED_HOLD_LIMITS.combinedDaily)exceeded++;
   }
   if(sum!==p.totalProvisionalDailyHolds||
     exceeded!==p.daysExceedingDailyLimit)fail();
@@ -159,8 +169,8 @@ function projectKingsStaffCalendarReview({
       const gaps=evidence?.get(month)??null;
       if(!historical)monthsWithoutSignedHoldReport++;
       if(gaps===null)monthsOutsideEvidenceReview++;
-      const snapshotAboveLimit=sp>LIMITS.partnerMonthly||
-        se>LIMITS.externalMonthly;
+      // No replacement monthly quota was adopted. Preserve legacy source
+      // counts for review, without claiming a current monthly threshold.
       // Possible old-date holds are not necessarily the same event as a
       // current snapshot booking. Treat differing counts as review hints,
       // never as a mathematically authoritative delta.
@@ -169,8 +179,8 @@ function projectKingsStaffCalendarReview({
       const historicalAboveLimit=historical?
         (historical.monthOverStandardPartnerLimit||
           historical.monthOverStandardExternalLimit):false;
-      const monthStatus=snapshotAboveLimit||historicalAboveLimit?
-        'Monthly Quota Conflict — Human Review':
+      const monthStatus=historicalAboveLimit?
+        'Legacy Monthly Hold Threshold — Historical Review':
         historical===undefined?'Historical Holds Missing — Review':
         gaps===null?'Original Evidence Coverage Missing — Review':
         gaps>0?'Original Evidence Gaps — Human Review':
@@ -185,8 +195,8 @@ function projectKingsStaffCalendarReview({
         }),
         evidenceGapsReported:gaps,
         historicalHoldCountExceedsCurrentSnapshot:historicalAboveSnapshot,
-        monthlyPartnerLimit:LIMITS.partnerMonthly,
-        monthlyExternalLimit:LIMITS.externalMonthly,
+        monthlyPartnerLimit:null,
+        monthlyExternalLimit:null,
         snapshotAndHistoricalCountsMayOverlap:true,
         sourceCompletenessAuthenticated:false,
         remainingPartnerSlots:null,remainingExternalSlots:null,
@@ -198,10 +208,12 @@ function projectKingsStaffCalendarReview({
         const h=byDay.get(d.date);
         const current=count(d.combinedUsed),historic=h?
           count(h.combinedProvisionalHolds):null;
-        const status=d.quotaConflict||(h?.exceedsStandardDailyLimit===true)?
+        const status=d.quotaConflict?
           'Daily Quota Conflict — Human Review':
+          h?.exceedsStandardDailyLimit===true?
+          'Legacy Daily Hold Threshold — Historical Review':
           h!==undefined&&historic>0?'Historical Hold — Human Review':
-          current>0?'Current Snapshot Acceptance — History Unverified':
+          current>0?'Current Snapshot Claim — History Unverified':
           'No Verified Booking Evidence — Not Available For Approval';
         detailRows.push(Object.freeze({
           utcDate:d.date,status,
@@ -223,10 +235,14 @@ function projectKingsStaffCalendarReview({
       version:1,visibility:'PRIVATE_ONLY',readOnly:true,
       year,selectedMonth,
       policy:Object.freeze({
-        combinedDaily:LIMITS.combinedDaily,
-        partnerMonthly:LIMITS.partnerMonthly,
-        externalMonthly:LIMITS.externalMonthly,
-        kingsConvoysQuotaExempt:true
+        id:POLICY.policyId,
+        weekdayCombined:POLICY.weekdayCombinedMax,
+        weekendCombined:POLICY.weekendCombinedMax,
+        partnerDaily:POLICY.partnerDailyMax,
+        externalDaily:POLICY.externalDailyMax,
+        partnerMonthly:null,externalMonthly:null,
+        kingsConvoysQuotaExempt:true,
+        actualBookingCapacityCertified:false
       }),
       sourceSnapshotReportedFresh:capacity.globalUncertainty===false,
       signedHoldReportsShareOneJournalRevision:
@@ -288,10 +304,11 @@ function renderKingsStaffCalendarEphemeral(view){
         const current=count(d.snapshotCombined),h=d.historicalCombinedProvisional;
         if(h!==null)count(h);
         const flag=d.status==='Daily Quota Conflict — Human Review'?'!':
+          d.status==='Legacy Daily Hold Threshold — Historical Review'?'L':
           d.status==='Historical Hold — Human Review'?'H':
-          d.status==='Current Snapshot Acceptance — History Unverified'?'C':'?';
+          d.status==='Current Snapshot Claim — History Unverified'?'C':'?';
         return d.utcDate.slice(-2)+' '+flag+
-          ' Current '+current+'/'+LIMITS.combinedDaily+
+          ' Current '+current+'/'+dailyLimitForUtcDate(d.utcDate)+
           ' | Signed hold '+(h===null?'?':h);
       }).join('\n');
       if(rows.length>4096)fail();
