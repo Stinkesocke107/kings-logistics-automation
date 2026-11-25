@@ -149,7 +149,7 @@ function createPrivateGitHubCheckpoint({
       !DIGEST.test(String(record.signature||''))||
       !(record.previousDigest===null||DIGEST.test(record.previousDigest)))
       fail();
-    const value=checkpoint(record);
+    const value=checkpoint({revision:record.revision,digest:record.digest});
     if(record.revision===0&&record.previousDigest!==null||
       record.revision>0&&record.previousDigest===null)fail();
     const expectedMac=mac(key,checked,record);
