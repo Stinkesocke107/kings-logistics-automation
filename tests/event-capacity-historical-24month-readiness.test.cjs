@@ -83,7 +83,7 @@ test('No secret, event id, or unauthorized raw event records may enter monthly c
   });
 });
 test('Missing or nonboolean claims and unsafe review counts are rejected',()=>{
-  for(const value of [undefined,null,1,-1,10001,Infinity,'0']){
+  for(const value of [undefined,null,1.5,-1,10001,Infinity,'0']){
     const x=claim('2026-11',{unresolvedReviewItems:value});
     assert.throws(()=>audit({monthlyClaims:[x]}));
   }
