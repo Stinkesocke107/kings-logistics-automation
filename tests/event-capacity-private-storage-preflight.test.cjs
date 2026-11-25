@@ -62,6 +62,11 @@ test('Three separate private repositories checked twice using GET only',async()=
   assert.equal(report.distinctCredentialStringsSupplied,true);
   assert.equal(report.branchProtectionReportedForAll,false);
   assert.equal(report.repos.find(r=>r.role==='backup').branchProtectionReported,false);
+  assert.equal(report.githubFreePrivateRepositoryCompatible,true);
+  assert.equal(report.premiumPrivateBranchRulesAssumed,false);
+  assert.equal(report.privateBranchProtectionMandatoryForPreflight,false);
+  assert.equal(report.independentOwnerHighwaterRequired,true);
+  assert.equal(report.separatedCredentialCustodyRequired,true);
   assert.equal(x.calls.length,12);
   assert.ok(x.calls.every(c=>c.method==='GET'));
   assert.equal(report.safeToActivate,false);
