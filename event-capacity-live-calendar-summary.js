@@ -64,15 +64,15 @@ function monthlyFromReports({report,overview,nowMs=Date.now()}={}){
       if(old){
         if(JSON.stringify(old)!==JSON.stringify(item))conflicts++;
         else duplicates++;
-        // A duplicate identity needs Staff inspection. Do not count either
-        // candidate if identities conflict.
+        // Duplicate canonical identities must never be presented twice,
+        // even if their declared source fields look identical.
         seen.set(key,{...old,identityConflict:true});
         continue;
       }
       seen.set(key,item);
     }
     for(const item of seen.values()){
-      if(item.identityConflict){conflicts++;continue;}
+      if(item.identityConflict)continue;
       const millis=timestamp(item.departureAtUtc);
       const day=millis===null?null:new Date(millis).toISOString().slice(0,10);
       const row=day?byMonth.get(day.slice(0,7)):null;
@@ -165,7 +165,6 @@ function calendarLines(r){
       r.repoDataReadByThisModule!==false||
       r.liveDiscordCallsMade!==0||r.bookingsChanged!==0||
       !Array.isArray(r.months)||r.months.length!==12)fail();
-    const expected=new Date(r.firstMonth+'-01T00:00:00.000Z');
     if(!/^20\d{2}-(?:0[1-9]|1[0-2])$/.test(r.firstMonth))fail();
     const lines=['**Convoy Center — reported planning entries (UTC, NOT approved capacity)**'];
     let center=0;
