@@ -105,14 +105,21 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-25T10:31:15.729Z"
+    },
+    "workflow-schedule-late:driver-register-onboarding.yml": {
+      "severity": "warning",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding scheduled run started 639 minutes after its UTC slot.",
+      "details": {
+        "status": "late",
+        "expectedAt": "2026-11-25T07:17:00.000Z",
+        "actualAt": "2026-11-25T17:56:36.000Z",
+        "delayMinutes": 639,
+        "graceMinutes": 120,
+        "runId": 45670004198
+      },
+      "firstAlertedAt": "2026-11-25T20:08:53.927Z"
     }
   },
-  "pending": {
-    "workflow-schedule-late:driver-register-onboarding.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-25T18:41:44.211Z",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding scheduled run started 639 minutes after its UTC slot."
-    }
-  }
+  "pending": {}
 }
