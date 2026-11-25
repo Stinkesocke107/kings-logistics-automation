@@ -149,11 +149,16 @@ test('Unsupported status transition cannot become an Accepted import',()=>{
 test('Duplicate invitation IDs are not collapsed or silently deduplicated',()=>{
   assert.throws(()=>run(f=>f.invitationClaims.invitations.push(invite('A'))));
 });
-test('An invite outside the 24-month source window cannot be silently omitted',()=>{
-  assert.throws(()=>run(f=>{
+test('A future invite beyond the 24-month historical window stays visible for human review, never capacity',()=>{
+  const r=run(f=>{
     f.invitationClaims.invitations[0].departureAtUtc='2027-06-01T18:00:00.000Z';
     f.invitationClaims.invitations[0].replyDueAtUtc='2027-05-22T10:00:00.000Z';
-  }));
+  });
+  assert.equal(r.futureInvitationClaimsOutsideHistoricalWindow,1);
+  assert.equal(r.futureInvitationsRequireVerifiedCenterReview,true);
+  assert.equal(r.crossSystem.sourceReview.outboundTrackerClaimedInvitations,0);
+  assert.equal(r.invitationsAddedToCapacity,0);
+  assert.equal(r.safeToActivate,false);
 });
 test('Private result and ephemeral preview contain no raw invitation or Discord IDs',()=>{
   const r=run();
