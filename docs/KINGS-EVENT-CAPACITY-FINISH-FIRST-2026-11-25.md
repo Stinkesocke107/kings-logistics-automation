@@ -55,3 +55,10 @@ An **offline only encrypted archive codec** now segments historical owner-signed
 
 **This is NOT 24-month durable GitHub storage, a trusted source-archive authenticator, independent owner-pinned checkpoint service, authorized history completion or permission to activate.** Actual private repositories, signed externally retained checkpoint, 90-day backups, retention/erasure, authentic real old Convoy Center evidence and full current-head GitHub CI remain mandatory. No runtime workflow imports this codec.
 
+
+## Private historical GitHub read proof (25 November 2026, DRAFT only)
+
+The offline historical journal and encrypted segmented archive are now joined to a **GET-only, private-repository historical archive reader** (`event-capacity-historical-github-reader.js`). It requires actual private GitHub repository metadata, exact scope, individually checked ciphertext segments, an offline owner-signed independent archive receipt, and a stable double-read manifest. No automatic or arbitrary caller-supplied `trusted` flag substitutes for an owner signature. Seven focused reader tests passed locally; across the current recent archive/optional map work, 19 local focused tests passed. See `docs/KINGS-EVENT-CAPACITY-HISTORICAL-GITHUB-READER-2026-11-25.md`.
+
+This does **not** create a private GitHub repository, put real event data in storage, provide trusted owner highwater freshness, implement protected multi-file writes, recover lost commits or verify 24-month source coverage. The reader is intentionally **NOT** imported by the production GitHub Actions runner; the Event Capacity system remains disabled and PR #143 stays Draft. Full same-HEAD CI, private write + recovery protocol, real historical evidence, Discord permissions and explicit CEO authorization remain required.
+
