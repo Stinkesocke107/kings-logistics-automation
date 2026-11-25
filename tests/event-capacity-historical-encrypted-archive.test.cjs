@@ -107,3 +107,16 @@ test('Signed historical cancellation survives archive restore without certifying
   assert.equal('slotReleasedVerified' in saved.journal,false);
   assert.equal(saved.historicalCoverageCertified,false);
 });
+test('More than 128 transitions in one review month use contiguous bounded segments',()=>{
+  const x=setup();
+  for(let i=0;i<129;i++){
+    x.add({ref:'event:'+String(30000+i),
+      reviewed:'2027-03-20T10:00:00.000Z'});
+  }
+  const {archive,checkpoint}=x.seal();
+  assert.deepEqual(archive.manifest.parts.map(p=>p.lastRevision-p.firstRevision+1),[128,1]);
+  const recovered=x.open({archive,checkpoint});
+  assert.equal(recovered.journal.revision,129);
+  assert.equal(recovered.journal.history.length,129);
+  assert.equal(recovered.freeSlotsCertified,false);
+});
