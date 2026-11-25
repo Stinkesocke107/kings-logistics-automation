@@ -70,6 +70,7 @@ test('counts all invited VTCs, including declined ones, but never duplicates or 
   assert.equal(x.recordedDeclined,1);
   assert.equal(x.recordedPending,1);
   assert.equal(x.replyNotRecorded,0);
+  assert.equal(x.tagSchemaVerified,true);
   assert.equal(x.invitationDecisionsVerified,false);
   assert.equal(x.bookingsCreated,0);
   assert.equal(trustedInvitationObservation(x,NOW),x);
@@ -77,6 +78,31 @@ test('counts all invited VTCs, including declined ones, but never duplicates or 
   for(const privateValue of ['First VTC','Other VTC','Third VTC','123456789012345678',
     '123456-event','777777777777777777',GUILD,FORUM,'10101','20202','30303'])
     assert.equal(output.includes(privateValue),false,privateValue);
+});
+test('mismatched private Forum tag names preserve invitation replies without inventing statuses',()=>{
+  const f=fixture();
+  f.forum.available_tags=[
+    {id:tags[0],name:'Event Invites - WIP'},
+    {id:tags[1],name:'Finished Invitations'},
+    {id:tags[2],name:'Old Convoy'}
+  ];
+  const x=summarizeTracker(f);
+  assert.equal(x.sourceForumVerified,true);
+  assert.equal(x.tagSchemaVerified,false);
+  assert.equal(x.convoyThreads,3);
+  assert.equal(x.invitedVtcs,3);
+  assert.equal(x.recordedAccepted,1);
+  assert.equal(x.recordedDeclined,1);
+  assert.equal(x.recordedPending,1);
+  assert.equal(x.tagIssues,3);
+  assert.equal(x.ongoingThreads,0);
+  assert.equal(x.doneThreads,0);
+  assert.equal(x.completedThreads,0);
+  assert.equal(x.invitationDecisionsVerified,false);
+  assert.equal(x.bookingsCreated,0);
+  assert.equal(trustedInvitationObservation(x,NOW),x);
+  assert.equal(trustedInvitationObservation({...x,tagSchemaVerified:'yes'},NOW),null);
+  assert.doesNotMatch(JSON.stringify(x),/WIP|Finished Invitations|Old Convoy/);
 });
 test('invalid tags, incomplete source, stale claims and unsupported fields fail closed',()=>{
   const f=fixture();
