@@ -47,3 +47,24 @@ test('New monthly historical analysis cannot silently activate live capacity or 
   assert.match(analysis,/freeSlotsCertified:false/);
   assert.match(analysis,/historicalCoverageCertified:false/);
 });
+
+test('PR-only live preflight uses the current offline verification workflow and never touches Discord',()=>{
+  const offline=fs.readFileSync(path.join(root,
+    '.github/workflows/system-tests.yml'),'utf8');
+  const preflight=fs.readFileSync(path.join(root,
+    'event-capacity-github-live-preflight.js'),'utf8');
+  assert.match(offline,/actions:\s*read/);
+  assert.match(offline,/name: Kings Event Capacity safe PR live GitHub metadata preflight/);
+  assert.match(offline,/github\.event\.pull_request\.number == 143/);
+  assert.match(offline,/github\.event\.pull_request\.head\.repo\.full_name == github\.repository/);
+  assert.match(offline,/KINGS_EVENT_CAPACITY_PREFLIGHT_ONLY: 'true'/);
+  assert.match(offline,/run: node event-capacity-github-live-preflight\.js/);
+  assert.doesNotMatch(offline,/DISCORD_BOT_TOKEN:/);
+  assert.doesNotMatch(offline,/KINGS_EVENT_CAPACITY_PRIVATE_DATA_TOKEN:/);
+  assert.match(preflight,/artifactsDownloaded:false/);
+  assert.match(preflight,/discordContacted:false/);
+  assert.match(preflight,/repositoryWritten:false/);
+  assert.match(preflight,/freeSlotsCertified:false/);
+  assert.equal(fs.existsSync(path.join(root,
+    '.github/workflows/kings-event-capacity-live-preview.yml')),false);
+});
