@@ -282,3 +282,20 @@ test('Forged day counts and impossible calendar dates are rejected before presen
       '2027-02-30':{...selected}}}
   }));
 });
+
+test('Forged 24-month evidence intervals cannot fill missing history months',()=>{
+  const f=fixture(),e=f.historicalEvidenceReport;
+  const make=changes=>projectKingsStaffCalendarReview({
+    ...f,historicalEvidenceReport:{...e,...changes}
+  });
+  assert.throws(()=>make({firstMonth:'2025-07'}));
+  assert.throws(()=>make({finalMonth:'2027-06'}));
+  assert.throws(()=>make({months:[...e.months.slice(1),e.months[0]]}));
+  assert.throws(()=>make({months:[
+    ...e.months.slice(0,3),{...e.months[3],month:'2025-12'},
+    ...e.months.slice(4)
+  ]}));
+  const valid=projectKingsStaffCalendarReview(f);
+  assert.equal(valid.monthsOutside24MonthEvidenceReview,7);
+  assert.equal(valid.safeToActivate,false);
+});
