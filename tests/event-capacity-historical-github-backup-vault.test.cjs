@@ -7,6 +7,8 @@ const {createEncryptedOffsiteHistoricalBackup}
   =require('../event-capacity-historical-offsite-backup');
 const {createPrivateHistoricalBackupVault}
   =require('../event-capacity-historical-github-backup-vault');
+const {createPrivateBackupContinuityAudit}
+  =require('../event-capacity-historical-backup-continuity');
 const SCOPE={guildId:'1114967437788577792',forumId:'1550619824005062697'};
 const DATA='kings-private-example/historical-decisions';
 const WITNESS='kings-private-example/historical-witness';
@@ -73,7 +75,7 @@ function setupVault(){
     encryptionSecret:SOURCE_SECRET,backupSecret:BACKUP_SECRET,
     transport,nowMs:()=>NOW,...options
   });
-  return {x,envelope,vault,docs,calls,
+  return {x,envelope,vault,docs,calls,transport,
     setPrivate:v=>{isPrivate=v;},setCollision:v=>{collision=v;},
     setAmbiguous:v=>{failAfterWrite=v;},
     setMutateSecondRead:v=>{mutateSecondRead=v;},
@@ -175,4 +177,103 @@ test('Transport errors cannot expose sensitive keys or backup contents',async()=
     assert.doesNotMatch(String(err),/NO SECRET|synthetic private|event:100/);
     return true;
   });
+});
+
+function continuity(x,options={}){
+  return createPrivateBackupContinuityAudit({
+    repository:BACKUPS,dataRepository:DATA,witnessRepository:WITNESS,
+    token:TOKEN,scope:SCOPE,ownerPublicKey:x.x.ownerPublicKey,
+    encryptionSecret:SOURCE_SECRET,backupSecret:BACKUP_SECRET,
+    transport:x.transport,nowMs:()=>NOW,...options
+  });
+}
+test('90-day continuity reports 90 missing signed receipts without network I/O',async()=>{
+  const x=setupVault(),result=await continuity(x).audit();
+  assert.equal(result.windowDays,90);
+  assert.equal(result.counts.ownerReceiptMissingDays,90);
+  assert.equal(result.counts.verifiedDailyBackups,0);
+  assert.equal(result.allDailyReadChecksPassed,false);
+  assert.equal(result.historicalCoverageCertified,false);
+  assert.equal(result.freeSlotsCertified,false);
+  assert.equal(result.actualIndependentStorageGovernanceVerified,false);
+  assert.equal(x.calls.length,0);
+});
+test('Verified private encrypted backup and missing adjacent day are distinct',async()=>{
+  const x=setupVault();
+  await x.vault().writeDailyOnce({envelope:x.envelope,
+    ownerReceipt:x.x.nextOwnerReceipt});
+  const readsBefore=x.calls.filter(a=>a.method==='GET').length;
+  const audit=await continuity(x).audit({windowDays:2,receipts:[
+    {day:'2027-05-20',ownerReceipt:x.x.nextOwnerReceipt}
+  ]});
+  assert.equal(audit.counts.verifiedDailyBackups,1);
+  assert.equal(audit.counts.ownerReceiptMissingDays,1);
+  assert.equal(audit.counts.unverifiableDays,0);
+  assert.equal(audit.allDailyReadChecksPassed,false);
+  assert.equal(audit.days[0].backupVerified,false);
+  assert.equal(audit.days[1].backupVerified,true);
+  assert.equal(x.calls.filter(a=>a.method==='PUT').length,1);
+  assert.ok(x.calls.filter(a=>a.method==='GET').length>readsBefore);
+});
+test('Missing remote bytes despite a supplied owner receipt are not valid proof',async()=>{
+  const x=setupVault();
+  const audit=await continuity(x).audit({windowDays:1,receipts:[
+    {day:'2027-05-20',ownerReceipt:x.x.nextOwnerReceipt}
+  ]});
+  assert.equal(audit.counts.unverifiableDays,1);
+  assert.equal(audit.counts.ownerReceiptMissingDays,0);
+  assert.equal(audit.allDailyReadChecksPassed,false);
+  assert.equal(audit.freeSlotsCertified,false);
+});
+test('Forged signed receipts never become a verified daily backup',async()=>{
+  const x=setupVault();
+  await x.vault().writeDailyOnce({envelope:x.envelope,
+    ownerReceipt:x.x.nextOwnerReceipt});
+  const forged=structuredClone(x.x.nextOwnerReceipt);
+  forged.payload.tip='0'.repeat(64);
+  const audit=await continuity(x).audit({windowDays:1,receipts:[
+    {day:'2027-05-20',ownerReceipt:forged}
+  ]});
+  assert.equal(audit.counts.unverifiableDays,1);
+  assert.equal(audit.counts.verifiedDailyBackups,0);
+});
+test('Duplicate, out-of-window or impossible-date receipt inventories fail closed',async()=>{
+  const x=setupVault();
+  const valid={day:'2027-05-20',ownerReceipt:x.x.nextOwnerReceipt};
+  for(const receipts of [
+    [valid,valid],
+    [{...valid,day:'2027-05-19'}],
+    [{...valid,day:'2027-02-30'}],
+    [{...valid,day:'2027-05-21'}],
+    [{...valid,unexpected:'input'}]
+  ])await assert.rejects(continuity(x).audit({windowDays:1,receipts}));
+  for(const windowDays of [0,91,-1,1.5])
+    await assert.rejects(continuity(x).audit({windowDays}));
+});
+test('A backup with a forged public repo metadata state is not independently verified',async()=>{
+  const x=setupVault();
+  await x.vault().writeDailyOnce({envelope:x.envelope,
+    ownerReceipt:x.x.nextOwnerReceipt});
+  x.setPrivate(false);
+  const audit=await continuity(x).audit({windowDays:1,receipts:[
+    {day:'2027-05-20',ownerReceipt:x.x.nextOwnerReceipt}
+  ]});
+  assert.equal(audit.counts.unverifiableDays,1);
+  assert.equal(audit.actualIndependentStorageGovernanceVerified,false);
+  assert.equal(audit.retentionEnforced,false);
+  assert.equal(audit.automaticDeletions,0);
+});
+test('All sampled encrypted checks are not a certified historical source or external highwater',async()=>{
+  const x=setupVault();
+  await x.vault().writeDailyOnce({envelope:x.envelope,
+    ownerReceipt:x.x.nextOwnerReceipt});
+  const audit=await continuity(x).audit({windowDays:1,receipts:[
+    {day:'2027-05-20',ownerReceipt:x.x.nextOwnerReceipt}
+  ]});
+  assert.equal(audit.allDailyReadChecksPassed,true);
+  assert.equal(audit.counts.verifiedDailyBackups,1);
+  assert.equal(audit.monthlyIsolatedHostRestoreVerified,false);
+  assert.equal(audit.independentlyRetainedHighwaterContinuityVerified,false);
+  assert.equal(audit.historicalCoverageCertified,false);
+  assert.equal(audit.freeSlotsCertified,false);
 });
