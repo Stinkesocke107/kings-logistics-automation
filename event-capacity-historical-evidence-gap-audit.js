@@ -116,6 +116,9 @@ function crosscheckKingsHistoricalEvidenceClaims({
     const lifecycleByRef=new Map(),inWindowLifecycleByRef=new Map();
     for(const entry of journal.history){
       const p=entry.payload,ref=p.ref;
+      // Signature validity alone is not enough: a claimed owner review
+      // dated after the inspection cannot justify today's history.
+      if(Date.parse(p.reviewedAt)>nowMs+60000)fail();
       if(!lifecycleByRef.has(ref))lifecycleByRef.set(ref,[]);
       lifecycleByRef.get(ref).push(p);
       // An originally accepted event may later be rescheduled OUTSIDE the
