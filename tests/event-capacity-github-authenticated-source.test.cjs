@@ -9,6 +9,8 @@ const {buildHumanReviewChallenge}
   =require('../event-capacity-human-review');
 const {createEmptyLedger}
   =require('../event-capacity-decision-ledger');
+const {createGithubOnlyKnownUsageReader}
+  =require('../event-capacity-github-known-usage');
 const REPO='Stinkesocke107/kings-logistics-automation';
 const BASE='https://api.github.com/repos/'+REPO;
 const SCOPE={guildId:'1114967437788577792',
@@ -301,5 +303,72 @@ test('Source factory requires a GitHub token; a forged sourceKind flag cannot re
     githubToken:'',protectedVault:{
       read:async()=>null,commitDecision:async()=>null
     },client:{},reviewSecret:REVIEW_SECRET
+  }));
+});
+
+test('GitHub-only usage reader obtains two full authenticated sources and owner-pinned ledger, never certifies free capacity',async()=>{
+  const h=harness(),ledger=createEmptyLedger(SCOPE,'2027-03-20T11:30:00Z');
+  let vaultReads=0;
+  const reader=createGithubOnlyKnownUsageReader({
+    githubToken:TOKEN,githubTransport:h.transport,
+    ownerPinnedVault:{read:async()=>{
+      vaultReads++;
+      return {ledger:structuredClone(ledger),
+        checkpoint:{revision:0,digest:'a'.repeat(64)}};
+    }},
+    scope:SCOPE,nowMs:()=>NOW
+  });
+  const result=await reader({selectedMonth:'2027-03'});
+  assert.equal(result.month,'2027-03');
+  assert.equal(result.sourceInventoryComplete,true);
+  assert.equal(result.freeSlotsCertified,false);
+  assert.equal(result.monthUsage.partnerRemainingVerified,null);
+  assert.equal(result.days.find(x=>x.day==='2027-03-20').remainingVerified,null);
+  assert.equal(result.counts.unresolvedCapacityIssues>0,true);
+  assert.equal(vaultReads,2);
+  assert.deepEqual(h.counts(),{discoveries:4,downloads:2,runs:4});
+});
+test('Owner ledger revision change between two authenticated GitHub reads blocks usage projection',async()=>{
+  const h=harness(),ledger=createEmptyLedger(SCOPE,'2027-03-20T11:30:00Z');
+  let reads=0;
+  const reader=createGithubOnlyKnownUsageReader({
+    githubToken:TOKEN,githubTransport:h.transport,
+    ownerPinnedVault:{read:async()=>{
+      reads++;
+      return {ledger:structuredClone(ledger),
+        checkpoint:{revision:reads===1?0:1,digest:'a'.repeat(64)}};
+    }},
+    scope:SCOPE,nowMs:()=>NOW
+  });
+  await assert.rejects(reader({selectedMonth:'2027-03'}));
+  assert.equal(reads,2);
+});
+test('Changed ZIP artifact and missing owner pin cannot give verified usage',async()=>{
+  const ledger=createEmptyLedger(SCOPE,'2027-03-20T11:30:00Z');
+  const changed=harness({sourceChangesAt:2});
+  const read=createGithubOnlyKnownUsageReader({
+    githubToken:TOKEN,githubTransport:changed.transport,
+    ownerPinnedVault:{read:async()=>({
+      ledger:structuredClone(ledger),
+      checkpoint:{revision:0,digest:'a'.repeat(64)}
+    })},
+    scope:SCOPE,nowMs:()=>NOW
+  });
+  await assert.rejects(read());
+  const missing=createGithubOnlyKnownUsageReader({
+    githubToken:TOKEN,githubTransport:harness().transport,
+    ownerPinnedVault:{read:async()=>{throw Error('missing owner receipt');}},
+    scope:SCOPE,nowMs:()=>NOW
+  });
+  await assert.rejects(missing());
+});
+test('External source flag or arbitrary repo cannot replace restricted GitHub usage reader',()=>{
+  assert.throws(()=>createGithubOnlyKnownUsageReader({
+    githubToken:'',ownerPinnedVault:{read:async()=>null},
+    scope:SCOPE,nowMs:()=>NOW
+  }));
+  assert.throws(()=>createGithubOnlyKnownUsageReader({
+    githubToken:TOKEN,ownerPinnedVault:{read:async()=>null},
+    scope:{...SCOPE,forumId:'999999999999999999'},nowMs:()=>NOW
   }));
 });
