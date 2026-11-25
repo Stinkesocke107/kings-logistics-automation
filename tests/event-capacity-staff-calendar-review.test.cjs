@@ -234,3 +234,51 @@ test('Rendered calendar never accepts forged free-slot summary or unsafe day con
     ...r,days:[{...r.days[0],remainingSlots:2},...r.days.slice(1)]
   }));
 });
+
+test('Mixed signed journal revisions are rejected before yearly evidence can be compared',()=>{
+  const f=fixture();
+  assert.throws(()=>projectKingsStaffCalendarReview({
+    ...f,historicalHoldsReports:[
+      f.historicalHoldsReports[0],
+      {...f.historicalHoldsReports[1],
+        signedHistoricalRevision:f.historicalHoldsReports[1].signedHistoricalRevision+1}
+    ]
+  }));
+  const r=projectKingsStaffCalendarReview(f);
+  assert.equal(r.signedHoldReportsShareOneJournalRevision,true);
+  assert.equal(r.historicalHoldJournalRevision,2);
+});
+test('Signed historical holds exceeding the current snapshot are review hints, not available capacity',()=>{
+  const r=build(),march=r.months[2];
+  assert.equal(march.historicalHoldCountExceedsCurrentSnapshot,true);
+  assert.equal(r.months[3].historicalHoldCountExceedsCurrentSnapshot,false);
+  const marchDaily=projectKingsStaffCalendarReview({
+    ...fixture(),selectedMonth:'2027-03'
+  }).days.find(x=>x.utcDate==='2027-03-20');
+  assert.equal(marchDaily.historicalHoldsExceedCurrentSnapshot,true);
+  assert.equal(marchDaily.status,'Historical Hold — Human Review');
+  assert.equal(marchDaily.remainingSlots,null);
+});
+test('Forged monthly source totals inconsistent with daily counts are rejected',()=>{
+  const f=fixture(),m=f.capacity.months['2027-04'];
+  const patched={...f.capacity,months:{
+    ...f.capacity.months,'2027-04':{...m,partner:0}
+  }};
+  assert.throws(()=>projectKingsStaffCalendarReview({...f,capacity:patched}));
+  const patched2={...f.capacity,months:{
+    ...f.capacity.months,'2027-04':{...m,kings:2}
+  }};
+  assert.throws(()=>projectKingsStaffCalendarReview({...f,capacity:patched2}));
+});
+test('Forged day counts and impossible calendar dates are rejected before presentation',()=>{
+  const f=fixture();
+  const selected=f.capacity.days['2027-04-20'];
+  assert.throws(()=>projectKingsStaffCalendarReview({
+    ...f,capacity:{...f.capacity,days:{...f.capacity.days,
+      '2027-04-20':{...selected,combined:99}}}
+  }));
+  assert.throws(()=>projectKingsStaffCalendarReview({
+    ...f,capacity:{...f.capacity,days:{...f.capacity.days,
+      '2027-02-30':{...selected}}}
+  }));
+});
