@@ -12,7 +12,7 @@ const STATES=new Set(['SOURCE_UNVERIFIED','CALENDAR_UNVERIFIED',
 function verdict(state){
   if(!STATES.has(state))throw Error(ERROR);
   return Object.freeze({
-    version:1,mode:'SOURCE_PREFLIGHT',
+    version:1,visibility:'PRIVATE_ONLY',mode:'SOURCE_PREFLIGHT',
     status:state,readOnly:true,sourceArtifactChecked:state!=='SOURCE_UNVERIFIED',
     calendarProjectionChecked:state==='SOURCE_CALENDAR_PREVIEW_READY',
     discordAccessed:false,discordWrites:0,githubWrites:0,
