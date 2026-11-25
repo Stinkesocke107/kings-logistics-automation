@@ -10,7 +10,7 @@ const from=(id,type,departure,status='Scheduled',other={})=>({
   plannedEndAtUtc:'2027-03-20T20:00:00Z',
   ...other
 });
-test('Policy cap: Partner + External share two daily slots; Kings stays unlimited',()=>{
+test('Weekend combined cap is five; Kings stays exempt and free slots unverified',()=>{
   const r=evaluate([
     from(1,'Partner Convoy','2027-03-20T16:00:00Z'),
     from(2,'External Convoy','2027-03-20T17:00:00Z'),
@@ -18,27 +18,36 @@ test('Policy cap: Partner + External share two daily slots; Kings stays unlimite
     from(4,'Kings Convoy','2027-03-20T19:00:00Z')
   ]);
   assert.deepEqual([r.days['2027-03-20'].combined,r.days['2027-03-20'].kings],[2,2]);
-  assert.equal(r.days['2027-03-20'].remaining,0);
-  assert.equal(LIMITS.combinedDaily,2);
+  assert.equal(r.days['2027-03-20'].remaining,null);
+  assert.equal(r.days['2027-03-20'].planningRemaining,3);
+  assert.equal(LIMITS.weekdayCombined,3);
+  assert.equal(LIMITS.weekendCombined,5);
+  assert.equal(LIMITS.partnerDaily,2);
+  assert.equal(LIMITS.externalDaily,2);
+  assert.equal(LIMITS.partnerMonthly,null);
 });
-test('A third Partner/External on the same day is over limit regardless of subtype',()=>{
+test('Four partner/external convoys on Thursday trigger the 3/day planning review',()=>{
   const r=evaluate([
-    from(1,'External Convoy','2027-03-20T16:00:00Z'),
-    from(2,'Partner Convoy','2027-03-20T17:00:00Z'),
-    from(3,'External Convoy','2027-03-20T18:00:00Z')
+    from(1,'External Convoy','2027-03-25T16:00:00Z'),
+    from(2,'Partner Convoy','2027-03-25T17:00:00Z'),
+    from(3,'External Convoy','2027-03-25T18:00:00Z'),
+    from(4,'Partner Convoy','2027-03-25T19:00:00Z')
   ]);
-  assert.equal(r.days['2027-03-20'].combined,3);
-  assert.equal(r.warnings.find(x=>x.code==='combined-day-over-limit').limit,2);
+  assert.equal(r.days['2027-03-25'].combined,4);
+  assert.equal(r.warnings.find(x=>x.code==='combined-day-over-limit').limit,3);
+  assert.equal(r.days['2027-03-25'].remaining,null);
 });
-test('Partner and External each have 20 separate monthly slots',()=>{
+test('Old 20-per-month thresholds are not applied to current monthly counts',()=>{
   const items=[];
   for(let i=0;i<21;i++)items.push(from(100+i,'Partner Convoy','2027-03-20T16:00:00Z'));
   for(let i=0;i<20;i++)items.push(from(200+i,'External Convoy','2027-03-21T16:00:00Z'));
   const r=evaluate(items);
   assert.equal(r.months['2027-03'].partner,21);
   assert.equal(r.months['2027-03'].external,20);
-  assert.ok(r.warnings.some(x=>x.code==='partner-month-over-limit'));
-  assert.ok(!r.warnings.some(x=>x.code==='external-month-over-limit'));
+  assert.equal(r.months['2027-03'].partnerRemaining,null);
+  assert.equal(r.months['2027-03'].externalRemaining,null);
+  assert.equal(r.warnings.some(x=>x.code==='partner-month-over-limit'),false);
+  assert.equal(r.warnings.some(x=>x.code==='external-month-over-limit'),false);
 });
 test('UTC departure rather than meeting or metadata eventDate determines allocation',()=>{
   const r=evaluate([from(1,'Partner Convoy','2027-04-01T00:15:00+02:00','Scheduled',{
@@ -111,12 +120,18 @@ test('2h departure gap is advisory and crosses UTC midnight',()=>{
   assert.equal(r.warnings.find(x=>x.code==='meeting-end-overlap').priorityConflict,true);
   assert.equal(r.days['2027-03-21'].external,1);
 });
-test('Exception approval is recorded but never raises the actual cap',()=>{
-  const records=[from(1,'Partner Convoy','2027-03-20T16:00:00Z'),from(2,'External Convoy','2027-03-20T17:00:00Z'),from(3,'Partner Convoy','2027-03-20T18:00:00Z','Scheduled',{exceptionApprovedBy:'Event Management'})];
+test('Exception claim is recorded but does not change the weekday cap',()=>{
+  const records=[
+    from(1,'Partner Convoy','2027-03-25T16:00:00Z'),
+    from(2,'External Convoy','2027-03-25T17:00:00Z'),
+    from(3,'Partner Convoy','2027-03-25T18:00:00Z','Scheduled',
+      {exceptionApprovedBy:'Event Management'}),
+    from(4,'External Convoy','2027-03-25T19:00:00Z')
+  ];
   const r=evaluate(records);
-  assert.equal(r.days['2027-03-20'].combined,3);
-  assert.equal(r.days['2027-03-20'].approvedExceptions,1);
-  assert.equal(r.days['2027-03-20'].remaining,0);
+  assert.equal(r.days['2027-03-25'].combined,4);
+  assert.equal(r.days['2027-03-25'].approvedExceptions,1);
+  assert.equal(r.days['2027-03-25'].remaining,null);
   assert.equal(r.warnings.find(x=>x.code==='combined-day-over-limit').approvedExceptions,1);
 });
 test('Strict timezone parsing never guesses and rejects overflow dates',()=>{
@@ -133,13 +148,16 @@ test('The evaluator has no side effects on event inputs',()=>{
   assert.equal(JSON.stringify(a),original);
 });
 
-test('Verified availability requires explicit fresh source and is category specific',()=>{
+test('Fresh current snapshot may show planning counts but cannot certify free slots',()=>{
   const base=[from(1,'Partner Convoy','2027-03-20T16:00:00Z')];
   const unknown=evaluate(base);
   assert.equal(dayAvailability(unknown,'2027-03-20').verified,false);
   const fresh=evaluate(base,{dataFresh:true});
-  assert.equal(dayAvailability(fresh,'2027-03-20').partnerAvailableVerified,true);
-  assert.equal(dayAvailability(fresh,'2027-03-20').externalAvailableVerified,true);
+  assert.equal(dayAvailability(fresh,'2027-03-20').verified,true);
+  assert.equal(dayAvailability(fresh,'2027-03-20').partnerAvailableVerified,false);
+  assert.equal(dayAvailability(fresh,'2027-03-20').externalAvailableVerified,false);
+  assert.equal(dayAvailability(fresh,'2027-03-20').remaining,null);
+  assert.equal(dayAvailability(fresh,'2027-03-20').planningRemaining,4);
   const records=[];
   for(let i=0;i<20;i++)records.push(from(100+i,'Partner Convoy','2027-03-21T16:00:00Z','Scheduled',{
     meetingAtUtc:'2027-03-21T15:00:00Z',plannedEndAtUtc:'2027-03-21T20:00:00Z'
@@ -147,6 +165,7 @@ test('Verified availability requires explicit fresh source and is category speci
   const full=evaluate(records,{dataFresh:true});
   const day=dayAvailability(full,'2027-03-22');
   assert.equal(day.partnerAvailableVerified,false);
-  assert.equal(day.externalAvailableVerified,true);
-  assert.equal(day.freeVerified,true);
+  assert.equal(day.externalAvailableVerified,false);
+  assert.equal(day.freeVerified,false);
+  assert.equal(day.planningRemaining,3);
 });
