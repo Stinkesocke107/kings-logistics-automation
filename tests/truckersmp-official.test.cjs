@@ -130,7 +130,7 @@ test('Official server API outage retains prior honest unavailable display withou
   }
  });
  await s.run('main()');
- assert.equal(s.process.exitCode,0,'Optional official source failure must not hide the real tracker failure');
+ assert.equal(s.process.exitCode,1,'Other required Live Systems displays are missing; cannot claim full fallback delivery');
  assert.equal(payloads.length,1);
  assert.equal(payloads[0].embeds[0].fields.length,3);
  assert.match(payloads[0].embeds[0].fields[1].value,/Unavailable/);
