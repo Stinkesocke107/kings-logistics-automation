@@ -36,3 +36,15 @@ Offline synthetic tests: tests/event-capacity-historical-lifecycle-journal.test.
 Until these criteria are met: do NOT run Event Capacity commands, auto approvals, private Discord publication, capacity slot certification, scheduled data sync, or owner-approval writes.
 
 All development continues using GitHub Actions. No new always-on VPS or privately hosted bot.
+
+## Optional live-map fallback — development update (25 November 2026)
+
+The Kings Event Capacity calendar must work with **no live player map available**. The optional live-map availability layer is isolated from the Event Capacity policy engine and from current production GitHub Actions:
+
+- New draft module: `event-capacity-optional-tracker.js`, integrated in the **draft private calendar renderer** via `event-capacity-dashboard.js`.
+- With no provider, an unavailable map, stale (>15 min) data, incomplete server coverage, unauthenticated data or a provider exception, the UI indicates `WITHOUT_MAP` / `Unavailable`. Calendar day/month quotas, Event decisions, report status and warnings are unchanged.
+- An optional `WITH_MAP` feed-status indicator requires a caller-proven authenticated, complete, fresh provider status. These trust flags must **only** be set by a separately verified authorized adapter, NEVER from untrusted API output or cached last-known-good data. Status projection does **not** fetch/render a map or provide positions.
+- Player positions and online counts are **never** invented or included in this status projection. A map outage cannot become an Event Capacity outage, but a stale Convoy Center source still correctly marks capacity as unverified.
+- Draft unit and dashboard regression tests cover outage/partial/stale/faulty provider and independence from monthly Event Capacity calculations. The standalone optional tracker unit tests have been run locally; repository-wide current-head CI remains to be verified.
+- No changes were made to main, running Kings Convoy Checker, public tracker, Discord messages, bot permissions, feature flags, private storage or staff approvals. PR #143 remains unmerged Draft. Provider authentication, real map visualization and complete Event Capacity launch gates remain open.
+
