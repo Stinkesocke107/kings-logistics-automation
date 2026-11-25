@@ -48,3 +48,10 @@ The Kings Event Capacity calendar must work with **no live player map available*
 - Draft unit and dashboard regression tests cover outage/partial/stale/faulty provider and independence from monthly Event Capacity calculations. The standalone optional tracker unit tests have been run locally; repository-wide current-head CI remains to be verified.
 - No changes were made to main, running Kings Convoy Checker, public tracker, Discord messages, bot permissions, feature flags, private storage or staff approvals. PR #143 remains unmerged Draft. Provider authentication, real map visualization and complete Event Capacity launch gates remain open.
 
+
+## Historical signed archive export — offline step (25 November 2026)
+
+An **offline only encrypted archive codec** now segments historical owner-signed transition records by UTC review month, encrypts each segment with AES-256-GCM, checks integrity, owner signatures, revision continuity and a separately supplied manifest checkpoint, and reconstructs the original journal without claiming free slots. Seven focused local Node tests passed (including accepted, rescheduled, cancelled, completed records, corruption, stale checkpoints, 129-record partition boundary). See `docs/KINGS-EVENT-CAPACITY-HISTORICAL-ENCRYPTED-ARCHIVE-2026-11-25.md`.
+
+**This is NOT 24-month durable GitHub storage, a trusted source-archive authenticator, independent owner-pinned checkpoint service, authorized history completion or permission to activate.** Actual private repositories, signed externally retained checkpoint, 90-day backups, retention/erasure, authentic real old Convoy Center evidence and full current-head GitHub CI remain mandatory. No runtime workflow imports this codec.
+
