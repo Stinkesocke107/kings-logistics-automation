@@ -17,7 +17,7 @@ function observationFixtures(nowMs=Date.now()){
     historyMonthsWithClaims:4,historyMonthsWithoutClaims:20
   };
   const invitation={
-    version:1,readOnly:true,sourceForumVerified:true,
+    version:1,readOnly:true,sourceForumVerified:true,tagSchemaVerified:true,
     invitationDecisionsVerified:false,staffApprovalsVerified:false,
     bookingsCreated:0,observedAt,
     convoyThreads:3,invitedVtcs:5,ongoingThreads:1,doneThreads:1,
@@ -57,6 +57,16 @@ test('Kings Event Operations #18 combines #12/#13/#14/#15/#16 advisory source fl
   assert.match(text,/manual review, not a confirmed RSVP/);
   assert.ok(text.length<=1024);
   assert.doesNotMatch(JSON.stringify(o)+text,/secret-event|discord-user-id|https:\/\/truckersmp/);
+});
+test('Event Operations flags readable replies with unverified Forum lifecycle tags',()=>{
+  const f=observationFixtures();
+  f.invitationSourceObservation.tagSchemaVerified=false;
+  const ops=observeOperations(f);
+  assert.equal(ops.invitationSource,'INVITATIONS_READABLE_TAGS_UNVERIFIED');
+  assert.equal(ops.review.invitationDuplicateVtcs,2);
+  const text=renderOperationsReview(ops);
+  assert.match(text,/Invitation replies readable; Forum lifecycle tags UNVERIFIED/);
+  assert.doesNotMatch(text,/Private Invitation Tracker source is readable; response labels/);
 });
 test('missing and stale Event or Invitation source cannot become invented zero work',()=>{
   const f=observationFixtures();
