@@ -73,7 +73,8 @@ test('clean source still does not certify historical completeness or original St
   f.future.forEach(x=>{x.legacyDatedKeptSeparate=0;});
   f.undatedCenter=0;f.undatedLegacy=0;
   const rows=buildReviewAgenda(f);
-  assert.equal(rows.length,1);
+  assert.equal(rows.length,MAX_ITEMS);
+  assert.ok(rows.every(row=>row.code==='HISTORICAL_MONTH_NO_CLAIMS'));
   assert.equal(rows[0].code,'HISTORICAL_MONTH_NO_CLAIMS');
   assert.equal(rows[0].utcMonth,'2027-03');
   assert.equal(rows[0].count,null);
