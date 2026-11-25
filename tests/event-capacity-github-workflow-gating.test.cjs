@@ -33,3 +33,17 @@ test('GitHub host receives only configured identities and existing bot secret',(
   assert.match(workflow,/secrets\.DISCORD_BOT_TOKEN/);
   assert.match(workflow,/scripts\/event-capacity-github-actions\.js/);
 });
+
+test('New monthly historical analysis cannot silently activate live capacity or staff decisions',()=>{
+  const runner=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  assert.doesNotMatch(runner,/require\(['"]\.\.\/event-capacity-github-monthly-coverage['"]\)/);
+  assert.doesNotMatch(runner,/require\(['"]\.\.\/event-capacity-owner-controlled-commit['"]\)/);
+  assert.doesNotMatch(workflow,/KINGS_EVENT_CAPACITY_MONTHLY_COVERAGE_ENABLED/);
+  assert.match(workflow,/vars\.KINGS_EVENT_CAPACITY_ENABLED == 'true'/);
+  assert.match(workflow,/inputs\.capacity_action == 'preview'/);
+  const analysis=fs.readFileSync(path.join(root,
+    'event-capacity-github-monthly-coverage.js'),'utf8');
+  assert.match(analysis,/freeSlotsCertified:false/);
+  assert.match(analysis,/historicalCoverageCertified:false/);
+});
