@@ -130,9 +130,9 @@ test('Separate private witness initializes revision zero, verifies signature and
 });
 test('Same revision/old checkpoint never advances: strict predecessor and CAS',async()=>{
   const f=suite(),w=f.witness();
-  assert.equal(await w.compareAndAdvance({
+  await assert.rejects(w.compareAndAdvance({
     scope:SCOPE,expected:null,next:{revision:1,digest:D1}
-  }),false);
+  }));
 });
 test('Malformed revision and wrong scope fail closed with no network writes',async()=>{
   const f=suite(),w=f.witness();
