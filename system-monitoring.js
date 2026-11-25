@@ -737,6 +737,11 @@ async function main() {
   // Run API-health inspection after workflow API calls so the monitoring engine's
   // own GitHub API health state is included in this same health report.
   const apiHealth = checkApiHealth(issues);
+  // Optional operational evidence, authored only by Kings Live Systems.
+  // Do not upgrade full-live source freshness or readiness based on fallback.
+  const liveDeliveryResult = readJson('data/live-systems-delivery.json');
+  const liveDelivery = liveDeliveryResult.exists && !liveDeliveryResult.error
+    ? liveDeliveryResult.data : null;
 
   issues.sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || a.system.localeCompare(b.system));
 
@@ -782,6 +787,7 @@ async function main() {
     data: {
       freshness: freshData,
       apiHealth,
+      liveDelivery,
       integrity,
       convoyCompleteness,
       encryptedStates

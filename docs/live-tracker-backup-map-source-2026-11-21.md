@@ -51,3 +51,15 @@ Normal full-map refreshes automatically resume when every required active server
 ## Monitoring visibility — map outage vs. fallback
 
 The Kings System Monitor explicitly distinguishes the external player-map provider from the Live Systems workflow: a failed map provider with a successfully completed Live Systems run is shown as **degraded player-map availability with an official-data fallback**, *not* as a healthy live player map. Missing/failed Live Systems runs show fallback delivery as unverified. A green player-map source requires provider health, successful production workflow and a fresh verified Tracker snapshot. The underlying monitoring issues, full-live source freshness checks, and Core/Final Freeze readiness gates remain unchanged and must continue to show the real dependency outage.
+
+## Auditable delivery proof — 25 November 2026
+
+The Live Systems pipeline now writes a small, public, **aggregate-only** `data/live-systems-delivery.json` file after attempting the existing Discord displays. The file includes no webhook URL/token, Discord message ID, player identity or coordinates. It records the checked time, fixed display labels, delivery mode and independently verified source type.
+
+- `fallback-delivered`: all three existing Discord displays were verified. The source is recorded as `official-vtc-and-servers`, `official-vtc-only`, `recent-roster`, or `status-only`. A *status-only* notice must never be presented as verified official player data.
+- `fallback-incomplete`: at least one display is missing or failed. Other reachable displays still receive safe notices; the workflow fails and the state is not green.
+- `verified-live`: recorded **only after** the Tracker, Statistics and Central Overview succeed using one freshly verified full player-map generation. A stale or mismatched Tracker/Statistics source is rejected.
+
+The Kings System Monitor displays successful fallback only when this proof is fresh (25 minutes), complete for **all three** fixed displays and the actual Live Systems workflow is healthy. Without proof, with old proof or with partial delivery, the monitor says fallback is **not verified**, even if GitHub happened to report a green workflow. The map API's own down/degraded status and strict full-live source freshness/Freeze blockers remain unchanged.
+
+The delivery proof is persisted together with the live pipeline's existing data and API-health state. It is **not a substitute** for the full player-map API, an online-driver sample, or a full technical release sign-off.
