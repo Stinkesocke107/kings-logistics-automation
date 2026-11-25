@@ -47,3 +47,63 @@ test('under-two-hours departure separation remains only a review warning',()=>{
   assert.equal(keyOf({code:'total-day-over-limit',period:'2027-03-20',count:4}),
     keyOf({code:'total-day-over-limit',period:'2027-03-20',count:5}));
 });
+
+test('daily Event source triage groups unresolved categories and dates without exposing Event details',()=>{
+  const {sourceTriageNotices,describe}=require('../convoy-planning-alerts');
+  const privateMarker='DO_NOT_PUBLISH_PRIVATE_EVENT_NAME';
+  const source={
+    version:2,mode:'advisory-only',sourceClaimsOnly:true,
+    freeSlotsCertified:false,
+    unknownTypes:[{threadId:'777777777777777777',name:privateMarker},
+      {eventId:'123456',name:privateMarker}],
+    missingDepartures:[{threadId:'888888888888888888',name:privateMarker}]
+  };
+  const notices=sourceTriageNotices(source,'2026-11-25T21:00:00Z');
+  assert.equal(notices.length,1);
+  const n=notices[0];
+  assert.equal(n.code,'event-source-triage');
+  assert.equal(n.period,'2026-11-25');
+  assert.equal(n.unknownTypes,2);
+  assert.equal(n.missingDepartures,1);
+  assert.equal(keyOf(n),keyOf({...n,unknownTypes:5,missingDepartures:4}),
+    'Only one private source review alert per UTC day');
+  assert.notEqual(keyOf(n),keyOf({...n,period:'2026-11-26'}));
+  const message=describe(n);
+  assert.match(message,/2.*unclassified Event type/);
+  assert.match(message,/1.*missing verified UTC departure/);
+  assert.match(message,/Staff source review/);
+  assert.match(message,/not an Event approval, capacity release or booking/);
+  for(const marker of [privateMarker,'777777777777777777','888888888888888888','123456']){
+    assert.ok(!JSON.stringify(n).includes(marker));
+    assert.ok(!message.includes(marker));
+  }
+  assert.equal(pending([n],{sent:[keyOf(n)]}).length,0);
+});
+
+test('Event source triage is silent for clean data and rejects obsolete/unverified summaries',()=>{
+  const {sourceTriageNotices}=require('../convoy-planning-alerts');
+  const clean={version:2,mode:'advisory-only',
+    sourceClaimsOnly:true,freeSlotsCertified:false,
+    unknownTypes:[],missingDepartures:[]};
+  assert.equal(sourceTriageNotices(clean,'2026-11-25T21:00:00Z').length,0);
+  for(const bad of [
+    {...clean,version:1,unknownTypes:[{}]},
+    {...clean,freeSlotsCertified:true,unknownTypes:[{}]},
+    {...clean,mode:'booking',unknownTypes:[{}]},
+    {...clean,sourceClaimsOnly:false,unknownTypes:[{}]},
+    {...clean,unknownTypes:null},
+    {...clean,missingDepartures:null}
+  ]){
+    assert.equal(sourceTriageNotices(bad,'2026-11-25T21:00:00Z').length,0);
+  }
+  assert.equal(sourceTriageNotices({...clean,unknownTypes:[{}]},'bad date').length,0);
+});
+
+test('Event triage reuses durable Staff alert deduplication and never publishes private source in dry-run logs',()=>{
+  const fs=require('node:fs'),path=require('node:path');
+  const source=fs.readFileSync(path.join(__dirname,'..','convoy-planning-alerts.js'),'utf8');
+  assert.match(source,/pending\(\[\.\.\.activeWarnings,\.\.\.sourceTriageNotices\(report\)\],existing\)/);
+  assert.match(source,/private event details withheld/);
+  assert.match(source,/CONVOY_DRY_RUN/);
+  assert.match(source,/Convoy Alert Key/);
+});
