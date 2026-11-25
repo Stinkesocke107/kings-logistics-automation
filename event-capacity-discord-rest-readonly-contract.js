@@ -54,7 +54,8 @@ function makeKingsDiscordReadOnlyRequest({
       mayWrite:false,noAuthorizationHeaderIncluded:true,
       runtimeTransportNotProvided:true,
       privateRequestDoNotLog:true,
-      cannotCertifyOriginalHistory:true
+      cannotCertifyOriginalHistory:true,
+      freeSlotsCertified:false,safeToActivate:false
     });
   }catch{fail();}
 }
@@ -87,7 +88,8 @@ function reduceKingsDiscordReadOnlyPage({request,response,fetchedAtUtc}={}){
           .update('kings-discord-failed-page-v1:'+response.status).digest('hex'),
         fetchedAtUtc,providerResponseAuthenticated:false,
         sourceRecordContentsRetained:false,rateLimitRetried:false,
-        requestWasGetOnly:true
+        requestWasGetOnly:true,
+        freeSlotsCertified:false,safeToActivate:false
       });
     }
     let items,hasMore=false,nextCursor=null;
@@ -158,7 +160,8 @@ function reduceKingsDiscordReadOnlyPage({request,response,fetchedAtUtc}={}){
       hasMore,nextCursor,responseDigest:hash,fetchedAtUtc,
       providerResponseAuthenticated:false,
       sourceRecordContentsRetained:false,
-      rateLimitRetried:false,requestWasGetOnly:true
+      rateLimitRetried:false,requestWasGetOnly:true,
+      freeSlotsCertified:false,safeToActivate:false
     });
   }catch{fail();}
 }
