@@ -192,3 +192,36 @@ test('Authenticated historical read gateway, offline owner receipt audit and Wor
   assert.match(bundle,/commandsReadyToExecute:false/);
   assert.match(bundle,/isDeepStrictEqual\(before,after\)/);
 });
+
+test('Private storage preflight and large segmented backups cannot silently activate production',()=>{
+  const runner=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  const workflow=fs.readFileSync(path.join(root,
+    '.github/workflows/convoy-checker.yml'),'utf8');
+  const modules=[
+    'event-capacity-private-storage-preflight',
+    'event-capacity-historical-segmented-backup',
+    'event-capacity-historical-segmented-github-vault'
+  ];
+  for(const name of modules){
+    const source=fs.readFileSync(path.join(root,name+'.js'),'utf8');
+    assert.equal(runner.includes(name),false);
+    assert.equal(workflow.includes(name),false);
+    assert.match(source,/freeSlotsCertified:false/);
+    assert.doesNotMatch(source,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
+    assert.doesNotMatch(source,/request\('(?:DELETE|POST|PATCH)'/);
+  }
+  const preflight=fs.readFileSync(path.join(root,modules[0]+'.js'),'utf8');
+  assert.match(preflight,/safeToActivate:false/);
+  assert.match(preflight,/branchProtectionRulesIndependentlyInspected:false/);
+  assert.match(preflight,/credentialGrantIsolationIndependentlyVerified:false/);
+  assert.doesNotMatch(preflight,/method:'(?:PUT|DELETE|POST|PATCH)'/);
+  const codec=fs.readFileSync(path.join(root,modules[1]+'.js'),'utf8');
+  assert.match(codec,/offsiteStoragePerformed:false/);
+  assert.match(codec,/inspectEncryptedOffsiteHistoricalBackup/);
+  const vault=fs.readFileSync(path.join(root,modules[2]+'.js'),'utf8');
+  assert.match(vault,/retentionEnforced:false/);
+  assert.match(vault,/ownerReceiptCustodyVerified:false/);
+  assert.match(vault,/request\('PUT'/);
+  assert.doesNotMatch(vault,/request\('DELETE'/);
+});
