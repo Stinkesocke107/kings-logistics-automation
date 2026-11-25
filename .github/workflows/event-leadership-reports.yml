@@ -59,7 +59,32 @@ jobs:
         run: |
           node --check event-leadership-reports.js
           node --check event-leadership-state.js
+          node --check event-history-leadership-bridge.js
+          node --check event-history-real-source-preview.js
           node --check scripts/migrate-event-leadership-state.js
+
+      # Strict read-only operational proof of the newly connected systems.
+      # The existing real-source reporting pipeline is reused, but ALL source
+      # output is suppressed to avoid private Event data in PUBLIC CI logs.
+      # No Discord messages, bookings, approvals or source writes are made.
+      - name: Verify real Calendar and History source without public Event data
+        continue-on-error: true
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+          DISCORD_CONVOY_FORUM_ID: '1550619824005062697'
+          DISCORD_WRITE_MODE: 'false'
+          CONVOY_FINALIZE_WRITE_MODE: 'false'
+          KINGS_VTC_NAME: 'Kings Logistics'
+        run: |
+          set -euo pipefail
+          for script in convoy-checker.js convoy-truckersmp-sync.js convoy-finalize.js convoy-overview.js; do
+            if ! node "$script" >/dev/null 2>&1; then
+              echo "::warning::Kings Event History / Calendar: real source pipeline unavailable; details withheld."
+              exit 1
+            fi
+          done
+          node event-history-real-source-preview.js
 
       - name: Migrate existing Event Leadership state to encrypted storage without Discord writes
         env:
