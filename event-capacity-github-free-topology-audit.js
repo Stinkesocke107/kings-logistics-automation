@@ -24,10 +24,11 @@ function exact(v,names){
   if(!isPlain(v)||Object.keys(v).sort().join(',')!==
     [...names].sort().join(','))fail();
 }
-function auditKingsGitHubFreeRepositoryTopology({
-  repositories,installation
-}={}){
+function auditKingsGitHubFreeRepositoryTopology(config={}){
   try{
+    // Reject extra top-level fields, including accidental raw credentials.
+    exact(config,['repositories','installation']);
+    const {repositories,installation}=config;
     exact(repositories,KEYS);
     exact(installation,['selection','accessibleRepositoryNames']);
     if(installation.selection!=='selected'||
