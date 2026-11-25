@@ -166,7 +166,8 @@ function renderKingsUnifiedEvidenceCoveragePreview(view){
           'Unknown months '+c.historyMonthsWithoutSourceClaims+
           ' | Incomplete scanned months '+
             c.historyMonthsWithIncompleteScanClaims+
-          ' | Staff checklists missing '+c.historyMonthsWithoutStaffChecklists+'\n'+
+          ' | Staff checklists missing '+c.historyMonthsWithoutStaffChecklists+
+          ' | Open staff reviews '+c.historyMonthsWithOpenStaffChecklists+'\n'+
           '**Never use this preview to approve or release slots. No Discord data read.**',
         embeds:[{
           title:'Kings | 24 UTC months of historical source claims',
