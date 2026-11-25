@@ -2,6 +2,7 @@
 // Kings Event History #14 / Event Calendar #16 integration.
 // Pure, in-memory, read-only: never approves, reserves, publishes or edits.
 const {monthsFrom}=require('./event-capacity-pilot-source');
+const {buildReviewAgenda}=require('./event-history-review-agenda');
 const HISTORY_MONTHS=24;
 function utcInstant(value){
   if(typeof value!=='string'||!/(?:Z|[+-]\d{2}:\d{2})$/i.test(value.trim()))return null;
@@ -27,7 +28,8 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
     utcMonth:new Date(Date.UTC(now.getUTCFullYear(),
       now.getUTCMonth()-(HISTORY_MONTHS-1-index),1)).toISOString().slice(0,7),
     centerClaims:0,legacyClaims:0,
-    completedClaims:0,cancelledClaims:0,rescheduledClaims:0
+    completedClaims:0,cancelledClaims:0,rescheduledClaims:0,
+    centerOutcomeUnresolved:0
   }));
   const lookup=new Map(months.map(m=>[m.utcMonth,m]));
   let undatedCenter=0,undatedLegacy=0,otherPeriods=0;
@@ -54,8 +56,10 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
     // A past departure with Scheduled/Ready/Needs Info/Rescheduled or an
     // unknown status is NOT independently proven to have completed.
     // This is only a staff evidence-review flag, not a status mutation.
-    if(source==='center'&&!['Completed','Cancelled','Canceled'].includes(item.status))
+    if(source==='center'&&!['Completed','Cancelled','Canceled'].includes(item.status)){
       pastCenterOutcomeUnresolved++;
+      row.centerOutcomeUnresolved++;
+    }
     if(item.status==='Completed')row.completedClaims++;
     if(item.status==='Cancelled'||item.status==='Canceled')row.cancelledClaims++;
     if(item.status==='Rescheduled')row.rescheduledClaims++;
@@ -89,6 +93,9 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
   const historySourceReadErrors=report.threads.filter(x=>x&&!x.ignored&&
     !x.testThread&&x.error).length;
   const future=calendar.months;
+  const reviewAgenda=buildReviewAgenda({
+    history:months,future,undatedCenter,undatedLegacy,nowMs
+  });
   return {
     mode:'READ_ONLY_SOURCE_HISTORY_REVIEW',
     utcHistoryWindowMonths:HISTORY_MONTHS,history:months,
@@ -100,6 +107,7 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
     historyMonthsWithSourceClaims,
     historyMonthsWithoutSourceClaims,
     historyMonthsCenterOnly,historyMonthsLegacyOnly,historyMonthsBothSources,
+    reviewAgenda,
     pastCenterOutcomeUnresolved,
     legacyClaimsNeedingOriginalEvidence:calendar.legacyClaims,
     futureDatedLegacyHoldReview,
