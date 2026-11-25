@@ -21,7 +21,7 @@ function assertRun(run,{nowMs,expectedRepo=REPO,expectedWorkflow=WORKFLOW,reques
   if(!run||typeof run!=='object'||Array.isArray(run)||!Number.isFinite(nowMs)||
      !ID.test(String(run.id||''))||
      (requestedRunId&&!sameID(run.id,requestedRunId))||
-     run.name!=='Kings Convoy Checker'||
+     !['Kings Convoy Checker','Kings Convoy Checker (live)'].includes(run.name)||
      run.path!==expectedWorkflow||
      run.repository?.full_name!==expectedRepo||
      run.head_repository?.full_name!==expectedRepo||
