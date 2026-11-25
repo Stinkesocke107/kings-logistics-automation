@@ -73,7 +73,7 @@ test('private approved tag mapping reaches the GET-only source but never appears
   assert.ok(!JSON.stringify(x.logs).includes(secret));
   assert.ok(!JSON.stringify(x.warnings).includes(secret));
   const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/event-leadership-reports.yml'),'utf8');
-  assert.match(workflow,/DISCORD_INVITATION_TAG_IDS: \\$\{\{ secrets\\.DISCORD_INVITATION_TAG_IDS \\}\}/);
+  assert.ok(workflow.includes('DISCORD_INVITATION_TAG_IDS: ${{ secrets.DISCORD_INVITATION_TAG_IDS }}'));
 });
 test('access failure exposes endpoint category but no private details',async()=>{
   const x=await execute(true,'ACCESS_DENIED_ARCHIVE');
