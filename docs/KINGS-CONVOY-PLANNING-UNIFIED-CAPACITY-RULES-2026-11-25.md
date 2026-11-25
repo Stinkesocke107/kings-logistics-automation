@@ -36,3 +36,13 @@ The public GitHub Actions **dry-run** of planning warnings emits only a fixed ag
 - A real main Convoy Checker live run updates the already-owned Convoy Overview with the new rules.
 - Staff validates that earlier automated Discord notices are not mistaken for current policy; this rollout does **not** delete old Discord messages automatically.
 - Historical original-source coverage, Staff decisions and the full Event Calendar UI remain separate launch gates.
+
+## Event Staff classification queue — connected to existing operational alerts
+
+Actual recent Convoy Checker reports can contain unresolved Event categories even when the 12-month Calendar source structurally reconciles. Staff must classify Kings/Partner/External using original source evidence; there is no safe automatic assumption based on a public TruckersMP host (only independently verified Kings-hosted events may be inferred).
+
+`convoy-planning-alerts.js` now sends **at most one aggregate Staff source triage notice per UTC day** in the already owned private Event Leadership channel if the current `version:2`, advisory-only `convoy-planning-limits.json` has unknown Event classifications and/or missing verified UTC departure timestamps. The digest tells Staff how many source records need review and points to the existing Convoy Center, **without posting private Event names/IDs into GitHub Actions logs or a new public channel**.
+
+- Existing persistent `data/convoy-planning-alert-state.json` and Discord recovery key protection prevents repeat messages on re-runs. Counts do not change a day's key; a new UTC day permits another reminder while unresolved.
+- The digest remains an information-only Staff action request. It does not guess a category, accept an Event, release a confirmed date, or authorize bookings.
+- Clean or malformed/untrusted planning input produces no fabricated alert.
