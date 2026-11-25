@@ -81,7 +81,9 @@ function auditKingsEventReminderDelivery({
     // These counts are diagnostics only. In particular, Delivered receipts
     // do not prove Discord accepted a message and Pending does not authorize
     // a retry; both need authenticated storage/response reconciliation.
-    const needsClaimReview=all.size-claimedMatches.Delivered;
+    // All claims require authentication, including claims marked Delivered.
+    // A forged "Delivered" receipt must never remove the actual review gate.
+    const needsClaimReview=all.size;
     return Object.freeze({
       version:1,visibility:'PRIVATE_ONLY',readOnly:true,
       workboardRevision:count(workboard.revision),
@@ -132,8 +134,7 @@ function renderKingsEventReminderDeliveryPreview(r){
       count(r.receiptClaimsSupplied)!==
         r.matchingDeliveredClaims+r.matchingPendingClaims+
         r.matchingUnknownClaims+count(r.unrelatedReceiptClaims)||
-      count(r.needsAuthenticatedReceiptReview)!==
-        sum-r.matchingDeliveredClaims||
+      count(r.needsAuthenticatedReceiptReview)!==sum||
       count(r.workboardRevision)>10000)fail();
     const content='**Kings Event Workboard — OFFLINE Reminder Audit**\n'+
       'Due reminder claims: '+sum+' | Claimed delivered '+
