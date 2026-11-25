@@ -381,3 +381,72 @@ test('Latest scheduled source query does not hide failed jobs with success filte
   assert.equal(latest.total_count,0);
   assert.deepEqual(latest.workflow_runs,[]);
 });
+
+test('Calendar has only daily and monthly policy: no weekly quota and no guessed month value',()=>{
+  const r=monthsFrom(data(),NOW),m=r.months[0];
+  assert.equal(r.weeklyLimitApplied,false);
+  assert.equal(r.monthlyLimitRequired,true);
+  assert.equal(r.monthlyLimitValueConfirmed,false);
+  assert.equal(r.monthlyLimitScopeConfirmed,false);
+  assert.equal(m.monthlyClassifiedClaims,1);
+  assert.equal(m.monthlyPartnerExternalClaims,1);
+  assert.equal(m.monthlyLimit,null);
+  assert.equal(m.monthlyLimitStatus,'LIMIT_VALUE_NOT_CONFIRMED');
+  assert.equal(m.monthlyRemainingVerified,null);
+  assert.equal('weeklyLimit' in m,false);
+  assert.equal('weeklyRemaining' in m,false);
+  assert.equal(r.freeSlotsCertified,false);
+});
+test('Monthly Kings/Partner/External counts do not invent the old 20+20 quotas',()=>{
+  // 25 reported Partner/External convoys across different days in one month.
+  // This is an informational in-memory count, NEVER approved availability.
+  const f=withCurrentEvents(Array.from({length:25},(_,i)=>({
+    type:i%2===0?'Partner Convoy':'External Convoy',
+    departure:'2027-03-'+String(i+1).padStart(2,'0')+'T14:00:00Z'
+  })));
+  const r=monthsFrom(f,NOW),m=r.months[0];
+  assert.equal(m.partnerClaims,13);
+  assert.equal(m.externalClaims,12);
+  assert.equal(m.monthlyPartnerExternalClaims,25);
+  assert.equal(m.monthlyClassifiedClaims,25);
+  assert.equal(m.monthlyLimit,null);
+  assert.equal(m.monthlyLimitStatus,'LIMIT_VALUE_NOT_CONFIRMED');
+  assert.equal(m.monthlyRemainingVerified,null);
+  assert.equal(r.weeklyLimitApplied,false);
+  assert.equal(r.freeSlotsCertified,false);
+});
+test('Monthly counter resets at UTC month boundary and Kings claims remain separately visible',()=>{
+  const f=withCurrentEvents([
+    {type:'Kings Convoy',departure:'2027-03-31T23:30:00Z'},
+    {type:'Partner Convoy',departure:'2027-04-01T00:30:00Z'},
+    {type:'External Convoy',departure:'2027-04-03T14:00:00Z'}
+  ]);
+  const result=monthsFrom(f,NOW);
+  const march=result.months[0],april=result.months[1];
+  assert.equal(march.monthlyClassifiedClaims,1);
+  assert.equal(march.kingsClaims,1);
+  assert.equal(march.monthlyPartnerExternalClaims,0);
+  assert.equal(april.monthlyClassifiedClaims,2);
+  assert.equal(april.partnerClaims,1);
+  assert.equal(april.externalClaims,1);
+  assert.equal(april.monthlyPartnerExternalClaims,2);
+  assert.equal(april.monthlyLimitStatus,'LIMIT_VALUE_NOT_CONFIRMED');
+  assert.equal(result.weeklyLimitApplied,false);
+});
+test('Cancelled and pending source claims do not become assumed monthly quota releases',()=>{
+  const f=withCurrentEvents([
+    {type:'Partner Convoy',status:'Cancelled',
+      departure:'2027-03-28T10:00:00Z'},
+    {type:'External Convoy',status:'Pending',
+      departure:'2027-03-29T10:00:00Z'},
+    {type:'Kings Convoy',departure:'2027-03-30T10:00:00Z'}
+  ]);
+  const r=monthsFrom(f,NOW),m=r.months[0];
+  assert.equal(m.centerClaims,3);
+  assert.equal(m.monthlyClassifiedClaims,1);
+  assert.equal(m.cancelled,1);
+  assert.equal(m.pending,1);
+  assert.equal(m.monthlyRemainingVerified,null);
+  assert.equal(m.monthlyLimitStatus,'LIMIT_VALUE_NOT_CONFIRMED');
+  assert.equal(r.freeSlotsCertified,false);
+});
