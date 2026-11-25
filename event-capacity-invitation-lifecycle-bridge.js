@@ -40,14 +40,32 @@ function projectKingsInvitationCalendarOffline({bridgeInput,invitationClaims}={}
     // private source adapter receives them; return object excludes all rows.
     // configured=true means a synthetic offline REVIEW ADAPTER is supplied,
     // not that an actual Discord invitation source is connected.
-    const records=invitationClaims.invitations.map(row=>{
+    // The pre-existing Convoy/legacy intake is a 24-month HISTORICAL review,
+    // with finalMonth <= current month. Future Invitations (e.g. May 2027
+    // planned in Nov 2026) must NEVER be injected into that old-history window.
+    // Preserve future claims for human Calendar review instead of silently
+    // dropping them or coercing their event dates into history.
+    const futureLimit=new Date(intake.finalMonth+'-01T00:00:00.000Z');
+    if(!Number.isFinite(futureLimit.getTime()))fail();
+    futureLimit.setUTCMonth(futureLimit.getUTCMonth()+12);
+    const futureLimitMonth=futureLimit.toISOString().slice(0,7);
+    const records=[];
+    let futureUnreconciled=0;
+    for(const row of invitationClaims.invitations){
+      const departureMonth=row.departureAtUtc.slice(0,7);
+      if(departureMonth<intake.firstMonth||
+        departureMonth>futureLimitMonth)fail();
+      if(departureMonth>intake.finalMonth){
+        futureUnreconciled++;
+        continue;
+      }
       const last=finalStates.get(row.invitationId);
-      return {
+      records.push({
         invitationId:row.invitationId,eventId:row.eventId,
         status:last?last.status:'Draft',departureAtUtc:row.departureAtUtc,
         sourceDigest:last?last.sourceDigest:row.sourceDigest
-      };
-    });
+      });
+    }
     const crossSystem=projectKingsConvoySystemBridge({
       ...bridgeInput,
       sourceIntake:{
@@ -60,13 +78,15 @@ function projectKingsInvitationCalendarOffline({bridgeInput,invitationClaims}={}
       crossSystem.staffDecisionsCommitted!==0||
       crossSystem.eventInvitationTrackerActuallyConnectedHere!==false||
       crossSystem.outboundInvitationAcceptedNeverAutomaticallyCountsForCapacity!==true||
-      crossSystem.sourceReview.outboundTrackerClaimedInvitations!==
-        invitationReview.counts.total)fail();
+      crossSystem.sourceReview.outboundTrackerClaimedInvitations!==records.length||
+      records.length+futureUnreconciled!==invitationReview.counts.total)fail();
     return Object.freeze({
       version:1,visibility:'PRIVATE_ONLY',readOnly:true,offlineOnly:true,
       invitationReview,crossSystem,
       usingOnlyExistingSourceIntakeTrackerContract:true,
       trackerSourceSuppliedButUnauthenticated:true,
+      futureInvitationClaimsOutsideHistoricalWindow:futureUnreconciled,
+      futureInvitationsRequireVerifiedCenterReview:futureUnreconciled>0,
       invitationsAddedToCapacity:0,
       remindersSent:0,eventBookingsCreated:0,staffApprovalsCommitted:0,
       freeSlotsCertified:false,safeToActivate:false
@@ -80,19 +100,27 @@ function renderKingsInvitationCalendarOfflinePreview(result){
       result.offlineOnly!==true||
       result.usingOnlyExistingSourceIntakeTrackerContract!==true||
       result.trackerSourceSuppliedButUnauthenticated!==true||
+      !Number.isSafeInteger(result.futureInvitationClaimsOutsideHistoricalWindow)||
+      result.futureInvitationClaimsOutsideHistoricalWindow<0||
+      result.futureInvitationClaimsOutsideHistoricalWindow>10000||
+      result.futureInvitationsRequireVerifiedCenterReview!==
+        (result.futureInvitationClaimsOutsideHistoricalWindow>0)||
       result.invitationsAddedToCapacity!==0||result.remindersSent!==0||
       result.eventBookingsCreated!==0||result.staffApprovalsCommitted!==0||
       result.freeSlotsCertified!==false||result.safeToActivate!==false)fail();
     const n=result.invitationReview?.counts;
     if(!plain(n)||Object.values(n).some(v=>!Number.isSafeInteger(v)||
       v<0||v>10000)||n.total!==result.crossSystem?.
-      sourceReview?.outboundTrackerClaimedInvitations)fail();
+      sourceReview?.outboundTrackerClaimedInvitations+
+        result.futureInvitationClaimsOutsideHistoricalWindow)fail();
     const base=renderKingsConvoySystemBridgePreview(result.crossSystem);
     const content=base.data.content+
       '\n**Invitation lifecycle (UNVERIFIED source):** '+
       'total '+n.total+' | sent awaiting reply '+n.pendingReplies+
       ' | overdue follow-ups '+n.overdueReplyReview+
       ' | duplicate Event links '+n.duplicateEventLinkClaims+
+      ' | future source claims pending manual Center link '+
+      result.futureInvitationClaimsOutsideHistoricalWindow+
       '\nNo invitation approval, reminder, booking or capacity change.';
     if(content.length>2000)fail();
     return Object.freeze({type:4,data:{
