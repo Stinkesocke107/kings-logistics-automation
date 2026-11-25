@@ -97,6 +97,12 @@ function monthsFrom(data,nowMs){
     // Source-reported accepted status claims only. They are NOT
     // Staff-approved reservations or independently verified free slots.
     kingsClaims:0,partnerClaims:0,externalClaims:0,
+    // One MONTHLY limit is part of Kings planning, but the CEO has not
+    // confirmed its numeric value or Kings-convoy inclusion. Never infer
+    // a monthly cap from weekday totals, weeks or retired 20+20 caps.
+    monthlyClassifiedClaims:0,monthlyPartnerExternalClaims:0,
+    monthlyLimit:null,monthlyLimitStatus:'LIMIT_VALUE_NOT_CONFIRMED',
+    monthlyRemainingVerified:null,
     daysRequiringReview:0,legacyDatedKeptSeparate:0
   }));
   const days=Array.from({length:12},()=>new Map());
@@ -148,8 +154,13 @@ function monthsFrom(data,nowMs){
     months.reduce((sum,m)=>sum+m.legacyDatedKeptSeparate,0)!==legacy.length)refuse();
   for(let i=0;i<months.length;i++){
     const m=months[i];
+    m.monthlyClassifiedClaims=m.kingsClaims+m.partnerClaims+m.externalClaims;
+    m.monthlyPartnerExternalClaims=m.partnerClaims+m.externalClaims;
     if(m.centerClaims!==m.scheduled+m.pending+m.cancelled||
-      m.kingsClaims+m.partnerClaims+m.externalClaims>m.scheduled)refuse();
+      m.monthlyClassifiedClaims>m.scheduled||
+      m.monthlyPartnerExternalClaims>m.monthlyClassifiedClaims||
+      m.monthlyLimit!==null||
+      m.monthlyLimitStatus!=='LIMIT_VALUE_NOT_CONFIRMED')refuse();
     for(const [utcDay,day] of days[i]){
       const weekday=new Date(utcDay+'T00:00:00.000Z').getUTCDay();
       const combinedLimit=[0,5,6].includes(weekday)?5:3;
@@ -166,7 +177,13 @@ function monthsFrom(data,nowMs){
   }
   // Internal-only structure — NEVER returned from the public job.
   return {months,undatedCenter,undatedLegacy,legacyClaims:legacy.length,
-    sourcePeriod:first,ready:false,freeSlotsCertified:false};
+    sourcePeriod:first,
+    // No weekly ceiling exists. Only UTC daily policy is applied above.
+    weeklyLimitApplied:false,
+    monthlyLimitRequired:true,
+    monthlyLimitValueConfirmed:false,
+    monthlyLimitScopeConfirmed:false,
+    ready:false,freeSlotsCertified:false};
 }
 function allowedRedirect(raw){
   let u;
