@@ -105,12 +105,16 @@ function monthlyFromReports({report,overview,nowMs=Date.now()}={}){
     }
     // Legacy records are separate and may overlap current Center identity.
     const legacyMonths=new Map();
+    let legacyUndated=0,legacyOutside=0,legacyInside=0;
     for(const item of adapted.events.slice(adapted.counts.center)){
       const millis=timestamp(item.departureAtUtc);
-      const ym=millis===null?null:new Date(millis).toISOString().slice(0,7);
-      if(ym&&byMonth.has(ym))
-        legacyMonths.set(ym,(legacyMonths.get(ym)||0)+1);
+      if(millis===null){legacyUndated++;continue;}
+      const ym=new Date(millis).toISOString().slice(0,7);
+      if(!byMonth.has(ym)){legacyOutside++;continue;}
+      legacyInside++;
+      legacyMonths.set(ym,(legacyMonths.get(ym)||0)+1);
     }
+    if(legacyUndated+legacyOutside+legacyInside!==adapted.counts.legacy)fail();
     for(const [day,d] of dayMap){
       const rule=reviewDailyCount({day,partner:d.partner,external:d.external,
         kings:d.kings});
@@ -143,6 +147,10 @@ function monthlyFromReports({report,overview,nowMs=Date.now()}={}){
       duplicateCenterClaimsSuppressed:duplicates,
       identityConflictsRequiringReview:conflicts,
       sourceAdapterIssues:adapted.issues.length,
+      legacyClaimsTotal:adapted.counts.legacy,
+      legacyClaimsWithoutUsableUtcDate:legacyUndated,
+      legacyClaimsOutsideWindow:legacyOutside,
+      legacyClaimsInVisibleMonths:legacyInside,
       currentAndLegacyClaimsNotAdditive:true,
       reportedScheduledIsNotStaffVerifiedAcceptance:true,
       completedIsNotAttendance:true,
@@ -187,9 +195,15 @@ function calendarLines(r){
     }
     for(const k of ['centerClaimsInVisibleMonths','centerClaimsWithoutUsableUtcDate',
       'duplicateCenterClaimsSuppressed','identityConflictsRequiringReview',
-      'sourceAdapterIssues'])
+      'sourceAdapterIssues','legacyClaimsTotal',
+      'legacyClaimsWithoutUsableUtcDate','legacyClaimsOutsideWindow',
+      'legacyClaimsInVisibleMonths'])
       if(!Number.isSafeInteger(r[k])||r[k]<0||r[k]>30000)fail();
+    const shownLegacy=r.months.reduce((sum,m)=>sum+m.legacyClaimsKeptSeparate,0);
     if(center!==r.centerClaimsInVisibleMonths||
+      r.legacyClaimsTotal!==r.legacyClaimsWithoutUsableUtcDate+
+        r.legacyClaimsOutsideWindow+r.legacyClaimsInVisibleMonths||
+      r.legacyClaimsInVisibleMonths!==shownLegacy||
       r.lastMonth!==monthNext(r.firstMonth,11))fail();
     const days=r.months[0].days;
     if(days.length>31)fail();
@@ -207,9 +221,12 @@ function calendarLines(r){
           ' planned/'+d.claimedPending+' pending'+(d.reviewFlag?' !':''))
           .join(' | ')+(recent.length>6?' | +'+(recent.length-6)+' more':''));
     }
-    lines.push('Undated source claims '+r.centerClaimsWithoutUsableUtcDate+
-      ' | identity conflicts '+r.identityConflictsRequiringReview+
-      ' | separate legacy claims not added.');
+    lines.push('Current Center undated '+r.centerClaimsWithoutUsableUtcDate+
+      ' | identity conflicts '+r.identityConflictsRequiringReview+'.');
+    lines.push('Legacy history separately: '+r.legacyClaimsTotal+
+      ' claims, '+r.legacyClaimsWithoutUsableUtcDate+
+      ' without UTC departure; '+r.legacyClaimsInVisibleMonths+
+      ' dated in view. No legacy claims treated as free slots.');
     return lines.join('\n');
   }catch{fail();}
 }
