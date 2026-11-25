@@ -31,14 +31,28 @@ function checkSnapshot(c){
     !plain(c.months)||!Array.isArray(c.issues)||
     !Array.isArray(c.warnings)||
     !Array.isArray(c.uncertainDates)||!Array.isArray(c.uncertainMonths))fail();
-  for(const x of Object.values(c.days)){
+  const byMonth=new Map();
+  for(const [date,x] of Object.entries(c.days)){
+    isoDay(date);
     if(!plain(x))fail();
-    count(x.partner);count(x.external);count(x.kings);
-    if(count(x.combined)!==x.partner+x.external)fail();
+    const partner=count(x.partner),external=count(x.external),
+      kings=count(x.kings);
+    if(count(x.combined)!==partner+external)fail();
+    const month=date.slice(0,7);
+    const totals=byMonth.get(month)??{partner:0,external:0,kings:0};
+    totals.partner+=partner;totals.external+=external;totals.kings+=kings;
+    byMonth.set(month,totals);
   }
-  for(const x of Object.values(c.months)){
-    if(!plain(x))fail();
-    count(x.partner);count(x.external);count(x.kings);
+  for(const [month,x] of Object.entries(c.months)){
+    if(!MONTH.test(month)||!plain(x))fail();
+    const totals=byMonth.get(month)??{partner:0,external:0,kings:0};
+    if(count(x.partner)!==totals.partner||
+      count(x.external)!==totals.external||
+      count(x.kings)!==totals.kings)fail();
+  }
+  for(const [month,totals] of byMonth){
+    if((totals.partner||totals.external||totals.kings)&&
+      !Object.hasOwn(c.months,month))fail();
   }
 }
 function checkHolds(h){
@@ -52,6 +66,8 @@ function checkHolds(h){
     h.previousDatesNeverAutoReleaseAfterReschedule!==true||
     !plain(h.provisionalCounts)||!Array.isArray(h.days)||
     h.days.length>31)fail();
+  if(!Number.isSafeInteger(h.signedHistoricalRevision)||
+    h.signedHistoricalRevision<0||h.signedHistoricalRevision>24000)fail();
   const p=h.provisionalCounts;
   count(p.partnerUniqueHistoricalEventsInMonth);
   count(p.externalUniqueHistoricalEventsInMonth);
@@ -111,9 +127,13 @@ function projectKingsStaffCalendarReview({
       !Array.isArray(historicalHoldsReports)||
       historicalHoldsReports.length>12)fail();
     const holds=new Map();
+    let referenceSignedRevision=null;
     for(const report of historicalHoldsReports){
       const h=checkHolds(report);
       if(!h.month.startsWith(year+'-')||holds.has(h.month))fail();
+      if(referenceSignedRevision===null)
+        referenceSignedRevision=h.signedHistoricalRevision;
+      else if(h.signedHistoricalRevision!==referenceSignedRevision)fail();
       holds.set(h.month,h);
     }
     const evidence=checkEvidence(historicalEvidenceReport);
@@ -131,6 +151,11 @@ function projectKingsStaffCalendarReview({
       if(gaps===null)monthsOutsideEvidenceReview++;
       const snapshotAboveLimit=sp>LIMITS.partnerMonthly||
         se>LIMITS.externalMonthly;
+      // Possible old-date holds are not necessarily the same event as a
+      // current snapshot booking. Treat differing counts as review hints,
+      // never as a mathematically authoritative delta.
+      const historicalAboveSnapshot=historical!==undefined&&
+        ((hp??0)>sp||(he??0)>se);
       const historicalAboveLimit=historical?
         (historical.monthOverStandardPartnerLimit||
           historical.monthOverStandardExternalLimit):false;
@@ -149,6 +174,7 @@ function projectKingsStaffCalendarReview({
           dailyHoldRows:historical?.provisionalCounts.activeProvisionalDateRows??null
         }),
         evidenceGapsReported:gaps,
+        historicalHoldCountExceedsCurrentSnapshot:historicalAboveSnapshot,
         monthlyPartnerLimit:LIMITS.partnerMonthly,
         monthlyExternalLimit:LIMITS.externalMonthly,
         snapshotAndHistoricalCountsMayOverlap:true,
@@ -176,6 +202,7 @@ function projectKingsStaffCalendarReview({
           historicalPartnerProvisional:h?count(h.partnerProvisionalHolds):null,
           historicalExternalProvisional:h?count(h.externalProvisionalHolds):null,
           historicalCombinedProvisional:historic,
+          historicalHoldsExceedCurrentSnapshot:h!==undefined&&historic>current,
           requiresIndependentSourceAndHumanReview:true,
           knownCurrentAndHistoricalCountsNotAdditive:true,
           remainingSlots:null,canApprove:false,freeSlotsCertified:false
@@ -192,6 +219,9 @@ function projectKingsStaffCalendarReview({
         kingsConvoysQuotaExempt:true
       }),
       sourceSnapshotReportedFresh:capacity.globalUncertainty===false,
+      signedHoldReportsShareOneJournalRevision:
+        referenceSignedRevision!==null?true:null,
+      historicalHoldJournalRevision:referenceSignedRevision,
       sourceAuthenticityIndependentlyProven:false,
       complete24MonthHistoryCertified:false,
       signedHistoricalClaimsAreNotCompleteEventHistory:true,
