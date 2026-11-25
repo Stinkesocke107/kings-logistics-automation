@@ -18,6 +18,7 @@ const LEADERSHIP_CHANNEL_NAME = process.env.DRIVER_LEADERSHIP_CHANNEL_NAME || 'd
 
 const STATE_FILE = path.join(__dirname, 'data', 'driver-management.json');
 const SUMMARY_FILE = path.join(__dirname, 'data', 'driver-management-summary.json');
+const LIVE_MAP_HEALTH_FILE = path.join(__dirname, 'data', 'api-health', 'live-systems--truckersmp-map-live.json');
 
 const INFO_DAYS = 7;
 const ATTENTION_DAYS = 14;
@@ -229,9 +230,26 @@ async function getOnlineKingsDrivers() {
 }
 
 // The public roster and third-party live map are independent systems.
-// A map outage must not block fresh Kings membership and LOA processing,
-// but must never be presented as a verified zero-online measurement.
+// When the high-frequency Kings Live Tracker recently confirmed that the
+// shared map provider is down, avoid a second slow multi-retry scan in Driver
+// Management. A stale/invalid health sample must NOT indefinitely suppress
+// recovery attempts; normal observation resumes as soon as Live Tracker
+// reports healthy again or the incident evidence becomes stale.
+function mapProviderRecentlyUnavailable(now = Date.now()) {
+  const health = readJson(LIVE_MAP_HEALTH_FILE, null);
+  if (!health || health.namespace !== 'live-systems' ||
+      health.service !== 'truckersmp-map-live' ||
+      !['down','degraded'].includes(health.status)) return false;
+  const lastFailure = Date.parse(health.lastFailureAt || '');
+  return Number.isFinite(lastFailure) && lastFailure > 0 &&
+    lastFailure <= now + 5*60*1000 && now - lastFailure <= 20*60*1000;
+}
+
 async function getOnlineObservation() {
+  if (mapProviderRecentlyUnavailable()) {
+    console.warn('Kings map provider is in a recently confirmed outage. Skipping redundant scan; continuing authoritative roster update.');
+    return { available:false, onlineMap:null };
+  }
   try {
     return { available: true, onlineMap: await getOnlineKingsDrivers() };
   } catch (error) {

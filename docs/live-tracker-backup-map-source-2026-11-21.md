@@ -63,3 +63,7 @@ The Live Systems pipeline now writes a small, public, **aggregate-only** `data/l
 The Kings System Monitor displays successful fallback only when this proof is fresh (25 minutes), complete for **all three** fixed displays and the actual Live Systems workflow is healthy. Without proof, with old proof or with partial delivery, the monitor says fallback is **not verified**, even if GitHub happened to report a green workflow. The map API's own down/degraded status and strict full-live source freshness/Freeze blockers remain unchanged.
 
 The delivery proof is persisted together with the live pipeline's existing data and API-health state. It is **not a substitute** for the full player-map API, an online-driver sample, or a full technical release sign-off.
+
+## Driver Management fast-path for confirmed map outages
+
+Driver Management keeps the authoritative Kings VTC membership roster and LOA operations independent of the optional third-party player map. Previously it still initiated a redundant timeout/retry scan even while the high-frequency Kings Live Systems pipeline had just confirmed that the same map provider was down. A recent **20-minute** `live-systems--truckersmp-map-live.json` failure now lets Driver Management skip the redundant scan, report Kings online as **unavailable (not zero)** and promptly process the roster. A healthy status, stale outage evidence, missing/invalid health state or unrelated service **never** permanently suppresses a later live re-probe. No changes to encrypted Driver state, manual HR decisions or role permissions.
