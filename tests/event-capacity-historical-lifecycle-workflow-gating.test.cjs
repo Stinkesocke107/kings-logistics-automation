@@ -275,3 +275,33 @@ test('Verified GitHub Free three-private-repo topology has no production import 
   assert.match(plan,/real archive data NOT migrated/);
   assert.match(plan,/do NOT create tokens or GitHub Secrets yet/);
 });
+
+test('Owner highwater and scoped GitHub runtime guard are offline-only and not automatic release controls',()=>{
+  const fs=require('node:fs'),path=require('node:path');
+  const root=path.resolve(__dirname,'..');
+  const runner=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  const live=fs.readFileSync(path.join(root,
+    '.github/workflows/convoy-checker.yml'),'utf8');
+  for(const name of ['event-capacity-independent-owner-highwater',
+    'event-capacity-private-runtime-request-guard']){
+    const source=fs.readFileSync(path.join(root,name+'.js'),'utf8');
+    assert.doesNotMatch(runner,new RegExp(name));
+    assert.doesNotMatch(live,new RegExp(name));
+    assert.match(source,/freeSlotsCertified:false/);
+    assert.doesNotMatch(source,/process\.env|DISCORD_BOT_TOKEN|discord\.com/);
+  }
+  const highwater=fs.readFileSync(path.join(root,
+    'event-capacity-independent-owner-highwater.js'),'utf8');
+  assert.match(highwater,/verifyHistoricalArchivePin/);
+  assert.match(highwater,/verifyHistoricalJournal/);
+  assert.match(highwater,/independentPhysicalCustodyAuthenticatedByCode:false/);
+  assert.match(highwater,/highwaterAdvancedAutomatically:false/);
+  assert.match(highwater,/remoteWritePerformed:false/);
+  const request=fs.readFileSync(path.join(root,
+    'event-capacity-private-runtime-request-guard.js'),'utf8');
+  assert.match(request,/grantsActualGithubPermissions:false/);
+  assert.match(request,/verifiesTokenScopes:false/);
+  assert.match(request,/productionEnabled:false/);
+  assert.doesNotMatch(request,/fetch\(|method:'(?:DELETE|PATCH|POST)'/);
+});
