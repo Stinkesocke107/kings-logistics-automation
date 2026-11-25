@@ -324,6 +324,38 @@ test('Friday 4 Partner/External plus Kings exceeds global 3/day including Kings'
   assert.equal(m.daysRequiringReview,1);
   assert.equal(monthsFrom(f,NOW).freeSlotsCertified,false);
 });
+test('short departure gaps count distinct UTC dates, not pairs or automatic refusals',()=>{
+  const f=withCurrentEvents([
+    {type:'Kings Convoy',departure:'2027-03-24T12:00:00Z'},
+    {type:'Partner Convoy',departure:'2027-03-24T13:00:00Z'},
+    {type:'External Convoy',departure:'2027-03-24T13:30:00Z'},
+    {type:'Partner Convoy',departure:'2027-03-25T08:00:00Z'},
+    {type:'External Convoy',departure:'2027-03-25T10:00:00Z'},
+    {type:'Kings Convoy',departure:'2027-03-26T10:00:00Z'},
+    {type:'Partner Convoy',departure:'2027-03-26T11:00:00Z'}
+  ]);
+  const m=monthsFrom(f,NOW).months[0];
+  assert.equal(m.daysWithDepartureSpacingWarning,2);
+  assert.equal(m.daysOverDailyLimit,0);
+  assert.equal(m.daysRequiringReview,2);
+  assert.equal(m.monthlyRemainingVerified,null);
+  assert.equal(monthsFrom(f,NOW).freeSlotsCertified,false);
+});
+test('UTC midnight and month-boundary gap warns the later date only, without inventing free bookings',()=>{
+  const data=withCurrentEvents([
+    {type:'Kings Convoy',departure:'2027-03-31T23:30:00Z'},
+    {type:'Partner Convoy',departure:'2027-04-01T00:30:00Z'},
+    {type:'External Convoy',departure:'2027-04-01T02:30:00Z'}
+  ]);
+  const result=monthsFrom(data,NOW);
+  assert.equal(result.months[0].daysWithDepartureSpacingWarning,0);
+  assert.equal(result.months[0].daysRequiringReview,0);
+  assert.equal(result.months[1].daysWithDepartureSpacingWarning,1);
+  assert.equal(result.months[1].daysRequiringReview,1);
+  assert.equal(result.months[1].daysOverDailyLimit,0);
+  assert.equal(result.freeSlotsCertified,false);
+  assert.equal(result.weeklyLimitApplied,false);
+});
 test('Pending/cancelled/unclassified and departures within two hours demand human review',()=>{
   const date='2027-03-27';
   const f=withCurrentEvents([

@@ -83,6 +83,7 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
     unclassifiedFutureCenterClaims:future.reduce((n,m)=>n+m.unclassified,0),
     futureDaysRequiringStaffReview:future.reduce((n,m)=>n+m.daysRequiringReview,0),
     futureDaysOverClaimedDailyLimit:future.reduce((n,m)=>n+m.daysOverDailyLimit,0),
+    futureDaysWithShortDepartureGap:future.reduce((n,m)=>n+m.daysWithDepartureSpacingWarning,0),
     partnerMonthsOverClaimedLimit:future.filter(m=>m.monthlyPartnerOverLimit).length,
     externalMonthsOverClaimedLimit:future.filter(m=>m.monthlyExternalOverLimit).length,
     separateFrozenLegacyClaims:calendar.legacyClaims,
@@ -100,7 +101,10 @@ function compactLeadershipSection(report,overview,nowMs=Date.now()){
     '🗓️ **12-month Calendar review:** Unclassified: **'+
       result.unclassifiedFutureCenterClaims+'** · UTC days needing review: **'+
       result.futureDaysRequiringStaffReview+'** · >3/day: **'+
-      result.futureDaysOverClaimedDailyLimit+'**.',
+      result.futureDaysOverClaimedDailyLimit+'** · 2h spacing review **'+
+      result.futureDaysWithShortDepartureGap+'** · Partner months >20 **'+
+      result.partnerMonthsOverClaimedLimit+'** · External months >20 **'+
+      result.externalMonthsOverClaimedLimit+'**. Advisory source only.',
     '📚 **24-month Event History:** Source claims: Center **'+
       result.datedCenterClaims+'**, Legacy **'+
       result.datedFrozenLegacyClaims+'** · months with claims **'+

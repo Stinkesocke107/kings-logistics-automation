@@ -7,7 +7,9 @@ const MAX_CLOCK_SKEW_MS=5*60*1000;
 const COUNT_FIELDS=Object.freeze([
   'tracked','scheduled','readyForApproval','needsInformation','completed',
   'futureUnclassified','futureDaysRequiringReview',
-  'futureDaysOverDailyLimit','historyCenterClaims','historyLegacyClaims',
+  'futureDaysOverDailyLimit','futureDaysWithShortDepartureGap',
+  'futurePartnerMonthsOver20','futureExternalMonthsOver20',
+  'historyCenterClaims','historyLegacyClaims',
   'historyMonthsWithClaims','historyMonthsWithoutClaims',
   'historyUndatedClaims','historyReadErrors'
 ]);
@@ -35,6 +37,9 @@ function buildEventObservation(report,overview,nowMs=Date.now()){
     futureUnclassified:review.unclassifiedFutureCenterClaims,
     futureDaysRequiringReview:review.futureDaysRequiringStaffReview,
     futureDaysOverDailyLimit:review.futureDaysOverClaimedDailyLimit,
+    futureDaysWithShortDepartureGap:review.futureDaysWithShortDepartureGap,
+    futurePartnerMonthsOver20:review.partnerMonthsOverClaimedLimit,
+    futureExternalMonthsOver20:review.externalMonthsOverClaimedLimit,
     historyCenterClaims:review.datedCenterClaims,
     historyLegacyClaims:review.datedFrozenLegacyClaims,
     historyMonthsWithClaims:review.historyMonthsWithSourceClaims,
@@ -65,6 +70,9 @@ function trustedEventObservation(value,nowMs=Date.now()){
   if(COUNT_FIELDS.some(field=>!Number.isSafeInteger(value[field])||
     value[field]<0||value[field]>100000))return null;
   if(value.historyMonthsWithClaims+value.historyMonthsWithoutClaims!==24||
+    value.futurePartnerMonthsOver20>12||value.futureExternalMonthsOver20>12||
+    value.futureDaysOverDailyLimit>value.futureDaysRequiringReview||
+    value.futureDaysWithShortDepartureGap>value.futureDaysRequiringReview||
     value.readyForApproval>value.tracked||value.scheduled>value.tracked||
     value.needsInformation>value.tracked||value.completed>value.tracked||
     value.readyForApproval+value.scheduled+

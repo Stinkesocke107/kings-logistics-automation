@@ -20,6 +20,9 @@ function observeOperations({eventSourceObservation=null,
       eventTypeUnclassified:e?e.futureUnclassified:null,
       calendarDaysNeedingReview:e?e.futureDaysRequiringReview:null,
       daysOverThreeSourceClaims:e?e.futureDaysOverDailyLimit:null,
+      partnerMonthsOver20:e?e.futurePartnerMonthsOver20:null,
+      externalMonthsOver20:e?e.futureExternalMonthsOver20:null,
+      daysWithShortDepartureGap:e?e.futureDaysWithShortDepartureGap:null,
       historyMonthsWithoutClaims:e?e.historyMonthsWithoutClaims:null,
       invitationsMissingEventLinks:i?i.eventLinksMissing:null,
       invitationDuplicateEventLinks:i?i.duplicateConvoyEvents:null,
@@ -62,7 +65,10 @@ function renderOperationsReview(status){
       '** · tag issues **'+n('invitationTagIssues')+'**.',
     'Pending/unrecorded response labels **'+n('invitationPendingOrUnrecorded')+
       '** (manual review, not a confirmed RSVP).',
-    'Escalate source access and exceptional policy decisions to authorised leadership; never automatically move confirmed convoys.'
+    'Capacity advisory: Partner months >20 **'+n('partnerMonthsOver20')+
+      '** · External months >20 **'+n('externalMonthsOver20')+
+      '** · UTC days with <2h gap **'+n('daysWithShortDepartureGap')+
+      '**. Warning only; Staff decides.'
   ].join('\n');
   if(text.length>1024)throw Error('Kings Event Operations field too long');
   return text;
@@ -73,6 +79,9 @@ const WORK_LABELS=Object.freeze({
   CONVOY_SOURCE_UNAVAILABLE:'Review Convoy Center source access / freshness',
   INVITATION_SOURCE_UNAVAILABLE:'Review private Invitation Tracker source access',
   REVIEW_DAILY_CAP:'Review UTC days above 3 source-claimed convoys',
+  REVIEW_PARTNER_MONTH_CAP:'Review UTC months above 20 Partner convoy claims',
+  REVIEW_EXTERNAL_MONTH_CAP:'Review UTC months above 20 External convoy claims',
+  REVIEW_DEPARTURE_SPACING:'Review UTC days with under-2h departure gap (warning only)',
   REVIEW_EVENT_TYPES:'Classify missing Kings / Partner / External event types',
   REVIEW_CALENDAR_DAYS:'Review unresolved UTC calendar days',
   VERIFY_FORUM_TAG_MAPPING:'Reconcile existing Forum tag names manually',
@@ -104,11 +113,18 @@ function operationsWorklist(status){
   add('HIGH','REVIEW_DAILY_CAP','Event Coordination Lead',
     q.daysOverThreeSourceClaims,Number.isInteger(q.daysOverThreeSourceClaims)&&
     q.daysOverThreeSourceClaims>0);
+  add('HIGH','REVIEW_PARTNER_MONTH_CAP','Event Coordination Lead',
+    q.partnerMonthsOver20,Number.isInteger(q.partnerMonthsOver20)&&q.partnerMonthsOver20>0);
+  add('HIGH','REVIEW_EXTERNAL_MONTH_CAP','Event Coordination Lead',
+    q.externalMonthsOver20,Number.isInteger(q.externalMonthsOver20)&&q.externalMonthsOver20>0);
   add('HIGH','REVIEW_EVENT_TYPES','Event Coordinators',q.eventTypeUnclassified,
     Number.isInteger(q.eventTypeUnclassified)&&q.eventTypeUnclassified>0);
   add('NORMAL','REVIEW_CALENDAR_DAYS','Event Coordination Lead',
     q.calendarDaysNeedingReview,
     Number.isInteger(q.calendarDaysNeedingReview)&&q.calendarDaysNeedingReview>0);
+  add('NORMAL','REVIEW_DEPARTURE_SPACING','Event Coordinators',
+    q.daysWithShortDepartureGap,Number.isInteger(q.daysWithShortDepartureGap)&&
+    q.daysWithShortDepartureGap>0);
   add('NORMAL','VERIFY_FORUM_TAG_MAPPING','Event Coordination Lead',null,
     status.invitationSource==='INVITATIONS_READABLE_TAGS_UNVERIFIED');
   add('NORMAL','REVIEW_INVITATION_DUPLICATES','Event Coordinators',

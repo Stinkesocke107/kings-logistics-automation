@@ -136,6 +136,7 @@ function monthsFrom(data,nowMs){
     monthlyPartnerOverLimit:false,monthlyExternalOverLimit:false,
     monthlyRemainingVerified:null,
     daysRequiringReview:0,daysOverDailyLimit:0,
+    daysWithDepartureSpacingWarning:0,
     daysWithPriorityConflict:0,
     legacyDatedKeptSeparate:0
   }));
@@ -213,11 +214,39 @@ function monthsFrom(data,nowMs){
       day.departures.sort((a,b)=>a-b);
       const spacingConflict=day.departures.some((t,j)=>
         j>0&&t-day.departures[j-1]<120*60000);
-      if(total>3||day.unclassified>0||
-        day.pending>0||day.cancelled>0||
-        spacingConflict)m.daysRequiringReview++;
+      if(spacingConflict)m.daysWithDepartureSpacingWarning++;
+      day.hasShortGap=spacingConflict;
+      day.needsReview=(total>3||day.unclassified>0||
+        day.pending>0||day.cancelled>0||spacingConflict);
+      if(day.needsReview)m.daysRequiringReview++;
     }
   }
+  // A departure just after 00:00 UTC can be <2h from one before 00:00
+  // (including across calendar MONTH boundaries). Review the UTC date of
+  // the LATER departure. Without this pass, Calendar and the operational
+  // Convoy Checker disagree about cross-midnight warnings.
+  const sortedDepartures=[];
+  for(let i=0;i<days.length;i++)for(const [utcDay,day] of days[i])
+    for(const instant of day.departures)
+      sortedDepartures.push({instant,utcDay,monthIndex:i});
+  sortedDepartures.sort((a,b)=>a.instant-b.instant);
+  for(let i=1;i<sortedDepartures.length;i++){
+    const earlier=sortedDepartures[i-1],later=sortedDepartures[i];
+    if(later.instant-earlier.instant>=120*60000||
+      earlier.utcDay===later.utcDay)continue;
+    const day=days[later.monthIndex].get(later.utcDay);
+    const month=months[later.monthIndex];
+    if(!day.hasShortGap){
+      month.daysWithDepartureSpacingWarning++;
+      day.hasShortGap=true;
+    }
+    if(!day.needsReview){
+      month.daysRequiringReview++;
+      day.needsReview=true;
+    }
+  }
+  for(const m of months)if(m.daysWithDepartureSpacingWarning>m.daysRequiringReview||
+    m.daysOverDailyLimit>m.daysRequiringReview)refuse();
   // Internal-only structure — NEVER returned from the public job.
   return {months,undatedCenter,undatedLegacy,legacyClaims:legacy.length,
     sourcePeriod:first,

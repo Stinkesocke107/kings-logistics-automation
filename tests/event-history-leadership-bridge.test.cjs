@@ -59,6 +59,44 @@ test('Event History and Calendar bridge reconciles existing Center and frozen Le
     'legacy-only-1','synthetic-event-1','2027-03-24T18:00:00Z'])
     assert.ok(!text.includes(secret),'Private event detail must not escape history summary');
 });
+test('12-month source bridge returns independent Partner/External monthly violations and 2h warning days without private IDs',()=>{
+  const f=fixture();
+  for(let i=0;i<21;i++)for(let category=0;category<2;category++){
+    const type=category?'External Convoy':'Partner Convoy';
+    const id='7777777777777'+String(100+i*2+category).padStart(5,'0');
+    const eventId='synthetic-private-cap-'+i+'-'+category;
+    const departureAtUtc='2027-04-'+String(i+1).padStart(2,'0')+
+      (category?'T13:00:00Z':'T12:00:00Z');
+    f.report.threads.push({
+      eventId,threadId:id,name:'CONFIDENTIAL CAPACITY EVENT',status:'Scheduled',
+      ignored:false,testThread:false,
+      validation:{parsed:{eventType:type,departureAtUtc}}
+    });
+    f.overview.registeredConvoys.push({
+      source:'convoy-center',threadId:id,eventId,status:'Scheduled',departureAtUtc
+    });
+  }
+  f.report.summary.totalThreads=f.report.threads.length;
+  f.report.summary.actualConvoys=f.report.threads.length;
+  f.overview.overall.realConvoySubmissions=f.report.threads.length;
+  const review=summarizeOperations({...f,nowMs:NOW});
+  assert.equal(review.partnerMonthsOverClaimedLimit,1);
+  assert.equal(review.externalMonthsOverClaimedLimit,1);
+  assert.equal(review.futureDaysWithShortDepartureGap,21);
+  assert.equal(review.futureDaysRequiringStaffReview,21);
+  assert.equal(review.futureDaysOverClaimedDailyLimit,0);
+  assert.equal(review.freeSlotsCertified,false);
+  assert.equal(review.bookingsCreated,0);
+  assert.equal(review.original24MonthArchiveVerified,false);
+  const safe=JSON.stringify(review);
+  assert.ok(!safe.includes('CONFIDENTIAL CAPACITY EVENT'));
+  assert.ok(!safe.includes('synthetic-private-cap-'));
+  const section=compactLeadershipSection(f.report,f.overview,NOW);
+  assert.match(section,/2h spacing review \*\*21\*\*/);
+  assert.match(section,/Partner months >20 \*\*1\*\*/);
+  assert.match(section,/External months >20 \*\*1\*\*/);
+  assert.ok(!section.includes('CONFIDENTIAL'));
+});
 test('Past cancelled source claims are not silently interpreted as available capacity',()=>{
   const f=fixture();
   f.report.threads[1].status='Cancelled';
