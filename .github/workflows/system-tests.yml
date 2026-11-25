@@ -11,6 +11,11 @@ on:
         required: false
         type: boolean
         default: false
+      capacity_source_pilot:
+        description: 'Manually verify scheduled Kings Convoy ZIP -> private 12-month Calendar in memory (GET only, no Discord)'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
   actions: read
@@ -53,3 +58,17 @@ jobs:
           GITHUB_INPUT_CAPACITY_PREVIEW: ${{ inputs.capacity_preview }}
           KINGS_CAPACITY_READONLY_PREVIEW: 'true'
         run: node event-capacity-readonly-preview.js
+
+      # Manual on main ONLY. This workflow has actions:read and contents:read.
+      # Our public GitHub Actions logs receive a fixed state code only.
+      # No Discord secret, booking API, writable job or ZIP artifact publishing.
+      - name: Kings private Event Calendar source ZIP pilot (manual GET only)
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.capacity_source_pilot == true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          KINGS_CAPACITY_PILOT_SOURCE: 'true'
+        run: |
+          node --check event-capacity-pilot-archive.js
+          node --check event-capacity-pilot-reconcile.js
+          node --check event-capacity-pilot-source.js
+          node event-capacity-pilot-source.js
