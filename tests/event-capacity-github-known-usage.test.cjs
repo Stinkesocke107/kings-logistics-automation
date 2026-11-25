@@ -199,3 +199,45 @@ test('UTC day list supports leap-year February and rejects invalid month',()=>{
   assert.equal(r.days[28].day,'2028-02-29');
   assert.throws(()=>view([],{selectedMonth:'2027-13'}));
 });
+
+test('Approved Event Management exception is counted but does not raise the daily limit',()=>{
+  const e=[
+    event(1,'partner','2027-03-20T16:00:00Z'),
+    event(2,'external','2027-03-20T17:00:00Z'),
+    event(3,'partner','2027-03-20T18:00:00Z')
+  ];
+  let ledger=ledgerFor(e);
+  ledger=applyDecision(ledger,{
+    ref:'event:3',action:'exception',value:true,
+    expectedRevision:ledger.revision,
+    evidenceRef:'synthetic-exception-management-approval'
+  },{id:'222222222222222222',source:'trusted-server-gateway',
+    verifiedRoles:['Event Management']},'2027-03-20T11:45:00Z');
+  const result=view(e,{ledger}),day=result.days.find(x=>x.day==='2027-03-20');
+  assert.equal(day.knownCombinedAccepted,3);
+  assert.equal(day.dailyLimit,2);
+  assert.equal(day.approvedExceptions,1);
+  assert.equal(result.monthUsage.approvedExceptions,1);
+  assert.equal(day.remainingVerified,null);
+  assert.equal(result.freeSlotsCertified,false);
+});
+test('Rescheduled event counts new UTC day only after privately approved move',()=>{
+  const former=event(1,'partner','2027-03-20T16:00:00Z','Scheduled');
+  let ledger=ledgerFor([former]);
+  const moved=event(1,'partner','2027-03-21T16:00:00Z','Rescheduled');
+  const unresolved=view([moved],{ledger});
+  assert.equal(unresolved.monthUsage.knownPartnerAccepted,0);
+  assert.equal(unresolved.freeSlotsCertified,false);
+  ledger=applyDecision(ledger,{
+    ref:'event:1',action:'reschedule',value:'2027-03-21T16:00:00Z',
+    expectedRevision:ledger.revision,
+    evidenceRef:'synthetic-separate-confirmed-reschedule'
+  },{id:'111111111111111111',source:'trusted-server-gateway',
+    verifiedRoles:['Event Coordination']},'2027-03-20T11:45:00Z');
+  const current=view([moved],{ledger});
+  assert.equal(current.days.find(x=>x.day==='2027-03-20')
+    .knownPartnerAccepted,0);
+  assert.equal(current.days.find(x=>x.day==='2027-03-21')
+    .knownPartnerAccepted,1);
+  assert.equal(current.freeSlotsCertified,false);
+});
