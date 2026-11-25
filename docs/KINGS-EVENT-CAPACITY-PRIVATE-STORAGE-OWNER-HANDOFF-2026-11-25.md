@@ -146,3 +146,17 @@ When a restricted synthetic private pilot is actually ready and needs account se
 - [x] Added focused negative tests and production isolation check. Runbook: `docs/KINGS-EVENT-CAPACITY-HISTORICAL-EVIDENCE-AND-RECOVERY-GAPS-2026-11-25.md`.
 
 **Still blocked:** authentic 24-month Event source coverage and legacy/deleted material, independently retained latest owner-signed highwater, provider-verified private runtime permissions, real backup storage and isolated host recovery, Staff role/practical approval checks, privacy review and separately authorized synthetic pilot followed by CEO production approval. This batch creates **NO** production data, private Github credentials, secrets, workers, Discord tickets or automatic event acceptance.
+
+## Event-Team twelve-month calendar review — 25 November 2026
+
+**Draft-only. No real Event-Team command or free-slot approval is activated.**
+
+- [x] Implemented `event-capacity-staff-calendar-review.js` as a **separate PRIVATE/READ-ONLY projection** reusing the existing Kings day/month snapshot evaluator, not a second booking engine. It displays all 12 months for a selected year and every UTC day in an optional selected month.
+- [x] Shows currently reported Partner / Other External / Kings counts **separately** from owner-signed provisional historical holds, explicitly refusing to add potentially overlapping current/history records together or infer an available slot.
+- [x] Retains the exact Kings limits: 2 combined non-Kings accepted convoy bookings per UTC day; 20 Partner and 20 Other External per UTC month; Kings-organized events quota-exempt. No weekly limit.
+- [x] Missing historical report means **unknown**, not `0` verified holds. Historic counts exceeding present snapshot counts are human review hints. Quota conflicts require separate human review.
+- [x] Enforces matching signed journal revision across all supplied monthly historical reports and reconciles current snapshot daily/monthly totals. Prevents an accidental mixture of conflicting historical report revisions.
+- [x] Added a private ephemeral Discord **renderer only** (no live slash-command wiring), focused synthetic tests, workflow import-isolation and an extended multi-module integration test.
+- [x] Runbook: `docs/KINGS-EVENT-CAPACITY-STAFF-YEAR-MONTH-CALENDAR-2026-11-25.md`.
+
+**CEO immediate action remains NONE.** Real Staff access, authenticated complete 24-month source history, real credentials/custody, genuine independent backups, isolated restore checks and explicit release/pilot authorization remain blocked. Nothing new was deployed. PR #143 must remain DRAFT.
