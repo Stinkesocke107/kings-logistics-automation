@@ -66,26 +66,38 @@
         "runId": 45670004198
       },
       "firstAlertedAt": "2026-11-25T20:08:53.927Z"
-    }
-  },
-  "pending": {
+    },
     "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-25T22:00:14.556Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 45709151795,
+        "completedAt": "2026-11-25T21:59:37Z"
+      },
+      "firstAlertedAt": "2026-11-25T22:03:58.149Z"
     },
     "workflow-failed:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-25T22:00:14.556Z",
+      "severity": "warning",
       "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure."
+      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
+      "details": {
+        "runId": 45706941085,
+        "completedAt": "2026-11-25T21:44:01Z"
+      },
+      "firstAlertedAt": "2026-11-25T22:03:58.149Z"
     },
     "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-25T22:00:14.556Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-11-25T22:03:58.149Z"
     }
-  }
+  },
+  "pending": {}
 }
