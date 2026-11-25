@@ -172,7 +172,8 @@ function openEncryptedHistoricalArchive({archive,expectedCheckpoint,scope,
       tip:manifest.tip,createdAt:manifest.createdAt,events,history,
       historicalCoverageCertified:false,freeSlotsCertified:false};
     verifyHistoricalJournal(journal,{scope:scoped,ownerPublicKey});
-    return {journal,checkpoint:actual,archiveVerified:true,
+    return {journal,checkpoint:actual,encryptedArchiveIntegrityVerified:true,
+      sourceEvidenceAuthenticityVerified:false,
       historicalCoverageCertified:false,freeSlotsCertified:false};
   }catch{fail();}finally{key.fill(0);}
 }
