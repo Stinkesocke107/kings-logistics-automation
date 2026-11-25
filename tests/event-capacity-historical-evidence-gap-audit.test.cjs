@@ -161,8 +161,10 @@ test('Previously accepted in-window booking moved beyond the 24-month boundary r
   const result=s.audit({journal,sourceRecords:[]});
   assert.ok(result.issues.some(i=>
     i.reason==='signed-event-moved-outside-review-window'));
+  assert.equal(result.months.find(i=>i.month==='2027-03').signedJournalEvents,1);
   assert.equal(result.months.find(i=>i.month==='2027-04').signedJournalEvents,1);
-  assert.equal(result.counters.unresolvedEvidenceGaps,1);
+  assert.equal(result.counters.unresolvedEvidenceGaps,2);
+  assert.deepEqual(result.issues.map(i=>i.month),['2027-03','2027-04']);
   assert.equal(result.counters.monthsIndependentlySourceVerified,0);
   assert.equal(result.freeSlotsCertified,false);
 });
