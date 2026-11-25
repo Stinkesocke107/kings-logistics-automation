@@ -95,7 +95,8 @@ function knownUsageFromVerifiedInputs({
   return Object.freeze({
     version:1,visibility:'PRIVATE_ONLY',readOnly:true,
     mode:'KnownAcceptedMinimum',
-    month,sourceValidated:true,ledgerValidated:true,
+    month,sourceStructureChecked:true,ledgerStructureChecked:true,
+    sourceAuthenticatedByGateway:false,ownerPinCheckedByGateway:false,
     // A pinned ledger and fresh report still do not prove historical
     // acceptance coverage. Counting known events is not a free-slot grant.
     historicalReconciliationVerified:false,
@@ -167,7 +168,8 @@ function createGithubOnlyKnownUsageReader({
         !isDeepStrictEqual(first.overview,second.overview)||
         !isDeepStrictEqual(before.checkpoint,after?.checkpoint)||
         !isDeepStrictEqual(before.ledger,after?.ledger))fail();
-      return result;
+      return Object.freeze({...result,
+        sourceAuthenticatedByGateway:true,ownerPinCheckedByGateway:true});
     }catch{fail();}
   };
 }
