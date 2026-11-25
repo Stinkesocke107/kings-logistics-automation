@@ -6,7 +6,8 @@ const {readInvitationTracker,trustedInvitationObservation}
 async function verify({env=process.env,transport=fetch,nowMs=Date.now()}={}){
   try{
     const result=await readInvitationTracker({
-      token:env.DISCORD_BOT_TOKEN,transport,nowMs
+      token:env.DISCORD_BOT_TOKEN,transport,nowMs,
+      tagIds:env.DISCORD_INVITATION_TAG_IDS||null
     });
     if(!trustedInvitationObservation(result,nowMs)||
        result.bookingsCreated!==0||

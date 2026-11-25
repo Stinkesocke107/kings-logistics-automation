@@ -5,14 +5,14 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const src=fs.readFileSync(path.join(__dirname,'..','event-invitation-tracker-readonly-proof.js'),'utf8');
-async function execute(fail=false,sourceReason=null,tagSchemaVerified=true){
+async function execute(fail=false,sourceReason=null,tagSchemaVerified=true,configuredTagIds=null){
   const marker='PRIVATE_INVITER_OR_VTC_MARKER_NEVER_TO_LOG';
-  const logs=[],warnings=[],proc={exitCode:0};
+  const logs=[],warnings=[],proc={exitCode:0},calls=[];
   const module={exports:{}};
   function req(name){
     if(name!=='./event-invitation-tracker-source')throw Error('Unexpected require');
     return {
-      readInvitationTracker:async()=>{
+      readInvitationTracker:async args=>{calls.push(args);
         if(fail){const e=Error(marker);if(sourceReason)e.sourceReason=sourceReason;throw e;}
         return {bookingsCreated:0,staffApprovalsVerified:false,
           invitationDecisionsVerified:false,tagSchemaVerified,privateMarker:marker};
@@ -27,8 +27,10 @@ async function execute(fail=false,sourceReason=null,tagSchemaVerified=true){
     fetch:async()=>{throw Error('Unexpected network in simulated proof');},
     Date
   });
-  const status=await module.exports.verify({env:{DISCORD_BOT_TOKEN:'SYNTHETIC'},nowMs:Date.now()});
-  return {status,logs,warnings,exitCode:proc.exitCode,marker};
+  const env={DISCORD_BOT_TOKEN:'SYNTHETIC'};
+  if(configuredTagIds!==null)env.DISCORD_INVITATION_TAG_IDS=configuredTagIds;
+  const status=await module.exports.verify({env,nowMs:Date.now()});
+  return {status,logs,warnings,exitCode:proc.exitCode,marker,calls};
 }
 test('real-source proof emits only fixed public-safe status after synthetic success',async()=>{
   const x=await execute();
@@ -61,6 +63,18 @@ test('production workflow isolates real private-source review from core Event re
   assert.doesNotMatch(src,/(?:writeFileSync|appendFileSync|unlinkSync)\(/);
 });
 
+test('private approved tag mapping reaches the GET-only source but never appears in public probe logs',async()=>{
+  const secret='123456789012345678,123456789012345679,123456789012345680';
+  const x=await execute(false,null,true,secret);
+  assert.equal(x.status,'READ_ONLY_SOURCE_VERIFIED');
+  assert.equal(x.calls.length,1);
+  assert.equal(x.calls[0].tagIds,secret);
+  assert.equal(x.exitCode,0);
+  assert.ok(!JSON.stringify(x.logs).includes(secret));
+  assert.ok(!JSON.stringify(x.warnings).includes(secret));
+  const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/event-leadership-reports.yml'),'utf8');
+  assert.ok(workflow.includes('DISCORD_INVITATION_TAG_IDS: ${{ secrets.DISCORD_INVITATION_TAG_IDS }}'));
+});
 test('access failure exposes endpoint category but no private details',async()=>{
   const x=await execute(true,'ACCESS_DENIED_ARCHIVE');
   assert.equal(x.status,'SOURCE_UNAVAILABLE');

@@ -131,6 +131,7 @@ jobs:
       - name: Verify private Invitation Tracker Forum GET-only source without public data
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_INVITATION_TAG_IDS: ${{ secrets.DISCORD_INVITATION_TAG_IDS }}
         run: node event-invitation-tracker-readonly-proof.js
 
   report:
@@ -201,6 +202,7 @@ jobs:
           EVENT_LEADERSHIP_REPORT_MODE: ${{ steps.mode.outputs.mode }}
           EVENT_LEADERSHIP_REPORT_PREVIEW: ${{ steps.mode.outputs.preview }}
           EVENT_LEADERSHIP_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_INVITATION_TAG_IDS: ${{ secrets.DISCORD_INVITATION_TAG_IDS }}
         run: node event-leadership-reports.js
 
       - name: Save Event Leadership report state

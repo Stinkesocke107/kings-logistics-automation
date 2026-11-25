@@ -20,7 +20,7 @@ const SAFE_SOURCE_REASONS=new Set([
   'ACCESS_DENIED','ACCESS_DENIED_FORUM','ACCESS_DENIED_ACTIVE',
   'ACCESS_DENIED_ARCHIVE','ACCESS_DENIED_MESSAGES',
   'RATE_LIMITED','API_UNAVAILABLE',
-  'FORUM_MISMATCH','FORUM_TAGS_MISSING',
+  'FORUM_MISMATCH','FORUM_TAGS_MISSING','TAG_MAPPING_INVALID',
   'ACTIVE_THREAD_LIST','ARCHIVE_PAGE_INCOMPLETE',
   'MESSAGE_PAGE_INCOMPLETE','STARTER_NOT_FOUND',
   'SOURCE_INCONSISTENT'
@@ -47,22 +47,42 @@ function eventIdFrom(text){
   const matches=[...text.matchAll(/https:\/\/(?:www\.)?truckersmp\.com\/events\/([1-9]\d{0,12})(?:-[a-z0-9-]+)?(?:\/|\b)/gi)];
   return matches.length===1?matches[0][1]:null;
 }
-function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowMs=Date.now()}={}){
+// Optional *human-approved* mapping, supplied only from a private GitHub
+// Actions secret: comma-separated Forum TAG IDs in ongoing, done, completed
+// order. An invalid mapping is never guessed or silently repaired.
+function approvedTags(forum,tagIds=null){
+  if(tagIds!==null&&tagIds!==undefined&&tagIds!==''){
+    if(typeof tagIds!=='string')refuse('TAG_MAPPING_INVALID');
+    const ids=tagIds.split(',').map(id=>id.trim());
+    if(ids.length!==3||ids.some(id=>!ID.test(id))||
+      new Set(ids).size!==3)refuse('TAG_MAPPING_INVALID');
+    const available=new Set(forum.available_tags.map(tag=>String(tag.id)));
+    if(!ids.every(id=>available.has(id)))
+      return {knownTags:new Map(),tagSchemaVerified:false};
+    return {knownTags:new Map(ids.map((id,index)=>[id,MODES[index]])),
+      tagSchemaVerified:true};
+  }
+  // Compatibility path: use the three canonical literal names only when
+  // exactly one available tag has EACH name. Unknown tags remain unknown.
+  const knownTags=new Map();
+  for(const tag of forum.available_tags){
+    if(MODES.includes(tag.name))knownTags.set(String(tag.id),tag.name);
+  }
+  const tagSchemaVerified=MODES.every(mode=>
+    [...forum.available_tags].filter(tag=>tag.name===mode).length===1);
+  return {knownTags:tagSchemaVerified?knownTags:new Map(),tagSchemaVerified};
+}
+function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowMs=Date.now(),tagIds=null}={}){
   if(!Number.isSafeInteger(nowMs)||nowMs<1||
     forum?.id!==FORUM||forum?.guild_id!==GUILD||Number(forum?.type)!==15||
     !Array.isArray(forum.available_tags)||!Array.isArray(threads)||
     threads.length>MAX_THREADS||!(messagesByThread instanceof Map))refuse();
-  const knownTags=new Map();
   for(const tag of forum.available_tags){
     if(typeof tag?.id!=='string'||typeof tag?.name!=='string')refuse();
-    if(MODES.includes(tag.name))knownTags.set(tag.id,tag.name);
   }
-  // The existing forum may use different tags. Continue a complete GET-only
-  // invitation inventory but NEVER infer status from unknown tag labels.
-  // Missing/duplicate policy tags make the status lifecycle unverified,
-  // not all VTC invitation replies unreadable.
-  const tagSchemaVerified=MODES.every(mode=>
-    [...knownTags.values()].filter(name=>name===mode).length===1);
+  // Complete reply inventory remains available when an unapproved tag naming
+  // convention differs. No unverified thread lifecycle is inferred.
+  const {knownTags,tagSchemaVerified}=approvedTags(forum,tagIds);
   const centerIds=centerReport?.mode==='READ_ONLY'&&
     Array.isArray(centerReport.threads)
     ?new Set(centerReport.threads.filter(x=>x&&!x.error&&!x.ignored&&
@@ -184,7 +204,7 @@ function createDiscordReader({token,transport=fetch}={}){
   return {get};
 }
 async function readInvitationTracker({token,transport=fetch,
-  centerReport=null,nowMs=Date.now()}={}){
+  centerReport=null,nowMs=Date.now(),tagIds=null}={}){
   const {get}=createDiscordReader({token,transport});
   const forum=await get('/channels/'+FORUM);
   if(forum?.id!==FORUM||forum?.guild_id!==GUILD||Number(forum?.type)!==15)refuse('FORUM_MISMATCH');
@@ -233,7 +253,7 @@ async function readInvitationTracker({token,transport=fetch,
     messagesByThread.set(String(t.id),all);
   }
   return summarizeTracker({forum,threads:[...collected.values()],
-    messagesByThread,centerReport,nowMs});
+    messagesByThread,centerReport,nowMs,tagIds});
 }
 module.exports={GUILD,FORUM,MODES,readEntry,eventIdFrom,
-  summarizeTracker,trustedInvitationObservation,readInvitationTracker};
+  approvedTags,summarizeTracker,trustedInvitationObservation,readInvitationTracker};
