@@ -21,7 +21,7 @@ function project(items,day='2027-03-20',options={}){
     guildId:GUILD,page:options.page||1
   });
 }
-test('Private detail reports source counts with Saturday 5/day limit, no free booking',()=>{
+test('Private detail reports all three categories using global Saturday 3/day cap',()=>{
   const view=project([
     entry('a','Partner Convoy'),
     entry('b','External Convoy'),
@@ -31,8 +31,8 @@ test('Private detail reports source counts with Saturday 5/day limit, no free bo
   assert.equal(view.readOnly,true);
   assert.equal(view.capacityVerified,false);
   assert.equal(view.sourceVerified,true);
-  assert.equal(view.baseLimit,5);
-  assert.equal(view.combinedUsed,2);
+  assert.equal(view.baseLimit,3);
+  assert.equal(view.combinedUsed,3);
   assert.equal(view.remaining,null);
   assert.equal(view.total,3);
   assert.deepEqual(view.items.map(i=>i.type).sort(),['Kings','Official Partner','Other External']);
