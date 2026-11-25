@@ -16,7 +16,39 @@ const ZIP_MAX=25*1024*1024,JSON_MAX=2*1024*1024;
 const AGE=30*60*1000,ID=/^[1-9]\d{5,19}$/,SHA=/^[a-f0-9]{40}$/;
 const STATUSES=new Set(['SOURCE_UNVERIFIED','SOURCE_NOT_RECENT',
   'CALENDAR_UNVERIFIED','SOURCE_CALENDAR_READONLY_READY','CONTEXT_REJECTED']);
-const VALID=new Set(['Kings Convoy','Partner Convoy','External Convoy']);
+const REVIEW_PRIORITY=Object.freeze([
+  'Kings Convoy','Partner Convoy','External Convoy'
+]);
+const VALID=new Set(REVIEW_PRIORITY);
+/**
+ * Staff review order for UNCONFIRMED candidate requests only.
+ * Never decides a booking, cancels confirmed events or removes a hold.
+ * Only category and original position are exposed, no private identifiers.
+ */
+function prioritizeUnconfirmedRequests(requests){
+  if(!Array.isArray(requests)||requests.length>5000)refuse();
+  const order=requests.map((item,index)=>{
+    const type=item?.eventType;
+    const priority=REVIEW_PRIORITY.indexOf(type);
+    return Object.freeze({
+      sourceIndex:index,
+      eventType:priority<0?'Unclassified':type,
+      priorityRank:priority<0?null:priority+1,
+      needsManualClassification:priority<0
+    });
+  });
+  return Object.freeze({
+    readOnly:true,
+    approvedRequests:0,
+    eventsRescheduled:0,
+    reservationsReleased:0,
+    candidateReviewOnly:true,
+    priorityOrder:REVIEW_PRIORITY,
+    requests:Object.freeze(order.sort((a,b)=>
+      (a.priorityRank??4)-(b.priorityRank??4)||
+      a.sourceIndex-b.sourceIndex))
+  });
+}
 function refuse(){throw Error('Kings Calendar pilot source unavailable.');}
 function stamp(value){
   if(typeof value!=='string'||!value.trim())return null;
@@ -103,7 +135,9 @@ function monthsFrom(data,nowMs){
     partnerMonthlyLimit:20,externalMonthlyLimit:20,kingsMonthlyLimit:null,
     monthlyPartnerOverLimit:false,monthlyExternalOverLimit:false,
     monthlyRemainingVerified:null,
-    daysRequiringReview:0,legacyDatedKeptSeparate:0
+    daysRequiringReview:0,daysOverDailyLimit:0,
+    daysWithPriorityConflict:0,
+    legacyDatedKeptSeparate:0
   }));
   const days=Array.from({length:12},()=>new Map());
   let undatedCenter=0,undatedLegacy=0,legacyOutside=0;
@@ -167,6 +201,13 @@ function monthsFrom(data,nowMs){
       // Every UTC day has the same maximum of 3 Convoys total,
       // including Kings, Partner, External and unclassified claims.
       const total=day.kings+day.partner+day.external+day.unclassified;
+      if(total>3){
+        m.daysOverDailyLimit++;
+        // A priority conflict is a STAFF REVIEW queue, not automatic
+        // removal of lower-priority previously confirmed bookings.
+        if([day.kings,day.partner,day.external].filter(n=>n>0).length>1)
+          m.daysWithPriorityConflict++;
+      }
       // REVIEW FLAGS ONLY: incomplete history and absent Staff approval
       // mean we cannot assert any day is actually available.
       day.departures.sort((a,b)=>a-b);
@@ -303,5 +344,5 @@ if(require.main===module){
     .catch(()=>{console.error('Kings private Event Calendar pilot blocked.');
       process.exitCode=1;});
 }
-module.exports={inspect,monthsFrom,verdict,contextAllowed,runShape,
+module.exports={inspect,monthsFrom,prioritizeUnconfirmedRequests,REVIEW_PRIORITY,verdict,contextAllowed,runShape,
   artifactFor,allowedRedirect,createReader,main};
