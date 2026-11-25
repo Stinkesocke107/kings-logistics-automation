@@ -30,9 +30,11 @@ Only AFTER the small PR has passed CI, undergone explicit owner review, and been
 2. Branch: `main`
 3. Turn on **`capacity_source_pilot`** (default false)
 4. Run manually. GitHub Actions receives only its ephemeral `GITHUB_TOKEN`, limited by workflow permissions `actions: read` and `contents: read`.
-5. The runner fetches the latest successful **scheduled** main Convoy Checker metadata, verifies a run-specific artifact and its run/commit identity, downloads its ZIP **into memory only**, and verifies exact Kings guild/forum, current Center-to-Overview inventory and twelve UTC months of source claims. Frozen legacy rows are handled separately and never counted toward automatically available places.
+5. The runner fetches the **most recent scheduled** main Convoy Checker run, **including failed or unfinished attempts**. It refuses to fall back to an older successful run if a newer scheduled run has failed or is still unfinished. Only if the newest scheduled run itself succeeded and is fresh does it verify the run-specific artifact and its run/commit identity, download the ZIP **into memory only**, and verify exact Kings guild/forum, current Center-to-Overview inventory and twelve UTC months of source claims. Frozen legacy rows are handled separately and never counted toward automatically available places.
 6. Only a fixed safe result appears in the (PUBLIC) GitHub Actions log: `SOURCE_CALENDAR_READONLY_READY`, `SOURCE_NOT_RECENT`, `CALENDAR_UNVERIFIED`, `SOURCE_UNVERIFIED`, or `CONTEXT_REJECTED`. The first is structural source freshness/integrity readiness **not** proof of Staff approvals or historical completeness.
 7. Any non-ready state fails the optional manual probe and does not affect ordinary scheduled Convoy Checker runs.
+
+The in-memory calendar now also separates **source-reported** Kings, Partner and External counts by month, using UTC departure dates. Daily human-review flags follow the currently recorded planning limits (Mon–Thu 3 combined; Fri–Sun 5 combined; Partner and External 2 each; below two hours' departure separation warrants review). Pending, cancelled and unclassified claims also require review. **No category count or review flag certifies a bookable slot or an approved Staff decision.** None of this detail is written into the public action logs.
 
 The script never reads Discord secrets, sends Discord requests, writes GitHub content, logs Event identities, creates bookings, or claims free capacity. This pilot is a **source proof**, not a public Calendar and not a private Discord deployment.
 
