@@ -6,6 +6,7 @@ const {assertRun,assertArtifact}=require('./event-capacity-private-import');
 const {parsePrivateConvoyArchive}=require('./event-capacity-private-archive');
 const {reconcileSourceInventory}=require('./event-capacity-source-reconcile');
 const {timestamp}=require('./event-capacity-core');
+const {calendarLines}=require('./event-capacity-live-calendar-summary');
 const ERROR='Kings Event Capacity GitHub-only publication rejected.';
 const GUILD=/^\d{17,22}$/;
 const VIEW=1024n;
@@ -77,11 +78,13 @@ function validateChannelPrivacy(channel,roles,config,{botId}={}){
   // admin must explicitly verify current effective Discord permissions.
   return true;
 }
-async function verifySourceFreshness(reader,nowMs=Date.now(),onVerifiedEvidence=null){
+async function verifySourceFreshness(reader,nowMs=Date.now(),onVerifiedEvidence=null,
+  onVerifiedCalendar=null){
   if(!reader||typeof reader.getLatestScheduledRun!=='function'||
     typeof reader.getRun!=='function'||typeof reader.getArtifacts!=='function'||
     typeof reader.readArtifact!=='function'||!Number.isFinite(nowMs)||
-    onVerifiedEvidence!==null&&typeof onVerifiedEvidence!=='function')fail();
+    (onVerifiedEvidence!==null&&typeof onVerifiedEvidence!=='function'||
+      onVerifiedCalendar!==null&&typeof onVerifiedCalendar!=='function'))fail();
   try{
     const candidate=await reader.getLatestScheduledRun({repository:REPO,nowMs});
     const run=assertRun(await reader.getRun({repository:REPO,runId:candidate.runId}),
@@ -130,18 +133,35 @@ async function verifySourceFreshness(reader,nowMs=Date.now(),onVerifiedEvidence=
         evidenceStatus='Unavailable';
       }
     }
-    // Source provenance verified; human classification/acceptance/exception
-    // decisions have NOT been independently verified in GitHub-only mode.
+    // Calendar is built from the SAME already-checked private scheduled
+    // Convoy Checker archive; never download a second arbitrary source.
+    // Failure leaves the old unverified message instead of showing zero
+    // claimed Events as if no bookings existed.
+    let calendarSnapshot=null,calendarStatus='Disabled';
+    if(onVerifiedCalendar){
+      calendarStatus='Unavailable';
+      try{
+        const result=await onVerifiedCalendar({
+          report:data.report,overview:data.overview,nowMs
+        });
+        calendarLines(result); // Validate all aggregate rows, flags and counts.
+        calendarSnapshot=result;
+        calendarStatus='Source Claims Preview';
+      }catch{calendarSnapshot=null;}
+    }
+    // The source archive is checked, but Staff classification and actual
+    // Event acceptance are NOT separately authenticated by this function.
     return Object.freeze({sourceAvailable:true,runId:run.id,
       classificationsVerified:false,verifiedFreeSlots:false,
-      ...(onVerifiedEvidence?{evidenceStatus,evidenceAggregate}:{})});
+      ...(onVerifiedEvidence?{evidenceStatus,evidenceAggregate}:{}),
+      ...(onVerifiedCalendar?{calendarStatus,calendarSnapshot}:{})});
   }catch{
     return Object.freeze({sourceAvailable:false,runId:null,
       classificationsVerified:false,verifiedFreeSlots:false});
   }
 }
 function messageFor({sourceAvailable=false,nowMs=Date.now(),
-  evidenceStatus=null,evidenceAggregate=null}={}){
+  evidenceStatus=null,evidenceAggregate=null,calendarSnapshot=null}={}){
   if(typeof sourceAvailable!=='boolean'||!Number.isFinite(nowMs))fail();
   const firstMonth=new Date(nowMs).toISOString().slice(0,7);
   const lines=[];
@@ -151,6 +171,8 @@ function messageFor({sourceAvailable=false,nowMs=Date.now(),
     const month=d.toISOString().slice(0,7);
     lines.push('**'+month+' UTC** · ? Availability unverified');
   }
+  if(calendarSnapshot!==null&&!sourceAvailable)fail();
+  const calendarText=calendarSnapshot===null?null:calendarLines(calendarSnapshot);
   const status=sourceAvailable?'Needs Verification':'Data Outdated';
   let evidenceLine='';
   if(evidenceStatus!==null){
@@ -171,15 +193,17 @@ function messageFor({sourceAvailable=false,nowMs=Date.now(),
       evidenceLine='Staff evidence review: Unavailable / Needs Verification.\n';
     }
   }
-  return MARKER+'\n'+
+  const message=MARKER+'\n'+
     '**Status: '+status+'**\n'+
     (sourceAvailable?
       'Convoy Center report source checked. Staff classification and accepted status need separate verification.\n':
       'No current verified Convoy Center report was available.\n')+
-    lines.join('\n')+'\n'+
+    (calendarText===null?lines.join('\n'):calendarText)+'\n'+
     evidenceLine+
-    'Limits: 2 Partner + External per UTC day; 20 Partner / 20 External per UTC month; Kings events unlimited.\n'+
+    'Planning guide: Mon–Thu max 3, Fri–Sun max 5; Partner and External max 2 each/day; Kings quota exempt.\n'+
     '**No free slots are confirmed by this preview.** No events or approvals are changed.';
+  if(message.length>2000)fail();
+  return message;
 }
 function createDiscordRest({token,transport=fetch}={}){
   if(typeof token!=='string'||token.length<25||token.length>200||
@@ -227,10 +251,10 @@ function createDiscordRest({token,transport=fetch}={}){
 }
 async function publishGithubOnlyStatus({client,config,sourceAvailable=false,
   mode='preview',manualDispatch=false,nowMs=Date.now(),
-  evidenceStatus=null,evidenceAggregate=null}={}){
+  evidenceStatus=null,evidenceAggregate=null,calendarSnapshot=null}={}){
   if(!['preview','sync','bootstrap'].includes(mode)||!Number.isFinite(nowMs))fail();
   const content=messageFor({
-    sourceAvailable,nowMs,evidenceStatus,evidenceAggregate
+    sourceAvailable,nowMs,evidenceStatus,evidenceAggregate,calendarSnapshot
   });
   // A no-network preview needs no Discord token, channel or role IDs.
   if(mode==='preview')return Object.freeze({state:'Preview',content});
