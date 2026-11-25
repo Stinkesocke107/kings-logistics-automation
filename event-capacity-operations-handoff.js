@@ -4,6 +4,7 @@
 // NEVER create Workboard tasks, reserve slots or certify actual Event approval.
 const {projectKingsEventBookingSafetyReview}
   =require('./event-capacity-booking-safety-review');
+const {POLICY}=require('./event-capacity-policy');
 const {proposedChecklist}
   =require('./event-capacity-preparation');
 const ERROR='Kings Event Operations handoff refused.';
@@ -78,6 +79,9 @@ function projectKingsEventOperationsHandoff({calendar,request,event}={}){
       version:1,visibility:'PRIVATE_ONLY',readOnly:true,
       reviewStatus:'STAFF_REVIEW_REQUIRED',
       utcDate:booking.utcDate,category:booking.category,
+      candidatePriorityRank:booking.reviewPriority,
+      newUnconfirmedRequestPriorityOnly:true,
+      confirmedEventsNeverAutoPreempted:true,
       bookingReviewReasonCount:booking.reviewReasons.length,
       bookingObservedDailyLimitReached:booking.observedDailyLimitReached,
       bookingObservedMonthlyLimitReached:booking.observedMonthlyLimitReached,
@@ -122,7 +126,10 @@ function renderKingsEventOperationsHandoffPreview(r){
       !Array.isArray(r.handoffBlockers)||
       typeof r.utcDate!=='string'||
       !/^20\d{2}-\d{2}-\d{2}$/.test(r.utcDate)||
-      !['Kings Convoy','Partner Convoy','External Convoy'].includes(r.category))
+      !POLICY.priorityOrder.includes(r.category)||
+      r.candidatePriorityRank!==POLICY.priorityOrder.indexOf(r.category)+1||
+      r.newUnconfirmedRequestPriorityOnly!==true||
+      r.confirmedEventsNeverAutoPreempted!==true)
       fail();
     const codes=r.preparationProposalCodes;
     if(codes.length>20||r.handoffBlockers.length>15||
@@ -137,6 +144,8 @@ function renderKingsEventOperationsHandoffPreview(r){
       fail();
     const content='**Kings Events — Operations Handoff (OFFLINE REVIEW)**\n'+
       r.category+' | '+r.utcDate+' UTC\n'+
+      'NEW request priority '+r.candidatePriorityRank+
+      '/3 (Kings > Partner > External); confirmed events not displaced.\n'+
       'Booking review flags: '+r.bookingReviewReasonCount+
       ' | Handoff blockers: '+r.handoffBlockers.length+'\n'+
       'Unverified checklist suggestions: required '+
