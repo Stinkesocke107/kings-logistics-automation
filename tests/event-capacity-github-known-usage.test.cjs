@@ -182,6 +182,9 @@ test('Wrong scope, inventory conflict, stale and manipulated metadata are denied
     sourceOf({...b,overview:{...b.overview,registeredConvoys:[]}}),
     sourceOf({...b,report:{...b.report,
       finalization:{finalizedAt:'2027-03-20T10:00:00Z'}}}),
+    sourceOf({...b,report:{...b.report,
+      generatedAt:'2027-03-20T10:00:00Z',
+      finalization:{finalizedAt:'2027-03-20T10:01:00Z'}}}),
     {...sourceOf(b),archiveDigest:'invalid'},
     {...sourceOf(b),headSha:'../not-sha'}
   ])assert.throws(()=>knownUsageFromVerifiedInputs({
