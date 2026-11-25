@@ -124,8 +124,11 @@ function crosscheckKingsHistoricalEvidenceClaims({
       // An originally accepted event may later be rescheduled OUTSIDE the
       // audit window. Its old in-window reservation must still be reviewed.
       const transitionMonth=stamp(p.departureAtUtc).slice(0,7);
-      if(allowed.has(transitionMonth)&&!inWindowLifecycleByRef.has(ref))
-        inWindowLifecycleByRef.set(ref,transitionMonth);
+      if(allowed.has(transitionMonth)){
+        const occupiedMonths=inWindowLifecycleByRef.get(ref)??new Set();
+        occupiedMonths.add(transitionMonth);
+        inWindowLifecycleByRef.set(ref,occupiedMonths);
+      }
     }
     const signed=new Map();
     for(const [ref,final] of Object.entries(journal.events)){
@@ -134,8 +137,8 @@ function crosscheckKingsHistoricalEvidenceClaims({
         // Never silently drop an event that occupied an in-window date
         // before a later signed move. Original allocation disposition
         // requires authorized human reconciliation.
-        const formerMonth=inWindowLifecycleByRef.get(ref);
-        if(formerMonth){
+        const formerMonths=inWindowLifecycleByRef.get(ref);
+        if(formerMonths)for(const formerMonth of formerMonths){
           perMonth.get(formerMonth).signedJournalEvents++;
           issue('signed-event-moved-outside-review-window',ref,formerMonth);
         }
