@@ -35,3 +35,19 @@ test('Private encrypted history archive remains offline and cannot change live c
   assert.match(archive,/verifyHistoricalJournal/);
   assert.doesNotMatch(archive,/DISCORD_BOT_TOKEN|fetch\(|discord\.com|process\.env/);
 });
+
+test('Historical GitHub archive reader is read-only and not part of live capacity flows',()=>{
+  const runner=fs.readFileSync(path.join(root,'scripts/event-capacity-github-actions.js'),'utf8');
+  const workflow=fs.readFileSync(path.join(root,'.github/workflows/convoy-checker.yml'),'utf8');
+  const reader=fs.readFileSync(path.join(root,'event-capacity-historical-github-reader.js'),'utf8');
+  assert.doesNotMatch(runner,/event-capacity-historical-github-reader/);
+  assert.doesNotMatch(workflow,/event-capacity-historical-github-reader/);
+  assert.doesNotMatch(workflow,/KINGS_EVENT_CAPACITY_HISTORICAL_READER_ENABLED/);
+  assert.match(reader,/method:'GET'/);
+  assert.doesNotMatch(reader,/method:'(?:PUT|POST|PATCH|DELETE)'/);
+  assert.match(reader,/encryptedArchiveIntegrityVerified:true/);
+  assert.match(reader,/historicalCoverageCertified:false/);
+  assert.match(reader,/sourceEvidenceAuthenticityVerified:false/);
+  assert.match(reader,/freeSlotsCertified:false/);
+  assert.doesNotMatch(reader,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
+});
