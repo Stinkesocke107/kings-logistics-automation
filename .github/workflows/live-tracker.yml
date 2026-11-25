@@ -14,6 +14,7 @@ on:
       - 'driver-loyalty-register.js'
       - 'driver-identity-register.js'
       - 'live-outage-notice.js'
+      - 'live-systems-delivery.js'
       - 'truckersmp-official-live.js'
       - 'statistics.js'
       - 'central-overview.js'
@@ -118,12 +119,18 @@ jobs:
           CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
         run: node central-overview.js
 
+      # Record full-live success only after Tracker, Statistics and the
+      # Central Overview successfully published the same verified generation.
+      - name: Record full Live Systems delivery evidence
+        if: ${{ steps.live_tracker.outcome == 'success' }}
+        run: node -e "require('./live-systems-delivery').recordVerifiedLive()"
+
       - name: Save Kings Live System Data and API Health Together
         if: always()
         run: |
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
-          for file in data/live-tracker-snapshot.json data/statistics.json data/central-overview.json data/api-health; do
+          for file in data/live-tracker-snapshot.json data/statistics.json data/central-overview.json data/live-systems-delivery.json data/api-health; do
             if [ -n "$(git status --porcelain -- "$file")" ]; then
               git add -A -- "$file"
             fi
