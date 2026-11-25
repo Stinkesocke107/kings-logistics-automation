@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "mode": "fallback-delivered",
+  "source": "official-vtc-and-servers",
+  "checkedAt": "2026-11-25T22:03:53.326Z",
+  "allDisplaysVerified": true,
+  "displaysVerified": [
+    "Live Tracker",
+    "Advanced Statistics",
+    "Central Overview"
+  ],
+  "sourceSnapshotAt": "2026-11-18T16:00:21.037Z",
+  "livePlayerCountsAvailable": false
+}
