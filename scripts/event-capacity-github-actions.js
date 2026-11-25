@@ -9,16 +9,21 @@ const {inspectStaffEvidence,publicSafeAggregate}
   =require('../event-capacity-github-decision-evidence');
 const {monthlyFromReports}
   =require('../event-capacity-live-calendar-summary');
+const {inspectKingsPrivateEventCapacityChannel}
+  =require('../event-capacity-private-channel-preflight');
 async function main(env=process.env){
   if(env.GITHUB_REF!=='refs/heads/main'||
     !['schedule','workflow_dispatch'].includes(env.GITHUB_EVENT_NAME))
     throw Error('Kings Event Capacity action is not enabled for this trusted main workflow.');
   const mode=env.KINGS_EVENT_CAPACITY_MODE||
     (env.GITHUB_EVENT_NAME==='schedule'?'sync':'preview');
-  if(mode!=='preview'&&env.KINGS_EVENT_CAPACITY_ENABLED!=='true')
+  if(!['preview','preflight'].includes(mode)&&
+    env.KINGS_EVENT_CAPACITY_ENABLED!=='true')
     throw Error('Kings Event Capacity Discord writes were not enabled.');
-  if(!['preview','sync','bootstrap'].includes(mode)||
-    mode==='bootstrap'&&env.GITHUB_EVENT_NAME!=='workflow_dispatch')
+  if(!['preview','preflight','sync','bootstrap'].includes(mode)||
+    ['bootstrap','preflight'].includes(mode)&&
+      env.GITHUB_EVENT_NAME!=='workflow_dispatch'|| 
+    mode==='preflight'&&env.CONVOY_DRY_RUN!=='true')
     throw Error('Kings Event Capacity action mode not authorized.');
   const config={
     guildId:env.KINGS_EVENT_CAPACITY_GUILD_ID,
@@ -30,6 +35,18 @@ async function main(env=process.env){
       CEO:env.KINGS_EVENT_CEO_ROLE_ID
     }
   };
+  // CEO-invoked preparation check: Discord GET requests only, requires
+  // an actual bot credential but deliberately bypasses the WRITE enable flag.
+  // No arbitrary account/channel/Staff details or token ever reach job logs.
+  if(mode==='preflight'){
+    const client=createDiscordRest({token:env.DISCORD_BOT_TOKEN});
+    const result=await inspectKingsPrivateEventCapacityChannel({client,config});
+    console.log('Kings Event Capacity read-only Discord preflight:',result.state);
+    if(!['READY_FOR_MANUAL_BOOTSTRAP','READY_FOR_READ_ONLY_SYNC']
+      .includes(result.state))
+      throw Error('Kings Event Capacity private Discord configuration not ready.');
+    return {state:result.state,readOnly:true,discordWrites:0};
+  }
   // Preview without Discord writes; bootstrap is one-off manual and
   // intentionally carries no private Convoy source into the new message.
   if(mode==='preview'||mode==='bootstrap'){
