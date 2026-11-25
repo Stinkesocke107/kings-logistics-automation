@@ -48,7 +48,7 @@ const OPERATIONS=[
   'Require convoy completeness',
   'Require successful convoy stages'
 ];
-test('Manual preview/preflight/bootstrap/sync runs with zero Convoy operational stages',()=>{
+test('Manual preview/preflight/source-preflight/bootstrap/sync skips all Convoy operations',()=>{
   for(const name of OPERATIONS){
     const guarded=condition(name);
     assert.match(guarded,/steps\.mode\.outputs\.capacity_only != 'true'/,
@@ -72,7 +72,7 @@ test('Every security-sensitive operational shell is skipped in capacity-only mod
 test('Manual capacity-only mode is selected before live mode and forced dry-run',()=>{
   const mode=step('Determine convoy run mode');
   assert.match(mode,/GITHUB_EVENT_NAME" = "workflow_dispatch"/);
-  assert.match(mode,/CAPACITY_ACTION" =~ \^\(preview\|preflight\|bootstrap\|sync\)\$/);
+  assert.match(mode,/CAPACITY_ACTION" =~ \^\(preview\|preflight\|source-preflight\|bootstrap\|sync\)\$/);
   const chosen=mode.indexOf('CAPACITY_ONLY="true"');
   const realLive=mode.indexOf('REQUESTED_MODE" = "live"');
   assert.ok(chosen>=0&&realLive>chosen);
@@ -81,20 +81,25 @@ test('Manual capacity-only mode is selected before live mode and forced dry-run'
   assert.match(mode,/elif \[ "\$GITHUB_EVENT_NAME" = "schedule" \]; then\s+DRY_RUN="false"/);
   assert.match(mode,/elif \[ "\$GITHUB_EVENT_NAME" = "push" \]/);
 });
-test('Event Capacity step still runs for the four explicitly requested actions',()=>{
+test('Event Capacity step runs for all five manually requested actions',()=>{
   const block=step('Kings Event Capacity (GitHub-only opt-in)');
   assert.match(block,/github\.event_name == 'schedule'/);
   assert.match(block,/inputs\.capacity_action == 'preview'/);
   assert.match(block,/inputs\.capacity_action == 'preflight'/);
+  assert.match(block,/inputs\.capacity_action == 'source-preflight'/);
   assert.match(block,/inputs\.capacity_action == 'bootstrap'/);
   assert.match(block,/inputs\.capacity_action == 'sync'/);
   assert.match(block,/KINGS_EVENT_CAPACITY_ENABLED == 'true'/);
   assert.match(block,/CONVOY_DRY_RUN: .*steps\.mode\.outputs\.dry_run/);
   assert.match(block,/node scripts\/event-capacity-github-actions\.js/);
 });
-test('A manually invoked failed preflight, preview, bootstrap or sync cannot be green',()=>{
+test('A failed source or Discord preflight, preview, bootstrap or sync cannot be green',()=>{
   const preflight=step('Require private Event Capacity preflight readiness when explicitly requested');
+  const source=step('Require GitHub Event Calendar source readiness when requested');
   const other=step('Require manually requested Event Capacity publication outcome');
+  assert.match(source,/SOURCE_PREFLIGHT_OUTCOME" != "success"/);
+  assert.match(source,/exit 1/);
+  assert.match(source,/inputs.capacity_action == 'source-preflight'/);
   assert.match(preflight,/PREFLIGHT_OUTCOME" != "success"/);
   assert.match(other,/CAPACITY_OUTCOME" != "success"/);
   for(const action of ['preview','bootstrap','sync'])
@@ -128,5 +133,7 @@ test('Preflight helper and runner remain detached from production Convoy impleme
   const runner=fs.readFileSync(path.join(base,
     'scripts/event-capacity-github-actions.js'),'utf8');
   assert.match(runner,/mode==='preflight'/);
+  assert.match(runner,/mode==='source-preflight'/);
   assert.match(runner,/inspectKingsPrivateEventCapacityChannel/);
+  assert.match(runner,/inspectKingsEventSourcePreflight/);
 });
