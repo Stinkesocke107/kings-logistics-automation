@@ -14,7 +14,10 @@ function observationFixtures(nowMs=Date.now()){
     ...Object.fromEntries(COUNT_FIELDS.map(k=>[k,0])),
     tracked:10,scheduled:4,readyForApproval:2,needsInformation:1,completed:2,
     futureUnclassified:3,futureDaysRequiringReview:2,futureDaysOverDailyLimit:1,
-    historyMonthsWithClaims:4,historyMonthsWithoutClaims:20
+    historyMonthsWithClaims:4,historyMonthsWithoutClaims:20,
+    historyMonthsCenterOnly:3,historyMonthsLegacyOnly:1,
+    historyMonthsBothSources:0,historyCenterClaims:3,historyLegacyClaims:1,
+    historyLegacyEvidencePending:1
   };
   const invitation={
     version:1,readOnly:true,sourceForumVerified:true,tagSchemaVerified:true,
@@ -40,6 +43,9 @@ test('Kings Event Operations #18 combines #12/#13/#14/#15/#16 advisory source fl
     externalMonthsOver20:0,
     daysWithShortDepartureGap:0,
     historyMonthsWithoutClaims:20,
+    pastOutcomesUnresolved:0,
+    legacyClaimsMissingOriginalEvidence:1,
+    futureLegacyHoldReview:0,
     invitationsMissingEventLinks:1,
     invitationDuplicateEventLinks:0,
     invitationDuplicateVtcs:2,
@@ -94,6 +100,9 @@ test('missing and stale Event or Invitation source cannot become invented zero w
   assert.equal(missing.review.partnerMonthsOver20,null);
   assert.equal(missing.review.externalMonthsOver20,null);
   assert.equal(missing.review.daysWithShortDepartureGap,null);
+  assert.equal(missing.review.pastOutcomesUnresolved,null);
+  assert.equal(missing.review.legacyClaimsMissingOriginalEvidence,null);
+  assert.equal(missing.review.futureLegacyHoldReview,null);
   assert.deepEqual(operationsWorklist(missing).map(x=>x.code),[
     'CONVOY_SOURCE_UNAVAILABLE','INVITATION_SOURCE_UNAVAILABLE'
   ]);
@@ -149,6 +158,7 @@ test('validated Event Operations triage appears only on existing Event and Manag
   assert.ok(management.fields.some(x=>x.name.includes('Event Operations')));
   assert.equal(management.title,'👑 Kings Management Leadership Dashboard');
   assert.ok(management.fields.some(x=>x.name.includes('Event Capacity')));
+  assert.ok(management.fields.some(x=>x.name.includes('Event History — Evidence Gaps')));
   assert.match(JSON.stringify(management),/Suggested next Staff review/);
   assert.ok(Object.hasOwn(WORK_LABELS,'VERIFY_FORUM_TAG_MAPPING'));
 });
@@ -177,6 +187,39 @@ test('capacity monthly ceiling and departure-spacing warnings reach priority-ord
   assert.equal(ops.staffAssignmentsChanged,0);
   assert.ok(renderOperationsReview(ops).length<=1024);
   assert.ok(renderOperationsWorklist(ops).length<=1024);
+});
+test('missing past outcomes and future frozen Legacy holds are human-only History/Capacity review tasks',()=>{
+  const f=observationFixtures();
+  f.eventSourceObservation.historyPastCenterOutcomeUnresolved=2;
+  f.eventSourceObservation.historyLegacyEvidencePending=2;
+  f.eventSourceObservation.historyFutureLegacyHoldReview=1;
+  const ops=observeOperations(f);
+  assert.equal(ops.eventSource,'RECONCILED');
+  assert.equal(ops.review.pastOutcomesUnresolved,2);
+  assert.equal(ops.review.legacyClaimsMissingOriginalEvidence,2);
+  assert.equal(ops.review.futureLegacyHoldReview,1);
+  const work=operationsWorklist(ops);
+  assert.ok(work.some(x=>x.code==='REVIEW_FUTURE_LEGACY_HOLDS'&&
+    x.priority==='NORMAL'&&x.owner==='Event Coordination Lead'));
+  assert.ok(work.some(x=>x.code==='REVIEW_PAST_OUTCOMES'&&
+    x.priority==='FOLLOW_UP'&&x.owner==='Event Coordination Lead'));
+  assert.ok(work.some(x=>x.code==='REVIEW_LEGACY_EVIDENCE'&&
+    x.priority==='FOLLOW_UP'&&x.owner==='Event Coordination Lead'));
+  assert.equal(ops.calendarAvailabilityCertified,false);
+  assert.equal(ops.bookingsCreated,0);
+  assert.equal(ops.staffDecisionsVerified,false);
+  assert.ok(renderOperationsWorklist(ops).length<=1024);
+  const s=sandbox('leadership-dashboard.js');
+  const event=s.run('buildEvent('+JSON.stringify({
+    eventReports:{eventSourceObservation:f.eventSourceObservation,
+      invitationSourceObservation:f.invitationSourceObservation}
+  })+','+f.nowMs+')');
+  const history=event.fields.find(x=>x.name.includes('Decision Evidence Review'));
+  assert.ok(history);
+  assert.match(history.value,/past Center outcomes unclear \*\*2\*\*/);
+  assert.match(history.value,/future dated Legacy holds requiring review \*\*1\*\*/);
+  assert.match(history.value,/No free slots certified/);
+  assert.ok(history.value.length<=1024);
 });
 test('Operations module is pure; no privileged writes, notifications or separate systems',()=>{
   const fs=require('node:fs'),path=require('node:path');
