@@ -1,58 +1,10 @@
 {
   "version": 1,
   "mode": "technical-safe-self-healing",
-  "updatedAt": "2026-11-25T15:29:10.833Z",
+  "updatedAt": "2026-11-25T18:41:52.103Z",
   "repairs": {
     "live-tracker": {
       "attempts": [
-        {
-          "at": "2026-11-24T15:35:46.389Z",
-          "outcome": "failed",
-          "action": "dispatched",
-          "runId": 45427221265,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-failed:live-tracker.yml",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
-        {
-          "at": "2026-11-24T15:52:19.746Z",
-          "outcome": "failed",
-          "action": "dispatched",
-          "runId": 45430449914,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-failed:live-tracker.yml",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
-        {
-          "at": "2026-11-24T17:44:25.890Z",
-          "outcome": "failed",
-          "action": "dispatched",
-          "runId": 45451807789,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-failed:live-tracker.yml",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
-        {
-          "at": "2026-11-24T18:03:12.118Z",
-          "outcome": "failed",
-          "action": "dispatched",
-          "runId": 45455220232,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-failed:live-tracker.yml",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
         {
           "at": "2026-11-24T22:19:39.806Z",
           "outcome": "failed",
@@ -200,11 +152,21 @@
             "workflow-failed:live-tracker.yml",
             "workflow-overdue:live-tracker.yml"
           ]
+        },
+        {
+          "at": "2026-11-25T18:41:52.103Z",
+          "outcome": "failed",
+          "action": "dispatched",
+          "runId": 45677727020,
+          "issueIds": [
+            "stale-data:data/live-tracker-snapshot.json",
+            "stale-data:data/statistics.json"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-11-25T15:29:10.833Z",
+      "lastAttemptAt": "2026-11-25T18:41:52.103Z",
       "lastSuccessAt": "2026-11-18T12:19:46.364Z",
-      "lastFailureAt": "2026-11-25T15:29:10.833Z"
+      "lastFailureAt": "2026-11-25T18:41:52.103Z"
     },
     "driver-updates": {
       "attempts": [],
