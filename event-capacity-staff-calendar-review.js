@@ -31,13 +31,12 @@ function isoDay(x){
 function checkSnapshot(c){
   if(!plain(c)||!plain(c.limits)||
     c.limits.policyId!==POLICY.policyId||
-    c.limits.weekdayCombined!==POLICY.weekdayCombinedMax||
-    c.limits.weekendCombined!==POLICY.weekendCombinedMax||
-    c.limits.partnerDaily!==POLICY.partnerDailyMax||
-    c.limits.externalDaily!==POLICY.externalDailyMax||
-    c.limits.combinedDaily!==null||
-    c.limits.partnerMonthly!==null||
-    c.limits.externalMonthly!==null||
+    c.limits.combinedDaily!==POLICY.dailyTotalMax||
+    c.limits.partnerMonthly!==POLICY.partnerMonthlyMax||
+    c.limits.externalMonthly!==POLICY.externalMonthlyMax||
+    c.limits.kingsMonthly!==null||
+    c.limits.weeklyMax!==null||
+    c.limits.kingsQuotaExempt!==false||
     typeof c.globalUncertainty!=='boolean'||!plain(c.days)||
     !plain(c.months)||!Array.isArray(c.issues)||
     !Array.isArray(c.warnings)||
@@ -48,7 +47,7 @@ function checkSnapshot(c){
     if(!plain(x))fail();
     const partner=count(x.partner),external=count(x.external),
       kings=count(x.kings);
-    if(count(x.combined)!==partner+external)fail();
+    if(count(x.combined)!==partner+external+kings)fail();
     const month=date.slice(0,7);
     const totals=byMonth.get(month)??{partner:0,external:0,kings:0};
     totals.partner+=partner;totals.external+=external;totals.kings+=kings;
@@ -170,8 +169,8 @@ function projectKingsStaffCalendarReview({
       const gaps=evidence?.get(month)??null;
       if(!historical)monthsWithoutSignedHoldReport++;
       if(gaps===null)monthsOutsideEvidenceReview++;
-      // No replacement monthly quota was adopted. Preserve legacy source
-      // counts for review, without claiming a current monthly threshold.
+      // Current 20/month Partner and 20/month External quotas are approved.
+      // Separately preserve signed old-policy historic flags as evidence.
       // Possible old-date holds are not necessarily the same event as a
       // current snapshot booking. Treat differing counts as review hints,
       // never as a mathematically authoritative delta.
@@ -180,7 +179,11 @@ function projectKingsStaffCalendarReview({
       const historicalAboveLimit=historical?
         (historical.monthOverStandardPartnerLimit||
           historical.monthOverStandardExternalLimit):false;
-      const monthStatus=historicalAboveLimit?
+      const currentMonthlyOverLimit=sp>POLICY.partnerMonthlyMax||
+        se>POLICY.externalMonthlyMax;
+      const monthStatus=currentMonthlyOverLimit?
+        'Current Monthly Quota Conflict — Human Review':
+        historicalAboveLimit?
         'Legacy Monthly Hold Threshold — Historical Review':
         historical===undefined?'Historical Holds Missing — Review':
         gaps===null?'Original Evidence Coverage Missing — Review':
@@ -196,8 +199,10 @@ function projectKingsStaffCalendarReview({
         }),
         evidenceGapsReported:gaps,
         historicalHoldCountExceedsCurrentSnapshot:historicalAboveSnapshot,
-        monthlyPartnerLimit:null,
-        monthlyExternalLimit:null,
+        monthlyPartnerLimit:POLICY.partnerMonthlyMax,
+        monthlyExternalLimit:POLICY.externalMonthlyMax,
+        monthlyKingsLimit:null,
+        currentMonthlyOverLimit,
         snapshotAndHistoricalCountsMayOverlap:true,
         sourceCompletenessAuthenticated:false,
         remainingPartnerSlots:null,remainingExternalSlots:null,
@@ -225,7 +230,8 @@ function projectKingsStaffCalendarReview({
           historicalPartnerProvisional:h?count(h.partnerProvisionalHolds):null,
           historicalExternalProvisional:h?count(h.externalProvisionalHolds):null,
           historicalCombinedProvisional:historic,
-          historicalHoldsExceedCurrentSnapshot:h!==undefined&&historic>current,
+          historicalHoldsExceedCurrentSnapshot:h!==undefined&&
+            historic>count(d.partner)+count(d.external),
           requiresIndependentSourceAndHumanReview:true,
           knownCurrentAndHistoricalCountsNotAdditive:true,
           remainingSlots:null,canApprove:false,freeSlotsCertified:false
@@ -237,12 +243,12 @@ function projectKingsStaffCalendarReview({
       year,selectedMonth,
       policy:Object.freeze({
         id:POLICY.policyId,
-        weekdayCombined:POLICY.weekdayCombinedMax,
-        weekendCombined:POLICY.weekendCombinedMax,
-        partnerDaily:POLICY.partnerDailyMax,
-        externalDaily:POLICY.externalDailyMax,
-        partnerMonthly:null,externalMonthly:null,
-        kingsConvoysQuotaExempt:true,
+        dailyTotal:POLICY.dailyTotalMax,
+        partnerMonthly:POLICY.partnerMonthlyMax,
+        externalMonthly:POLICY.externalMonthlyMax,
+        kingsMonthly:null,weeklyMax:null,
+        kingsConvoysQuotaExempt:false,
+        priorityOrder:POLICY.priorityOrder,
         actualBookingCapacityCertified:false
       }),
       sourceSnapshotReportedFresh:capacity.globalUncertainty===false,
@@ -285,7 +291,10 @@ function renderKingsStaffCalendarEphemeral(view){
         he=m.signedHistoricalProvisional.external;
       if(hp!==null)count(hp);
       if(he!==null)count(he);
-      return m.month+'  Current P'+p+' E'+e+' | Signed hold P'+
+      return m.month+'  Current P'+p+'/20 E'+e+'/20 K'+
+        count(m.currentSnapshot.kings)+' (unlimited/month)'+
+        (m.currentMonthlyOverLimit?' ! monthly quota':'')+
+        ' | Signed old-policy hold P'+
         (hp===null?'?':hp)+' E'+(he===null?'?':he)+
         (m.evidenceGapsReported===null?' | evidence ?':
           ' | evidence gaps '+count(m.evidenceGapsReported));
@@ -323,6 +332,8 @@ function renderKingsStaffCalendarEphemeral(view){
       type:4,data:{
         flags:64,allowed_mentions:{parse:[]},
         content:'**Kings Event Team Calendar — Review Only**\n'+
+          'Policy: maximum 3 total daily (Kings included). Partner 20/month; External 20/month; Kings unlimited/month. No week cap.\n'+
+          'Priority for NEW unconfirmed requests: Kings > Partner > External; no automatic displacement.\n'+
           'Current snapshot and historical holds are separate, potentially overlapping evidence.\n'+
           '**No available slots are certified. No automatic acceptance or release.**',
         embeds
