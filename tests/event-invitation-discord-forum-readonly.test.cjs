@@ -107,7 +107,9 @@ test('Unexpected forum exposure, actor permissions, or missing authorized Staff 
 });
 test('Cross-forum thread, duplicate messages and invalid forum responses are blocked',async()=>{
   const a=fixture();a.raw.active.threads[0].parent_id=OTHER;
-  await assert.rejects(()=>scan(a));
+  const outside=await scan(a);
+  assert.equal(outside.forumThreadClaims,0);
+  assert.equal(outside.freeSlotsCertified,false);
   const b=fixture();b.raw.messages[0].id=b.raw.messages[1].id;
   await assert.rejects(()=>scan(b));
   const c=fixture();c.raw.archived.has_more=true;
