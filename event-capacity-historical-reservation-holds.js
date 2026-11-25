@@ -6,7 +6,11 @@
 // Do not confuse this report with current occupancy or free-slot certification.
 const {verifyHistoricalJournal}
   =require('./event-capacity-historical-lifecycle-journal');
-const {LIMITS}=require('./event-capacity-core');
+// Historical field names are retained for signature compatibility. These
+// flags describe the OLD 2/day, 20/month audit, NOT a 2026-11 booking policy.
+const LEGACY_SIGNED_HOLD_LIMITS=Object.freeze({
+  combinedDaily:2,partnerMonthly:20,externalMonthly:20
+});
 const ERROR='Kings Event Capacity signed historical reservation review invalid.';
 const MONTH=/^20\d{2}-(?:0[1-9]|1[0-2])$/;
 function fail(){throw new Error(ERROR);}
@@ -43,7 +47,7 @@ function reviewSignedHistoricalReservationHolds({
           utcDate:day,partnerProvisionalHolds:partner,
           externalProvisionalHolds:external,
           combinedProvisionalHolds:combined,
-          exceedsStandardDailyLimit:combined>LIMITS.combinedDaily,
+          exceedsStandardDailyLimit:combined>LEGACY_SIGNED_HOLD_LIMITS.combinedDaily,
           unresolvedHistoricalReleaseReviewRequired:true,
           availableSlotsCertified:false
         });
@@ -60,8 +64,8 @@ function reviewSignedHistoricalReservationHolds({
         totalProvisionalDailyHolds:days.reduce((n,d)=>n+d.combinedProvisionalHolds,0),
         daysExceedingDailyLimit:days.filter(d=>d.exceedsStandardDailyLimit).length
       }),
-      monthOverStandardPartnerLimit:byMonth.partner.size>LIMITS.partnerMonthly,
-      monthOverStandardExternalLimit:byMonth.external.size>LIMITS.externalMonthly,
+      monthOverStandardPartnerLimit:byMonth.partner.size>LEGACY_SIGNED_HOLD_LIMITS.partnerMonthly,
+      monthOverStandardExternalLimit:byMonth.external.size>LEGACY_SIGNED_HOLD_LIMITS.externalMonthly,
       days,
       cancellationsNeverAutoRelease:true,
       completionsNeverProveAttendance:true,
