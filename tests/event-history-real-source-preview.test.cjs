@@ -65,8 +65,8 @@ test('operational preflight uses existing read-only source flow and never prints
   assert.match(step,/continue-on-error: true/);
   assert.match(step,/DISCORD_WRITE_MODE: 'false'/);
   assert.match(step,/CONVOY_FINALIZE_WRITE_MODE: 'false'/);
-  assert.match(step,/for script in convoy-checker\\.js convoy-truckersmp-sync\\.js convoy-finalize\\.js convoy-overview\\.js; do/);
-  assert.match(step,/node "\\$script" >\\/dev\\/null 2>&1/);
+  assert.ok(step.includes('for script in convoy-checker.js convoy-truckersmp-sync.js convoy-finalize.js convoy-overview.js; do'));
+  assert.ok(step.includes('node "$script" >/dev/null 2>&1'));
   assert.match(step,/node event-history-real-source-preview\.js/);
   assert.match(step,/>\/dev\/null 2>&1/);
   assert.doesNotMatch(step,/DISCORD_WRITE_MODE: 'true'|BOOKING|reservation|EVENT_SLOT_APPROVE/);
