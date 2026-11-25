@@ -35,6 +35,8 @@ function createHistoricalArchiveRecoveryInspector({
       if(latest!==null){
         if(latest.checkpoint.revision!==after.revision||
           latest.checkpoint.tip!==after.tip||
+          latest.journal?.revision!==after.revision||
+          latest.journal.history?.at(-1)?.payload?.previousTip!==before.tip||
           latest.freeSlotsCertified!==false)fail();
         return Object.freeze({
           state:'CANDIDATE_ARCHIVED_OWNER_HIGHWATER_PENDING',
