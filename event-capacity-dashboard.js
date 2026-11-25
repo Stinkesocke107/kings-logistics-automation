@@ -20,6 +20,10 @@ function projectMonth(capacity,month){
   const source=capacity.months?.[month]||{};
   const monthly={
     partner:n(source.partner),external:n(source.external),kings:n(source.kings),
+    partnerLimit:POLICY.partnerMonthlyMax,
+    externalLimit:POLICY.externalMonthlyMax,kingsLimit:null,
+    partnerOverLimit:n(source.partner)>POLICY.partnerMonthlyMax,
+    externalOverLimit:n(source.external)>POLICY.externalMonthlyMax,
     partnerRemaining:null,externalRemaining:null
   };
   const summary={Available:0,Limited:0,Full:0,Review:0,Unverified:0};
@@ -32,8 +36,8 @@ function projectMonth(capacity,month){
     // A fresh current snapshot alone never proves historic coverage or an
     // available bookable slot. Highlight over-limit source claims as review.
     const status=quotaWarnings.has(day)||
-      snapshot.daily.partner>LIMITS.partnerDaily||
-      snapshot.daily.external>LIMITS.externalDaily?'Review':'Unverified';
+      snapshot.daily.combined>LIMITS.combinedDaily?
+      'Review':'Unverified';
     summary[status]++;
     days.push({
       date:day,status,
@@ -52,13 +56,12 @@ function projectMonth(capacity,month){
 function projectDashboard(capacity,{nowMs=Date.now(),startMonth=null,monthCount=3,trackerSource=null}={}){
   if(!capacity||typeof capacity!=='object'||Array.isArray(capacity)||
      capacity.limits?.policyId!==LIMITS.policyId||
-     capacity.limits?.weekdayCombined!==LIMITS.weekdayCombined||
-     capacity.limits?.weekendCombined!==LIMITS.weekendCombined||
-     capacity.limits?.partnerDaily!==LIMITS.partnerDaily||
-     capacity.limits?.externalDaily!==LIMITS.externalDaily||
-     capacity.limits?.combinedDaily!==null||
-     capacity.limits?.partnerMonthly!==null||
-     capacity.limits?.externalMonthly!==null||
+     capacity.limits?.combinedDaily!==POLICY.dailyTotalMax||
+     capacity.limits?.partnerMonthly!==POLICY.partnerMonthlyMax||
+     capacity.limits?.externalMonthly!==POLICY.externalMonthlyMax||
+     capacity.limits?.kingsMonthly!==null||
+     capacity.limits?.weeklyMax!==null||
+     capacity.limits?.kingsQuotaExempt!==false||
      typeof capacity.globalUncertainty!=='boolean'||
      !capacity.days||!capacity.months||
      !Array.isArray(capacity.uncertainDates)||!Array.isArray(capacity.uncertainMonths)||
@@ -71,10 +74,12 @@ function projectDashboard(capacity,{nowMs=Date.now(),startMonth=null,monthCount=
     version:1,visibility:'PRIVATE_ONLY',mode:'READ_ONLY',
     sourceStatus:capacity.globalUncertainty?'Data Outdated / Unverified':'Checked',
     issueCount:capacity.issues.length,
-    policy:{id:POLICY.policyId,weekdayCombined:POLICY.weekdayCombinedMax,
-      weekendCombined:POLICY.weekendCombinedMax,
-      partnerDaily:POLICY.partnerDailyMax,externalDaily:POLICY.externalDailyMax,
-      partnerMonthly:null,externalMonthly:null,kingsUnlimited:true,
+    policy:{id:POLICY.policyId,dailyTotal:POLICY.dailyTotalMax,
+      partnerMonthly:POLICY.partnerMonthlyMax,
+      externalMonthly:POLICY.externalMonthlyMax,
+      kingsMonthly:null,weeklyMax:null,
+      kingsIncludedDaily:true,
+      priorityOrder:POLICY.priorityOrder,
       capacityCertified:false},
     months,tracker:projectOptionalTracker(trackerSource,{nowMs}),
     attendanceInferred:false
@@ -95,9 +100,10 @@ function embed(month){
     color:1584639,
     fields:[
       {name:'UTC monthly source counts',value:'Partner '+month.monthly.partner+
+        '/20'+(month.monthly.partnerOverLimit?' !':'')+
         ' · External '+month.monthly.external+
-        ' · Kings '+month.monthly.kings+
-        ' (quota exempt) · no monthly cap approved',inline:false},
+        '/20'+(month.monthly.externalOverLimit?' !':'')+
+        ' · Kings '+month.monthly.kings+' (no monthly max)',inline:false},
       {name:'Days',value:'Review '+month.summary.Review+
         ' · Unverified '+month.summary.Unverified,inline:false}
     ],
@@ -118,6 +124,8 @@ function ephemeralResponse(view){
       allowed_mentions:{parse:[]},
       content:'**Kings Event Capacity** · '+view.sourceStatus+
         (view.issueCount?' · '+view.issueCount+' internal issue(s)':'')+
+        '\nPolicy: 3 total/day; Partner 20/month; External 20/month; Kings unlimited/month; no week limit.'+
+        '\nPriority for NEW unconfirmed requests: Kings > Partner > External (human review only).'+
         '\nALL availability remains unverified; these are planning claims, not bookings. No event is modified.'+
         '\n'+tracker,
       embeds:view.months.map(embed)
