@@ -37,12 +37,18 @@ function createDiscordReadClient({fetchImpl,token,config}){
     !config||config.guildId!==GUILD||!SNOW.test(config.channelId))fail();
   const role='/guilds/'+GUILD+'/roles',member='/guilds/'+GUILD+'/members/';
   const channel='/channels/'+config.channelId;
+  const active='/guilds/'+GUILD+'/threads/active';
+  const archived=channel+'/threads/archived/public?limit=100';
+  const threads=new Set();
   return Object.freeze({get:async path=>{
+    const msg=/^\/channels\/([1-9]\d{16,21})\/messages\?limit=100(?:&before=[1-9]\d{16,21})?$/.exec(path);
+    const archiveAllowed=path===archived||
+      (path.startsWith(archived+'&before=')&&
+        /^20\d{2}-[0-9A-Za-z%._-]{12,80}$/.test(path.slice((archived+'&before=').length)));
     const allowed=path==='/users/@me'||path===role||path===channel||
+      path===active||archiveAllowed||
       (path.startsWith(member)&&SNOW.test(path.slice(member.length)))||
-      (path.startsWith(channel+'/messages?limit=100')&&
-        (path===channel+'/messages?limit=100'||
-          /^&before=[1-9]\d{16,21}$/.test(path.slice((channel+'/messages?limit=100').length))));
+      (msg!==null&&(msg[1]===config.channelId||threads.has(msg[1])));
     if(!allowed||path.length>220)fail();
     let response;
     try{
@@ -60,6 +66,18 @@ function createDiscordReadClient({fetchImpl,token,config}){
     if(typeof text!=='string'||text.length===0||text.length>2000000)fail();
     let data;
     try{data=JSON.parse(text);}catch{fail();}
+    // Only thread IDs observed in the authenticated allowed forum source
+    // may subsequently be read. Never allow arbitrary other channel IDs.
+    if(path===active||archiveAllowed){
+      if(!data||!Array.isArray(data.threads)||
+        data.threads.length>20000)fail();
+      for(const t of data.threads){
+        if(t?.parent_id===config.channelId){
+          if(!SNOW.test(t.id)||threads.size>=40)fail();
+          threads.add(t.id);
+        }else if(path!==active)fail();
+      }
+    }
     return {status:200,data};
   }});
 }
