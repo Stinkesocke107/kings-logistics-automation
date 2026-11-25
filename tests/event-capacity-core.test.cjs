@@ -10,21 +10,22 @@ const from=(id,type,departure,status='Scheduled',other={})=>({
   plannedEndAtUtc:'2027-03-20T20:00:00Z',
   ...other
 });
-test('Weekend combined cap is five; Kings stays exempt and free slots unverified',()=>{
+test('Weekend daily global limit 3 counts Kings but never certifies free slots',()=>{
   const r=evaluate([
     from(1,'Partner Convoy','2027-03-20T16:00:00Z'),
     from(2,'External Convoy','2027-03-20T17:00:00Z'),
     from(3,'Kings Convoy','2027-03-20T18:00:00Z'),
     from(4,'Kings Convoy','2027-03-20T19:00:00Z')
   ]);
-  assert.deepEqual([r.days['2027-03-20'].combined,r.days['2027-03-20'].kings],[2,2]);
+  assert.deepEqual([r.days['2027-03-20'].combined,r.days['2027-03-20'].kings],[4,2]);
   assert.equal(r.days['2027-03-20'].remaining,null);
-  assert.equal(r.days['2027-03-20'].planningRemaining,3);
-  assert.equal(LIMITS.weekdayCombined,3);
-  assert.equal(LIMITS.weekendCombined,5);
-  assert.equal(LIMITS.partnerDaily,2);
-  assert.equal(LIMITS.externalDaily,2);
-  assert.equal(LIMITS.partnerMonthly,null);
+  assert.equal(r.days['2027-03-20'].planningRemaining,0);
+  assert.equal(LIMITS.combinedDaily,3);
+  assert.equal(LIMITS.partnerMonthly,20);
+  assert.equal(LIMITS.externalMonthly,20);
+  assert.equal(LIMITS.kingsMonthly,null);
+  assert.equal(LIMITS.kingsQuotaExempt,false);
+  assert.ok(r.warnings.some(x=>x.code==='combined-day-over-limit'));
 });
 test('Four partner/external convoys on Thursday trigger the 3/day planning review',()=>{
   const r=evaluate([
@@ -37,7 +38,7 @@ test('Four partner/external convoys on Thursday trigger the 3/day planning revie
   assert.equal(r.warnings.find(x=>x.code==='combined-day-over-limit').limit,3);
   assert.equal(r.days['2027-03-25'].remaining,null);
 });
-test('Old 20-per-month thresholds are not applied to current monthly counts',()=>{
+test('Independent 20/month thresholds flag over-limit Partner but not External',()=>{
   const items=[];
   for(let i=0;i<21;i++)items.push(from(100+i,'Partner Convoy','2027-03-20T16:00:00Z'));
   for(let i=0;i<20;i++)items.push(from(200+i,'External Convoy','2027-03-21T16:00:00Z'));
@@ -46,7 +47,7 @@ test('Old 20-per-month thresholds are not applied to current monthly counts',()=
   assert.equal(r.months['2027-03'].external,20);
   assert.equal(r.months['2027-03'].partnerRemaining,null);
   assert.equal(r.months['2027-03'].externalRemaining,null);
-  assert.equal(r.warnings.some(x=>x.code==='partner-month-over-limit'),false);
+  assert.equal(r.warnings.some(x=>x.code==='partner-month-over-limit'),true);
   assert.equal(r.warnings.some(x=>x.code==='external-month-over-limit'),false);
 });
 test('UTC departure rather than meeting or metadata eventDate determines allocation',()=>{
@@ -157,7 +158,7 @@ test('Fresh current snapshot may show planning counts but cannot certify free sl
   assert.equal(dayAvailability(fresh,'2027-03-20').partnerAvailableVerified,false);
   assert.equal(dayAvailability(fresh,'2027-03-20').externalAvailableVerified,false);
   assert.equal(dayAvailability(fresh,'2027-03-20').remaining,null);
-  assert.equal(dayAvailability(fresh,'2027-03-20').planningRemaining,4);
+  assert.equal(dayAvailability(fresh,'2027-03-20').planningRemaining,2);
   const records=[];
   for(let i=0;i<20;i++)records.push(from(100+i,'Partner Convoy','2027-03-21T16:00:00Z','Scheduled',{
     meetingAtUtc:'2027-03-21T15:00:00Z',plannedEndAtUtc:'2027-03-21T20:00:00Z'
@@ -168,4 +169,31 @@ test('Fresh current snapshot may show planning counts but cannot certify free sl
   assert.equal(day.externalAvailableVerified,false);
   assert.equal(day.freeVerified,false);
   assert.equal(day.planningRemaining,3);
+});
+
+test('Kings Convoys cannot exceed total 3/day even though monthly Kings is unlimited',()=>{
+  const rows=Array.from({length:4},(_,i)=>from(i+1,'Kings Convoy',
+    '2027-03-28T'+String(8+i*3).padStart(2,'0')+':00:00Z'));
+  const r=evaluate(rows);
+  assert.equal(r.days['2027-03-28'].combined,4);
+  assert.equal(r.months['2027-03'].kings,4);
+  assert.equal(r.warnings.some(w=>w.code==='combined-day-over-limit'),true);
+  assert.equal(r.warnings.some(w=>w.code==='kings-month-over-limit'),false);
+  assert.equal(dayAvailability(r,'2027-03-28').freeVerified,false);
+});
+test('Exactly 20 monthly Partner + 20 External source claims are at, not over, both caps',()=>{
+  const rows=[];
+  for(let i=0;i<20;i++){
+    rows.push(from(100+i,'Partner Convoy',
+      '2027-03-'+String(i+1).padStart(2,'0')+'T09:00:00Z'));
+    rows.push(from(200+i,'External Convoy',
+      '2027-03-'+String(i+1).padStart(2,'0')+'T13:00:00Z'));
+  }
+  const r=evaluate(rows);
+  assert.equal(r.months['2027-03'].partnerLimitReached,true);
+  assert.equal(r.months['2027-03'].externalLimitReached,true);
+  assert.equal(r.months['2027-03'].partnerOverLimit,false);
+  assert.equal(r.months['2027-03'].externalOverLimit,false);
+  assert.equal(r.warnings.some(w=>w.code==='partner-month-over-limit'),false);
+  assert.equal(r.warnings.some(w=>w.code==='external-month-over-limit'),false);
 });
