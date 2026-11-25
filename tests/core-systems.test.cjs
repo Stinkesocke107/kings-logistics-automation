@@ -298,7 +298,7 @@ test('live outage notice is idempotent and never creates messages on missing tar
   displayed=s.run("outageEmbed(SETTINGS[0],readSafeState('live-tracker-snapshot.json'))");
   await s.run('main()');
   assert.equal(s.calls.length,1);
-  assert.equal(s.process.exitCode,0);
+  assert.equal(s.process.exitCode,1,'Missing Statistics/Overview targets prevent a false green fallback run');
   assert.equal(s.files.get('data/live-tracker-snapshot.json'),files['data/live-tracker-snapshot.json']);
   assert.equal(s.run("webhookBase('https://example.com/api/webhooks/123456789012345678/token')"),null);
   assert.equal(s.run("webhookBase('http://discord.com/api/webhooks/123456789012345678/token')"),null);
