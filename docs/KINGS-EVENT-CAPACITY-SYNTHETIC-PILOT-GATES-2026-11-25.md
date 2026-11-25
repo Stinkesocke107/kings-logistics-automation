@@ -38,6 +38,14 @@ Do not issue GitHub Secrets, personal access tokens, private-owner signing keys,
 
 The synthetic drill is necessary software-test evidence; **it does not count** as the real independent disaster-recovery test.
 
+## 24-month historical evidence readiness — claim-only workboard
+
+`event-capacity-historical-24month-readiness.js` now composes a strict 24-consecutive-UTC-calendar-month review board. **The start month is supplied explicitly by the authorized reviewer** to avoid silently changing the historical window. For each month, only harmless claims (booleans plus outstanding-review count) are accepted, not private event identifiers or raw Discord records.
+
+It separately flags missing verified source inventory; accepted/cancelled/rescheduled lifecycle decisions; completed events incorrectly used as attendance proof; archived/deleted threads; legacy records; comparison to owner-signed history; and separate Staff review. Missing months, duplicates, out-of-window months, malformed data and injected event/tokens are refused or visibly marked as gaps.
+
+Even when all 24 monthly claim checklists are marked true, the module reports **zero independently authenticated months**, never certifies capacity and never marks historical source coverage complete. Actual authenticated original-source imports and signoffs are still required.
+
 ## Remaining prerequisites before approving a restricted synthetic private pilot
 
 - [ ] Independently review GitHub App installation token *actual effective* repository and permission scopes; ensure each proposed identity is issued only to its one repository, with no admin-capable setup actor reuse.
