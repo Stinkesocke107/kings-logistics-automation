@@ -595,7 +595,8 @@ async function main() {
       // The independent Convoy Center snapshot must reconcile first.
       buildEventObservation(report,overview);
       state.invitationSourceObservation=await readInvitationTracker({
-        token:DISCORD_BOT_TOKEN,centerReport:report
+        token:DISCORD_BOT_TOKEN,centerReport:report,
+        tagIds:process.env.DISCORD_INVITATION_TAG_IDS||null
       });
       invitationUpdated=true;
     } catch {
