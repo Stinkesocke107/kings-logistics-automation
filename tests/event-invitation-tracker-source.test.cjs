@@ -218,9 +218,9 @@ test('Leadership keeps verified reply inventory but withholds unresolved Forum l
   }});
   const event=s.run('buildEvent({eventReports:readPrivateEventReports()},'+NOW+')');
   const invitation=event.fields.find(x=>x.name.includes('Invitation Tracker'));
-  assert.match(invitation.value,/documented unique VTC invites \\*\\*3\\*\\*/);
+  assert.ok(invitation.value.includes('documented unique VTC invites **3**'));
   assert.match(invitation.value,/Forum lifecycle tag names UNVERIFIED/);
-  assert.doesNotMatch(invitation.value,/ongoing \\*\\*0\\*\\*/);
+  assert.ok(!invitation.value.includes('ongoing **0**'));
   const operations=event.fields.find(x=>x.name.includes('Event Operations'));
   assert.match(operations.value,/Forum lifecycle tags UNVERIFIED/);
   assert.doesNotMatch(JSON.stringify(event),/First VTC|Different Forum Tag/);
