@@ -116,3 +116,31 @@ test('Standalone daily private backup vault stays outside live workflows and has
   assert.doesNotMatch(module,/request\('(?:DELETE|PATCH|POST)'/);
   assert.doesNotMatch(module,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
 });
+
+test('Signed history crosscheck and backup continuity stay isolated and read-only',()=>{
+  const runner=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  const workflow=fs.readFileSync(path.join(root,
+    '.github/workflows/convoy-checker.yml'),'utf8');
+  for(const moduleName of [
+    'event-capacity-historical-source-crosscheck',
+    'event-capacity-historical-backup-continuity'
+  ]){
+    const content=fs.readFileSync(path.join(root,moduleName+'.js'),'utf8');
+    assert.equal(runner.includes(moduleName),false);
+    assert.equal(workflow.includes(moduleName),false);
+    assert.match(content,/freeSlotsCertified:false/);
+    assert.doesNotMatch(content,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
+  }
+  const cross=fs.readFileSync(path.join(root,
+    'event-capacity-historical-source-crosscheck.js'),'utf8');
+  assert.match(cross,/verifyHistoricalJournal/);
+  assert.match(cross,/sourceProvenanceTrustedByThisPureFunction:false/);
+  assert.match(cross,/staffDecisionsCommitted:false/);
+  const continuity=fs.readFileSync(path.join(root,
+    'event-capacity-historical-backup-continuity.js'),'utf8');
+  assert.match(continuity,/createPrivateHistoricalBackupVault/);
+  assert.match(continuity,/retentionEnforced:false/);
+  assert.match(continuity,/automaticDeletions:0/);
+  assert.doesNotMatch(continuity,/writeDailyOnce|DELETE|PATCH|POST/);
+});
