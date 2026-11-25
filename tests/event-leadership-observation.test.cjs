@@ -46,6 +46,9 @@ test('reconciled read-only observation joins #14 History and #16 Calendar withou
   assert.equal(observed.historyPastCenterOutcomeUnresolved,0);
   assert.equal(observed.historyLegacyEvidencePending,1);
   assert.equal(observed.historyFutureLegacyHoldReview,0);
+  assert.ok(Array.isArray(observed.reviewAgenda));
+  assert.ok(observed.reviewAgenda.every(x=>
+    Object.keys(x).sort().join(',')==='code,count,utcMonth'));
   assert.equal(observed.historyLegacyClaims,1);
   assert.equal(observed.historyVerified,false);
   assert.equal(observed.freeSlotsCertified,false);
@@ -100,6 +103,9 @@ test('unverified, stale and internally inconsistent Event source is unavailable,
     {historyMonthsCenterOnly:7},{historyMonthsLegacyOnly:7},
     {historyMonthsBothSources:7},{historyPastCenterOutcomeUnresolved:3},
     {historyLegacyEvidencePending:0},{historyFutureLegacyHoldReview:2},
+    {reviewAgenda:[{code:'HISTORY_NO_RECORDS',utcMonth:'2027-03',count:null}]},
+    {reviewAgenda:[{code:'PAST_CENTER_OUTCOME',utcMonth:'2027-03',
+      count:1,threadId:'PRIVATE_THREAD'}]},
     {scheduled:1000},{historyCenterClaims:-1},
     {sourceCompiledAt:'2027-03-01T00:00:00Z'},
     {observedAt:'2027-04-01T00:00:00Z'}
@@ -126,6 +132,8 @@ test('consolidated Leadership decrypts real AES Event container, never treats ci
   assert.match(JSON.stringify(event),/months with claims/);
   assert.match(JSON.stringify(event),/Event History — Decision Evidence Review/);
   assert.match(JSON.stringify(event),/frozen Legacy claims requiring original Staff records/);
+  assert.match(JSON.stringify(event),/Event History — Monthly Staff Review Order/);
+  assert.match(JSON.stringify(event),/2026-11/);
   assert.doesNotMatch(JSON.stringify(event),/SECRET PRIVATE LEADERSHIP/);
   assert.doesNotMatch(JSON.stringify(sealed),/SECRET PRIVATE LEADERSHIP/);
   const stale=s.run('buildEvent({eventReports:readPrivateEventReports()},'+(NOW+37*3600000)+')');
