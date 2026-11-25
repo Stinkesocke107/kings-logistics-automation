@@ -9,6 +9,8 @@ const {inspectKingsNinetyDayBackupRecovery}
   =require('../event-capacity-backup-90day-recovery-audit');
 const {summarizeKingsCapacityPrivateSafety}
   =require('../event-capacity-private-safety-overview');
+const {reviewSignedHistoricalReservationHolds}
+  =require('../event-capacity-historical-reservation-holds');
 const SCOPE={guildId:'1114967437788577792',forumId:'1550619824005062697'};
 const NOW=Date.parse('2027-05-20T12:00:00.000Z');
 const h=x=>crypto.createHash('sha256').update(x).digest('hex');
@@ -111,4 +113,52 @@ test('Untrusted fake report numbers and negative counts fail closed',()=>{
     }
   };
   assert.throws(()=>summarizeKingsCapacityPrivateSafety(y));
+});
+
+test('Existing CEO safety summary can include historical provisional holds without authorizing availability',()=>{
+  const x=setup();
+  const holds=reviewSignedHistoricalReservationHolds({
+    journal:x.afterJournal,scope:SCOPE,ownerPublicKey:x.ownerPublicKey,
+    month:'2027-04',nowMs:NOW
+  });
+  const result=summarizeKingsCapacityPrivateSafety({
+    ...sample(),historicalHoldsReport:holds
+  });
+  assert.equal(result.softwareReviewReportsPresent,4);
+  assert.equal(result.historicalProvisionalHolds.month,'2027-04');
+  assert.equal(result.historicalProvisionalHolds.provisionalDateHolds,1);
+  assert.equal(result.historicalProvisionalHolds.availableSlotsCertified,false);
+  assert.equal(result.safeToActivate,false);
+  assert.equal(result.freeSlotsCertified,false);
+});
+test('Unsigned or fake historical hold reports cannot claim CEO slot clearance',()=>{
+  const x=setup();
+  const holds=reviewSignedHistoricalReservationHolds({
+    journal:x.afterJournal,scope:SCOPE,ownerPublicKey:x.ownerPublicKey,
+    month:'2027-04',nowMs:NOW
+  });
+  for(const patch of [
+    {freeSlotsCertified:true},{safeToActivate:true},
+    {latestOwnerHighwaterIndependentlyVerified:true},
+    {cancellationsNeverAutoRelease:false},
+    {previousDatesNeverAutoReleaseAfterReschedule:false},
+    {month:'not-a-month'},
+    {provisionalCounts:{...holds.provisionalCounts,totalProvisionalDailyHolds:-1}}
+  ])assert.throws(()=>summarizeKingsCapacityPrivateSafety({
+    ...sample(),historicalHoldsReport:{...holds,...patch}
+  }));
+});
+test('CEO hold summary reports counts and month but never raw signed Event IDs',()=>{
+  const x=setup();
+  const holds=reviewSignedHistoricalReservationHolds({
+    journal:x.afterJournal,scope:SCOPE,ownerPublicKey:x.ownerPublicKey,
+    month:'2027-04',nowMs:NOW
+  });
+  const output=JSON.stringify(summarizeKingsCapacityPrivateSafety({
+    ...sample(),historicalHoldsReport:holds
+  }));
+  for(const val of ['event:100','Partner Convoy','PRIVATE KEY',h('e0')])
+    assert.equal(output.includes(val),false);
+  assert.equal(summarizeKingsCapacityPrivateSafety().historicalProvisionalHolds.state,
+    'No Signed Historical Hold Review Supplied');
 });
