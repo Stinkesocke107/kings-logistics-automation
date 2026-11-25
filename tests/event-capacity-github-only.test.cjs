@@ -293,3 +293,45 @@ test('Fabricated proof of free slots cannot cross the read-only source boundary'
     },nowMs:NOW
   }));
 });
+
+test('Verified scheduled Convoy ZIP feeds the same private monthly calendar without approving slots',async()=>{
+  const {monthlyFromReports}=require('../event-capacity-live-calendar-summary');
+  let projected=0;
+  const r=await verifySourceFreshness(
+    readerForPreview(zipForPreview()),NOW,null,inputs=>{
+      projected++;
+      return monthlyFromReports(inputs);
+    });
+  assert.equal(projected,1);
+  assert.equal(r.sourceAvailable,true);
+  assert.equal(r.calendarStatus,'Source Claims Preview');
+  assert.equal(r.calendarSnapshot.months.length,12);
+  assert.equal(r.calendarSnapshot.freeSlotsCertified,false);
+  const body=messageFor({
+    sourceAvailable:r.sourceAvailable,nowMs:NOW,
+    calendarSnapshot:r.calendarSnapshot
+  });
+  assert.match(body,/Convoy Center — reported planning entries/);
+  assert.match(body,/source planned 0/);
+  assert.match(body,/No free slots are confirmed/);
+});
+test('Calendar integration failure cannot convert an authenticated source into claimed empty availability',async()=>{
+  const r=await verifySourceFreshness(readerForPreview(zipForPreview()),NOW,
+    null,async()=>{
+      throw Error('PRIVATE CALENDAR INPUT NEVER LOG');
+    });
+  assert.equal(r.sourceAvailable,true);
+  assert.equal(r.calendarStatus,'Unavailable');
+  assert.equal(r.calendarSnapshot,null);
+  const body=messageFor({sourceAvailable:r.sourceAvailable,nowMs:NOW});
+  assert.match(body,/Availability unverified/);
+  assert.equal(body.includes('PRIVATE CALENDAR INPUT'),false);
+});
+test('Tampered event calendar approval cannot cross verified source read boundary',async()=>{
+  const r=await verifySourceFreshness(readerForPreview(zipForPreview()),NOW,
+    null,()=>({visibility:'PRIVATE_ONLY',freeSlotsCertified:true}));
+  assert.equal(r.sourceAvailable,true);
+  assert.equal(r.calendarStatus,'Unavailable');
+  assert.equal(r.calendarSnapshot,null);
+  assert.equal(r.verifiedFreeSlots,false);
+});
