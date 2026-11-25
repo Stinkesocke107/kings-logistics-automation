@@ -93,3 +93,16 @@ GitHub's actual PR #143 API currently reports `mergeable:false` and `mergeable_s
 
 No pull-request-triggered workflow run was reported for the latest HEAD when checked. The 52/52 local focused tests are not a substitute for same-HEAD full repository CI, source history verification, a private-token/permitted-repo end-to-end test or CEO launch approval.
 
+
+## Reviewed branch sync and first full CI baseline (25 November 2026)
+
+The blocking merge divergence was resolved by merging the then-current `main` into Draft PR #143 **without changing `main`**. The two distinct read-only workflow gates were preserved in `.github/workflows/system-tests.yml`: (1) existing manual `capacity_preview`, default `false`, no Discord event writes, and (2) PR #143 GitHub metadata-only preflight. Current main monitoring and HR state blobs and the already-merged read-only preview code/tests were brought into the draft instead of using stale data. GitHub subsequently reported PR #143 clean/mergeable.
+
+GitHub Actions `Kings Offline System Verification` run `45528366798` completed **SUCCESS** at development commit `5181dc5c1d97fde3ed431bd9f103a23d233ebda6`, **1,111 / 1,111 tests passed**, after correcting two test-file mistakes discovered by actual Node 24 CI. The successful run also passed JS/shell syntax, Driver/Integrity authority and the safe GitHub metadata preflight. This proves only software tests, not historic source completeness or live permissions.
+
+## Later opt-in private daily backup adapter — draft still incomplete
+
+A standalone `event-capacity-historical-github-backup-vault.js` and nine synthetic HTTP tests extend offline preparation for a **third, distinct private GitHub repository**. It offers write-once per UTC day and reverified read of a separate owner-pinned encrypted backup. It is NOT connected to production Actions, cannot delete/overwrite existing backups, and does not implement retention enforcement or independent token/key custody. The GitHub Contents 850-KiB per-file safety cap is **not sufficient for a complete 24-month archive**; eventual partitioning and real long-term storage remain required. Details: `docs/KINGS-EVENT-CAPACITY-PRIVATE-DAILY-BACKUP-VAULT-2026-11-25.md`.
+
+Because this adapter was committed *after* the successful 1,111-test run, **a new same-HEAD complete CI pass is required** before treating the latest draft as regression-green. No user manual `capacity_preview`, Discord write, private repo creation, merge or feature activation has occurred.
+
