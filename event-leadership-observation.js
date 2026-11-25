@@ -11,6 +11,9 @@ const COUNT_FIELDS=Object.freeze([
   'futurePartnerMonthsOver20','futureExternalMonthsOver20',
   'historyCenterClaims','historyLegacyClaims',
   'historyMonthsWithClaims','historyMonthsWithoutClaims',
+  'historyMonthsCenterOnly','historyMonthsLegacyOnly','historyMonthsBothSources',
+  'historyPastCenterOutcomeUnresolved','historyLegacyEvidencePending',
+  'historyFutureLegacyHoldReview',
   'historyUndatedClaims','historyReadErrors'
 ]);
 function eligible(item){
@@ -44,6 +47,12 @@ function buildEventObservation(report,overview,nowMs=Date.now()){
     historyLegacyClaims:review.datedFrozenLegacyClaims,
     historyMonthsWithClaims:review.historyMonthsWithSourceClaims,
     historyMonthsWithoutClaims:review.historyMonthsWithoutSourceClaims,
+    historyMonthsCenterOnly:review.historyMonthsCenterOnly,
+    historyMonthsLegacyOnly:review.historyMonthsLegacyOnly,
+    historyMonthsBothSources:review.historyMonthsBothSources,
+    historyPastCenterOutcomeUnresolved:review.pastCenterOutcomeUnresolved,
+    historyLegacyEvidencePending:review.legacyClaimsNeedingOriginalEvidence,
+    historyFutureLegacyHoldReview:review.futureDatedLegacyHoldReview,
     historyUndatedClaims:review.undatedHistoricalSourceClaims,
     historyReadErrors:review.historySourceReadErrors
   });
@@ -70,6 +79,11 @@ function trustedEventObservation(value,nowMs=Date.now()){
   if(COUNT_FIELDS.some(field=>!Number.isSafeInteger(value[field])||
     value[field]<0||value[field]>100000))return null;
   if(value.historyMonthsWithClaims+value.historyMonthsWithoutClaims!==24||
+    value.historyMonthsCenterOnly+value.historyMonthsLegacyOnly+
+      value.historyMonthsBothSources!==value.historyMonthsWithClaims||
+    value.historyPastCenterOutcomeUnresolved>value.historyCenterClaims||
+    value.historyLegacyEvidencePending<value.historyLegacyClaims||
+    value.historyFutureLegacyHoldReview>value.historyLegacyEvidencePending||
     value.futurePartnerMonthsOver20>12||value.futureExternalMonthsOver20>12||
     value.futureDaysOverDailyLimit>value.futureDaysRequiringReview||
     value.futureDaysWithShortDepartureGap>value.futureDaysRequiringReview||

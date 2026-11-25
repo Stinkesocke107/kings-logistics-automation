@@ -330,6 +330,19 @@ function buildEvent(data, now = Date.now()) {
       '** · undated **'+observed.historyUndatedClaims+
       '**. Historical coverage **not verified**. No available slots certified.'
     : 'Calendar and historical coverage unverified. No available slots certified.';
+  const historyEvidenceLine=observed
+    ? '24-month source provenance: Center-only months **'+observed.historyMonthsCenterOnly+
+      '** · Legacy-only **'+observed.historyMonthsLegacyOnly+
+      '** · both **'+observed.historyMonthsBothSources+
+      '** · no source claims **'+observed.historyMonthsWithoutClaims+
+      '**.\nManual evidence review: past Center outcomes unclear **'+
+      observed.historyPastCenterOutcomeUnresolved+
+      '** · frozen Legacy claims requiring original Staff records **'+
+      observed.historyLegacyEvidencePending+
+      '** · future dated Legacy holds requiring review **'+
+      observed.historyFutureLegacyHoldReview+
+      '**. Historical decisions NOT verified. No free slots certified.'
+    : 'Unavailable — original Event History source is missing or stale; do not interpret absent records as no confirmed events.';
   const capacityLine=observed
     ? 'UTC advisory policy: **3 total/day** (Kings + Partner + External), **20 Partner/month**, **20 External/month**, **Kings no monthly cap**.\n'+
       'Calendar source review: days above 3 **'+observed.futureDaysOverDailyLimit+
@@ -368,6 +381,7 @@ function buildEvent(data, now = Date.now()) {
       field('🟣 Last Completed Week', w ? fmtKey(w.key)+' • Tracked **'+w.realConvoys+'** • Scheduled **'+w.scheduled+'** • Ready **'+w.ready+'** • Needs Info **'+w.needsInfo+'** • Changes **'+w.changes+'**' : 'No completed verified weekly report yet.'),
       field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
       field('🗓️ Calendar / History — Source Review',calendarLine),
+      field('🧾 Event History — Decision Evidence Review',historyEvidenceLine),
       field('📊 Event Capacity — Advisory Review',capacityLine),
       field('✉️ Invitation Tracker — Source Review',invitationLine),
       field('🛠️ Event Operations — Staff Triage',renderOperationsReview(operations)),
@@ -402,6 +416,9 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
       field('🚛 VTC Drivers — Live', `VTC Drivers **${ds.currentDrivers ?? 0}** • Online **${verifiedLiveOnline(ds)}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
       field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
+      field('🧾 Event History — Evidence Gaps', eventSource
+        ? `Historical outcomes unclear **${eventSource.historyPastCenterOutcomeUnresolved}** · frozen Legacy claims needing original records **${eventSource.historyLegacyEvidencePending}** · future Legacy dated holds to review **${eventSource.historyFutureLegacyHoldReview}**. No original Staff decisions independently verified.`
+        : 'Unavailable — missing fresh original Event source evidence. Never infer capacity release.'),
       field('📊 Event Capacity — Source Review', eventSource
         ? `3 total/day · Partner 20/month · External 20/month · Kings uncapped monthly. Source conflicts: days >3 **${eventSource.futureDaysOverDailyLimit}** · Partner months >20 **${eventSource.futurePartnerMonthsOver20}** · External months >20 **${eventSource.futureExternalMonthsOver20}** · UTC days <2h apart **${eventSource.futureDaysWithShortDepartureGap}**. Review only, no free slots certified.`
         : 'Unavailable — no verified fresh 12-month capacity review; free capacity cannot be inferred.'),

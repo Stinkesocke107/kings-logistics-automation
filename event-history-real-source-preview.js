@@ -22,6 +22,17 @@ function inspectReal(){
      result.original24MonthArchiveVerified!==false||
      result.individualHistoricalDecisionsVerified!==false||
      result.eventInvitationSourceLinked!==false||
+     result.historyMonthsCenterOnly+result.historyMonthsLegacyOnly+
+       result.historyMonthsBothSources!==result.historyMonthsWithSourceClaims||
+     result.historyMonthsWithSourceClaims+result.historyMonthsWithoutSourceClaims!==24||
+     !Number.isSafeInteger(result.pastCenterOutcomeUnresolved)||
+     result.pastCenterOutcomeUnresolved<0||
+     result.pastCenterOutcomeUnresolved>result.datedCenterClaims||
+     !Number.isSafeInteger(result.legacyClaimsNeedingOriginalEvidence)||
+     result.legacyClaimsNeedingOriginalEvidence<result.datedFrozenLegacyClaims||
+     !Number.isSafeInteger(result.futureDatedLegacyHoldReview)||
+     result.futureDatedLegacyHoldReview<0||
+     result.futureDatedLegacyHoldReview>result.legacyClaimsNeedingOriginalEvidence||
      result.bookingsCreated!==0)
     throw Error('Unverified Event source review');
   return Object.freeze({

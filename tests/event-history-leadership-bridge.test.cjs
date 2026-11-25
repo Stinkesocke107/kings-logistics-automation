@@ -43,6 +43,12 @@ test('Event History and Calendar bridge reconciles existing Center and frozen Le
   assert.equal(result.datedFrozenLegacyClaims,1);
   assert.equal(result.historyMonthsWithSourceClaims,2);
   assert.equal(result.historyMonthsWithoutSourceClaims,22);
+  assert.equal(result.historyMonthsCenterOnly,1);
+  assert.equal(result.historyMonthsLegacyOnly,1);
+  assert.equal(result.historyMonthsBothSources,0);
+  assert.equal(result.pastCenterOutcomeUnresolved,0);
+  assert.equal(result.legacyClaimsNeedingOriginalEvidence,1);
+  assert.equal(result.futureDatedLegacyHoldReview,0);
   assert.equal(result.undatedHistoricalSourceClaims,0);
   assert.equal(result.historySourceReadErrors,0);
   assert.equal(result.outsideHistoryWindowClaims,1,'Future Event excluded from historic source count');
@@ -96,6 +102,58 @@ test('12-month source bridge returns independent Partner/External monthly violat
   assert.match(section,/Partner months >20 \*\*1\*\*/);
   assert.match(section,/External months >20 \*\*1\*\*/);
   assert.ok(!section.includes('CONFIDENTIAL'));
+});
+test('historical proof gaps separate past unresolved outcomes, source overlap, future Legacy holds and undated claims',()=>{
+  const f=fixture();
+  const past={
+    eventId:'SECRET_PAST_UNRESOLVED',threadId:'777777777777777779',
+    name:'SENSITIVE PAST CONVOY',status:'Scheduled',ignored:false,
+    validation:{parsed:{eventType:'External Convoy',departureAtUtc:'2026-11-24T12:00:00Z'}}
+  };
+  f.report.threads.push(past);
+  f.report.summary.totalThreads++;
+  f.report.summary.actualConvoys++;
+  f.overview.overall.realConvoySubmissions++;
+  f.overview.registeredConvoys.push({
+    source:'convoy-center',eventId:past.eventId,threadId:past.threadId,
+    status:past.status,departureAtUtc:past.validation.parsed.departureAtUtc
+  });
+  f.overview.registeredConvoys.push({
+    source:'legacy-calendar',eventId:'SECRET_FUTURE_HOLD',
+    threadId:'888888888888888887',status:'Legacy Scheduled',
+    departureAtUtc:'2027-04-22T18:00:00Z'
+  });
+  f.overview.registeredConvoys.push({
+    source:'legacy-calendar',eventId:'SECRET_UNDATED_HOLD',
+    threadId:'888888888888888886',status:'Legacy Unknown',
+    departureAtUtc:null
+  });
+  f.overview.overall.legacyImportedConvoys=3;
+  const x=summarizeOperations({...f,nowMs:NOW});
+  assert.equal(x.historyMonthsCenterOnly,1);
+  assert.equal(x.historyMonthsLegacyOnly,0);
+  assert.equal(x.historyMonthsBothSources,1);
+  assert.equal(x.historyMonthsWithSourceClaims,2);
+  assert.equal(x.historyMonthsWithoutSourceClaims,22);
+  assert.equal(x.datedCenterClaims,2);
+  assert.equal(x.datedFrozenLegacyClaims,1);
+  assert.equal(x.pastCenterOutcomeUnresolved,1);
+  assert.equal(x.legacyClaimsNeedingOriginalEvidence,3);
+  assert.equal(x.futureDatedLegacyHoldReview,1);
+  assert.equal(x.undatedLegacyClaims,1);
+  assert.equal(x.individualHistoricalDecisionsVerified,false);
+  assert.equal(x.original24MonthArchiveVerified,false);
+  assert.equal(x.bookingsCreated,0);
+  assert.equal(x.freeSlotsCertified,false);
+  const summary=compactLeadershipSection(f.report,f.overview,NOW);
+  assert.match(summary,/past Center outcome unclear \*\*1\*\*/);
+  assert.match(summary,/frozen Legacy claims requiring original evidence \*\*3\*\*/);
+  assert.match(summary,/future dated Legacy holds to review \*\*1\*\*/);
+  for(const secret of ['SECRET_','SENSITIVE PAST','888888888888888887',
+    '2027-04-22T18:00:00Z']) {
+    assert.equal(JSON.stringify(x).includes(secret),false);
+    assert.equal(summary.includes(secret),false);
+  }
 });
 test('Past cancelled source claims are not silently interpreted as available capacity',()=>{
   const f=fixture();

@@ -24,6 +24,9 @@ function observeOperations({eventSourceObservation=null,
       externalMonthsOver20:e?e.futureExternalMonthsOver20:null,
       daysWithShortDepartureGap:e?e.futureDaysWithShortDepartureGap:null,
       historyMonthsWithoutClaims:e?e.historyMonthsWithoutClaims:null,
+      pastOutcomesUnresolved:e?e.historyPastCenterOutcomeUnresolved:null,
+      legacyClaimsMissingOriginalEvidence:e?e.historyLegacyEvidencePending:null,
+      futureLegacyHoldReview:e?e.historyFutureLegacyHoldReview:null,
       invitationsMissingEventLinks:i?i.eventLinksMissing:null,
       invitationDuplicateEventLinks:i?i.duplicateConvoyEvents:null,
       invitationDuplicateVtcs:i?i.duplicateVtcReplies:null,
@@ -90,7 +93,10 @@ const WORK_LABELS=Object.freeze({
   REVIEW_INVITATION_FORMAT:'Review malformed invitation reply records',
   REVIEW_MISSING_EVENT_LINKS:'Match missing event links to current Convoy Center',
   REVIEW_PENDING_REPLIES:'Follow up on recorded pending/undocumented replies',
-  REVIEW_HISTORY_GAPS:'Inspect months without historical source claims'
+  REVIEW_HISTORY_GAPS:'Inspect months without historical source claims',
+  REVIEW_PAST_OUTCOMES:'Verify past Center convoy outcomes against original Staff records',
+  REVIEW_LEGACY_EVIDENCE:'Verify frozen Legacy convoy original Staff decision evidence',
+  REVIEW_FUTURE_LEGACY_HOLDS:'Review future frozen Legacy claims before any capacity decision'
 });
 const ORDER=Object.freeze({BLOCKED:0,HIGH:1,NORMAL:2,FOLLOW_UP:3});
 function operationsWorklist(status){
@@ -119,6 +125,9 @@ function operationsWorklist(status){
     q.externalMonthsOver20,Number.isInteger(q.externalMonthsOver20)&&q.externalMonthsOver20>0);
   add('HIGH','REVIEW_EVENT_TYPES','Event Coordinators',q.eventTypeUnclassified,
     Number.isInteger(q.eventTypeUnclassified)&&q.eventTypeUnclassified>0);
+  add('NORMAL','REVIEW_FUTURE_LEGACY_HOLDS','Event Coordination Lead',
+    q.futureLegacyHoldReview,
+    Number.isInteger(q.futureLegacyHoldReview)&&q.futureLegacyHoldReview>0);
   add('NORMAL','REVIEW_CALENDAR_DAYS','Event Coordination Lead',
     q.calendarDaysNeedingReview,
     Number.isInteger(q.calendarDaysNeedingReview)&&q.calendarDaysNeedingReview>0);
@@ -145,6 +154,13 @@ function operationsWorklist(status){
     q.invitationPendingOrUnrecorded,
     Number.isInteger(q.invitationPendingOrUnrecorded)&&
     q.invitationPendingOrUnrecorded>0);
+  add('FOLLOW_UP','REVIEW_PAST_OUTCOMES','Event Coordination Lead',
+    q.pastOutcomesUnresolved,
+    Number.isInteger(q.pastOutcomesUnresolved)&&q.pastOutcomesUnresolved>0);
+  add('FOLLOW_UP','REVIEW_LEGACY_EVIDENCE','Event Coordination Lead',
+    q.legacyClaimsMissingOriginalEvidence,
+    Number.isInteger(q.legacyClaimsMissingOriginalEvidence)&&
+    q.legacyClaimsMissingOriginalEvidence>0);
   add('FOLLOW_UP','REVIEW_HISTORY_GAPS','Event Coordination Lead',
     q.historyMonthsWithoutClaims,
     Number.isInteger(q.historyMonthsWithoutClaims)&&

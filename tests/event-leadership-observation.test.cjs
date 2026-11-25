@@ -40,6 +40,12 @@ test('reconciled read-only observation joins #14 History and #16 Calendar withou
   assert.equal(observed.completed,1);
   assert.equal(observed.historyMonthsWithClaims,2);
   assert.equal(observed.historyMonthsWithoutClaims,22);
+  assert.equal(observed.historyMonthsCenterOnly,1);
+  assert.equal(observed.historyMonthsLegacyOnly,1);
+  assert.equal(observed.historyMonthsBothSources,0);
+  assert.equal(observed.historyPastCenterOutcomeUnresolved,0);
+  assert.equal(observed.historyLegacyEvidencePending,1);
+  assert.equal(observed.historyFutureLegacyHoldReview,0);
   assert.equal(observed.historyLegacyClaims,1);
   assert.equal(observed.historyVerified,false);
   assert.equal(observed.freeSlotsCertified,false);
@@ -91,6 +97,9 @@ test('unverified, stale and internally inconsistent Event source is unavailable,
     {staffApprovalsVerified:true},{freeSlotsCertified:true},
     {bookingsCreated:1},{historyMonthsWithoutClaims:23},
     {futurePartnerMonthsOver20:13},{futureExternalMonthsOver20:13},
+    {historyMonthsCenterOnly:7},{historyMonthsLegacyOnly:7},
+    {historyMonthsBothSources:7},{historyPastCenterOutcomeUnresolved:3},
+    {historyLegacyEvidencePending:0},{historyFutureLegacyHoldReview:2},
     {scheduled:1000},{historyCenterClaims:-1},
     {sourceCompiledAt:'2027-03-01T00:00:00Z'},
     {observedAt:'2027-04-01T00:00:00Z'}
@@ -115,6 +124,8 @@ test('consolidated Leadership decrypts real AES Event container, never treats ci
   const event=s.run('buildEvent({eventReports:readPrivateEventReports()},'+NOW+')');
   assert.match(JSON.stringify(event),/Reconciled/);
   assert.match(JSON.stringify(event),/months with claims/);
+  assert.match(JSON.stringify(event),/Event History — Decision Evidence Review/);
+  assert.match(JSON.stringify(event),/frozen Legacy claims requiring original Staff records/);
   assert.doesNotMatch(JSON.stringify(event),/SECRET PRIVATE LEADERSHIP/);
   assert.doesNotMatch(JSON.stringify(sealed),/SECRET PRIVATE LEADERSHIP/);
   const stale=s.run('buildEvent({eventReports:readPrivateEventReports()},'+(NOW+37*3600000)+')');
