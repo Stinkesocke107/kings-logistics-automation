@@ -73,9 +73,12 @@ function createKingsAtomicStagedImportSqliteStore({
     inspectFile(filename);
     const key=crypto.createHash('sha256')
       .update(DOMAIN+'\0'+encryptionSecret).digest();
-    const scopeKey=crypto.createHmac('sha256',key)
-      .update([checkedScope.guildId,checkedScope.forumId].join('\0'))
-      .digest('hex');
+    // The lookup identifier MUST NOT depend on the encryption key:
+    // after key loss/rotation, the old encrypted row must still be found
+    // and fail AES-GCM validation, never masquerade as an empty database.
+    const scopeKey=crypto.createHash('sha256')
+      .update(DOMAIN+'\0'+checkedScope.guildId+
+        '\0'+checkedScope.forumId).digest('hex');
     const aad=Buffer.from(DOMAIN+'\0'+checkedScope.guildId+
       '\0'+checkedScope.forumId,'utf8');
     function encrypt(value){
