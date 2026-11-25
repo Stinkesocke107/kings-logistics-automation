@@ -196,6 +196,9 @@ test('No owner private key can be safely passed as a public verifier',()=>{
   assert.throws(()=>verifyHistoricalJournal(accepted,{
     scope:SCOPE,ownerPublicKey:differentPub
   }));
+  assert.throws(()=>verifyHistoricalJournal(accepted,{
+    scope:SCOPE,ownerPublicKey:x.privatePem
+  }));
 });
 test('Historical ledger can never be treated as an authoritative complete archive',()=>{
   const x=setup(),record=x.add(x.empty());
