@@ -31,6 +31,8 @@ The frozen file reports **111 confirmed Kings parking-slot records**, **1 pendin
 - `event-capacity-convoy-system-calendar-bridge.js`: combines the claims-only audit with the **existing private 12-month Event Capacity staff calendar**. Current accepted snapshot counts and signed historical provisional holds remain **separate**; no automatic addition, release, approval or free-slot certainty. Produces a PRIVATE ephemeral preview without names/IDs/mentions.
 - `event-capacity-frozen-legacy-calendar-audit.js`: independently checks structural/monthly consistency of the existing frozen six-month legacy import and reports only month counts plus evidence gaps. **0** new Kings Event Capacity acceptances are created, even when legacy Kings parking slots are marked confirmed.
 
+**Cross-channel identity guard (draft):** Discord thread snowflakes are globally unique, so a single claimed `threadId` cannot be assigned to multiple parent channels. Both the source intake and the standalone evidence-assurance audit now fail closed on this contradiction; the combined calendar bridge inherits the same rejection. Separate source threads can still refer to **one** canonical Event ID and require human reconciliation. Standalone evidence assurance additionally rejects `current` records under legacy parents and `legacy` records under the current parent. Synthetic regressions verify each case. No provider authenticity or capacity release follows from matching counts.
+
 The modules do not authenticate live Discord API results or issue tokens. All source-inventory flags are claimed by an external caller and remain **untrusted** until verified by a separately authorized collector.
 
 ## Real source acquisition that still requires authorization / connection
