@@ -88,9 +88,9 @@ test('Secret fields and duplicate IDs are rejected with no leaked secret',()=>{
   assert.throws(()=>review(x=>{x.tracker.records[0].token='SECRET';}));
 });
 test('Report redacts Event/channel IDs and digest material',()=>{
-  const r=review(x=>{x.tracker.records[0].eventId='missing';});
+  const r=review(x=>{x.tracker.records[0].eventId='unmatchedrawidentifier77891';});
   const out=JSON.stringify(r);
-  for(const s of ['evt100','missing','inv1',C,L,
+  for(const s of ['evt100','unmatchedrawidentifier77891','inv1',C,L,
     '990000000000000003',h('outbound'),'PRIVATE KEY'])
     assert.equal(out.includes(s),false);
   assert.ok(r.reviewItems.every(i=>/^capacity-outbound:[a-f0-9]{40}$/.test(i.reviewKey)));
