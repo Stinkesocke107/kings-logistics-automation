@@ -39,3 +39,7 @@ Cases for Sent, overdue reply, Accepted, Declined, missing IDs, duplicates, sour
 4. Cross-PR reconciliation of PR #143 and PR #147, full exact-HEAD CI and an explicit human review before any release.
 
 This draft bridge is a development integration only; do NOT merge to main or activate live systems based solely on passing CI.
+
+## Future invitation dates vs historical 24-month review
+
+The existing original multi-source channel inventory only covers a 24-month historical window ending no later than the current UTC month. A future outgoing Invitation (for example a May 2027 Convoy while evaluating in November 2026) must not be misdated into that historical inventory. The bridge now keeps these as explicit redacted future source-claim counts for up to 12 subsequent UTC months, and requires manually verified linkage to the future Event Calendar/Convoy Center. The historical tracker claim count deliberately excludes those pending future claims; the total equals historical plus future. No capacity booking, slot grant or historical acceptance can be inferred from this future counter. Further-out future source dates fail closed pending controlled planning-range expansion.
