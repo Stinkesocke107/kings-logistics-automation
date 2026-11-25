@@ -42,12 +42,12 @@ function keyOf(input,publicOnly=true){
 function hash(data){
   return crypto.createHash('sha256').update(data).digest('hex');
 }
-function genesis(scope){
-  return hash(DOMAIN+'\0genesis\0'+scope.guildId+'\0'+scope.forumId);
+function genesis(scope,createdAt){
+  return hash(DOMAIN+'\0genesis\0'+scope.guildId+'\0'+scope.forumId+'\0'+utc(createdAt));
 }
 function createEmptyHistoricalJournal({scope,at}={}){
   const s=scopeOf(scope),t=utc(at);
-  return {version:1,scope:s,revision:0,tip:genesis(s),
+  return {version:1,scope:s,revision:0,tip:genesis(s,t),
     createdAt:t,events:{},history:[],
     historicalCoverageCertified:false,freeSlotsCertified:false};
 }
@@ -106,7 +106,7 @@ function replay(journal,scope,ownerPublicKey){
     Object.getPrototypeOf(journal.events)!==Object.prototype)fail();
   const pub=keyOf(ownerPublicKey),events={};
   const usedEvidence=new Set();
-  let tip=genesis(sc),lastReviewed=Date.parse(journal.createdAt);
+  let tip=genesis(sc,journal.createdAt),lastReviewed=Date.parse(journal.createdAt);
   for(let i=0;i<journal.history.length;i++){
     const entry=journal.history[i];
     exactKeys(entry,['payload','signature','entryTip']);
