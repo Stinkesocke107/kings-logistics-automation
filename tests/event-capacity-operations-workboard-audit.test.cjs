@@ -202,3 +202,27 @@ test('No live Convoy Checker import or GitHub/Discord network in new Workboard a
   assert.match(source,/createdTaskCount:0,remindersSent:0,bookingWritten:false/);
   assert.match(source,/freeSlotsCertified:false,safeToActivate:false/);
 });
+
+test('Workboard dictionary IDs and revision timestamps must agree before any preview',()=>{
+  const mismatched=withTask();
+  mismatched.tasks['task-media'].id='fake-key';
+  assert.throws(()=>run({workboard:mismatched}));
+  const future=withTask();
+  future.tasks['task-media'].updatedAt='2027-04-19T11:00:00Z';
+  assert.throws(()=>run({workboard:future}));
+  const reversed=withTask();
+  reversed.tasks['task-media'].createdAt='2027-04-20T11:00:00Z';
+  assert.throws(()=>run({workboard:reversed}));
+  const badBoard=withTask();
+  badBoard.createdAt='2027-04-19T10:00:00Z';
+  assert.throws(()=>run({workboard:badBoard}));
+  let requested=withTask();
+  requested=action(requested,{action:'request-department',taskId:'task-media',
+    requestId:'req-creatives',department:'Creative'});
+  const badRequest=structuredClone(requested);
+  badRequest.requests['req-creatives'].id='other-request';
+  assert.throws(()=>run({workboard:badRequest}));
+  const lateRequest=structuredClone(requested);
+  lateRequest.requests['req-creatives'].updatedAt='2027-04-20T11:00:00Z';
+  assert.throws(()=>run({workboard:lateRequest}));
+});
