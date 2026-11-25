@@ -241,3 +241,27 @@ test('Rescheduled event counts new UTC day only after privately approved move',(
     .knownPartnerAccepted,1);
   assert.equal(current.freeSlotsCertified,false);
 });
+
+test('Conflicting Staff category vs Convoy Center is possible occupancy, not proven accepted minimum',()=>{
+  const e=[event(1,'partner','2027-03-20T16:00:00Z')];
+  let ledger=createEmptyLedger(SCOPE,'2027-03-20T11:30:00Z');
+  const actor={id:'111111111111111111',
+    source:'trusted-server-gateway',verifiedRoles:['Event Coordination']};
+  for(const [action,value] of [
+    ['classification','External Convoy'],
+    ['departure','2027-03-20T16:00:00Z'],
+    ['meeting','2027-03-20T15:00:00Z'],
+    ['end','2027-03-20T19:00:00Z']
+  ])ledger=applyDecision(ledger,{
+    ref:'event:1',action,value,
+    expectedRevision:ledger.revision,evidenceRef:'synthetic-conflicting-type'
+  },actor,'2027-03-20T11:40:00Z');
+  const r=view(e,{ledger}),day=r.days.find(x=>x.day==='2027-03-20');
+  assert.equal(day.knownCombinedAccepted,0);
+  assert.equal(r.monthUsage.knownExternalAccepted,0);
+  assert.equal(r.counts.disputedSourceRecords,1);
+  assert.equal(r.counts.possibleAcceptedIncludingDisputes,1);
+  assert.equal(r.counts.totalUnresolvedIssues>0,true);
+  assert.equal(r.freeSlotsCertified,false);
+  assert.equal(day.remainingVerified,null);
+});
