@@ -48,7 +48,7 @@ test('SQLite store persists first encrypted quarantine stage atomically outside 
     assert.equal(first.realEventImportsOrDeletes,0);
     assert.equal(first.quarantinedRecordCount,4);
     assert.equal(first.quarantinedEventCount,1);
-    assert.equal(first.quarantinedInvitationCount,undefined);
+    assert.equal(first.noProductionApprovalOrMigration,true);
     const bytes=fs.readFileSync(path.join(directory,FILENAME));
     for(const privateText of ['evt100','inv1','990000000000000000',
       '990000000000000001','staged-item:','PRIVATE TOKEN'])
@@ -165,7 +165,7 @@ test('Concurrent SQLite handles with the same stale CAS cannot advance twice',()
     assert.equal(same.state,'ALREADY_STAGED_SAME_PHASE_REPLAY');
     assert.equal(read(a,f).revision,1);
     assert.equal(advance(b,f,1).revision,2);
-    assert.equal(advance(a,f,0).revision,undefined);
+    assert.throws(()=>advance(a,f,0));
   })
 );
 test('Stale revision cannot skip phases or reset existing encrypted history',()=>
