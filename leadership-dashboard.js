@@ -330,6 +330,14 @@ function buildEvent(data, now = Date.now()) {
       '** · undated **'+observed.historyUndatedClaims+
       '**. Historical coverage **not verified**. No available slots certified.'
     : 'Calendar and historical coverage unverified. No available slots certified.';
+  const capacityLine=observed
+    ? 'UTC advisory policy: **3 total/day** (Kings + Partner + External), **20 Partner/month**, **20 External/month**, **Kings no monthly cap**.\n'+
+      'Calendar source review: days above 3 **'+observed.futureDaysOverDailyLimit+
+      '** · Partner months above 20 **'+observed.futurePartnerMonthsOver20+
+      '** · External months above 20 **'+observed.futureExternalMonthsOver20+
+      '** · UTC days with departures <2h apart **'+observed.futureDaysWithShortDepartureGap+
+      '**. Spacing is warning-only. No free slots certified, no automated decisions.'
+    : 'Unavailable — no recent reconciled capacity source. Never infer an empty calendar or available bookings.';
   const invitationLifecycle=invitations?.tagSchemaVerified===true
     ? ' · ongoing **'+invitations.ongoingThreads+
       '** · invitations done **'+invitations.doneThreads+
@@ -360,6 +368,7 @@ function buildEvent(data, now = Date.now()) {
       field('🟣 Last Completed Week', w ? fmtKey(w.key)+' • Tracked **'+w.realConvoys+'** • Scheduled **'+w.scheduled+'** • Ready **'+w.ready+'** • Needs Info **'+w.needsInfo+'** • Changes **'+w.changes+'**' : 'No completed verified weekly report yet.'),
       field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
       field('🗓️ Calendar / History — Source Review',calendarLine),
+      field('📊 Event Capacity — Advisory Review',capacityLine),
       field('✉️ Invitation Tracker — Source Review',invitationLine),
       field('🛠️ Event Operations — Staff Triage',renderOperationsReview(operations)),
       field('⏱️ Event Operations — Review Order',renderOperationsWorklist(operations))
@@ -393,6 +402,9 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
       field('🚛 VTC Drivers — Live', `VTC Drivers **${ds.currentDrivers ?? 0}** • Online **${verifiedLiveOnline(ds)}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
       field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
+      field('📊 Event Capacity — Source Review', eventSource
+        ? `3 total/day · Partner 20/month · External 20/month · Kings uncapped monthly. Source conflicts: days >3 **${eventSource.futureDaysOverDailyLimit}** · Partner months >20 **${eventSource.futurePartnerMonthsOver20}** · External months >20 **${eventSource.futureExternalMonthsOver20}** · UTC days <2h apart **${eventSource.futureDaysWithShortDepartureGap}**. Review only, no free slots certified.`
+        : 'Unavailable — no verified fresh 12-month capacity review; free capacity cannot be inferred.'),
       field('📅 Events — Live', eventSource ? `Reconciled source: Tracked **${eventSource.tracked}** • Source Scheduled **${eventSource.scheduled}** • Ready **${eventReady}** • Needs Info **${eventNeeds}** (advisory, not approval)` : 'Unavailable — no recent reconciled Event source; historical state is not a verified zero.'),
       field('✉️ Event Invitations — Source Review', invitationSource ? `Documented unique VTC invitations **${invitationSource.invitedVtcs}** • convoy threads **${invitationSource.convoyThreads}** • duplicate replies **${invitationSource.duplicateVtcReplies}** • malformed replies **${invitationSource.malformedReplies}** • Forum lifecycle tags **${invitationSource.tagSchemaVerified?'schema matched':'UNVERIFIED'}** (recorded claims, NOT confirmed attendance)` : 'Unavailable — no verified recent read-only Invitation Tracker scan.'),
       field('🛠️ Event Operations — Staff Review', `Convoy/Calendar source: **${operations.eventSource}** · Invitation source: **${operations.invitationSource}**. Suggested next Staff review: **${nextOperationsReview?.priority||'NONE'}** · ${nextOperationsReview?WORK_LABELS[nextOperationsReview.code]:'No current source-review items'}. Open the private Event Leadership dashboard; no automatic invitations, approvals or rebookings.`),
