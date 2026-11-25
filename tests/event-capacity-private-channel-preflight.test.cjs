@@ -160,7 +160,8 @@ test('Workflow lets a manually dispatched OFF-by-default read-only preflight run
   assert.match(yaml,/DRY_RUN="true"/);
   assert.match(yaml,/Require private Event Capacity preflight readiness/);
   assert.match(yaml,/CONVOY_DRY_RUN:.*steps\.mode\.outputs\.dry_run/);
-  assert.match(runner,/mode==='preflight'&&env\.CONVOY_DRY_RUN!=='true'/);
+  assert.match(runner,/\['preflight','source-preflight'\]\.includes\(mode\)/);
+  assert.match(runner,/env\.CONVOY_DRY_RUN!=='true'/);
   assert.match(runner,/inspectKingsPrivateEventCapacityChannel/);
   assert.equal(fs.readFileSync(path.join(root,'convoy-checker.js'),'utf8')
     .includes('event-capacity-private-channel-preflight'),false);
