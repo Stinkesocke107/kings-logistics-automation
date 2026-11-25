@@ -55,7 +55,8 @@ test('Claimed Delivered receipt is not Discord proof or a retry permission',()=>
     receiptClaims:receipts(b)}));
   assert.equal(a.matchingDeliveredClaims,2);
   assert.equal(a.matchingNoReceiptClaims,0);
-  assert.equal(a.needsAuthenticatedReceiptReview,0);
+  // Even a claimed Delivered receipt is not independently authenticated.
+  assert.equal(a.needsAuthenticatedReceiptReview,2);
   assert.equal(a.externalDeliveryAcknowledgedHere,false);
   assert.equal(a.receiptsCryptographicallyVerified,false);
   assert.equal(a.sendAllowed,false);
