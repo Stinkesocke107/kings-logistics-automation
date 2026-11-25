@@ -84,6 +84,7 @@ async function replayKingsDiscordSyntheticSource({
       privateReceiptDoNotLog:Object.freeze({channelId,stream,pages}),
       counts,
       sourceProviderAccessAuthenticated:false,
+      providerResponseAuthenticated:false,
       actualDiscordNetworkRequestsMadeByModule:0,
       sourceMessagesOrContentRetained:false,
       replayResultNotActualCompletenessProof:true,
