@@ -62,7 +62,8 @@ function inspect(report,kind){
 }
 function summarizeKingsCapacityPrivateSafety({
   historicalEvidenceReport=null,backupRecoveryReport=null,
-  runtimeScopeReport=null,syntheticRestoreReport=null
+  runtimeScopeReport=null,syntheticRestoreReport=null,
+  historicalHoldsReport=null
 }={}){
   try{
     const reports={
@@ -78,6 +79,31 @@ function summarizeKingsCapacityPrivateSafety({
       })])));
     const historyGaps=reports.historicalEvidence?.observedEvidenceGaps??null;
     const missingBackups=reports.backupRecovery?.missingCompletedDailyBackupClaims??null;
+    let historicalProvisionalHolds=Object.freeze({
+      state:'No Signed Historical Hold Review Supplied'
+    });
+    if(historicalHoldsReport!==null){
+      const h=historicalHoldsReport;
+      if(!plain(h)||h.visibility!=='PRIVATE_ONLY'||
+        h.readOnly!==true||h.safeToActivate!==false||
+        h.freeSlotsCertified!==false||
+        h.signedHistoricalJournalVerified!==true||
+        h.original24MonthSourceInventoryComplete!==false||
+        h.latestOwnerHighwaterIndependentlyVerified!==false||
+        h.cancellationsNeverAutoRelease!==true||
+        h.previousDatesNeverAutoReleaseAfterReschedule!==true||
+        !/^20\\d{2}-(?:0[1-9]|1[0-2])$/.test(h.month)||
+        !plain(h.provisionalCounts)||!bounded(h.provisionalCounts.totalProvisionalDailyHolds)||
+        !bounded(h.provisionalCounts.daysExceedingDailyLimit))fail();
+      historicalProvisionalHolds=Object.freeze({
+        state:'Signed Provisional Holds Need Human Release Review',
+        month:h.month,
+        provisionalDateHolds:h.provisionalCounts.totalProvisionalDailyHolds,
+        daysExceedingStandardLimit:h.provisionalCounts.daysExceedingDailyLimit,
+        originalSourceCompletenessProven:false,
+        availableSlotsCertified:false
+      });
+    }
     return Object.freeze({
       visibility:'PRIVATE_ONLY',readOnly:true,
       state:analyzed===4?
@@ -85,7 +111,7 @@ function summarizeKingsCapacityPrivateSafety({
         'Private Development Review Incomplete',
       softwareReviewReportsPresent:analyzed,
       softwareReviewReportsExpected:4,
-      review,
+      review,historicalProvisionalHolds,
       counts:Object.freeze({
         observedHistoricalEvidenceGaps:historyGaps,
         missingNinetyDayBackupClaims:missingBackups
