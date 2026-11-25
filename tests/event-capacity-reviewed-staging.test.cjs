@@ -36,7 +36,7 @@ function source(){
       finalization:{finalizedAt:'2027-03-20T11:40:00Z'},
       summary:{totalThreads:1,actualConvoys:1},
       threads:[{
-        eventId:'20270',threadId:THREAD,
+        eventId:'20270',threadId:THREAD,status:'Scheduled',
         name:'Synthetic Partner Event',
         validation:{parsed:{eventType:'Partner Convoy',departureAtUtc}}
       }]
