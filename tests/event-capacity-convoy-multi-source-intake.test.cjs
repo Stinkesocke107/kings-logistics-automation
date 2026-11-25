@@ -165,6 +165,40 @@ test('No private Event IDs, channel IDs, hashes, token strings or message conten
   }
   assert.ok(result.reviewItems.every(i=>/^capacity-source:[a-f0-9]{32}$/.test(i.reviewKey)));
 });
+test('Archived and deleted subtotals are checked even when channel totals match',()=>{
+  for(const [kind,reason] of [
+    ['archived','channel-archived-count-contradiction'],
+    ['deleted','channel-deleted-count-contradiction']
+  ]){
+    const f=fixture();
+    f.convoyRecords[1]={...f.convoyRecords[1],sourceKind:kind};
+    const r=reconcileKingsMultiSourceConvoys(f);
+    assert.ok(r.reviewItems.some(i=>i.reason===reason&&i.level==='Urgent'));
+    assert.equal(r.reviewItems.some(i=>i.reason===
+      'channel-inventory-count-contradiction'),false);
+    assert.equal(r.capacityEventsImported,0);
+    assert.equal(r.freeSlotsCertified,false);
+    assert.equal(r.safeToActivate,false);
+    assert.equal(JSON.stringify(r).includes(OLD),false);
+  }
+});
+test('Matching archived and deleted claims do not create subtotal contradictions',()=>{
+  const f=fixture();
+  f.convoyRecords[0]={...f.convoyRecords[0],sourceKind:'deleted'};
+  f.convoyRecords[1]={...f.convoyRecords[1],sourceKind:'archived'};
+  f.channelInventory[0].claimedDeletedCount=1;
+  f.channelInventory[1].claimedArchivedCount=1;
+  const r=reconcileKingsMultiSourceConvoys(f);
+  assert.equal(r.reviewItems.some(i=>i.reason===
+    'channel-archived-count-contradiction'),false);
+  assert.equal(r.reviewItems.some(i=>i.reason===
+    'channel-deleted-count-contradiction'),false);
+  assert.ok(r.reviewItems.some(i=>i.reason===
+    'deleted-thread-needs-independent-source'));
+  assert.ok(r.reviewItems.some(i=>i.reason===
+    'archived-thread-needs-original-source'));
+  assert.equal(r.originalChannelHistoryAuthenticated,false);
+});
 test('Zero displayed historical conflicts does not prove original Discord access or capacity',()=>{
   const f=fixture();f.convoyRecords=[convoy()];
   f.channelInventory=[source(CURRENT,'current',1)];
