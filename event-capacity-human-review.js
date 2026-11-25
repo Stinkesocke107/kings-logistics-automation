@@ -107,7 +107,7 @@ async function verifyHumanReview({
   if(!isDeepStrictEqual(Object.fromEntries(
     Object.entries(proof).map(([k,v])=>[k,challenge[k]])),proof)||
     challenge.code!==reviewMac(proof,secret,checkedScope))fail();
-  let me,channel,roles,original,review,submitter,approver;
+  let me,channel,roles,original,review,submitter,approver,reviewerRole;
   try{
     // Re-fetch the original evidence, independent reviewer message, and
     // current member roles at the moment of assessment.
@@ -151,6 +151,7 @@ async function verifyHumanReview({
     // the submitting Staff member can NEVER approve their own evidence.
     if(!approver.roles.some(x=>x===c.roles['Event Leadership']||
       x===c.roles.CEO))fail();
+    reviewerRole=approver.roles.includes(c.roles.CEO)?'CEO':'Event Leadership';
   }catch{fail();}
   const action=proof.field==='category'?'classification':proof.field;
   const candidate=Object.freeze({ref:proof.ref,action,value:proof.value,
@@ -160,7 +161,7 @@ async function verifyHumanReview({
   return Object.freeze({
     state:'HumanReviewVerified',privateOnly:true,readOnly:true,
     candidate,reviewerId:String(review.author.id),
-    submitterId:proof.actorId,sourceRunId:proof.runId,
+    reviewerRole,submitterId:proof.actorId,sourceRunId:proof.runId,
     ownerReceiptRequired:true,decisionCommitted:false,
     availabilityCertified:false
   });
