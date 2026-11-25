@@ -2,6 +2,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {setup}=require('./fixtures/event-capacity-historical-github-fixture.cjs');
+const {issueHistoricalArchivePinOffline}=require('../event-capacity-historical-github-reader');
 const {createHistoricalArchiveRecoveryInspector}
   =require('../event-capacity-historical-github-recovery');
 const repo='kings-private-example/historical-decisions';
@@ -84,4 +85,12 @@ test('Public repository cannot be mistaken for verified prior or next archive',a
   const result=await inspector(x).inspect();
   assert.equal(result.state,'RECONCILIATION_REQUIRED');
   assertUncertified(result);
+});
+
+test('New archive must extend the exact owner-signed previous tip, not any old revision',async()=>{
+  const x=setup();await x.writer().commitOne({archive:x.next.archive});
+  const wrong=issueHistoricalArchivePinOffline({scope,
+    checkpoint:{...x.prior.checkpoint,tip:'0'.repeat(64)},
+    issuedAt:'2027-05-18T10:00:00.000Z',ownerPrivateKey:x.ownerPrivateKey});
+  await assert.rejects(inspector(x,{previousOwnerReceipt:wrong}).inspect());
 });
