@@ -98,17 +98,32 @@
         "runId": 45464061179
       },
       "firstAlertedAt": "2026-11-24T22:20:06.260Z"
-    },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 47,
-        "latestCount": 37
-      },
-      "firstAlertedAt": "2026-11-25T09:11:47.477Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-25T09:13:14.601Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure."
+    },
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-25T09:13:14.601Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
+    },
+    "workflow-overdue:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-25T09:13:14.601Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window."
+    },
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-25T09:13:14.601Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
+    }
+  }
 }
