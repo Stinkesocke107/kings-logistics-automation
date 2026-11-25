@@ -26,6 +26,7 @@ on:
       - 'event-invitation-tracker-source.js'
       - 'event-invitation-tracker-readonly-proof.js'
       - 'event-history-leadership-bridge.js'
+      - 'event-capacity-pilot-source.js'
       - '.github/workflows/event-leadership-reports.yml'
 
   schedule:
@@ -65,6 +66,7 @@ jobs:
           node --check event-leadership-reports.js
           node --check event-leadership-state.js
           node --check event-history-leadership-bridge.js
+          node --check event-capacity-pilot-source.js
           node --check event-leadership-observation.js
           node --check event-invitation-tracker-source.js
           node --check event-history-real-source-preview.js
