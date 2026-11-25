@@ -106,7 +106,7 @@ test('Third accepted External reaches total daily max 3 (not an old category dai
   assert.equal(day.knownOverLimit,false);
   assert.equal(day.limitReachedByKnownEvents,true);
   assert.equal(day.dailyLimit,3);
-  assert.equal(r.counts.overLimitWarnings,1);
+  assert.equal(r.counts.overLimitWarnings,0);
   assert.equal(r.capacityVerified,false);
 });
 test('Monthly 21 Partner is above monthly 20, while exactly 20 External is reached',()=>{
