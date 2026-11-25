@@ -76,7 +76,10 @@ function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowM
       if(String(message.id)===String(thread.id))starter=message;
       if(!oldest||BigInt(message.id)<BigInt(oldest.id))oldest=message;
     }
-    const source=starter||oldest;
+    // Forum starter MUST be identifiable. Never silently discard a reply
+    // by treating the oldest observed invitation as an event starter.
+    if(!starter)refuse();
+    const source=starter;
     const eventId=eventIdFrom(source?.content||'');
     if(eventId){
       count.eventLinksRecorded++;
