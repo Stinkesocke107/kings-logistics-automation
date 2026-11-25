@@ -3,7 +3,7 @@
 // preflight from an already projected staff calendar. Caller-supplied
 // snapshots are NOT proof of original Discord completeness, Staff approval,
 // parking/slot availability or a real reservation. Never write or approve.
-const {LIMITS}=require('./event-capacity-core');
+
 const {POLICY,dailyLimitForUtcDate}=require('./event-capacity-policy');
 const ERROR='Kings Event Booking safety review refused.';
 const CATEGORIES=Object.freeze(['Kings Convoy','Partner Convoy','External Convoy']);
@@ -30,13 +30,15 @@ function verifiedProjection(calendar,date){
     calendar.year!==year||calendar.selectedMonth!==month||
     !plain(calendar.policy)||
     calendar.policy.id!==POLICY.policyId||
-    calendar.policy.weekdayCombined!==POLICY.weekdayCombinedMax||
-    calendar.policy.weekendCombined!==POLICY.weekendCombinedMax||
-    calendar.policy.partnerDaily!==POLICY.partnerDailyMax||
-    calendar.policy.externalDaily!==POLICY.externalDailyMax||
-    calendar.policy.partnerMonthly!==null||
-    calendar.policy.externalMonthly!==null||
-    calendar.policy.kingsConvoysQuotaExempt!==true||
+    calendar.policy.dailyTotal!==POLICY.dailyTotalMax||
+    calendar.policy.partnerMonthly!==POLICY.partnerMonthlyMax||
+    calendar.policy.externalMonthly!==POLICY.externalMonthlyMax||
+    calendar.policy.kingsMonthly!==null||
+    calendar.policy.weeklyMax!==null||
+    calendar.policy.kingsConvoysQuotaExempt!==false||
+    !Array.isArray(calendar.policy.priorityOrder)||
+    calendar.policy.priorityOrder.join('|')!==
+      POLICY.priorityOrder.join('|')||
     calendar.policy.actualBookingCapacityCertified!==false||
     !Array.isArray(calendar.months)||calendar.months.length!==12||
     !Array.isArray(calendar.days))fail();
@@ -63,7 +65,7 @@ function verifiedProjection(calendar,date){
       d.knownCurrentAndHistoricalCountsNotAdditive!==true)fail();
     const p=count(d.snapshotPartner),e=count(d.snapshotExternal),
       k=count(d.snapshotKings);
-    if(count(d.snapshotCombined)!==p+e)fail();
+    if(count(d.snapshotCombined)!==p+e+k)fail();
     const h=d.historicalCombinedProvisional;
     if(h!==null&&count(h)!==count(d.historicalPartnerProvisional)+
       count(d.historicalExternalProvisional))fail();
@@ -88,25 +90,16 @@ function projectKingsEventBookingSafetyReview({calendar,request}={}){
     const date=request.departureAtUtc.slice(0,10),
       month=date.slice(0,7),projection=verifiedProjection(calendar,date),
       d=projection.day,m=projection.month,
-      quotaExempt=request.category==='Kings Convoy',
-      categoryIsPartner=request.category==='Partner Convoy',
-      sourceCategoryCount=categoryIsPartner?
-        d.snapshotPartner:d.snapshotExternal,
-      historicCategoryCount=categoryIsPartner?
-        d.historicalPartnerProvisional:d.historicalExternalProvisional,
-      categoryDailyLimit=categoryIsPartner?
-        LIMITS.partnerDaily:LIMITS.externalDaily,
+      quotaExempt=false,
       dailyMax=dailyLimitForUtcDate(date);
-    const dailyLimitObserved=!quotaExempt&&
-      (d.snapshotCombined>=dailyMax||
-        sourceCategoryCount>=categoryDailyLimit);
-    const monthlyLimitObserved=false;
-    const historicalDailyHoldAtLimit=!quotaExempt&&
-      d.historicalCombinedProvisional!==null&&
-      (d.historicalCombinedProvisional>=dailyMax||
-        historicCategoryCount!==null&&
-          historicCategoryCount>=categoryDailyLimit);
-    // Historical signed month flags describe the superseded policy only.
+    const dailyLimitObserved=d.snapshotCombined>=dailyMax;
+    const monthlyLimitObserved=request.category==='Partner Convoy'?
+      m.currentSnapshot.partner>=POLICY.partnerMonthlyMax:
+      request.category==='External Convoy'?
+        m.currentSnapshot.external>=POLICY.externalMonthlyMax:false;
+    // The signed old-policy historical counts have no Kings category and
+    // are not comparable to the CURRENT 3 TOTAL/day. Do not reinterpret.
+    const historicalDailyHoldAtLimit=false;
     const historicalMonthlyHoldAtLimit=false;
     const reasons=['ORIGINAL_SOURCE_AND_STAFF_REVIEW_REQUIRED',
       'EVENT_IDENTITY_NOT_VERIFIED','PARKING_SLOT_NOT_VERIFIED',
@@ -114,6 +107,7 @@ function projectKingsEventBookingSafetyReview({calendar,request}={}){
     if(meeting===null)reasons.push('MEETING_TIME_MISSING');
     if(end===null)reasons.push('PLANNED_END_MISSING');
     if(dailyLimitObserved)reasons.push('OBSERVED_DAILY_LIMIT_REACHED');
+    if(monthlyLimitObserved)reasons.push('OBSERVED_MONTHLY_LIMIT_REACHED');
     if(historicalDailyHoldAtLimit)
       reasons.push('PROVISIONAL_HISTORICAL_DAILY_HOLD_AT_LIMIT');
     if(d.historicalCombinedProvisional===null)
@@ -128,10 +122,12 @@ function projectKingsEventBookingSafetyReview({calendar,request}={}){
       observedSnapshot:Object.freeze({
         dailyPartner:count(d.snapshotPartner),
         dailyExternal:count(d.snapshotExternal),
+        dailyKings:count(d.snapshotKings),
         monthlyPartner:count(m.currentSnapshot.partner),
         monthlyExternal:count(m.currentSnapshot.external)
       }),
-      quotaExempt,observedDailyLimitReached:dailyLimitObserved,
+      quotaExempt,reviewPriority:POLICY.priorityOrder.indexOf(request.category)+1,
+      observedDailyLimitReached:dailyLimitObserved,
       observedMonthlyLimitReached:monthlyLimitObserved,
       provisionalHistoricalDailyHoldAtLimit:historicalDailyHoldAtLimit,
       provisionalHistoricalMonthlyHoldAtLimit:historicalMonthlyHoldAtLimit,
@@ -163,19 +159,18 @@ function renderKingsEventBookingSafetyPreview(r){
       !Array.isArray(r.reviewReasons)||
       r.reviewReasons.length<4||r.reviewReasons.length>20)fail();
     const s=r.observedSnapshot;
-    for(const k of ['dailyPartner','dailyExternal','monthlyPartner','monthlyExternal'])
+    for(const k of ['dailyPartner','dailyExternal','dailyKings','monthlyPartner','monthlyExternal'])
       count(s[k]);
     // A private preview is still untrusted input: never display a forged
     // "no quota warning" claim inconsistent with its own snapshot counts.
-    const isKings=r.category==='Kings Convoy',
-      categoryDaily=r.category==='Partner Convoy'?s.dailyPartner:s.dailyExternal,
-      categoryMax=r.category==='Partner Convoy'?
-        LIMITS.partnerDaily:LIMITS.externalDaily,
-      expectedDaily=!isKings&&
-        (s.dailyPartner+s.dailyExternal>=dailyLimitForUtcDate(r.utcDate)||
-        categoryDaily>=categoryMax),
-      expectedMonthly=false;
-    if(r.quotaExempt!==isKings||
+    const expectedDaily=s.dailyPartner+s.dailyExternal+s.dailyKings>=
+      dailyLimitForUtcDate(r.utcDate);
+    const expectedMonthly=r.category==='Partner Convoy'?
+      s.monthlyPartner>=POLICY.partnerMonthlyMax:
+      r.category==='External Convoy'?
+        s.monthlyExternal>=POLICY.externalMonthlyMax:false;
+    if(r.quotaExempt!==false||
+      r.reviewPriority!==POLICY.priorityOrder.indexOf(r.category)+1||
       r.observedDailyLimitReached!==expectedDaily||
       r.observedMonthlyLimitReached!==expectedMonthly||
       r.provisionalHistoricalMonthlyHoldAtLimit!==false)fail();
@@ -208,10 +203,14 @@ function renderKingsEventBookingSafetyPreview(r){
         r.provisionalHistoricalMonthlyHoldAtLimit)fail();
     const content='**Kings Booking & Slot Review — PRIVATE OFFLINE PREVIEW**\n'+
       r.category+' | '+r.utcDate+' (UTC)\n'+
-      'Observed day: P'+s.dailyPartner+' E'+s.dailyExternal+
-      ' | Month: P'+s.monthlyPartner+' E'+s.monthlyExternal+'\n'+
+      'Observed day: K'+s.dailyKings+' P'+s.dailyPartner+
+      ' E'+s.dailyExternal+' / 3 total'+
+      ' | Month: P'+s.monthlyPartner+'/20 E'+
+      s.monthlyExternal+'/20 K unlimited'+'\n'+
       'Observed daily policy review: '+(r.observedDailyLimitReached?'YES':'not flagged')+
-      ' | monthly quota: not adopted'+'\n'+
+      ' | monthly quota for category: '+
+      (r.observedMonthlyLimitReached?'REACHED':'not flagged')+'\n'+
+      'Priority for NEW unconfirmed requests: Kings > Partner > External. No preemption.'+'\n'+
       'Evidence checks: '+alerts.length+' review reasons\n'+
       '**No slots certified, reserved or approved. Human review required.**';
     if(content.length>2000)fail();
