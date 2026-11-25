@@ -848,3 +848,70 @@ test('Driver Management does not interpret string zero player counts as verified
   assert.equal(result.onlineMap.size,1);
   assert.equal(s.calls.length,2);
 });
+
+test('Driver Management skips slow map requests during a recently verified shared map outage',async()=>{
+  const health={
+    version:1,namespace:'live-systems',service:'truckersmp-map-live',
+    status:'down',lastFailureAt:new Date().toISOString()
+  };
+  const s=sandbox('driver-management.js',{
+    files:{'data/api-health/live-systems--truckersmp-map-live.json':JSON.stringify(health)},
+    fetch:async()=>{throw Error('No map/network calls permitted during confirmed provider incident');}
+  });
+  assert.equal(s.run('mapProviderRecentlyUnavailable()'),true);
+  const observation=await s.run('getOnlineObservation()');
+  assert.equal(observation.available,false);
+  assert.equal(observation.onlineMap,null);
+  assert.equal(s.calls.length,0);
+  const current={updatedAt:new Date().toISOString(),drivers:[
+    {tmpId:42,username:'Member',current:true,joinDate:new Date().toISOString()}
+  ]};
+  const summary=s.run('buildSummary('+JSON.stringify(current)+',new Map(),false)');
+  assert.equal(summary.currentDrivers,1);
+  assert.equal(summary.onlineNow,null);
+  assert.equal(summary.onlineObservationStatus,'unavailable');
+});
+
+test('Driver Management resumes map checks if shared outage evidence expires or source recovers',async()=>{
+  for(const [status,old] of [
+    ['down',true],['degraded',true],['healthy',false]
+  ]){
+    const health={
+      namespace:'live-systems',service:'truckersmp-map-live',status,
+      lastFailureAt:new Date(Date.now()-(old?40:0)*60*1000).toISOString()
+    };
+    const s=sandbox('driver-management.js',{
+      files:{'data/api-health/live-systems--truckersmp-map-live.json':JSON.stringify(health)},
+      fetch:async url=>{
+        assert.ok(url.endsWith('/v2/servers'),'Verified-empty official server list requires no map call');
+        return new Response(JSON.stringify({error:false,response:[
+          {online:true,name:'Empty ETS2',game:'ETS2',mapid:1,players:0}
+        ]}),{status:200});
+      }
+    });
+    assert.equal(s.run('mapProviderRecentlyUnavailable()'),false,status);
+    const r=await s.run('getOnlineObservation()');
+    assert.equal(r.available,true,status);
+    assert.equal(r.onlineMap.size,0,status);
+    assert.equal(s.calls.length,1,status);
+  }
+});
+
+test('Driver map fast-path rejects invalid or unrelated health states instead of faking an outage',()=>{
+  const base={
+    namespace:'live-systems',service:'truckersmp-map-live',
+    status:'down',lastFailureAt:new Date().toISOString()
+  };
+  for(const patch of [
+    {namespace:'other-system'},
+    {service:'unrelated-provider'},
+    {lastFailureAt:'invalid'},
+    {lastFailureAt:new Date(Date.now()+40*60*1000).toISOString()},
+    {status:'healthy'}
+  ]){
+    const s=sandbox('driver-management.js',{
+      files:{'data/api-health/live-systems--truckersmp-map-live.json':JSON.stringify({...base,...patch})}
+    });
+    assert.equal(s.run('mapProviderRecentlyUnavailable()'),false);
+  }
+});
