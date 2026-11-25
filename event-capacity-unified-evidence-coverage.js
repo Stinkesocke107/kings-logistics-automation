@@ -37,6 +37,13 @@ function projectKingsUnifiedEvidenceCoverage({
       !paginationIds.has(src.currentChannelId))fail();
     const missingFromPage=[...inventoryIds].filter(x=>!paginationIds.has(x)).length;
     const missingFromIntake=[...paginationIds].filter(x=>!inventoryIds.has(x)).length;
+    const pageChannels=new Map(paginationInput.channels.map(c=>[c.channelId,c]));
+    const incompatibleCoverage=src.channelInventory.filter(c=>{
+      const p=pageChannels.get(c.channelId);
+      return p&&(c.firstCoveredMonth!==p.firstCoveredMonth||
+        c.lastCoveredMonth!==p.lastCoveredMonth||
+        (c.kind==='current')!==(p.channelKind==='current-forum'));
+    }).length;
     const counters=Object.freeze({
       centerClaimedEvents:count(team.sourceCounts.currentCenterClaims),
       legacyClaimedEvents:count(team.sourceCounts.olderChannelClaims),
@@ -48,6 +55,7 @@ function projectKingsUnifiedEvidenceCoverage({
       deletedCountDiscrepancies:count(team.sourceCounts.deletionCountContradictions),
       missingPaginationInventoriesForCenterSources:missingFromPage,
       paginationChannelsNotInCenterInventory:missingFromIntake,
+      conflictingDeclaredChannelCoverage:incompatibleCoverage,
       historyMonthsWithoutSourceClaims:count(
         history.counters.monthsWithoutChannelClaims,24),
       historyMonthsWithIncompleteScanClaims:count(
@@ -57,7 +65,8 @@ function projectKingsUnifiedEvidenceCoverage({
       historyMonthsWithClaimedCompleteChecksButMissingSource:count(
         history.counters.monthsWithClaimedAllChecksButMissingSource,24)
     });
-    const sourceInventoryClaimsAgree=missingFromPage===0&&missingFromIntake===0;
+    const sourceInventoryClaimsAgree=missingFromPage===0&&missingFromIntake===0&&
+      incompatibleCoverage===0;
     return Object.freeze({
       visibility:'PRIVATE_ONLY',readOnly:true,version:1,
       eventTeamYear:team.year,firstHistoryMonth:history.firstMonth,
