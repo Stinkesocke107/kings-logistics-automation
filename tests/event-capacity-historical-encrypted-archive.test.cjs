@@ -48,7 +48,8 @@ test('Signed cross-month acceptance, reschedule and completion round trip in enc
   assert.equal(JSON.stringify(archive).includes('Partner Convoy'),false);
   const result=x.open({archive,checkpoint});
   assert.deepEqual(result.journal,x.journal);
-  assert.equal(result.archiveVerified,true);
+  assert.equal(result.encryptedArchiveIntegrityVerified,true);
+  assert.equal(result.sourceEvidenceAuthenticityVerified,false);
   assert.equal(result.historicalCoverageCertified,false);
   assert.equal(result.freeSlotsCertified,false);
 });
