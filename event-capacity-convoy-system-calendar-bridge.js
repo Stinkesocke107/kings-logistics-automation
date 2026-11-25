@@ -6,11 +6,14 @@ const {reconcileKingsMultiSourceConvoys}
   =require('./event-capacity-convoy-multi-source-intake');
 const {projectKingsStaffCalendarReview,renderKingsStaffCalendarEphemeral}
   =require('./event-capacity-staff-calendar-review');
+const {inspectKingsFrozenLegacyCalendar}
+  =require('./event-capacity-frozen-legacy-calendar-audit');
 const ERROR='Kings Event Capacity private system bridge refused.';
 function fail(){throw new Error(ERROR);}
 function projectKingsConvoySystemBridge({
   sourceIntake,capacity,year,selectedMonth=null,
-  historicalHoldsReports=[],historicalEvidenceReport=null
+  historicalHoldsReports=[],historicalEvidenceReport=null,
+  frozenLegacyImport=null
 }={}){
   try{
     if(!sourceIntake||typeof sourceIntake!=='object')fail();
@@ -20,6 +23,8 @@ function projectKingsConvoySystemBridge({
     last.setUTCMonth(last.getUTCMonth()+23);
     if(last.toISOString().slice(0,7)!==sourceIntake.finalMonth)fail();
     const source=reconcileKingsMultiSourceConvoys(sourceIntake);
+    const legacy=frozenLegacyImport===null?null:
+      inspectKingsFrozenLegacyCalendar(frozenLegacyImport);
     const calendar=projectKingsStaffCalendarReview({
       capacity,year,selectedMonth,historicalHoldsReports,
       historicalEvidenceReport
@@ -41,6 +46,11 @@ function projectKingsConvoySystemBridge({
         unresolvedHumanReviewItems:source.unresolvedReviewItemCount,
         urgentHumanReviewItems:source.urgentReviewItemCount,
         listedLegacyChannels:source.suppliedLegacyChannelCount,
+        frozenLegacyImportSupplied:legacy!==null,
+        frozenLegacyClaimedConvoys:legacy?.existingFrozenLegacyEntries??null,
+        frozenLegacyOriginalsMissing:legacy?.preservedWithOriginalSourceMissing??null,
+        frozenLegacyKingsSlotClaims:legacy?.existingKingsSlotEvidenceClaims??null,
+        legacyFileAndChannelClaimsNotAddedToCapacity:true,
         originalDiscordMessagesFetchedHere:0,
         realAcceptanceApprovalsPerformed:0
       }),
@@ -75,6 +85,8 @@ function renderKingsConvoySystemBridgePreview(bridge){
     const content='**Kings Cross-System Event Review — PREVIEW ONLY**\n'+
       'Convoy Center: '+numbers[0]+' | Older Channels: '+numbers[1]+
       ' | Invitation Tracker: '+numbers[2]+'\n'+
+      'Frozen legacy import: '+(s.frozenLegacyClaimedConvoys===null?'not supplied':
+        s.frozenLegacyClaimedConvoys)+' (separate claims, not added)\n'+
       'Unresolved source checks: '+numbers[3]+' | Urgent: '+numbers[4]+'\n'+
       '**Original Discord channel messages not read here. No free slots certified.**';
     if(content.length>2000)fail();
