@@ -82,7 +82,8 @@ function reconcileKingsMultiSourceConvoys({
       if(!c.editHistoryReviewed)issue('channel-edits-not-reviewed',c.channelId);
     }
     if(currentCount!==1)fail();
-    const observed=new Map(),seenThreads=new Set(),grouped=new Map();
+    const observed=new Map(),observedArchived=new Map(),
+      observedDeleted=new Map(),seenThreads=new Set(),grouped=new Map();
     const counters={currentChannelRecords:0,legacyChannelRecords:0,
       archivedRecordClaims:0,deletedRecordClaims:0,
       rawConvoyRecordClaims:convoyRecords.length,
@@ -112,6 +113,10 @@ function reconcileKingsMultiSourceConvoys({
       if(seenThreads.has(threadKey))fail();
       seenThreads.add(threadKey);
       observed.set(r.channelId,(observed.get(r.channelId)??0)+1);
+      if(r.sourceKind==='archived')
+        observedArchived.set(r.channelId,(observedArchived.get(r.channelId)??0)+1);
+      if(r.sourceKind==='deleted')
+        observedDeleted.set(r.channelId,(observedDeleted.get(r.channelId)??0)+1);
       if(channel.kind==='current')counters.currentChannelRecords++;
       else counters.legacyChannelRecords++;
       if(r.sourceKind==='archived')counters.archivedRecordClaims++;
@@ -132,6 +137,12 @@ function reconcileKingsMultiSourceConvoys({
       const count=observed.get(channel.channelId)??0;
       if(count!==channel.claimedThreadCount)
         issue('channel-inventory-count-contradiction',channel.channelId,'Urgent');
+      // A matching total does not prove that archived/deleted thread claims
+      // match their reported subsets. Surface both gaps independently.
+      if((observedArchived.get(channel.channelId)??0)!==channel.claimedArchivedCount)
+        issue('channel-archived-count-contradiction',channel.channelId,'Urgent');
+      if((observedDeleted.get(channel.channelId)??0)!==channel.claimedDeletedCount)
+        issue('channel-deleted-count-contradiction',channel.channelId,'Urgent');
       // Coverage manifest is always caller-supplied, not provider attested.
       if(channel.firstCoveredMonth>start||channel.lastCoveredMonth<end)
         issue('channel-does-not-cover-entire-window',channel.channelId);
