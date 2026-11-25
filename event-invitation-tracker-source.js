@@ -17,7 +17,9 @@ const FIELD_NAMES=Object.freeze([
   'recordedPending','replyNotRecorded'
 ]);
 const SAFE_SOURCE_REASONS=new Set([
-  'ACCESS_DENIED','RATE_LIMITED','API_UNAVAILABLE',
+  'ACCESS_DENIED','ACCESS_DENIED_FORUM','ACCESS_DENIED_ACTIVE',
+  'ACCESS_DENIED_ARCHIVE','ACCESS_DENIED_MESSAGES',
+  'RATE_LIMITED','API_UNAVAILABLE',
   'FORUM_MISMATCH','FORUM_TAGS_MISSING',
   'ACTIVE_THREAD_LIST','ARCHIVE_PAGE_INCOMPLETE',
   'MESSAGE_PAGE_INCOMPLETE','STARTER_NOT_FOUND',
@@ -148,6 +150,13 @@ function trustedInvitationObservation(x,nowMs=Date.now()){
 function createDiscordReader({token,transport=fetch}={}){
   if(typeof token!=='string'||token.length<20||token.length>1024||
     /[\r\n]/.test(token)||typeof transport!=='function')refuse();
+  function requestScope(route){
+    if(route==='/channels/'+FORUM)return 'FORUM';
+    if(route==='/guilds/'+GUILD+'/threads/active')return 'ACTIVE';
+    if(route.startsWith('/channels/'+FORUM+'/threads/archived/public?'))return 'ARCHIVE';
+    if(/^\/channels\/\d+\/messages\?/.test(route))return 'MESSAGES';
+    return null;
+  }
   async function get(route){
     const response=await transport(API+route,{
       method:'GET',redirect:'error',
@@ -156,7 +165,8 @@ function createDiscordReader({token,transport=fetch}={}){
       signal:AbortSignal.timeout(15000)
     });
     if(!response||response.ok!==true||response.status!==200){
-      if([401,403,404].includes(response?.status))refuse('ACCESS_DENIED');
+      if([401,403,404].includes(response?.status))
+        refuse(requestScope(route)?'ACCESS_DENIED_'+requestScope(route):'ACCESS_DENIED');
       if(response?.status===429)refuse('RATE_LIMITED');
       refuse('API_UNAVAILABLE');
     }

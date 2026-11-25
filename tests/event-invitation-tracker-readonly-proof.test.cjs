@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const src=fs.readFileSync(path.join(__dirname,'..','event-invitation-tracker-readonly-proof.js'),'utf8');
-async function execute(fail=false){
+async function execute(fail=false,sourceReason=null){
   const marker='PRIVATE_INVITER_OR_VTC_MARKER_NEVER_TO_LOG';
   const logs=[],warnings=[],proc={exitCode:0};
   const module={exports:{}};
@@ -13,7 +13,7 @@ async function execute(fail=false){
     if(name!=='./event-invitation-tracker-source')throw Error('Unexpected require');
     return {
       readInvitationTracker:async()=>{
-        if(fail)throw Error(marker);
+        if(fail){const e=Error(marker);if(sourceReason)e.sourceReason=sourceReason;throw e;}
         return {bookingsCreated:0,staffApprovalsVerified:false,
           invitationDecisionsVerified:false,privateMarker:marker};
       },
@@ -52,4 +52,11 @@ test('production workflow isolates real private-source review from core Event re
   assert.match(yaml,/continue-on-error: true/);
   assert.doesNotMatch(src,/console\.(?:log|warn)\([^)]*JSON\.stringify/);
   assert.doesNotMatch(src,/(?:writeFileSync|appendFileSync|unlinkSync)\(/);
+});
+
+test('access failure exposes endpoint category but no private details',async()=>{
+  const x=await execute(true,'ACCESS_DENIED_ARCHIVE');
+  assert.equal(x.status,'SOURCE_UNAVAILABLE');
+  assert.match(x.warnings.join('\n'),/SOURCE_UNAVAILABLE \(ACCESS_DENIED_ARCHIVE\)/);
+  assert.doesNotMatch(x.warnings.join('\n'),new RegExp(x.marker));
 });

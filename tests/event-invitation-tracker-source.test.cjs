@@ -121,7 +121,7 @@ test('Discord 403 or incomplete archive never produces a fictitious empty Tracke
     token:'synthetic-test-bot-token-not-a-secret',
     transport:async()=>new Response('{}',{status:403}),nowMs:NOW
   }),e=>e.message==='Kings Invitation Tracker source unavailable'&&
-    e.sourceReason==='ACCESS_DENIED');
+    e.sourceReason==='ACCESS_DENIED_FORUM');
   await assert.rejects(()=>readInvitationTracker({
     token:'synthetic-test-bot-token-not-a-secret',
     transport:async(url)=>{
