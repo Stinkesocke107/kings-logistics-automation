@@ -1,19 +1,39 @@
+# CURRENT OWNER DECISION — GitHub Free, three PRIVATE repositories (25 November 2026)
+
+**This section supersedes any older alternative below that proposed one public data repository, paid GitHub features, or creating/replacing the three repos.** All project code and public-safe metadata stay in `Stinkesocke107/kings-logistics-automation` (PUBLIC). Actual confidential histories, offline-reviewed checkpoint copies and separately encrypted backup objects must stay exclusively in the following three dedicated PRIVATE repositories:
+
+1. `Stinkesocke107/kings-event-capacity-history`
+2. `Stinkesocke107/kings-event-capacity-witness`
+3. `Stinkesocke107/kings-event-capacity-backups`
+
+**Owner reports all three were created. They are NOT yet independently verified.** The connected GitHub App installation `162599792` is configured for **selected repositories** and currently only exposes the existing `kings-logistics-automation`, `kings-logistics-automation-archive` and `kings-logistics-automation-public` repos. This is an ACCESS/GITHUB APP INSTALLATION BLOCKER, not proof the new repositories are absent.
+
+**Action for CEO now (no keys or tokens):** Visit https://github.com/settings/installations/162599792 and configure this existing installation, keep `Only select repositories`, add the exact three `kings-event-capacity-*` repositories, and save. If they do not appear in the chooser, check the logged-in GitHub account and repository ownership/spelling. This action is done in GitHub UI by the owner; the linked connector cannot modify its own installation scope. After granting access, re-check exact names, PRIVATE visibility, `main` and available permissions through GitHub and confirm; **do not write any live historical data until a separately approved privacy/security pilot.**
+
+**GitHub Free compatibility:** Unlimited private repositories and repository-level Actions secrets are available. Do **not** require private branch protection/rulesets, paid Environment Secrets or paid deployment-reviewer rules. The absence of those premium controls is NOT proof of repository trust; compensate with strictly scoped tokens, offline owner Ed25519 private signing key and independently held latest highwater, separate encrypted backup key, verification before writes and human approval. Do not put the owner signing private key or all archive+backup secrets on one Actions runner. Repository secrets are created later via each PRIVATE repository's `Settings > Secrets and variables > Actions > New repository secret`, only after deciding the minimum required permissions and actual workflow boundary.
+
+**Next owner task after App authorization:** none until the assistant confirms the three private repos are visible and proposes the exact minimum-permission secret layout. Never paste tokens, encryption secrets, or keys in chat or into a git commit.
+
+**Production state:** PR #143 is DRAFT. No production workflow, Discord, event decisions, calendar data, `capacity_preview`, private repository writes or credentials have been changed.
+
+---
+
 ## CEO decision — THREE NEW dedicated PRIVATE repositories (25 November 2026)
 
 **Approved design choice:** create **three entirely new, individually PRIVATE GitHub repositories** under the owner's `Stinkesocke107` account; do **NOT** repurpose either of the existing private `kings-logistics-automation-archive` or `kings-logistics-automation-public` repositories.
 
-**Planned repositories (explicit owner approval to create; NOT YET CREATED):**
+**Dedicated repositories (CEO reports all three created; connector visibility still pending):**
 
 - `Stinkesocke107/kings-event-capacity-history` — encrypted historical Event data and owner-signed lifecycle journal records.
 - `Stinkesocke107/kings-event-capacity-witness` — independently reviewed checkpoint/witness records, separated from the data repository.
 - `Stinkesocke107/kings-event-capacity-backups` — separately encrypted daily archive backup objects.
 
-**Provisioning status (verified by the linked GitHub account repository list):**
+**Provisioning status (owner reports creation; linked GitHub App currently sees only the three previously authorized repositories):**
 - [x] Three new, separate repository roles explicitly approved by CEO.
 - [x] Dedicated names and account selected; existing repos remain untouched.
-- [ ] CEO creates EACH repository in the GitHub web interface with **Private** visibility and **Add README**, producing a `main` default branch. Repository creation is **not available in the currently connected GitHub action set**.
-- [ ] Verify all three exact repositories are visible and private, have real `main` branch commits and no unexpected collaborators.
-- [ ] Review branch protection/rulesets individually; reported GitHub `protected` flags alone do not prove security.
+- [x] CEO reports the three repositories were created on GitHub. **Still unverified by GitHub App; do not mark private visibility or `main` as independently verified.**
+- [ ] CEO grants the installed GitHub App access to these three selected repositories via https://github.com/settings/installations/162599792 while retaining `Only select repositories`. After this, verify exact private visibility, real `main` branch and authorized collaborators through live GitHub metadata.
+- [ ] **GitHub Free:** Do not require paid branch protection or private deployment-environment reviewer gates. Substitute externally held owner highwater/signatures, minimal per-repository credentials, read-after-write verification and manual release approval. Branch protection reported flags remain informational only.
 - [ ] Plan separate minimal repository-restricted credentials, with independent owner custody and public verification key; **do not place tokens or offline owner signing private key in chat/public source/GitHub Actions**.
 - [ ] Approve narrow real private repository metadata verification and a synthetic-data-only pilot **after** permission review; no real historical Event writes until a separate release authorization.
 
@@ -45,7 +65,7 @@ This document is an actionable handoff. It does **not** authorize provisioning, 
 
 ### CEO / GitHub account administrator — not needed just to keep developing draft code
 
-- [ ] **Approve actual provisioning** and choose the GitHub account/organization that will own the private Kings data. Confirm whether suitable existing PRIVATE repos can be reused, or create **three distinct PRIVATE repositories** for (1) encrypted Event history/decision data, (2) independent checkpoint/witness, and (3) encrypted daily backups. Each needs a real `main` branch and reviewed branch/ruleset restrictions.
+- [x] **Approved:** three dedicated new PRIVATE repositories under `Stinkesocke107` for (1) encrypted Event history, (2) independent checkpoint/witness and (3) encrypted daily backups. Owner reports they exist. GitHub App access and metadata verification still missing; do not use pre-existing private automation repos.
 - [ ] Approve an appropriately narrow **credential policy**. Use separate GitHub App installation tokens or fine-grained repository-restricted credentials for each role. Data write token must not be a convenient master token for witness and backup as well. The code-level distinct-token-string check is **not** proof of token scope, independent administration or revocation ability.
 - [ ] Keep a deliberately separate **offline Ed25519 OWNER PRIVATE signing key** under CEO control, and keep the independently retained **latest signed highwater receipt** outside BOTH data and witness repos. Export and deliver only the public verifier key through a protected process. Never store the signing private key or all encryption/backup secrets in Actions, Discord or the public repo.
 - [ ] Confirm a safe mechanism for keeping the **archive encryption secret** distinct from the **backup encryption secret**, including recovery, rotation and restricted access; ideally isolate the backup from the same account/operator compromise.
