@@ -58,6 +58,22 @@ test('Multiple outgoing invitations remain separate invitations for same Event',
   assert.equal(r.sourceCounts.multiInvitationEventGroups,1);
   assert.equal(r.sourceIssueCountsAreNonadditive,true);
 });
+test('Unified private Event Team preview shows outgoing invitation status totals only',()=>{
+  const r=review(input(x=>{
+    x.tracker.records[0].status='Unknown';
+    x.tracker.records.push(invite({invitationId:'inv2',status:'Sent',
+      sourceDigest:h('second recipient')}));
+  }));
+  assert.equal(r.sourceCounts.outboundByStatus.Unknown,1);
+  assert.equal(r.sourceCounts.outboundByStatus.Sent,1);
+  assert.equal(r.sourceCounts.outboundByStatus.Accepted,0);
+  const text=JSON.stringify(render(r));
+  assert.match(text,/Draft 0/);
+  assert.match(text,/Sent 1/);
+  assert.match(text,/Unknown 1/);
+  assert.equal(text.includes('inv2'),false);
+  assert.equal(r.freeSlotsCertified,false);
+});
 test('Archive/deleted count mismatches surface but never authorize automatic releases',()=>{
   const a=review(input(x=>{x.convoyRecords[1].sourceKind='archived';}));
   assert.equal(a.sourceCounts.archiveCountContradictions,1);
@@ -86,4 +102,6 @@ test('Forged success and real Discord claims are refused by the renderer',()=>{
   assert.throws(()=>render({...r,freeSlotsCertified:true}));
   assert.throws(()=>render({...r,realEventsApproved:1}));
   assert.throws(()=>render({...r,outboundTrackerActuallyRead:true}));
+  assert.throws(()=>render({...r,sourceCounts:{...r.sourceCounts,
+    outboundByStatus:{...r.sourceCounts.outboundByStatus,Accepted:99}}}));
 });

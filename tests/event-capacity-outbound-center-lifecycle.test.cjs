@@ -66,6 +66,20 @@ test('Two separate outbound invitations may be legitimate, do not merge their re
   assert.equal(r.multipleOutboundInvitationsNotAssumedDuplicateEvents,true);
   assert.ok(has(r,'multiple-outbound-invitations-verify-recipients'));
 });
+test('Outbound invitation status summary flags Unknown for human review only',()=>{
+  const r=review(x=>{
+    x.tracker.records[0].status='Unknown';
+    x.tracker.records.push(invite({invitationId:'inv2',status:'Sent',
+      sourceDigest:h('second outbound status')}));
+  });
+  assert.equal(r.outboundStatusClaims.Unknown,1);
+  assert.equal(r.outboundStatusClaims.Sent,1);
+  assert.equal(r.outboundStatusClaims.Accepted,0);
+  assert.equal(Object.values(r.outboundStatusClaims).reduce((a,b)=>a+b,0),2);
+  assert.ok(has(r,'outbound-invitation-status-unknown'));
+  assert.equal(r.eventCapacityBookingsAdded,0);
+  assert.equal(r.staffDecisionsCommitted,0);
+});
 test('Legacy-only match never counts as current Center approval',()=>{
   const r=review(x=>{x.convoyRecords[0].eventId='different';});
   assert.equal(r.counts.linkedToLegacyOnly,1);

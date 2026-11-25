@@ -18,6 +18,11 @@ function projectKingsUnifiedEventTeamReview(input){
       outbound.safeToActivate!==false||outbound.freeSlotsCertified!==false)
       fail();
     const b=bridge.sourceReview,c=outbound.counts;
+    const states=['Draft','Sent','Accepted','Declined','Withdrawn','Unknown'];
+    const status=outbound.outboundStatusClaims;
+    if(!status||states.some(k=>!Object.hasOwn(status,k)))fail();
+    const statusTotal=states.reduce((n,k)=>n+count(status[k]),0);
+    if(statusTotal!==count(c.outboundInvitationClaims))fail();
     if(count(b.outboundTrackerClaimedInvitations)!==
       count(c.outboundInvitationClaims)||
       count(b.trackerClaimedLinkedEvents)!==
@@ -31,6 +36,8 @@ function projectKingsUnifiedEventTeamReview(input){
         frozenLegacyClaims:b.frozenLegacyClaimedConvoys===null?null:
           count(b.frozenLegacyClaimedConvoys),
         outboundInvitations:count(c.outboundInvitationClaims),
+        outboundByStatus:Object.freeze(Object.fromEntries(
+          states.map(k=>[k,count(status[k])]))),
         explicitlyLinkedInvitations:count(c.linkedByCanonicalEventId),
         missingLinks:count(c.noCanonicalEventLink)+count(c.missingCenterEventLink),
         staleOrWrongDeparture:count(c.departureMatchesOldSourceOnly)+
@@ -70,12 +77,19 @@ function renderKingsUnifiedEventTeamReviewPreview(r){
       'outboundAcceptedVsCenterConflict',
       'archiveCountContradictions','deletionCountContradictions'])
       count(c[name]);
+    const status=c.outboundByStatus,
+      statuses=['Draft','Sent','Accepted','Declined','Withdrawn','Unknown'];
+    if(!status||statuses.some(k=>!Object.hasOwn(status,k)))fail();
+    if(statuses.reduce((sum,k)=>sum+count(status[k]),0)!==
+      c.outboundInvitations)fail();
     return Object.freeze({type:4,data:{
       flags:64,allowed_mentions:{parse:[]},
       content:'**Kings Event-Team — Offline Evidence Review**\n'+
         'Invitations '+c.outboundInvitations+
         ' | Linked '+c.explicitlyLinkedInvitations+
         ' | Missing '+c.missingLinks+'\n'+
+        'Draft '+status.Draft+' | Sent '+status.Sent+
+        ' | Accepted '+status.Accepted+' | Unknown '+status.Unknown+'\n'+
         'Old/wrong dates '+c.staleOrWrongDeparture+
         ' | Status reviews '+c.outboundAcceptedVsCenterConflict+'\n'+
         'Archive/deleted contradictions '+

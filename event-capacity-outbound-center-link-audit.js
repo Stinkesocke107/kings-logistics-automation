@@ -13,6 +13,7 @@ const ACCEPTING=new Set(['Scheduled','Rescheduled','Completed']);
 const CANCELLED=new Set(['Cancelled','Unknown']);
 const NOT_READY=new Set(['Submitted','Needs Information','Ready for Approval']);
 const MAX=10000;
+const INVITE_STATES=Object.freeze(['Draft','Sent','Accepted','Declined','Withdrawn','Unknown']);
 function fail(){throw new Error(ERROR);}
 function opaque(secret,guild,reason,key){
   return 'capacity-outbound:'+crypto.createHmac('sha256',secret)
@@ -25,6 +26,7 @@ function inspectKingsOutboundCenterLinks(sourceIntake){
     if(verified.visibility!=='PRIVATE_ONLY'||verified.readOnly!==true||
       verified.safeToActivate!==false||verified.freeSlotsCertified!==false)fail();
     const tracker=sourceIntake.tracker,groups=new Map();
+    const outboundStatusClaims=Object.fromEntries(INVITE_STATES.map(s=>[s,0]));
     const errors=new Map(),counters={
       outboundInvitationClaims:0,linkedByCanonicalEventId:0,
       linkedToCurrentCenter:0,linkedToLegacyOnly:0,
@@ -68,6 +70,9 @@ function inspectKingsOutboundCenterLinks(sourceIntake){
     issue('outbound-tracker-provider-attestation-required','provider');
     if(tracker!==null)for(const item of tracker.records){
       counters.outboundInvitationClaims++;
+      outboundStatusClaims[item.status]++;
+      if(item.status==='Unknown')
+        issue('outbound-invitation-status-unknown',item.invitationId);
       if(item.status==='Accepted')
         counters.outboundAcceptanceClaimsNotUsedForCapacity++;
       if(item.eventId===null){
@@ -140,6 +145,7 @@ function inspectKingsOutboundCenterLinks(sourceIntake){
       visibility:'PRIVATE_ONLY',readOnly:true,
       sourceWindow:Object.freeze({...verified.window}),
       counts:Object.freeze(counters),
+      outboundStatusClaims:Object.freeze(outboundStatusClaims),
       reviewItems:Object.freeze(reviewItems),
       unresolvedReviewItems:reviewItems.length,
       urgentReviewItems:reviewItems.filter(x=>x.priority==='Urgent').length,
