@@ -23,9 +23,15 @@ function step(name){
 }
 function notice({stored=snapshot,fetch:transport,enabled=false}={}){
   return sandbox('live-outage-notice.js',{
-    files:{'data/live-tracker-snapshot.json':JSON.stringify(stored)},
+    files:{
+      'data/live-tracker-snapshot.json':JSON.stringify(stored),
+      'data/statistics.json':JSON.stringify({messageId:id,sourceSnapshotAt:stored.updatedAt}),
+      'data/central-overview.json':JSON.stringify({messageId:id})
+    },
     env:{
       DISCORD_WEBHOOK_URL:webhook,
+      STATS_DISCORD_WEBHOOK_URL:webhook.replace('safe-test-token','statistics-token'),
+      CENTRAL_OVERVIEW_WEBHOOK_URL:webhook.replace('safe-test-token','overview-token'),
       TRUCKERSMP_OFFICIAL_FEED_ENABLED:enabled?'true':'false'
     },
     fetch:transport
@@ -61,7 +67,7 @@ test('missing stored tracker message is an honest degraded-mode failure, not a g
   const s=notice({stored:{...snapshot,discordMessageId:null}});
   await s.run('main()');
   assert.equal(s.process.exitCode,1);
-  assert.equal(s.calls.length,0,'No POST, no guessed replacement');
+  assert.ok(s.calls.every(call=>call.options.method!=='POST'),'No POST, no guessed replacement');
   assert.equal(JSON.parse(s.files.get('data/live-tracker-snapshot.json')).online,1);
 });
 
@@ -73,7 +79,7 @@ test('deleted tracker message fails fallback closed without creating a duplicate
   }});
   await s.run('main()');
   assert.equal(s.process.exitCode,1);
-  assert.deepEqual(s.calls.map(x=>x.options.method),['GET']);
+  assert.ok(s.calls.length>=1 && s.calls.every(x=>x.options.method==='GET'),'No duplicate created');
   assert.equal(JSON.parse(s.files.get('data/live-tracker-snapshot.json')).updatedAt,snapshot.updatedAt);
 });
 
@@ -87,10 +93,44 @@ test('fallback without any map or official API still displays unavailable (never
   }});
   await s.run('main()');
   assert.equal(s.process.exitCode,0);
-  assert.equal(sent.length,1);
+  assert.equal(sent.length,3);
   assert.deepEqual(sent[0].allowed_mentions,{parse:[]});
   assert.match(sent[0].embeds[0].description,/temporarily unavailable/);
   assert.match(sent[0].embeds[0].fields[1].value,/Unavailable — not zero/);
   assert.doesNotMatch(JSON.stringify(sent),/Currently Online|Kings Drivers Online: 0/);
   assert.equal(s.files.get('data/live-tracker-snapshot.json'),JSON.stringify(snapshot));
+});
+
+test('missing Statistics target is not silently treated as a working live fallback',async()=>{
+  const patches=[];
+  const s=notice({fetch:async(url,options)=>{
+    if(options.method==='GET'){
+      if(url.includes('statistics-token'))return new Response('missing',{status:404});
+      return json({embeds:[{title:'Old live data'}]});
+    }
+    assert.equal(options.method,'PATCH');
+    patches.push(url);
+    return new Response(null,{status:204});
+  }});
+  await s.run('main()');
+  assert.equal(s.process.exitCode,1);
+  assert.equal(patches.length,2,'Other available displays are still made safe');
+  assert.ok(!patches.some(url=>url.includes('statistics-token')));
+  assert.ok(s.calls.every(call=>['GET','PATCH'].includes(call.options.method)));
+  assert.equal(JSON.parse(s.files.get('data/live-tracker-snapshot.json')).updatedAt,snapshot.updatedAt);
+});
+
+test('missing Central Overview target is a real fallback failure and never creates messages',async()=>{
+  const s=notice({fetch:async(url,options)=>{
+    if(options.method==='GET'){
+      if(url.includes('overview-token'))return new Response('missing',{status:404});
+      return json({embeds:[{title:'Old live data'}]});
+    }
+    assert.equal(options.method,'PATCH');
+    return new Response(null,{status:204});
+  }});
+  await s.run('main()');
+  assert.equal(s.process.exitCode,1);
+  assert.ok(s.calls.every(call=>call.options.method!=='POST'&&call.options.method!=='DELETE'));
+  assert.equal(JSON.parse(s.files.get('data/live-tracker-snapshot.json')).online,snapshot.online);
 });
