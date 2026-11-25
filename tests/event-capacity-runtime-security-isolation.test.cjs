@@ -15,7 +15,8 @@ const newModules=[
   'event-capacity-historical-evidence-gap-audit',
   'event-capacity-backup-90day-recovery-audit',
   'event-capacity-private-safety-overview',
-  'event-capacity-historical-reservation-holds'
+  'event-capacity-historical-reservation-holds',
+  'event-capacity-staff-calendar-review'
 ];
 test('New credential policy and synthetic restoration cannot activate live Convoy Checker',()=>{
   const live=fs.readFileSync(path.join(root,
@@ -118,4 +119,16 @@ test('Conservative historic holds never release rescheduled, cancelled or comple
   assert.match(src,/previousDatesNeverAutoReleaseAfterReschedule:true/);
   assert.match(src,/staffDecisionsCommitted:false/);
   assert.match(src,/freeSlotsCertified:false/);
+});
+
+test('Private staff calendar never forwards optimistic legacy Available labels into a real capacity approval',()=>{
+  const src=fs.readFileSync(path.join(root,
+    'event-capacity-staff-calendar-review.js'),'utf8');
+  assert.match(src,/projectMonth/);
+  assert.match(src,/currentAndHistoricalCountsNeverAddedTogether:true/);
+  assert.match(src,/actualAvailableSlotsDisplayed:false/);
+  assert.match(src,/remainingSlots:null,canApprove:false,freeSlotsCertified:false/);
+  assert.match(src,/sourceAuthenticityIndependentlyProven:false/);
+  assert.match(src,/safeToActivate:false/);
+  assert.doesNotMatch(src,/createInstallationAccessToken|process\.env|child_process/);
 });
