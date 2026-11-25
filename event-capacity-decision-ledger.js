@@ -101,6 +101,7 @@ function validateLedger(state,expectedScope){
        !validEvidence(h.evidenceRef))fail();
     if(SIGNED_DISCORD_PROOF.test(h.evidenceRef)&&!h.reviewProof)fail();
     if(h.reviewProof!==undefined){
+      if(h.actorRole!=='Event Leadership'&&h.actorRole!=='CEO')fail();
       const p=validatedReviewProof(h.reviewProof,h.ref,h.action,
         h.actorId,h.evidenceRef,h.at);
       if(usedEvidence.has(p.evidenceMessageId)||
@@ -154,6 +155,9 @@ function applyDecision(input,command,actor,at){
   }
   const role=verifiedRole(actor,
     ['exception','revoke-exception'].includes(command.action)?EXCEPTION:STAFF);
+  // A reviewed Discord proposal requires a DIFFERENT current leadership
+  // member, never just a self-asserted operational Staff role.
+  if(hasProof&&role!=='Event Leadership'&&role!=='CEO')fail();
   const state=structuredClone(input);
   const ref=command.ref;
   const record=state.entries[ref]||newEntry();
