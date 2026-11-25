@@ -335,3 +335,47 @@ test('Tampered event calendar approval cannot cross verified source read boundar
   assert.equal(r.calendarSnapshot,null);
   assert.equal(r.verifiedFreeSlots,false);
 });
+
+test('Real scheduled-source ZIP-to-Calendar preflight succeeds without any Discord calls',async()=>{
+  const {inspectKingsEventSourcePreflight:inspect}
+    =require('../event-capacity-source-preflight');
+  const result=await inspect({
+    reader:readerForPreview(zipForPreview()),nowMs:NOW
+  });
+  assert.equal(result.status,'SOURCE_CALENDAR_PREVIEW_READY');
+  assert.equal(result.sourceArtifactChecked,true);
+  assert.equal(result.calendarProjectionChecked,true);
+  assert.equal(result.discordAccessed,false);
+  assert.equal(result.discordWrites,0);
+  assert.equal(result.eventDataLogged,false);
+  assert.equal(result.historicDiscordCoverageVerified,false);
+  assert.equal(result.staffApprovalsVerified,false);
+  assert.equal(result.freeSlotsCertified,false);
+  assert.equal(result.automaticActivationAuthorized,false);
+  for(const privateString of [
+    GUILD,CHANNEL,'1550619824005062697','45502949674','kings-convoy-reports'
+  ])assert.equal(JSON.stringify(result).includes(privateString),false);
+});
+test('Source preflight rejects stale or tampered scheduled Convoy ZIP',async()=>{
+  const {inspectKingsEventSourcePreflight:inspect}
+    =require('../event-capacity-source-preflight');
+  const stale=await inspect({
+    reader:readerForPreview(zipForPreview('2027-03-20T10:57:00Z')),
+    nowMs:NOW
+  });
+  assert.equal(stale.status,'SOURCE_UNVERIFIED');
+  const broken=zipForPreview();
+  broken[55]^=255;
+  const tampered=await inspect({reader:readerForPreview(broken),nowMs:NOW});
+  assert.equal(tampered.status,'SOURCE_UNVERIFIED');
+});
+test('Source preflight cannot pass on untrusted manual-dispatch run',async()=>{
+  const {inspectKingsEventSourcePreflight:inspect}
+    =require('../event-capacity-source-preflight');
+  const r=await inspect({
+    reader:readerForPreview(zipForPreview(),{event:'workflow_dispatch'}),
+    nowMs:NOW
+  });
+  assert.equal(r.status,'SOURCE_UNVERIFIED');
+  assert.equal(r.calendarProjectionChecked,false);
+});
