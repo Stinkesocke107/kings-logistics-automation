@@ -252,3 +252,26 @@ test('GitHub Free three-private-repo plan does not permit public sensitive archi
   assert.match(handoff,/GitHub Free/);
   assert.match(handoff,/Do not create secrets until after that verification/);
 });
+
+test('Verified GitHub Free three-private-repo topology has no production import or key custody',()=>{
+  const fs=require('node:fs'),path=require('node:path');
+  const root=path.resolve(__dirname,'..');
+  const name='event-capacity-github-free-topology-audit';
+  const module=fs.readFileSync(path.join(root,name+'.js'),'utf8');
+  const runner=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  const live=fs.readFileSync(path.join(root,
+    '.github/workflows/convoy-checker.yml'),'utf8');
+  assert.doesNotMatch(runner,/event-capacity-github-free-topology-audit/);
+  assert.doesNotMatch(live,/event-capacity-github-free-topology-audit/);
+  assert.match(module,/safeForSensitiveWrites:false/);
+  assert.match(module,/safeForProductionSecrets:false/);
+  assert.match(module,/runtimeLeastPrivilegeCredentialVerified:false/);
+  assert.match(module,/freeSlotsCertified:false/);
+  assert.doesNotMatch(module,/DISCORD_BOT_TOKEN|process\.env|discord\.com/);
+  const plan=fs.readFileSync(path.join(root,
+    'docs/KINGS-EVENT-CAPACITY-PRIVATE-STORAGE-OWNER-HANDOFF-2026-11-25.md'),'utf8');
+  assert.match(plan,/PRIVATE visibility independently checked/);
+  assert.match(plan,/No real historical Kings event data/);
+  assert.match(plan,/Do NOT create tokens or GitHub Secrets yet/);
+});
