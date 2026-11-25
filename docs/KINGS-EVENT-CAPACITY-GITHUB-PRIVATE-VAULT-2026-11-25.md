@@ -8,6 +8,14 @@ The Kings Convoy Checker continues running on the existing 15-minute GitHub Acti
 
 The default GITHUB_TOKEN of the public code repo cannot automatically access a different private repo. Before any approved deployment a carefully scoped, fine-grained token with Contents permission for **only** that private repository must be configured as an Actions secret. No token or secret is included in the code or this documentation.
 
+## Signed checkpoint witness update
+
+The follow-on module event-capacity-github-private-checkpoint.js implements a scope-bound **HMAC-signed revision+digest witness** in a SECOND private GitHub repo, with a distinct token and GH Contents file-SHA optimistic update. event-capacity-github-private-storage.js assembles the encrypted data vault and the signed witness and refuses shared repositories, tokens or secrets. Both remain **unconnected to the production Convoy Checker**.
+
+**Important:** This is a separately permissioned GitHub witness, **not an absolutely independent monotonic authority**. GitHub administrator/force-push access can potentially rewind both histories to prior valid signatures. In addition, giving BOTH repository tokens to the same scheduled Actions runner means that a compromised runner could access both; repository separation alone is not a distinct runtime trust boundary. A third operator-controlled, independently retained highwater receipt and security review remain mandatory before any trusted acceptance write or certified quota availability.
+
+Design and tests: docs/KINGS-EVENT-CAPACITY-GITHUB-CHECKPOINT-WITNESS-2026-11-25.md and tests/event-capacity-github-private-checkpoint.test.cjs.
+
 ## New isolated adapter
 
 - File: event-capacity-github-private-vault.js
