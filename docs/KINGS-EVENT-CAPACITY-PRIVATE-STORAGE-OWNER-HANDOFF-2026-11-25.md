@@ -84,3 +84,16 @@ GitHub Free private workflow usage is limited by the included plan allowance; no
 When a restricted synthetic private pilot is actually ready and needs account settings, provide one concrete step at a time. **Never request the owner to paste a secret into chat.**
 
 **Safety status:** 3 private repos VERIFIED; access VERIFIED; code DRAFT; real archive data NOT migrated; real keys NOT created; credential least privilege NOT verified; real retention & isolated restore NOT enabled; free Event slots NOT certified; PR NOT merged; production NOT activated.
+
+## Continued development — separate runtime rights and offline owner rollback floor (25 November 2026)
+
+**Draft code prepared, NO real permissions changed:**
+
+- [x] Added the fully offline signed-owner highwater comparison `event-capacity-independent-owner-highwater.js`, checking privately supplied owner receipt and signed journal against a separately retained floor. It refuses remote versions lower than that floor and signed same-revision forks; remote revisions ahead of the floor require human review. **This cannot establish actual external storage/custody or auto-update the floor.**
+- [x] Added a strict three-role URL/method request allowlist `event-capacity-private-runtime-request-guard.js`: private history GitHub Contents read / CAS write, witness GET-only, encrypted backup immutable create-only paths. Blocks cross-repo writes, other methods and arbitrary paths. **It cannot prove actual token scopes.**
+- [x] Added synthetic regression tests, production import isolation check and runbook `docs/KINGS-EVENT-CAPACITY-OFFLINE-HIGHWATER-RUNTIME-RIGHTS-2026-11-25.md`.
+
+**Next engineering work:** devise the independently controlled owner floor storage/recovery procedure and a real, reviewed least-privilege credential issuance and read-only credential-scope proof for an authorized synthetic pilot. Do NOT create general all-repositories tokens or store the owner Ed25519 PRIVATE signing key in GitHub Actions. Do NOT run live-data history/backup writes yet.
+
+**CEO immediate task remains NONE**: the three real PRIVATE repos, selected GitHub App access and non-secret initialization are already verified. This phase is Draft-only; CI status for the exact latest head must be checked before software tests are claimed green.
+
