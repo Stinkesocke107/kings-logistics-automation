@@ -110,3 +110,15 @@ When a restricted synthetic private pilot is actually ready and needs account se
 - [ ] Owner offline signer and latest highwater truly kept independently; actual isolated encrypted backup restore and real historic source completeness remain release blockers.
 
 **No GitHub Actions Secrets, tokens, owner keys, real Event records or new scheduled workers have been configured. Public `main` and live Convoy Checker remain unchanged. PR #143 must stay DRAFT and unmerged.** Full same-HEAD CI result must be rechecked for each updated commit.
+
+## Private runtime grant scope and pilot HOLD — 25 November 2026
+
+**Development-only additions, NOT real account configuration:**
+
+- [x] Built a separately invoked GET-only GitHub installation-token repository listing probe: **one exact PRIVATE repository**, stable across two reads; deny broad (e.g., six-repository) installation access, foreign repos, missing `main` and invalid responses. This does not prove Contents permission level or provider provenance under a fake transport.
+- [x] Built a five-role scope bundle with five **distinct externally supplied credentials** and sequential fail-closed execution; detects repeated tokens and swapped role/repository bindings, with synthetic tests only.
+- [x] Built an **offline, token-omitting** issued-grant metadata shape validator checking proposed minimal Contents permissions, repo selection and at-most-60-minute remaining expiry; this never confirms actual GitHub issuance or token revocation.
+- [x] Built a **private synthetic pilot HOLD checklist**: even full offline evidence remains blocked without separately reviewed CEO permission, actual runtime credential scope, offline owner key custody, independent recovery, source history completeness, Discord effective-role E2E and privacy signoff.
+- [x] Added focused negative tests and production import isolation. See `docs/KINGS-EVENT-CAPACITY-PRIVATE-RUNTIME-GRANT-AUDIT-2026-11-25.md`.
+
+**CEO action right now: NONE.** No new tokens/Secrets, App permission grants, live private data writes, private pilot, real backup worker or GitHub PR merge. Existing private GitHub Free repos and public `main` remain in their prior state. Full exact-HEAD CI must be verified before claiming new test completion.
