@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path');
 const {inspect,monthsFrom,verdict,contextAllowed,runShape,
   artifactFor,allowedRedirect,createReader,main}
   =require('../event-capacity-pilot-source');
-const {makeSyntheticCapacityZip}=require('./event-capacity-pilot-archive.test.cjs');
+const {makeSyntheticCapacityZip}=require('./helpers/event-capacity-pilot-zip.cjs');
 const REPO='Stinkesocke107/kings-logistics-automation';
 const BASE='https://api.github.com/repos/'+REPO;
 const G='1114967437788577792',F='1550619824005062697';
