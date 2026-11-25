@@ -4,16 +4,16 @@
 
 ## Why this exists
 
-The existing \`event-capacity-historical-lifecycle-journal.js\` proves that recorded historical **accept**, **reschedule**, **cancel**, and **complete** transitions were signed by the configured offline Ed25519 owner key and have an intact hash chain. That journal was in-memory only.
+The existing `event-capacity-historical-lifecycle-journal.js` proves that recorded historical **accept**, **reschedule**, **cancel**, and **complete** transitions were signed by the configured offline Ed25519 owner key and have an intact hash chain. That journal was in-memory only.
 
-The new \`event-capacity-historical-encrypted-archive.js\` is an **offline AES-256-GCM serialization/restore codec** for that signed journal. It separates encrypted records by the UTC **review month** (not departure month and NOT the Event Capacity accounting month), up to 128 entries per segment. An authenticated encryption tag protects each part, with AAD binding the Kings guild/forum, archive creation timestamp, part order, exact revision range, prior and final chain tips, and review month.
+The new `event-capacity-historical-encrypted-archive.js` is an **offline AES-256-GCM serialization/restore codec** for that signed journal. It separates encrypted records by the UTC **review month** (not departure month and NOT the Event Capacity accounting month), up to 128 entries per segment. An authenticated encryption tag protects each part, with AAD binding the Kings guild/forum, archive creation timestamp, part order, exact revision range, prior and final chain tips, and review month.
 
 The private archive manifest includes only scope, review month, revision boundaries, ciphertext lengths/hashes, final tip and uncertainty flags. It deliberately contains **no plaintext event IDs, member IDs, staff notes, evidence digests or event details**. The manifest itself is still private internal metadata and must **never** be committed to the public source repo.
 
 ## Available interfaces
 
-- \`createEncryptedHistoricalArchive({journal, scope, ownerPublicKey, encryptionSecret})\` validates the entire pre-existing owner-signed journal before encrypting it. It returns \`{archive,checkpoint,historicalCoverageCertified:false,freeSlotsCertified:false}\`.
-- \`openEncryptedHistoricalArchive({archive,expectedCheckpoint,scope,ownerPublicKey,encryptionSecret})\` requires a **separately retained expected checkpoint**, then validates its digest, authenticated ciphertext, segment continuity, revision chain, reconstructed original owner signatures and final journal state before returning the private journal. There is NO fallback to an empty journal.
+- `createEncryptedHistoricalArchive({journal, scope, ownerPublicKey, encryptionSecret})` validates the entire pre-existing owner-signed journal before encrypting it. It returns `{archive,checkpoint,historicalCoverageCertified:false,freeSlotsCertified:false}`.
+- `openEncryptedHistoricalArchive({archive,expectedCheckpoint,scope,ownerPublicKey,encryptionSecret})` requires a **separately retained expected checkpoint**, then validates its digest, authenticated ciphertext, segment continuity, revision chain, reconstructed original owner signatures and final journal state before returning the private journal. There is NO fallback to an empty journal.
 - The checkpoint binds the journal revision, final tip and SHA-256 hash of the exact archive manifest. It must be pinned and authenticated **outside the archive and outside any storage account that can rewrite it**. The same archive can NOT independently authenticate its own checkpoint.
 - The encryption secret must be **high-entropy** and supplied only in a reviewed private environment. A 32-character human password is **not** equivalent to a high-entropy key. The offline Ed25519 signing PRIVATE key must stay outside GitHub, Actions and Discord.
 - Hard bounds: 24,000 journal entries, 512 encrypted parts, 128 entries/part, 512 KiB ciphertext/part, 36 MiB total ciphertext. Storage/retention is NOT provided.
@@ -31,7 +31,7 @@ The six focused Node tests were executed against the **existing real signed jour
 5. Two archived revisions cannot be replayed against each other's independently pinned checkpoint.
 6. A signed historical cancellation survives restore but does **not** prove when the formerly occupied slot was freed.
 
-See \`tests/event-capacity-historical-encrypted-archive.test.cjs\` and \`tests/event-capacity-historical-lifecycle-workflow-gating.test.cjs\`. **Full GitHub CI for the latest PR head remains pending and must not be claimed successful.**
+See `tests/event-capacity-historical-encrypted-archive.test.cjs` and `tests/event-capacity-historical-lifecycle-workflow-gating.test.cjs`. **Full GitHub CI for the latest PR head remains pending and must not be claimed successful.**
 
 ## Still blocking a live release
 
