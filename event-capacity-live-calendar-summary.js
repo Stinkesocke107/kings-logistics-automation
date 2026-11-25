@@ -6,6 +6,7 @@
 // The existing capacity engine still requires actual trusted Staff decisions.
 const {adaptConvoyReports}=require('./event-capacity-adapter');
 const {timestamp}=require('./event-capacity-core');
+const {POLICY,reviewDailyCount}=require('./event-capacity-policy');
 const ERROR='Kings private Convoy Calendar source cannot be projected.';
 const GUILD='1114967437788577792';
 const FORUM='1550619824005062697';
@@ -111,15 +112,14 @@ function monthlyFromReports({report,overview,nowMs=Date.now()}={}){
         legacyMonths.set(ym,(legacyMonths.get(ym)||0)+1);
     }
     for(const [day,d] of dayMap){
-      const weekday=new Date(day+'T00:00:00.000Z').getUTCDay();
-      const quota=weekday===0||weekday===5||weekday===6?5:3;
+      const rule=reviewDailyCount({day,partner:d.partner,external:d.external,
+        kings:d.kings});
       d.departures.sort((a,b)=>a-b);
       for(let i=1;i<d.departures.length;i++){
-        if(d.departures[i]-d.departures[i-1]<120*60000)
+        if(d.departures[i]-d.departures[i-1]<POLICY.minimumDepartureGapMinutes*60000)
           d.potentialSpacingConflict=true;
       }
-      const combined=d.partner+d.external;
-      d.reviewFlag=combined>quota||d.partner>2||d.external>2||
+      d.reviewFlag=rule.planningOverLimit||
         d.potentialSpacingConflict||d.unclassified>0||
         d.requiresVerification>0;
       delete d.departures;
