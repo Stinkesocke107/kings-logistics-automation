@@ -69,14 +69,14 @@ test('Scheduled, pending, cancelled and unclassified counts stay separate',()=>{
   assert.equal(r.attendanceInferred,undefined);
   assert.equal(r.completedIsNotAttendance,true);
 });
-test('Weekday and weekend planning caps distinguish 3 and 5, with per-type caps',()=>{
+test('All days apply three total Convoys including weekends, with no category daily cap',()=>{
   const r=project(fixture([
     // Thursday: 4 source claims -> flagged (>3).
     thread(1,'Scheduled','Partner Convoy','2027-03-25T09:00:00Z'),
     thread(2,'Scheduled','External Convoy','2027-03-25T12:00:00Z'),
     thread(3,'Scheduled','External Convoy','2027-03-25T15:00:00Z'),
     thread(4,'Scheduled','Partner Convoy','2027-03-25T18:00:00Z'),
-    // Saturday: 4 source claims -> <=5 and categories <=2.
+    // Saturday: 4 source claims -> >3, equally flagged.
     thread(5,'Scheduled','Partner Convoy','2027-03-27T09:00:00Z'),
     thread(6,'Scheduled','External Convoy','2027-03-27T12:00:00Z'),
     thread(7,'Scheduled','Partner Convoy','2027-03-27T15:00:00Z'),
@@ -85,7 +85,9 @@ test('Weekday and weekend planning caps distinguish 3 and 5, with per-type caps'
   const th=r.months[0].days.find(x=>x.date==='2027-03-25');
   const sa=r.months[0].days.find(x=>x.date==='2027-03-27');
   assert.equal(th.reviewFlag,true);
-  assert.equal(sa.reviewFlag,false);
+  assert.equal(sa.reviewFlag,true);
+  assert.equal(sa.dailyLimitExceeded,true);
+  assert.equal(sa.priorityConflict,true);
   assert.equal(th.partner,2);
   assert.equal(sa.partner,2);
   assert.equal(r.freeSlotsCertified,false);
@@ -99,7 +101,7 @@ test('Same-day departures less than two hours apart are only a review warning',(
   assert.equal(r.months[0].days[0].reviewFlag,true);
   assert.equal(r.bookingsChanged,0);
 });
-test('Kings source claims do not consume partner/external per-day quota',()=>{
+test('Kings three/day reaches daily limit and Kings is not monthly limited',()=>{
   const r=project(fixture([
     thread(1,'Scheduled','Kings Convoy','2027-03-21T08:00:00Z'),
     thread(2,'Scheduled','Kings Convoy','2027-03-21T11:00:00Z'),
@@ -108,6 +110,8 @@ test('Kings source claims do not consume partner/external per-day quota',()=>{
   assert.equal(r.months[0].days[0].kings,3);
   assert.equal(r.months[0].days[0].reviewFlag,false);
   assert.equal(r.months[0].days[0].partner,0);
+  assert.equal(r.policy.dailyTotalMax,3);
+  assert.equal(r.policy.kingsMonthlyMax,null);
 });
 test('Frozen legacy Event claims stay separate and do not increase center occupancy',()=>{
   const f=fixture();
@@ -246,4 +250,38 @@ test('A forged omission of undated historical claims is rejected before private 
     {...r,legacyClaimsInVisibleMonths:1},
     {...r,legacyClaimsOutsideWindow:1}
   ])assert.throws(()=>calendarLines(forged));
+});
+
+test('Four Kings source claims on Sunday exceed the global daily maximum of 3',()=>{
+  const r=project(fixture([
+    thread(1,'Scheduled','Kings Convoy','2027-03-28T06:00:00Z'),
+    thread(2,'Scheduled','Kings Convoy','2027-03-28T09:00:00Z'),
+    thread(3,'Scheduled','Kings Convoy','2027-03-28T12:00:00Z'),
+    thread(4,'Scheduled','Kings Convoy','2027-03-28T15:00:00Z')
+  ]));
+  assert.equal(r.months[0].kings,4);
+  assert.equal(r.months[0].days[0].dailyLimitExceeded,true);
+  assert.equal(r.months[0].days[0].reviewFlag,true);
+  assert.equal(r.months[0].priorityConflictDays,0);
+  assert.equal(r.freeSlotsCertified,false);
+});
+test('Twenty-one Partner monthly source claims need review, External count independent',()=>{
+  const records=Array.from({length:21},(_,i)=>
+    thread(i+1,'Scheduled','Partner Convoy',
+      '2027-03-'+String(i+1).padStart(2,'0')+'T16:00:00Z'));
+  const r=project(fixture(records));
+  assert.equal(r.months[0].partner,21);
+  assert.equal(r.months[0].external,0);
+  assert.equal(r.months[0].partnerMonthlyOverLimit,true);
+  assert.equal(r.months[0].externalMonthlyOverLimit,false);
+  assert.match(calendarLines(r),/P21\/20 !/);
+});
+test('Source calendar repeats priority only for unconfirmed review, never booking',()=>{
+  const r=project(fixture());
+  const lines=calendarLines(r);
+  assert.match(lines,/max 3 total\/day/);
+  assert.match(lines,/Partner 20\/month/);
+  assert.match(lines,/Kings first, Partner second, External third/);
+  assert.equal(r.policy.weeklyMax,null);
+  assert.equal(r.bookingsChanged,0);
 });
