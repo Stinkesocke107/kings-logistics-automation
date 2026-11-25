@@ -13,7 +13,7 @@ The private archive manifest includes only scope, review month, revision boundar
 ## Available interfaces
 
 - `createEncryptedHistoricalArchive({journal, scope, ownerPublicKey, encryptionSecret})` validates the entire pre-existing owner-signed journal before encrypting it. It returns `{archive,checkpoint,historicalCoverageCertified:false,freeSlotsCertified:false}`.
-- `openEncryptedHistoricalArchive({archive,expectedCheckpoint,scope,ownerPublicKey,encryptionSecret})` requires a **separately retained expected checkpoint**, then validates its digest, authenticated ciphertext, segment continuity, revision chain, reconstructed original owner signatures and final journal state before returning the private journal. There is NO fallback to an empty journal.
+- `openEncryptedHistoricalArchive({archive,expectedCheckpoint,scope,ownerPublicKey,encryptionSecret})` requires a **separately retained expected checkpoint**, then validates its digest, authenticated ciphertext, segment continuity, revision chain, reconstructed original owner signatures and final journal state before returning the private journal. There is NO fallback to an empty journal. The result reports `encryptedArchiveIntegrityVerified:true` but explicitly `sourceEvidenceAuthenticityVerified:false`: cryptographic integrity does not authenticate the original Convoy Center source.
 - The checkpoint binds the journal revision, final tip and SHA-256 hash of the exact archive manifest. It must be pinned and authenticated **outside the archive and outside any storage account that can rewrite it**. The same archive can NOT independently authenticate its own checkpoint.
 - The encryption secret must be **high-entropy** and supplied only in a reviewed private environment. A 32-character human password is **not** equivalent to a high-entropy key. The offline Ed25519 signing PRIVATE key must stay outside GitHub, Actions and Discord.
 - Hard bounds: 24,000 journal entries, 512 encrypted parts, 128 entries/part, 512 KiB ciphertext/part, 36 MiB total ciphertext. Storage/retention is NOT provided.
@@ -22,7 +22,7 @@ No API calls, Discord writes, GitHub commits, staff decisions, automatic event a
 
 ## Local verification
 
-The six focused Node tests were executed against the **existing real signed journal module** with synthetic source data:
+The seven focused Node tests were executed against the **existing real signed journal module** with synthetic source data:
 
 1. Cross-month signed acceptance → reschedule → completion, archive encryption and exact journal round trip.
 2. Empty history stays uncertified.
@@ -30,6 +30,7 @@ The six focused Node tests were executed against the **existing real signed jour
 4. Missing/mismatched pinned checkpoint, wrong encryption key and wrong guild scope fail closed.
 5. Two archived revisions cannot be replayed against each other's independently pinned checkpoint.
 6. A signed historical cancellation survives restore but does **not** prove when the formerly occupied slot was freed.
+7. 129 synthetic decisions in one review month are split into contiguous, bounded 128+1 encrypted segments and reconstructed.
 
 See `tests/event-capacity-historical-encrypted-archive.test.cjs` and `tests/event-capacity-historical-lifecycle-workflow-gating.test.cjs`. **Full GitHub CI for the latest PR head remains pending and must not be claimed successful.**
 
