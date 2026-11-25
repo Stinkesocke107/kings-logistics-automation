@@ -44,6 +44,44 @@ function freshMemberCount(now = Date.now()) {
       !Number.isFinite(at)||at>now+300000||now-at>90*60*1000) return null;
   return {members:number,verifiedAt:Math.floor(at/1000)};
 }
+// Independent, last-verified aggregate history remains useful even when
+// live player positions are unavailable. Never re-label old peaks as current.
+function historicalPeakField(){
+  const state=readSafeState('statistics.json');
+  const peaks=state?.allTime;
+  if(!peaks) return null;
+  const all=peaks.peakOnline,ets=peaks.peakETS2,ats=peaks.peakATS;
+  if(![all,ets,ats].every(n=>Number.isSafeInteger(n)&&n>=0&&n<=100000) ||
+     all<Math.max(ets,ats) || !Array.isArray(state.history) || state.history.length===0){
+    return null;
+  }
+  const ms=Date.parse(state.sourceSnapshotAt||'');
+  if(!Number.isFinite(ms)||ms<=0||ms>Date.now()+300000) return null;
+  const at=Math.floor(ms/1000);
+  return {
+    name:'Historical tracked online peak (not current activity)',
+    value:'**'+all+' Kings Members** · ETS2 peak: **'+ets+'** · ATS peak: **'+ats+
+      '**\nLast confirmed player-data sample: <t:'+at+':R>',
+    inline:false
+  };
+}
+// Published changelog archive is independent of live map availability.
+// Read identifiers only: never inject arbitrary changelog entry content.
+function archivedChangelogField(){
+  const history=readSafeState('changelog-history.json');
+  const items=Array.isArray(history?.changelogs)?history.changelogs:[];
+  const rows=items.filter(item=>{
+    const at=Date.parse(item?.publishedAt||'');
+    return /^S[0-9]{2}-KL[0-9]{2,3}$/.test(String(item?.id||'')) &&
+      Number.isFinite(at)&&at>0&&at<=Date.now()+300000;
+  }).sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt));
+  if(rows.length===0) return null;
+  const latest=rows[0];
+  return {name:'Latest archived Kings Changelog (independent of live map)',
+    value:'**'+latest.id+'** · Published <t:'+Math.floor(Date.parse(latest.publishedAt)/1000)+':D>',
+    inline:false};
+}
+
 function outageEmbed(config,state,official=null){
   const fields=[
     {name:'Last confirmed player-data sample',value:lastVerified(state,config),inline:false},
@@ -69,6 +107,14 @@ function outageEmbed(config,state,official=null){
     fields.push({name:'ALL TruckersMP players online (not Kings Drivers)',
       value:'**'+official.totalAllPlayers+' players** across '+official.activeServers+' online servers (ETS2: **'+official.ets2AllPlayers+'** · ATS: **'+official.atsAllPlayers+'**) — <t:'+ts+':R>',inline:false});
     }
+  }
+  if(config.label==='Advanced Statistics' || config.label==='Central Overview'){
+    const historical=historicalPeakField();
+    if(historical)fields.push(historical);
+  }
+  if(config.label==='Central Overview'){
+    const changelog=archivedChangelogField();
+    if(changelog)fields.push(changelog);
   }
   return {
     title:config.title,
