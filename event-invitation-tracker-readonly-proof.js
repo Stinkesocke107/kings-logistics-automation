@@ -13,6 +13,14 @@ async function verify({env=process.env,transport=fetch,nowMs=Date.now()}={}){
        result.staffApprovalsVerified!==false||
        result.invitationDecisionsVerified!==false)
       throw Error('Invitation source not verified');
+    // A complete source scan can still leave forum lifecycle labels
+    // unverified. Keep the production check visibly non-green until Staff
+    // authoritatively confirms the real Forum's tag mapping.
+    if(result.tagSchemaVerified!==true){
+      console.warn('::warning::Kings Event Invitation Tracker: INVITATIONS_READABLE_TAG_SCHEMA_UNVERIFIED');
+      process.exitCode=1;
+      return 'INVITATIONS_READABLE_TAG_SCHEMA_UNVERIFIED';
+    }
     // Fixed allowlist log text. Never log source counts or invite names.
     console.log('Kings Event Invitation Tracker: READ_ONLY_SOURCE_VERIFIED');
     console.log('Recorded entries are source claims; acceptance, attendance and original historical coverage are NOT verified.');
