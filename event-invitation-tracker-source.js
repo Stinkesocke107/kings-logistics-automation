@@ -4,7 +4,7 @@
 // NEVER sends invitations, approves events, books slots or mutates Discord.
 // Public GitHub logs and JSON may only receive the allowlisted aggregate.
 const GUILD='1114967437788577792';
-const FORUM='1567471010436087949';
+const FORUM='1457797580703531143';
 const API='https://discord.com/api/v10';
 const MODES=Object.freeze(['Invites Ongoing','Invites Done','Convoy Completed']);
 const MAX_THREADS=300,MAX_MESSAGES=500,MAX_AGE_MS=36*60*60*1000;
