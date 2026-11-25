@@ -73,6 +73,11 @@ test('Duplicate source thread is refused before rendering any supposedly safe ca
   });
   assert.throws(()=>projectKingsConvoySystemBridge(x));
 });
+test('Cross-channel reuse of a Discord thread ID is rejected by the combined calendar bridge',()=>{
+  const x=data();
+  x.sourceIntake.convoyRecords[1].threadId=x.sourceIntake.convoyRecords[0].threadId;
+  assert.throws(()=>projectKingsConvoySystemBridge(x));
+});
 test('Private preview never includes raw Discord thread or source IDs',()=>{
   const x=data(),r=projectKingsConvoySystemBridge(x);
   const reply=renderKingsConvoySystemBridgePreview(r);
