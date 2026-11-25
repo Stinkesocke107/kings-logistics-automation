@@ -31,6 +31,12 @@ function utc(x){
   if(!Number.isFinite(ms)||new Date(ms).toISOString()!==x)fail();
   return ms;
 }
+function discordMessageUtc(value){
+  if(typeof value!=='string'||value.length>48||!/^20\d{2}-\d\d-\d\dT/.test(value))fail();
+  const at=Date.parse(value);
+  if(!Number.isFinite(at))fail();
+  return new Date(at).toISOString();
+}
 function bits(x){
   if(typeof x!=='string'||!/^\d{1,22}$/.test(x))fail();
   return BigInt(x);
@@ -80,10 +86,10 @@ function channelAuthorization({channel,roles,bot,me,guildId,channelId,staffIds,a
 }
 function decodeMessage(m,channelId,now){
   if(!plain(m)||!ID.test(m.id)||m.channel_id!==channelId||
-    !plain(m.author)||!ID.test(m.author.id)||m.author.bot!==false||
+    !plain(m.author)||!ID.test(m.author.id)||m.author.bot===true||
     typeof m.content!=='string'||m.content.length>2000||
     !m.content.startsWith(PREFIX))fail();
-  const stamp=utc(m.timestamp);
+  const msgTime=discordMessageUtc(m.timestamp),stamp=utc(msgTime);
   if(stamp>now)fail();
   let json;
   try{json=JSON.parse(m.content.slice(PREFIX.length));}catch{fail();}
@@ -99,7 +105,7 @@ function decodeMessage(m,channelId,now){
       json.replyDueAtUtc!==null&&utc(json.replyDueAtUtc)<stamp)fail();
     return {kind:'invitation',authorId:m.author.id,at:stamp,id:m.id,
       item:{invitationId:json.invitationId,eventId:json.eventId,
-        createdAtUtc:m.timestamp,departureAtUtc:json.departureAtUtc,
+        createdAtUtc:msgTime,departureAtUtc:json.departureAtUtc,
         replyDueAtUtc:json.replyDueAtUtc,sourceDigest}};
   }
   exact(json,['kind','invitationId','status']);
@@ -107,7 +113,7 @@ function decodeMessage(m,channelId,now){
     !['Sent','Accepted','Declined','Withdrawn','Unknown'].includes(json.status))fail();
   return {kind:'status',authorId:m.author.id,at:stamp,id:m.id,
     item:{invitationId:json.invitationId,status:json.status,
-      atUtc:m.timestamp,sourceDigest}};
+      atUtc:msgTime,sourceDigest}};
 }
 async function scanKingsInvitationDiscordSource({client,config,asOfUtc}={}){
   try{
@@ -162,7 +168,7 @@ async function scanKingsInvitationDiscordSource({client,config,asOfUtc}={}){
     for(const author of authors){
       const member=await get('/guilds/'+config.guildId+'/members/'+author);
       if(!plain(member)||member.user?.id!==author||
-        member.user.bot!==false||!Array.isArray(member.roles))fail();
+        member.user.bot===true||!Array.isArray(member.roles))fail();
       const authorRoles=ids(member.roles,0,100);
       if([...authorRoles].some(x=>!authorization.byId.has(x))||
         ![...authorRoles].some(x=>staffIds.has(x)))fail();
