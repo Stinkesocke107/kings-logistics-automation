@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const { syncEmbedMessage } = require('./leadership-message-sync');
 const {decryptEventState}=require('./event-leadership-state');
 const {trustedEventObservation}=require('./event-leadership-observation');
+const {trustedInvitationObservation}=require('./event-invitation-tracker-source');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -302,6 +303,7 @@ function buildStaff(data, now = Date.now()) {
 function buildEvent(data, now = Date.now()) {
   const state=data.eventReports||{};
   const observed=trustedEventObservation(state.eventSourceObservation,now);
+  const invitations=trustedInvitationObservation(state.invitationSourceObservation,now);
   const w=latest(state.weeklyReports);
   const m=latest(state.monthlyReports);
   const refreshed=observed
@@ -325,6 +327,23 @@ function buildEvent(data, now = Date.now()) {
       '** · undated **'+observed.historyUndatedClaims+
       '**. Historical coverage **not verified**. No available slots certified.'
     : 'Calendar and historical coverage unverified. No available slots certified.';
+  const invitationLine=invitations
+    ? 'Visible convoy threads **'+invitations.convoyThreads+
+      '** · documented unique VTC invites **'+invitations.invitedVtcs+
+      '** · ongoing **'+invitations.ongoingThreads+
+      '** · invitations done **'+invitations.doneThreads+
+      '** · convoys completed **'+invitations.completedThreads+
+      '**.\\nFor Staff review: duplicate VTC replies **'+invitations.duplicateVtcReplies+
+      '** · invalid replies **'+invitations.malformedReplies+
+      '** · tag problems **'+invitations.tagIssues+
+      '** · event links missing **'+invitations.eventLinksMissing+
+      '** · event links matched to current Center **'+invitations.linkedToCenter+
+      '**.\\nRecorded response labels: accepted **'+invitations.recordedAccepted+
+      '** · declined **'+invitations.recordedDeclined+
+      '** · pending **'+invitations.recordedPending+
+      '** · not recorded **'+invitations.replyNotRecorded+
+      '**. Source reports only, NOT verified approvals or participation.'
+    : 'Unavailable — private Invitation Tracker source missing, stale, unreadable or incomplete; no invitation totals certified.';
   return {
     title: '📅 Kings Event Leadership Dashboard',
     description: 'One fixed Event Operations dashboard. Verified convoy attendance/history remains a separate statistics dataset. Source review is advisory, not Staff approval. Private data stay encrypted.',
@@ -334,7 +353,8 @@ function buildEvent(data, now = Date.now()) {
       field('🟢 Last 24 Hours', 'A verified Event change feed is not currently available from the legacy publication-only state. See the current Convoy Center for individual changes.'),
       field('🟣 Last Completed Week', w ? fmtKey(w.key)+' • Tracked **'+w.realConvoys+'** • Scheduled **'+w.scheduled+'** • Ready **'+w.ready+'** • Needs Info **'+w.needsInfo+'** • Changes **'+w.changes+'**' : 'No completed verified weekly report yet.'),
       field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
-      field('🗓️ Calendar / History — Source Review',calendarLine)
+      field('🗓️ Calendar / History — Source Review',calendarLine),
+      field('✉️ Invitation Tracker — Source Review',invitationLine)
     ],
     footer: { text: 'Kings Logistics • Event Leadership • Internal operations' },
     timestamp: nowISO()
@@ -347,6 +367,7 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
   const ds = data.driverSummary;
   const ss = data.staffSummary;
   const eventSource=trustedEventObservation(data.eventReports?.eventSourceObservation);
+  const invitationSource=trustedInvitationObservation(data.eventReports?.invitationSourceObservation);
   const eventNeeds=eventSource?.needsInformation||0;
   const eventReady=eventSource?.readyForApproval||0;
   const hrOpen = (data.hr.reviews || []).filter((r) => reviewStatus(r) !== 'completed').length;
@@ -360,6 +381,7 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
       field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
       field('📅 Events — Live', eventSource ? `Reconciled source: Tracked **${eventSource.tracked}** • Source Scheduled **${eventSource.scheduled}** • Ready **${eventReady}** • Needs Info **${eventNeeds}** (advisory, not approval)` : 'Unavailable — no recent reconciled Event source; historical state is not a verified zero.'),
+      field('✉️ Event Invitations — Source Review', invitationSource ? `Documented unique VTC invitations **${invitationSource.invitedVtcs}** • convoy threads **${invitationSource.convoyThreads}** • duplicate replies **${invitationSource.duplicateVtcReplies}** • malformed replies **${invitationSource.malformedReplies}** (recorded claims, NOT confirmed attendance)` : 'Unavailable — no verified recent read-only Invitation Tracker scan.'),
       field('🟣 Last Completed Week', dw ? `${fmtKey(dw.key)} • Drivers **${dw.members}** • Joined **${dw.joined}** • Left **${dw.left}** • Net **${signed(dw.netGrowth)}** • Staff **${dw.currentStaff ?? ss.currentStaff ?? 0}** • Active Event Threads **${dw.activeEventThreads ?? 0}** • Weekly Peak **${dw.weeklyPeak ?? 0}**` : 'No completed Management weekly report yet.'),
       field('👑 Last Completed Month', mm ? `${fmtKey(mm.key)} • Drivers **${mm.drivers}** • Driver Net **${signed(mm.driverNetGrowth)}** • Staff **${mm.staff}** • Staff Net **${signed(mm.staffNetGrowth)}** • Open Reviews **${mm.openReviews}** • Event Issues **${mm.eventIssues}**` : 'No completed Management monthly report yet.')
     ],
