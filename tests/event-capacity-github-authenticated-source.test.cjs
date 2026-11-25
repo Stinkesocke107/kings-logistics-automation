@@ -149,7 +149,7 @@ function harness({
   const create=()=>createAuthenticatedKingsSource({
     githubToken:TOKEN,transport,nowMs:()=>NOW
   });
-  return {create,requests,counts:()=>({discoveries,downloads,runs})};
+  return {create,transport,requests,counts:()=>({discoveries,downloads,runs})};
 }
 const proposal={messageId:ORIGINAL,actorId:SUBMITTER,
   ref:'event:20270',field:'category',value:'Partner Convoy',
@@ -270,8 +270,8 @@ test('Same JSON but different ZIP package produces different authenticated ZIP d
   assert.notEqual(a.archiveDigest,b.archiveDigest);
 });
 test('Authenticated source gateway stages an uncommitted two-person decision',async()=>{
-  const h=harness(),client=harness();
-  const gw=reviewedGateway({transport:h.transport||harness().transport});
+  const h=harness();
+  const gw=reviewedGateway(h);
   const staged=await gw.gateway.prepare({
     proposal,challenge:gw.challenge,reviewMessageId:CONFIRM
   });
@@ -289,7 +289,7 @@ test('Authenticated source gateway stages an uncommitted two-person decision',as
 });
 test('Gateway staging rejects changed authenticated ZIP between read passes',async()=>{
   const h=harness({sourceChangesAt:2});
-  const gw=reviewedGateway({transport:h.transport});
+  const gw=reviewedGateway(h);
   await assert.rejects(gw.gateway.prepare({
     proposal,challenge:gw.challenge,reviewMessageId:CONFIRM
   }));
