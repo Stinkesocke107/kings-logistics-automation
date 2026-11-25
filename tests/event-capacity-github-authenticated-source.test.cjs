@@ -13,6 +13,8 @@ const {createGithubOnlyKnownUsageReader}
   =require('../event-capacity-github-known-usage');
 const {createGithubOnlyHistoricalReviewReader}
   =require('../event-capacity-github-historical-review');
+const {createGithubOnlyMonthlyCoverageReader}
+  =require('../event-capacity-github-monthly-coverage');
 const REPO='Stinkesocke107/kings-logistics-automation';
 const BASE='https://api.github.com/repos/'+REPO;
 const SCOPE={guildId:'1114967437788577792',
@@ -432,5 +434,62 @@ test('Historical reader refuses a changed or unavailable owner-pinned private le
     nowMs:()=>NOW
   });
   await assert.rejects(reader());
+  assert.equal(reads,2);
+});
+
+test('Monthly coverage live-like gateway double-verifies scheduled ZIP and signed private ledger without certifying slots',async()=>{
+  const h=harness(),ledger=createEmptyLedger(SCOPE,'2027-03-20T11:30:00Z');
+  let reads=0;
+  const reader=createGithubOnlyMonthlyCoverageReader({
+    githubToken:TOKEN,githubTransport:h.transport,
+    ownerPinnedVault:{read:async()=>{
+      reads++;
+      return {ledger:structuredClone(ledger),
+        checkpoint:{revision:0,digest:'a'.repeat(64)}};
+    }},
+    scope:SCOPE,
+    taskSecret:'synthetic-monthly-private-history-task-secret-000001',
+    nowMs:()=>NOW
+  });
+  const result=await reader({month:'2027-03'});
+  assert.equal(result.sourceAuthenticatedByGateway,true);
+  assert.equal(result.ownerPinCheckedByGateway,true);
+  assert.equal(result.month,'2027-03');
+  assert.equal(result.counts.elapsedReferenceIntervals,1872);
+  assert.equal(result.counts.observedSnapshotIntervals,1);
+  assert.equal(result.counts.missingReferenceIntervals,1871);
+  assert.equal(result.historicalCoverageCertified,false);
+  assert.equal(result.freeSlotsCertified,false);
+  assert.equal(result.days.length,31);
+  assert.equal(reads,2);
+  assert.deepEqual(h.counts(),{discoveries:4,downloads:2,runs:4});
+});
+test('Monthly coverage cannot proceed after source ZIP is replaced or owner ledger revision changes mid-check',async()=>{
+  const ledger=createEmptyLedger(SCOPE,'2027-03-20T11:30:00Z');
+  const changed=harness({sourceChangesAt:2});
+  const sourceReader=createGithubOnlyMonthlyCoverageReader({
+    githubToken:TOKEN,githubTransport:changed.transport,
+    ownerPinnedVault:{read:async()=>({
+      ledger:structuredClone(ledger),
+      checkpoint:{revision:0,digest:'a'.repeat(64)}
+    })},
+    scope:SCOPE,
+    taskSecret:'synthetic-monthly-private-history-task-secret-000001',
+    nowMs:()=>NOW
+  });
+  await assert.rejects(sourceReader({month:'2027-03'}));
+  let reads=0;
+  const ledgerReader=createGithubOnlyMonthlyCoverageReader({
+    githubToken:TOKEN,githubTransport:harness().transport,
+    ownerPinnedVault:{read:async()=>{
+      reads++;
+      return {ledger:structuredClone(ledger),
+        checkpoint:{revision:reads===1?0:1,digest:'a'.repeat(64)}};
+    }},
+    scope:SCOPE,
+    taskSecret:'synthetic-monthly-private-history-task-secret-000001',
+    nowMs:()=>NOW
+  });
+  await assert.rejects(ledgerReader({month:'2027-03'}));
   assert.equal(reads,2);
 });
