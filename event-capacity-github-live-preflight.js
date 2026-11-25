@@ -22,6 +22,7 @@ function verifyContext(env){
     env.GITHUB_EVENT_NAME==='pull_request'&&
     env.GITHUB_BASE_REF==='main'&&
     env.GITHUB_HEAD_REF==='feature/event-capacity-foundation-2026-11'&&
+    env.GITHUB_HEAD_REPOSITORY===REPO&&
     env.KINGS_EVENT_CAPACITY_PREFLIGHT_ONLY==='true'&&
     env.GITHUB_REF?.startsWith('refs/pull/143/')&&
     typeof env.GITHUB_TOKEN==='string'&&
