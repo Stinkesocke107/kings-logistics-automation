@@ -14,7 +14,7 @@ on:
           - dry-run
           - live
       capacity_action:
-        description: "GitHub-only Event Capacity (off, preview, preflight, bootstrap, sync)"
+        description: "GitHub-only Capacity (off, preview, preflight, source-preflight, bootstrap, sync)"
         required: false
         default: "off"
         type: choice
@@ -22,6 +22,7 @@ on:
           - "off"
           - preview
           - preflight
+          - source-preflight
           - bootstrap
           - sync
 
@@ -79,7 +80,7 @@ jobs:
           # capacity-only invocation. It must never execute Convoy stages,
           # even if mode=live was selected by the dispatcher.
           CAPACITY_ONLY="false"
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [[ "$CAPACITY_ACTION" =~ ^(preview|preflight|bootstrap|sync)$ ]]; then
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [[ "$CAPACITY_ACTION" =~ ^(preview|preflight|source-preflight|bootstrap|sync)$ ]]; then
             CAPACITY_ONLY="true"
             DRY_RUN="true"
           elif [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
@@ -282,6 +283,8 @@ jobs:
           DISCORD_CONVOY_OVERVIEW_CHANNEL_ID: '1550619865805754378'
         run: node convoy-overview-discord.js
 
+      # Manual source-preflight verifies the real scheduled Convoy ZIP
+      # privately using GitHub Actions read-only API requests. No Discord.
       # Event Capacity uses this already scheduled GitHub-hosted runner:
       # no second workflow, no VPS, and no live Discord Gateway.
       # Default OFF; manual preview is read-only even without credentials.
@@ -293,6 +296,7 @@ jobs:
           (github.event_name == 'workflow_dispatch' &&
             (inputs.capacity_action == 'preview' ||
               inputs.capacity_action == 'preflight' ||
+              inputs.capacity_action == 'source-preflight' ||
               (vars.KINGS_EVENT_CAPACITY_ENABLED == 'true' &&
                 (inputs.capacity_action == 'bootstrap' || inputs.capacity_action == 'sync'))))
         env:
@@ -312,15 +316,26 @@ jobs:
         run: |
           node --check event-capacity-github-only.js
           node --check event-capacity-private-channel-preflight.js
+          node --check event-capacity-source-preflight.js
           node --check event-capacity-github-staff-commands.js
           node --check event-capacity-github-decision-evidence.js
           node --check scripts/event-capacity-github-actions.js
-          node --test tests/event-capacity-github-only.test.cjs tests/event-capacity-private-channel-preflight.test.cjs tests/event-capacity-github-actions-runner.test.cjs tests/event-capacity-github-staff-commands.test.cjs tests/event-capacity-github-decision-evidence.test.cjs
+          node --test tests/event-capacity-github-only.test.cjs tests/event-capacity-private-channel-preflight.test.cjs tests/event-capacity-source-preflight.test.cjs tests/event-capacity-github-actions-runner.test.cjs tests/event-capacity-github-staff-commands.test.cjs tests/event-capacity-github-decision-evidence.test.cjs
           node scripts/event-capacity-github-actions.js
 
       - name: Note optional Event Capacity errors without masking Convoy health
         if: steps.event_capacity_github_only.outcome == 'failure'
         run: echo "::warning::Optional GitHub-only Event Capacity run failed; do not treat availability as verified."
+
+      - name: Require GitHub Event Calendar source readiness when requested
+        if: github.event_name == 'workflow_dispatch' && inputs.capacity_action == 'source-preflight'
+        env:
+          SOURCE_PREFLIGHT_OUTCOME: ${{ steps.event_capacity_github_only.outcome }}
+        run: |
+          if [ "$SOURCE_PREFLIGHT_OUTCOME" != "success" ]; then
+            echo "::error::Scheduled Convoy ZIP to Calendar preflight did not pass. No Discord or Event writes were attempted."
+            exit 1
+          fi
 
       - name: Require private Event Capacity preflight readiness when explicitly requested
         if: github.event_name == 'workflow_dispatch' && inputs.capacity_action == 'preflight'
