@@ -65,7 +65,13 @@ function knownUsageFromVerifiedInputs({
   // Deliberately false: complete historic acceptance and every staff
   // cancellation/reschedule are NOT yet independently reconciled.
   // This prevents core dayAvailability() from claiming free capacity.
-  const capacity=evaluate(adapter.events,{dataFresh:false});
+  const diagnostic=evaluate(adapter.events,{dataFresh:false});
+  // A contested category or departure is not even a proven lower-bound
+  // allocation: isolate it from known accepted usage while preserving an
+  // explicit unresolved issue and possible-usage count.
+  const disputed=adapter.events.filter(e=>e?.dataConflict===true);
+  const capacity=evaluate(adapter.events.filter(e=>
+    e?.dataConflict!==true),{dataFresh:false});
   const days=[];
   const year=Number(month.slice(0,4)),m=Number(month.slice(5,7));
   const total=new Date(Date.UTC(year,m,0)).getUTCDate();
@@ -89,8 +95,8 @@ function knownUsageFromVerifiedInputs({
   const mcounts=capacity.months[month]||{
     partner:0,external:0,kings:0,approvedExceptions:0
   };
-  const issues=adapter.issues.length+capacity.issues.length;
-  const unplaced=capacity.issues.filter(x=>x.day===null).length;
+  const issues=adapter.issues.length+diagnostic.issues.length;
+  const unplaced=diagnostic.issues.filter(x=>x.day===null).length;
   const warnings=capacity.warnings;
   return Object.freeze({
     version:1,visibility:'PRIVATE_ONLY',readOnly:true,
@@ -122,7 +128,9 @@ function knownUsageFromVerifiedInputs({
       knownAccepted:capacity.counted,
       pending:capacity.pending.length,
       unresolvedAdapterIssues:adapter.issues.length,
-      unresolvedCapacityIssues:capacity.issues.length,
+      unresolvedCapacityIssues:diagnostic.issues.length,
+      disputedSourceRecords:disputed.length,
+      possibleAcceptedIncludingDisputes:diagnostic.counted,
       undatedUncertainRecords:unplaced,
       legacyUnreconciled:adapter.counts.legacy,
       totalUnresolvedIssues:issues,
