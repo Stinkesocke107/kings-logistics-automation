@@ -111,3 +111,34 @@ test('Reject incompatible or forged policy structures',()=>{
   assert.throws(()=>projectDashboard({...result,limits:{...result.limits,combinedDaily:4}}));
   assert.throws(()=>ephemeralResponse({visibility:'PUBLIC',months:[]}));
 });
+
+test('Optional map outage never blocks or changes Event Capacity day and monthly quota',()=>{
+  const source=[event(1,'Partner Convoy','2027-03-20')];
+  const capacity=evaluate(source,{dataFresh:true});
+  const nowMs=Date.parse('2027-03-20T12:00:00.000Z');
+  const baseline=projectDashboard(capacity,{nowMs});
+  const withOutage=projectDashboard(capacity,{nowMs,trackerSource:{
+    sourceAuthenticated:false,coverageComplete:false,mapAvailable:false,
+    provider:'TruckersMP',observedAtUtc:'2027-03-20T11:59:00.000Z'
+  }});
+  assert.equal(withOutage.tracker.mode,'WITHOUT_MAP');
+  assert.deepEqual(withOutage.months,baseline.months);
+  assert.equal(withOutage.sourceStatus,baseline.sourceStatus);
+  assert.equal(withOutage.issueCount,baseline.issueCount);
+  assert.match(ephemeralResponse(withOutage).data.content,/works without a live map/);
+  assert.equal(withOutage.months[0].days.find(x=>x.date==='2027-03-20').combinedUsed,1);
+});
+test('A trusted fresh map feed is only optional status, never proof of free capacity',()=>{
+  const capacity=evaluate([],{dataFresh:false});
+  const nowMs=Date.parse('2027-03-20T12:00:00.000Z');
+  const d=projectDashboard(capacity,{nowMs,trackerSource:{
+    sourceAuthenticated:true,coverageComplete:true,mapAvailable:true,
+    provider:'HaulMP',observedAtUtc:'2027-03-20T11:59:00.000Z'
+  }});
+  assert.equal(d.tracker.mode,'WITH_MAP');
+  assert.equal(d.sourceStatus,'Data Outdated / Unverified');
+  assert.equal(d.months[0].days.find(x=>x.date==='2027-03-20').status,'Unverified');
+  const text=ephemeralResponse(d).data.content;
+  assert.match(text,/available \(HaulMP\)/);
+  assert.match(text,/Data Outdated/);
+});
