@@ -43,36 +43,36 @@ test('Booking request preview is explicitly NOT a reservation or confirmed free 
   assert.equal(r.reviewReasons.includes('ORIGINAL_SOURCE_AND_STAFF_REVIEW_REQUIRED'),true);
   assert.equal(r.reviewReasons.includes('DAILY_HISTORICAL_HOLDS_MISSING'),true);
 });
-test('Two accepted observed partner/external events trigger daily quota review',()=>{
+test('Two reported Partner events trigger separate Partner 2/day review',()=>{
   const r=review({calendar:calendar([
-    event('partner','Partner Convoy'),event('external','External Convoy')
+    event('partner','Partner Convoy'),event('partner2','Partner Convoy')
   ]),request:request()});
   assert.equal(r.observedDailyLimitReached,true);
   assert.equal(r.observedMonthlyLimitReached,false);
-  assert.equal(r.observedSnapshot.dailyPartner,1);
-  assert.equal(r.observedSnapshot.dailyExternal,1);
+  assert.equal(r.observedSnapshot.dailyPartner,2);
+  assert.equal(r.observedSnapshot.dailyExternal,0);
   assert.ok(r.reviewReasons.includes('OBSERVED_DAILY_LIMIT_REACHED'));
   assert.equal(r.slotReserved,false);
 });
-test('Twenty observed partner convoys trigger partner monthly review only',()=>{
+test('Twenty observed Partner convoys are only a monthly source count, not an obsolete cap',()=>{
   const events=Array.from({length:20},(_,i)=>event(
     'p'+i,'Partner Convoy',
     '2027-04-'+String(i+1).padStart(2,'0')
   ));
   const r=review({calendar:calendar(events),request:request()});
-  assert.equal(r.observedMonthlyLimitReached,true);
+  assert.equal(r.observedMonthlyLimitReached,false);
   assert.equal(r.observedDailyLimitReached,false);
   assert.equal(r.observedSnapshot.monthlyPartner,20);
   assert.equal(r.observedSnapshot.monthlyExternal,0);
 });
-test('External quota uses its own monthly bucket, never the Partner bucket',()=>{
+test('External monthly source count remains separate with no approved monthly cap',()=>{
   const events=Array.from({length:20},(_,i)=>event(
     'x'+i,'External Convoy',
     '2027-04-'+String(i+1).padStart(2,'0')
   ));
   const r=review({calendar:calendar(events),
     request:request({category:'External Convoy'})});
-  assert.equal(r.observedMonthlyLimitReached,true);
+  assert.equal(r.observedMonthlyLimitReached,false);
   assert.equal(r.observedSnapshot.monthlyExternal,20);
 });
 test('Kings-owned convoy is quota-exempt, but still requires actual human review',()=>{
@@ -173,7 +173,7 @@ test('Booking renderer refuses falsified quota status or altered review explanat
     {...base,reviewReasons:[...base.reviewReasons,'CREATED_A_REAL_BOOKING']}
   ])assert.throws(()=>render(forged));
   const booked=review({
-    calendar:calendar([event('one','Partner Convoy'),event('two','External Convoy')]),
+    calendar:calendar([event('one','Partner Convoy'),event('two','Partner Convoy')]),
     request:request()
   });
   assert.equal(booked.observedDailyLimitReached,true);
