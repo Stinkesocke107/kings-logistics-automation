@@ -20,11 +20,10 @@ function fixture(){
       {channelId:L,channelKind:'legacy-text',
         firstCoveredMonth:'2026-10',lastCoveredMonth:'2026-10'}
     ],scans:[
-      {channelId:C,stream:'active',
-        pages:[page(0,null,'cursor1',true),
-          page(1,'cursor1',null,false)]},
-      {channelId:C,stream:'archived-public',pages:[page(0)]},
-      {channelId:C,stream:'archived-private',pages:[page(0)]},
+      {channelId:C,stream:'active',pages:[page(0)]},
+      {channelId:C,stream:'archived-public',
+        pages:[page(0,null,'2026-11-24T15:00:00.000Z',true),
+          page(1,'2026-11-24T15:00:00.000Z',null,false)]},
       {channelId:L,stream:'messages',pages:[page(0)]}
     ]};
 }
