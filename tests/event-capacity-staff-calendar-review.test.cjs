@@ -59,9 +59,12 @@ test('One private 12-month year overview and selected April calendar are project
     '2027-07','2027-08','2027-09','2027-10','2027-11','2027-12'
   ]);
   assert.equal(r.days.length,30);
-  assert.equal(r.policy.combinedDaily,2);
-  assert.equal(r.policy.partnerMonthly,20);
-  assert.equal(r.policy.externalMonthly,20);
+  assert.equal(r.policy.weekdayCombined,3);
+  assert.equal(r.policy.weekendCombined,5);
+  assert.equal(r.policy.partnerDaily,2);
+  assert.equal(r.policy.externalDaily,2);
+  assert.equal(r.policy.partnerMonthly,null);
+  assert.equal(r.policy.externalMonthly,null);
   assert.equal(r.policy.kingsConvoysQuotaExempt,true);
   assert.equal(r.freeSlotsCertified,false);
   assert.equal(r.safeToActivate,false);
@@ -124,29 +127,32 @@ test('Monthly view absent creates explicit unknown historical hold and evidence 
   assert.match(r.months[3].monthStatus,/Historical Holds Missing/);
   assert.equal(r.days.find(x=>x.utcDate==='2027-04-20').historicalCombinedProvisional,null);
   assert.equal(r.days.find(x=>x.utcDate==='2027-04-20').status,
-    'Current Snapshot Acceptance — History Unverified');
+    'Current Snapshot Claim — History Unverified');
 });
-test('Overbooked current source is a conflict, not a valid third daily slot',()=>{
+test('Four current Tuesday source claims exceed the 3/day review threshold',()=>{
   const f=fixture();
   f.capacity=evaluate([
     item('100','Partner Convoy','2027-04-20','Rescheduled'),
     item('other','External Convoy','2027-04-20'),
-    item('another','External Convoy','2027-04-20')
+    item('another','External Convoy','2027-04-20'),
+    item('fourth','Partner Convoy','2027-04-20')
   ],{dataFresh:true});
   const r=projectKingsStaffCalendarReview(f);
   const day=r.days.find(x=>x.utcDate==='2027-04-20');
-  assert.equal(day.snapshotCombined,3);
+  assert.equal(day.snapshotCombined,4);
   assert.equal(day.status,'Daily Quota Conflict — Human Review');
   assert.equal(day.canApprove,false);
 });
-test('Twenty partner bookings use monthly Partner quota but do not consume External monthly quota',()=>{
+test('Historic 20/month source totals are informational, not a current monthly limit',()=>{
   const f=fixture();const items=Array.from({length:21},(_,i)=>
     item('p'+i,'Partner Convoy','2027-04-'+String(i+1).padStart(2,'0')));
   f.capacity=evaluate(items,{dataFresh:true});
   const r=projectKingsStaffCalendarReview(f),month=r.months[3];
   assert.equal(month.currentSnapshot.partner,21);
   assert.equal(month.currentSnapshot.external,0);
-  assert.equal(month.monthStatus,'Monthly Quota Conflict — Human Review');
+  assert.notEqual(month.monthStatus,'Monthly Quota Conflict — Human Review');
+  assert.equal(month.monthlyPartnerLimit,null);
+  assert.equal(month.monthlyExternalLimit,null);
   assert.equal(month.remainingPartnerSlots,null);
   assert.equal(month.remainingExternalSlots,null);
 });
