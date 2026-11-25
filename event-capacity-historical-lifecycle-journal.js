@@ -33,6 +33,9 @@ function utc(value){
   return value;
 }
 function keyOf(input,publicOnly=true){
+  if(typeof input!=='string'||
+    (publicOnly?!/^-----BEGIN PUBLIC KEY-----\n/.test(input):
+      !/^-----BEGIN PRIVATE KEY-----\n/.test(input)))fail();
   try{
     const key=publicOnly?crypto.createPublicKey(input):crypto.createPrivateKey(input);
     if(key.asymmetricKeyType!=='ed25519')fail();
@@ -158,7 +161,9 @@ function prepareHistoricalTransition({
   };
   validatePayload(payload,state.scope,journal.revision,
     state.tip,state.events[ref]);
-  if(Date.parse(payload.reviewedAt)<Date.parse(journal.createdAt))fail();
+  if(Date.parse(payload.reviewedAt)<Date.parse(journal.createdAt)||
+    journal.history.length&&Date.parse(payload.reviewedAt)<
+      Date.parse(journal.history.at(-1).payload.reviewedAt))fail();
   return payload;
 }
 function signHistoricalTransitionOffline({payload,ownerPrivateKey}={}){
