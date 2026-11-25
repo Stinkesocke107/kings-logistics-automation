@@ -62,6 +62,8 @@ function projectKingsUnifiedEvidenceCoverage({
         history.counters.monthsWithIncompleteScanClaims,24),
       historyMonthsWithoutStaffChecklists:count(
         history.counters.monthsWithoutHumanChecklist,24),
+      historyMonthsWithOpenStaffChecklists:count(
+        history.counters.monthsWithOpenHumanChecklist,24),
       historyMonthsWithClaimedCompleteChecksButMissingSource:count(
         history.counters.monthsWithClaimedAllChecksButMissingSource,24)
     });
@@ -80,6 +82,10 @@ function projectKingsUnifiedEvidenceCoverage({
           'MONTHS WITH UNKNOWN ORIGINAL SOURCE — HUMAN REVIEW':
           history.counters.monthsWithIncompleteScanClaims>0?
             'ARCHIVE PAGINATION INCOMPLETE — HUMAN REVIEW':
+        history.counters.monthsWithoutHumanChecklist>0?
+            'HISTORICAL STAFF CHECKLISTS MISSING — HUMAN REVIEW':
+        history.counters.monthsWithOpenHumanChecklist>0?
+            'HISTORICAL STAFF CHECKLISTS INCOMPLETE — HUMAN REVIEW':
             'SOURCE CLAIMS INTERNALLY CONSISTENT — DISCORD NOT AUTHENTICATED',
       sourceInventoryClaimsAgree,
       allSourceClaimsRemainUntrusted:true,
@@ -101,24 +107,54 @@ function renderKingsUnifiedEvidenceCoveragePreview(view){
       view.actualDiscordReadsOrWritesHere!==0||
       view.humanApprovalCommitted!==0||
       !Array.isArray(view.historyMonths)||view.historyMonths.length!==24||
+      view.original24MonthDiscordHistoryIndependentlyVerified!==false||
+      view.eventBookingCapacityCertified!==false||
+      view.claimChecksAreNotActualProviderAuthentication!==true||
       !view.counters)fail();
     const c=view.counters;
     for(const key of ['centerClaimedEvents','legacyClaimedEvents',
       'outboundInvitationClaims','historyMonthsWithoutSourceClaims',
-      'historyMonthsWithIncompleteScanClaims'])
+      'historyMonthsWithIncompleteScanClaims',
+      'historyMonthsWithoutStaffChecklists','historyMonthsWithOpenStaffChecklists'])
       count(c[key]);
-    let detail='';
-    for(const row of view.historyMonths){
-      if(!row||!/^20\d{2}-(?:0[1-9]|1[0-2])$/.test(row.month)||
+    const start=view.firstHistoryMonth,finish=view.lastHistoryMonth;
+    if(typeof start!=='string'||typeof finish!=='string'||
+      !/^20\d{2}-(?:0[1-9]|1[0-2])$/.test(start)||
+      !/^20\d{2}-(?:0[1-9]|1[0-2])$/.test(finish))fail();
+    const startTime=Date.parse(start+'-01T00:00:00.000Z'),
+      finalTime=new Date(startTime);
+    finalTime.setUTCMonth(finalTime.getUTCMonth()+23);
+    if(finalTime.toISOString().slice(0,7)!==finish)fail();
+    let missingSources=0,incomplete=0,missingStaff=0,detail='';
+    for(const [i,row] of view.historyMonths.entries()){
+      const expected=new Date(startTime);
+      expected.setUTCMonth(expected.getUTCMonth()+i);
+      if(!row||row.month!==expected.toISOString().slice(0,7)||
         row.monthHistoricalCoverageCertified!==false||
         row.originalDiscordMessagesAuthenticated!==false||
-        row.usableFreeSlots!==null)fail();
+        row.usableFreeSlots!==null||
+        typeof row.humanChecklistSubmitted!=='boolean'||
+        (row.humanOpenReviewItems!==null&&
+          (!Number.isSafeInteger(row.humanOpenReviewItems)||
+          row.humanOpenReviewItems<0||row.humanOpenReviewItems>10000)))fail();
       const n=count(row.channelSourcesClaimed);
       const gaps=count(row.sourceStreamsMissingOrIncomplete);
+      if(n===0)missingSources++;
+      if(gaps>0)incomplete++;
+      if(!row.humanChecklistSubmitted)missingStaff++;
+      const expectedState=n===0?'NO CLAIMED DISCORD SOURCE':
+        gaps>0?'CLAIMED DISCORD SCAN INCOMPLETE':
+        !row.humanChecklistSubmitted?'HUMAN SOURCE CHECKLIST NOT SUBMITTED':null;
+      if(expectedState!==null&&row.reviewState!==expectedState)fail();
+      if(!row.humanChecklistSubmitted&&row.humanOpenReviewItems!==null)fail();
       detail+=row.month+' | claimed sources '+n+
         ' | unverified streams '+gaps+
         ' | checklist '+(row.humanChecklistSubmitted?'claimed':'missing')+'\n';
     }
+    if(missingSources!==c.historyMonthsWithoutSourceClaims||
+      incomplete!==c.historyMonthsWithIncompleteScanClaims||
+      missingStaff!==c.historyMonthsWithoutStaffChecklists||
+      c.historyMonthsWithOpenStaffChecklists>24)fail();
     if(detail.length>4096)fail();
     return Object.freeze({
       type:4,data:{
@@ -129,7 +165,8 @@ function renderKingsUnifiedEvidenceCoveragePreview(view){
           ' | Outbound invitations '+c.outboundInvitationClaims+'\n'+
           'Unknown months '+c.historyMonthsWithoutSourceClaims+
           ' | Incomplete scanned months '+
-            c.historyMonthsWithIncompleteScanClaims+'\n'+
+            c.historyMonthsWithIncompleteScanClaims+
+          ' | Staff checklists missing '+c.historyMonthsWithoutStaffChecklists+'\n'+
           '**Never use this preview to approve or release slots. No Discord data read.**',
         embeds:[{
           title:'Kings | 24 UTC months of historical source claims',
