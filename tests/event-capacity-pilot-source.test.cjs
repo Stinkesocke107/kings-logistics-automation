@@ -202,3 +202,45 @@ test('Standalone pilot never imports Staff approval or Discord operations',()=>{
   assert.equal(fs.readFileSync(path.join(root,'convoy-checker.js'),'utf8')
     .includes('event-capacity-pilot-source'),false);
 });
+
+test('Real-source-shaped synthetic 39 Center / 114 Legacy inventory is internally valid',async()=>{
+  const f=data(),rows=[],registered=[];
+  for(let i=0;i<39;i++){
+    const threadId='7777777777777'+String(i).padStart(5,'0');
+    const eventId='synthetic-'+i;
+    const departureAtUtc='2027-03-'+(i%2===0?'24':'25')+'T18:00:00Z';
+    const eventType=i===0?'Celebration Convoy':
+      i%3===0?'Kings Convoy':i%2===0?'Partner Convoy':'External Convoy';
+    rows.push({threadId,eventId,status:'Scheduled',
+      name:'offline fake, not a Kings member',ignored:false,testThread:false,
+      validation:{parsed:{eventType,departureAtUtc}}});
+    registered.push({source:'convoy-center',threadId,eventId,
+      status:'Scheduled',departureAtUtc});
+  }
+  f.report.threads=[...rows,{
+    threadId:'999999999999999999',ignored:true,status:'Ignored'
+  }];
+  f.report.summary={totalThreads:40,actualConvoys:39};
+  const legacy=Array.from({length:114},(_,i)=>({
+    source:'legacy-calendar',eventId:'synthetic-legacy-'+i,
+    threadId:'666666666666'+String(i).padStart(6,'0'),
+    status:'Legacy Past',departureAtUtc:null
+  }));
+  f.overview.registeredConvoys=[...registered,...legacy];
+  f.overview.overall={realConvoySubmissions:39,convoyReadErrors:0,
+    legacyImportedConvoys:115,legacyDuplicatesSuppressed:1};
+  const result=monthsFrom(f,NOW);
+  assert.equal(result.legacyClaims,114);
+  assert.equal(result.undatedLegacy,114);
+  assert.equal(result.months[0].centerClaims,39);
+  assert.equal(result.months[0].unclassified,1);
+  assert.equal(result.freeSlotsCertified,false);
+  const status=await inspect({reader:fakeReader({zip:zip(f)}).reader,nowMs:NOW});
+  assert.equal(status.status,'SOURCE_CALENDAR_READONLY_READY');
+  assert.equal(status.staffApprovalsVerified,false);
+  assert.equal(status.freeSlotsCertified,false);
+  const logged=JSON.stringify(status);
+  for(const privateValue of ['synthetic-legacy','offline fake','synthetic-0',
+    '2027-03-24','666666666666'])
+    assert.equal(logged.includes(privateValue),false);
+});
