@@ -272,6 +272,6 @@ test('Verified GitHub Free three-private-repo topology has no production import 
   const plan=fs.readFileSync(path.join(root,
     'docs/KINGS-EVENT-CAPACITY-PRIVATE-STORAGE-OWNER-HANDOFF-2026-11-25.md'),'utf8');
   assert.match(plan,/PRIVATE visibility independently checked/);
-  assert.match(plan,/No real historical Kings event data/);
-  assert.match(plan,/Do NOT create tokens or GitHub Secrets yet/);
+  assert.match(plan,/real archive data NOT migrated/);
+  assert.match(plan,/do NOT create tokens or GitHub Secrets yet/);
 });
