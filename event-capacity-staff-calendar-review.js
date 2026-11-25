@@ -105,13 +105,23 @@ function checkEvidence(e){
     e.historicalCoverageCertified!==false||!Array.isArray(e.months)||
     e.months.length!==24||!MONTH.test(e.firstMonth)||
     !MONTH.test(e.finalMonth))fail();
+  // The 24 supplied rows must cover the declared consecutive UTC months
+  // exactly once. Merely supplying 24 arbitrary rows must never make a
+  // missing month look like a reviewed month in the staff calendar.
+  const start=new Date(e.firstMonth+'-01T00:00:00.000Z'),
+    end=new Date(start.getTime());
+  end.setUTCMonth(end.getUTCMonth()+23);
+  if(end.toISOString().slice(0,7)!==e.finalMonth)fail();
   const table=new Map();
-  for(const row of e.months){
-    if(!plain(row)||!MONTH.test(row.month)||table.has(row.month)||
+  for(let i=0;i<24;i++){
+    const expected=new Date(start.getTime());
+    expected.setUTCMonth(expected.getUTCMonth()+i);
+    const row=e.months[i],month=expected.toISOString().slice(0,7);
+    if(!plain(row)||!MONTH.test(row.month)||row.month!==month||
       row.monthlyHistoryComplete!==false||
       row.originalSourceInventoryAuthenticated!==false||
       row.freeSlotsCertified!==false)fail();
-    count(row.gaps);table.set(row.month,row.gaps);
+    count(row.gaps);table.set(month,row.gaps);
   }
   return table;
 }
