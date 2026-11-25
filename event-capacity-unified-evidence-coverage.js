@@ -147,6 +147,14 @@ function renderKingsUnifiedEvidenceCoveragePreview(view){
         !row.humanChecklistSubmitted?'HUMAN SOURCE CHECKLIST NOT SUBMITTED':null;
       if(expectedState!==null&&row.reviewState!==expectedState)fail();
       if(!row.humanChecklistSubmitted&&row.humanOpenReviewItems!==null)fail();
+      if(row.humanChecklistSubmitted&&row.humanOpenReviewItems===null)fail();
+      if(n>0&&gaps===0&&row.humanChecklistSubmitted){
+        if(!['HUMAN SOURCE CHECKLIST HAS OPEN ITEMS',
+          'CLAIMED COMPLETE — INDEPENDENT DISCORD PROOF MISSING']
+          .includes(row.reviewState)||
+          row.humanOpenReviewItems>0&&
+            row.reviewState!=='HUMAN SOURCE CHECKLIST HAS OPEN ITEMS')fail();
+      }
       detail+=row.month+' | claimed sources '+n+
         ' | unverified streams '+gaps+
         ' | checklist '+(row.humanChecklistSubmitted?'claimed':'missing')+'\n';
