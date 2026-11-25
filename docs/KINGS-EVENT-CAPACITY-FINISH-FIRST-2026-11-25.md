@@ -71,3 +71,5 @@ An ambiguous GitHub write can already be durable despite the API throwing; the w
 
 Eight new synthetic GitHub writer test scenarios and a live-workflow isolation gate were added. **A full GitHub CI success for current PR HEAD has not been observed**, and no live or manual `capacity_preview` run, real private repo operation, Discord command or production activation took place. Detailed contract: `docs/KINGS-EVENT-CAPACITY-HISTORICAL-GITHUB-WRITER-2026-11-25.md`.
 
+
+**Additional local verification (25 November 2026):** 26 focused Node tests passed under Node.js 22 using the local archive/journal/reader/tracker implementations and the byte-for-byte verified writer source from this PR. This includes 7 direct read/write mock-GitHub writer integration checks. The GitHub-committed 8-case writer fixture and the complete repository suite still need same-HEAD GitHub Actions CI verification (the local writer test file is a separate but equivalent focused harness); no live repository test or release evidence is implied.
