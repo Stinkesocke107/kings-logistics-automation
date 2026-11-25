@@ -38,6 +38,20 @@ The CEO-confirmed **current binding event capacity policy** uses only **one dail
 
 The in-memory calendar separates source-reported Kings, Partner and External counts by month, using UTC departure dates, and reports `partnerMonthlyLimit:20`, `externalMonthlyLimit:20`, `kingsMonthlyLimit:null`, plus separate flags when observed Partner or External monthly counts exceed twenty. The review marks all-category totals above three per UTC date, departures closer than two hours, and pending, cancelled, or unclassified claims. The review counts remain **unverified source claims** rather than independently approved requests. Historical holds, unverified moves, pending changes, and cancellations never certify that a slot was released. `monthlyRemainingVerified` is **null**; no automatic booking, Staff approval, or free-space certification is introduced. The calendar details remain in memory and are never written to public GitHub logs.
 
+## CEO-confirmed event planning priority
+
+For new **unconfirmed** requests that compete for the same day, Event Coordination reviews them in this fixed order:
+
+1. **Kings Convoy — priority 1**
+2. **Partner Convoy — priority 2**
+3. **External Convoy — priority 3**
+
+The total daily maximum remains **three Convoys per UTC day**, counting **all three categories including Kings**. The independent UTC monthly ceilings remain **20 Partner**, **20 External**, **unlimited Kings**; there is **no weekly ceiling**. Priority does not override these limits.
+
+The source-pilot now includes a deterministic, stable, read-only `prioritizeUnconfirmedRequests` helper and monthly counters for days over the global daily limit and days with mixed-category priority conflicts. It returns only category, priority and position, not private identifiers. Unclassified requests go to manual classification at the end. The helper is for **staff review order only**; it does not grant a reservation, undo an accepted invitation, cancel a confirmed event, move an approved convoy, release a slot, or make a promise that a higher-priority late request can displace an existing booking. Conflict resolution remains a human Event Coordination/Leadership decision under current permissions.
+
+This is **planning priority**, not an automatic historical priority transformation: already confirmed or completed source reports remain untouched; the pilot cannot prove approvals from its current source ZIP alone.
+
 The script never reads Discord secrets, sends Discord requests, writes GitHub content, logs Event identities, creates bookings, or claims free capacity. This pilot is a **source proof**, not a public Calendar and not a private Discord deployment.
 
 ## Explicit activation boundary
