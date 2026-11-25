@@ -7,6 +7,7 @@ const {parsePrivateConvoyArchive}=require('./event-capacity-private-archive');
 const {reconcileSourceInventory}=require('./event-capacity-source-reconcile');
 const {timestamp}=require('./event-capacity-core');
 const {calendarLines}=require('./event-capacity-live-calendar-summary');
+const {POLICY}=require('./event-capacity-policy');
 const ERROR='Kings Event Capacity GitHub-only publication rejected.';
 const GUILD=/^\d{17,22}$/;
 const VIEW=1024n;
@@ -200,7 +201,11 @@ function messageFor({sourceAvailable=false,nowMs=Date.now(),
       'No current verified Convoy Center report was available.\n')+
     (calendarText===null?lines.join('\n'):calendarText)+'\n'+
     evidenceLine+
-    'Planning guide: Mon–Thu max 3, Fri–Sun max 5; Partner and External max 2 each/day; Kings quota exempt.\n'+
+    'Planning guide: Mon–Thu max '+POLICY.weekdayCombinedMax+
+      ', Fri–Sun max '+POLICY.weekendCombinedMax+
+      '; Partner '+POLICY.partnerDailyMax+
+      ' and External '+POLICY.externalDailyMax+
+      ' each/day; Kings quota exempt. No approved monthly cap.\n'+
     '**No free slots are confirmed by this preview.** No events or approvals are changed.';
   if(message.length>2000)fail();
   return message;
