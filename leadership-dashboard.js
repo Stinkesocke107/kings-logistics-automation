@@ -7,7 +7,7 @@ const { syncEmbedMessage } = require('./leadership-message-sync');
 const {decryptEventState}=require('./event-leadership-state');
 const {trustedEventObservation}=require('./event-leadership-observation');
 const {trustedInvitationObservation}=require('./event-invitation-tracker-source');
-const {observeOperations,renderOperationsReview}=require('./event-operations-staff-triage');
+const {observeOperations,renderOperationsReview,operationsWorklist,renderOperationsWorklist,WORK_LABELS}=require('./event-operations-staff-triage');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -361,7 +361,8 @@ function buildEvent(data, now = Date.now()) {
       field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
       field('🗓️ Calendar / History — Source Review',calendarLine),
       field('✉️ Invitation Tracker — Source Review',invitationLine),
-      field('🛠️ Event Operations — Staff Triage',renderOperationsReview(operations))
+      field('🛠️ Event Operations — Staff Triage',renderOperationsReview(operations)),
+      field('⏱️ Event Operations — Review Order',renderOperationsWorklist(operations))
     ],
     footer: { text: 'Kings Logistics • Event Leadership • Internal operations' },
     timestamp: nowISO()
@@ -379,6 +380,7 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
     eventSourceObservation:data.eventReports?.eventSourceObservation,
     invitationSourceObservation:data.eventReports?.invitationSourceObservation
   });
+  const nextOperationsReview=operationsWorklist(operations)[0]||null;
   const eventNeeds=eventSource?.needsInformation||0;
   const eventReady=eventSource?.readyForApproval||0;
   const hrOpen = (data.hr.reviews || []).filter((r) => reviewStatus(r) !== 'completed').length;
@@ -393,7 +395,7 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
       field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
       field('📅 Events — Live', eventSource ? `Reconciled source: Tracked **${eventSource.tracked}** • Source Scheduled **${eventSource.scheduled}** • Ready **${eventReady}** • Needs Info **${eventNeeds}** (advisory, not approval)` : 'Unavailable — no recent reconciled Event source; historical state is not a verified zero.'),
       field('✉️ Event Invitations — Source Review', invitationSource ? `Documented unique VTC invitations **${invitationSource.invitedVtcs}** • convoy threads **${invitationSource.convoyThreads}** • duplicate replies **${invitationSource.duplicateVtcReplies}** • malformed replies **${invitationSource.malformedReplies}** • Forum lifecycle tags **${invitationSource.tagSchemaVerified?'schema matched':'UNVERIFIED'}** (recorded claims, NOT confirmed attendance)` : 'Unavailable — no verified recent read-only Invitation Tracker scan.'),
-      field('🛠️ Event Operations — Staff Review', `Convoy/Calendar source: **${operations.eventSource}** · Invitation source: **${operations.invitationSource}**. Open the private Event Leadership dashboard for source-specific Staff triage. Review only; no automatic invitations, approvals or rebookings.`),
+      field('🛠️ Event Operations — Staff Review', `Convoy/Calendar source: **${operations.eventSource}** · Invitation source: **${operations.invitationSource}**. Suggested next Staff review: **${nextOperationsReview?.priority||'NONE'}** · ${nextOperationsReview?WORK_LABELS[nextOperationsReview.code]:'No current source-review items'}. Open the private Event Leadership dashboard; no automatic invitations, approvals or rebookings.`),
       field('🟣 Last Completed Week', dw ? `${fmtKey(dw.key)} • Drivers **${dw.members}** • Joined **${dw.joined}** • Left **${dw.left}** • Net **${signed(dw.netGrowth)}** • Staff **${dw.currentStaff ?? ss.currentStaff ?? 0}** • Active Event Threads **${dw.activeEventThreads ?? 0}** • Weekly Peak **${dw.weeklyPeak ?? 0}**` : 'No completed Management weekly report yet.'),
       field('👑 Last Completed Month', mm ? `${fmtKey(mm.key)} • Drivers **${mm.drivers}** • Driver Net **${signed(mm.driverNetGrowth)}** • Staff **${mm.staff}** • Staff Net **${signed(mm.staffNetGrowth)}** • Open Reviews **${mm.openReviews}** • Event Issues **${mm.eventIssues}**` : 'No completed Management monthly report yet.')
     ],
