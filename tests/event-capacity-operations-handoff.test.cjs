@@ -104,7 +104,7 @@ test('Missing meeting/end times match only if both sources are missing',()=>{
   assert.equal(r.preparationReady,false);
   assert.equal(r.bookingReviewReasonCount>=6,true);
 });
-test('Current two Partner quota reaches per-category cap without counting proposed candidate',()=>{
+test('Three already reported Convoys reach universal day cap without counting candidate',()=>{
   const e=event();
   const items=[
     {eventId:'other-a',eventType:'Partner Convoy',eventTypeVerified:true,
@@ -112,7 +112,10 @@ test('Current two Partner quota reaches per-category cap without counting propos
       departureAtUtc:BASE+'18:00:00Z'},
     {eventId:'other-b',eventType:'Partner Convoy',eventTypeVerified:true,
       status:'Scheduled',statusVerified:true,departureVerified:true,
-      departureAtUtc:BASE+'19:00:00Z'}
+      departureAtUtc:BASE+'19:00:00Z'},
+    {eventId:'other-c',eventType:'Kings Convoy',eventTypeVerified:true,
+      status:'Scheduled',statusVerified:true,departureVerified:true,
+      departureAtUtc:BASE+'21:00:00Z'}
   ];
   const r=run({event:e,calendar:calendar(items)});
   assert.equal(r.bookingObservedDailyLimitReached,true);
