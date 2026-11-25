@@ -19,6 +19,7 @@ The new pure function **does not fetch real Discord data, authenticate original 
 
 - Requires an existing candidate event/booking/calendar and a supplied, structurally validated Workboard state with an explicit canonical UTC review timestamp.
 - Checks event identity and matching UTC schedule using the previously built Booking→Operations handoff; no checklist proposals for a mismatched, cancelled, pending, completed, conflicting or unapproved-reschedule event claim.
+- Rejects Workboard snapshots whose task/request dictionary keys disagree with their embedded IDs, whose creation/update timestamps are reversed, or whose child record timestamps exceed the board revision timestamp.
 - Reuses the standard per-category checklist template. A previously existing task with the same canonical event reference + task code suppresses an unnecessary duplicate suggestion. This is only a *proposal count*, never task creation.
 - Identifies duplicate task-code groups, unknown checklist codes and requirement inconsistencies as private issues for human review; it never merges or silently deletes conflicting records.
 - Counts assigned, in-progress, on-hold and finished tasks without exposing actual actor, assignee, Event or request identifiers.
