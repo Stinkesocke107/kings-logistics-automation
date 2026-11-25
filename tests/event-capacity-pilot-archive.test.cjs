@@ -130,3 +130,40 @@ test('Rejects non-Buffer payload and trailing extraneous bytes',()=>{
   assert.throws(()=>parsePrivateConvoyArchive(Buffer.concat([zip(files()),Buffer.from([1,2,3])])));
 });
 module.exports={makeSyntheticCapacityZip:zip};
+
+test('Real GitHub Actions ZIP shape: five members with signed data descriptors (bit 3)',()=>{
+  const {makeSyntheticCapacityZip}=require('./helpers/event-capacity-pilot-zip.cjs');
+  const artifact=makeSyntheticCapacityZip([
+    ...files().map(x=>({...x,descriptor:true})),
+    {name:'convoy-planning-limits.json',data:'{"planning":true}',descriptor:true},
+    {name:'convoy-completeness.json',data:'{"complete":true}',descriptor:true},
+    {name:'convoy-overview.md',data:'Only synthetic planning notes',descriptor:true}
+  ]);
+  const result=parsePrivateConvoyArchive(artifact);
+  assert.equal(result.report.guildId,'synthetic');
+  assert.equal(result.overview.guildId,'synthetic');
+  assert.deepEqual(Object.keys(result).sort(),['overview','report']);
+  assert.equal(JSON.stringify(result).includes('synthetic planning notes'),false);
+});
+test('Valid non-signature ZIP data descriptors are accepted, but corrupt CRC/size rejected',()=>{
+  const {makeSyntheticCapacityZip}=require('./helpers/event-capacity-pilot-zip.cjs');
+  const withSignature=makeSyntheticCapacityZip(
+    files().map(x=>({...x,descriptor:true})));
+  const withoutSignature=makeSyntheticCapacityZip(
+    files().map(x=>({...x,descriptor:true,descriptorNoSignature:true})));
+  assert.equal(parsePrivateConvoyArchive(withoutSignature).report.guildId,'synthetic');
+  const marker=Buffer.from([0x50,0x4b,0x07,0x08]);
+  const at=withSignature.indexOf(marker);
+  assert.ok(at>0);
+  for(const offset of [4,8,12]){
+    const damaged=Buffer.from(withSignature);
+    damaged[at+offset]^=0x40;
+    assert.throws(()=>parsePrivateConvoyArchive(damaged));
+  }
+  const atWithout=withoutSignature.indexOf(
+    Buffer.from([0x50,0x4b,0x03,0x04]),1);
+  assert.ok(atWithout>0);
+  const bad=Buffer.from(withoutSignature);
+  bad[atWithout-4]^=0x20; // Last unsigned descriptor size field.
+  assert.throws(()=>parsePrivateConvoyArchive(bad));
+});
