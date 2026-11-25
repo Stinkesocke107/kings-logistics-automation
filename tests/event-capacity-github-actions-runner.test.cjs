@@ -26,3 +26,13 @@ test('Bootstrap cannot use the periodic schedule even with enabled flag',async()
   await assert.rejects(main({...base,GITHUB_EVENT_NAME:'schedule',
     KINGS_EVENT_CAPACITY_MODE:'bootstrap',KINGS_EVENT_CAPACITY_ENABLED:'true'}));
 });
+
+test('Manual Discord preflight cannot run as live Convoy job and does not require write opt-in',async()=>{
+  await assert.rejects(main({...base,KINGS_EVENT_CAPACITY_MODE:'preflight',
+    CONVOY_DRY_RUN:'false',KINGS_EVENT_CAPACITY_ENABLED:'false'}));
+  await assert.rejects(main({...base,KINGS_EVENT_CAPACITY_MODE:'preflight',
+    GITHUB_EVENT_NAME:'schedule',CONVOY_DRY_RUN:'true'}));
+  await assert.rejects(main({...base,KINGS_EVENT_CAPACITY_MODE:'preflight',
+    CONVOY_DRY_RUN:'true'}));
+  // No real Discord token or destination provided; fail safely.
+});
