@@ -10,7 +10,8 @@ const newModules=[
   'event-capacity-historical-24month-readiness',
   'event-capacity-private-runtime-installation-scope-probe',
   'event-capacity-private-runtime-scope-bundle',
-  'event-capacity-synthetic-pilot-hold-audit'
+  'event-capacity-synthetic-pilot-hold-audit',
+  'event-capacity-private-issued-grant-metadata-audit'
 ];
 test('New credential policy and synthetic restoration cannot activate live Convoy Checker',()=>{
   const live=fs.readFileSync(path.join(root,
@@ -68,4 +69,13 @@ test('New five-role audit can never issue a token or bypass explicit pilot autho
   assert.match(pilot,/privateSyntheticWritesAuthorized:false/);
   assert.match(pilot,/externalGatesIndependentlyCompleted:0/);
   assert.match(pilot,/explicitCEOPilotApprovalVerified:false/);
+});
+
+test('A redacted token issuance shape validator must not itself issue GitHub App tokens',()=>{
+  const src=fs.readFileSync(path.join(root,
+    'event-capacity-private-issued-grant-metadata-audit.js'),'utf8');
+  assert.match(src,/tokenOmitted/);
+  assert.match(src,/authenticGithubProviderResponseVerified:false/);
+  assert.match(src,/safeForPrivateSyntheticWrites:false/);
+  assert.doesNotMatch(src,/createInstallationAccessToken|\/access_tokens['"]/);
 });
