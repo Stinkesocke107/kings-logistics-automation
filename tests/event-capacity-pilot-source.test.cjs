@@ -244,3 +244,21 @@ test('Real-source-shaped synthetic 39 Center / 114 Legacy inventory is internall
     '2027-03-24','666666666666'])
     assert.equal(logged.includes(privateValue),false);
 });
+
+test('The genuine five-member GitHub Actions artifact shape reaches Calendar readiness',async()=>{
+  const d=data();
+  const actionsZip=makeSyntheticCapacityZip([
+    {name:'convoy-check-results.json',data:JSON.stringify(d.report),descriptor:true},
+    {name:'convoy-overview.json',data:JSON.stringify(d.overview),descriptor:true},
+    {name:'convoy-planning-limits.json',data:'{"synthetic":true}',descriptor:true},
+    {name:'convoy-completeness.json',data:'{"synthetic":true}',descriptor:true},
+    {name:'convoy-overview.md',data:'Synthetic overview, never published',descriptor:true}
+  ]);
+  const f=fakeReader({zip:actionsZip});
+  const r=await inspect({reader:f.reader,nowMs:NOW});
+  assert.equal(r.status,'SOURCE_CALENDAR_READONLY_READY');
+  assert.equal(r.freeSlotsCertified,false);
+  assert.equal(r.discordAccessed,false);
+  assert.deepEqual(f.calls,['latest','run','artifacts','zip']);
+  assert.equal(JSON.stringify(r).includes('Synthetic overview'),false);
+});
