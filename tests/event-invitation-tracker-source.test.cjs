@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {GUILD,FORUM,MODES,readEntry,eventIdFrom,approvedTags,summarizeTracker,
+const {GUILD,FORUM,MODES,GUIDE_TAG,canonicalTagName,readEntry,eventIdFrom,approvedTags,summarizeTracker,
   readInvitationTracker,trustedInvitationObservation}=require('../event-invitation-tracker-source');
 const NOW=Date.parse('2026-11-25T15:00:00Z');
 test('uses CEO-confirmed Invitation Tracker channel ID instead of retired assumed forum ID',()=>{
@@ -36,6 +36,86 @@ function fixture(){
   ]};
   return {forum,threads,messagesByThread,centerReport,nowMs:NOW};
 }
+test('CEO-confirmed visible Forum emoji labels resolve exact lifecycle names without extra tag IDs',()=>{
+  const f=fixture();
+  f.forum.available_tags=[
+    {id:'444444444444444440',name:'📌 Event Team Guide'},
+    {id:tags[0],name:'🗒️ Invites Ongoing'},
+    {id:tags[1],name:'✅ Invites Done'},
+    {id:tags[2],name:'🏁 Convoy Completed'}
+  ];
+  assert.equal(GUIDE_TAG,'Event Team Guide');
+  assert.equal(canonicalTagName('📌 Event Team Guide'),GUIDE_TAG);
+  assert.equal(canonicalTagName(' 🗒️ Invites Ongoing'),'Invites Ongoing');
+  assert.equal(canonicalTagName('✅ Invites Done'),'Invites Done');
+  assert.equal(canonicalTagName('🏁 Convoy Completed'),'Convoy Completed');
+  f.threads[0].applied_tags=[tags[0],'444444444444444440'];
+  const observed=summarizeTracker(f);
+  assert.equal(observed.tagSchemaVerified,true);
+  assert.equal(observed.ongoingThreads,1);
+  assert.equal(observed.doneThreads,1);
+  assert.equal(observed.completedThreads,1);
+  assert.equal(observed.tagIssues,0);
+  assert.equal(observed.invitedVtcs,3);
+  assert.equal(observed.bookingsCreated,0);
+  assert.equal(trustedInvitationObservation(observed,NOW),observed);
+  assert.doesNotMatch(JSON.stringify(observed),/Event Team Guide|🗒|🏁/);
+});
+test('guide-only documentation threads are excluded from invitation and status totals',async()=>{
+  const f=fixture(),guideId='444444444444444440',guideThread='666666666666666667';
+  f.forum.available_tags.unshift({id:guideId,name:'📌 Event Team Guide'});
+  f.threads.push({id:guideThread,parent_id:FORUM,
+    name:'Event Team Guide',applied_tags:[guideId]});
+  // No message data for the guide-only thread: no read should be attempted.
+  const observed=summarizeTracker(f);
+  assert.equal(observed.convoyThreads,3);
+  assert.equal(observed.invitedVtcs,3);
+  assert.equal(observed.tagIssues,0);
+  const calls=[];
+  const transport=async(url,opts)=>{
+    calls.push(url);
+    assert.equal(opts.method,'GET');
+    if(url.endsWith('/channels/'+FORUM))return Response.json(f.forum);
+    if(url.endsWith('/guilds/'+GUILD+'/threads/active'))
+      return Response.json({threads:f.threads});
+    if(url.includes('/channels/'+FORUM+'/threads/archived/public?'))
+      return Response.json({threads:[],has_more:false});
+    for(const [id,messages] of f.messagesByThread){
+      if(url.includes('/channels/'+id+'/messages?'))
+        return Response.json(messages);
+    }
+    throw Error('unexpected GET route');
+  };
+  const live=await readInvitationTracker({
+    token:'synthetic-test-bot-token-not-a-secret',
+    transport,nowMs:NOW
+  });
+  assert.equal(live.tagSchemaVerified,true);
+  assert.equal(live.convoyThreads,3);
+  assert.ok(!calls.some(x=>x.includes('/channels/'+guideThread+'/messages?')));
+});
+test('duplicate and fuzzy Forum labels do not silently certify status mapping',()=>{
+  const f=fixture();
+  f.forum.available_tags=[
+    {id:tags[0],name:'📑 Invites Ongoing'},
+    {id:tags[1],name:'✅ Invites Done'},
+    {id:tags[2],name:'🏁 Convoy Completed'},
+    {id:'444444444444444444',name:'Invites Done'}
+  ];
+  const duplicate=summarizeTracker(f);
+  assert.equal(duplicate.tagSchemaVerified,false);
+  assert.equal(duplicate.invitedVtcs,3);
+  assert.equal(duplicate.doneThreads,0);
+  assert.equal(duplicate.tagIssues,3);
+  f.forum.available_tags.pop();
+  f.forum.available_tags[1].name='✅ Different Invites Done';
+  const fuzzy=summarizeTracker(f);
+  assert.equal(fuzzy.tagSchemaVerified,false);
+  assert.equal(fuzzy.recordedAccepted,1);
+  assert.equal(fuzzy.doneThreads,0);
+  assert.equal(canonicalTagName('✅ Different Invites Done'),'Different Invites Done');
+  assert.equal(canonicalTagName('Invites Done 🏁'),'Invites Done 🏁');
+});
 test('strict VTC invitation reply parsing preserves one VTC per message',()=>{
   assert.deepEqual(readEntry(
     'First VTC — TMP VTC page: https://truckersmp.com/vtc/12345-first — Invited by: @Someone — Response: Accepted'

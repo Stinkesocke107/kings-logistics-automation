@@ -7,6 +7,20 @@ const GUILD='1114967437788577792';
 const FORUM='1457797580703531143';
 const API='https://discord.com/api/v10';
 const MODES=Object.freeze(['Invites Ongoing','Invites Done','Convoy Completed']);
+const GUIDE_TAG='Event Team Guide';
+// Discord Forum tags can store emoji in emoji_name separately OR as a visible
+// prefix of name (e.g. "✅ Invites Done"). Strip only leading non-ASCII letters
+// and whitespace; the remaining label must exactly equal the approved text.
+// Never fuzzy-match a custom label or an arbitrary suffix.
+function canonicalTagName(name){
+  return typeof name==='string'
+    ?name.replace(/^[^A-Za-z]+/u,'').trim():null;
+}
+function guideOnlyThread(thread,guideTagIds){
+  return Array.isArray(thread?.applied_tags)&&
+    thread.applied_tags.length===1&&
+    guideTagIds.has(String(thread.applied_tags[0]));
+}
 const MAX_THREADS=300,MAX_MESSAGES=500,MAX_AGE_MS=36*60*60*1000;
 const ID=/^[1-9]\d{15,20}$/;
 const FIELD_NAMES=Object.freeze([
@@ -51,26 +65,37 @@ function eventIdFrom(text){
 // Actions secret: comma-separated Forum TAG IDs in ongoing, done, completed
 // order. An invalid mapping is never guessed or silently repaired.
 function approvedTags(forum,tagIds=null){
+  // Event Team Guide is an auxiliary *guide* tag, not a fourth workflow
+  // state. It may coexist with exactly one actual status tag per convoy.
+  const guides=forum.available_tags.filter(tag=>
+    canonicalTagName(tag.name)===GUIDE_TAG);
+  const guideTagIds=new Set(guides.length===1?[String(guides[0].id)]:[]);
   if(tagIds!==null&&tagIds!==undefined&&tagIds!==''){
     if(typeof tagIds!=='string')refuse('TAG_MAPPING_INVALID');
     const ids=tagIds.split(',').map(id=>id.trim());
     if(ids.length!==3||ids.some(id=>!ID.test(id))||
       new Set(ids).size!==3)refuse('TAG_MAPPING_INVALID');
     const available=new Set(forum.available_tags.map(tag=>String(tag.id)));
-    if(!ids.every(id=>available.has(id)))
-      return {knownTags:new Map(),tagSchemaVerified:false};
+    if(!ids.every(id=>available.has(id))||
+      ids.some(id=>guideTagIds.has(id)))
+      return {knownTags:new Map(),guideTagIds,tagSchemaVerified:false};
     return {knownTags:new Map(ids.map((id,index)=>[id,MODES[index]])),
-      tagSchemaVerified:true};
+      guideTagIds,tagSchemaVerified:true};
   }
-  // Compatibility path: use the three canonical literal names only when
-  // exactly one available tag has EACH name. Unknown tags remain unknown.
-  const knownTags=new Map();
-  for(const tag of forum.available_tags){
-    if(MODES.includes(tag.name))knownTags.set(String(tag.id),tag.name);
-  }
+  // User-confirmed Forum labels are exact except for displayed emoji
+  // prefixes. Emoji may instead be stored separately in emoji_name.
+  // Require exactly one matching tag ID per lifecycle state, never guess
+  // aliases or silently trust a duplicated label.
+  const named=forum.available_tags.map(tag=>({
+    id:String(tag.id),label:canonicalTagName(tag.name)}));
   const tagSchemaVerified=MODES.every(mode=>
-    [...forum.available_tags].filter(tag=>tag.name===mode).length===1);
-  return {knownTags:tagSchemaVerified?knownTags:new Map(),tagSchemaVerified};
+    named.filter(tag=>tag.label===mode).length===1)&&
+    new Set(named.filter(tag=>MODES.includes(tag.label))
+      .map(tag=>tag.id)).size===MODES.length;
+  const knownTags=tagSchemaVerified
+    ?new Map(named.filter(tag=>MODES.includes(tag.label))
+      .map(tag=>[tag.id,tag.label])):new Map();
+  return {knownTags,guideTagIds,tagSchemaVerified};
 }
 function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowMs=Date.now(),tagIds=null}={}){
   if(!Number.isSafeInteger(nowMs)||nowMs<1||
@@ -82,7 +107,7 @@ function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowM
   }
   // Complete reply inventory remains available when an unapproved tag naming
   // convention differs. No unverified thread lifecycle is inferred.
-  const {knownTags,tagSchemaVerified}=approvedTags(forum,tagIds);
+  const {knownTags,guideTagIds,tagSchemaVerified}=approvedTags(forum,tagIds);
   const centerIds=centerReport?.mode==='READ_ONLY'&&
     Array.isArray(centerReport.threads)
     ?new Set(centerReport.threads.filter(x=>x&&!x.error&&!x.ignored&&
@@ -95,11 +120,15 @@ function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowM
       seenThreads.has(String(thread.id))||
       !Array.isArray(thread.applied_tags))refuse();
     seenThreads.add(String(thread.id));
+    if(guideOnlyThread(thread,guideTagIds))continue;
     if(/^\s*\[?test\]?(?:\s|[-_:])/i.test(thread.name||'')||
       /\btemplate\b/i.test(thread.name||''))continue;
     count.convoyThreads++;
-    const tags=thread.applied_tags.map(x=>knownTags.get(String(x))).filter(Boolean);
-    if(tags.length!==1||thread.applied_tags.length!==1)count.tagIssues++;
+    const ids=thread.applied_tags.map(String);
+    const tags=ids.map(id=>knownTags.get(id)).filter(Boolean);
+    const unrecognized=ids.filter(id=>!knownTags.has(id)&&!guideTagIds.has(id));
+    if(tags.length!==1||unrecognized.length>0||
+      new Set(ids).size!==ids.length)count.tagIssues++;
     else if(tags[0]==='Invites Ongoing')count.ongoingThreads++;
     else if(tags[0]==='Invites Done')count.doneThreads++;
     else if(tags[0]==='Convoy Completed')count.completedThreads++;
@@ -208,6 +237,9 @@ async function readInvitationTracker({token,transport=fetch,
   const {get}=createDiscordReader({token,transport});
   const forum=await get('/channels/'+FORUM);
   if(forum?.id!==FORUM||forum?.guild_id!==GUILD||Number(forum?.type)!==15)refuse('FORUM_MISMATCH');
+  if(!Array.isArray(forum.available_tags))refuse();
+  // Guide-only threads are documentation, not convoy invitations.
+  const {guideTagIds}=approvedTags(forum,tagIds);
   const active=await get('/guilds/'+GUILD+'/threads/active');
   if(!Array.isArray(active?.threads))refuse('ACTIVE_THREAD_LIST');
   const collected=new Map();
@@ -234,6 +266,7 @@ async function readInvitationTracker({token,transport=fetch,
   if(!complete)refuse('ARCHIVE_PAGE_INCOMPLETE'); // never silently treat partially read archive as complete
   const messagesByThread=new Map();
   for(const t of collected.values()){
+    if(guideOnlyThread(t,guideTagIds))continue;
     if(/^\s*\[?test\]?(?:\s|[-_:])/i.test(t.name||'')||
       /\btemplate\b/i.test(t.name||''))continue;
     let all=[],beforeId=null,done=false;
@@ -255,5 +288,6 @@ async function readInvitationTracker({token,transport=fetch,
   return summarizeTracker({forum,threads:[...collected.values()],
     messagesByThread,centerReport,nowMs,tagIds});
 }
-module.exports={GUILD,FORUM,MODES,readEntry,eventIdFrom,
-  approvedTags,summarizeTracker,trustedInvitationObservation,readInvitationTracker};
+module.exports={GUILD,FORUM,MODES,GUIDE_TAG,canonicalTagName,
+  readEntry,eventIdFrom,approvedTags,summarizeTracker,
+  trustedInvitationObservation,readInvitationTracker};

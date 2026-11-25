@@ -87,3 +87,20 @@ The existing **Kings Event Leadership Reports** workflow now offers a seventh ma
 3. Read the fixed public-safe result: `READ_ONLY_SOURCE_VERIFIED` means a complete readable Forum scan *and* the configured tag schema matches existing Discord tags; `INVITATIONS_READABLE_TAG_SCHEMA_UNVERIFIED` means reply inventory works, but status tags need reconciliation; `SOURCE_UNAVAILABLE (<fixed-reason>)` means source access or configuration requires investigation.
 
 This manual run is a **verification convenience**, not a webhook and not an automated invitation service. Source audit readiness does not prove that individual recipients accepted or attended, nor does it validate full historical completeness.
+
+## 26 November 2026 — CEO-confirmed actual Forum tags (screenshot)
+
+The CEO supplied a screenshot of the **existing** private Invitation Tracker Forum `1457797580703531143`. The visible tags are:
+
+- `📌 Event Team Guide` — an auxiliary guide/documentation tag, **not** a convoy lifecycle state.
+- `🗒️ Invites Ongoing` — invite work in progress.
+- `✅ Invites Done` — invitation work documented as done.
+- `🏁 Convoy Completed` — the convoy has concluded.
+
+The emoji are visual prefixes in Discord (Discord can also store the icon separately as `emoji_name`). The status words themselves match the previously agreed `Invites Ongoing`, `Invites Done`, `Convoy Completed` naming. The integration now strips **only leading non-letter emoji/spacing**, then requires an **exact, unique** match to each confirmed status label. Extra words, ambiguous duplicate tags, or unknown labels remain unverified. No fuzzy guessing.
+
+A thread carrying both a status tag and `Event Team Guide` is classified using only its single status tag. A thread tagged **only** `Event Team Guide` is documentation and is excluded from convoy/invitation totals. The guide tag is never counted as a fourth lifecycle state. Confirmed tags need **no manual ID secret** if GitHub Actions can read their actual names. The optional `DISCORD_INVITATION_TAG_IDS` configuration remains a strictly-verified fallback for future owner-authorized changes, not a prerequisite for this screenshot-proven configuration.
+
+### Live release gate
+
+Offline tests must prove emoji tag recognition, duplicate-label refusal, guide-only thread exclusion, safe invite summaries and no writes. The next GitHub Actions **read-only** source scan is the independent live acceptance check. `READ_ONLY_SOURCE_VERIFIED` certifies only complete source **readability and lifecycle-tag schema**, not invite recipient acceptance, attendance, event approval, slot availability or complete historical coverage. No Discord tags were renamed or changed automatically.
