@@ -68,8 +68,9 @@ test('Owner-pinned private archive writer cannot silently activate via GitHub Ac
   assert.match(writer,/freeSlotsCertified:false/);
   assert.match(writer,/openEncryptedHistoricalArchive/);
   assert.match(writer,/createPrivateHistoricalArchiveReader/);
-  assert.match(writer,/method:'GET'/);
-  assert.doesNotMatch(writer,/method:'(?:DELETE|PATCH|POST)'/);
+  assert.match(writer,/api\('GET'/);
+  assert.match(writer,/api\('PUT'/);
+  assert.doesNotMatch(writer,/api\('(?:DELETE|PATCH|POST)'/);
   assert.doesNotMatch(writer,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
 });
 
