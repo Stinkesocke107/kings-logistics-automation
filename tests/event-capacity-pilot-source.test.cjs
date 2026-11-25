@@ -156,7 +156,7 @@ test('Fixed URLs and redirects keep auth token off any signed blob URL',()=>{
 test('Reader sends only fixed GETs and omits GitHub token for ZIP redirects',async()=>{
   const dataBytes=zip(),calls=[],base=BASE;
   const route={
-    [base+'/actions/workflows/convoy-checker.yml/runs?branch=main&status=success&event=schedule&per_page=20']:{
+    [base+'/actions/workflows/convoy-checker.yml/runs?branch=main&event=schedule&per_page=20']:{
       total_count:1,workflow_runs:[info()]
     },
     [base+'/actions/runs/'+RUN]:info(),
@@ -340,4 +340,44 @@ test('Pending/cancelled/unclassified and departures within two hours demand huma
   assert.equal(m.cancelled,1);
   assert.equal(m.unclassified,1);
   assert.equal(m.daysRequiringReview,1);
+});
+
+test('Newest failed scheduled Convoy run blocks fallback to an older success',async()=>{
+  const latest=info(),failed=info({id:RUN+1,status:'completed',
+    conclusion:'failure',run_started_at:'2027-03-20T11:58:00Z',
+    updated_at:'2027-03-20T11:59:00Z'});
+  const f=fakeReader();
+  f.reader.latest=async()=>{
+    f.calls.push('latest');
+    return {total_count:2,workflow_runs:[latest,failed]};
+  };
+  const r=await inspect({reader:f.reader,nowMs:NOW});
+  assert.equal(r.status,'SOURCE_UNVERIFIED');
+  assert.equal(r.sourceCalendarReady,false);
+  assert.deepEqual(f.calls,['latest']);
+});
+test('Newest in-progress scheduled run cannot be mistaken for confirmed success',async()=>{
+  const latest=info(),running=info({id:RUN+1,status:'in_progress',
+    conclusion:null,run_started_at:'2027-03-20T11:58:00Z',
+    updated_at:'2027-03-20T11:59:00Z'});
+  const f=fakeReader();
+  f.reader.latest=async()=>{
+    f.calls.push('latest');
+    return {total_count:2,workflow_runs:[running,latest]};
+  };
+  assert.equal((await inspect({reader:f.reader,nowMs:NOW})).status,
+    'SOURCE_UNVERIFIED');
+  assert.deepEqual(f.calls,['latest']);
+});
+test('Latest scheduled source query does not hide failed jobs with success filter',async()=>{
+  const r=createReader({token:TOKEN,transport:async (url,options)=>{
+    assert.equal(options.method,'GET');
+    assert.equal(url,BASE+
+      '/actions/workflows/convoy-checker.yml/runs?branch=main&event=schedule&per_page=20');
+    assert.equal(url.includes('status=success'),false);
+    return new Response('{"total_count":0,"workflow_runs":[]}',{status:200});
+  }});
+  const latest=await r.latest();
+  assert.equal(latest.total_count,0);
+  assert.deepEqual(latest.workflow_runs,[]);
 });
