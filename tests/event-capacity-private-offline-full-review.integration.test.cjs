@@ -24,6 +24,9 @@ const {inspectKingsNinetyDayBackupRecovery}
   =require('../event-capacity-backup-90day-recovery-audit');
 const {summarizeKingsCapacityPrivateSafety}
   =require('../event-capacity-private-safety-overview');
+const {evaluate}=require('../event-capacity-core');
+const {projectKingsStaffCalendarReview,renderKingsStaffCalendarEphemeral}
+  =require('../event-capacity-staff-calendar-review');
 const SCOPE={guildId:'1114967437788577792',forumId:'1550619824005062697'};
 const NOW=Date.parse('2027-05-20T12:00:00.000Z');
 const SOURCE='synthetic private encryption secret for test only and never production';
@@ -162,4 +165,51 @@ test('Combined private CEO summary does not disclose synthetic Event identities,
     assert.equal(serialized.includes(forbidden),false);
   assert.equal(r.overview.operationsPerformed,0);
   assert.equal(r.overview.productionWorkflowsModified,false);
+});
+
+test('Integrated private staff calendar shows March old hold and April current booking separately, never free slots',async()=>{
+  const r=await fullReview();
+  const march=reviewSignedHistoricalReservationHolds({
+    journal:r.s.x.afterJournal,scope:SCOPE,
+    ownerPublicKey:r.s.x.ownerPublicKey,month:'2027-03',nowMs:NOW
+  });
+  const capacity=evaluate([{
+    eventId:'100',eventType:'Partner Convoy',eventTypeVerified:true,
+    status:'Rescheduled',statusVerified:true,rescheduleApproved:true,
+    departureAtUtc:'2027-04-20T18:00:00Z',departureVerified:true,
+    meetingAtUtc:'2027-04-20T17:00:00Z',
+    plannedEndAtUtc:'2027-04-20T20:00:00Z'
+  }],{dataFresh:true});
+  const view=projectKingsStaffCalendarReview({
+    capacity,year:'2027',selectedMonth:'2027-04',
+    historicalHoldsReports:[march,r.historicalHoldsReport],
+    historicalEvidenceReport:r.historicalEvidenceReport
+  });
+  assert.equal(view.months.length,12);
+  assert.equal(view.months[2].signedHistoricalProvisional.partner,1);
+  assert.equal(view.months[2].currentSnapshot.partner,0);
+  assert.equal(view.months[3].signedHistoricalProvisional.partner,1);
+  assert.equal(view.months[3].currentSnapshot.partner,1);
+  assert.equal(view.days.find(x=>x.utcDate==='2027-04-20').snapshotCombined,1);
+  assert.equal(view.days.find(x=>x.utcDate==='2027-04-20').historicalCombinedProvisional,1);
+  assert.equal(view.currentAndHistoricalCountsNeverAddedTogether,true);
+  assert.equal(view.actualAvailableSlotsDisplayed,false);
+  assert.equal(view.freeSlotsCertified,false);
+  const preview=renderKingsStaffCalendarEphemeral(view);
+  assert.equal(preview.data.flags,64);
+  assert.equal(JSON.stringify(preview).includes('event:100'),false);
+});
+test('Integrated missing original historical evidence is still visible and cannot authorize the staff calendar',async()=>{
+  const r=await fullReview({missingSource:true});
+  const view=projectKingsStaffCalendarReview({
+    capacity:evaluate([],{dataFresh:true}),
+    year:'2027',selectedMonth:'2027-04',
+    historicalHoldsReports:[r.historicalHoldsReport],
+    historicalEvidenceReport:r.historicalEvidenceReport
+  });
+  assert.equal(view.months[3].evidenceGapsReported,1);
+  assert.equal(view.months[3].historicalHoldCountExceedsCurrentSnapshot,true);
+  assert.equal(view.days.find(x=>x.utcDate==='2027-04-20').canApprove,false);
+  assert.equal(view.freeSlotsCertified,false);
+  assert.equal(view.safeToActivate,false);
 });
