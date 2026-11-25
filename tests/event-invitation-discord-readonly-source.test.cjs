@@ -81,9 +81,9 @@ test('Staff-entered accepted status never certifies actual organizer reply or ev
   const f=fixture();f.raw.pages[0][0]=sent('A',undefined,'Accepted');
   await assert.rejects(()=>scan(f)); // Cannot jump Draft directly to Accepted.
   const g=fixture();
-  g.raw.pages[0]=[
-    sent('A','990000000000000103','Accepted'),
-    sent(),create()];
+  const accepted=sent('A','990000000000000103','Accepted');
+  accepted.timestamp='2026-11-22T12:00:00.000Z';
+  g.raw.pages[0]=[accepted,sent(),create()];
   const r=await scan(g);
   assert.equal(r.review.counts.accepted,1);
   assert.equal(r.originalOrganizerResponsesIndependentlyVerified,false);
