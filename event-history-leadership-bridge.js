@@ -40,6 +40,9 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
       if(source==='center')undatedCenter++;else undatedLegacy++;
       return;
     }
+    // A future convoy in the current UTC month belongs to the forward
+    // Calendar review, never the historical completed-month observation.
+    if(date>nowMs){otherPeriods++;return;}
     const row=lookup.get(historyMonthKey(date));
     if(!row){otherPeriods++;return;}
     const id=String(item.threadId||item.legacyId||item.eventId||'');
