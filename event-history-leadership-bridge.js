@@ -104,7 +104,7 @@ function compactLeadershipSection(report,overview,nowMs=Date.now()){
       result.futureDaysOverClaimedDailyLimit+'** · 2h spacing review **'+
       result.futureDaysWithShortDepartureGap+'** · Partner months >20 **'+
       result.partnerMonthsOverClaimedLimit+'** · External months >20 **'+
-      result.externalMonthsOverClaimedLimit+'**. Advisory source only.'
+      result.externalMonthsOverClaimedLimit+'**. Advisory source only.',
     '📚 **24-month Event History:** Source claims: Center **'+
       result.datedCenterClaims+'**, Legacy **'+
       result.datedFrozenLegacyClaims+'** · months with claims **'+
