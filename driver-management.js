@@ -183,13 +183,24 @@ async function getOnlineKingsDrivers() {
     'TruckersMP servers',
     (payload) => Array.isArray(payload?.response)
   );
-  const servers = data.response
-    .filter((server) => server.online && Number.isFinite(Number(server.mapid)));
+  // An empty or malformed official directory cannot establish that
+  // zero Kings Drivers are online. Preserve the previous observation instead.
+  const servers = data.response.filter((server) => server?.online === true);
+  if (servers.length === 0) {
+    throw new Error('No verified online TruckersMP servers; online observation unavailable.');
+  }
 
   const online = new Map();
-
   for (const server of servers) {
     const mapId = Number(server.mapid);
+    if (!Number.isSafeInteger(mapId) || mapId <= 0 ||
+        !['ETS2', 'ATS'].includes(String(server.game).toUpperCase())) {
+      throw new Error('Invalid official TruckersMP server metadata; online observation unavailable.');
+    }
+
+    // Only an authoritative integer zero can prove this server is empty.
+    // Missing or string player counts MUST go through the map check.
+    if (server.players === 0) continue;
     const url =
       'https://tracker.ets2map.com/v3/area' +
       `?x1=-1000000&y1=1000000&x2=1000000&y2=-1000000&server=${mapId}`;
