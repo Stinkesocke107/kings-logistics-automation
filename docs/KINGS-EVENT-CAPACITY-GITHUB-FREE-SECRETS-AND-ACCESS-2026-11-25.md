@@ -1,6 +1,6 @@
 # Kings Event Capacity — GitHub Free / Three PRIVATE repositories / Secrets and access plan
 
-**Decision: 25 November 2026.** This is the CURRENT owner-approved architecture and supersedes any prior temporary single-public-repository idea. The CEO reports all three private repositories were created, but the connected GitHub App has **not yet been authorized to see them**. No secrets, tokens, keys, new workflows or live Event data have been configured.
+**Decision: 25 November 2026.** This is the CURRENT owner-approved architecture and supersedes any prior temporary single-public-repository idea. All three private repositories have now been **independently verified** through the installed GitHub App: exact names, PRIVATE visibility, real `main` branches, unarchived state, and selected-repository installation access. No secrets, tokens, keys, new workflows or live Event data have been configured.
 
 ## Permanent repository boundaries
 
@@ -34,15 +34,16 @@
 
 The existing draft adapters currently accept caller-provided secret parameters, so **they must NOT be imported by a production workflow yet**. A future trusted deployment design will choose short-lived installation credentials or fine-grained repo-restricted tokens, verify granted permissions and keep the signer outside CI.
 
-## Exactly one immediate owner action: authorize GitHub App for the THREE private repos
+## GitHub App authorization — completed and verified
 
-1. Open https://github.com/settings/installations/162599792 while logged in as `Stinkesocke107`.
-2. Click `Configure`. Keep `Only select repositories`; do NOT switch to unrestricted `All repositories`.
-3. Add `kings-event-capacity-history`, `kings-event-capacity-witness`, and `kings-event-capacity-backups`. Keep the existing authorized repository entries if you still want GitHub development in PR #143.
-4. Save. This is an explicit owner account action that this connected GitHub toolset cannot perform.
-5. The next assistant verification will check **exact repository existence, PRIVATE visibility, `main`, archived state and available app access**. Do not create secrets until after that verification.
+- [x] Owner created `kings-event-capacity-history`, `kings-event-capacity-witness` and `kings-event-capacity-backups` as PRIVATE GitHub Free repositories.
+- [x] The existing GitHub App installation `162599792` is configured for **selected** repositories and now exposes all three new private repositories.
+- [x] Each repository has a real `main` branch, initial README and a safe local accidental-secret `.gitignore`. No real private Event data, credentials or signing keys have been added.
+- [x] GitHub read-only repository metadata access and `main` branch search succeeded for all three.
+- [ ] Do **NOT** assume the setup actor's reported admin/push rights are least-privilege production credentials; design isolated runtime identities separately.
+- [ ] Do **NOT** create tokens or GitHub Secrets yet. Wait until workflow capability and per-repository minimum permissions are reviewed.
 
-If one or more repositories is absent in the chooser, verify account ownership, exact names and the GitHub App installation context. A GitHub API 404 from the current installation is NOT proof the repository does not exist.
+**No immediate account action remains for the CEO.** Continue only with controlled offline design, synthetic tests, and read-only private checks until the explicitly approved permission-separated pilot.
 
 ## Remaining independent launch blockers
 
@@ -50,6 +51,6 @@ If one or more repositories is absent in the chooser, verify account ownership, 
 - Privacy, Staff roles/effective channel permissions and manual double review.
 - Independent monotonic owner-highwater custody; proof of latest signed checkpoint, not just a valid signature.
 - Production-sized private backup cadence, retention/erasure/legal-hold enforcement and monthly truly isolated restore.
-- Locked-down minimum-scope credentials, private Free-plan compatible review and CI, real private repository read-only test, explicit CEO go-live approval.
+- Locked-down minimum-scope runtime credentials, private GitHub Free review and CI, real private encrypted **synthetic-only** read/write recovery pilot after separate authorization, explicit CEO go-live approval.
 
 **Status: PR #143 DRAFT; live Kings Convoy Checker unchanged; no `capacity_preview` dispatch, merge, key creation, private data migration or production enablement.**
