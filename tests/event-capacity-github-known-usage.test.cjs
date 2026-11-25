@@ -69,7 +69,7 @@ function view(events,options={}){
     selectedMonth:options.selectedMonth
   });
 }
-test('Known usage respects weekend 5/day planning cap; Kings are quota exempt',()=>{
+test('Known usage counts Kings within same daily 3/day cap on weekends',()=>{
   const e=[
     event(1,'partner','2027-03-20T16:00:00Z'),
     event(2,'external','2027-03-20T17:00:00Z'),
@@ -79,9 +79,11 @@ test('Known usage respects weekend 5/day planning cap; Kings are quota exempt',(
   const r=view(e),day=r.days.find(x=>x.day==='2027-03-20');
   assert.equal(r.visibility,'PRIVATE_ONLY');
   assert.equal(r.mode,'KnownAcceptedMinimum');
-  assert.equal(day.knownCombinedAccepted,2);
+  assert.equal(day.knownCombinedAccepted,4);
   assert.equal(day.knownKingsAccepted,2);
-  assert.equal(day.limitReachedByKnownEvents,false);
+  assert.equal(day.limitReachedByKnownEvents,true);
+  assert.equal(day.dailyLimit,3);
+  assert.equal(day.knownOverLimit,true);
   assert.equal(r.monthUsage.knownPartnerAccepted,1);
   assert.equal(r.monthUsage.knownExternalAccepted,1);
   assert.equal(r.monthUsage.knownKingsAccepted,2);
@@ -93,7 +95,7 @@ test('Known usage respects weekend 5/day planning cap; Kings are quota exempt',(
   assert.equal(data.includes('synthetic-staff'),false);
   assert.equal(data.includes('event:1'),false);
 });
-test('Third accepted External triggers 2/day category warning on a Saturday, not a free slot',()=>{
+test('Third accepted External reaches total daily max 3 (not an old category daily cap)',()=>{
   const e=[
     event(1,'external','2027-03-20T16:00:00Z'),
     event(2,'external','2027-03-20T17:00:00Z'),
@@ -101,12 +103,13 @@ test('Third accepted External triggers 2/day category warning on a Saturday, not
   ];
   const r=view(e),day=r.days.find(x=>x.day==='2027-03-20');
   assert.equal(day.knownCombinedAccepted,3);
-  assert.equal(day.knownOverLimit,true);
-  assert.equal(day.dailyLimit,5);
+  assert.equal(day.knownOverLimit,false);
+  assert.equal(day.limitReachedByKnownEvents,true);
+  assert.equal(day.dailyLimit,3);
   assert.equal(r.counts.overLimitWarnings,1);
   assert.equal(r.capacityVerified,false);
 });
-test('Twenty Partner / External monthly counts do not enforce retired monthly caps',()=>{
+test('Monthly 21 Partner is above monthly 20, while exactly 20 External is reached',()=>{
   const e=[];
   for(let i=0;i<21;i++)e.push(event(i+1,'partner',
     '2027-03-'+String(1+i).padStart(2,'0')+'T16:00:00Z'));
@@ -115,10 +118,12 @@ test('Twenty Partner / External monthly counts do not enforce retired monthly ca
   const r=view(e);
   assert.equal(r.monthUsage.knownPartnerAccepted,21);
   assert.equal(r.monthUsage.knownExternalAccepted,20);
-  assert.equal(r.monthUsage.partnerMonthlyLimitReached,false);
-  assert.equal(r.monthUsage.externalMonthlyLimitReached,false);
-  assert.equal(r.limits.partnerMonthly,null);
-  assert.equal(r.limits.externalMonthly,null);
+  assert.equal(r.monthUsage.partnerMonthlyLimitReached,true);
+  assert.equal(r.monthUsage.externalMonthlyLimitReached,true);
+  assert.equal(r.limits.partnerMonthly,20);
+  assert.equal(r.limits.externalMonthly,20);
+  assert.equal(r.limits.kingsMonthly,null);
+  assert.equal(r.limits.combinedDaily,3);
   assert.equal(r.monthUsage.partnerRemainingVerified,null);
   assert.equal(r.freeSlotsCertified,false);
 });
@@ -220,7 +225,7 @@ test('Approved Event Management exception is counted but does not raise the dail
     verifiedRoles:['Event Management']},'2027-03-20T11:45:00Z');
   const result=view(e,{ledger}),day=result.days.find(x=>x.day==='2027-03-20');
   assert.equal(day.knownCombinedAccepted,3);
-  assert.equal(day.dailyLimit,5);
+  assert.equal(day.dailyLimit,3);
   assert.equal(day.approvedExceptions,1);
   assert.equal(result.monthUsage.approvedExceptions,1);
   assert.equal(day.remainingVerified,null);
