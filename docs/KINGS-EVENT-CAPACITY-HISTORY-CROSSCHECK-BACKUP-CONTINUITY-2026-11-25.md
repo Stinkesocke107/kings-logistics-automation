@@ -34,3 +34,18 @@ The new cross-check tests cover matching and missing Event IDs, signed cancellat
 Still required: actual private data/witness/backup repositories and credentials; source-authenticating gateway and complete historical Convoy Center evidence (including archived/deleted events); owner-controlled independent monotonic highwater; production-sized storage and key rotation; real 90-day retention/legal holds and separately isolated monthly restore; effective Discord role/channel permissions; explicit CEO activation approval.
 
 **No automatic accepted Event, free-slot proof, slot release, Discord post, deletion, GitHub workflow dispatch or production feature activation is performed.**
+
+## Part C: Human-reviewed Event Workboard handoff
+
+Module: `event-capacity-historical-workboard-proposals.js`.
+
+A protected internal coordinator can take the private HMAC discrepancy keys from Part A and preview **deduplicated task proposals** for the existing Event Workboard. It validates the original workboard structure and scope, maps known issue reasons to safe generic task titles and marks urgent issues for Leadership attention. It does not include Discord member names, raw Event IDs, Staff message content or event details.
+
+The proposal preview reads workboard task IDs and status; an issue already tracked as Open, In Progress, On Hold, Done or Reopened is **not** duplicated or reopened automatically. A pre-existing colliding task ID with a different reason is rejected, not overwritten. The proposal does **not** supply a trusted Staff actor, and it does not generate an executable workboard revision command.
+
+The output explicitly sets `commandsReadyToExecute:false`, `staffTasksCreated:0`, `staffTasksReopened:0`, `humanAuthorizationRequired:true`, `sourceProvenanceIndependentlyVerifiedHere:false`, `historicalCoverageCertified:false` and `freeSlotsCertified:false`.
+
+An eventual implementation must re-authenticate the current Event Coordination/Leadership permissions, independently re-verify the latest source and signed archive, compare the current workboard revision, obtain authorized human review, and persist a single private workboard transaction with audit history; only then could these generic proposals become tasks. **Nothing is auto-created in Discord or GitHub today.**
+
+The eight new unit tests cover deterministic proposals, manual application via the existing workboard domain rules, no duplicate or automatic reopening of Done tasks, leadership-review indication, malicious task keys, false completeness and scope mismatches, and collision safety.
+
