@@ -146,7 +146,9 @@ test('Independently documented Event Management exception is counted, never chan
   const proof=decision('Partner Convoy',{exception:{approved:true,approvedByRole:'Event Management',evidenceRef:'private-exception'}}); 
   const r=evaluateConvoyReports(report(),overview(),{...O,classifications:{'event:10':proof}});
   assert.equal(r.capacity.days['2027-03-20'].approvedExceptions,1);
-  assert.equal(r.capacity.limits.combinedDaily,2);
+  assert.equal(r.capacity.limits.weekdayCombined,3);
+  assert.equal(r.capacity.limits.weekendCombined,5);
+  assert.equal(r.capacity.limits.combinedDaily,null);
 });
 test('Missing or contradictory source inventory fails closed',()=>{
   const partial=report();
