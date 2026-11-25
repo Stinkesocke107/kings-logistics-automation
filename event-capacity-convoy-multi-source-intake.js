@@ -109,9 +109,12 @@ function reconcileKingsMultiSourceConvoys({
       }
       if(channel.kind==='current'&&r.sourceKind==='legacy')fail();
       if(channel.kind==='legacy'&&r.sourceKind==='current')fail();
+      // A Discord thread snowflake is globally unique. The same thread cannot
+      // legitimately belong to two different parent channels. Fail closed
+      // rather than counting a moved/mislabeled source twice.
       const threadKey=r.channelId+':'+r.threadId;
-      if(seenThreads.has(threadKey))fail();
-      seenThreads.add(threadKey);
+      if(seenThreads.has(r.threadId))fail();
+      seenThreads.add(r.threadId);
       observed.set(r.channelId,(observed.get(r.channelId)??0)+1);
       if(r.sourceKind==='archived')
         observedArchived.set(r.channelId,(observedArchived.get(r.channelId)??0)+1);
