@@ -56,9 +56,12 @@ function reviewMac(input,secret,scope){
 function buildHumanReviewChallenge({
   proposal,sourceRunId,ledgerRevision,nowMs=Date.now(),secret,scope
 }={}){
-  const c=configCheck({...scope,messageId:null});
+  if(!scope||!SNOWFLAKE.test(String(scope.guildId||''))||
+    !SNOWFLAKE.test(String(scope.forumId||'')))fail();
+  const checkedScope={guildId:String(scope.guildId),
+    forumId:String(scope.forumId)};
   const input=proofInput({proposal,runId:sourceRunId,ledgerRevision,at:nowMs});
-  const code=reviewMac(input,secret,c);
+  const code=reviewMac(input,secret,checkedScope);
   return Object.freeze({
     ...input,code,
     // Exact syntax for a second authorized person after source review.
@@ -133,6 +136,7 @@ async function verifyHumanReview({
       messageId:proof.messageId,authorId:proof.actorId,
       content:originalContent,channelId:c.channelId
     },nowMs);
+    if(Date.parse(original.timestamp)>proof.at)fail();
     [submitter,approver]=await Promise.all([
       client.member(c.guildId,proof.actorId),
       client.member(c.guildId,String(review.author.id))
