@@ -19,7 +19,9 @@ async function verify({env=process.env,transport=fetch,nowMs=Date.now()}={}){
     return 'READ_ONLY_SOURCE_VERIFIED';
   }catch(error){
     const reasons=new Set([
-      'ACCESS_DENIED','RATE_LIMITED','API_UNAVAILABLE',
+      'ACCESS_DENIED','ACCESS_DENIED_FORUM','ACCESS_DENIED_ACTIVE',
+      'ACCESS_DENIED_ARCHIVE','ACCESS_DENIED_MESSAGES',
+      'RATE_LIMITED','API_UNAVAILABLE',
       'FORUM_MISMATCH','FORUM_TAGS_MISSING',
       'ACTIVE_THREAD_LIST','ARCHIVE_PAGE_INCOMPLETE',
       'MESSAGE_PAGE_INCOMPLETE','STARTER_NOT_FOUND',
