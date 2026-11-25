@@ -489,17 +489,6 @@ function membershipDays(driver, now = Date.now()) {
   return ageDays(driver?.joinDate || driver?.firstObservedAt, now);
 }
 
-function tenureLabel(days) {
-  if (!Number.isFinite(days)) return 'unknown';
-  const years = Math.floor(days / 365);
-  const months = Math.floor((days % 365) / 30);
-  const remainingDays = Math.max(0, days - years * 365 - months * 30);
-
-  if (years > 0) return months > 0 ? `${years}y ${months}m` : `${years}y`;
-  if (months > 0) return remainingDays > 0 ? `${months}m ${remainingDays}d` : `${months}m`;
-  return `${days}d`;
-}
-
 function buildTenureSummary(drivers, now = Date.now()) {
   const buckets = {
     under1Month: 0,
@@ -531,37 +520,15 @@ function buildTenureSummary(drivers, now = Date.now()) {
     else buckets.threeYearsPlus += 1;
   }
 
-  const mapDriver = ({ driver, days }) => ({
-    tmpId: driver.tmpId,
-    username: driver.username,
-    joinDate: driver.joinDate || driver.firstObservedAt || null,
-    tenureDays: days
-  });
-
-  const longestServing = [...known]
-    .sort((a, b) => b.days - a.days || String(a.driver.username).localeCompare(String(b.driver.username)))
-    .slice(0, 5)
-    .map(mapDriver);
-
-  const newestDrivers = [...known]
-    .sort((a, b) => a.days - b.days || String(a.driver.username).localeCompare(String(b.driver.username)))
-    .slice(0, 5)
-    .map(mapDriver);
-
+  // PUBLIC SUMMARY: Do not persist per-driver rankings, names, IDs or join
+  // dates in data/driver-management-summary.json. They belong only in the
+  // encrypted private Driver state used by authorized Leadership systems.
+  // The former longestServing/newestDrivers arrays broke git-safe-push
+  // validation, so hourly Driver Management updates were discarded.
   return {
     known: known.length,
-    ...buckets,
-    longestServing,
-    newestDrivers
+    ...buckets
   };
-}
-
-function tenureLine(driver) {
-  const joined = driver.joinDate ? new Date(driver.joinDate).getTime() : NaN;
-  const joinedText = Number.isFinite(joined)
-    ? ` · joined <t:${Math.floor(joined / 1000)}:D>`
-    : '';
-  return `• [${escapeMarkdown(driver.username || `TMP ${driver.tmpId}`)}](${profileUrl(driver.tmpId)}) — **${tenureLabel(driver.tenureDays)}**${joinedText}`;
 }
 
 function mergedLeaveCreditMs(leaves, tmpId, basisMs, now) {
