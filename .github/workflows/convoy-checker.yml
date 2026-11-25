@@ -301,7 +301,9 @@ jobs:
                 (inputs.capacity_action == 'bootstrap' || inputs.capacity_action == 'sync'))))
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          # Do not inject the real Discord secret into preview/source-only
+          # runs. The other modes still use the existing protected bot secret.
+          DISCORD_BOT_TOKEN: ${{ github.event_name == 'workflow_dispatch' && (inputs.capacity_action == 'preview' || inputs.capacity_action == 'source-preflight') && 'READ_ONLY_NO_DISCORD_TOKEN' || secrets.DISCORD_BOT_TOKEN }}
           KINGS_EVENT_CAPACITY_ENABLED: ${{ vars.KINGS_EVENT_CAPACITY_ENABLED }}
           KINGS_EVENT_CAPACITY_COMMANDS_ENABLED: ${{ vars.KINGS_EVENT_CAPACITY_COMMANDS_ENABLED }}
           KINGS_EVENT_CAPACITY_EVIDENCE_ENABLED: ${{ vars.KINGS_EVENT_CAPACITY_EVIDENCE_ENABLED }}
