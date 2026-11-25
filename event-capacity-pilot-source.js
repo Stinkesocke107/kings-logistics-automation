@@ -216,8 +216,10 @@ function createReader({token,transport=fetch}={}){
     try{return JSON.parse(bytes.toString('utf8'));}catch{refuse();}
   }
   return Object.freeze({
+    // Do not ask GitHub for successes only: a newer failed scheduled run
+    // must block a stale preceding SUCCESS from being shown as "ready".
     latest:()=>json('/actions/workflows/convoy-checker.yml/runs?'+
-      'branch=main&status=success&event=schedule&per_page=20'),
+      'branch=main&event=schedule&per_page=20'),
     run:id=>json('/actions/runs/'+id),
     artifacts:id=>json('/actions/runs/'+id+'/artifacts?per_page=100'),
     zip:async id=>{
@@ -242,10 +244,17 @@ async function inspect({reader,nowMs=Date.now()}={}){
     const list=await reader.latest();
     if(!list||!Array.isArray(list.workflow_runs)||
       list.workflow_runs.length>20)refuse();
-    const runs=list.workflow_runs.filter(runShape)
-      .sort((a,b)=>BigInt(a.id)>BigInt(b.id)?-1:1);
+    // Check the most recent scheduled attempt FIRST, including failures,
+    // rather than silently falling back to an older successful attempt.
+    // All metadata are checked before fetching the potentially private ZIP.
+    if(list.workflow_runs.some(x=>!ID.test(String(x?.id||''))))
+      return verdict('SOURCE_UNVERIFIED');
+    const runs=list.workflow_runs.slice()
+      .sort((a,b)=>BigInt(a.id)>BigInt(b.id)?-1:
+        BigInt(a.id)<BigInt(b.id)?1:0);
     if(!runs.length)return verdict('SOURCE_UNVERIFIED');
     const candidate=runs[0];
+    if(!runShape(candidate))return verdict('SOURCE_UNVERIFIED');
     if(!current(candidate,nowMs))return verdict('SOURCE_NOT_RECENT');
     const direct=await reader.run(candidate.id);
     if(!current(direct,nowMs)||direct.id!==candidate.id||
