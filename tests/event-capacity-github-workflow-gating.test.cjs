@@ -68,3 +68,14 @@ test('PR-only live preflight uses the current offline verification workflow and 
   assert.equal(fs.existsSync(path.join(root,
     '.github/workflows/kings-event-capacity-live-preview.yml')),false);
 });
+
+test('Optional live-map status cannot activate the production Event Capacity runner',()=>{
+  const runner=fs.readFileSync(path.join(root,'scripts/event-capacity-github-actions.js'),'utf8');
+  const dashboard=fs.readFileSync(path.join(root,'event-capacity-dashboard.js'),'utf8');
+  const optional=fs.readFileSync(path.join(root,'event-capacity-optional-tracker.js'),'utf8');
+  assert.match(dashboard,/projectOptionalTracker\(trackerSource/);
+  assert.match(optional,/mode:'WITHOUT_MAP'/);
+  assert.match(optional,/capacityIndependent:true/);
+  assert.doesNotMatch(runner,/event-capacity-optional-tracker/);
+  assert.doesNotMatch(workflow,/KINGS_EVENT_CAPACITY_LIVE_MAP_ENABLED/);
+});
