@@ -148,3 +148,56 @@ test('missing Central Overview target is a real fallback failure and never creat
   assert.ok(s.calls.every(call=>call.options.method!=='POST'&&call.options.method!=='DELETE'));
   assert.equal(JSON.parse(s.files.get('data/live-tracker-snapshot.json')).online,snapshot.online);
 });
+
+test('Statistics and Central Overview keep verified historical peaks without inventing current online players',()=>{
+  const snapshotAt='2026-11-18T16:00:21.037Z';
+  const s=sandbox('live-outage-notice.js',{files:{
+    'data/live-tracker-snapshot.json':JSON.stringify({updatedAt:snapshotAt}),
+    'data/statistics.json':JSON.stringify({
+      sourceSnapshotAt:snapshotAt,
+      allTime:{peakOnline:8,peakETS2:8,peakATS:1},
+      history:[{date:'2026-11-18',peakOnline:8}]
+    }),
+    'data/changelog-history.json':JSON.stringify({changelogs:[
+      {id:'S01-KL08',publishedAt:'2026-11-19T12:00:00Z'},
+      {id:'S01-KL09',publishedAt:'2026-11-21T12:00:00Z'}
+    ]})
+  }});
+  const stats=s.run("outageEmbed(SETTINGS[1],readSafeState('statistics.json'))");
+  const central=s.run("outageEmbed(SETTINGS[2],{})");
+  const tracker=s.run("outageEmbed(SETTINGS[0],{})");
+  for(const value of [stats,central]){
+    const field=value.fields.find(x=>x.name.includes('Historical tracked online peak'));
+    assert.ok(field,'Previously verified historical peak must remain visible');
+    assert.match(field.value,/8 Kings Members/);
+    assert.match(field.value,/ETS2 peak: \*\*8\*\*/);
+    assert.match(field.value,/ATS peak: \*\*1\*\*/);
+    assert.match(field.value,/Last confirmed player-data sample/);
+    assert.match(value.fields.find(x=>x.name==='Current online count').value,/Unavailable — not zero/);
+    assert.doesNotMatch(value.description,/8 Kings Members Online/);
+  }
+  assert.equal(tracker.fields.some(x=>x.name.includes('Historical tracked online peak')),false);
+  const last=central.fields.find(x=>x.name.includes('Latest archived Kings Changelog'));
+  assert.ok(last,'The archived Changelog is independent of the failed map provider');
+  assert.match(last.value,/S01-KL09/);
+  assert.equal(stats.fields.some(x=>x.name.includes('Latest archived Kings Changelog')),false);
+});
+
+test('invalid history, unconfirmed samples and future changelogs are never displayed as verified',()=>{
+  const s=sandbox('live-outage-notice.js',{files:{
+    'data/statistics.json':JSON.stringify({
+      sourceSnapshotAt:'2030-01-01T00:00:00Z',
+      allTime:{peakOnline:999,peakETS2:999,peakATS:999},
+      history:[{date:'2026-11-18',peakOnline:999}]
+    }),
+    'data/changelog-history.json':JSON.stringify({changelogs:[
+      {id:'S01-KL99',publishedAt:'2030-01-01T00:00:00Z'},
+      {id:'BAD-INJECTED-<@everyone>',publishedAt:'2026-11-22T12:00:00Z'}
+    ]})
+  }});
+  const central=s.run("outageEmbed(SETTINGS[2],{})");
+  assert.equal(central.fields.some(x=>x.name.includes('Historical tracked online peak')),false);
+  assert.equal(central.fields.some(x=>x.name.includes('Latest archived Kings Changelog')),false);
+  assert.match(central.fields[1].value,/Unavailable — not zero/);
+  assert.doesNotMatch(JSON.stringify(central),/BAD-INJECTED|999 Kings Members/);
+});
