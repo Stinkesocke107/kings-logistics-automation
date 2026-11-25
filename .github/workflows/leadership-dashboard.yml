@@ -9,6 +9,7 @@ on:
     paths:
       - 'leadership-dashboard.js'
       - 'event-leadership-observation.js'
+      - 'event-invitation-tracker-source.js'
       - 'event-leadership-state.js'
       - 'hr-driver-register-status.js'
       - 'leadership-message-sync.js'
@@ -49,6 +50,7 @@ jobs:
           node --check leadership-dashboard.js
           node --check event-leadership-state.js
           node --check event-leadership-observation.js
+          node --check event-invitation-tracker-source.js
           node --check hr-driver-register-status.js
 
       - name: Update one Leadership message per channel
