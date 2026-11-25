@@ -153,3 +153,54 @@ test('Repeated audit is deterministic and leaves all supplied source payloads un
   assert.deepEqual(review(input),review(input));
   assert.deepEqual(input,before);
 });
+
+test('Entire 24-month source scan still shows human historical checklists missing',()=>{
+  const r=audit();
+  assert.equal(r.counters.historyMonthsWithoutStaffChecklists,24);
+  assert.equal(r.counters.historyMonthsWithOpenStaffChecklists,0);
+  assert.match(r.status,/HISTORICAL STAFF CHECKLISTS MISSING/);
+  const text=JSON.stringify(render(r));
+  assert.match(text,/Staff checklists missing 24/);
+  assert.equal(r.freeSlotsCertified,false);
+});
+test('Submitted but incomplete month triggers a visible open human-review status',()=>{
+  const r=audit(x=>{
+    x.monthlyClaims=Array.from({length:24},(_,i)=>{
+      const d=new Date('2024-12-01T00:00:00.000Z');
+      d.setUTCMonth(d.getUTCMonth()+i);
+      const month=d.toISOString().slice(0,7);
+      return monthClaim(month,month==='2026-10'?{
+        unresolvedReviewItems:2,
+        archivedDeletedThreadsReconciled:false
+      }:{});
+    });
+  });
+  assert.equal(r.counters.historyMonthsWithoutStaffChecklists,0);
+  assert.equal(r.counters.historyMonthsWithOpenStaffChecklists,1);
+  assert.match(r.status,/HISTORICAL STAFF CHECKLISTS INCOMPLETE/);
+  assert.match(JSON.stringify(render(r)),/Open staff reviews 1/);
+  assert.equal(r.original24MonthDiscordHistoryIndependentlyVerified,false);
+});
+test('Wrong month order, mismatched window or fake source count is refused at render',()=>{
+  const r=audit();
+  for(const candidate of [
+    {...r,firstHistoryMonth:'2024-11'},
+    {...r,lastHistoryMonth:'2027-01'},
+    {...r,historyMonths:[r.historyMonths[1],r.historyMonths[0],
+      ...r.historyMonths.slice(2)]},
+    {...r,counters:{...r.counters,historyMonthsWithoutStaffChecklists:0}},
+    {...r,counters:{...r.counters,historyMonthsWithoutSourceClaims:24}},
+    {...r,counters:{...r.counters,historyMonthsWithIncompleteScanClaims:24}},
+    {...r,historyMonths:[{...r.historyMonths[0],reviewState:'FAKE COMPLETE'},
+      ...r.historyMonths.slice(1)]},
+    {...r,original24MonthDiscordHistoryIndependentlyVerified:true},
+    {...r,eventBookingCapacityCertified:true}
+  ])assert.throws(()=>render(candidate));
+});
+test('Fake missing-checklist flag cannot make a previously unreviewed month look checked',()=>{
+  const r=audit(),m=r.historyMonths[0];
+  const modified={...m,humanChecklistSubmitted:true};
+  assert.throws(()=>render({...r,historyMonths:[modified,
+    ...r.historyMonths.slice(1)]}));
+  assert.equal(render(r).data.flags,64);
+});
