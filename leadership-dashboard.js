@@ -333,12 +333,12 @@ function buildEvent(data, now = Date.now()) {
       '** · ongoing **'+invitations.ongoingThreads+
       '** · invitations done **'+invitations.doneThreads+
       '** · convoys completed **'+invitations.completedThreads+
-      '**.\\nFor Staff review: duplicate VTC replies **'+invitations.duplicateVtcReplies+
+      '**.\nFor Staff review: duplicate VTC replies **'+invitations.duplicateVtcReplies+
       '** · invalid replies **'+invitations.malformedReplies+
       '** · tag problems **'+invitations.tagIssues+
       '** · event links missing **'+invitations.eventLinksMissing+
       '** · event links matched to current Center **'+invitations.linkedToCenter+
-      '**.\\nRecorded response labels: accepted **'+invitations.recordedAccepted+
+      '**.\nRecorded response labels: accepted **'+invitations.recordedAccepted+
       '** · declined **'+invitations.recordedDeclined+
       '** · pending **'+invitations.recordedPending+
       '** · not recorded **'+invitations.replyNotRecorded+
