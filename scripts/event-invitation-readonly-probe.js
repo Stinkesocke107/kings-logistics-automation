@@ -18,7 +18,8 @@ function idCsv(raw){
 function configFromEnvironment(env){
   if(env.GITHUB_EVENT_NAME!=='workflow_dispatch'||
     env.GITHUB_REF!=='refs/heads/main'||
-    env.KINGS_INVITATION_READONLY_PROBE!=='true')fail();
+    env.KINGS_INVITATION_READONLY_PROBE!=='true'||
+    env.KINGS_INVITATION_CONVOY_MODE!=='dry-run')fail();
   if(typeof env.DISCORD_BOT_TOKEN!=='string'||
     env.DISCORD_BOT_TOKEN.length<30||
     env.DISCORD_BOT_TOKEN.length>512||
