@@ -17,6 +17,7 @@ const REASONS=new Set([
   'historical-signed-event-not-in-current-source',
   'current-accepted-event-without-signed-history',
   'current-source-cancelled-without-signed-cancellation',
+  'current-source-completed-without-signed-completion',
   'signed-history-status-conflict',
   'signed-history-category-conflict',
   'signed-history-departure-conflict',
@@ -124,6 +125,8 @@ function reconcileSignedHistoricalSource({
       const live=sourceStatus(item.status);
       if(!hasHistoricStatus(record.status,live))
         add('signed-history-status-conflict',ref);
+      if(live==='Completed'&&['Accepted','Rescheduled'].includes(record.status))
+        add('current-source-completed-without-signed-completion',ref);
       const category=item.validation?.parsed?.eventType??item.eventType??null;
       if(category===null) add('current-source-missing-verified-category',ref);
       else if(!TYPES.has(category)||category!==record.category)
