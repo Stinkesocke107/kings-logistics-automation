@@ -3,6 +3,7 @@
 // The caller must authenticate Discord and load an independently attested
 // complete private snapshot. Input event IDs are NEVER shown in user text.
 const {LIMITS,dayAvailability,timestamp,TYPES}=require('./event-capacity-core');
+const {dailyLimitForUtcDate}=require('./event-capacity-policy');
 const ERROR='Kings Event Capacity private day data invalid.';
 const ACCEPTED=new Set(['Scheduled','Completed','Rescheduled']);
 const PENDING=new Set(['Submitted','Needs Information','Ready for Approval','Pending','Tentative']);
@@ -78,7 +79,7 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
     !dateValid(day)||!Number.isSafeInteger(page)||page<1||page>1000||
     pageSize!==10||!/^\d{17,22}$/.test(String(guildId||'')))fail();
   const capacityDay=dayAvailability(capacity,day);
-  const verified=adapter.dataFresh===true&&capacityDay.verified;
+  const sourceSnapshotVerified=adapter.dataFresh===true&&capacityDay.verified;
   const grouped=new Map();
   let unplaced=0;
   for(const item of adapter.events){
@@ -107,8 +108,8 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
   // synthesized exclusively from fixed enums and trusted time fields.
   const issuesForDay=capacity.issues.filter(issue=>issue.day===day).length;
   const safeWarnings=new Set([
-    'combined-day-over-limit','partner-month-over-limit',
-    'external-month-over-limit','departure-under-two-hours',
+    'combined-day-over-limit','partner-day-over-limit',
+    'external-day-over-limit','departure-under-two-hours',
     'meeting-end-overlap'
   ]);
   const dayEventIds=new Set(grouped.keys());
@@ -121,20 +122,20 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
     .map(w=>w.code);
   return {
     version:1,visibility:'PRIVATE_ONLY',readOnly:true,
-    day,sourceVerified:adapter.dataFresh===true&&!capacity.globalUncertainty,
-    capacityVerified:verified,
+    day,sourceVerified:sourceSnapshotVerified,
+    capacityVerified:false,
     combinedUsed:capacityDay.daily.combined,
-    baseLimit:LIMITS.combinedDaily,
-    remaining:verified?capacityDay.remaining:null,
+    baseLimit:dailyLimitForUtcDate(day),
+    remaining:null,
     monthly:{
       partnerUsed:capacityDay.monthly.partner,
-      partnerLimit:LIMITS.partnerMonthly,
+      partnerLimit:null,
       externalUsed:capacityDay.monthly.external,
-      externalLimit:LIMITS.externalMonthly
+      externalLimit:null
     },
     approvedExceptions:capacityDay.daily.approvedExceptions||0,
-    partnerAvailableVerified:verified&&capacityDay.partnerAvailableVerified,
-    externalAvailableVerified:verified&&capacityDay.externalAvailableVerified,
+    partnerAvailableVerified:false,
+    externalAvailableVerified:false,
     unplacedSourceRecords:unplaced,
     issuesForDay,warnings:[...new Set(knownWarnings)].sort(),
     total:items.length,page,pages,
@@ -143,15 +144,21 @@ function detailProjection(adapter,capacity,day,{guildId,page=1,pageSize=10}={}){
 }
 function sanitizeDiscord(response){
   if(!response||response.visibility!=='PRIVATE_ONLY'||!dateValid(response.day)||
+    response.capacityVerified!==false||response.remaining!==null||
+    response.partnerAvailableVerified!==false||
+    response.externalAvailableVerified!==false||
+    response.baseLimit!==dailyLimitForUtcDate(response.day)||
+    response.monthly?.partnerLimit!==null||
+    response.monthly?.externalLimit!==null||
     !Array.isArray(response.items)||response.items.length>10)fail();
   const text=[
     '**Kings Event Capacity | '+response.day+' UTC**',
-    'Confirmed Partner + External: **'+response.combinedUsed+'/'+response.baseLimit+'**'+
+    'Reported Partner + External: **'+response.combinedUsed+'/'+response.baseLimit+'**'+
       (response.approvedExceptions?' | Approved exceptions: '+response.approvedExceptions:''),
-    'Monthly: Partner '+response.monthly.partnerUsed+'/'+response.monthly.partnerLimit+
-      ' | External '+response.monthly.externalUsed+'/'+response.monthly.externalLimit,
-    response.capacityVerified?'Remaining combined slots: **'+response.remaining+'**':
-      '**Availability unverified — do not confirm an open slot.**',
+    'Monthly reported: Partner '+response.monthly.partnerUsed+
+      ' | External '+response.monthly.externalUsed+
+      ' (no approved monthly cap)',
+    '**Availability unverified — do not confirm an open slot.**',
     'Status: '+(response.sourceVerified?'Source checked':'Data Outdated / Needs Verification'),
     'Events: '+response.total+' | Page '+response.page+'/'+response.pages
   ];
