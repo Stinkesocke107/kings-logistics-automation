@@ -8,6 +8,8 @@ const {projectKingsStaffCalendarReview,renderKingsStaffCalendarEphemeral}
   =require('./event-capacity-staff-calendar-review');
 const {inspectKingsFrozenLegacyCalendar}
   =require('./event-capacity-frozen-legacy-calendar-audit');
+const {inspectKingsSourceChannelEvidenceClaims}
+  =require('./event-capacity-cross-channel-evidence-assurance');
 const ERROR='Kings Event Capacity private system bridge refused.';
 function fail(){throw new Error(ERROR);}
 function projectKingsConvoySystemBridge({
@@ -23,6 +25,7 @@ function projectKingsConvoySystemBridge({
     last.setUTCMonth(last.getUTCMonth()+23);
     if(last.toISOString().slice(0,7)!==sourceIntake.finalMonth)fail();
     const source=reconcileKingsMultiSourceConvoys(sourceIntake);
+    const assurance=inspectKingsSourceChannelEvidenceClaims(sourceIntake);
     const legacy=frozenLegacyImport===null?null:
       inspectKingsFrozenLegacyCalendar(frozenLegacyImport);
     const calendar=projectKingsStaffCalendarReview({
@@ -43,6 +46,12 @@ function projectKingsConvoySystemBridge({
         trackerClaimedLinkedEvents:c.trackerMatchedEventClaims,
         crossChannelOverlaps:c.centerAndLegacyOverlapClaims,
         conflictingCrossChannelClaims:c.conflictingClaimGroups,
+        archivedChannelCountMismatches:assurance.counters.mismatchedArchivedCounts,
+        deletedChannelCountMismatches:assurance.counters.mismatchedDeletedCounts,
+        threadTotalCountMismatches:assurance.counters.mismatchedThreadCounts,
+        channelsWithCoverageReviewGaps:assurance.counters.channelsWithCoverageClaimGaps,
+        untrustedInventoriesInternallyConsistent:
+          assurance.untrustedInventoryInternallyConsistent,
         unresolvedHumanReviewItems:source.unresolvedReviewItemCount,
         urgentHumanReviewItems:source.urgentReviewItemCount,
         listedLegacyChannels:source.suppliedLegacyChannelCount,
@@ -56,6 +65,8 @@ function projectKingsConvoySystemBridge({
       }),
       calendar,
       sourceAndHistoricalCountsCanOverlap:true,
+      originalSourceProviderAttestationProven:false,
+      unverifiedSourceInventoryReviewRequired:true,
       outboundInvitationAcceptedNeverAutomaticallyCountsForCapacity:true,
       original24MonthSourceHistoryFullyVerified:false,
       currentDiscordChannelsAuthenticatedHere:false,
