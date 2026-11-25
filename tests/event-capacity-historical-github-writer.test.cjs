@@ -148,7 +148,7 @@ test('Owner signature must match exact candidate before any remote access',async
   await assert.rejects(z.writer().commitOne({archive:z.prior.archive}));
   assert.equal(z.calls.length,0);
 });
-test('Wrong archive transition or old owner's anchor prevents all writes',async()=>{
+test('Wrong archive transition or old owner anchor prevents all writes',async()=>{
   const x=state();
   const other=state();
   await assert.rejects(x.writer().commitOne({archive:other.next.archive}));
