@@ -1,6 +1,6 @@
 name: Kings Convoy Checker
 # Core Event health excludes transient Driver reminder delivery failures.
-run-name: Kings Convoy Checker (${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'schedule' && 'live' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[convoy-live]') && 'live' || 'dry-run')) }})
+run-name: Kings Convoy Checker (${{ github.event_name == 'workflow_dispatch' && inputs.capacity_action != 'off' && inputs.capacity_action || (github.event_name == 'workflow_dispatch' && inputs.mode || (github.event_name == 'schedule' && 'live' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[convoy-live]') && 'live' || 'dry-run'))) }})
 
 on:
   workflow_dispatch:
@@ -372,7 +372,7 @@ jobs:
           retention-days: 14
 
       - name: Save API Health State
-        if: (${{ always() && steps.mode.outputs.dry_run != 'true' }}) && steps.mode.outputs.capacity_only != 'true'
+        if: ${{ always() && steps.mode.outputs.dry_run != 'true' && steps.mode.outputs.capacity_only != 'true' }}
         run: |
           if [ ! -d data/api-health ] || [ -z "$(git status --porcelain -- data/api-health)" ]; then
             echo "No API health state changes to save."
