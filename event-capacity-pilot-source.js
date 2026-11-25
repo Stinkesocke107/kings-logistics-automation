@@ -94,8 +94,12 @@ function monthsFrom(data,nowMs){
     Date.UTC(now.getUTCFullYear(),now.getUTCMonth()+i,1));
   const months=Array.from({length:12},()=>({
     centerClaims:0,unclassified:0,pending:0,cancelled:0,scheduled:0,
-    legacyDatedKeptSeparate:0
+    // Source-reported accepted status claims only. They are NOT
+    // Staff-approved reservations or independently verified free slots.
+    kingsClaims:0,partnerClaims:0,externalClaims:0,
+    daysRequiringReview:0,legacyDatedKeptSeparate:0
   }));
+  const days=Array.from({length:12},()=>new Map());
   let undatedCenter=0,undatedLegacy=0,legacyOutside=0;
   const center=report.threads.filter(x=>x&&!x.ignored&&!x.testThread&&
     !/^\s*\[?test\]?(?:\s|[-_:])/i.test(String(x.name||'')));
@@ -108,10 +112,30 @@ function monthsFrom(data,nowMs){
     if(idx<0)continue;
     const row=months[idx];
     row.centerClaims++;
-    if(!VALID.has(x.validation?.parsed?.eventType))row.unclassified++;
-    if(['Scheduled','Completed','Rescheduled'].includes(x.status))row.scheduled++;
+    const kind=x.validation?.parsed?.eventType;
+    const active=['Scheduled','Completed','Rescheduled'].includes(x.status);
+    if(!VALID.has(kind))row.unclassified++;
+    if(active)row.scheduled++;
     else if(x.status==='Cancelled')row.cancelled++;
     else row.pending++;
+    // Count only active, classifiable current-source claims in the
+    // planning review. Pending or canceled claims still appear in the
+    // informational monthly total, but can NEVER release held capacity.
+    const dayKey=new Date(departure).toISOString().slice(0,10);
+    let day=days[idx].get(dayKey);
+    if(!day){
+      day={kings:0,partner:0,external:0,unclassified:0,
+        pending:0,cancelled:0,departures:[]};
+      days[idx].set(dayKey,day);
+    }
+    if(active){
+      if(kind==='Kings Convoy'){row.kingsClaims++;day.kings++;}
+      else if(kind==='Partner Convoy'){row.partnerClaims++;day.partner++;}
+      else if(kind==='External Convoy'){row.externalClaims++;day.external++;}
+      else day.unclassified++;
+      day.departures.push(departure);
+    }else if(x.status==='Cancelled')day.cancelled++;
+    else day.pending++;
   }
   for(const x of legacy){
     const departure=stamp(x.departureAtUtc);
@@ -122,8 +146,24 @@ function monthsFrom(data,nowMs){
   }
   if(undatedLegacy+legacyOutside+
     months.reduce((sum,m)=>sum+m.legacyDatedKeptSeparate,0)!==legacy.length)refuse();
-  for(const m of months)
-    if(m.centerClaims!==m.scheduled+m.pending+m.cancelled)refuse();
+  for(let i=0;i<months.length;i++){
+    const m=months[i];
+    if(m.centerClaims!==m.scheduled+m.pending+m.cancelled||
+      m.kingsClaims+m.partnerClaims+m.externalClaims>m.scheduled)refuse();
+    for(const [utcDay,day] of days[i]){
+      const weekday=new Date(utcDay+'T00:00:00.000Z').getUTCDay();
+      const combinedLimit=[0,5,6].includes(weekday)?5:3;
+      const combined=day.partner+day.external;
+      // REVIEW FLAGS ONLY: incomplete history and absent Staff approval
+      // mean we cannot assert any day is actually available.
+      day.departures.sort((a,b)=>a-b);
+      const spacingConflict=day.departures.some((t,j)=>
+        j>0&&t-day.departures[j-1]<120*60000);
+      if(combined>combinedLimit||day.partner>2||day.external>2||
+        day.unclassified>0||day.pending>0||day.cancelled>0||
+        spacingConflict)m.daysRequiringReview++;
+    }
+  }
   // Internal-only structure — NEVER returned from the public job.
   return {months,undatedCenter,undatedLegacy,legacyClaims:legacy.length,
     sourcePeriod:first,ready:false,freeSlotsCertified:false};
