@@ -2,6 +2,7 @@
 // Pure Kings private capacity calendar projection; no Discord network/writes.
 // Only route responses through an authenticated private ephemeral handler.
 const {LIMITS,dayAvailability}=require('./event-capacity-core');
+const {projectOptionalTracker}=require('./event-capacity-optional-tracker');
 const ERROR='Kings Event Capacity dashboard data invalid.';
 function fail(){throw new Error(ERROR);}
 function monthAt(base,offset){
@@ -50,7 +51,7 @@ function projectMonth(capacity,month){
   }
   return {month,monthly,summary,days};
 }
-function projectDashboard(capacity,{nowMs=Date.now(),startMonth=null,monthCount=3}={}){
+function projectDashboard(capacity,{nowMs=Date.now(),startMonth=null,monthCount=3,trackerSource=null}={}){
   if(!capacity||typeof capacity!=='object'||Array.isArray(capacity)||
      capacity.limits?.combinedDaily!==LIMITS.combinedDaily||
      capacity.limits?.partnerMonthly!==LIMITS.partnerMonthly||
@@ -68,7 +69,8 @@ function projectDashboard(capacity,{nowMs=Date.now(),startMonth=null,monthCount=
     sourceStatus:capacity.globalUncertainty?'Data Outdated / Unverified':'Checked',
     issueCount:capacity.issues.length,
     policy:{combinedDaily:2,partnerMonthly:20,externalMonthly:20,kingsUnlimited:true},
-    months,attendanceInferred:false
+    months,tracker:projectOptionalTracker(trackerSource,{nowMs}),
+    attendanceInferred:false
   };
 }
 function embed(month){
@@ -96,6 +98,10 @@ function embed(month){
 function ephemeralResponse(view){
   if(!view||view.visibility!=='PRIVATE_ONLY'||!Array.isArray(view.months)||
      view.months.length<1||view.months.length>3)fail();
+  const tracker=view.tracker?.mode==='WITH_MAP'&&
+    ['TruckersMP','HaulMP'].includes(view.tracker.provider)?
+    'Live-map feed: available ('+view.tracker.provider+'); optional to Event Capacity.':
+    'Live-map feed: unavailable; Event Capacity works without a live map.';
   return {
     type:4,
     data:{
@@ -103,7 +109,8 @@ function ephemeralResponse(view){
       allowed_mentions:{parse:[]},
       content:'**Kings Event Capacity** · '+view.sourceStatus+
         (view.issueCount?' · '+view.issueCount+' internal issue(s)':'')+
-        '\nCounts are scheduling data, not proof of participation. No event is modified.',
+        '\nCounts are scheduling data, not proof of participation. No event is modified.'+
+        '\n'+tracker,
       embeds:view.months.map(embed)
     }
   };
