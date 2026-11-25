@@ -250,7 +250,7 @@ test('GitHub Free three-private-repo plan does not permit public sensitive archi
   assert.match(handoff,/kings-event-capacity-witness/);
   assert.match(handoff,/kings-event-capacity-backups/);
   assert.match(handoff,/GitHub Free/);
-  assert.match(handoff,/Do not create secrets until after that verification/);
+  assert.match(handoff,/Do \*\*NOT\*\* create tokens or GitHub Secrets yet/);
 });
 
 test('Verified GitHub Free three-private-repo topology has no production import or key custody',()=>{
