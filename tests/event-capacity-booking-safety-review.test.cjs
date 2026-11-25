@@ -43,9 +43,10 @@ test('Booking request preview is explicitly NOT a reservation or confirmed free 
   assert.equal(r.reviewReasons.includes('ORIGINAL_SOURCE_AND_STAFF_REVIEW_REQUIRED'),true);
   assert.equal(r.reviewReasons.includes('DAILY_HISTORICAL_HOLDS_MISSING'),true);
 });
-test('Two reported Partner events trigger separate Partner 2/day review',()=>{
+test('Three current source claims including Kings reach the universal daily 3 limit',()=>{
   const r=review({calendar:calendar([
-    event('partner','Partner Convoy'),event('partner2','Partner Convoy')
+    event('partner','Partner Convoy'),event('partner2','Partner Convoy'),
+    event('kings','Kings Convoy')
   ]),request:request()});
   assert.equal(r.observedDailyLimitReached,true);
   assert.equal(r.observedMonthlyLimitReached,false);
@@ -54,32 +55,33 @@ test('Two reported Partner events trigger separate Partner 2/day review',()=>{
   assert.ok(r.reviewReasons.includes('OBSERVED_DAILY_LIMIT_REACHED'));
   assert.equal(r.slotReserved,false);
 });
-test('Twenty observed Partner convoys are only a monthly source count, not an obsolete cap',()=>{
+test('Twenty observed Partner convoys reach their independent 20/month cap',()=>{
   const events=Array.from({length:20},(_,i)=>event(
     'p'+i,'Partner Convoy',
     '2027-04-'+String(i+1).padStart(2,'0')
   ));
   const r=review({calendar:calendar(events),request:request()});
-  assert.equal(r.observedMonthlyLimitReached,false);
+  assert.equal(r.observedMonthlyLimitReached,true);
   assert.equal(r.observedDailyLimitReached,false);
   assert.equal(r.observedSnapshot.monthlyPartner,20);
   assert.equal(r.observedSnapshot.monthlyExternal,0);
 });
-test('External monthly source count remains separate with no approved monthly cap',()=>{
+test('External monthly source count reaches its own 20/month cap',()=>{
   const events=Array.from({length:20},(_,i)=>event(
     'x'+i,'External Convoy',
     '2027-04-'+String(i+1).padStart(2,'0')
   ));
   const r=review({calendar:calendar(events),
     request:request({category:'External Convoy'})});
-  assert.equal(r.observedMonthlyLimitReached,false);
+  assert.equal(r.observedMonthlyLimitReached,true);
   assert.equal(r.observedSnapshot.monthlyExternal,20);
 });
-test('Kings-owned convoy is quota-exempt, but still requires actual human review',()=>{
+test('Kings has no monthly cap, but IS included in total three daily',()=>{
   const r=review({calendar:calendar([
     event('p','Partner Convoy'),event('x','External Convoy')
   ]),request:request({category:'Kings Convoy'})});
-  assert.equal(r.quotaExempt,true);
+  assert.equal(r.quotaExempt,false);
+  assert.equal(r.reviewPriority,1);
   assert.equal(r.observedDailyLimitReached,false);
   assert.equal(r.observedMonthlyLimitReached,false);
   assert.equal(r.staffApprovalVerified,false);
@@ -173,7 +175,8 @@ test('Booking renderer refuses falsified quota status or altered review explanat
     {...base,reviewReasons:[...base.reviewReasons,'CREATED_A_REAL_BOOKING']}
   ])assert.throws(()=>render(forged));
   const booked=review({
-    calendar:calendar([event('one','Partner Convoy'),event('two','Partner Convoy')]),
+    calendar:calendar([event('one','Partner Convoy'),
+      event('two','Partner Convoy'),event('three','Kings Convoy')]),
     request:request()
   });
   assert.equal(booked.observedDailyLimitReached,true);
@@ -181,4 +184,25 @@ test('Booking renderer refuses falsified quota status or altered review explanat
   assert.throws(()=>render({...booked,reviewReasons:booked.reviewReasons.filter(
     x=>x!=='OBSERVED_DAILY_LIMIT_REACHED')}));
   assert.equal(render(booked).type,4);
+});
+
+test('Booking evidence considers 3 Kings as full daily utilization, without a monthly Kings cap',()=>{
+  const c=calendar([event('k1','Kings Convoy'),
+    event('k2','Kings Convoy'),event('k3','Kings Convoy')]);
+  const r=review({calendar:c,request:request({category:'Kings Convoy'})});
+  assert.equal(r.quotaExempt,false);
+  assert.equal(r.reviewPriority,1);
+  assert.equal(r.observedDailyLimitReached,true);
+  assert.equal(r.observedMonthlyLimitReached,false);
+  assert.equal(r.observedSnapshot.dailyKings,3);
+  assert.equal(r.slotReserved,false);
+});
+test('Booking preview includes Kings 3/day, Partner/External 20 month and no auto-priority',()=>{
+  const r=review({calendar:calendar(),request:request({category:'External Convoy'})});
+  assert.equal(r.reviewPriority,3);
+  const content=render(r).data.content;
+  assert.match(content,/\/ 3 total/);
+  assert.match(content,/Month: P0\/20 E0\/20 K unlimited/);
+  assert.match(content,/Kings > Partner > External/);
+  assert.match(content,/No preemption/);
 });
