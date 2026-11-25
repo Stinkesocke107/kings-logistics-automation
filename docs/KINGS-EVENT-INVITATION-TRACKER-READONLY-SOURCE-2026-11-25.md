@@ -4,7 +4,7 @@
 
 ## Existing Kings decisions (not changed)
 
-- Existing private Discord Event Invitation Tracker forum: `1567471010436087949`. Existing official invitation template channel: `1567583339752333492`.
+- Existing private Discord Event Invitation Tracker channel (owner-corrected 26 November 2026): `1457797580703531143` (previously assumed `1567471010436087949`; that earlier identifier must no longer be used by the integration). Existing official invitation template channel: `1567583339752333492`.
 - **One forum thread per convoy. One invited VTC per reply**, including invitations later accepted or declined.
 - Document `[VTC Name] — TMP VTC page: [TruckersMP VTC URL] — Invited by: @Name`; an optional, explicitly labelled `Response: Accepted / Declined / Pending / No Response` is interpreted only as a *recorded claim*.
 - Required forum tags (one per thread): `Invites Ongoing`, `Invites Done`, `Convoy Completed`.
