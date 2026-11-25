@@ -158,3 +158,27 @@ test('Draft booking checker is isolated from the running Convoy Checker and secr
   assert.equal(source.includes('slotReserved:false'),true);
   assert.equal(source.includes('freeSlotsCertified:false,safeToActivate:false'),true);
 });
+
+test('Booking renderer refuses falsified quota status or altered review explanations',()=>{
+  const base=review({calendar:calendar(),request:request()});
+  for(const forged of [
+    {...base,quotaExempt:true},
+    {...base,observedDailyLimitReached:true},
+    {...base,observedMonthlyLimitReached:true},
+    {...base,meetingProvided:false},
+    {...base,plannedEndProvided:false},
+    {...base,reviewReasons:base.reviewReasons.slice(1)},
+    {...base,reviewReasons:[...base.reviewReasons,'OBSERVED_DAILY_LIMIT_REACHED']},
+    {...base,reviewReasons:[...base.reviewReasons,base.reviewReasons[0]]},
+    {...base,reviewReasons:[...base.reviewReasons,'CREATED_A_REAL_BOOKING']}
+  ])assert.throws(()=>render(forged));
+  const booked=review({
+    calendar:calendar([event('one','Partner Convoy'),event('two','External Convoy')]),
+    request:request()
+  });
+  assert.equal(booked.observedDailyLimitReached,true);
+  assert.throws(()=>render({...booked,observedDailyLimitReached:false}));
+  assert.throws(()=>render({...booked,reviewReasons:booked.reviewReasons.filter(
+    x=>x!=='OBSERVED_DAILY_LIMIT_REACHED')}));
+  assert.equal(render(booked).type,4);
+});
