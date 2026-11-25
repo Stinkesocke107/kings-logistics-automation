@@ -73,3 +73,16 @@ Eight new synthetic GitHub writer test scenarios and a live-workflow isolation g
 
 
 **Additional local verification (25 November 2026):** 26 focused Node tests passed under Node.js 22 using the local archive/journal/reader/tracker implementations and the byte-for-byte verified writer source from this PR. This includes 7 direct read/write mock-GitHub writer integration checks. The GitHub-committed 8-case writer fixture and the complete repository suite still need same-HEAD GitHub Actions CI verification (the local writer test file is a separate but equivalent focused harness); no live repository test or release evidence is implied.
+
+## Larger offline recovery / offsite backup / retention batch (25 November 2026)
+
+The draft now includes THREE further isolated modules:
+
+- `event-capacity-historical-github-recovery.js`: verified, **GET-only** post-crash examination of prior versus candidate owner-signed historical archives. A candidate is recognized only when its last signed transition chains to the **exact previous signed tip**; ambiguous/unavailable states require private operator reconciliation. No retries, no slot claims.
+- `event-capacity-historical-offsite-backup.js`: an independently encrypted AES-256-GCM offline backup envelope and isolated **inspection-only** recovery against separately retained owner receipt; no actual offsite storage, no production restore or scheduled backup.
+- `event-capacity-historical-retention-plan.js`: pure 24-month UTC history review window plus 90-day backup review/hold planning. Recorded monthly restores are NOT proof of an independent restore; no automatic deletion.
+
+New tests: 9 recovery, 9 encrypted backup, 8 retention, plus an existing workflow isolation gate. The latest **local focused** regression suite passed **52/52** using the stand-alone development copy; this is not the full original repository test suite and not a current-head GitHub Actions CI result. Full details: `docs/KINGS-EVENT-CAPACITY-RECOVERY-BACKUP-RETENTION-2026-11-25.md`.
+
+The release **remains blocked** on actual separately permissioned private/offsite storage, confidential key provisioning, owner receipt custody, real source authenticity and historical completeness, live effective Discord-role verification, 24-month durable audit and 90-day backup/isolated restoration operations, privacy review, current-head full CI and **explicit CEO activation approval**. No changes to production Convoy Checker or `main`, no Discord actions, no manual `capacity_preview`.
+
