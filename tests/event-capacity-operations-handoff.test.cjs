@@ -169,3 +169,24 @@ test('New handoff stays isolated from production and contains no network calls',
   assert.match(code,/checklistTasksCreated:0,bookingWritten:false,slotReserved:false/);
   assert.match(code,/freeSlotsCertified:false,safeToActivate:false/);
 });
+
+test('Operations handoff carries Kings-first priority without moving confirmed bookings',()=>{
+  for(const [category,rank] of [
+    ['Kings Convoy',1],['Partner Convoy',2],['External Convoy',3]
+  ]){
+    const r=run({request:request({category}),event:event({eventType:category})});
+    assert.equal(r.candidatePriorityRank,rank);
+    assert.equal(r.newUnconfirmedRequestPriorityOnly,true);
+    assert.equal(r.confirmedEventsNeverAutoPreempted,true);
+    assert.equal(r.bookingWritten,false);
+    assert.equal(r.slotReserved,false);
+    assert.equal(r.staffDecisionsCommitted,0);
+    assert.equal(r.freeSlotsCertified,false);
+  }
+});
+test('Operations renderer refuses forged priority or a suggested automatic displacement',()=>{
+  const r=run();
+  assert.throws(()=>render({...r,candidatePriorityRank:1}));
+  assert.throws(()=>render({...r,confirmedEventsNeverAutoPreempted:false}));
+  assert.equal(render(r).type,4);
+});
