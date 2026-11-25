@@ -33,11 +33,11 @@ test('A claimed source page scan and complete checklist still do not prove real 
   assert.equal(r.counters.monthsClaimedReadyOnlyOnUntrustedEvidence,1);
   assert.equal(r.counters.independentlyProviderVerifiedMonths,0);
 });
-test('Staff checkboxes claiming complete cannot hide an omitted archived-private stream',()=>{
+test('Staff checkboxes claiming complete cannot hide an omitted public forum archive',()=>{
   const r=audit(data=>{
     data.monthlyClaims=[claim('2026-10')];
     data.paginationInput.scans=data.paginationInput.scans.filter(
-      x=>x.stream!=='archived-private');
+      x=>x.stream!=='archived-public');
   });
   const october=r.months.find(x=>x.month==='2026-10');
   assert.equal(october.humanChecklistSubmitted,true);
@@ -91,7 +91,7 @@ test('Twenty-four alleged complete monthly checklists never certify Event capaci
 });
 test('Interrupted pagination is not overridden by every monthly checklist being checked',()=>{
   const r=audit(data=>{
-    data.paginationInput.scans[0].pages=[page(0,null,'unfinished',true)];
+    data.paginationInput.scans[1].pages=[page(0,null,'2026-11-24T15:00:00.000Z',true)];
     data.monthlyClaims=[claim('2026-11')];
   });
   assert.equal(r.sourceReceiptChecks.unfinishedStreams,1);
@@ -123,7 +123,7 @@ test('Aggregate report excludes guild/channel/cursor/secret identifiers',()=>{
   for(const raw of [data.paginationInput.guildId,
     data.paginationInput.channels[0].channelId,
     data.paginationInput.channels[1].channelId,
-    'cursor1','synthetic private source review key'])
+    '2026-11-24T15:00:00.000Z','synthetic private source review key'])
     assert.equal(out.includes(raw),false);
   assert.equal(out.includes('FREE SLOTS: 2'),false);
 });
