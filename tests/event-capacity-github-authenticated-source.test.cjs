@@ -11,6 +11,8 @@ const {createEmptyLedger}
   =require('../event-capacity-decision-ledger');
 const {createGithubOnlyKnownUsageReader}
   =require('../event-capacity-github-known-usage');
+const {createGithubOnlyHistoricalReviewReader}
+  =require('../event-capacity-github-historical-review');
 const REPO='Stinkesocke107/kings-logistics-automation';
 const BASE='https://api.github.com/repos/'+REPO;
 const SCOPE={guildId:'1114967437788577792',
@@ -373,4 +375,62 @@ test('External source flag or arbitrary repo cannot replace restricted GitHub us
     githubToken:TOKEN,ownerPinnedVault:{read:async()=>null},
     scope:{...SCOPE,forumId:'999999999999999999'},nowMs:()=>NOW
   }));
+});
+
+test('Historical reader uses two authenticated GitHub artifacts and two protected ledger reads',async()=>{
+  const h=harness(),ledger=createEmptyLedger(SCOPE,'2027-03-20T11:30:00Z');
+  const secret='synthetic-private-history-review-key-for-dedupe-01234';
+  let reads=0;
+  const reader=createGithubOnlyHistoricalReviewReader({
+    githubToken:TOKEN,githubTransport:h.transport,
+    ownerPinnedVault:{read:async()=>{
+      reads++;
+      return {ledger:structuredClone(ledger),
+        checkpoint:{revision:0,digest:'a'.repeat(64)}};
+    }},
+    scope:SCOPE,taskSecret:secret,nowMs:()=>NOW
+  });
+  const p=await reader();
+  assert.equal(p.visibility,'PRIVATE_ONLY');
+  assert.equal(p.readOnly,true);
+  assert.equal(p.sourceAuthenticatedByGateway,true);
+  assert.equal(p.ownerPinCheckedByGateway,true);
+  assert.equal(p.historicCoverageCertified,false);
+  assert.equal(p.freeSlotsCertified,false);
+  assert.equal(p.counts.centerReviewed,1);
+  assert.ok(p.items.some(x=>x.reason==='classification-evidence-required'));
+  assert.equal(p.staffTaskCreated,false);
+  assert.equal(reads,2);
+  assert.deepEqual(h.counts(),{discoveries:4,downloads:2,runs:4});
+});
+test('Historical reader detects changed source between audit phases and does not emit approved tasks',async()=>{
+  const h=harness({sourceChangesAt:2}),
+    ledger=createEmptyLedger(SCOPE,'2027-03-20T11:30:00Z');
+  const reader=createGithubOnlyHistoricalReviewReader({
+    githubToken:TOKEN,githubTransport:h.transport,
+    ownerPinnedVault:{read:async()=>({ledger:structuredClone(ledger),
+      checkpoint:{revision:0,digest:'a'.repeat(64)}})},
+    scope:SCOPE,
+    taskSecret:'synthetic-private-history-review-key-for-dedupe-01234',
+    nowMs:()=>NOW
+  });
+  await assert.rejects(reader());
+});
+test('Historical reader refuses a changed or unavailable owner-pinned private ledger',async()=>{
+  const h=harness(),ledger=createEmptyLedger(SCOPE,'2027-03-20T11:30:00Z');
+  let reads=0;
+  const reader=createGithubOnlyHistoricalReviewReader({
+    githubToken:TOKEN,githubTransport:h.transport,
+    ownerPinnedVault:{read:async()=>{
+      reads++;
+      return {ledger:structuredClone(ledger),checkpoint:{
+        revision:reads===1?0:1,digest:'a'.repeat(64)
+      }};
+    }},
+    scope:SCOPE,taskSecret:
+      'synthetic-private-history-review-key-for-dedupe-01234',
+    nowMs:()=>NOW
+  });
+  await assert.rejects(reader());
+  assert.equal(reads,2);
 });
