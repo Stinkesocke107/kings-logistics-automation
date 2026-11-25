@@ -189,4 +189,5 @@ function publicSafeAggregate(result){
     approvalsApplied:0,freeSlotsCertified:false
   });
 }
-module.exports={parseEvidence,inspectStaffEvidence,publicSafeAggregate};
+module.exports={parseEvidence,inspectStaffEvidence,publicSafeAggregate,
+  checkedReport,sourceIdentity,assessment};
