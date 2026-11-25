@@ -99,3 +99,20 @@ test('Historical recovery, offsite backup and retention planner are not live wor
   assert.match(policy,/retentionActionsAutomated:false/);
   assert.match(policy,/deletedBackups:0/);
 });
+
+test('Standalone daily private backup vault stays outside live workflows and has no deletion methods',()=>{
+  const runner=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  const workflow=fs.readFileSync(path.join(root,
+    '.github/workflows/convoy-checker.yml'),'utf8');
+  const module=fs.readFileSync(path.join(root,
+    'event-capacity-historical-github-backup-vault.js'),'utf8');
+  assert.doesNotMatch(runner,/event-capacity-historical-github-backup-vault/);
+  assert.doesNotMatch(workflow,/event-capacity-historical-github-backup-vault/);
+  assert.match(module,/writeDailyOnce/);
+  assert.match(module,/readDaily/);
+  assert.match(module,/freeSlotsCertified:false/);
+  assert.match(module,/retentionEnforced:false/);
+  assert.doesNotMatch(module,/request\('(?:DELETE|PATCH|POST)'/);
+  assert.doesNotMatch(module,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
+});
