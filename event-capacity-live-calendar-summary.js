@@ -28,7 +28,8 @@ function blank(month){
   return {month,sourceClaimedEvents:0,claimedScheduled:0,
     claimedPending:0,claimedCancelled:0,requiresVerification:0,
     kings:0,partner:0,external:0,unclassified:0,
-    reviewFlagDays:0,days:[]};
+    partnerMonthlyOverLimit:false,externalMonthlyOverLimit:false,
+    reviewFlagDays:0,priorityConflictDays:0,days:[]};
 }
 function id(item){
   const x=item.eventId??item.threadId;
@@ -92,6 +93,7 @@ function monthlyFromReports({report,overview,nowMs=Date.now()}={}){
         claimedCancelled:0,requiresVerification:0,
         kings:0,partner:0,external:0,unclassified:0,
         potentialSpacingConflict:false,reviewFlag:false,
+        dailyLimitExceeded:false,priorityConflict:false,
         departures:[]
       };
       d[status]++;
@@ -123,23 +125,35 @@ function monthlyFromReports({report,overview,nowMs=Date.now()}={}){
         if(d.departures[i]-d.departures[i-1]<POLICY.minimumDepartureGapMinutes*60000)
           d.potentialSpacingConflict=true;
       }
+      d.dailyLimitExceeded=rule.planningOverLimit;
+      d.priorityConflict=rule.planningOverLimit&&
+        [d.kings,d.partner,d.external].filter(n=>n>0).length>1;
       d.reviewFlag=rule.planningOverLimit||
         d.potentialSpacingConflict||d.unclassified>0||
-        d.requiresVerification>0;
+        d.requiresVerification>0||
+        d.claimedPending>0||d.claimedCancelled>0;
       delete d.departures;
       const row=byMonth.get(day.slice(0,7));
       if(d.reviewFlag)row.reviewFlagDays++;
+      if(d.priorityConflict)row.priorityConflictDays++;
       row.days.push(d);
     }
     let totalCenter=0;
     for(const row of rows){
       row.days.sort((a,b)=>a.date.localeCompare(b.date));
       row.legacyClaimsKeptSeparate=legacyMonths.get(row.month)||0;
+      row.partnerMonthlyOverLimit=row.partner>POLICY.partnerMonthlyMax;
+      row.externalMonthlyOverLimit=row.external>POLICY.externalMonthlyMax;
       totalCenter+=row.sourceClaimedEvents;
     }
     return Object.freeze({
       version:1,visibility:'PRIVATE_ONLY',readOnly:true,
       firstMonth:start,lastMonth:rows.at(-1).month,
+      policy:Object.freeze({dailyTotalMax:POLICY.dailyTotalMax,
+        partnerMonthlyMax:POLICY.partnerMonthlyMax,
+        externalMonthlyMax:POLICY.externalMonthlyMax,
+        kingsMonthlyMax:null,weeklyMax:null,
+        priorityOrder:POLICY.priorityOrder}),
       months:Object.freeze(rows),
       centerClaimsInVisibleMonths:totalCenter,
       centerClaimsWithoutUsableUtcDate:undated,
@@ -172,26 +186,40 @@ function calendarLines(r){
       r.currentAndLegacyClaimsNotAdditive!==true||
       r.repoDataReadByThisModule!==false||
       r.liveDiscordCallsMade!==0||r.bookingsChanged!==0||
+      r.policy?.dailyTotalMax!==3||
+      r.policy?.partnerMonthlyMax!==20||
+      r.policy?.externalMonthlyMax!==20||
+      r.policy?.kingsMonthlyMax!==null||
+      r.policy?.weeklyMax!==null||
       !Array.isArray(r.months)||r.months.length!==12)fail();
     if(!/^20\d{2}-(?:0[1-9]|1[0-2])$/.test(r.firstMonth))fail();
-    const lines=['**Convoy Center — reported planning entries (UTC, NOT approved capacity)**'];
+    const lines=['**Convoy Center — reported planning entries (UTC, NOT approved capacity)**',
+      'Policy: max 3 total/day (K+P+E); Partner 20/month; External 20/month; Kings no monthly maximum; no weekly cap.',
+      'New unconfirmed requests: Kings first, Partner second, External third; no automatic displacement.'];
     let center=0;
     for(const [i,m] of r.months.entries()){
       const expectedMonth=monthNext(r.firstMonth,i);
       if(!m||m.month!==expectedMonth||!Array.isArray(m.days))fail();
       for(const k of ['sourceClaimedEvents','claimedScheduled','claimedPending',
         'claimedCancelled','requiresVerification','kings','partner',
-        'external','unclassified','reviewFlagDays','legacyClaimsKeptSeparate'])
+        'external','unclassified','reviewFlagDays','priorityConflictDays',
+        'legacyClaimsKeptSeparate'])
         if(!Number.isSafeInteger(m[k])||m[k]<0||m[k]>30000)fail();
       if(m.sourceClaimedEvents!==m.claimedScheduled+m.claimedPending+
         m.claimedCancelled+m.requiresVerification||
-        m.claimedScheduled!==m.kings+m.partner+m.external+m.unclassified)fail();
+        m.claimedScheduled!==m.kings+m.partner+m.external+m.unclassified||
+        m.partnerMonthlyOverLimit!==(m.partner>POLICY.partnerMonthlyMax)||
+        m.externalMonthlyOverLimit!==(m.external>POLICY.externalMonthlyMax)||
+        m.priorityConflictDays>m.reviewFlagDays)fail();
       center+=m.sourceClaimedEvents;
       if(i<3)lines.push(m.month+' | source planned '+m.claimedScheduled+
-        ' (P'+m.partner+' E'+m.external+' K'+m.kings+
-        ' ?'+m.unclassified+') | pending '+m.claimedPending+
+        ' (P'+m.partner+'/20'+(m.partnerMonthlyOverLimit?' !':'')+
+        ' E'+m.external+'/20'+(m.externalMonthlyOverLimit?' !':'')+
+        ' K'+m.kings+'/unlimited ?'+m.unclassified+
+        ') | pending '+m.claimedPending+
         ' | cancelled '+m.claimedCancelled+
-        ' | review days '+m.reviewFlagDays);
+        ' | review days '+m.reviewFlagDays+
+        ' | priority conflicts '+m.priorityConflictDays);
     }
     for(const k of ['centerClaimsInVisibleMonths','centerClaimsWithoutUsableUtcDate',
       'duplicateCenterClaimsSuppressed','identityConflictsRequiringReview',
