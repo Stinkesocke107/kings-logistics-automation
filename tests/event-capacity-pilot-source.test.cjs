@@ -262,3 +262,82 @@ test('The genuine five-member GitHub Actions artifact shape reaches Calendar rea
   assert.deepEqual(f.calls,['latest','run','artifacts','zip']);
   assert.equal(JSON.stringify(r).includes('Synthetic overview'),false);
 });
+
+test('Private twelve-month projection separates Kings, Partner and External active claims',()=>{
+  const f=data(),m=monthsFrom(f,NOW).months[0];
+  assert.equal(m.centerClaims,1);
+  assert.equal(m.partnerClaims,1);
+  assert.equal(m.externalClaims,0);
+  assert.equal(m.kingsClaims,0);
+  assert.equal(m.daysRequiringReview,0);
+  assert.equal(m.legacyDatedKeptSeparate,0);
+  assert.equal(monthsFrom(f,NOW).freeSlotsCertified,false);
+});
+function withCurrentEvents(specs){
+  const f=data();
+  f.report.threads=specs.map((s,i)=>{
+    const threadId='777777777777'+String(i).padStart(6,'0');
+    return {eventId:'synthetic-day-'+i,threadId,
+      name:'offline-source-only',status:s.status||'Scheduled',
+      ignored:false,testThread:false,
+      validation:{parsed:{eventType:s.type,departureAtUtc:s.departure}}};
+  });
+  f.report.summary={totalThreads:specs.length,actualConvoys:specs.length};
+  f.overview.registeredConvoys=[
+    ...f.report.threads.map(t=>({source:'convoy-center',eventId:t.eventId,
+      threadId:t.threadId,status:t.status,
+      departureAtUtc:t.validation.parsed.departureAtUtc})),
+    ...f.overview.registeredConvoys.filter(x=>x.source==='legacy-calendar')
+  ];
+  f.overview.overall.realConvoySubmissions=specs.length;
+  return f;
+}
+test('Tuesday four mixed Partner+External claims trigger weekday 3/day conflict review',()=>{
+  const date='2027-03-23';
+  const f=withCurrentEvents([
+    {type:'Partner Convoy',departure:date+'T09:00:00Z'},
+    {type:'Partner Convoy',departure:date+'T12:00:00Z'},
+    {type:'External Convoy',departure:date+'T15:00:00Z'},
+    {type:'External Convoy',departure:date+'T18:00:00Z'}
+  ]);
+  const m=monthsFrom(f,NOW).months[0];
+  assert.equal(m.centerClaims,4);
+  assert.equal(m.partnerClaims,2);
+  assert.equal(m.externalClaims,2);
+  assert.equal(m.kingsClaims,0);
+  assert.equal(m.daysRequiringReview,1);
+});
+test('Friday four combined + a Kings convoy are not over the shared 5/day or each 2/day cap',()=>{
+  const date='2027-03-26';
+  const f=withCurrentEvents([
+    {type:'Kings Convoy',departure:date+'T06:00:00Z'},
+    {type:'Partner Convoy',departure:date+'T09:00:00Z'},
+    {type:'Partner Convoy',departure:date+'T12:00:00Z'},
+    {type:'External Convoy',departure:date+'T15:00:00Z'},
+    {type:'External Convoy',departure:date+'T18:00:00Z'}
+  ]);
+  const m=monthsFrom(f,NOW).months[0];
+  assert.equal(m.centerClaims,5);
+  assert.equal(m.kingsClaims,1);
+  assert.equal(m.partnerClaims,2);
+  assert.equal(m.externalClaims,2);
+  assert.equal(m.daysRequiringReview,0);
+  assert.equal(monthsFrom(f,NOW).freeSlotsCertified,false);
+});
+test('Pending/cancelled/unclassified and departures within two hours demand human review',()=>{
+  const date='2027-03-27';
+  const f=withCurrentEvents([
+    {type:'Partner Convoy',departure:date+'T16:00:00Z'},
+    {type:'External Convoy',departure:date+'T17:00:00Z'},
+    {type:'Other',departure:date+'T20:00:00Z'},
+    {type:'Kings Convoy',status:'Cancelled',departure:date+'T23:00:00Z'}
+  ]);
+  const m=monthsFrom(f,NOW).months[0];
+  assert.equal(m.centerClaims,4);
+  assert.equal(m.kingsClaims,0);
+  assert.equal(m.partnerClaims,1);
+  assert.equal(m.externalClaims,1);
+  assert.equal(m.cancelled,1);
+  assert.equal(m.unclassified,1);
+  assert.equal(m.daysRequiringReview,1);
+});
