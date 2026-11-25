@@ -166,3 +166,31 @@ test('Cannot substitute another repository, role or GitHub user',()=>{
   }));
   assert.equal(REPOS.history,'Stinkesocke107/kings-event-capacity-history');
 });
+
+test('Unexpected Accept, Content-Type, API version or header newline reject before transport',async()=>{
+  const x=gate('history','write'),base=call();
+  const malicious=[
+    {...base,headers:{...base.headers,Accept:'application/json'}},
+    {...base,headers:{...base.headers,Accept:'application/vnd.github+json\nX-Test: injected'}},
+    {...base,headers:{...base.headers,'X-GitHub-Api-Version':'2099-01-01'}},
+    {...base,headers:{...base.headers,'User-Agent':'Kings\nAuthorization: fake'}},
+    {...base,headers:{...base.headers,'User-Agent':23}},
+    {...base,headers:{...base.headers,'Content-Type':'text/plain'}},
+    {...base,headers:{...base.headers,'Content-Type':'application/json'}}
+  ];
+  for(const options of malicious)await assert.rejects(
+    x.guard.transport(url('history'),options));
+  assert.equal(x.calls.length,0);
+});
+test('Pinned GitHub API headers may be used for permitted GET and PUT only',async()=>{
+  const x=gate('history','write');
+  await x.guard.transport(url('history'),{
+    ...call(),headers:{...call().headers,'X-GitHub-Api-Version':'2022-11-28',
+      'User-Agent':'kings-capacity-offline-audit/1.0'}
+  });
+  await x.guard.transport(url('history','/contents/capacity-history/current.json'),{
+    ...call('', 'PUT',putPayload(Buffer.from('cipher'),GIT)),
+    headers:{...call().headers,'Content-Type':'application/json'}
+  });
+  assert.equal(x.calls.length,2);
+});
