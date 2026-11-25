@@ -321,6 +321,8 @@ test('GitHub-only usage reader obtains two full authenticated sources and owner-
   const result=await reader({selectedMonth:'2027-03'});
   assert.equal(result.month,'2027-03');
   assert.equal(result.sourceInventoryComplete,true);
+  assert.equal(result.sourceAuthenticatedByGateway,true);
+  assert.equal(result.ownerPinCheckedByGateway,true);
   assert.equal(result.freeSlotsCertified,false);
   assert.equal(result.monthUsage.partnerRemainingVerified,null);
   assert.equal(result.days.find(x=>x.day==='2027-03-20').remainingVerified,null);
