@@ -327,7 +327,7 @@ function buildEvent(data, now = Date.now()) {
     : 'Calendar and historical coverage unverified. No available slots certified.';
   return {
     title: '📅 Kings Event Leadership Dashboard',
-    description: 'One fixed Event Operations dashboard. Source review is advisory, not approval or verified convoy attendance. Private data stay encrypted.',
+    description: 'One fixed Event Operations dashboard. Verified convoy attendance/history remains a separate statistics dataset. Source review is advisory, not Staff approval. Private data stay encrypted.',
     color: KINGS_BLUE,
     fields: [
       field('🔵 Live Overview',sourceLine),
