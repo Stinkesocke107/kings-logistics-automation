@@ -330,13 +330,16 @@ function buildEvent(data, now = Date.now()) {
       '** · undated **'+observed.historyUndatedClaims+
       '**. Historical coverage **not verified**. No available slots certified.'
     : 'Calendar and historical coverage unverified. No available slots certified.';
+  const invitationLifecycle=invitations?.tagSchemaVerified===true
+    ? ' · ongoing **'+invitations.ongoingThreads+
+      '** · invitations done **'+invitations.doneThreads+
+      '** · convoys completed **'+invitations.completedThreads+'**'
+    : ' · Forum lifecycle tag names UNVERIFIED (status counts withheld)';
   const invitationLine=invitations
     ? 'Visible convoy threads **'+invitations.convoyThreads+
       '** · documented unique VTC invites **'+invitations.invitedVtcs+
-      '** · ongoing **'+invitations.ongoingThreads+
-      '** · invitations done **'+invitations.doneThreads+
-      '** · convoys completed **'+invitations.completedThreads+
-      '**.\nFor Staff review: duplicate VTC replies **'+invitations.duplicateVtcReplies+
+      '**'+invitationLifecycle+
+      '.\nFor Staff review: duplicate VTC replies **'+invitations.duplicateVtcReplies+
       '** · invalid replies **'+invitations.malformedReplies+
       '** · tag problems **'+invitations.tagIssues+
       '** · event links missing **'+invitations.eventLinksMissing+
@@ -389,7 +392,7 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
       field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
       field('📅 Events — Live', eventSource ? `Reconciled source: Tracked **${eventSource.tracked}** • Source Scheduled **${eventSource.scheduled}** • Ready **${eventReady}** • Needs Info **${eventNeeds}** (advisory, not approval)` : 'Unavailable — no recent reconciled Event source; historical state is not a verified zero.'),
-      field('✉️ Event Invitations — Source Review', invitationSource ? `Documented unique VTC invitations **${invitationSource.invitedVtcs}** • convoy threads **${invitationSource.convoyThreads}** • duplicate replies **${invitationSource.duplicateVtcReplies}** • malformed replies **${invitationSource.malformedReplies}** (recorded claims, NOT confirmed attendance)` : 'Unavailable — no verified recent read-only Invitation Tracker scan.'),
+      field('✉️ Event Invitations — Source Review', invitationSource ? `Documented unique VTC invitations **${invitationSource.invitedVtcs}** • convoy threads **${invitationSource.convoyThreads}** • duplicate replies **${invitationSource.duplicateVtcReplies}** • malformed replies **${invitationSource.malformedReplies}** • Forum lifecycle tags **${invitationSource.tagSchemaVerified?'schema matched':'UNVERIFIED'}** (recorded claims, NOT confirmed attendance)` : 'Unavailable — no verified recent read-only Invitation Tracker scan.'),
       field('🛠️ Event Operations — Staff Review', `Convoy/Calendar source: **${operations.eventSource}** · Invitation source: **${operations.invitationSource}**. Open the private Event Leadership dashboard for source-specific Staff triage. Review only; no automatic invitations, approvals or rebookings.`),
       field('🟣 Last Completed Week', dw ? `${fmtKey(dw.key)} • Drivers **${dw.members}** • Joined **${dw.joined}** • Left **${dw.left}** • Net **${signed(dw.netGrowth)}** • Staff **${dw.currentStaff ?? ss.currentStaff ?? 0}** • Active Event Threads **${dw.activeEventThreads ?? 0}** • Weekly Peak **${dw.weeklyPeak ?? 0}**` : 'No completed Management weekly report yet.'),
       field('👑 Last Completed Month', mm ? `${fmtKey(mm.key)} • Drivers **${mm.drivers}** • Driver Net **${signed(mm.driverNetGrowth)}** • Staff **${mm.staff}** • Staff Net **${signed(mm.staffNetGrowth)}** • Open Reviews **${mm.openReviews}** • Event Issues **${mm.eventIssues}**` : 'No completed Management monthly report yet.')
