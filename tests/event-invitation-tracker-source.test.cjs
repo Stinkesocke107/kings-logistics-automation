@@ -133,3 +133,51 @@ test('Discord 403 or incomplete archive never produces a fictitious empty Tracke
     },nowMs:NOW
   }),/unavailable/);
 });
+
+test('existing encrypted Event state feeds existing Event and Management dashboards, not raw VTC identities',()=>{
+  const {encryptEventState}=require('../event-leadership-state');
+  const {sandbox}=require('./sandbox.cjs');
+  const obs=summarizeTracker(fixture());
+  const privateState={
+    version:1,createdAt:new Date(NOW).toISOString(),
+    updatedAt:new Date(NOW).toISOString(),lastSnapshot:null,
+    changeLog:[],publishedDailyKeys:[],publishedWeeklyKeys:[],
+    publishedMonthlyKeys:[],weeklyReports:[],monthlyReports:[],
+    invitationSourceObservation:obs
+  };
+  const sealed=encryptEventState(privateState,'x'.repeat(32));
+  const s=sandbox('leadership-dashboard.js',{files:{
+    'data/event-leadership-report-state.json':JSON.stringify(sealed)
+  }});
+  const event=s.run('buildEvent({eventReports:readPrivateEventReports()},'+NOW+')');
+  assert.match(JSON.stringify(event),/Invitation Tracker/);
+  assert.match(JSON.stringify(event),/documented unique VTC invites/);
+  assert.match(JSON.stringify(event),/declined/);
+  assert.doesNotMatch(JSON.stringify(event),/First VTC|Other VTC|777777777777777777/);
+  const management=s.run(
+    'buildManagement({driverSummary:{currentDrivers:1,activity:{}},'+
+    'hr:{reviews:[]},loa:{leaves:[]},staffSummary:{currentStaff:0,changesLast30Days:{}},'+
+    'eventReports:readPrivateEventReports(),managementWeekly:{publishedWeeks:[]},'+
+    'managementMonthly:{monthlyReports:[]}}, {}, {}, {}, {})'
+  );
+  assert.match(JSON.stringify(management),/Event Invitations/);
+  assert.match(JSON.stringify(management),/Documented unique VTC invitations/);
+  assert.doesNotMatch(JSON.stringify(management),/First VTC|Other VTC/);
+  const stale=s.run('buildEvent({eventReports:readPrivateEventReports()},'+(NOW+37*3600000)+')');
+  assert.match(JSON.stringify(stale),/private Invitation Tracker source missing, stale/);
+  assert.doesNotMatch(JSON.stringify(stale),/invites \*\*3\*\*/);
+});
+test('only existing GET-only source and encrypted reporting are wired; no invitation sender or booking engine',()=>{
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const base=path.resolve(__dirname,'..');
+  const reader=fs.readFileSync(path.join(base,'event-invitation-tracker-source.js'),'utf8');
+  const workflow=fs.readFileSync(path.join(base,'.github/workflows/event-leadership-reports.yml'),'utf8');
+  const reports=fs.readFileSync(path.join(base,'event-leadership-reports.js'),'utf8');
+  assert.match(workflow,/event-invitation-tracker-source\.js/);
+  assert.match(reports,/invitationSourceObservation=await readInvitationTracker/);
+  assert.match(reports,/if \(!PREVIEW\)/);
+  assert.doesNotMatch(reader,/method:\s*['"](?:POST|PATCH|DELETE|PUT)['"]/);
+  assert.doesNotMatch(reader,/(?:writeFileSync|appendFileSync|console\.log)\(/);
+  assert.doesNotMatch(reports,/console\.log\(.*invitationSourceObservation/);
+});
