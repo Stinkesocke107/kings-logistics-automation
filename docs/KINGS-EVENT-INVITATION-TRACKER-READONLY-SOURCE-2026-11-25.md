@@ -38,3 +38,9 @@ Only an allowlisted **aggregate observation** is returned, without event IDs, VT
 5. No new public GitHub data, raw Discord messages, or personally identifying content in GitHub Actions logs.
 
 **Known limit:** This is a safe **source inventory** of visible forum threads; it cannot prove full historical invitation coverage or independent acceptance confirmations. An unchanged forum remains the authoritative place where human Event Coordination documents each invitation.
+
+## Separate production read-only evidence gate
+
+The existing `Kings Event Leadership Reports` workflow now has a separate `invitation_source_verify` push-only job, independent from Event report publication, Event state migration and the Convoy Checker. It uses the existing Discord bot token solely for GET access to the configured Kings private invitation forum and its visible active/archived replies. `event-invitation-tracker-readonly-proof.js` emits **only one fixed status**: `READ_ONLY_SOURCE_VERIFIED` or `SOURCE_UNAVAILABLE`, followed by a public-safe statement that invitations/acceptance/historic completeness are not approved or certified. No thread counts, person identities, VTC URLs or raw messages are logged.
+
+The job has a limited `contents: read` GitHub permission, is bounded to eight minutes, writes nothing, and uses job-level `continue-on-error: true`: an unavailable forum yields visible evidence without interrupting existing Convoy/Leadership operations. **A green offline test is not real Discord availability proof.** Only the completed independent job can establish read-only accessibility, not full historical completeness or automatic authority. The scheduled non-preview Event Leadership report separately updates the encrypted summary when its main Convoy source is also valid.
