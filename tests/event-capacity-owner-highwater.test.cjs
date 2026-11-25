@@ -99,7 +99,7 @@ test('Exactly one separately approved write succeeds, then future writes require
   const accepted=await p.commitDecision({});
   assert.equal(accepted.ownerReceiptUpdateRequired,true);
   assert.deepEqual(accepted.checkpoint,H1);
-  assert.equal((await p.read()).ledger.revision,1);
+  await assert.rejects(p.read()); // Owner must sign a NEW exact checkpoint.
   await assert.rejects(p.commitDecision({}));
   assert.equal(f.commits(),1);
 });
@@ -108,8 +108,8 @@ test('Receipt floor does not certify unseen higher revisions and never fabricate
   f.setCurrent(H2);
   f.setStored({checkpoint:{...H2},ledger:{revision:2}});
   const p=f.create();
-  assert.equal((await p.guard()).revision,2);
-  assert.equal((await p.read()).ledger.revision,2);
+  await assert.rejects(p.verifyPinned());
+  await assert.rejects(p.read());
   await assert.rejects(p.commitDecision({}));
 });
 test('Witness changing during read is rejected rather than returning mixed ledger state',async()=>{
