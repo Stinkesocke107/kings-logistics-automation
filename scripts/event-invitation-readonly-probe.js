@@ -2,8 +2,8 @@
 // MANUAL OPT-IN on reviewed main only. Existing GitHub Actions uses the existing
 // Kings Discord bot token, and ONLY Discord REST v10 GET routes. Never prints
 // private message text, event IDs, user IDs, channel IDs, or access credentials.
-const {scanKingsInvitationDiscordSource}
-  =require('../event-invitation-discord-readonly-source');
+const {inspectKingsEventInvitationSourceHandoff}
+  =require('../event-capacity-invitation-source-handoff');
 const GUILD='1114967437788577792';
 const SNOW=/^[1-9]\d{16,21}$/;
 const ERROR='KINGS_INVITATION_SOURCE_UNVERIFIED';
@@ -87,18 +87,23 @@ async function main(){
     const client=createDiscordReadClient({
       fetchImpl:fetch,token:process.env.DISCORD_BOT_TOKEN,config:cfg
     });
-    const report=await scanKingsInvitationDiscordSource({
+    // Source-only by design. There is no approved, synchronized private
+    // Convoy Center/24-month history payload in this public-source job.
+    const report=await inspectKingsEventInvitationSourceHandoff({
       client,config:cfg,asOfUtc:new Date().toISOString()
     });
-    if(report.safeToActivate!==false||
+    if(report.mode!=='SOURCE_EVIDENCE_REVIEW'||
+      report.safeToActivate!==false||
       report.freeSlotsCertified!==false||
-      report.originalOrganizerResponsesIndependentlyVerified!==false||
+      report.originalOrganizerRepliesIndependentlyAuthenticated!==false||
+      report.original24MonthSourceHistoryAuthenticated!==false||
       report.eventBookingsCreated!==0||
       report.staffApprovalsCommitted!==0)fail();
     // Strict fixed output: never serialize privateClaimsDoNotLog or report.
     process.stdout.write(
       'KINGS_INVITATION_GET_ONLY_SOURCE_OBSERVED; '+
-      'STAFF_STATUS_CLAIMS_UNVERIFIED; ORGANIZER_REPLIES_NOT_CERTIFIED; '+
+      'STAFF_STATUS_CLAIMS_UNVERIFIED; CENTER_LINKS_NOT_CERTIFIED; '+
+      'ORGANIZER_REPLIES_NOT_CERTIFIED; HISTORY_NOT_CERTIFIED; '+
       'NO_BOOKING_OR_PRODUCTION_ACTIVATION\n'
     );
   }catch{
