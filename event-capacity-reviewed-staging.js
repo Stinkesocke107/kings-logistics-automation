@@ -19,7 +19,10 @@ function sourceProof(value,proposal,nowMs,scope){
     value.sourceKind!=='authenticated-kings-convoy-checker'||
     !RUN.test(String(value.runId||''))||
     !Number.isSafeInteger(value.attempt)||value.attempt<1||
-    value.attempt>100||!Number.isFinite(nowMs))fail();
+    value.attempt>100||!Number.isFinite(nowMs)||
+    value.archiveDigest!==undefined&&!HEX.test(value.archiveDigest)||
+    value.headSha!==undefined&&!/^[a-f0-9]{40}$/.test(value.headSha)||
+    value.artifactId!==undefined&&!/^[1-9]\d{5,19}$/.test(String(value.artifactId)))fail();
   checkedReport(value.report,value.overview,nowMs);
   if(value.report.guildId!==scope.guildId||
     value.report.forumId!==scope.forumId)fail();
@@ -29,6 +32,11 @@ function sourceProof(value,proposal,nowMs,scope){
   const digest=crypto.createHash('sha256').update(
     JSON.stringify({
       runId:value.runId,attempt:value.attempt,
+      // Authenticated source adapter contributes the raw ZIP digest and
+      // precise GitHub commit/artifact identity. Non-attested legacy
+      // synthetic test sources retain explicit null markers.
+      archiveDigest:value.archiveDigest??null,
+      headSha:value.headSha??null,artifactId:value.artifactId??null,
       report:value.report,overview:value.overview
     })
   ).digest('hex');
