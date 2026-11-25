@@ -5,6 +5,7 @@ require('./kings-branding').installDiscordBranding();
 const fs=require('fs');
 const path=require('node:path');
 const { fetchOfficialSnapshot,fetchOfficialMembership }=require('./truckersmp-official-live');
+const {recordFallbackDelivery}=require('./live-systems-delivery');
 
 const ROOT=__dirname;
 const KINGS_BLUE=0x182DFF;
@@ -149,25 +150,32 @@ async function main(){
       }
     }
   }
+  const displayResults=[];
   for(const config of SETTINGS){
     try{
       const result=await updateExisting(config,official);
       if(result.reason==='no-target' || result.reason==='not-found'){
-        // Every Kings Live Systems display has a fixed existing Discord
-        // message. One missing display leaves a stale online count visible,
-        // even when the Tracker itself was updated successfully. Fail the
-        // fallback job instead of reporting a misleading green status.
-        // No automatic message creation or deletion is permitted.
+        // All three existing Live Systems messages are required. A missing
+        // one may still show misleading stale Kings online measurements.
         problems++;
+        displayResults.push({label:config.label,ok:false});
         console.error(config.label+': fallback cannot update its existing Discord message.');
+      } else {
+        // A verified already-shown notice is a successful no-op.
+        displayResults.push({label:config.label,ok:true});
       }
     }
     catch(error){
       problems++;
+      displayResults.push({label:config.label,ok:false});
       // Never print webhook secrets, Discord message bodies or player IDs.
       console.error(config.label+': status edit failed ('+String(error?.name||'Error')+').');
     }
   }
+  // Persist aggregate delivery evidence even on partial failure. This
+  // prevents monitoring from calling an old successful run the current state.
+  recordFallbackDelivery({official,displayResults,problems,
+    hasRecentRoster:freshMemberCount()!==null});
   if(problems)process.exitCode=1;
 }
 main().catch(error=>{console.error('Kings outage status could not finish.');process.exitCode=1;});
