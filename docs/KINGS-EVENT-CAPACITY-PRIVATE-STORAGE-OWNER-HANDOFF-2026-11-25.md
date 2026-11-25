@@ -97,3 +97,15 @@ When a restricted synthetic private pilot is actually ready and needs account se
 
 **CEO immediate task remains NONE**: the three real PRIVATE repos, selected GitHub App access and non-secret initialization are already verified. This phase is Draft-only; CI status for the exact latest head must be checked before software tests are claimed green.
 
+
+## Large batch: least-privilege plan and offline synthetic recovery (25 November 2026)
+
+**DRAFT-only progress; nothing new is required from the CEO immediately.**
+
+- [x] Five proposed short-lived single-repository GitHub App runtime identities have a strict zero-secret permission-plan validator (`event-capacity-private-runtime-grant-policy.js`). It rejects broad repository grants, admin/workflow rights and public runners. **This does not issue tokens or attest their real scope.**
+- [x] Existing independently-supplied owner signed card/fingerprint comparison is composed with the full AES-GCM segmented backup verifier in `event-capacity-offline-synthetic-recovery-drill.js`. This validates in-memory synthetic recovery integrity only, **not independent offsite storage or a real isolated restore drill**.
+- [x] Added tampering/rollback tests, production-isolation tests and the full reviewer gate at `docs/KINGS-EVENT-CAPACITY-SYNTHETIC-PILOT-GATES-2026-11-25.md`.
+- [ ] Before private synthetic writes: actual **provider-confirmed** single-repository least-privilege grants, separate CEO approval, redacted logs, isolated worker boundary and deliberate stop/rollback tests.
+- [ ] Owner offline signer and latest highwater truly kept independently; actual isolated encrypted backup restore and real historic source completeness remain release blockers.
+
+**No GitHub Actions Secrets, tokens, owner keys, real Event records or new scheduled workers have been configured. Public `main` and live Convoy Checker remain unchanged. PR #143 must stay DRAFT and unmerged.** Full same-HEAD CI result must be rechecked for each updated commit.
