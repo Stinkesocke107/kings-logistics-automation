@@ -122,3 +122,15 @@ When a restricted synthetic private pilot is actually ready and needs account se
 - [x] Added focused negative tests and production import isolation. See `docs/KINGS-EVENT-CAPACITY-PRIVATE-RUNTIME-GRANT-AUDIT-2026-11-25.md`.
 
 **CEO action right now: NONE.** No new tokens/Secrets, App permission grants, live private data writes, private pilot, real backup worker or GitHub PR merge. Existing private GitHub Free repos and public `main` remain in their prior state. Full exact-HEAD CI must be verified before claiming new test completion.
+
+## Historical evidence and backup recovery-gap batch — 25 November 2026
+
+**Draft-only additions; CEO account action immediately required: NONE.**
+
+- [x] `event-capacity-historical-evidence-gap-audit.js` checks cryptographically signed original Event lifecycle journal entries against privately supplied source-evidence claims over an explicit 24-month UTC window. It reports missing original evidence, signed Event/source disagreements, cancellation/reschedule/status/category/departure mismatches and legacy/deleted record review needs with HMAC-only issue identifiers. **This cannot authenticate the original 24-month source inventory or certify completeness.**
+- [x] `event-capacity-backup-90day-recovery-audit.js` reports missing backups over the previous **90 completed UTC days** (excluding unfinished today), 90-day retention review, legal holds, and unverified offsite/restore claims without writes or deletion. **Real daily backups and isolated-host restore are not activated or proven.**
+- [x] `event-capacity-private-safety-overview.js` aggregates four private software review reports for future leadership visibility without exposing raw Events or marking the system ready.
+- [x] Added negative regression tests and a workflow import-isolation guard. New runbook: `docs/KINGS-EVENT-CAPACITY-HISTORICAL-EVIDENCE-AND-RECOVERY-GAPS-2026-11-25.md`.
+- [ ] Still required: authenticated original Convoy Center Event evidence, genuinely independently stored owner highwater and encrypted backups, real restricted GitHub credentials, Discord Staff permissions, privacy and two-person decision checks, approved synthetic private pilot, and explicit CEO go-live decision.
+
+**Zero real Event data imported, zero Tokens/Secrets/owner private keys created, zero private repo workers activated, zero automated Event approvals, and no changes to public `main` or the live Convoy Checker. PR #143 remains DRAFT. The exact-current-HEAD CI result must be independently checked before calling this batch regression-green.**
