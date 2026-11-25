@@ -1,7 +1,9 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {buildHumanReviewChallenge}=require('../event-capacity-human-review');
+const {buildHumanReviewChallenge,verifyHumanReview}=require('../event-capacity-human-review');
+const {checkedReport,sourceIdentity,assessment}
+  =require('../event-capacity-github-decision-evidence');
 const {stageReviewedDecision}=require('../event-capacity-reviewed-staging');
 const {createEmptyLedger,applyDecision}
   =require('../event-capacity-decision-ledger');
@@ -122,7 +124,7 @@ function fixture({
     secret:SECRET,nowMs:NOW,...overrides
   });
   return {stage,stats:()=>({readCount,sourceCount,commits}),
-    challenge,protectedVault};
+    challenge,protectedVault,client};
 }
 test('A reviewer-confirmed source-bound decision is STAGED without any write',async()=>{
   const f=fixture(),staged=await f.stage();
@@ -190,4 +192,22 @@ test('No callable owner vault write is needed to preview a reviewed decision',as
   });
   assert.equal(result.decisionCommitted,false);
   assert.equal(f.stats().commits,0);
+});
+
+test('Staging synthetic report independently passes Kings source validation and agreement',()=>{
+  const x=source();
+  checkedReport(x.report,x.overview,NOW);
+  const item=sourceIdentity(x.report,proposal.ref);
+  assert.equal(item.state,'Matched');
+  assert.equal(assessment(proposal,item),'Needs Human Review');
+});
+test('Staging synthetic staff review independently verifies the second reviewer role',async()=>{
+  const f=fixture();
+  const r=await verifyHumanReview({
+    client:f.client,config,scope:SCOPE,proposal,challenge:f.challenge,
+    sourceRunId:RUN,ledgerRevision:0,reviewMessageId:REVIEW,
+    nowMs:NOW,secret:SECRET
+  });
+  assert.equal(r.reviewerRole,'Event Leadership');
+  assert.equal(r.decisionCommitted,false);
 });
