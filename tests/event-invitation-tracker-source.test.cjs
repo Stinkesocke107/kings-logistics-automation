@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {GUILD,FORUM,MODES,readEntry,eventIdFrom,summarizeTracker,
+const {GUILD,FORUM,MODES,readEntry,eventIdFrom,approvedTags,summarizeTracker,
   readInvitationTracker,trustedInvitationObservation}=require('../event-invitation-tracker-source');
 const NOW=Date.parse('2026-11-25T15:00:00Z');
 test('uses CEO-confirmed Invitation Tracker channel ID instead of retired assumed forum ID',()=>{
@@ -103,6 +103,54 @@ test('mismatched private Forum tag names preserve invitation replies without inv
   assert.equal(trustedInvitationObservation(x,NOW),x);
   assert.equal(trustedInvitationObservation({...x,tagSchemaVerified:'yes'},NOW),null);
   assert.doesNotMatch(JSON.stringify(x),/WIP|Finished Invitations|Old Convoy/);
+});
+test('approved private Discord tag IDs reconcile lifecycle without renaming actual Forum tags',()=>{
+  const f=fixture();
+  f.forum.available_tags=[
+    {id:tags[0],name:'Real Forum - status A'},
+    {id:tags[1],name:'Real Forum - status B'},
+    {id:tags[2],name:'Real Forum - status C'}
+  ];
+  const unconfigured=summarizeTracker(f);
+  assert.equal(unconfigured.tagSchemaVerified,false);
+  assert.equal(unconfigured.invitedVtcs,3);
+  assert.equal(unconfigured.ongoingThreads,0);
+  assert.equal(unconfigured.tagIssues,3);
+  const mapping=tags.join(',');
+  const mapped=summarizeTracker({...f,tagIds:mapping});
+  assert.equal(mapped.tagSchemaVerified,true);
+  assert.equal(mapped.convoyThreads,3);
+  assert.equal(mapped.invitedVtcs,3);
+  assert.equal(mapped.ongoingThreads,1);
+  assert.equal(mapped.doneThreads,1);
+  assert.equal(mapped.completedThreads,1);
+  assert.equal(mapped.tagIssues,0);
+  assert.equal(mapped.bookingsCreated,0);
+  assert.equal(mapped.staffApprovalsVerified,false);
+  assert.equal(trustedInvitationObservation(mapped,NOW),mapped);
+  for(const value of ['Real Forum','status A','status B','status C',...tags])
+    assert.ok(!JSON.stringify(mapped).includes(value));
+});
+test('only exact unique Forum tag ID mapping is trusted; unapproved or malformed mapping never silently guesses',()=>{
+  const f=fixture();
+  const dup=tags[0]+','+tags[0]+','+tags[2];
+  for(const bad of [dup,'abc',tags[0]+';'+tags[1]+';'+tags[2],
+    tags[0]+','+tags[1],123,['bad'],tags.join(',')+',fourth']){
+    assert.throws(()=>summarizeTracker({...f,tagIds:bad}),
+      e=>e.sourceReason==='TAG_MAPPING_INVALID');
+  }
+  // Validly formed but stale ID mapping is observable as unverified, not as
+  // an invented state. No guessed status counts even with canonical names.
+  const stale=['123456789012345678','123456789012345679','123456789012345680'].join(',');
+  const x=summarizeTracker({...f,tagIds:stale});
+  assert.equal(x.tagSchemaVerified,false);
+  assert.equal(x.invitedVtcs,3);
+  assert.equal(x.tagIssues,3);
+  assert.equal(x.ongoingThreads,0);
+  assert.equal(x.completedThreads,0);
+  const direct=approvedTags(f.forum,tags.join(','));
+  assert.equal(direct.tagSchemaVerified,true);
+  assert.equal(direct.knownTags.get(tags[0]),'Invites Ongoing');
 });
 test('invalid tags, incomplete source, stale claims and unsupported fields fail closed',()=>{
   const f=fixture();
