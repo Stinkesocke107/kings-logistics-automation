@@ -35,6 +35,7 @@ function checkSnapshot(c){
     c.limits.weekendCombined!==POLICY.weekendCombinedMax||
     c.limits.partnerDaily!==POLICY.partnerDailyMax||
     c.limits.externalDaily!==POLICY.externalDailyMax||
+    c.limits.combinedDaily!==null||
     c.limits.partnerMonthly!==null||
     c.limits.externalMonthly!==null||
     typeof c.globalUncertainty!=='boolean'||!plain(c.days)||
