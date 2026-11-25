@@ -32,8 +32,8 @@ test('Current source counts are shown without implying available Sunday bookings
     event(4,'Kings Convoy','2027-03-20')
   ]);
   const day=d.months[0].days.find(x=>x.date==='2027-03-20');
-  assert.equal(day.status,'Unverified');
-  assert.equal(day.combinedUsed,2);
+  assert.equal(day.status,'Review');
+  assert.equal(day.combinedUsed,4);
   assert.equal(day.kings,2);
   assert.equal(day.partner,1);
   assert.equal(day.external,1);
@@ -44,7 +44,7 @@ test('Single reported external remains unverified as a bookable slot',()=>{
   const day=d.months[0].days.find(x=>x.date==='2027-03-20');
   assert.equal(day.status,'Unverified');
   assert.equal(day.remaining,null);
-  assert.equal(day.reportedPlanningRoom,4);
+  assert.equal(day.reportedPlanningRoom,2);
 });
 test('Fresh current source with no events is still not proven free',()=>{
   const d=view([]);
@@ -78,11 +78,12 @@ test('Approved exception is visible as a claim, not a verified free slot',()=>{
   assert.equal(day.quotaConflict,false);
   assert.equal(day.approvedExceptions,1);
   assert.equal(day.combinedUsed,3);
-  assert.equal(d.policy.weekdayCombined,3);
-  assert.equal(d.policy.weekendCombined,5);
-  assert.equal(d.policy.partnerDaily,2);
+  assert.equal(d.policy.dailyTotal,3);
+  assert.equal(d.policy.partnerMonthly,20);
+  assert.equal(d.policy.externalMonthly,20);
+  assert.equal(d.policy.kingsIncludedDaily,true);
 });
-test('Twenty monthly partner claims no longer impose retired monthly quota',()=>{
+test('Twenty monthly Partner source claims meet independent monthly cap without approval',()=>{
   const records=[];
   for(let i=1;i<=20;i++)records.push(event(i,'Partner Convoy','2027-03-'+String(i).padStart(2,'0')));
   const d=view(records),day=d.months[0].days.find(x=>x.date==='2027-03-21');
@@ -91,6 +92,8 @@ test('Twenty monthly partner claims no longer impose retired monthly quota',()=>
   assert.equal(day.externalAvailableVerified,false);
   assert.equal(d.months[0].monthly.partner,20);
   assert.equal(d.months[0].monthly.partnerRemaining,null);
+  assert.equal(d.months[0].monthly.partnerLimit,20);
+  assert.equal(d.months[0].monthly.partnerOverLimit,false);
 });
 test('Ephemeral response is never a public dashboard and has no personal event details',()=>{
   const d=view([event(1,'Partner Convoy','2027-03-20')]);
@@ -145,4 +148,29 @@ test('A trusted fresh map feed is only optional status, never proof of free capa
   const text=ephemeralResponse(d).data.content;
   assert.match(text,/available \(HaulMP\)/);
   assert.match(text,/Data Outdated/);
+});
+
+test('Monthly 21 Partner or External source claims are shown as over-limit',()=>{
+  const partner=Array.from({length:21},(_,i)=>
+    event(i+1,'Partner Convoy','2027-03-'+String(i+1).padStart(2,'0')));
+  const external=Array.from({length:21},(_,i)=>
+    event(i+50,'External Convoy','2027-03-'+String(i+1).padStart(2,'0')));
+  const d=view([...partner,...external]);
+  assert.equal(d.months[0].monthly.partnerOverLimit,true);
+  assert.equal(d.months[0].monthly.externalOverLimit,true);
+  const text=ephemeralResponse(d).data.embeds[0].fields[0].value;
+  assert.match(text,/Partner 21\/20/);
+  assert.match(text,/External 21\/20/);
+  assert.equal(JSON.stringify(d).includes('Available":'),true);
+});
+test('Kings counts toward daily 3 on all weekdays and weekends',()=>{
+  for(const date of ['2027-03-25','2027-03-27']){
+    const d=view([event(1,'Kings Convoy',date),
+      event(2,'Kings Convoy',date),event(3,'Kings Convoy',date),
+      event(4,'External Convoy',date)]);
+    const day=d.months[0].days.find(x=>x.date===date);
+    assert.equal(day.combinedUsed,4);
+    assert.equal(day.status,'Review');
+    assert.equal(day.quotaConflict,true);
+  }
 });
