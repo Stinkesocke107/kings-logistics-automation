@@ -56,6 +56,16 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
   }
   for(const x of currentCenter)ingest(x,'center');
   for(const x of frozenLegacy)ingest(x,'legacy');
+  // Source coverage is deliberately only an inventory of observed claims.
+  // A month without claims is a review gap, not proof that no convoy occurred.
+  // A month with claims is NOT proof that all convoys were imported.
+  const historyMonthsWithSourceClaims=months.filter(m=>
+    m.centerClaims+m.legacyClaims>0).length;
+  const historyMonthsWithoutSourceClaims=HISTORY_MONTHS-
+    historyMonthsWithSourceClaims;
+  const undatedHistoricalSourceClaims=undatedCenter+undatedLegacy;
+  const historySourceReadErrors=report.threads.filter(x=>x&&!x.ignored&&
+    !x.testThread&&x.error).length;
   const future=calendar.months;
   return {
     mode:'READ_ONLY_SOURCE_HISTORY_REVIEW',
@@ -64,6 +74,10 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
     datedFrozenLegacyClaims:months.reduce((n,m)=>n+m.legacyClaims,0),
     undatedCenterClaims:undatedCenter,
     undatedLegacyClaims:undatedLegacy,
+    undatedHistoricalSourceClaims,
+    historyMonthsWithSourceClaims,
+    historyMonthsWithoutSourceClaims,
+    historySourceReadErrors,
     outsideHistoryWindowClaims:otherPeriods,
     futureWindowMonths:12,
     unclassifiedFutureCenterClaims:future.reduce((n,m)=>n+m.unclassified,0),
@@ -87,7 +101,13 @@ function compactLeadershipSection(report,overview,nowMs=Date.now()){
       result.unclassifiedFutureCenterClaims+'** · UTC days needing review: **'+
       result.futureDaysRequiringStaffReview+'** · >3/day: **'+
       result.futureDaysOverClaimedDailyLimit+'**.',
-    '📚 **24-month Event History:** Existing source claims only; full historical coverage **not verified**. No available slots certified.'
+    '📚 **24-month Event History:** Source claims: Center **'+
+      result.datedCenterClaims+'**, Legacy **'+
+      result.datedFrozenLegacyClaims+'** · months with claims **'+
+      result.historyMonthsWithSourceClaims+'/24** · months without source claims **'+
+      result.historyMonthsWithoutSourceClaims+'** · undated **'+
+      result.undatedHistoricalSourceClaims+'** · read errors **'+
+      result.historySourceReadErrors+'**. Source inventory only; full historical coverage **not verified**. No available slots certified.'
   ].join('\n');
 }
 function appendPrivateLeadershipReview(content,report,overview,nowMs=Date.now()){
