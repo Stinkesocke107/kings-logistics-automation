@@ -2,6 +2,7 @@
 // Pure Kings private capacity calendar projection; no Discord network/writes.
 // Only route responses through an authenticated private ephemeral handler.
 const {LIMITS,dayAvailability}=require('./event-capacity-core');
+const {POLICY,dailyLimitForUtcDate}=require('./event-capacity-policy');
 const {projectOptionalTracker}=require('./event-capacity-optional-tracker');
 const ERROR='Kings Event Capacity dashboard data invalid.';
 function fail(){throw new Error(ERROR);}
@@ -19,43 +20,44 @@ function projectMonth(capacity,month){
   const source=capacity.months?.[month]||{};
   const monthly={
     partner:n(source.partner),external:n(source.external),kings:n(source.kings),
-    partnerRemaining:Math.max(0,LIMITS.partnerMonthly-n(source.partner)),
-    externalRemaining:Math.max(0,LIMITS.externalMonthly-n(source.external))
+    partnerRemaining:null,externalRemaining:null
   };
-  const summary={Available:0,Limited:0,Full:0,Unverified:0};
+  const summary={Available:0,Limited:0,Full:0,Review:0,Unverified:0};
   const quotaWarnings=new Set((capacity.warnings||[])
     .filter(x=>x.code==='combined-day-over-limit').map(x=>x.day));
   const days=[];
   for(let d=1;d<=monthDays(month);d++){
     const day=month+'-'+String(d).padStart(2,'0');
     const snapshot=dayAvailability(capacity,day);
-    let status;
-    if(!snapshot.verified)status='Unverified';
-    else if(snapshot.remaining===0||
-      (!snapshot.partnerAvailableVerified&&!snapshot.externalAvailableVerified))status='Full';
-    else if(snapshot.remaining===1||!snapshot.partnerAvailableVerified||
-      !snapshot.externalAvailableVerified)status='Limited';
-    else status='Available';
+    // A fresh current snapshot alone never proves historic coverage or an
+    // available bookable slot. Highlight over-limit source claims as review.
+    const status=quotaWarnings.has(day)||
+      snapshot.daily.partner>LIMITS.partnerDaily||
+      snapshot.daily.external>LIMITS.externalDaily?'Review':'Unverified';
     summary[status]++;
     days.push({
       date:day,status,
       combinedUsed:n(snapshot.daily.combined),
-      remaining:snapshot.verified?snapshot.remaining:null,
+      remaining:null,reportedPlanningRoom:snapshot.planningRemaining,
       partner:n(snapshot.daily.partner),external:n(snapshot.daily.external),
       kings:n(snapshot.daily.kings),
       approvedExceptions:n(snapshot.daily.approvedExceptions),
       partnerAvailableVerified:snapshot.partnerAvailableVerified,
       externalAvailableVerified:snapshot.externalAvailableVerified,
-      quotaConflict:quotaWarnings.has(day)
+      quotaConflict:status==='Review'
     });
   }
   return {month,monthly,summary,days};
 }
 function projectDashboard(capacity,{nowMs=Date.now(),startMonth=null,monthCount=3,trackerSource=null}={}){
   if(!capacity||typeof capacity!=='object'||Array.isArray(capacity)||
-     capacity.limits?.combinedDaily!==LIMITS.combinedDaily||
-     capacity.limits?.partnerMonthly!==LIMITS.partnerMonthly||
-     capacity.limits?.externalMonthly!==LIMITS.externalMonthly||
+     capacity.limits?.policyId!==LIMITS.policyId||
+     capacity.limits?.weekdayCombined!==LIMITS.weekdayCombined||
+     capacity.limits?.weekendCombined!==LIMITS.weekendCombined||
+     capacity.limits?.partnerDaily!==LIMITS.partnerDaily||
+     capacity.limits?.externalDaily!==LIMITS.externalDaily||
+     capacity.limits?.partnerMonthly!==null||
+     capacity.limits?.externalMonthly!==null||
      typeof capacity.globalUncertainty!=='boolean'||
      !capacity.days||!capacity.months||
      !Array.isArray(capacity.uncertainDates)||!Array.isArray(capacity.uncertainMonths)||
@@ -68,15 +70,20 @@ function projectDashboard(capacity,{nowMs=Date.now(),startMonth=null,monthCount=
     version:1,visibility:'PRIVATE_ONLY',mode:'READ_ONLY',
     sourceStatus:capacity.globalUncertainty?'Data Outdated / Unverified':'Checked',
     issueCount:capacity.issues.length,
-    policy:{combinedDaily:2,partnerMonthly:20,externalMonthly:20,kingsUnlimited:true},
+    policy:{id:POLICY.policyId,weekdayCombined:POLICY.weekdayCombinedMax,
+      weekendCombined:POLICY.weekendCombinedMax,
+      partnerDaily:POLICY.partnerDailyMax,externalDaily:POLICY.externalDailyMax,
+      partnerMonthly:null,externalMonthly:null,kingsUnlimited:true,
+      capacityCertified:false},
     months,tracker:projectOptionalTracker(trackerSource,{nowMs}),
     attendanceInferred:false
   };
 }
 function embed(month){
   const rows=month.days.map(item=>{
-    const marker=({Unverified:'?',Full:'X',Limited:'~',Available:'+'})[item.status];
-    return item.date.slice(-2)+' '+marker+' '+item.combinedUsed+'/'+LIMITS.combinedDaily+
+    const marker=({Review:'!',Unverified:'?',Full:'?',Limited:'?',Available:'?'})[item.status];
+    return item.date.slice(-2)+' '+marker+' '+item.combinedUsed+'/'+
+      dailyLimitForUtcDate(item.date)+
       ' (P'+item.partner+' E'+item.external+' K'+item.kings+')'+
       (item.approvedExceptions?' EX'+item.approvedExceptions:'')+
       (item.quotaConflict?' !Q':'');
@@ -86,13 +93,14 @@ function embed(month){
     description:rows.join('\n'),
     color:1584639,
     fields:[
-      {name:'UTC monthly counts',value:'Partner '+month.monthly.partner+'/'+LIMITS.partnerMonthly+
-        ' · External '+month.monthly.external+'/'+LIMITS.externalMonthly+
-        ' · Kings '+month.monthly.kings+' (unlimited)',inline:false},
-      {name:'Days',value:'Available '+month.summary.Available+' · Limited '+month.summary.Limited+
-        ' · Full '+month.summary.Full+' · Unverified '+month.summary.Unverified,inline:false}
+      {name:'UTC monthly source counts',value:'Partner '+month.monthly.partner+
+        ' · External '+month.monthly.external+
+        ' · Kings '+month.monthly.kings+
+        ' (quota exempt) · no monthly cap approved',inline:false},
+      {name:'Days',value:'Review '+month.summary.Review+
+        ' · Unverified '+month.summary.Unverified,inline:false}
     ],
-    footer:{text:'Private preview | + available | ~ limited | X full | ? unverified | EX approved exception | !Q quota conflict'}
+    footer:{text:'Private source claims | ! staff review | ? availability unverified | no free slots approved'}
   };
 }
 function ephemeralResponse(view){
@@ -109,7 +117,7 @@ function ephemeralResponse(view){
       allowed_mentions:{parse:[]},
       content:'**Kings Event Capacity** · '+view.sourceStatus+
         (view.issueCount?' · '+view.issueCount+' internal issue(s)':'')+
-        '\nCounts are scheduling data, not proof of participation. No event is modified.'+
+        '\nALL availability remains unverified; these are planning claims, not bookings. No event is modified.'+
         '\n'+tracker,
       embeds:view.months.map(embed)
     }
