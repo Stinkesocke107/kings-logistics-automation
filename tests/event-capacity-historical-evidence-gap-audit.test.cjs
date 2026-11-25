@@ -5,6 +5,9 @@ const crypto=require('node:crypto');
 const {setup}=require('./fixtures/event-capacity-historical-github-fixture.cjs');
 const {crosscheckKingsHistoricalEvidenceClaims}
   =require('../event-capacity-historical-evidence-gap-audit');
+const {prepareHistoricalTransition,signHistoricalTransitionOffline,
+  appendOwnerSignedHistoricalTransition}
+  =require('../event-capacity-historical-lifecycle-journal');
 const SCOPE={guildId:'1114967437788577792',forumId:'1550619824005062697'};
 const NOW=Date.parse('2027-05-20T12:00:00.000Z');
 const SECRET='synthetic and private workboard HMAC key for tests only';
@@ -138,4 +141,50 @@ test('Crosscheck reports only aggregate month counts and HMAC review identifiers
   assert.equal(r.months.find(m=>m.month==='2027-04').gaps,1);
   assert.equal(r.months[0].monthlyHistoryComplete,false);
   assert.equal(r.reviewItemsCreatedInDiscord,0);
+});
+
+test('Previously accepted in-window booking moved beyond the 24-month boundary remains a flagged obligation',()=>{
+  const s=scenario(),p=prepareHistoricalTransition({
+    journal:s.x.afterJournal,scope:SCOPE,ownerPublicKey:s.x.ownerPublicKey,
+    expectedRevision:2,ref:'event:100',action:'reschedule',
+    category:'Partner Convoy',departureAtUtc:'2027-06-20T18:00:00.000Z',
+    evidenceDigest:sha('e2'),archiveDigest:sha('a2'),
+    reviewedAt:'2027-05-01T10:00:00.000Z'
+  });
+  const signed=signHistoricalTransitionOffline({
+    payload:p,ownerPrivateKey:s.x.ownerPrivateKey
+  });
+  const journal=appendOwnerSignedHistoricalTransition({
+    journal:s.x.afterJournal,scope:SCOPE,ownerPublicKey:s.x.ownerPublicKey,
+    receipt:signed,expectedRevision:2
+  });
+  const result=s.audit({journal,sourceRecords:[]});
+  assert.ok(result.issues.some(i=>
+    i.reason==='signed-event-moved-outside-review-window'));
+  assert.equal(result.months.find(i=>i.month==='2027-04').signedJournalEvents,1);
+  assert.equal(result.counters.unresolvedEvidenceGaps,1);
+  assert.equal(result.counters.monthsIndependentlySourceVerified,0);
+  assert.equal(result.freeSlotsCertified,false);
+});
+test('An unsigned displayed Rescheduled status is never accepted as Scheduled',()=>{
+  const s=scenario(),result=s.audit({
+    journal:s.x.beforeJournal,
+    sourceRecords:[{
+      ...s.record,sourceStatus:'Rescheduled',
+      departureAtUtc:'2027-03-20T18:00:00.000Z',
+      evidenceDigests:[sha('e0')]
+    }]
+  });
+  assert.ok(result.issues.some(x=>x.reason==='source-status-conflict'));
+  assert.equal(result.counters.urgentGaps,1);
+  assert.equal(result.freeSlotsCertified,false);
+});
+test('Archived source record requires separate original evidence review even if signed fields align',()=>{
+  const s=scenario(),result=s.audit({
+    sourceRecords:[{...s.record,sourceKind:'archived'}]
+  });
+  assert.ok(result.issues.some(x=>
+    x.reason==='archived-source-needs-original-evidence'));
+  assert.equal(result.months.find(x=>x.month==='2027-04').archivedOrDeletedClaims,1);
+  assert.equal(result.counters.monthsIndependentlySourceVerified,0);
 });
