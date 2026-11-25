@@ -49,8 +49,23 @@ function projectKingsEventOperationsWorkboardAudit({
     // validate() checks structure/scoping; it does NOT authenticate source
     // custody, signed revisions, effective Discord roles or stored history.
     validate(workboard);
-    if(utc(workboard.updatedAt)>now||utc(workboard.createdAt)>now||
+    const boardCreated=utc(workboard.createdAt),
+      boardUpdated=utc(workboard.updatedAt);
+    if(boardUpdated>now||boardCreated>boardUpdated||
       !plain(workboard.scope))fail();
+    // Structural Workboard validation alone does not prove dictionary keys
+    // correspond to embedded IDs or that task/request timestamps belong to
+    // the supplied revision. Reject inconsistent snapshots before review.
+    for(const [key,t] of Object.entries(workboard.tasks)){
+      if(!plain(t)||t.id!==key||
+        utc(t.createdAt)>utc(t.updatedAt)||
+        utc(t.updatedAt)>boardUpdated)fail();
+    }
+    for(const [key,r] of Object.entries(workboard.requests)){
+      if(!plain(r)||r.id!==key||
+        utc(r.createdAt)>utc(r.updatedAt)||
+        utc(r.updatedAt)>boardUpdated)fail();
+    }
     const defs=TEMPLATES[request.category];
     if(!Array.isArray(defs))fail();
     const expected=new Map(defs.map(([code,,required])=>[code,required]));
