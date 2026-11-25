@@ -23,6 +23,10 @@ function runWithPrivateFixtures(fail=false){
     console:{log:value=>logs.push(value),error:value=>errors.push(value)},
     require:name=>{
       if(name==='node:fs')return fakeFs;
+      if(name==='./event-history-review-agenda')return{
+        trustedReviewAgenda:rows=>Array.isArray(rows)&&rows.length===1&&
+          rows[0]?.code==='HISTORICAL_MONTH_NO_CLAIMS'
+      };
       if(name==='./event-history-leadership-bridge')return {
         summarizeOperations:()=>({
           mode:'READ_ONLY_SOURCE_HISTORY_REVIEW',
@@ -34,7 +38,9 @@ function runWithPrivateFixtures(fail=false){
           historyMonthsWithoutSourceClaims:22,
           pastCenterOutcomeUnresolved:0,datedCenterClaims:1,
           datedFrozenLegacyClaims:1,legacyClaimsNeedingOriginalEvidence:1,
-          futureDatedLegacyHoldReview:0,bookingsCreated:0,
+          futureDatedLegacyHoldReview:0,
+          reviewAgenda:[{code:'HISTORICAL_MONTH_NO_CLAIMS',utcMonth:'2027-02',count:null}],
+          bookingsCreated:0,
           privateMarker
         })
       };
