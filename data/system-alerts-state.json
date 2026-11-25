@@ -64,27 +64,6 @@
       },
       "firstAlertedAt": "2026-11-21T19:48:53.016Z"
     },
-    "workflow-failed:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics latest completed run ended with failure.",
-      "details": {
-        "runId": 45458637069,
-        "completedAt": "2026-11-24T18:22:00Z"
-      },
-      "firstAlertedAt": "2026-11-24T18:22:52.387Z"
-    },
-    "workflow-overdue:live-tracker.yml": {
-      "severity": "critical",
-      "system": "Live Tracker / Statistics",
-      "message": "Live Tracker / Statistics has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 30
-      },
-      "firstAlertedAt": "2026-11-24T18:22:52.387Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -119,7 +98,34 @@
         "runId": 45670004198
       },
       "firstAlertedAt": "2026-11-25T20:08:53.927Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 71,
+        "latestCount": 39
+      },
+      "firstAlertedAt": "2026-11-25T21:44:22.704Z"
+    },
+    "workflow-failed:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System latest completed run ended with cancelled.",
+      "details": {
+        "runId": 45706888692,
+        "completedAt": "2026-11-25T21:43:09Z"
+      },
+      "firstAlertedAt": "2026-11-25T21:44:22.704Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-25T21:44:22.704Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with cancelled."
+    }
+  }
 }
