@@ -304,14 +304,15 @@ test('live outage notice is idempotent and never creates messages on missing tar
   assert.equal(s.run("webhookBase('http://discord.com/api/webhooks/123456789012345678/token')"),null);
 });
 
-test('live outage status only runs when the live Tracker step fails', () => {
+test('live outage status only runs on failed Tracker outcome; map-dependent steps stay gated', () => {
   const fs=require('node:fs');
   const path=require('node:path');
   const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/live-tracker.yml'),'utf8');
   assert.match(workflow,/id: live_tracker/);
-  assert.match(workflow,/if: \${{ failure\(\) && steps\.live_tracker\.outcome == 'failure' }}/);
   assert.match(workflow,/continue-on-error: true/);
-  assert.match(workflow,/run: node live-outage-notice\.js/);
+  assert.match(workflow,/if: \${{ steps\.live_tracker\.outcome == 'failure' }}/);
+  assert.match(workflow,/node live-outage-notice\.js/);
+  assert.match(workflow,/if: \${{ steps\.live_tracker\.outcome == 'success' }}/);
   assert.match(workflow,/if: always\(\)/);
 });
 

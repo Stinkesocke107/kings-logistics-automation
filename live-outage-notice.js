@@ -150,7 +150,15 @@ async function main(){
     }
   }
   for(const config of SETTINGS){
-    try{await updateExisting(config,official);}
+    try{
+      const result=await updateExisting(config,official);
+      if(config.label==='Live Tracker' && (result.reason==='no-target' || result.reason==='not-found')){
+        // Without an existing Tracker message the fallback is NOT operational.
+        // Do not report a successful degraded run when nothing was published.
+        problems++;
+        console.error('Live Tracker: fallback cannot update the existing Discord message.');
+      }
+    }
     catch(error){
       problems++;
       // Never print webhook secrets, Discord message bodies or player IDs.

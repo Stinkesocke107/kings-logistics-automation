@@ -39,3 +39,11 @@ This log minimization is **not a live-map recovery**: the external Map API outag
 - https://forum.scssoft.com/viewtopic.php?t=353486
 - https://fleet-tracker.eu/api-docs/
 - https://tmptime.com/
+
+## Operational failover — 25 November 2026
+
+If a full verified map scan fails, the `Kings Live Systems` workflow does **not** publish partial or guessed Kings online numbers. Its map-dependent Tracker step is handled as a recoverable degraded condition, and the existing `live-outage-notice.js` updates the already-owned **Live Tracker, Advanced Statistics and Central Overview** Discord messages using independently verified official TruckersMP VTC membership and global server totals where available. Official server populations are labelled as **all TruckersMP players**, never as Kings online players. The last successful live snapshot and statistics history are left unchanged.
+
+Map-dependent statistics and the normal Central Overview renderer are skipped during fallback, preventing stale state from being republished as current. The provider/API-health observations and stale-data health checks remain visible to technical monitoring; fallback success **does not mean live map recovery**. The workflow emits a degraded-mode warning and GitHub Step Summary. A missing or uneditable **existing Live Tracker message** fails the fallback instead of silently reporting success, and no replacement message is automatically created.
+
+Normal full-map refreshes automatically resume when every required active server is verified, after which the Tracker, Statistics and Central Overview share the same new snapshot generation. This change does not add an unverified secondary player-position API or weaken the final full-live-coverage gate.
