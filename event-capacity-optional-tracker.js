@@ -14,6 +14,7 @@ const FALLBACK = Object.freeze({
 function projectOptionalTracker(source=null,{nowMs=Date.now()}={}){
   // A bad optional provider must not fail or modify the capacity calendar.
   if(!Number.isFinite(nowMs))return FALLBACK;
+  try{
   if(!source || typeof source!=='object' || Array.isArray(source) ||
      Object.getPrototypeOf(source)!==Object.prototype)return FALLBACK;
   if(source.sourceAuthenticated!==true || source.coverageComplete!==true ||
@@ -29,5 +30,10 @@ function projectOptionalTracker(source=null,{nowMs=Date.now()}={}){
     provider:source.provider,observedAtUtc:observed,
     positionsIncluded:false,capacityIndependent:true
   });
+  }catch{
+    // Misbehaving provider objects (including throwing accessors) must not
+    // interrupt the independent calendar, even in an integration mistake.
+    return FALLBACK;
+  }
 }
 module.exports={projectOptionalTracker};
