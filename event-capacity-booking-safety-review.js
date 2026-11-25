@@ -155,9 +155,44 @@ function renderKingsEventBookingSafetyPreview(r){
     const s=r.observedSnapshot;
     for(const k of ['dailyPartner','dailyExternal','monthlyPartner','monthlyExternal'])
       count(s[k]);
-    const alerts=r.reviewReasons.filter(x=>
-      typeof x==='string'&&/^[A-Z_]{3,70}$/.test(x));
-    if(alerts.length!==r.reviewReasons.length)fail();
+    // A private preview is still untrusted input: never display a forged
+    // "no quota warning" claim inconsistent with its own snapshot counts.
+    const isKings=r.category==='Kings Convoy',
+      expectedDaily=!isKings&&s.dailyPartner+s.dailyExternal>=LIMITS.combinedDaily,
+      expectedMonthly=!isKings&&(
+        r.category==='Partner Convoy'?s.monthlyPartner:s.monthlyExternal
+      )>=(r.category==='Partner Convoy'?
+        LIMITS.partnerMonthly:LIMITS.externalMonthly);
+    if(r.quotaExempt!==isKings||
+      r.observedDailyLimitReached!==expectedDaily||
+      r.observedMonthlyLimitReached!==expectedMonthly)fail();
+    const allowed=new Set([
+      'ORIGINAL_SOURCE_AND_STAFF_REVIEW_REQUIRED',
+      'EVENT_IDENTITY_NOT_VERIFIED','PARKING_SLOT_NOT_VERIFIED',
+      'DEPARTURE_SPACING_AND_FULL_OVERLAP_NOT_CHECKED',
+      'MEETING_TIME_MISSING','PLANNED_END_MISSING',
+      'OBSERVED_DAILY_LIMIT_REACHED','OBSERVED_MONTHLY_LIMIT_REACHED',
+      'PROVISIONAL_HISTORICAL_DAILY_HOLD_AT_LIMIT',
+      'PROVISIONAL_HISTORICAL_MONTHLY_HOLD_AT_LIMIT',
+      'DAILY_HISTORICAL_HOLDS_MISSING',
+      'MONTHLY_ORIGINAL_EVIDENCE_NOT_SUPPLIED',
+      'MONTHLY_ORIGINAL_EVIDENCE_GAPS'
+    ]);
+    const alerts=r.reviewReasons;
+    if(alerts.some(x=>typeof x!=='string'||!allowed.has(x))||
+      new Set(alerts).size!==alerts.length||
+      !['ORIGINAL_SOURCE_AND_STAFF_REVIEW_REQUIRED',
+        'EVENT_IDENTITY_NOT_VERIFIED','PARKING_SLOT_NOT_VERIFIED',
+        'DEPARTURE_SPACING_AND_FULL_OVERLAP_NOT_CHECKED'
+      ].every(x=>alerts.includes(x))||
+      alerts.includes('OBSERVED_DAILY_LIMIT_REACHED')!==expectedDaily||
+      alerts.includes('OBSERVED_MONTHLY_LIMIT_REACHED')!==expectedMonthly||
+      alerts.includes('MEETING_TIME_MISSING')!==(r.meetingProvided===false)||
+      alerts.includes('PLANNED_END_MISSING')!==(r.plannedEndProvided===false)||
+      alerts.includes('PROVISIONAL_HISTORICAL_DAILY_HOLD_AT_LIMIT')!==
+        r.provisionalHistoricalDailyHoldAtLimit||
+      alerts.includes('PROVISIONAL_HISTORICAL_MONTHLY_HOLD_AT_LIMIT')!==
+        r.provisionalHistoricalMonthlyHoldAtLimit)fail();
     const content='**Kings Booking & Slot Review — PRIVATE OFFLINE PREVIEW**\n'+
       r.category+' | '+r.utcDate+' (UTC)\n'+
       'Observed day: P'+s.dailyPartner+' E'+s.dailyExternal+
