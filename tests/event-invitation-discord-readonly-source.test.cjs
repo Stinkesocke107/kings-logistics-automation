@@ -173,7 +173,7 @@ test('Unknown invitation status or double Sent never creates a verified acceptan
 });
 test('Manual main-only runtime refuses PR, schedule, missing source and unknown staff roles',()=>{
   const good={GITHUB_EVENT_NAME:'workflow_dispatch',GITHUB_REF:'refs/heads/main',
-    KINGS_INVITATION_READONLY_PROBE:'true',DISCORD_BOT_TOKEN:'x'.repeat(50),
+    KINGS_INVITATION_READONLY_PROBE:'true',KINGS_INVITATION_CONVOY_MODE:'dry-run',DISCORD_BOT_TOKEN:'x'.repeat(50),
     KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID:CH,
     KINGS_EVENT_INVITATION_STAFF_ROLE_IDS:STAFF,
     KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS:ADMIN};
@@ -181,6 +181,7 @@ test('Manual main-only runtime refuses PR, schedule, missing source and unknown 
   for(const patch of [
     {GITHUB_EVENT_NAME:'pull_request'},{GITHUB_EVENT_NAME:'schedule'},
     {GITHUB_REF:'refs/heads/feature'},{KINGS_INVITATION_READONLY_PROBE:'false'},
+    {KINGS_INVITATION_CONVOY_MODE:'live'},
     {KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID:''},
     {KINGS_EVENT_INVITATION_STAFF_ROLE_IDS:''},
     {KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS:''}])
