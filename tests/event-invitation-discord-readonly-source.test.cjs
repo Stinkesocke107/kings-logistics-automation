@@ -8,7 +8,8 @@ const {configFromEnvironment,createDiscordReadClient}
 const G='1114967437788577792',CH='990000000000000001',
   BOT='990000000000000002',HUMAN='990000000000000003',
   STAFF='990000000000000004',ADMIN='990000000000000005',
-  BOT_ROLE='990000000000000006',UNAUTH='990000000000000007';
+  BOT_ROLE='990000000000000006',UNAUTH='990000000000000007',
+  EXT='990000000000000008';
 const NOW='2026-11-25T20:00:00.000Z';
 const P=1024n,R=65536n;
 function ow(id,type,allow=0n,deny=0n){
@@ -218,4 +219,44 @@ test('Malformed roles, duplicate settings and non-canonical source configuration
   await assert.rejects(()=>scan(b));
   const c=fixture();c.raw.roles.find(x=>x.id===STAFF).permissions='garbage';
   await assert.rejects(()=>scan(c));
+});
+
+test('External role may see configured private source but cannot author structured Staff statuses',async()=>{
+  const f=fixture();
+  f.config.externalContributorRoleIds=[EXT];
+  f.raw.roles.push({id:EXT,permissions:'0'});
+  f.raw.channel.permission_overwrites.push(ow(EXT,0,P|R));
+  // Author's role is external-only. Structured invitation lifecycle remains
+  // strictly internal; no external Accepted status can be imported.
+  f.raw.authorMember.roles=[EXT];
+  await assert.rejects(()=>scan(f));
+});
+test('External role can coexist with internal authored structured status without elevation',async()=>{
+  const f=fixture();
+  f.config.externalContributorRoleIds=[EXT];
+  f.raw.roles.push({id:EXT,permissions:'0'});
+  f.raw.channel.permission_overwrites.push(ow(EXT,0,P|R));
+  const r=await scan(f);
+  assert.equal(r.review.counts.sent,1);
+  assert.equal(r.eventBookingsCreated,0);
+  assert.equal(r.freeSlotsCertified,false);
+});
+test('Optional external role ID is separate from Staff and rejects invalid variable values',()=>{
+  const env={GITHUB_EVENT_NAME:'workflow_dispatch',GITHUB_REF:'refs/heads/main',
+    KINGS_INVITATION_READONLY_PROBE:'true',
+    KINGS_INVITATION_CONVOY_MODE:'dry-run',
+    DISCORD_BOT_TOKEN:'x'.repeat(50),
+    KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID:CH,
+    KINGS_EVENT_INVITATION_STAFF_ROLE_IDS:STAFF,
+    KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS:ADMIN,
+    KINGS_EVENT_INVITATION_EXTERNAL_ROLE_IDS:EXT};
+  const c=configFromEnvironment(env);
+  assert.deepEqual(c.staffRoleIds,[STAFF]);
+  assert.deepEqual(c.externalContributorRoleIds,[EXT]);
+  assert.deepEqual(configFromEnvironment({...env,
+    KINGS_EVENT_INVITATION_EXTERNAL_ROLE_IDS:''}).externalContributorRoleIds,[]);
+  for(const invalid of ['not-id',EXT+','+EXT,EXT+','+STAFF,' ']){
+    assert.throws(()=>configFromEnvironment({...env,
+      KINGS_EVENT_INVITATION_EXTERNAL_ROLE_IDS:invalid}));
+  }
 });
