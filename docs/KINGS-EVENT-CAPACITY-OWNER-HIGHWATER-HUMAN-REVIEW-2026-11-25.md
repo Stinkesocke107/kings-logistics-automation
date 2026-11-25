@@ -10,7 +10,7 @@ The two-private-GitHub-repository checkpoint witness already implemented is tamp
 
 - File: event-capacity-owner-highwater.js — Ed25519 digital signatures over an exact scope-bound revision, encrypted-ledger SHA-256 digest and UTC issuance time.
 - The signing private key MUST stay OFFLINE with the Kings owner, outside all GitHub repos, GitHub Actions, Discord, bot secrets and service accounts. GitHub can use the corresponding PUBLIC verification key and a securely pinned signed receipt.
-- Read guard denies a witness revision below the pinned receipt or different content digest at the same revision. A higher revision can be read for inspection but DOES NOT prove uninterrupted ancestry or justify accepting a new write.
+- Read guard denies a witness revision below the pinned receipt or different content digest at the same revision. A higher revision WITHOUT an updated offline owner signature is also DENIED for normal reads; it cannot be treated as a newly approved source or proof of uninterrupted ancestry.
 - A new decision write must start at EXACTLY the owner-signed revision and digest. After one successful write, additional writes are blocked until the owner signs and retains an updated receipt.
 - Changes in the external witness while reading fail closed.
 - An owner-signed receipt establishes only a previously witnessed minimum state. Lost receipts or keys cannot be silently repaired by resetting the witness.
