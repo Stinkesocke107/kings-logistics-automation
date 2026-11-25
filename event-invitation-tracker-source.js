@@ -16,6 +16,11 @@ function canonicalTagName(name){
   return typeof name==='string'
     ?name.replace(/^[^A-Za-z]+/u,'').trim():null;
 }
+function guideOnlyThread(thread,guideTagIds){
+  return Array.isArray(thread?.applied_tags)&&
+    thread.applied_tags.length===1&&
+    guideTagIds.has(String(thread.applied_tags[0]));
+}
 const MAX_THREADS=300,MAX_MESSAGES=500,MAX_AGE_MS=36*60*60*1000;
 const ID=/^[1-9]\d{15,20}$/;
 const FIELD_NAMES=Object.freeze([
@@ -115,6 +120,7 @@ function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowM
       seenThreads.has(String(thread.id))||
       !Array.isArray(thread.applied_tags))refuse();
     seenThreads.add(String(thread.id));
+    if(guideOnlyThread(thread,guideTagIds))continue;
     if(/^\s*\[?test\]?(?:\s|[-_:])/i.test(thread.name||'')||
       /\btemplate\b/i.test(thread.name||''))continue;
     count.convoyThreads++;
@@ -231,6 +237,9 @@ async function readInvitationTracker({token,transport=fetch,
   const {get}=createDiscordReader({token,transport});
   const forum=await get('/channels/'+FORUM);
   if(forum?.id!==FORUM||forum?.guild_id!==GUILD||Number(forum?.type)!==15)refuse('FORUM_MISMATCH');
+  if(!Array.isArray(forum.available_tags))refuse();
+  // Guide-only threads are documentation, not convoy invitations.
+  const {guideTagIds}=approvedTags(forum,tagIds);
   const active=await get('/guilds/'+GUILD+'/threads/active');
   if(!Array.isArray(active?.threads))refuse('ACTIVE_THREAD_LIST');
   const collected=new Map();
@@ -257,6 +266,7 @@ async function readInvitationTracker({token,transport=fetch,
   if(!complete)refuse('ARCHIVE_PAGE_INCOMPLETE'); // never silently treat partially read archive as complete
   const messagesByThread=new Map();
   for(const t of collected.values()){
+    if(guideOnlyThread(t,guideTagIds))continue;
     if(/^\s*\[?test\]?(?:\s|[-_:])/i.test(t.name||'')||
       /\btemplate\b/i.test(t.name||''))continue;
     let all=[],beforeId=null,done=false;
