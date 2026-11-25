@@ -195,3 +195,24 @@ test('No external API, GitHub or production workflow wiring is introduced',()=>{
   assert.doesNotMatch(file,/require\(['"](?:node:https|node:http|discord\.js|@octokit)['"]\)/);
   assert.doesNotMatch(file,/fetch\s*\(|process\.env|client\.post\(|discord\.post\(/);
 });
+
+test('Future invitations outside the historical window are tracked for human review, never dropped or counted',()=>{
+  const r=run(f=>{
+    f.invitationClaims.invitations[0].departureAtUtc='2027-06-27T18:00:00.000Z';
+    f.invitationClaims.changes.push(step('A','Accepted','2027-05-19T12:00:00.000Z'));
+  });
+  assert.equal(r.invitationReview.counts.total,1);
+  assert.equal(r.invitationReview.counts.accepted,1);
+  assert.equal(r.futureInvitationClaimsOutsideHistoricalWindow,1);
+  assert.equal(r.futureInvitationsRequireVerifiedCenterReview,true);
+  assert.equal(r.crossSystem.sourceReview.outboundTrackerClaimedInvitations,0);
+  assert.equal(currentDay(r).snapshotCombined,1);
+  assert.equal(r.invitationsAddedToCapacity,0);
+  assert.match(render(r).data.content,/future source claims pending manual Center link 1/);
+  assert.equal(r.safeToActivate,false);
+});
+test('Beyond twelve future UTC months is rejected rather than claiming Event Calendar coverage',()=>{
+  assert.throws(()=>run(f=>{
+    f.invitationClaims.invitations[0].departureAtUtc='2028-06-27T18:00:00.000Z';
+  }));
+});
