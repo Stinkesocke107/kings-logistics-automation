@@ -154,7 +154,8 @@ test('Signed day command shows a private UTC daily detail from one scoped snapsh
   assert.equal(result.data.flags,64);
   assert.deepEqual(result.data.allowed_mentions,{parse:[]});
   assert.match(result.data.content,/2027-03-20 UTC/);
-  assert.match(result.data.content,/Remaining combined slots/);
+  assert.match(result.data.content,/Availability unverified/);
+  assert.doesNotMatch(result.data.content,/Remaining combined slots/);
 });
 test('Date option with an invalid UTC calendar date is denied before private data loads',async()=>{
   let calls=0;
