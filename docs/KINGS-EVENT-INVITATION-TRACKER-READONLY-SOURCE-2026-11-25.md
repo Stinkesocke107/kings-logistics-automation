@@ -77,3 +77,13 @@ The private Invitation Tracker Forum `1457797580703531143` is **fully GET-readab
 When no secret exists, the source only recognises the three **exact** previously agreed tag names; otherwise response and duplicate inventory remain readable but Forum lifecycle is explicitly unverified. Only the existing Event Leadership jobs receive the secret. No Staff or Bot is granted new permissions, and no invitations, Discord tags, Roles, Events, or Bookings are changed automatically. **System #17 remains excluded.**
 
 **Important release status:** Until the real tag-ID mapping is confirmed, #15 is *functional for existing invitation audit and integration*, but the lifecycle-status component is *not production-certified*.
+
+## Manual production check without code changes
+
+The existing **Kings Event Leadership Reports** workflow now offers a seventh manual **`invitation-check`** selection:
+
+1. After an authorised Kings owner stores the reviewed status Tag IDs in GitHub Actions secret `DISCORD_INVITATION_TAG_IDS`, open **Actions → Kings Event Leadership Reports → Run workflow** on `main`.
+2. Select **`invitation-check`**. This runs only the isolated **read-only** `invitation_source_verify` job. It does not execute the daily/weekly/monthly Event report, modify encrypted data, post Discord messages, or write/approve any Invitations/Events.
+3. Read the fixed public-safe result: `READ_ONLY_SOURCE_VERIFIED` means a complete readable Forum scan *and* the configured tag schema matches existing Discord tags; `INVITATIONS_READABLE_TAG_SCHEMA_UNVERIFIED` means reply inventory works, but status tags need reconciliation; `SOURCE_UNAVAILABLE (<fixed-reason>)` means source access or configuration requires investigation.
+
+This manual run is a **verification convenience**, not a webhook and not an automated invitation service. Source audit readiness does not prove that individual recipients accepted or attended, nor does it validate full historical completeness.
