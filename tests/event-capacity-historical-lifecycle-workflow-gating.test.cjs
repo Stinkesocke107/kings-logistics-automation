@@ -144,3 +144,19 @@ test('Signed history crosscheck and backup continuity stay isolated and read-onl
   assert.match(continuity,/automaticDeletions:0/);
   assert.doesNotMatch(continuity,/writeDailyOnce|DELETE|PATCH|POST/);
 });
+
+test('Historical review task proposals never auto-create Staff tasks in production',()=>{
+  const runner=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  const live=fs.readFileSync(path.join(root,
+    '.github/workflows/convoy-checker.yml'),'utf8');
+  const proposals=fs.readFileSync(path.join(root,
+    'event-capacity-historical-workboard-proposals.js'),'utf8');
+  assert.doesNotMatch(runner,/event-capacity-historical-workboard-proposals/);
+  assert.doesNotMatch(live,/event-capacity-historical-workboard-proposals/);
+  assert.match(proposals,/staffTasksCreated:0/);
+  assert.match(proposals,/commandsReadyToExecute:false/);
+  assert.match(proposals,/humanAuthorizationRequired:true/);
+  assert.match(proposals,/freeSlotsCertified:false/);
+  assert.doesNotMatch(proposals,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
+});
