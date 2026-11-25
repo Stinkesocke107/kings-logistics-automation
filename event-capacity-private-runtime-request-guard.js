@@ -73,7 +73,12 @@ function createKingsPrivateGithubRequestGuard({
   async function guardedTransport(url,options){
     try{
       if(typeof url!=='string'||!url.startsWith(prefix)||
-        !plain(options)||options.redirect!=='manual'||!plain(options.headers)||
+        !plain(options)||Object.keys(options).some(k=>
+          !['method','headers','redirect','signal','body'].includes(k))||
+        !plain(options.headers)||Object.keys(options.headers).some(k=>
+          !['Authorization','Accept','X-GitHub-Api-Version','User-Agent',
+            'Content-Type'].includes(k))||
+        options.redirect!=='manual'||
         typeof options.headers.Authorization!=='string'||
         !/^Bearer [^\s]{20,1024}$/.test(options.headers.Authorization)||
         !['GET','PUT'].includes(options.method))fail();
