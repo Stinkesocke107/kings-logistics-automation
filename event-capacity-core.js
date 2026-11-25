@@ -2,7 +2,18 @@
 // Kings Event Capacity v1: pure, read-only and fail-closed. NOT wired to live jobs.
 // Input is a normalized adapter snapshot; *_Verified fields must be established
 // by authorized upstream sources, never inferred from a public host or name.
-const LIMITS=Object.freeze({combinedDaily:2,partnerMonthly:20,externalMonthly:20,departureGapMinutes:120});
+const {POLICY,dailyLimitForUtcDate,reviewDailyCount}
+  =require('./event-capacity-policy');
+const LIMITS=Object.freeze({
+  policyId:POLICY.policyId,
+  weekdayCombined:POLICY.weekdayCombinedMax,
+  weekendCombined:POLICY.weekendCombinedMax,
+  partnerDaily:POLICY.partnerDailyMax,
+  externalDaily:POLICY.externalDailyMax,
+  combinedDaily:null,
+  partnerMonthly:null,externalMonthly:null,
+  departureGapMinutes:POLICY.minimumDepartureGapMinutes
+});
 const TYPES=Object.freeze({'Kings Convoy':'kings','Partner Convoy':'partner','External Convoy':'external'});
 const PENDING=new Set(['Submitted','Needs Information','Ready for Approval','Pending','Tentative']);
 const ACCEPTED=new Set(['Scheduled','Completed','Rescheduled']);
@@ -111,16 +122,30 @@ function evaluate(input,options={}){
     counted.push({id,type,status,day,month,departure,meeting,end});
   }
   for(const [day,c] of Object.entries(days)){
-    c.overLimit=c.combined>LIMITS.combinedDaily;
-    c.remaining=Math.max(0,LIMITS.combinedDaily-c.combined);
+    const review=reviewDailyCount({day,partner:c.partner,
+      external:c.external,kings:c.kings});
+    c.dayLimit=review.limit;
+    c.overLimit=review.planningOverLimit;
+    // A current read-only source snapshot cannot certify any real remaining
+    // capacity without historical holds, independently checked Staff status.
+    c.remaining=null;
+    c.planningRemaining=Math.max(0,review.limit-c.combined);
     c.approvedExceptions=Math.min(c.approvedExceptions,c.combined);
-    if(c.overLimit)warnings.push({code:'combined-day-over-limit',day,count:c.combined,limit:LIMITS.combinedDaily,approvedExceptions:c.approvedExceptions});
+    if(c.combined>review.limit)
+      warnings.push({code:'combined-day-over-limit',day,
+        count:c.combined,limit:review.limit,
+        approvedExceptions:c.approvedExceptions});
+    if(c.partner>LIMITS.partnerDaily)
+      warnings.push({code:'partner-day-over-limit',day,
+        count:c.partner,limit:LIMITS.partnerDaily});
+    if(c.external>LIMITS.externalDaily)
+      warnings.push({code:'external-day-over-limit',day,
+        count:c.external,limit:LIMITS.externalDaily});
   }
-  for(const [month,c] of Object.entries(months)){
-    c.partnerRemaining=Math.max(0,LIMITS.partnerMonthly-c.partner);
-    c.externalRemaining=Math.max(0,LIMITS.externalMonthly-c.external);
-    if(c.partner>LIMITS.partnerMonthly)warnings.push({code:'partner-month-over-limit',month,count:c.partner,limit:LIMITS.partnerMonthly});
-    if(c.external>LIMITS.externalMonthly)warnings.push({code:'external-month-over-limit',month,count:c.external,limit:LIMITS.externalMonthly});
+  for(const c of Object.values(months)){
+    // Monthly counts remain informational until a new monthly policy is
+    // explicitly adopted. The retired 20+20 caps MUST NOT be enforced.
+    c.partnerRemaining=null;c.externalRemaining=null;
   }
   const timed=[...counted].sort((a,b)=>a.departure-b.departure);
   for(let i=0;i<timed.length;i++)for(let j=i+1;j<timed.length;j++){
@@ -145,13 +170,27 @@ function evaluate(input,options={}){
 function dayAvailability(result,day){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw new TypeError('Expected UTC date YYYY-MM-DD');
   const month=day.slice(0,7);
-  const daily=result.days[day]||{kings:0,partner:0,external:0,combined:0,approvedExceptions:0,remaining:LIMITS.combinedDaily};
-  const monthly=result.months[month]||{partner:0,external:0,kings:0,partnerRemaining:LIMITS.partnerMonthly,externalRemaining:LIMITS.externalMonthly};
-  const verified=!(result.globalUncertainty||result.uncertainDates.includes(day)||result.uncertainMonths.includes(month));
-  const remaining=Math.max(0,LIMITS.combinedDaily-daily.combined);
-  const partnerAvailableVerified=verified&&remaining>0&&monthly.partnerRemaining>0;
-  const externalAvailableVerified=verified&&remaining>0&&monthly.externalRemaining>0;
-  return {day,month,verified,daily,monthly,remaining,partnerAvailableVerified,
-    externalAvailableVerified,freeVerified:partnerAvailableVerified||externalAvailableVerified};
+  const daily=result.days[day]||{kings:0,partner:0,external:0,
+    combined:0,approvedExceptions:0,remaining:null};
+  const monthly=result.months[month]||{partner:0,external:0,kings:0,
+    partnerRemaining:null,externalRemaining:null};
+  const sourceSnapshotVerified=!(result.globalUncertainty||
+    result.uncertainDates.includes(day)||result.uncertainMonths.includes(month));
+  const dayLimit=dailyLimitForUtcDate(day);
+  const review=reviewDailyCount({day,partner:daily.partner,
+    external:daily.external,kings:daily.kings});
+  return {day,month,verified:sourceSnapshotVerified,
+    sourceSnapshotVerified,capacityVerified:false,
+    daily,monthly,dayLimit,
+    // Observed planning room is NOT verified bookable space.
+    remaining:null,planningRemaining:Math.max(0,dayLimit-daily.combined),
+    partnerPlanningWithinLimit:sourceSnapshotVerified&&
+      !review.observedPlanningLimitReached&&
+      daily.partner<LIMITS.partnerDaily,
+    externalPlanningWithinLimit:sourceSnapshotVerified&&
+      !review.observedPlanningLimitReached&&
+      daily.external<LIMITS.externalDaily,
+    partnerAvailableVerified:false,externalAvailableVerified:false,
+    freeVerified:false};
 }
 module.exports={LIMITS,TYPES,timestamp,evaluate,dayAvailability};
