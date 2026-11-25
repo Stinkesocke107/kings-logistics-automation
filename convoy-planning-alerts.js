@@ -16,7 +16,28 @@ function pending(warnings,state){
   const sent=new Set(Array.isArray(state?.sent)?state.sent:[]);
   return (warnings||[]).map(w=>({key:keyOf(w),warning:w})).filter(x=>!sent.has(x.key));
 }
+// One aggregate private Staff triage reminder per UTC day; the source may
+// contain Event names/IDs, but none are interpolated into Discord or logs.
+// A review request never grants bookings or edits an existing Convoy.
+function sourceTriageNotices(report,at=new Date().toISOString()){
+  if(report?.version!==2||report?.mode!=='advisory-only'||
+     report?.sourceClaimsOnly!==true||report?.freeSlotsCertified!==false||
+     !Array.isArray(report.unknownTypes)||!Array.isArray(report.missingDepartures)||
+     !/^\d{4}-\d{2}-\d{2}T/.test(at))return [];
+  const unknown=report.unknownTypes.length,missing=report.missingDepartures.length;
+  if(unknown===0&&missing===0)return [];
+  return [{
+    code:'event-source-triage',period:at.slice(0,10),
+    unknownTypes:unknown,missingDepartures:missing
+  }];
+}
 function describe(w){
+  if(w.code==='event-source-triage'){
+    return 'Convoy Center requires Staff source review: **'+w.unknownTypes+
+      '** unclassified Event type(s) and **'+w.missingDepartures+
+      '** missing verified UTC departure(s). Review in <#1550619824005062697>.'+
+      ' This is not an Event approval, capacity release or booking.';
+  }
   if(w.code==='external-month-threshold'||w.code==='partner-month-threshold'){
     const type=w.code.startsWith('partner')?'Partner':'External';
     return type+' Convoy source claims: '+w.count+'/20 in '+w.period+
@@ -41,7 +62,7 @@ async function main(){
   if(!Array.isArray(existing.sent))throw Error('Invalid alert state');
   const monthNow=new Date().toISOString().slice(0,7);
   const activeWarnings=report.warnings.filter(w=>String(w.period||'').slice(0,7)>=monthNow);
-  const notices=pending(activeWarnings,existing);
+  const notices=pending([...activeWarnings,...sourceTriageNotices(report)],existing);
   if(!notices.length){console.log('No new convoy planning warnings.');return;}
   if(process.env.CONVOY_DRY_RUN==='true'){
     // PUBLIC Actions logs: never print Staff/Event names, event IDs, links
@@ -88,4 +109,4 @@ async function main(){
   console.log('Sent '+notices.length+' new advisories.');
 }
 if(require.main===module)main().catch(e=>{console.error(e);process.exitCode=1});
-module.exports={keyOf,pending,describe};
+module.exports={keyOf,pending,describe,sourceTriageNotices};
