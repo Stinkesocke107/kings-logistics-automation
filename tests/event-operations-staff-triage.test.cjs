@@ -1,8 +1,8 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {observeOperations,renderOperationsReview}
-  =require('../event-operations-staff-triage');
+const {observeOperations,renderOperationsReview,operationsWorklist,
+  renderOperationsWorklist,WORK_LABELS}=require('../event-operations-staff-triage');
 const {COUNT_FIELDS}=require('../event-leadership-observation');
 const {sandbox}=require('./sandbox.cjs');
 function observationFixtures(nowMs=Date.now()){
@@ -44,6 +44,16 @@ test('Kings Event Operations #18 combines #12/#13/#14/#15/#16 advisory source fl
     invitationTagIssues:0,
     invitationPendingOrUnrecorded:3
   });
+  const prioritized=operationsWorklist(o);
+  assert.deepEqual(prioritized.slice(0,2).map(x=>x.code),
+    ['REVIEW_DAILY_CAP','REVIEW_EVENT_TYPES']);
+  assert.ok(prioritized.every(x=>x.owner==='Event Coordinators'||
+    x.owner==='Event Coordination Lead'));
+  assert.equal(prioritized.some(x=>x.owner.includes('CEO')),false);
+  const worklist=renderOperationsWorklist(o);
+  assert.match(worklist,/HIGH · Event Coordination Lead/);
+  assert.match(worklist,/No Staff assignment or automatic decisions/i);
+  assert.ok(worklist.length<=1024);
   assert.equal(o.readOnly,true);
   assert.equal(o.bookingsCreated,0);
   assert.equal(o.invitationsSent,0);
@@ -66,6 +76,10 @@ test('Event Operations flags readable replies with unverified Forum lifecycle ta
   assert.equal(ops.review.invitationDuplicateVtcs,2);
   const text=renderOperationsReview(ops);
   assert.match(text,/Invitation replies readable; Forum lifecycle tags UNVERIFIED/);
+  const queue=operationsWorklist(ops);
+  assert.ok(queue.some(x=>x.code==='VERIFY_FORUM_TAG_MAPPING'&&
+    x.owner==='Event Coordination Lead'));
+  assert.match(renderOperationsWorklist(ops),/Reconcile existing Forum tag names manually/);
   assert.doesNotMatch(text,/Private Invitation Tracker source is readable; response labels/);
 });
 test('missing and stale Event or Invitation source cannot become invented zero work',()=>{
@@ -74,6 +88,10 @@ test('missing and stale Event or Invitation source cannot become invented zero w
   assert.equal(missing.eventSource,'UNAVAILABLE');
   assert.equal(missing.invitationSource,'UNAVAILABLE');
   assert.equal(missing.review.calendarDaysNeedingReview,null);
+  assert.deepEqual(operationsWorklist(missing).map(x=>x.code),[
+    'CONVOY_SOURCE_UNAVAILABLE','INVITATION_SOURCE_UNAVAILABLE'
+  ]);
+  assert.match(renderOperationsWorklist(missing),/BLOCKED · Event Coordination Lead/);
   assert.equal(missing.review.invitationPendingOrUnrecorded,null);
   const text=renderOperationsReview(missing);
   assert.match(text,/Convoy source UNAVAILABLE/);
@@ -103,6 +121,10 @@ test('validated Event Operations triage appears only on existing Event and Manag
   assert.match(field.value,/Classify \*\*3\*\*/);
   assert.doesNotMatch(field.value,/automatic approve|book available/i);
   assert.equal(event.title,'📅 Kings Event Leadership Dashboard');
+  const queue=event.fields.find(x=>x.name.includes('Review Order'));
+  assert.ok(queue);
+  assert.match(queue.value,/Review UTC days above 3 source-claimed convoys/);
+  assert.ok(queue.value.length<=1024);
   const data={
     eventReports:{eventSourceObservation:f.eventSourceObservation,
       invitationSourceObservation:f.invitationSourceObservation},
@@ -114,6 +136,8 @@ test('validated Event Operations triage appears only on existing Event and Manag
   const management=s.run('buildManagement('+JSON.stringify(data)+', {}, {}, {}, {})');
   assert.ok(management.fields.some(x=>x.name.includes('Event Operations')));
   assert.equal(management.title,'👑 Kings Management Leadership Dashboard');
+  assert.match(JSON.stringify(management),/Suggested next Staff review/);
+  assert.ok(Object.hasOwn(WORK_LABELS,'VERIFY_FORUM_TAG_MAPPING'));
 });
 test('Operations module is pure; no privileged writes, notifications or separate systems',()=>{
   const fs=require('node:fs'),path=require('node:path');

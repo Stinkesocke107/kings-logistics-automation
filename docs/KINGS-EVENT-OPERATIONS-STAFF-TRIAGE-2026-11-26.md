@@ -29,3 +29,16 @@ Current staff review tasks are: unclassified Event types; UTC calendar days requ
 1. Run offline GitHub Actions regression suite, including missing/stale source tests and Discord field-length check.
 2. After merge, verify the existing consolidated Event and Management Leadership dashboard workflow succeeds without duplicate messages and the new advisory sections match source availability.
 3. Check current `#15` Forum tags privately, without trying to create or change Tags automatically. Statuses remain unverified until the correct names and permissions are reconciled with the user-approved workflow.
+
+## Phase 2 — Priority-ordered Event Coordination worklist
+
+`operationsWorklist()` now turns the **same** already-validated #12/#13/#14/#15/#16 aggregate into an advisory, ordered human review queue (no separate task database or Discord messages).
+
+- **BLOCKED**: Convoy/Calendar source unavailable, or the private Invitation source unavailable. Assigned function for review: *Event Coordination Lead*; no Staff/role assignment is executed.
+- **HIGH**: >3 source-claimed convoys on any UTC day and unclassified Kings/Partner/External event categories. Staff check; no cancellation or rescheduling.
+- **NORMAL**: unresolved calendar days, missing/mismatched private Forum lifecycle tag schema, duplicate VTC invitations, duplicated/missing event links and malformed entries. Routine invitation coordination belongs to *Event Coordinators*; exceptional source configuration to the Lead.
+- **FOLLOW_UP**: pending/unrecorded reply labels and 24-month historical source gaps. These represent review work only, not confirmed RSVP or certified historical completeness.
+
+The queue uses fixed internal reason codes and optional aggregate counts. Its `owner` field denotes a **suggested functional reviewer**, never an actual individual, appointment, approval or notification. Existing **Event Leadership** displays up to seven ordered items in a new field, and the existing **Management Leadership** shows just the top suggested issue plus source readiness. It does not introduce another channel or board.
+
+Missing source creates an explicit *BLOCKED* work item, not a green "no action" outcome. **Forum lifecycle tags unverified** is a separate *NORMAL* work item even when the private invitation replies themselves are readable. All tasks remain human-controlled, with no CEO sign-off for routine invitations and no Booking #17.
