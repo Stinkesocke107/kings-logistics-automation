@@ -10,7 +10,7 @@ const {checkedReport}
 const {validateLedger,privateDecisions}
   =require('./event-capacity-decision-ledger');
 const {adaptConvoyReports}=require('./event-capacity-adapter');
-const {evaluate,LIMITS,dayAvailability}
+const {evaluate,LIMITS,dayAvailability,timestamp}
   =require('./event-capacity-core');
 const {dateValid}=require('./event-capacity-day-view');
 const {isDeepStrictEqual}=require('node:util');
@@ -33,6 +33,15 @@ function sourceFingerprint(s,nowMs){
     !HEX40.test(String(s.headSha||''))||
     !HEX64.test(String(s.archiveDigest||'')))fail();
   checkedReport(s.report,s.overview,nowMs);
+  // Defense in depth: both records MUST actually come from a fresh report
+  // finalization. A stale report plus a newly generated overview cannot
+  // establish any known accepted occupancy, even if source headers match.
+  const generated=timestamp(s.report.generatedAt);
+  const finalized=timestamp(s.report.finalization?.finalizedAt);
+  const overviewAt=timestamp(s.overview.generatedAt);
+  if(generated===null||finalized===null||overviewAt===null||
+    generated>finalized||finalized>overviewAt||
+    nowMs-finalized>30*60000||finalized>nowMs+60000)fail();
   if(s.report.guildId!==GUILD||s.report.forumId!==FORUM||
     s.overview.guildId!==GUILD||s.overview.forumId!==FORUM)fail();
   return [String(s.runId),s.attempt,String(s.artifactId),s.headSha,s.archiveDigest];
