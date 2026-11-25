@@ -56,6 +56,7 @@ function projectDashboard(capacity,{nowMs=Date.now(),startMonth=null,monthCount=
      capacity.limits?.weekendCombined!==LIMITS.weekendCombined||
      capacity.limits?.partnerDaily!==LIMITS.partnerDaily||
      capacity.limits?.externalDaily!==LIMITS.externalDaily||
+     capacity.limits?.combinedDaily!==null||
      capacity.limits?.partnerMonthly!==null||
      capacity.limits?.externalMonthly!==null||
      typeof capacity.globalUncertainty!=='boolean'||
