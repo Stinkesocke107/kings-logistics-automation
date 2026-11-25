@@ -7,7 +7,10 @@ const root=path.resolve(__dirname,'..');
 const newModules=[
   'event-capacity-private-runtime-grant-policy',
   'event-capacity-offline-synthetic-recovery-drill',
-  'event-capacity-historical-24month-readiness'
+  'event-capacity-historical-24month-readiness',
+  'event-capacity-private-runtime-installation-scope-probe',
+  'event-capacity-private-runtime-scope-bundle',
+  'event-capacity-synthetic-pilot-hold-audit'
 ];
 test('New credential policy and synthetic restoration cannot activate live Convoy Checker',()=>{
   const live=fs.readFileSync(path.join(root,
@@ -44,4 +47,25 @@ test('Credential plan never contains live token issuance or independent custody 
   assert.match(src,/actualGithubInstallationTokenIssued:false/);
   assert.match(src,/separateRuntimeCredentialCustodyVerified:false/);
   assert.doesNotMatch(src,/createInstallationAccessToken|process\.env|privateKey\s*:/);
+});
+
+test('New installation scope probes expose fixed GET-only endpoint and never certify grant levels',()=>{
+  const source=fs.readFileSync(path.join(root,
+    'event-capacity-private-runtime-installation-scope-probe.js'),'utf8');
+  assert.match(source,/installation\/repositories\?per_page=100&page=1/);
+  assert.match(source,/method:'GET'/);
+  assert.match(source,/actualTokenPermissionLevelsProven:false/);
+  assert.doesNotMatch(source,/method:'(?:POST|PUT|PATCH|DELETE)'/);
+});
+test('New five-role audit can never issue a token or bypass explicit pilot authorization',()=>{
+  const source=fs.readFileSync(path.join(root,
+    'event-capacity-private-runtime-scope-bundle.js'),'utf8');
+  assert.match(source,/createIsolatedInstallationScopeProbe/);
+  assert.match(source,/credentialIssuancePerformed:false/);
+  assert.match(source,/privateSyntheticPilotApproved:false/);
+  const pilot=fs.readFileSync(path.join(root,
+    'event-capacity-synthetic-pilot-hold-audit.js'),'utf8');
+  assert.match(pilot,/privateSyntheticWritesAuthorized:false/);
+  assert.match(pilot,/externalGatesIndependentlyCompleted:0/);
+  assert.match(pilot,/explicitCEOPilotApprovalVerified:false/);
 });
