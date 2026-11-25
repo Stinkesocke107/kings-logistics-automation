@@ -53,17 +53,6 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "stale-data:data/driver-management-summary.json": {
-      "severity": "critical",
-      "system": "Driver Management data",
-      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-11-21T16:28:08.215Z",
-        "ageMinutes": 200,
-        "maxAgeMinutes": 160
-      },
-      "firstAlertedAt": "2026-11-21T19:48:53.016Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -108,7 +97,24 @@
         "completedAt": "2026-11-25T21:43:36Z"
       },
       "firstAlertedAt": "2026-11-25T21:45:32.136Z"
+    },
+    "workflow-failed:central-scheduler.yml": {
+      "severity": "critical",
+      "system": "Central Scheduler",
+      "message": "Central Scheduler latest completed run ended with failure.",
+      "details": {
+        "runId": 45707312393,
+        "completedAt": "2026-11-25T21:46:30Z"
+      },
+      "firstAlertedAt": "2026-11-25T21:50:37.199Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-25T21:50:37.199Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
+    }
+  }
 }
