@@ -4,6 +4,7 @@
 // No approved slots, Staff decisions or historic completeness can be inferred.
 const fs=require('node:fs');
 const {summarizeOperations}=require('./event-history-leadership-bridge');
+const {trustedReviewAgenda}=require('./event-history-review-agenda');
 function read(name){
   const file='output/'+name;
   const stat=fs.statSync(file);
@@ -22,6 +23,7 @@ function inspectReal(){
      result.original24MonthArchiveVerified!==false||
      result.individualHistoricalDecisionsVerified!==false||
      result.eventInvitationSourceLinked!==false||
+     !trustedReviewAgenda(result.reviewAgenda)||
      result.historyMonthsCenterOnly+result.historyMonthsLegacyOnly+
        result.historyMonthsBothSources!==result.historyMonthsWithSourceClaims||
      result.historyMonthsWithSourceClaims+result.historyMonthsWithoutSourceClaims!==24||
