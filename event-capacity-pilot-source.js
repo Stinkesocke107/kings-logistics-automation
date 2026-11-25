@@ -97,11 +97,11 @@ function monthsFrom(data,nowMs){
     // Source-reported accepted status claims only. They are NOT
     // Staff-approved reservations or independently verified free slots.
     kingsClaims:0,partnerClaims:0,externalClaims:0,
-    // One MONTHLY limit is part of Kings planning, but the CEO has not
-    // confirmed its numeric value or Kings-convoy inclusion. Never infer
-    // a monthly cap from weekday totals, weeks or retired 20+20 caps.
+    // CEO-confirmed independent monthly limits: Partner 20,
+    // External 20, Kings unlimited. No weekly or category/day cap.
     monthlyClassifiedClaims:0,monthlyPartnerExternalClaims:0,
-    monthlyLimit:null,monthlyLimitStatus:'LIMIT_VALUE_NOT_CONFIRMED',
+    partnerMonthlyLimit:20,externalMonthlyLimit:20,kingsMonthlyLimit:null,
+    monthlyPartnerOverLimit:false,monthlyExternalOverLimit:false,
     monthlyRemainingVerified:null,
     daysRequiringReview:0,legacyDatedKeptSeparate:0
   }));
@@ -159,30 +159,33 @@ function monthsFrom(data,nowMs){
     if(m.centerClaims!==m.scheduled+m.pending+m.cancelled||
       m.monthlyClassifiedClaims>m.scheduled||
       m.monthlyPartnerExternalClaims>m.monthlyClassifiedClaims||
-      m.monthlyLimit!==null||
-      m.monthlyLimitStatus!=='LIMIT_VALUE_NOT_CONFIRMED')refuse();
+      m.partnerMonthlyLimit!==20||m.externalMonthlyLimit!==20||
+      m.kingsMonthlyLimit!==null)refuse();
+    m.monthlyPartnerOverLimit=m.partnerClaims>m.partnerMonthlyLimit;
+    m.monthlyExternalOverLimit=m.externalClaims>m.externalMonthlyLimit;
     for(const [utcDay,day] of days[i]){
-      const weekday=new Date(utcDay+'T00:00:00.000Z').getUTCDay();
-      const combinedLimit=[0,5,6].includes(weekday)?5:3;
-      const combined=day.partner+day.external;
+      // Every UTC day has the same maximum of 3 Convoys total,
+      // including Kings, Partner, External and unclassified claims.
+      const total=day.kings+day.partner+day.external+day.unclassified;
       // REVIEW FLAGS ONLY: incomplete history and absent Staff approval
       // mean we cannot assert any day is actually available.
       day.departures.sort((a,b)=>a-b);
       const spacingConflict=day.departures.some((t,j)=>
         j>0&&t-day.departures[j-1]<120*60000);
-      if(combined>combinedLimit||day.partner>2||day.external>2||
-        day.unclassified>0||day.pending>0||day.cancelled>0||
+      if(total>3||day.unclassified>0||
+        day.pending>0||day.cancelled>0||
         spacingConflict)m.daysRequiringReview++;
     }
   }
   // Internal-only structure — NEVER returned from the public job.
   return {months,undatedCenter,undatedLegacy,legacyClaims:legacy.length,
     sourcePeriod:first,
-    // No weekly ceiling exists. Only UTC daily policy is applied above.
-    weeklyLimitApplied:false,
+    // Confirmed: 3 TOTAL/day, 20 Partner/month, 20 External/month,
+    // unlimited Kings/month. There is NO week quota.
+    weeklyLimitApplied:false,dailyTotalLimit:3,
     monthlyLimitRequired:true,
-    monthlyLimitValueConfirmed:false,
-    monthlyLimitScopeConfirmed:false,
+    monthlyLimitValueConfirmed:true,
+    monthlyLimitScopeConfirmed:true,
     ready:false,freeSlotsCertified:false};
 }
 function allowedRedirect(raw){
