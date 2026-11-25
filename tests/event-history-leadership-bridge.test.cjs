@@ -39,8 +39,9 @@ test('Event History and Calendar bridge reconciles existing Center and frozen Le
   assert.equal(result.utcHistoryWindowMonths,24);
   assert.equal(result.history.length,24);
   assert.equal(result.futureWindowMonths,12);
-  assert.equal(result.datedCenterClaims,1);
+  assert.equal(result.datedCenterClaims,1,'Future scheduled March Convoy must remain in forward Calendar, not History');
   assert.equal(result.datedFrozenLegacyClaims,1);
+  assert.equal(result.outsideHistoryWindowClaims,1,'Future Event excluded from historic source count');
   assert.equal(result.history.find(x=>x.utcMonth==='2026-09').completedClaims,1);
   assert.equal(result.history.find(x=>x.utcMonth==='2026-11').legacyClaims,1);
   assert.equal(result.unclassifiedFutureCenterClaims,0);
