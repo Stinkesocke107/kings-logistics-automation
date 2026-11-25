@@ -87,27 +87,6 @@
         "runId": 45670004198
       },
       "firstAlertedAt": "2026-11-25T20:08:53.927Z"
-    },
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with cancelled.",
-      "details": {
-        "runId": 45706953923,
-        "completedAt": "2026-11-25T21:43:36Z"
-      },
-      "firstAlertedAt": "2026-11-25T21:45:32.136Z"
-    },
-    "workflow-overdue:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-11-25T21:52:47.957Z"
     }
   },
   "pending": {}
