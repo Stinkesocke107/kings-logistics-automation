@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const src=fs.readFileSync(path.join(__dirname,'..','event-invitation-tracker-readonly-proof.js'),'utf8');
-async function execute(fail=false,sourceReason=null){
+async function execute(fail=false,sourceReason=null,tagSchemaVerified=true){
   const marker='PRIVATE_INVITER_OR_VTC_MARKER_NEVER_TO_LOG';
   const logs=[],warnings=[],proc={exitCode:0};
   const module={exports:{}};
@@ -15,7 +15,7 @@ async function execute(fail=false,sourceReason=null){
       readInvitationTracker:async()=>{
         if(fail){const e=Error(marker);if(sourceReason)e.sourceReason=sourceReason;throw e;}
         return {bookingsCreated:0,staffApprovalsVerified:false,
-          invitationDecisionsVerified:false,privateMarker:marker};
+          invitationDecisionsVerified:false,tagSchemaVerified,privateMarker:marker};
       },
       trustedInvitationObservation:x=>x
     };
@@ -36,6 +36,13 @@ test('real-source proof emits only fixed public-safe status after synthetic succ
   assert.equal(x.exitCode,0);
   assert.match(x.logs.join('\n'),/READ_ONLY_SOURCE_VERIFIED/);
   assert.doesNotMatch(x.logs.join('\n'),new RegExp(x.marker));
+});
+test('real-source proof keeps mismatched Forum tags as an explicit warning, not verified status',async()=>{
+  const x=await execute(false,null,false);
+  assert.equal(x.status,'INVITATIONS_READABLE_TAG_SCHEMA_UNVERIFIED');
+  assert.equal(x.exitCode,1);
+  assert.match(x.warnings.join('\n'),/INVITATIONS_READABLE_TAG_SCHEMA_UNVERIFIED/);
+  assert.doesNotMatch(x.warnings.join('\n'),new RegExp(x.marker));
 });
 test('real-source proof fails closed on read failure without logging original error content',async()=>{
   const x=await execute(true);
