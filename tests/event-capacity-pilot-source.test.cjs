@@ -2,8 +2,8 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
-const {inspect,monthsFrom,verdict,contextAllowed,runShape,
-  artifactFor,allowedRedirect,createReader,main}
+const {inspect,monthsFrom,prioritizeUnconfirmedRequests,REVIEW_PRIORITY,
+  verdict,contextAllowed,runShape,artifactFor,allowedRedirect,createReader,main}
   =require('../event-capacity-pilot-source');
 const {makeSyntheticCapacityZip}=require('./helpers/event-capacity-pilot-zip.cjs');
 const REPO='Stinkesocke107/kings-logistics-automation';
@@ -534,4 +534,91 @@ test('The same three total convoys are permitted on Sunday as on Wednesday',()=>
     assert.equal(m.centerClaims,3);
     assert.equal(m.daysRequiringReview,0);
   }
+});
+
+test('Kings > Partner > External review priority, stable within each group',()=>{
+  const queue=[
+    {eventType:'External Convoy',eventId:'priv-ext-one'},
+    {eventType:'Partner Convoy',eventId:'priv-partner-one'},
+    {eventType:'Kings Convoy',eventId:'priv-kings-one'},
+    {eventType:'External Convoy',eventId:'priv-ext-two'},
+    {eventType:'Kings Convoy',eventId:'priv-kings-two'},
+    {eventType:'Partner Convoy',eventId:'priv-partner-two'}
+  ];
+  const snapshot=JSON.stringify(queue);
+  const result=prioritizeUnconfirmedRequests(queue);
+  assert.deepEqual([...REVIEW_PRIORITY],[
+    'Kings Convoy','Partner Convoy','External Convoy'
+  ]);
+  assert.deepEqual(result.requests.map(x=>x.sourceIndex),[2,4,1,5,0,3]);
+  assert.deepEqual(result.requests.map(x=>x.priorityRank),[1,1,2,2,3,3]);
+  assert.equal(result.readOnly,true);
+  assert.equal(result.approvedRequests,0);
+  assert.equal(result.eventsRescheduled,0);
+  assert.equal(result.reservationsReleased,0);
+  assert.equal(JSON.stringify(queue),snapshot);
+  assert.equal(JSON.stringify(result).includes('priv-'),false);
+});
+test('Unknown event requests come after all named categories for manual classification',()=>{
+  const r=prioritizeUnconfirmedRequests([
+    {eventType:'External Convoy'}, {eventType:'Unrecognized Event'},
+    {eventType:'Kings Convoy'}, {eventType:'Partner Convoy'},
+    {eventType:null}
+  ]);
+  assert.deepEqual(r.requests.map(x=>x.sourceIndex),[2,3,0,1,4]);
+  assert.deepEqual(r.requests.map(x=>x.needsManualClassification),
+    [false,false,false,true,true]);
+  assert.equal(r.requests[3].priorityRank,null);
+  assert.equal(r.requests[3].eventType,'Unclassified');
+  assert.equal(r.eventsRescheduled,0);
+});
+test('Priority is a suggested review queue only, never automatic displacement of confirmed convoys',()=>{
+  const r=prioritizeUnconfirmedRequests(
+    [{eventType:'External Convoy'},{eventType:'Kings Convoy'}]);
+  assert.equal(r.candidateReviewOnly,true);
+  assert.equal(r.approvedRequests,0);
+  assert.equal(r.eventsRescheduled,0);
+  assert.equal(r.reservationsReleased,0);
+  assert.equal('autoApprove' in r,false);
+  assert.equal('autoCancel' in r,false);
+});
+test('Same daily maximum 3 and priority conflict review works on weekends',()=>{
+  const f=withCurrentEvents([
+    {type:'Kings Convoy',departure:'2027-03-28T06:00:00Z'},
+    {type:'Partner Convoy',departure:'2027-03-28T09:00:00Z'},
+    {type:'Partner Convoy',departure:'2027-03-28T12:00:00Z'},
+    {type:'External Convoy',departure:'2027-03-28T15:00:00Z'}
+  ]);
+  const m=monthsFrom(f,NOW).months[0];
+  assert.equal(m.centerClaims,4);
+  assert.equal(m.daysOverDailyLimit,1);
+  assert.equal(m.daysWithPriorityConflict,1);
+  assert.equal(m.daysRequiringReview,1);
+  assert.equal(m.monthlyPartnerOverLimit,false);
+  assert.equal(m.monthlyExternalOverLimit,false);
+});
+test('Four Kings convoys exceed day max but do not imply intercategory priority conflict',()=>{
+  const f=withCurrentEvents(
+    ['06:00:00','09:00:00','12:00:00','15:00:00'].map(t=>({
+      type:'Kings Convoy',departure:'2027-03-28T'+t+'Z'
+    }))
+  );
+  const m=monthsFrom(f,NOW).months[0];
+  assert.equal(m.kingsClaims,4);
+  assert.equal(m.daysOverDailyLimit,1);
+  assert.equal(m.daysWithPriorityConflict,0);
+  assert.equal(m.daysRequiringReview,1);
+  assert.equal(m.kingsMonthlyLimit,null);
+});
+test('Three mixed priority Convoys fit daily max without claiming booking authority',()=>{
+  const f=withCurrentEvents([
+    {type:'External Convoy',departure:'2027-03-28T06:00:00Z'},
+    {type:'Kings Convoy',departure:'2027-03-28T10:00:00Z'},
+    {type:'Partner Convoy',departure:'2027-03-28T14:00:00Z'}
+  ]);
+  const m=monthsFrom(f,NOW).months[0];
+  assert.equal(m.daysOverDailyLimit,0);
+  assert.equal(m.daysWithPriorityConflict,0);
+  assert.equal(m.daysRequiringReview,0);
+  assert.equal(monthsFrom(f,NOW).freeSlotsCertified,false);
 });
