@@ -8,6 +8,7 @@ const {decryptEventState}=require('./event-leadership-state');
 const {trustedEventObservation}=require('./event-leadership-observation');
 const {trustedInvitationObservation}=require('./event-invitation-tracker-source');
 const {observeOperations,renderOperationsReview,operationsWorklist,renderOperationsWorklist,WORK_LABELS}=require('./event-operations-staff-triage');
+const {renderReviewAgenda,CODES}=require('./event-history-review-agenda');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -382,6 +383,9 @@ function buildEvent(data, now = Date.now()) {
       field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
       field('🗓️ Calendar / History — Source Review',calendarLine),
       field('🧾 Event History — Decision Evidence Review',historyEvidenceLine),
+      field('🗂️ Event History — Monthly Staff Review Order',
+        observed?renderReviewAgenda(observed.reviewAgenda):
+          'Unavailable — a fresh reconciled Event source is required.'),
       field('📊 Event Capacity — Advisory Review',capacityLine),
       field('✉️ Invitation Tracker — Source Review',invitationLine),
       field('🛠️ Event Operations — Staff Triage',renderOperationsReview(operations)),
@@ -404,6 +408,12 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
     invitationSourceObservation:data.eventReports?.invitationSourceObservation
   });
   const nextOperationsReview=operationsWorklist(operations)[0]||null;
+  const reviewAgenda=eventSource?.reviewAgenda;
+  const nextHistoryMonth=Array.isArray(reviewAgenda)&&reviewAgenda.length
+    ?reviewAgenda[0]:null;
+  const historyAgendaSummary=nextHistoryMonth
+    ?(nextHistoryMonth.utcMonth||'Undated')+' · '+CODES[nextHistoryMonth.code]
+    :'Unavailable or no specifically flagged source month';
   const eventNeeds=eventSource?.needsInformation||0;
   const eventReady=eventSource?.readyForApproval||0;
   const hrOpen = (data.hr.reviews || []).filter((r) => reviewStatus(r) !== 'completed').length;
@@ -417,7 +427,7 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
       field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
       field('🧾 Event History — Evidence Gaps', eventSource
-        ? `Historical outcomes unclear **${eventSource.historyPastCenterOutcomeUnresolved}** · frozen Legacy claims needing original records **${eventSource.historyLegacyEvidencePending}** · future Legacy dated holds to review **${eventSource.historyFutureLegacyHoldReview}**. No original Staff decisions independently verified.`
+        ? `Historical outcomes unclear **${eventSource.historyPastCenterOutcomeUnresolved}** · frozen Legacy claims needing original records **${eventSource.historyLegacyEvidencePending}** · future Legacy dated holds to review **${eventSource.historyFutureLegacyHoldReview}**. Priority month: ${historyAgendaSummary}. No original Staff decisions independently verified.`
         : 'Unavailable — missing fresh original Event source evidence. Never infer capacity release.'),
       field('📊 Event Capacity — Source Review', eventSource
         ? `3 total/day · Partner 20/month · External 20/month · Kings uncapped monthly. Source conflicts: days >3 **${eventSource.futureDaysOverDailyLimit}** · Partner months >20 **${eventSource.futurePartnerMonthsOver20}** · External months >20 **${eventSource.futureExternalMonthsOver20}** · UTC days <2h apart **${eventSource.futureDaysWithShortDepartureGap}**. Review only, no free slots certified.`
