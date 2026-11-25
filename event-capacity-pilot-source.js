@@ -136,6 +136,7 @@ function monthsFrom(data,nowMs){
     monthlyPartnerOverLimit:false,monthlyExternalOverLimit:false,
     monthlyRemainingVerified:null,
     daysRequiringReview:0,daysOverDailyLimit:0,
+    daysWithDepartureSpacingWarning:0,
     daysWithPriorityConflict:0,
     legacyDatedKeptSeparate:0
   }));
@@ -213,10 +214,13 @@ function monthsFrom(data,nowMs){
       day.departures.sort((a,b)=>a-b);
       const spacingConflict=day.departures.some((t,j)=>
         j>0&&t-day.departures[j-1]<120*60000);
+      if(spacingConflict)m.daysWithDepartureSpacingWarning++;
       if(total>3||day.unclassified>0||
         day.pending>0||day.cancelled>0||
         spacingConflict)m.daysRequiringReview++;
     }
+    if(m.daysWithDepartureSpacingWarning>m.daysRequiringReview||
+      m.daysOverDailyLimit>m.daysRequiringReview)refuse();
   }
   // Internal-only structure — NEVER returned from the public job.
   return {months,undatedCenter,undatedLegacy,legacyClaims:legacy.length,
