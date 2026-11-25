@@ -31,6 +31,7 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
   }));
   const lookup=new Map(months.map(m=>[m.utcMonth,m]));
   let undatedCenter=0,undatedLegacy=0,otherPeriods=0;
+  let pastCenterOutcomeUnresolved=0;
   const observed=new Set();
   function ingest(item,source){
     const date=utcInstant(source==='center'?
@@ -50,6 +51,11 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
     if(!id||observed.has(key))throw Error('Duplicate or unidentified Kings Event history source');
     observed.add(key);
     if(source==='center')row.centerClaims++;else row.legacyClaims++;
+    // A past departure with Scheduled/Ready/Needs Info/Rescheduled or an
+    // unknown status is NOT independently proven to have completed.
+    // This is only a staff evidence-review flag, not a status mutation.
+    if(source==='center'&&!['Completed','Cancelled','Canceled'].includes(item.status))
+      pastCenterOutcomeUnresolved++;
     if(item.status==='Completed')row.completedClaims++;
     if(item.status==='Cancelled'||item.status==='Canceled')row.cancelledClaims++;
     if(item.status==='Rescheduled')row.rescheduledClaims++;
@@ -59,11 +65,27 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
   // Source coverage is deliberately only an inventory of observed claims.
   // A month without claims is a review gap, not proof that no convoy occurred.
   // A month with claims is NOT proof that all convoys were imported.
+  // Source provenance by calendar month is not historic approval evidence.
+  // Keep Center and frozen Legacy disjoint; an empty month is a source gap,
+  // not proof that no convoy existed.
+  const historyMonthsCenterOnly=months.filter(m=>
+    m.centerClaims>0&&m.legacyClaims===0).length;
+  const historyMonthsLegacyOnly=months.filter(m=>
+    m.legacyClaims>0&&m.centerClaims===0).length;
+  const historyMonthsBothSources=months.filter(m=>
+    m.centerClaims>0&&m.legacyClaims>0).length;
   const historyMonthsWithSourceClaims=months.filter(m=>
     m.centerClaims+m.legacyClaims>0).length;
   const historyMonthsWithoutSourceClaims=HISTORY_MONTHS-
     historyMonthsWithSourceClaims;
+  if(historyMonthsCenterOnly+historyMonthsLegacyOnly+
+    historyMonthsBothSources!==historyMonthsWithSourceClaims)
+    throw Error('Unverified Kings Event history provenance');
   const undatedHistoricalSourceClaims=undatedCenter+undatedLegacy;
+  // Frozen Legacy may preserve future Calendar claims. Without original
+  // Staff signoff or holds, they require review, NEVER certified free slots.
+  const futureDatedLegacyHoldReview=calendar.months.reduce((sum,m)=>
+    sum+m.legacyDatedKeptSeparate,0);
   const historySourceReadErrors=report.threads.filter(x=>x&&!x.ignored&&
     !x.testThread&&x.error).length;
   const future=calendar.months;
@@ -77,6 +99,10 @@ function summarizeOperations({report,overview,nowMs=Date.now()}={}){
     undatedHistoricalSourceClaims,
     historyMonthsWithSourceClaims,
     historyMonthsWithoutSourceClaims,
+    historyMonthsCenterOnly,historyMonthsLegacyOnly,historyMonthsBothSources,
+    pastCenterOutcomeUnresolved,
+    legacyClaimsNeedingOriginalEvidence:calendar.legacyClaims,
+    futureDatedLegacyHoldReview,
     historySourceReadErrors,
     outsideHistoryWindowClaims:otherPeriods,
     futureWindowMonths:12,
@@ -111,7 +137,11 @@ function compactLeadershipSection(report,overview,nowMs=Date.now()){
       result.historyMonthsWithSourceClaims+'/24** · months without source claims **'+
       result.historyMonthsWithoutSourceClaims+'** · undated **'+
       result.undatedHistoricalSourceClaims+'** · read errors **'+
-      result.historySourceReadErrors+'**. Source inventory only; full historical coverage **not verified**. No available slots certified.'
+      result.historySourceReadErrors+'**. Source inventory only; full historical coverage **not verified**. No available slots certified.',
+    '🧾 **History evidence review:** past Center outcome unclear **'+
+      result.pastCenterOutcomeUnresolved+'** · frozen Legacy claims requiring original evidence **'+
+      result.legacyClaimsNeedingOriginalEvidence+'** · future dated Legacy holds to review **'+
+      result.futureDatedLegacyHoldReview+'**. No historical Staff approvals verified.'
   ].join('\n');
 }
 function appendPrivateLeadershipReview(content,report,overview,nowMs=Date.now()){
