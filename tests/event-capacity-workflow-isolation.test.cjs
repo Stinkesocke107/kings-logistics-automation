@@ -137,3 +137,12 @@ test('Preflight helper and runner remain detached from production Convoy impleme
   assert.match(runner,/inspectKingsPrivateEventCapacityChannel/);
   assert.match(runner,/inspectKingsEventSourcePreflight/);
 });
+
+test('Manual source-preflight and offline preview do not receive the real Discord token',()=>{
+  const block=step('Kings Event Capacity (GitHub-only opt-in)');
+  assert.match(block,/inputs\.capacity_action == 'source-preflight'/);
+  assert.match(block,/inputs\.capacity_action == 'preview'/);
+  assert.match(block,/READ_ONLY_NO_DISCORD_TOKEN/);
+  assert.match(block,/DISCORD_BOT_TOKEN:.*secrets\.DISCORD_BOT_TOKEN/);
+  assert.match(block,/GITHUB_TOKEN:.*github\.token/);
+});
