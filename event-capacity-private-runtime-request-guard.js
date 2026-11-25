@@ -81,6 +81,15 @@ function createKingsPrivateGithubRequestGuard({
         options.redirect!=='manual'||
         typeof options.headers.Authorization!=='string'||
         !/^Bearer [^\s]{20,1024}$/.test(options.headers.Authorization)||
+        options.headers.Accept!=='application/vnd.github+json'||
+        (Object.hasOwn(options.headers,'X-GitHub-Api-Version')&&
+          options.headers['X-GitHub-Api-Version']!=='2022-11-28')||
+        (Object.hasOwn(options.headers,'User-Agent')&&
+          (typeof options.headers['User-Agent']!=='string'||
+           !/^[A-Za-z0-9._/-]{1,100}$/.test(options.headers['User-Agent'])))||
+        (Object.hasOwn(options.headers,'Content-Type')&&
+          (options.method!=='PUT'||
+           options.headers['Content-Type']!=='application/json'))||
         !['GET','PUT'].includes(options.method))fail();
       const suffix=url.slice(prefix.length);
       if(suffix!==''&&!suffix.startsWith('/'))fail();
