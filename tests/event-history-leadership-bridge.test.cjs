@@ -41,6 +41,10 @@ test('Event History and Calendar bridge reconciles existing Center and frozen Le
   assert.equal(result.futureWindowMonths,12);
   assert.equal(result.datedCenterClaims,1,'Future scheduled March Convoy must remain in forward Calendar, not History');
   assert.equal(result.datedFrozenLegacyClaims,1);
+  assert.equal(result.historyMonthsWithSourceClaims,2);
+  assert.equal(result.historyMonthsWithoutSourceClaims,22);
+  assert.equal(result.undatedHistoricalSourceClaims,0);
+  assert.equal(result.historySourceReadErrors,0);
   assert.equal(result.outsideHistoryWindowClaims,1,'Future Event excluded from historic source count');
   assert.equal(result.history.find(x=>x.utcMonth==='2026-09').completedClaims,1);
   assert.equal(result.history.find(x=>x.utcMonth==='2026-11').legacyClaims,1);
@@ -63,6 +67,24 @@ test('Past cancelled source claims are not silently interpreted as available cap
   assert.equal(result.history.find(x=>x.utcMonth==='2026-09').cancelledClaims,1);
   assert.equal(result.freeSlotsCertified,false);
 });
+test('Undated historical claims become review gaps rather than invented dated events',()=>{
+  const f=fixture();
+  f.report.threads[1].validation.parsed.departureAtUtc=null;
+  f.overview.registeredConvoys[1].departureAtUtc=null;
+  const result=summarizeOperations({...f,nowMs:NOW});
+  assert.equal(result.datedCenterClaims,0);
+  assert.equal(result.datedFrozenLegacyClaims,1);
+  assert.equal(result.undatedCenterClaims,1);
+  assert.equal(result.undatedHistoricalSourceClaims,1);
+  assert.equal(result.historyMonthsWithSourceClaims,1);
+  assert.equal(result.historyMonthsWithoutSourceClaims,23);
+  assert.equal(result.original24MonthArchiveVerified,false);
+  assert.equal(result.freeSlotsCertified,false);
+  const message=compactLeadershipSection(f.report,f.overview,NOW);
+  assert.match(message,/months with claims \\*\\*1\\/24\\*\\*/);
+  assert.match(message,/undated \\*\\*1\\*\\*/);
+  assert.doesNotMatch(message,/Confidential|777777777777777778/);
+});
 test('Mismatched snapshots and old/wrong guild are rejected without public details',()=>{
   for(const mutate of [
     x=>{x.overview.guildId='invalid';},
@@ -84,6 +106,10 @@ test('Leadership report receives compact read-only summary and keeps existing Di
   const out=appendPrivateLeadershipReview(original,f.report,f.overview,NOW);
   assert.match(out,/12-month Calendar review/);
   assert.match(out,/24-month Event History/);
+  assert.match(out,/months with claims \\*\\*2\\/24\\*\\*/);
+  assert.match(out,/months without source claims \\*\\*22\\*\\*/);
+  assert.match(out,/undated \\*\\*0\\*\\*/);
+  assert.match(out,/Source inventory only/);
   assert.match(out,/full historical coverage \*\*not verified\*\*/);
   assert.match(out,/No available slots certified/);
   assert.ok(out.length<=1900);
