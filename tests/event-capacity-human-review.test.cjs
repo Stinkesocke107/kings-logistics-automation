@@ -63,7 +63,7 @@ function fixture({
     }
   };
   const verify=(props={})=>verifyHumanReview({
-    client,config:CONFIG,proposal,challenge,
+    client,config:CONFIG,scope:SCOPE,proposal,challenge,
     sourceRunId:RUN,ledgerRevision:3,reviewMessageId:REVIEW,
     nowMs:NOW,secret:SECRET,...props
   });
@@ -121,6 +121,7 @@ test('Source changes and concurrent ledger revisions invalidate previously gener
   await assert.rejects(f.verify({sourceRunId:'45502949675'}));
   await assert.rejects(f.verify({ledgerRevision:4}));
   await assert.rejects(f.verify({secret:'synthetic-wrong-review-proof-secret-789'}));
+  await assert.rejects(f.verify({scope:{...SCOPE,forumId:'222222222222222222'}}));
   await assert.rejects(f.verify({nowMs:NOW+100*60000}));
 });
 test('Unverified source matches, conflicting proposals and approved flags cannot create a review challenge',()=>{
