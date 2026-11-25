@@ -16,7 +16,18 @@ const FIELD_NAMES=Object.freeze([
   'linkedToCenter','recordedAccepted','recordedDeclined',
   'recordedPending','replyNotRecorded'
 ]);
-function refuse(){throw Error('Kings Invitation Tracker source unavailable');}
+const SAFE_SOURCE_REASONS=new Set([
+  'ACCESS_DENIED','RATE_LIMITED','API_UNAVAILABLE',
+  'FORUM_MISMATCH','FORUM_TAGS_MISSING',
+  'ACTIVE_THREAD_LIST','ARCHIVE_PAGE_INCOMPLETE',
+  'MESSAGE_PAGE_INCOMPLETE','STARTER_NOT_FOUND',
+  'SOURCE_INCONSISTENT'
+]);
+function refuse(reason='SOURCE_INCONSISTENT'){
+  const e=new Error('Kings Invitation Tracker source unavailable');
+  e.sourceReason=SAFE_SOURCE_REASONS.has(reason)?reason:'SOURCE_INCONSISTENT';
+  throw e;
+}
 function readEntry(raw){
   if(typeof raw!=='string'||raw.length>1200||raw.includes('\n'))return null;
   // Require the documented one-VTC-per-reply format, including source link
@@ -44,7 +55,7 @@ function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowM
     if(typeof tag?.id!=='string'||typeof tag?.name!=='string')refuse();
     if(MODES.includes(tag.name))knownTags.set(tag.id,tag.name);
   }
-  if(new Set(knownTags.values()).size!==3)refuse();
+  if(new Set(knownTags.values()).size!==3)refuse('FORUM_TAGS_MISSING');
   const centerIds=centerReport?.mode==='READ_ONLY'&&
     Array.isArray(centerReport.threads)
     ?new Set(centerReport.threads.filter(x=>x&&!x.error&&!x.ignored&&
@@ -78,7 +89,7 @@ function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowM
     }
     // Forum starter MUST be identifiable. Never silently discard a reply
     // by treating the oldest observed invitation as an event starter.
-    if(!starter)refuse();
+    if(!starter)refuse('STARTER_NOT_FOUND');
     const source=starter;
     const eventId=eventIdFrom(source?.content||'');
     if(eventId){
@@ -144,7 +155,11 @@ function createDiscordReader({token,transport=fetch}={}){
         'User-Agent':'Kings-Invitation-Source-Read-Only'},
       signal:AbortSignal.timeout(15000)
     });
-    if(!response||response.ok!==true||response.status!==200)refuse();
+    if(!response||response.ok!==true||response.status!==200){
+      if([401,403,404].includes(response?.status))refuse('ACCESS_DENIED');
+      if(response?.status===429)refuse('RATE_LIMITED');
+      refuse('API_UNAVAILABLE');
+    }
     const raw=await response.text();
     if(raw.length>4*1024*1024)refuse();
     try{return JSON.parse(raw);}catch{refuse();}
@@ -155,9 +170,9 @@ async function readInvitationTracker({token,transport=fetch,
   centerReport=null,nowMs=Date.now()}={}){
   const {get}=createDiscordReader({token,transport});
   const forum=await get('/channels/'+FORUM);
-  if(forum?.id!==FORUM||forum?.guild_id!==GUILD||Number(forum?.type)!==15)refuse();
+  if(forum?.id!==FORUM||forum?.guild_id!==GUILD||Number(forum?.type)!==15)refuse('FORUM_MISMATCH');
   const active=await get('/guilds/'+GUILD+'/threads/active');
-  if(!Array.isArray(active?.threads))refuse();
+  if(!Array.isArray(active?.threads))refuse('ACTIVE_THREAD_LIST');
   const collected=new Map();
   for(const t of active.threads)if(String(t.parent_id)===FORUM)
     collected.set(String(t.id),t);
@@ -167,7 +182,7 @@ async function readInvitationTracker({token,transport=fetch,
       (before?'&before='+encodeURIComponent(before):'');
     const response=await get(query);
     if(!Array.isArray(response?.threads)||
-      typeof response.has_more!=='boolean')refuse();
+      typeof response.has_more!=='boolean')refuse('ARCHIVE_PAGE_INCOMPLETE');
     for(const t of response.threads){
       if(String(t.parent_id)!==FORUM)refuse();
       collected.set(String(t.id),t);
@@ -176,10 +191,10 @@ async function readInvitationTracker({token,transport=fetch,
     if(!response.has_more){complete=true;break;}
     const last=response.threads.at(-1);
     const next=last?.thread_metadata?.archive_timestamp;
-    if(typeof next!=='string'||next===before)refuse();
+    if(typeof next!=='string'||next===before)refuse('ARCHIVE_PAGE_INCOMPLETE');
     before=next;
   }
-  if(!complete)refuse(); // never silently treat partially read archive as complete
+  if(!complete)refuse('ARCHIVE_PAGE_INCOMPLETE'); // never silently treat partially read archive as complete
   const messagesByThread=new Map();
   for(const t of collected.values()){
     if(/^\s*\[?test\]?(?:\s|[-_:])/i.test(t.name||'')||
@@ -189,15 +204,15 @@ async function readInvitationTracker({token,transport=fetch,
       const route='/channels/'+t.id+'/messages?limit=100'+
         (beforeId?'&before='+encodeURIComponent(beforeId):'');
       const messages=await get(route);
-      if(!Array.isArray(messages)||messages.length>100)refuse();
+      if(!Array.isArray(messages)||messages.length>100)refuse('MESSAGE_PAGE_INCOMPLETE');
       all=all.concat(messages);
       if(all.length>MAX_MESSAGES)refuse();
       if(messages.length<100){done=true;break;}
       const next=messages.at(-1)?.id;
-      if(!ID.test(String(next||''))||next===beforeId)refuse();
+      if(!ID.test(String(next||''))||next===beforeId)refuse('MESSAGE_PAGE_INCOMPLETE');
       beforeId=next;
     }
-    if(!done)refuse();
+    if(!done)refuse('MESSAGE_PAGE_INCOMPLETE');
     messagesByThread.set(String(t.id),all);
   }
   return summarizeTracker({forum,threads:[...collected.values()],
