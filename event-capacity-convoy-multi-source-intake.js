@@ -43,7 +43,10 @@ function reconcileKingsMultiSourceConvoys({
       typeof reviewSecret!=='string'||Buffer.byteLength(reviewSecret,'utf8')<32||
       Buffer.byteLength(reviewSecret,'utf8')>4096)fail();
     const start=month(firstMonth),end=month(finalMonth);
-    if(start>end||end>new Date(nowMs).toISOString().slice(0,7))fail();
+    const last=new Date(start+'-01T00:00:00.000Z');
+    last.setUTCMonth(last.getUTCMonth()+23);
+    if(start>end||end!==last.toISOString().slice(0,7)||
+      end>new Date(nowMs).toISOString().slice(0,7))fail();
     const channels=new Map(),issues=new Map();
     function issue(reason,ref,level='Review'){
       const key=opaque(reviewSecret,guildId,reason,ref);
