@@ -6,7 +6,8 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const newModules=[
   'event-capacity-private-runtime-grant-policy',
-  'event-capacity-offline-synthetic-recovery-drill'
+  'event-capacity-offline-synthetic-recovery-drill',
+  'event-capacity-historical-24month-readiness'
 ];
 test('New credential policy and synthetic restoration cannot activate live Convoy Checker',()=>{
   const live=fs.readFileSync(path.join(root,
