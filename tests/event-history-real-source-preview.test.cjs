@@ -29,7 +29,12 @@ function runWithPrivateFixtures(fail=false){
           utcHistoryWindowMonths:24,futureWindowMonths:12,
           freeSlotsCertified:false,original24MonthArchiveVerified:false,
           individualHistoricalDecisionsVerified:false,eventInvitationSourceLinked:false,
-          bookingsCreated:0,
+          historyMonthsCenterOnly:1,historyMonthsLegacyOnly:1,
+          historyMonthsBothSources:0,historyMonthsWithSourceClaims:2,
+          historyMonthsWithoutSourceClaims:22,
+          pastCenterOutcomeUnresolved:0,datedCenterClaims:1,
+          datedFrozenLegacyClaims:1,legacyClaimsNeedingOriginalEvidence:1,
+          futureDatedLegacyHoldReview:0,bookingsCreated:0,
           privateMarker
         })
       };
