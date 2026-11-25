@@ -137,7 +137,7 @@ test('No usable UTC departure never invents a date or a free day',()=>{
   const r=project(f);
   assert.equal(r.centerClaimsWithoutUsableUtcDate,1);
   assert.equal(r.centerClaimsInVisibleMonths,0);
-  assert.match(calendarLines(r),/Undated source claims 1/);
+  assert.match(calendarLines(r),/Current Center undated 1/);
 });
 test('Contradictory inventory and wrong scope fail safely before producing a calendar',()=>{
   const f=fixture();f.overview.registeredConvoys[0].eventId='wrong';
@@ -188,4 +188,62 @@ test('This producer is read-only and not imported by the existing live Checker',
   assert.equal(checker.includes('event-capacity-live-calendar-summary'),false);
   assert.doesNotMatch(code,/fetch\(|process\.env|DISCORD_BOT_TOKEN|\.writeFileSync\(/);
   assert.equal(project(fixture()).liveDiscordCallsMade,0);
+});
+
+test('Actual-history-shaped backlog of 114 undated legacy rows is visible, never free',()=>{
+  const f=fixture([thread(1)]);
+  const historical=Array.from({length:114},(_,i)=>({
+    source:'legacy-calendar',eventId:'historical-example-'+i,
+    sourceThreadId:'66666666666666'+String(i).padStart(4,'0'),
+    status:'Legacy Past',departureAtUtc:null
+  }));
+  f.overview.registeredConvoys.push(...historical);
+  f.overview.overall.legacyImportedConvoys=115;
+  f.overview.overall.legacyDuplicatesSuppressed=1;
+  const r=project(f);
+  assert.equal(r.legacyClaimsTotal,114);
+  assert.equal(r.legacyClaimsWithoutUsableUtcDate,114);
+  assert.equal(r.legacyClaimsOutsideWindow,0);
+  assert.equal(r.legacyClaimsInVisibleMonths,0);
+  assert.equal(r.centerClaimsInVisibleMonths,1);
+  assert.equal(r.months[0].sourceClaimedEvents,1);
+  assert.equal(r.months[0].legacyClaimsKeptSeparate,0);
+  assert.equal(r.freeSlotsCertified,false);
+  const summary=calendarLines(r);
+  assert.match(summary,/Legacy history separately: 114 claims, 114 without UTC departure/);
+  assert.match(summary,/No legacy claims treated as free slots/);
+  assert.ok(!summary.includes('historical-example-'));
+  assert.ok(summary.length<2000);
+});
+test('Legacy dates inside and outside 12-month calendar reconcile exactly',()=>{
+  const f=fixture([thread(1)]);
+  f.overview.registeredConvoys.push(
+    {source:'legacy-calendar',eventId:'legacy-inside',
+      sourceThreadId:'666666666666660001',
+      status:'Scheduled',departureAtUtc:'2027-03-22T15:00:00Z'},
+    {source:'legacy-calendar',eventId:'legacy-outside',
+      sourceThreadId:'666666666666660002',
+      status:'Legacy Past',departureAtUtc:'2026-12-01T15:00:00Z'},
+    {source:'legacy-calendar',eventId:'legacy-unknown',
+      sourceThreadId:'666666666666660003',
+      status:'Legacy Past',departureAtUtc:null}
+  );
+  f.overview.overall.legacyImportedConvoys=3;
+  const r=project(f);
+  assert.equal(r.legacyClaimsTotal,3);
+  assert.equal(r.legacyClaimsWithoutUsableUtcDate,1);
+  assert.equal(r.legacyClaimsOutsideWindow,1);
+  assert.equal(r.legacyClaimsInVisibleMonths,1);
+  assert.equal(r.months[0].legacyClaimsKeptSeparate,1);
+  assert.equal(r.months[0].sourceClaimedEvents,1);
+  assert.equal(r.freeSlotsCertified,false);
+});
+test('A forged omission of undated historical claims is rejected before private display',()=>{
+  const r=project(fixture());
+  for(const forged of [
+    {...r,legacyClaimsTotal:1},
+    {...r,legacyClaimsWithoutUsableUtcDate:1},
+    {...r,legacyClaimsInVisibleMonths:1},
+    {...r,legacyClaimsOutsideWindow:1}
+  ])assert.throws(()=>calendarLines(forged));
 });
