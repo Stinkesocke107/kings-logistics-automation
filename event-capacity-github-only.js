@@ -201,11 +201,12 @@ function messageFor({sourceAvailable=false,nowMs=Date.now(),
       'No current verified Convoy Center report was available.\n')+
     (calendarText===null?lines.join('\n'):calendarText)+'\n'+
     evidenceLine+
-    'Planning guide: Mon–Thu max '+POLICY.weekdayCombinedMax+
-      ', Fri–Sun max '+POLICY.weekendCombinedMax+
-      '; Partner '+POLICY.partnerDailyMax+
-      ' and External '+POLICY.externalDailyMax+
-      ' each/day; Kings quota exempt. No approved monthly cap.\n'+
+    'Planning guide: max '+POLICY.dailyTotalMax+
+      ' total Convoys every UTC day (Kings included); Partner '+
+      POLICY.partnerMonthlyMax+'/month; External '+
+      POLICY.externalMonthlyMax+
+      '/month; Kings unlimited/month. No week cap.\n'+
+      'Priority for NEW unconfirmed requests: Kings > Partner > External; no auto-cancel.\n'+
     '**No free slots are confirmed by this preview.** No events or approvals are changed.';
   if(message.length>2000)fail();
   return message;
