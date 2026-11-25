@@ -110,20 +110,32 @@ function crosscheckKingsHistoricalEvidenceClaims({
       if(r.kind==='legacy')perMonth.get(r.month).legacyClaims++;
       if(r.kind==='legacy')issue('legacy-source-needs-independent-review',r.ref,r.month);
       if(r.kind==='deleted')issue('deleted-source-needs-original-evidence',r.ref,r.month);
+      if(r.kind==='archived')issue('archived-source-needs-original-evidence',r.ref,r.month);
       if(r.status==='Unknown')issue('source-status-unknown',r.ref,r.month);
     }
-    const lifecycleByRef=new Map();
+    const lifecycleByRef=new Map(),inWindowLifecycleByRef=new Map();
     for(const entry of journal.history){
       const p=entry.payload,ref=p.ref;
       if(!lifecycleByRef.has(ref))lifecycleByRef.set(ref,[]);
       lifecycleByRef.get(ref).push(p);
+      // An originally accepted event may later be rescheduled OUTSIDE the
+      // audit window. Its old in-window reservation must still be reviewed.
+      const transitionMonth=stamp(p.departureAtUtc).slice(0,7);
+      if(allowed.has(transitionMonth)&&!inWindowLifecycleByRef.has(ref))
+        inWindowLifecycleByRef.set(ref,transitionMonth);
     }
     const signed=new Map();
     for(const [ref,final] of Object.entries(journal.events)){
       const historicalMonth=stamp(final.departureAtUtc).slice(0,7);
       if(!allowed.has(historicalMonth)){
-        // Other-period archive records may exist, but this 24-month
-        // report never counts them toward review coverage.
+        // Never silently drop an event that occupied an in-window date
+        // before a later signed move. Original allocation disposition
+        // requires authorized human reconciliation.
+        const formerMonth=inWindowLifecycleByRef.get(ref);
+        if(formerMonth){
+          perMonth.get(formerMonth).signedJournalEvents++;
+          issue('signed-event-moved-outside-review-window',ref,formerMonth);
+        }
         continue;
       }
       signed.set(ref,final);
@@ -135,14 +147,12 @@ function crosscheckKingsHistoricalEvidenceClaims({
       const categoryMismatch=r.category!==final.category;
       const expected=final.status==='Accepted'?'Scheduled':final.status;
       const statusMismatch=r.status!==expected;
-      // Some sources render a previously accepted event as Rescheduled
-      // or vice versa. Treat only the documented compatible states as
-      // non-conflicting, never conflate completed and attendance.
-      const compatible=(expected==='Scheduled'&&r.status==='Rescheduled')||
-        (expected==='Rescheduled'&&r.status==='Scheduled');
+      // Do NOT silently equate Scheduled and Rescheduled. A move requires
+      // a distinct authorized signed transition, even when displayed
+      // source labels are ambiguous or dates currently match.
       if(dateMismatch)issue('source-departure-conflict',ref,historicalMonth);
       if(categoryMismatch)issue('source-category-conflict',ref,historicalMonth);
-      if(statusMismatch&&!compatible)issue('source-status-conflict',ref,historicalMonth);
+      if(statusMismatch)issue('source-status-conflict',ref,historicalMonth);
       const originalDigests=lifecycleByRef.get(ref)||[];
       for(const transition of originalDigests){
         if(!r.digests.has(transition.evidenceDigest))
