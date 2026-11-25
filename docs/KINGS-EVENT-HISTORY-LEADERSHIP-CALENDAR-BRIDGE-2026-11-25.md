@@ -29,3 +29,13 @@ The existing Discord message text remains under its current hard limit: when a b
 1. All source-only, privacy and Discord size regression tests pass.
 2. A real Kings Event Leadership Reports run generates the original report and includes the optional private calendar/history review line without increasing public logs.
 3. A later separately approved task must verify complete archived month-channel history, lifecycle approvals, and existing private Discord channel permissions before promoting a history source to fully complete or publishing detailed calendar pages.
+
+## Real-data, no-write verification on every relevant main push
+
+The Event Leadership `verify` workflow now also runs the same authoritative Convoy Center → TruckersMP synchronization → **read-only** finalization → Overview flow to exercise the new Event History / Calendar bridge against real data, before the already-existing encrypted-state migration step.
+
+- Both `DISCORD_WRITE_MODE` and `CONVOY_FINALIZE_WRITE_MODE` are set to `false`.
+- Logs of all four source producers are discarded locally and never sent to PUBLIC Actions logs or uploaded as artifacts.
+- The independent `event-history-real-source-preview.js` checks the real in-runner source and prints only `EVENT_HISTORY_CALENDAR_SOURCE_RECONCILED` or `SOURCE_UNVERIFIED` and a fixed warning that 24-month original history is incomplete.
+- Failure is a visible `continue-on-error` warning, **not** a silent success or a reason to stop existing Event Leadership state migration.
+- This verification does not trigger a Staff-only Discord publication itself. Existing Event Leadership daily/weekly/monthly publication remains on its pre-existing schedule.
