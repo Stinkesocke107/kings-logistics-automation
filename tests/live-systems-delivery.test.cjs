@@ -71,7 +71,7 @@ test('failed fallback proof cannot be green and never persists arbitrary display
   })+")");
   assert.equal(proof.mode,'fallback-incomplete');
   assert.equal(proof.allDisplaysVerified,false);
-  assert.deepEqual(proof.displaysVerified,['Live Tracker','Advanced Statistics']);
+  assert.equal(proof.displaysVerified.join('|'),'Live Tracker|Advanced Statistics');
   const saved=s.files.get('data/live-systems-delivery.json');
   assert.doesNotMatch(saved,/privateUser|secretTokenUser|messageId|12345/);
 });
