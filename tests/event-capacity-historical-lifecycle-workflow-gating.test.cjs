@@ -160,3 +160,35 @@ test('Historical review task proposals never auto-create Staff tasks in producti
   assert.match(proposals,/freeSlotsCertified:false/);
   assert.doesNotMatch(proposals,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
 });
+
+test('Authenticated historical read gateway, offline owner receipt audit and Workboard bundle stay disabled',()=>{
+  const live=fs.readFileSync(path.join(root,
+    'scripts/event-capacity-github-actions.js'),'utf8');
+  const workflow=fs.readFileSync(path.join(root,
+    '.github/workflows/convoy-checker.yml'),'utf8');
+  const sources=[
+    'event-capacity-historical-authenticated-crosscheck',
+    'event-capacity-historical-owner-receipt-audit',
+    'event-capacity-historical-review-workboard-bundle'
+  ];
+  for(const name of sources){
+    const source=fs.readFileSync(path.join(root,name+'.js'),'utf8');
+    assert.equal(live.includes(name),false);
+    assert.equal(workflow.includes(name),false);
+    assert.match(source,/freeSlotsCertified:false/);
+    assert.doesNotMatch(source,/DISCORD_BOT_TOKEN|discord\.com|process\.env/);
+    assert.doesNotMatch(source,/method:'(?:PUT|POST|PATCH|DELETE)'/);
+  }
+  const gateway=fs.readFileSync(path.join(root,sources[0]+'.js'),'utf8');
+  assert.match(gateway,/createAuthenticatedKingsSource/);
+  assert.match(gateway,/createPrivateHistoricalArchiveReader/);
+  assert.match(gateway,/sourceAuthenticationEstablishedByThisComposer:false/);
+  assert.match(gateway,/independentLatestOwnerHighwaterVerified:false/);
+  const receipts=fs.readFileSync(path.join(root,sources[1]+'.js'),'utf8');
+  assert.match(receipts,/externalOwnerReceiptCustodyAuthenticated:false/);
+  assert.match(receipts,/latestIndependentOwnerHighwaterVerified:false/);
+  const bundle=fs.readFileSync(path.join(root,sources[2]+'.js'),'utf8');
+  assert.match(bundle,/staffTasksCreated:0/);
+  assert.match(bundle,/commandsReadyToExecute:false/);
+  assert.match(bundle,/isDeepStrictEqual\(before,after\)/);
+});
