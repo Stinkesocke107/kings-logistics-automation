@@ -92,7 +92,7 @@ function summarizeKingsCapacityPrivateSafety({
         h.latestOwnerHighwaterIndependentlyVerified!==false||
         h.cancellationsNeverAutoRelease!==true||
         h.previousDatesNeverAutoReleaseAfterReschedule!==true||
-        !/^20\\d{2}-(?:0[1-9]|1[0-2])$/.test(h.month)||
+        !/^20\d{2}-(?:0[1-9]|1[0-2])$/.test(h.month)||
         !plain(h.provisionalCounts)||!bounded(h.provisionalCounts.totalProvisionalDailyHolds)||
         !bounded(h.provisionalCounts.daysExceedingDailyLimit))fail();
       historicalProvisionalHolds=Object.freeze({
