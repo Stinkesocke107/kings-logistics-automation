@@ -87,7 +87,7 @@ function createOwnerPinnedVault({
     return verifyOwnerReceipt({receipt:ownerReceipt,scope:checked,
       publicKey:ownerPublicKey,nowMs:nowMs()}).checkpoint;
   }
-  async function guard({exact=false}={}){
+  async function guard({exact=true}={}){
     const minimum=pin();
     let remote;
     try{remote=checkpointOf(await witness.load({scope:checked}));}
@@ -96,8 +96,8 @@ function createOwnerPinnedVault({
     // repositories to a revision below a separately retained owner's proof.
     if(remote.revision<minimum.revision||
       remote.revision===minimum.revision&&remote.digest!==minimum.digest)fail();
-    // A new APPROVAL write is only allowed from the exact owner-pinned state;
-    // after one write the owner must sign and retain a new independent receipt.
+    // No read or approval may treat an unseen later revision as owner-verified.
+    // After one write the owner must sign/retain a NEW independent receipt.
     if(exact&&!isDeepStrictEqual(remote,minimum))fail();
     return remote;
   }
@@ -114,13 +114,13 @@ function createOwnerPinnedVault({
     const before=await guard({exact:true});
     let result;
     try{result=await vault.commitDecision(input);}catch{fail();}
-    const after=await guard();
+    const after=await guard({exact:false});
     if(after.revision!==before.revision+1||
       !isDeepStrictEqual(checkpointOf(result?.checkpoint),after))fail();
     // The caller MUST retain a newly signed receipt outside both GitHub
     // repositories before approving another write. No auto-signing in CI.
     return Object.freeze({...result,ownerReceiptUpdateRequired:true});
   }
-  return Object.freeze({guard,read,commitDecision});
+  return Object.freeze({verifyPinned:()=>guard(),read,commitDecision});
 }
 module.exports={issueOwnerReceipt,verifyOwnerReceipt,createOwnerPinnedVault};
