@@ -201,8 +201,19 @@ function buildMessage(overview) {
 
   const today = generatedAt.toISOString().slice(0, 10);
   const planning = overview.planning || {};
-  const monthWarnings = (planning.warnings || []).filter(w => String(w.period || '').slice(0, 7) === currentMonth);
-  const dailyWarnings = monthWarnings.filter(w => w.code === 'external-day-over-limit' || w.code === 'partner-day-over-limit');
+  const limits=planning.limits||{};
+  const capacitySourceChecked=planning.version===2 &&
+    planning.sourceClaimsOnly===true && planning.freeSlotsCertified===false &&
+    limits.dailyTotal===3 && limits.partnerMonthly===20 &&
+    limits.externalMonthly===20 && limits.kingsMonthly===null &&
+    limits.separationMinutes===120;
+  const monthWarnings = capacitySourceChecked
+    ? (planning.warnings || []).filter(w => String(w.period || '').slice(0, 7) === currentMonth)
+    : [];
+  const dailyWarnings = monthWarnings.filter(w => w.code === 'total-day-over-limit');
+  const todayClaims=planning.days?.[today]||{};
+  const todayTotal=Number.isSafeInteger(todayClaims.total)?todayClaims.total:
+    (todayClaims.external||0)+(todayClaims.partner||0)+(todayClaims.kings||0);
   const departureWarnings = monthWarnings.filter(w => w.code === 'departure-under-two-hours');
   const unresolvedTypes = (planning.unknownTypes || []).filter(x => String(x.date || '').slice(0, 7) === currentMonth);
   const unknownDeparture = (planning.missingDepartures || []).filter(x => String(x.date || '').slice(0, 7) === currentMonth);
@@ -236,12 +247,20 @@ function buildMessage(overview) {
     `🚛 **${month.countedConvoys}** Convoys  ·  🟢 **${month.scheduled}** Scheduled  ·  ✅ **${month.completed}** Completed  ·  ❌ **${month.cancelled}** Cancelled`,
     `⚠️ **${month.needsInformation}** Needs Info  ·  ⏳ **${month.readyForApproval}** Ready for Approval`,
     '',
-    '## 📈 Convoy Planning',
-    `🚛 External: **${overview.planning?.months?.[currentMonth]?.external ?? 0}/20** · 🤝 Partner: **${overview.planning?.months?.[currentMonth]?.partner ?? 0}** · 👑 Kings: **${overview.planning?.months?.[currentMonth]?.kings ?? 0}**`,
-    `📅 Today: External **${overview.planning?.days?.[today]?.external ?? 0}/2** · Partner **${overview.planning?.days?.[today]?.partner ?? 0}/3** · Kings **${overview.planning?.days?.[today]?.kings ?? 0}**`,
-    `⚠️ Planning alerts: **${monthWarnings.length}** · Daily limits: **${dailyWarnings.length}** · Departure conflicts: **${departureWarnings.length}**`,
+    '## 📈 Convoy Planning — UTC source claims only',
+    capacitySourceChecked
+      ? `🚛 External **${planning.months?.[currentMonth]?.external ?? 0}/20** · 🤝 Partner **${planning.months?.[currentMonth]?.partner ?? 0}/20** · 👑 Kings **${planning.months?.[currentMonth]?.kings ?? 0}** (no monthly cap)`
+      : '⚪ Capacity source not verified; no quotas or available slots certified.',
+    capacitySourceChecked
+      ? `📅 UTC Today **${todayTotal}/3 total** (Kings ${todayClaims.kings||0} · Partner ${todayClaims.partner||0} · External ${todayClaims.external||0})`
+      : null,
+    capacitySourceChecked
+      ? `⚠️ Planning alerts **${monthWarnings.length}** · Daily combined cap reviews **${dailyWarnings.length}** · <120m spacing warnings **${departureWarnings.length}**`
+      : null,
     `🔎 Unclassified: **${unresolvedTypes.length}** · Departure time missing: **${unknownDeparture.length}** · Read errors: **${overview.overall?.convoyReadErrors ?? 0}**`,
-    monthWarnings.length ? `⚠️ **Needs review:** ${monthWarnings.slice(0, 2).map(w => w.code === 'departure-under-two-hours' ? 'Departure <2h' : w.code === 'external-month-threshold' ? 'External '+w.threshold+'/20' : w.code.replace(/-/g, ' ')).join(' · ')}${monthWarnings.length > 2 ? ' · +' + (monthWarnings.length - 2) + ' more' : ''}` : '✅ No current-month planning alerts',
+    capacitySourceChecked && monthWarnings.length
+      ? `⚠️ **Needs Staff review:** ${monthWarnings.slice(0, 2).map(w => w.code === 'departure-under-two-hours' ? 'Spacing <120m (warning)' : w.code === 'external-month-threshold' || w.code === 'partner-month-threshold' ? (w.code.startsWith('partner')?'Partner ':'External ')+w.threshold+'/20' : w.code.replace(/-/g, ' ')).join(' · ')}${monthWarnings.length > 2 ? ' · +' + (monthWarnings.length - 2) + ' more' : ''}`
+      : 'ℹ️ Claims are not Staff approvals; no free capacity certified.',
     '',
     '## ⏭️ Next Convoy'
   ];
