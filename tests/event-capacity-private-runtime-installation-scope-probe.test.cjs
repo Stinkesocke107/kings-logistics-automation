@@ -1,7 +1,8 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {REPOS,createIsolatedInstallationScopeProbe}
+const {REPOS}=require('../event-capacity-private-runtime-grant-policy');
+const {createIsolatedInstallationScopeProbe}
   =require('../event-capacity-private-runtime-installation-scope-probe');
 const TOKEN='synthetic-ephemeral-installation-token-for-tests-only';
 function valid(role='history'){
