@@ -204,3 +204,17 @@ test('Fake missing-checklist flag cannot make a previously unreviewed month look
     ...r.historyMonths.slice(1)]}));
   assert.equal(render(r).data.flags,64);
 });
+
+test('Forged source-checklist completion status cannot replace unresolved review',()=>{
+  const r=audit(x=>{x.monthlyClaims=[monthClaim('2026-10',{
+    unresolvedReviewItems:2
+  })];});
+  const index=r.historyMonths.findIndex(x=>x.month==='2026-10');
+  const changed={...r.historyMonths[index],
+    reviewState:'CLAIMED COMPLETE — INDEPENDENT DISCORD PROOF MISSING'};
+  assert.throws(()=>render({...r,historyMonths:[
+    ...r.historyMonths.slice(0,index),changed,
+    ...r.historyMonths.slice(index+1)
+  ]}));
+  assert.equal(render(r).type,4);
+});
