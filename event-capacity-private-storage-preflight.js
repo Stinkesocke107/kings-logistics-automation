@@ -131,6 +131,15 @@ function createPrivateStoragePreflight({
         allChecksUsedGetOnly:true,
         credentialGrantIsolationIndependentlyVerified:false,
         branchProtectionRulesIndependentlyInspected:false,
+        // GitHub Free does not enforce protected branch/rulesets for
+        // PRIVATE repos. Absence of protection is not a preflight failure;
+        // it must be compensated with external highwater, manual approvals
+        // and separately held credentials instead of falsely claiming safety.
+        premiumPrivateBranchRulesAssumed:false,
+        githubFreePrivateRepositoryCompatible:true,
+        privateBranchProtectionMandatoryForPreflight:false,
+        independentOwnerHighwaterRequired:true,
+        separatedCredentialCustodyRequired:true,
         ownerOfflineKeyCustodyVerified:false,
         actualHistoricalDataStored:false,
         historicalCoverageCertified:false,
