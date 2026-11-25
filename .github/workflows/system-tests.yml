@@ -11,6 +11,11 @@ on:
         required: false
         type: boolean
         default: false
+      invitation_readonly_probe:
+        description: 'Manual GET-only private invitation source check (no messages, Event writes or approvals)'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
   actions: read
@@ -68,3 +73,19 @@ jobs:
           GITHUB_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
           KINGS_EVENT_CAPACITY_PREFLIGHT_ONLY: 'true'
         run: node event-capacity-github-live-preflight.js
+
+      # Manual opt-in only on reviewed main, NEVER on a PR, push or schedule.
+      # A dedicated private channel must be explicitly configured by owner.
+      # All output is fixed status strings; no message, user, Event or channel IDs.
+      - name: Kings Event Invitation authorized GET-only source inspection
+        if: >-
+          github.event_name == 'workflow_dispatch' &&
+          github.ref == 'refs/heads/main' &&
+          inputs.invitation_readonly_probe == true
+        env:
+          KINGS_INVITATION_READONLY_PROBE: 'true'
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID: ${{ secrets.KINGS_EVENT_INVITATION_SOURCE_CHANNEL_ID }}
+          KINGS_EVENT_INVITATION_STAFF_ROLE_IDS: ${{ vars.KINGS_EVENT_INVITATION_STAFF_ROLE_IDS }}
+          KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS: ${{ vars.KINGS_EVENT_INVITATION_ADMIN_ROLE_IDS }}
+        run: node scripts/event-invitation-readonly-probe.js
