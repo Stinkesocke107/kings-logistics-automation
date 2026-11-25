@@ -63,6 +63,9 @@ jobs:
 
       - name: Update Kings Live Tracker
         id: live_tracker
+        # A map/provider incident must not halt the whole Kings Live Systems
+        # pipeline before the independently verified fallback can publish.
+        continue-on-error: true
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -71,12 +74,12 @@ jobs:
           TRACKER_IDENTITY_SYNC_ENABLED: 'true'
         run: node tracker.js
 
-      # Keep the failed Tracker run visibly failed for monitoring. This
-      # step edits only existing Discord messages and never changes saved
-      # measurement data or invents offline users.
-      - name: Mark existing Live Tracker and Statistics messages unavailable
-        if: ${{ failure() && steps.live_tracker.outcome == 'failure' }}
-        continue-on-error: true
+      # A failed map scan uses an independent, real-time official TMP feed.
+      # It updates only the three existing Discord messages, with Kings online
+      # explicitly unavailable, without resetting their verified history.
+      # If even the stored Tracker message cannot be edited, fail the job.
+      - name: Continue Kings Live Systems without the live map
+        if: ${{ steps.live_tracker.outcome == 'failure' }}
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
@@ -84,14 +87,20 @@ jobs:
           # Official server totals and Kings VTC membership only. Neither
           # field claims to identify Kings Drivers currently in game.
           TRUCKERSMP_OFFICIAL_FEED_ENABLED: 'true'
-        run: node live-outage-notice.js
+        run: |
+          node live-outage-notice.js
+          echo "::warning::Live player data unavailable; Kings Live Tracker is operating in verified offline-map mode."
+          echo "### Kings Live Systems: operating without live player map" >> "$GITHUB_STEP_SUMMARY"
+          echo "Official VTC membership and global TruckersMP server totals are shown when verified. Kings-specific live player counts are unavailable, not zero. No historic live snapshot was overwritten." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Update Kings Advanced Statistics
+        if: ${{ steps.live_tracker.outcome == 'success' }}
         env:
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
         run: node statistics.js
 
       - name: Verify Tracker and Statistics use the same source generation
+        if: ${{ steps.live_tracker.outcome == 'success' }}
         run: |
           node - <<'NODE'
           const fs = require('node:fs');
@@ -104,6 +113,7 @@ jobs:
           NODE
 
       - name: Update Kings Central Overview
+        if: ${{ steps.live_tracker.outcome == 'success' }}
         env:
           CENTRAL_OVERVIEW_WEBHOOK_URL: ${{ secrets.CENTRAL_OVERVIEW_WEBHOOK_URL }}
         run: node central-overview.js
