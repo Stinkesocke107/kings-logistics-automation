@@ -9,6 +9,7 @@ const LABELS=Object.freeze({
   'historical-signed-event-not-in-current-source':'Review signed Event missing from current source',
   'current-accepted-event-without-signed-history':'Verify historical acceptance evidence',
   'current-source-cancelled-without-signed-cancellation':'Review unverified historical cancellation',
+  'current-source-completed-without-signed-completion':'Verify historical completion evidence',
   'signed-history-status-conflict':'Resolve conflicting historical Event status',
   'signed-history-category-conflict':'Resolve conflicting Event classification',
   'signed-history-departure-conflict':'Resolve conflicting UTC departure',
