@@ -198,6 +198,33 @@ test('existing encrypted Event state feeds existing Event and Management dashboa
   assert.match(JSON.stringify(stale),/private Invitation Tracker source missing, stale/);
   assert.doesNotMatch(JSON.stringify(stale),/invites \*\*3\*\*/);
 });
+test('Leadership keeps verified reply inventory but withholds unresolved Forum lifecycle status totals',()=>{
+  const {encryptEventState}=require('../event-leadership-state');
+  const {sandbox}=require('./sandbox.cjs');
+  const f=fixture();
+  f.forum.available_tags=[{id:tags[0],name:'Different Forum Tag'}];
+  const observation=summarizeTracker(f);
+  assert.equal(observation.tagSchemaVerified,false);
+  const state={
+    version:1,createdAt:new Date(NOW).toISOString(),
+    updatedAt:new Date(NOW).toISOString(),lastSnapshot:null,
+    changeLog:[],publishedDailyKeys:[],publishedWeeklyKeys:[],
+    publishedMonthlyKeys:[],weeklyReports:[],monthlyReports:[],
+    invitationSourceObservation:observation
+  };
+  const sealed=encryptEventState(state,'x'.repeat(32));
+  const s=sandbox('leadership-dashboard.js',{files:{
+    'data/event-leadership-report-state.json':JSON.stringify(sealed)
+  }});
+  const event=s.run('buildEvent({eventReports:readPrivateEventReports()},'+NOW+')');
+  const invitation=event.fields.find(x=>x.name.includes('Invitation Tracker'));
+  assert.match(invitation.value,/documented unique VTC invites \\*\\*3\\*\\*/);
+  assert.match(invitation.value,/Forum lifecycle tag names UNVERIFIED/);
+  assert.doesNotMatch(invitation.value,/ongoing \\*\\*0\\*\\*/);
+  const operations=event.fields.find(x=>x.name.includes('Event Operations'));
+  assert.match(operations.value,/Forum lifecycle tags UNVERIFIED/);
+  assert.doesNotMatch(JSON.stringify(event),/First VTC|Different Forum Tag/);
+});
 test('only existing GET-only source and encrypted reporting are wired; no invitation sender or booking engine',()=>{
   const fs=require('node:fs');
   const path=require('node:path');
