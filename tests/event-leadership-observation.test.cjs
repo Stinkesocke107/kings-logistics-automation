@@ -50,6 +50,38 @@ test('reconciled read-only observation joins #14 History and #16 Calendar withou
   for(const secret of ['SECRET','synthetic-private','777777777777777777',G,F,'2027-03-24'])
     assert.equal(output.includes(secret),false,'Private event information must stay in memory');
 });
+test('capacity observation exports aggregate UTC spacing conflicts and refuses an impossible source counter',()=>{
+  const f=fixture();
+  const extra={
+    eventId:'synthetic-private-gap',threadId:'777777777777777779',
+    name:'CONFIDENTIAL GAP EVENT',status:'Scheduled',ignored:false,
+    validation:{parsed:{eventType:'External Convoy',
+      departureAtUtc:'2027-03-24T19:00:00Z'}}
+  };
+  f.report.threads.push(extra);
+  f.report.summary.totalThreads=3;
+  f.report.summary.actualConvoys=3;
+  f.overview.registeredConvoys.splice(2,0,{
+    source:'convoy-center',threadId:extra.threadId,eventId:extra.eventId,
+    status:extra.status,departureAtUtc:extra.validation.parsed.departureAtUtc
+  });
+  f.overview.overall.realConvoySubmissions=3;
+  const observation=buildEventObservation(f.report,f.overview,NOW);
+  assert.equal(observation.futureDaysWithShortDepartureGap,1);
+  assert.equal(observation.futureDaysRequiringReview,1);
+  assert.equal(observation.futureDaysOverDailyLimit,0);
+  assert.equal(observation.futurePartnerMonthsOver20,0);
+  assert.equal(observation.futureExternalMonthsOver20,0);
+  assert.equal(trustedEventObservation(observation,NOW),observation);
+  for(const invalid of [
+    {futurePartnerMonthsOver20:13},
+    {futureExternalMonthsOver20:13},
+    {futureDaysWithShortDepartureGap:2},
+    {futureDaysOverDailyLimit:2}
+  ])assert.equal(trustedEventObservation({...observation,...invalid},NOW),null);
+  assert.ok(!JSON.stringify(observation).includes('CONFIDENTIAL'));
+  assert.ok(!JSON.stringify(observation).includes('synthetic-private-gap'));
+});
 test('unverified, stale and internally inconsistent Event source is unavailable, not zero',()=>{
   const f=fixture();
   const observation=buildEventObservation(f.report,f.overview,NOW);
@@ -58,6 +90,7 @@ test('unverified, stale and internally inconsistent Event source is unavailable,
     {sourceReconciled:false},{readOnly:false},{historyVerified:true},
     {staffApprovalsVerified:true},{freeSlotsCertified:true},
     {bookingsCreated:1},{historyMonthsWithoutClaims:23},
+    {futurePartnerMonthsOver20:13},{futureExternalMonthsOver20:13},
     {scheduled:1000},{historyCenterClaims:-1},
     {sourceCompiledAt:'2027-03-01T00:00:00Z'},
     {observedAt:'2027-04-01T00:00:00Z'}
