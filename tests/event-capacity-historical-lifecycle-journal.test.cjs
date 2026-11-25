@@ -139,7 +139,8 @@ test('Tampering history content, event summary, chain SHA, signature, or scope i
     j=>{j.scope.forumId='999999999999999999';},
     j=>{j.historicalCoverageCertified=true;},
     j=>{j.freeSlotsCertified=true;},
-    j=>{j.history[0].payload.extraApproval=true;}
+    j=>{j.history[0].payload.extraApproval=true;},
+    j=>{j.createdAt='2027-03-20T10:50:00.000Z';}
   ];
   for(const mutate of mutations){
     const clone=structuredClone(ok);
