@@ -35,7 +35,8 @@ const REASONS=new Set([
   'ledger-only-record-review',
   'unknown-event-identity',
   'unknown-source-status',
-  'source-entry-conflict'
+  'source-entry-conflict',
+  'legacy-duplicate-identity'
 ]);
 const PRIORITY={
   'source-entry-conflict':'Urgent',
@@ -111,10 +112,14 @@ function planHistoricalReview({
   const linked=new Set(existingTaskKeys);
   const report=source.report,overview=source.overview;
   const seen=new Map(),raw=[];
-  const add=(ref,reason,kind,day=null)=>{
+  const add=(ref,reason,kind,day=null,discriminator=null)=>{
     if(!REASONS.has(reason)||!['convoy-center','legacy','ledger'].includes(kind))
       fail();
-    const key=taskKey(sc,taskSecret,ref,reason);
+    // A source item without an Event/thread ID is still distinct from other
+    // unidentified items. Its HMAC fingerprint is a PRIVATE review key only.
+    const stable=ref||('unknown:'+crypto.createHmac('sha256',taskSecret)
+      .update(String(discriminator??'')).digest('hex'));
+    const key=taskKey(sc,taskSecret,stable,reason);
     if(seen.has(key))return;
     const possibleDay=day&&/^20\d{2}-\d{2}-\d{2}$/.test(day)?day:null;
     const task=Object.freeze({
@@ -126,12 +131,16 @@ function planHistoricalReview({
     seen.set(key,task);raw.push(task);
   };
   const currentRefs=new Set();
-  for(const item of report.threads){
+  for(const [index,item] of report.threads.entries()){
     if(!item||item.ignored||item.testThread||
       /^\s*\[?test\]?(?:\s|[-_:])/i.test(String(item.name||'')))continue;
     const ref=safeRef(item);
     const date=departure(item)?.slice(0,10)||null;
-    if(!ref){add(null,'unknown-event-identity','convoy-center',date);continue;}
+    if(!ref){
+      add(null,'unknown-event-identity','convoy-center',date,
+        JSON.stringify(item)+'|'+String(index));
+      continue;
+    }
     currentRefs.add(ref);
     const privateEntry=ledger.entries[ref]||null;
     const status=String(item.status||'');
@@ -185,15 +194,20 @@ function planHistoricalReview({
       add(ref,'historical-status-evidence-required','convoy-center',date);
   }
   let legacyCount=0;
-  for(const item of overview.registeredConvoys){
+  const legacyRefs=new Set();
+  for(const [index,item] of overview.registeredConvoys.entries()){
     if(item?.source!=='legacy-calendar')continue;
     legacyCount++;
     const ref=safeRef(item);
     const date=departure(item)?.slice(0,10)||null;
+    if(ref&&legacyRefs.has(ref))
+      add(ref,'legacy-duplicate-identity','legacy',date);
+    if(ref)legacyRefs.add(ref);
     // A source-only legacy row must be manually linked and its historical
     // acceptance/cancellation independently confirmed. A matching Event ID
     // does NOT auto-upgrade or remove this work.
-    add(ref,'legacy-record-unreconciled','legacy',date);
+    add(ref,'legacy-record-unreconciled','legacy',date,
+      JSON.stringify(item)+'|'+String(index));
   }
   for(const ref of Object.keys(ledger.entries)){
     if(!REF.test(ref))fail();
