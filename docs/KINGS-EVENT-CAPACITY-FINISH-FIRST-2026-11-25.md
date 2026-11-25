@@ -86,3 +86,10 @@ New tests: 9 recovery, 9 encrypted backup, 8 retention, plus an existing workflo
 
 The release **remains blocked** on actual separately permissioned private/offsite storage, confidential key provisioning, owner receipt custody, real source authenticity and historical completeness, live effective Discord-role verification, 24-month durable audit and 90-day backup/isolated restoration operations, privacy review, current-head full CI and **explicit CEO activation approval**. No changes to production Convoy Checker or `main`, no Discord actions, no manual `capacity_preview`.
 
+
+## Current PR readiness diagnostic (25 November 2026)
+
+GitHub's actual PR #143 API currently reports `mergeable:false` and `mergeable_state:dirty`, indicating that the draft branch does **not** merge cleanly with `main`. This is an explicit independent release blocker. **Do not override the base branch, force-push a blind merge, auto-resolve conflicting policy files or merge the PR while it is dirty.** Resolve each conflict with an individually reviewed diff that preserves existing main production Convoy Checker behavior and the complete draft's privacy gates, then run fresh full CI on the exact resolved HEAD.
+
+No pull-request-triggered workflow run was reported for the latest HEAD when checked. The 52/52 local focused tests are not a substitute for same-HEAD full repository CI, source history verification, a private-token/permitted-repo end-to-end test or CEO launch approval.
+
