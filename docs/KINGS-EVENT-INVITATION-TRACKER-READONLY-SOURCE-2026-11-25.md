@@ -52,3 +52,15 @@ The first genuine `invitation_source_verify` job returned `SOURCE_UNAVAILABLE`. 
 ### Narrowing an Access Denied source
 
 Live read-only production check returned `ACCESS_DENIED` on 25 November 2026. The diagnostic now differentiates *which GET endpoint* was denied: `ACCESS_DENIED_FORUM` (Forum metadata), `ACCESS_DENIED_ACTIVE` (Guild active threads), `ACCESS_DENIED_ARCHIVE` (archived forum threads), or `ACCESS_DENIED_MESSAGES` (individual thread replies). These are fixed codes without channel/thread IDs or raw API details. Resolving access remains a separate authorized Discord configuration action; no automation is permitted to grant itself additional roles or permissions.
+
+## 26 November 2026: partial tag-schema handling without guessing
+
+The owner-corrected Forum ID `1457797580703531143` is reachable, but the real source check returned `FORUM_TAGS_MISSING`: the Forum's **actual** tag names have not been authoritatively mapped to the planned `Invites Ongoing`, `Invites Done`, and `Convoy Completed` lifecycle states.
+
+A missing/mismatched status tag schema must **not** make all historic invitation reply content unavailable. The read-only reader now separates:
+
+- **Source scan completeness**: expected Guild and Forum, all visible active/archived threads, all message pages, identifiable original starter, full-pagination bounds. Any failure continues to be `SOURCE_UNAVAILABLE`; do not silently infer zero invitations.
+- **Invitation reply inventory**: only fully scanned replies matching the agreed exact VTC/TruckersMP/inviter shape, with per-convoy deduplication, missing links, malformed and response-label counters. Can be observed if tag schema differs; still an unverified source claim, not confirmed attendance or approval.
+- **Forum lifecycle classification**: a separate `tagSchemaVerified` flag is `false` until all **three exact unique** agreed tag names exist. The existing Leadership views must then visibly say **Forum lifecycle tags UNVERIFIED**, **withhold ongoing/done/completed totals**, and request human tag reconciliation. No tag synonyms, remapping, creation, or automatic approval is invented.
+
+The production proof keeps a **warning/failure** status `INVITATIONS_READABLE_TAG_SCHEMA_UNVERIFIED` (not green) if reply inventory was scanned but lifecycle tags could not be verified. Other errors retain their existing privacy-safe reason codes. The existing encrypted Event state can still hold only the allowlisted read-only aggregate; names, IDs and Discord message bodies remain private and are never written to the public repo or CI logs. Full Event Operations #18 remains human-controlled.
