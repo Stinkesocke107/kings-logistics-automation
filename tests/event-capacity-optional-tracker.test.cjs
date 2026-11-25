@@ -47,3 +47,13 @@ test('Map provider failure cannot turn optional tracker into a false capacity pr
   assert.equal(Object.isFrozen(projectOptionalTracker(valid,{nowMs:NOW})),true);
   assert.equal(Object.isFrozen(projectOptionalTracker(null,{nowMs:NOW})),true);
 });
+
+test('Throwing map provider getters and proxies cannot crash the map-free fallback',()=>{
+  const throwing=Object.defineProperty({ ...valid },'mapAvailable',{
+    enumerable:true,get(){throw new Error('UPSTREAM_PRIVATE_ERROR');}
+  });
+  const state=projectOptionalTracker(throwing,{nowMs:NOW});
+  assert.equal(state.mode,'WITHOUT_MAP');
+  const proxy=new Proxy({}, {getPrototypeOf(){throw new Error('PROVIDER_FAILED');}});
+  assert.equal(projectOptionalTracker(proxy,{nowMs:NOW}).mode,'WITHOUT_MAP');
+});
