@@ -26,3 +26,13 @@ The operational Convoy planning code already warned when monthly limits or depar
 Synthetic tests cover independent Partner/External monthly limits, daily combined cap, UTC day counting, 23:30-to-00:30 UTC boundary gaps, invalid/missing source, no free slots, encrypted aggregate safety, and read-only staff review. Offline CI checks are distinct from actual source freshness and production dashboard publication.
 
 This implementation cannot independently confirm original 24-month historical approval coverage, booked dates, true remaining slots, invitations accepted, or which individual Event Coordinators completed a task. The Event Leadership observation is normally refreshed through its existing non-preview source pipeline; stale or absent data remain unavailable until that happens.
+
+## Phase 2 — operational UTC warning alignment and actual read-only source proof
+
+The operational Convoy Checker and 12-month Calendar now attribute every under-120-minute departure warning crossing UTC midnight to the LATER departure UTC date. Previously the Convoy Checker used the earlier date while Calendar used the later date; now both agree. This does not modify approved events or change the durable warning deduplication key (which depends on the Event pair, not the date).
+
+The new event-capacity-real-source-preview.js verifies actual generated Convoy Checker and Overview files in memory through the same reconciled Calendar/History -> protected Event observation -> Event Operations human-review chain. Success prints only the fixed public-safe code CAPACITY_READ_ONLY_SOURCE_RECONCILED; failures print only SOURCE_UNVERIFIED. It never logs real Event dates, totals, VTC/Staff names, IDs, links or messages, and it does not save source output.
+
+The existing Event Leadership GitHub workflow now invokes this proof after its real Calendar/History preflight on push. It also offers a manual capacity-check option under Actions -> Kings Event Leadership Reports -> Run workflow on main. This separate job uses contents: read and runs only the existing GET-only Convoy source pipeline (all source stdout/stderr suppressed), then proof. It does not post Discord messages, migrate or commit private state, or approve/book events.
+
+A green check confirms source readability, current reconciliation and aggregate Staff review. It does NOT certify free capacity, original Staff approval, complete 24-month archives or RSVP attendance. Private Leadership observations still refresh on the existing Event Leadership reporting schedule; a manual capacity-check does not rewrite them.

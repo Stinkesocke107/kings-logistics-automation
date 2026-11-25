@@ -22,6 +22,19 @@ test('operational planning uses 3 total/day including Kings, 20/month External a
   assert.equal(result.historicalApprovalsVerified,false);
 });
 test('departure gap uses start time across types and midnight',()=>{const r=evaluate([entry(1,'Kings Convoy','2026-11-01','2026-11-01T23:30:00Z'),entry(2,'Partner Convoy','2026-11-02','2026-11-02T00:30:00Z'),entry(3,'External Convoy','2026-11-02','2026-11-02T03:00:00Z')]);assert.equal(r.warnings.filter(w=>w.code==='departure-under-two-hours').length,1);assert.equal(r.warnings.find(w=>w.code==='departure-under-two-hours').minutesApart,60);});
+test('operational and Calendar spacing warnings use LATER departure UTC day, including month crossover',()=>{
+  const r=evaluate([
+    entry('a','Kings Convoy','2027-03-31','2027-03-31T23:30:00Z'),
+    entry('b','Partner Convoy','2027-04-01','2027-04-01T00:30:00Z'),
+    entry('c','External Convoy','2027-04-01','2027-04-01T02:30:00Z')
+  ]);
+  const gaps=r.warnings.filter(w=>w.code==='departure-under-two-hours');
+  assert.equal(gaps.length,1);
+  assert.equal(gaps[0].period,'2027-04-01');
+  assert.equal(gaps[0].minutesApart,60);
+  assert.equal(r.freeSlotsCertified,false);
+  assert.equal(r.historicalApprovalsVerified,false);
+});
 test('unknown types and missing departure stay visible but never guessed',()=>{const r=evaluate([entry(1,'Legacy Calendar','2026-11-01',null),entry(2,'External Convoy','2026-11-01',null),entry(2,'External Convoy','2026-11-01',null)]);assert.equal(r.counted,1);assert.equal(r.unknownTypes.length,1);assert.equal(r.missingDepartures.length,1);});
 
 test('TruckersMP UTC wall-clock departure is not falsely marked missing', () => {
