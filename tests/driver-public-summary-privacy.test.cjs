@@ -111,6 +111,6 @@ test('Driver LOA updateSummary removes any legacy named tenure rankings rather t
   assert.equal(Object.hasOwn(next.tenure,'longestServing'),false);
   assert.equal(Object.hasOwn(next.tenure,'newestDrivers'),false);
   assert.equal(JSON.parse(saved).tenure.known,2);
-  assert.doesNotMatch(saved,/"(?:tmpId|username|joinDate|tenureDays|discordUserId)"\\s*:/);
+  assert.doesNotMatch(saved,/"(?:tmpId|username|joinDate|tenureDays|discordUserId)"\s*:/);
   assert.doesNotMatch(saved,/PrivateDriverOne|PrivateDriverTwo/);
 });
