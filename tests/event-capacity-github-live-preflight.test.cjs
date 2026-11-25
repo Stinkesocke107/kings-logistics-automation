@@ -21,7 +21,7 @@ const env=Object.freeze({
   GITHUB_TOKEN:TOKEN
 });
 function run(extra={}){
-  return {id:Number(RUN),name:'Kings Convoy Checker',
+  return {id:Number(RUN),name:'Kings Convoy Checker (live)',
     path:'.github/workflows/convoy-checker.yml',
     repository:{full_name:REPO},head_repository:{full_name:REPO},
     head_branch:'main',head_sha:SHA,
@@ -120,4 +120,20 @@ test('Read-only metadata probe is never a source for accepted event decisions',a
   assert.equal('capacity' in r,false);
   assert.equal('privateStaff' in r,false);
   assert.equal('eventIds' in r,false);
+});
+
+test('Dry-run display name cannot impersonate scheduled live Convoy Checker',async()=>{
+  const requestLog=[];
+  const transport=async(url,options)=>{
+    requestLog.push(url);
+    if(url===URL)return new Response(JSON.stringify({
+      total_count:1,workflow_runs:[
+        run({name:'Kings Convoy Checker (dry-run)'})
+      ]
+    }),{status:200});
+    throw Error('unnecessary fetch');
+  };
+  const result=await probeReadOnlyGithub({env,transport,nowMs:NOW});
+  assert.equal(result.state,'SCHEDULED_METADATA_UNVERIFIED');
+  assert.deepEqual(requestLog,[URL]);
 });
