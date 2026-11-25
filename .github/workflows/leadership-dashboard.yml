@@ -10,6 +10,7 @@ on:
       - 'leadership-dashboard.js'
       - 'event-leadership-observation.js'
       - 'event-invitation-tracker-source.js'
+      - 'event-operations-staff-triage.js'
       - 'event-leadership-state.js'
       - 'hr-driver-register-status.js'
       - 'leadership-message-sync.js'
@@ -51,6 +52,7 @@ jobs:
           node --check event-leadership-state.js
           node --check event-leadership-observation.js
           node --check event-invitation-tracker-source.js
+          node --check event-operations-staff-triage.js
           node --check hr-driver-register-status.js
 
       - name: Update one Leadership message per channel
