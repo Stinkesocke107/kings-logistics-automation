@@ -375,10 +375,10 @@ function checkOfficialTrackerSource(delivery,now=Date.now()){
     return Number.isFinite(ms)&&ms>0&&
       ms<=now+5*60000&&now-ms<=25*60000;
   };
-  const labels=['Live Tracker','Advanced Statistics','Central Overview'];
+  const mapLabels=['Live Tracker','Advanced Statistics','Central Overview'];
   const delivered=delivery?.allDisplaysVerified===true&&
     Array.isArray(delivery.displaysVerified)&&
-    labels.every(label=>delivery.displaysVerified.includes(label));
+    mapLabels.every(label=>delivery.displaysVerified.includes(label));
   if(autoMode&&delivery?.mode==='verified-live'){
     // Recovery canary is NOT sufficient: actual full Tracker, Statistics and
     // Overview must share one recent, proven generation before map is green.
