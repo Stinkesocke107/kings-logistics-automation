@@ -170,7 +170,9 @@ function readOnlyGet(transport,token){
         'BOT_MEMBER_UNAVAILABLE':'CONFIG_INVALID';
     try{
       const response=await transport(API+route,{
-        method:'GET',headers:{Authorization:'Bot '+token}
+        method:'GET',redirect:'error',
+        headers:{Authorization:'Bot '+token},
+        signal:AbortSignal.timeout(15000)
       });
       if(!response||!response.ok)reject(code);
       return await response.json();
@@ -273,7 +275,9 @@ async function ingest({state,secret,token,channelId,staffRoleIds,
   });
   let next=state,applied=0,ignored=0;
   for(const message of messages.reverse()){
-    if(message.author.bot)continue;
+    // A webhook message is not a human Staff command, even if its
+    // author shape or claimed role resembles an approved operator.
+    if(message.author.bot||message.webhook_id)continue;
     if(message.content==='')reject(); // MESSAGE_CONTENT intent not verified.
     const command=parseCommand(message.content);
     if(!command)continue;

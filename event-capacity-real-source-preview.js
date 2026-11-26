@@ -22,11 +22,30 @@ function inspectReal(nowMs=Date.now()){
   if(triage.eventSource!=='RECONCILED'||triage.readOnly!==true||
     triage.calendarAvailabilityCertified!==false||
     triage.staffDecisionsVerified!==false||triage.bookingsCreated!==0||
+    triage.review.eventTypeUnclassified!==observed.futureUnclassified||
+    triage.review.calendarDaysNeedingReview!==observed.futureDaysRequiringReview||
+    triage.review.daysOverThreeSourceClaims!==observed.futureDaysOverDailyLimit||
     triage.review.partnerMonthsOver20!==observed.futurePartnerMonthsOver20||
     triage.review.externalMonthsOver20!==observed.futureExternalMonthsOver20||
     triage.review.daysWithShortDepartureGap!==observed.futureDaysWithShortDepartureGap||
-    !Array.isArray(operationsWorklist(triage)))
+    triage.review.futureLegacyHoldReview!==observed.historyFutureLegacyHoldReview)
     throw Error('Kings Capacity Staff review source unverified');
+  // A real source warning must actually appear in the Staff's worklist.
+  // Comparing aggregate counters alone can conceal a disconnected triage.
+  const items=operationsWorklist(triage);
+  if(!Array.isArray(items))throw Error('Kings Capacity Staff worklist unverified');
+  const required=[
+    ['REVIEW_EVENT_TYPES',observed.futureUnclassified],
+    ['REVIEW_CALENDAR_DAYS',observed.futureDaysRequiringReview],
+    ['REVIEW_DAILY_CAP',observed.futureDaysOverDailyLimit],
+    ['REVIEW_PARTNER_MONTH_CAP',observed.futurePartnerMonthsOver20],
+    ['REVIEW_EXTERNAL_MONTH_CAP',observed.futureExternalMonthsOver20],
+    ['REVIEW_DEPARTURE_SPACING',observed.futureDaysWithShortDepartureGap],
+    ['REVIEW_FUTURE_LEGACY_HOLDS',observed.historyFutureLegacyHoldReview]
+  ];
+  if(required.some(([code,count])=>count>0&&!items.some(item=>
+    item.code===code&&item.count===count)))
+    throw Error('Kings Capacity Staff worklist warning missing');
   // Exactly the reviewed fixed status is returned; not any source count or
   // private record. No effect, no approval, no notification and no booking.
   return Object.freeze({

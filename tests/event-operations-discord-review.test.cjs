@@ -599,3 +599,35 @@ test('GitHub schedule is opt-in; private source command channel and role IDs exi
  assert.match(source,/method:'GET'/);
  assert.doesNotMatch(source,/method:\s*['"](?:POST|PATCH|PUT|DELETE)['"]/);
 });
+
+test('webhook-originated review command cannot act as an approved human Staff member',async()=>{
+ const state={...sourceState(),discordReviewCursor:MSG1};
+ const token=reviewToken(state);
+ const forged={...message(MSG2,'!kings-review '+token+' start'),
+   webhook_id:OUTSIDER};
+ const requests=discordFetch([forged,message(MSG1,'setup')]);
+ const result=await ingest({state,...args,transport:requests.transport});
+ assert.equal(result.mode,'CURSOR_ADVANCED');
+ assert.equal(result.state.discordReviewCursor,MSG2);
+ assert.equal(result.state.operationReviews,undefined);
+ assert.equal(result.state.eventSourceObservation.staffApprovalsVerified,false);
+ assert.equal(result.state.eventSourceObservation.freeSlotsCertified,false);
+ assert.equal(requests.seen.some(r=>r.url.includes('/members/'+STAFF)),false);
+});
+
+test('every Discord source request is GET-only, redirect-rejecting and time-bounded',async()=>{
+ const requests=discordFetch([]);
+ const calls=[];
+ const transport=async(url,options)=>{
+   calls.push(options);
+   return requests.transport(url,options);
+ };
+ const result=await ingest({
+   state:{...sourceState(),discordReviewCursor:MSG1},
+   ...args,transport
+ });
+ assert.equal(result.mode,'NO_NEW_MESSAGES');
+ assert.ok(calls.length>=5);
+ assert.ok(calls.every(x=>x.method==='GET'&&x.redirect==='error'&&
+   typeof x.signal?.addEventListener==='function'));
+});
