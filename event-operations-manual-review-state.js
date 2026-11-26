@@ -6,6 +6,7 @@ const crypto=require('node:crypto');
 const {observeOperations,operationsWorklist,WORK_LABELS}=
   require('./event-operations-staff-triage');
 const {trustedEventObservation}=require('./event-leadership-observation');
+const {trustedInvitationObservation}=require('./event-invitation-tracker-source');
 const {trustedReviewAgenda,CODES}=require('./event-history-review-agenda');
 const STATES=Object.freeze(['OPEN','IN_REVIEW','NEEDS_EVIDENCE','STAFF_CHECK_RECORDED']);
 const ACTIONS=Object.freeze({
@@ -151,11 +152,7 @@ function applyManualReview({state,scope,code,month=null,action,
   trustedRecords(arr);
   return Object.freeze({...state,operationReviews:arr,updatedAt:now});
 }
-function reviewSummary(state,nowMs=Date.now()){
-  let records;
-  try{records=trustedRecords(state?.operationReviews);}catch{
-    return Object.freeze({valid:false,lines:['Unavailable — protected Staff review journal is invalid.']});
-  }
+function currentReviewRows(state,nowMs){
   const operations=observeOperations({
     eventSourceObservation:state?.eventSourceObservation,
     invitationSourceObservation:state?.invitationSourceObservation,
@@ -171,6 +168,11 @@ function reviewSummary(state,nowMs=Date.now()){
     current.push(...history.reviewAgenda.map(row=>({
       scope:'history',code:row.code,month:row.utcMonth,count:row.count
     })));
+  return current;
+}
+function reviewRowsWithStatus(state,nowMs=Date.now()){
+  const records=trustedRecords(state?.operationReviews);
+  const current=currentReviewRows(state,nowMs);
   const live=current.map(row=>{
     const key=keyOf(row.scope,row.code,row.month);
     const recorded=records.find(x=>x.key===key);
@@ -183,21 +185,30 @@ function reviewSummary(state,nowMs=Date.now()){
     }
     return Object.freeze({...row,status});
   });
+  const order={NEEDS_EVIDENCE:0,RECHECK_REQUIRED:1,IN_REVIEW:2,
+    STAFF_CHECK_RECORDED:3,OPEN:4};
+  return Object.freeze({
+    records,
+    live:Object.freeze([...live].sort((a,b)=>order[a.status]-order[b.status])),
+    noLongerActive:records.filter(x=>!current.some(y=>
+      x.key===keyOf(y.scope,y.code,y.month))).length
+  });
+}
+function reviewSummary(state,nowMs=Date.now()){
+  let result;
+  try{result=reviewRowsWithStatus(state,nowMs);}catch{
+    return Object.freeze({valid:false,lines:['Unavailable — protected Staff review journal is invalid.']});
+  }
+  const {live,noLongerActive}=result;
   return Object.freeze({valid:true,active:live.length,
     inReview:live.filter(x=>x.status==='IN_REVIEW').length,
     needsEvidence:live.filter(x=>x.status==='NEEDS_EVIDENCE').length,
     staffChecksRecorded:live.filter(x=>x.status==='STAFF_CHECK_RECORDED').length,
     recheck:live.filter(x=>x.status==='RECHECK_REQUIRED').length,
-    noLongerActive:records.filter(x=>!current.some(y=>
-      x.key===keyOf(y.scope,y.code,y.month))).length,
-    // Show human-progress items first so an active monthly Staff review is
-    // not hidden behind untouched source categories. The source issue
-    // priority worklist itself is unaffected.
-    lines:[...live].sort((a,b)=>{
-      const order={NEEDS_EVIDENCE:0,RECHECK_REQUIRED:1,IN_REVIEW:2,
-        STAFF_CHECK_RECORDED:3,OPEN:4};
-      return order[a.status]-order[b.status];
-    }).slice(0,5).map(x=>x.status+' · '+
+    noLongerActive,
+    // Show human-progress items first so active checks never hide behind
+    // untouched source categories.
+    lines:live.slice(0,5).map(x=>x.status+' · '+
       (x.scope==='history'?(x.month||'Undated')+' · ':'')+
       (x.scope==='history'?CODES[x.code]:WORK_LABELS[x.code]))
   });
@@ -219,6 +230,64 @@ function renderReviewSummary(state,nowMs=Date.now()){
   if(msg.length>1024)fail();
   return msg;
 }
+
+// Opaque, short-lived review selector. Only a private Leadership field
+// contains the mapping from token to reviewed UTC month / reason. The public
+// workflow_dispatch input cannot disclose the category or historical month.
+const TOKEN=/^KR[a-f0-9]{24}$/;
+const TOKEN_DOMAIN='kings-event-operations-private-review-token-v1';
+function issueToken(state,row,secret,nowMs){
+  if(!row||typeof secret!=='string'||
+    Buffer.byteLength(secret,'utf8')<32||!Number.isSafeInteger(nowMs)||
+    nowMs<=0)fail();
+  keyOf(row.scope,row.code,row.month);
+  if(!(row.count===null||Number.isSafeInteger(row.count)&&row.count>=0))fail();
+  const event=trustedEventObservation(state?.eventSourceObservation,nowMs);
+  const invite=trustedInvitationObservation(state?.invitationSourceObservation,nowMs);
+  const stamp=[
+    event?.observedAt||'UNAVAILABLE',
+    invite?.observedAt||'UNAVAILABLE',
+    new Date(nowMs).toISOString().slice(0,10)
+  ];
+  const keyed=crypto.createHmac('sha256',secret).update(TOKEN_DOMAIN).digest();
+  return 'KR'+crypto.createHmac('sha256',keyed).update(
+    JSON.stringify([row.scope,row.code,row.month,row.count,stamp])).digest('hex').slice(0,24);
+}
+function resolvePrivateToken({state,token,secret,nowMs=Date.now()}={}){
+  if(typeof token!=='string'||!TOKEN.test(token))fail();
+  const rows=reviewRowsWithStatus(state,nowMs).live;
+  let found=null;
+  for(const row of rows){
+    const expected=issueToken(state,row,secret,nowMs);
+    if(crypto.timingSafeEqual(Buffer.from(expected),Buffer.from(token))){
+      if(found)fail();
+      found=row;
+    }
+  }
+  if(!found)fail(); // expired/unknown token or source changed: no writes.
+  return Object.freeze({scope:found.scope,code:found.code,
+    month:found.month,sourceStatus:found.status});
+}
+function renderPrivateReviewTokens(state,secret,nowMs=Date.now()){
+  try{
+    const rows=reviewRowsWithStatus(state,nowMs).live.slice(0,5);
+    if(!rows.length)return 'No source review issue selected. No Staff decisions verified.';
+    const lines=[
+      'Private review codes for Actions - Event Operations Manual Review.',
+      ...rows.map(row=>row.status+' - '+
+        (row.scope==='history'?(row.month||'Undated')+' - ':'')+
+        (row.scope==='history'?CODES[row.code]:WORK_LABELS[row.code])+
+        ' : '+issueToken(state,row,secret,nowMs)),
+      'Codes change when sources refresh or the UTC date changes. Staff checks are NOT Event approvals.'
+    ];
+    const text=lines.join('\n');
+    if(text.length>1024)fail();
+    return text;
+  }catch{
+    return 'Unavailable - private review code source or key is missing, stale or invalid.';
+  }
+}
 module.exports={STATES,ACTIONS,EVIDENCE,RECHECK_MS,MAX_RECORDS,
   keyOf,trustedRecords,hasAuthorizedActor,taskFromSources,
-  applyManualReview,reviewSummary,renderReviewSummary};
+  applyManualReview,reviewSummary,renderReviewSummary,
+  resolvePrivateToken,renderPrivateReviewTokens};
