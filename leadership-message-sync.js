@@ -28,7 +28,7 @@ async function api(token, pathname, options = {}, userAgent = 'Kings Logistics L
 
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+    throw new Error(`Discord API ${response.status} (${method} request failed)`);
   }
 
   if (!text) return null;
@@ -138,6 +138,35 @@ async function syncTextMessage({
   return { action, messageId: resolvedMessageId, duplicatesRemoved };
 }
 
+// A successful HTTP write does not by itself prove that the updated embed
+// can be read back. Compare public display structure without logging content.
+async function verifyEmbedDelivery({token,channelId,messageId,embed,userAgent}){
+  if(!/^[0-9]+$/.test(String(channelId||''))||
+     !/^[0-9]+$/.test(String(messageId||''))||
+     !embed||typeof embed!=='object')
+    throw Error('Leadership embed delivery not verified');
+  const message=await api(token,
+    `/channels/${channelId}/messages/${messageId}`,{},userAgent);
+  const actual=Array.isArray(message?.embeds)&&message.embeds.length===1?
+    message.embeds[0]:null;
+  const wanted=Array.isArray(embed.fields)?embed.fields:[];
+  const received=Array.isArray(actual?.fields)?actual.fields:[];
+  const fieldsMatch=wanted.length===received.length&&
+    wanted.every((field,index)=>{
+      const row=received[index];
+      return row&&String(row.name)===String(field.name)&&
+        String(row.value)===String(field.value)&&
+        Boolean(row.inline)===Boolean(field.inline);
+    });
+  if(!(actual&&fieldsMatch&&
+    String(actual.title||'')===String(embed.title||'')&&
+    String(actual.description||'')===String(embed.description||'')&&
+    String(actual?.footer?.text||'')===String(embed?.footer?.text||'')&&
+    (embed.color===undefined||actual.color===embed.color)))
+    throw Error('Leadership embed delivery not verified');
+  return true;
+}
+
 async function syncEmbedMessage({
   token,
   channelId,
@@ -145,7 +174,8 @@ async function syncEmbedMessage({
   embed,
   userAgent,
   messageId = null,
-  createWithoutDiscovery = false
+  createWithoutDiscovery = false,
+  verifyDelivery = false
 }) {
   if (consolidatedOnly()) return { action: 'suppressed', messageId: messageId || null, duplicatesRemoved: 0 };
   if (!token) throw new Error('Missing Discord bot token.');
@@ -153,6 +183,12 @@ async function syncEmbedMessage({
   if (!marker) throw new Error('Missing Leadership embed marker.');
 
   const body = { embeds: [embed], allowed_mentions: { parse: [] } };
+  const confirm=async result=>{
+    if(!verifyDelivery)return result;
+    await verifyEmbedDelivery({token,channelId,messageId:result.messageId,
+      embed,userAgent});
+    return {...result,deliveryVerified:true};
+  };
 
   if (messageId) {
     try {
@@ -162,7 +198,7 @@ async function syncEmbedMessage({
         { method: 'PATCH', body },
         userAgent
       );
-      return { action: 'updated', messageId: updated?.id || messageId, duplicatesRemoved: 0 };
+      return confirm({ action: 'updated', messageId: updated?.id || messageId, duplicatesRemoved: 0 });
     } catch (error) {
       if (!/Discord API (403|404)/.test(String(error?.message || ''))) throw error;
     }
@@ -175,7 +211,7 @@ async function syncEmbedMessage({
       { method: 'POST', body },
       userAgent
     );
-    return { action: 'created', messageId: created?.id || null, duplicatesRemoved: 0 };
+    return confirm({ action: 'created', messageId: created?.id || null, duplicatesRemoved: 0 });
   }
 
   const matches = await findBotMessages(
@@ -223,7 +259,7 @@ async function syncEmbedMessage({
     duplicatesRemoved += 1;
   }
 
-  return { action, messageId: resolvedMessageId, duplicatesRemoved };
+  return confirm({ action, messageId: resolvedMessageId, duplicatesRemoved });
 }
 
-module.exports = { syncTextMessage, syncEmbedMessage };
+module.exports = { syncTextMessage, syncEmbedMessage, verifyEmbedDelivery };
