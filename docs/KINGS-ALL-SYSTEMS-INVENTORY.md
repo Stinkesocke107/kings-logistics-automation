@@ -1,12 +1,12 @@
 # Kings Logistics — Vollständiges Systemverzeichnis (46 aktive Workflows)
 
-Stand: 26. November 2026. Dieses Dokument deckt **jede derzeit im Kings-GitHub-Repository vorhandene GitHub-Actions-YAML-Datei** ab. Die eigentlichen Skripte und Discord-Ausgaben hängen jeweils an diesen Workflows; ein Workflow kann mehrere zusammengehörige Schritte ausführen.
+Inventar-Stand: 26. November 2026. Die Abschlussprüfung (`node kings-system-open-work.js --summary`) erzeugt nun das aktuelle UTC-Berichtsdatum und 46 individuelle Nachweislisten. Dieses Dokument deckt **jede derzeit im Kings-GitHub-Repository vorhandene GitHub-Actions-YAML-Datei** ab. Die eigentlichen Skripte und Discord-Ausgaben hängen jeweils an diesen Workflows; ein Workflow kann mehrere zusammengehörige Schritte ausführen.
 
 > **Historischer Stand am 1. November 2026:** Der ungenutzte YouTube-Publisher `Kings Social Video News` wurde auf ausdrücklichen Wunsch des CEO entfernt. **42 aktive Workflows: 31 automatisch, 11 manuell/on-change.** Der historische Social-Publisher-Zustand (`data/social-news-state.json`) bleibt unverändert gespeichert. TruckersMP News, Changelog und der externe PostPing bleiben erhalten.
 
 > **Historischer Stand am 21. November 2026:** 44 registrierte Workflow-Dateien auf `main` (32 zeitgesteuert; 12 manuell oder bei Codeänderungen); die Fahrer-Registrierungsworkflows waren damals neu erfasst. Diese Zahl bleibt als historischer Vergleich erhalten.
 
-> **Aktueller Stand am 26. November 2026:** 46 registrierte Workflows (33 zeitgesteuert, 13 manuell oder bei Codeänderungen). Neu sind die **manuelle, zugriffsgesperrte** Statusverwaltung `event-operations-manual-review.yml` und der **standardmäßig deaktivierte** Discord-Prüfkommandolauf `event-operations-discord-review.yml` für Event Operations #18. Der Discord-Lauf ist erst nach privater Freigabe eines geschützten Kanals und der Event-Coordinator-Rollen einsatzbereit. Maßgeblich sind `.github/workflows/` und `kings-workflow-registry.js`.
+> **Aktueller Stand am 26. November 2026:** 46 registrierte Workflows (33 zeitgesteuert, 13 manuell oder bei Codeänderungen). Neu sind die **manuelle, zugriffsgesperrte** Statusverwaltung `event-operations-manual-review.yml` und der **ursprünglich standardmäßig deaktivierte** Discord-Prüfkommandolauf `event-operations-discord-review.yml` für Event Operations #18. Der Discord-Lauf wurde nach privater Freigabe eines geschützten Kanals und der Event-Coordinator-Rollen am 26. November 2026 nachweislich im Echtbetrieb getestet. Die abschließende Fach- und CEO-Abnahme ist weiterhin offen. Maßgeblich sind `.github/workflows/` und `kings-workflow-registry.js`.
 
 ## Neu: separate System- und Funktionsabnahme
 
@@ -59,7 +59,7 @@ Das bestehende 46-Workflow-Inventar zeigt **welche Komponenten vorhanden sind un
 | `convoy-announcement-verifier.yml` | Automatisch | 180 Min. (Warnung) |
 | `convoy-checker.yml` | Automatisch | 45 Min. (kritisch) |
 | `event-operations-manual-review.yml` | Nur manuell | Keine zeitgesteuerte Frist |
-| `event-operations-discord-review.yml` | Automatisch | Standardmäßig deaktiviert; 10 Min. Prüftakt nur nach privater Freigabe; keine Eventänderung |
+| `event-operations-discord-review.yml` | Automatisch | Im Echtbetrieb getestet, nur für freigegebene Rollen/Kanäle; 90 Min. Monitoring-Frischegrenze; keine automatische Eventfreigabe |
 | `legacy-convoy-import.yml` | Nur manuell | Keine zeitgesteuerte Frist |
 
 ### Drivers
