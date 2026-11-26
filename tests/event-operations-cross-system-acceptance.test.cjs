@@ -200,6 +200,8 @@ test('changed source evidence immediately causes RECHECK_REQUIRED without falsel
   assert.equal(reviewSummary(after,NOW).inReview,1);
   const changed=structuredClone(after);
   changed.eventSourceObservation.futureDaysOverDailyLimit=2;
+  changed.eventSourceObservation.futureDaysRequiringReview=2;
+  assert.ok(trustedEventObservation(changed.eventSourceObservation,NOW+60000));
   assert.equal(reviewSummary(changed,NOW+60000).recheck,1);
   assert.throws(()=>applyManualReview({
     state:changed,scope:'worklist',code:'REVIEW_DAILY_CAP',month:null,
