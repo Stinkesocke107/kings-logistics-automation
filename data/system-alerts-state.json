@@ -74,17 +74,6 @@
       },
       "firstAlertedAt": "2026-11-26T10:49:38.532Z"
     },
-    "workflow-overdue:event-operations-discord-review.yml": {
-      "severity": "warning",
-      "system": "Event Operations Discord Staff Review",
-      "message": "Event Operations Discord Staff Review has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-26T08:53:31Z",
-        "ageMinutes": 198,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-11-26T12:12:10.063Z"
-    },
     "convoy-completeness-stale": {
       "severity": "critical",
       "system": "Convoy Completeness",
@@ -95,24 +84,20 @@
       },
       "firstAlertedAt": "2026-11-26T18:28:48.647Z"
     },
-    "stale-data:data/driver-management-summary.json": {
-      "severity": "critical",
-      "system": "Driver Management data",
-      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
+    "workflow-schedule-late:driver-register-onboarding.yml": {
+      "severity": "warning",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding scheduled run started 624 minutes after its UTC slot.",
       "details": {
-        "updatedAt": "2026-11-26T15:08:56.790Z",
-        "ageMinutes": 199,
-        "maxAgeMinutes": 160
+        "status": "late",
+        "expectedAt": "2026-11-26T07:17:00.000Z",
+        "actualAt": "2026-11-26T17:41:35.000Z",
+        "delayMinutes": 624,
+        "graceMinutes": 120,
+        "runId": 45869866678
       },
-      "firstAlertedAt": "2026-11-26T18:28:48.647Z"
+      "firstAlertedAt": "2026-11-26T19:52:52.382Z"
     }
   },
-  "pending": {
-    "workflow-schedule-late:driver-register-onboarding.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-26T18:28:48.647Z",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding scheduled run started 624 minutes after its UTC slot."
-    }
-  }
+  "pending": {}
 }
