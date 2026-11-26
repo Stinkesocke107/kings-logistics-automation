@@ -90,6 +90,9 @@ test('HR Probation and Driver LOA use the same paginated fail-closed history rea
     assert.match(script,/&before=\$\{before\}/);
     assert.match(script,/if\(history\.bootstrap\)/);
     assert.match(script,/lastProcessedMessageId=history\.newestId/);
-    assert.doesNotMatch(script,/const messages = await discord\(`\/channels\/\$\{channel\.id\}\/messages\?limit=100`\)/);
+    // Other unrelated Discord message readers may legitimately use one page.
+    // Verify only that the protected command consumer selects the new reader.
+    const commandBody=script.slice(script.indexOf('async function processCommands('));
+    assert.match(commandBody,/const history=await readNewCommands\(/);
   }
 });
