@@ -8,6 +8,15 @@ Stand: 26. November 2026. Dieses Dokument deckt **jede derzeit im Kings-GitHub-R
 
 > **Aktueller Stand am 26. November 2026:** 46 registrierte Workflows (33 zeitgesteuert, 13 manuell oder bei Codeänderungen). Neu sind die **manuelle, zugriffsgesperrte** Statusverwaltung `event-operations-manual-review.yml` und der **standardmäßig deaktivierte** Discord-Prüfkommandolauf `event-operations-discord-review.yml` für Event Operations #18. Der Discord-Lauf ist erst nach privater Freigabe eines geschützten Kanals und der Event-Coordinator-Rollen einsatzbereit. Maßgeblich sind `.github/workflows/` und `kings-workflow-registry.js`.
 
+## Neu: separate System- und Funktionsabnahme
+
+Das bestehende 46-Workflow-Inventar zeigt **welche Komponenten vorhanden sind und laufen**. Ob ein **gesamtes System komplett fertig** ist, wird nun unabhängig davon anhand belegter Einzel-Funktionen, Integration, Live-Ergebnis, Schutz und expliziter Schlussfreigabe beurteilt:
+
+- [Kings System- und Funktionsabnahme](KINGS-SYSTEM-UND-FUNKTIONSABNAHME-2026-11-26.md)
+- Ausführbarer Nachweis: `kings-system-acceptance.js` (`node kings-system-acceptance.js`).
+- #18 Discord Staff Review wurde am 26.11.2026 real aktiviert und lieferte bestätigte verschlüsselte Staff-Statusänderungen. Das ist **nicht gleich vollständige Schlussabnahme**; seine ausstehenden Integrations- und Bediennachweise stehen in der neuen Liste.
+- Das gestrichene Event-Booking/Slot-Management #17 ist weiterhin ausgeschlossen. Keine neuen automatischen Event-Freigaben aus dieser Statusmatrix ableiten.
+
 ## Grundregeln
 
 - **46 erfasst**, davon **33 automatisch eingeplant** und **13 ohne eigenen Dauer-Zeitplan** (manuell/bei Änderungen). Kein derzeitiger Workflow bleibt außerhalb des Verzeichnisses.
