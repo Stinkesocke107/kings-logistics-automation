@@ -85,20 +85,34 @@
       },
       "firstAlertedAt": "2026-11-26T12:12:10.063Z"
     },
-    "workflow-schedule-missing:driver-register-onboarding.yml": {
-      "severity": "warning",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period.",
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "status": "missing",
-        "expectedAt": "2026-11-26T07:17:00.000Z",
-        "actualAt": null,
-        "delayMinutes": null,
-        "graceMinutes": 120,
-        "latestScheduledAt": "2026-11-25T17:56:36.000Z"
+        "ageMinutes": 162,
+        "latestCount": 39
       },
-      "firstAlertedAt": "2026-11-26T12:12:10.063Z"
+      "firstAlertedAt": "2026-11-26T18:28:48.647Z"
+    },
+    "stale-data:data/driver-management-summary.json": {
+      "severity": "critical",
+      "system": "Driver Management data",
+      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-26T15:08:56.790Z",
+        "ageMinutes": 199,
+        "maxAgeMinutes": 160
+      },
+      "firstAlertedAt": "2026-11-26T18:28:48.647Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-schedule-late:driver-register-onboarding.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-26T18:28:48.647Z",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding scheduled run started 624 minutes after its UTC slot."
+    }
+  }
 }
