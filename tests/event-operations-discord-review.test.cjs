@@ -237,7 +237,7 @@ test('VERIFY_ONLY checks real private Discord source access without reading comm
  };
  const result=await run(opts);
  assert.deepEqual(result,{
-   status:'SOURCE_PRIVACY_VERIFIED',changed:false,
+   status:'SOURCE_METADATA_CHECKED',changed:false,
    readOnlyDiscord:true,discordWrites:0
  });
  assert.equal(stateReads,0);
