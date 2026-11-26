@@ -385,6 +385,108 @@ const namedOperationalSystems=Object.freeze([
       'A production Discord update log does not independently establish content GET readback or successful later resolution',
       'Full real alert-to-recovery lifecycle and operator handover still require proof',
       'Four external map/freshness critical Core findings remain open; CEO final acceptance is not recorded'
+    ]},
+  {id:'CONVOY_CHECKER',name:'Convoy Checker — live Center and advisory overview',
+    workflow:'convoy-checker.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_center_source_pipeline',
+        'Real Convoy Center production run fetched and finalized current sources and generated complete source reports',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45909598171']),
+      item('real_calendar_and_discord_overview',
+        'Same-run read-only Event Calendar accepted source-claim projection and existing Convoy Overview message was updated in Discord',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45909598171']),
+      item('real_reapproval_and_source_conflicts',
+        'Actual modified Event, conflicting original record and omitted fields reach authorized Event Staff without automatic approval'),
+      item('concurrent_baseline_recovery',
+        'Earlier concurrent completeness-state Git conflict is reconciled and the saved baseline independently checked'),
+      item('convoy_team_handover',
+        'Event Coordinators validate full notification, change, error and recovery lifecycle')
+    ]),
+    blockers:[
+      'Real source pipeline and existing Discord overview ran, but no original Event approval or new conflict resolution is verified',
+      'An observed concurrent completeness baseline Git conflict was handled as a warning; recovery requires independent review',
+      'Operator and CEO final signoff are missing'
+    ]},
+  {id:'CONVOY_ANNOUNCEMENT_VERIFICATION',name:'Convoy Announcement Verification — public post audit',
+    workflow:'convoy-announcement-verifier.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_historical_post_readback',
+        'Production proof collector verified a historical actual public Convoy announcement message',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911305606']),
+      item('real_empty_window_verification',
+        'Latest run checked current source and reported no due in-window entries without manufacturing a new post',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911305606']),
+      item('new_announcement_lifecycle',
+        'A new eligible current Convoy announcement passes original source, publication and independent Discord readback'),
+      item('missing_duplicates_retry',
+        'Missing, stale, duplicate and retry announcement cases are accepted in real operations')
+    ]),
+    blockers:[
+      'Historical publication proof is not a newly due announcement',
+      'The latest source query had zero due in-window entries, so new-post and retry delivery are unproven',
+      'Team handover and CEO final approval are missing'
+    ]},
+  {id:'STAFF_LEADERSHIP_LIVE_OVERVIEW',name:'Staff Leadership Live Overview — current hierarchy display',
+    workflow:'staff-leadership-live-overview.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_current_role_overview_update',
+        'Production run updated the existing Staff hierarchy message from current role data while retaining message identity',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45908590431']),
+      item('real_safe_state_persistence',
+        'The same Staff overview run committed its message state through a successful protected safe push',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45908590431']),
+      item('actual_role_transition',
+        'A real authorized Staff promotion or departure is reconciled through role source, display and independent Discord readback'),
+      item('hierarchy_privacy_recovery',
+        'Staff leadership validates ordering, data privacy, failure recovery and operator handover')
+    ]),
+    blockers:[
+      'Successful hierarchy polling does not by itself prove a real promotion or departure lifecycle',
+      'Independent Discord readback after a new role change and team signoff remain open',
+      'CEO final approval is not recorded'
+    ]},
+  {id:'LEADERSHIP_DASHBOARD',name:'Leadership Dashboard — consolidated live Discord views',
+    workflow:'leadership-dashboard.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_consolidated_dashboard_update',
+        'Actual production updated the existing consolidated Leadership messages without creating extra replacements',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45909541123']),
+      item('real_encrypted_event_review_readback',
+        'Actual protected Event Staff review field matched current encrypted source after a live dashboard update and Discord GET readback',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45909541123']),
+      item('all_source_section_changes',
+        'Fresh actual Driver, HR, Staff, Event and Management changes each reach the correct protected view'),
+      item('all_dashboard_recovery',
+        'All five role and privacy boundaries, failure replay, message ownership and operator handover fully accepted')
+    ]),
+    blockers:[
+      'Current Event journal readback is proven; a newly authorized Staff command followed by an actual refresh remains unverified',
+      'The full source-by-source Driver/HR/Staff/Management live update matrix has not been accepted',
+      'CEO final approval is not recorded'
+    ]},
+  {id:'LEADERSHIP_DASHBOARD_VERIFICATION',name:'Leadership Dashboard Verification — direct read-only audit',
+    workflow:'leadership-dashboard-verification.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_five_content_contract_audit',
+        'Production read-only verification completed all five consolidated Leadership content contracts and mapped channels',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45909350372']),
+      item('real_event_driven_and_public_audit',
+        'Actual Discord source/content audit verified current report, changelog and technical-alert publications and did not falsely count untriggered Staff/milestone events',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45909350372']),
+      item('historical_legacy_coverage',
+        'Four historical no-longer-visible Legacy Leadership messages are resolved or explicitly retired with independently reviewed evidence'),
+      item('future_cross_source_readback',
+        'Every new actual protected dashboard change has correct Discord readback, retry, privacy and operator validation')
+    ]),
+    blockers:[
+      'Four original historical Legacy Leadership messages were NOT_VISIBLE in the production audit',
+      'One successful cross-channel read-only audit does not prove future real changes and recovery',
+      'Full Team and CEO final approval are missing'
     ]}
 
 ].map(x=>Object.freeze(x)));
