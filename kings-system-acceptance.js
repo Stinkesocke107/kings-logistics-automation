@@ -269,13 +269,14 @@ const namedOperationalSystems=Object.freeze([
       item('official_health_separation',
         'Read-only monitoring differentiates the verified map-free Tracker from full historical map-based Core status',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45905628464']),
-      item('monitor_post_deploy_live','The actual production System Monitor displays map-free official Tracker health correctly after rollout'),
+      item('monitor_post_deploy_live','Actual production monitoring artifact confirms the official map-free source verified and three displays delivered, while Core remains honestly UNHEALTHY',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45905733795']),
       item('recurring_feed_resilience','Repeated official-only scheduled refresh and safe failure recovery are verified in production'),
       item('operational_handover','Driver/Leadership operators review source limits, display accuracy and outage handling')
     ]),
     blockers:[
       'Map-free operation succeeded in one real production run; ongoing scheduled stability and operating handover remain to be accepted',
-      'The first live monitor refresh after the monitoring change must still be independently inspected',
+      'Independent historical map-only Statistics and Core readiness remain separately unresolved; these are not a prerequisite for truthful official-only Tracker operation',
       'CEO final signoff has not been issued; map-derived per-player status is intentionally out of scope and never fabricated'
     ]}
 ].map(x=>Object.freeze(x)));
