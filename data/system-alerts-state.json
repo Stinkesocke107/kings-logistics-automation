@@ -66,14 +66,21 @@
         "runId": 45670004198
       },
       "firstAlertedAt": "2026-11-25T20:08:53.927Z"
+    },
+    "workflow-no-runs:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-11-26T01:08:07.211Z"
     }
   },
   "pending": {
-    "workflow-no-runs:final-freeze-verification.yml": {
+    "workflow-failed:staff-leadership-live-overview.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-26T00:37:11.590Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has no workflow runs."
+      "firstSeenAt": "2026-11-26T01:08:07.211Z",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure."
     }
   }
 }
