@@ -66,7 +66,10 @@ function trustedRecords(records){
   if(!Array.isArray(records)||records.length>MAX_RECORDS)fail();
   const seen=new Set();
   for(const rec of records){
-    if(!rec||Array.isArray(rec)||typeof rec!=='object'||rec.version!==1||
+    if(!rec||Array.isArray(rec)||typeof rec!=='object'||
+      Object.keys(rec).sort().join(',')!==
+        'actor,audit,code,createdAt,evidenceKind,key,month,scope,sourceDigest,status,updatedAt,version'||
+      rec.version!==1||
       typeof rec.code!=='string'||typeof rec.scope!=='string'||
       !STATES.includes(rec.status)||!EVIDENCE.includes(rec.evidenceKind)||
       !validTime(rec.updatedAt)||!validTime(rec.createdAt)||
@@ -76,11 +79,17 @@ function trustedRecords(records){
       rec.audit.length<1||rec.audit.length>MAX_AUDIT||
       (rec.status==='STAFF_CHECK_RECORDED'&&rec.evidenceKind==='NONE'))
       fail();
+    if(rec.audit[rec.audit.length-1].status!==rec.status||
+      rec.audit[rec.audit.length-1].at!==rec.updatedAt||
+      rec.audit[rec.audit.length-1].actor!==rec.actor)
+      fail();
     const key=keyOf(rec.scope,rec.code,rec.month);
     if(rec.key!==key||seen.has(key))fail();
     seen.add(key);
     for(const step of rec.audit){
       if(!step||Array.isArray(step)||typeof step!=='object'||
+        Object.keys(step).sort().join(',')!==
+          'action,actor,at,evidenceKind,status'||
         !STATES.includes(step.status)||!ACTOR.test(step.actor)||
         !validTime(step.at)||!Object.hasOwn(ACTIONS,step.action)||
         ACTIONS[step.action]!==step.status||
