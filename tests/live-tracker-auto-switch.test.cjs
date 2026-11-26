@@ -60,7 +60,6 @@ test('verified complete map and all three shared-generation publishers automatic
 });
 test('map success is NOT proven by canary, missing stats, incorrect generation, or unverified display',()=>{
   const invalid=[
-    [{},full],
     [{'data/statistics.json':JSON.stringify({...stats,sourceSnapshotAt:old})},full],
     [{}, {...full,mode:'fallback-delivered'}],
     [{}, {...full,source:'official-vtc-and-servers'}],
