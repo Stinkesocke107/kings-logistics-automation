@@ -27,6 +27,17 @@ function validateState(state) {
   // Manual Staff review records are strictly allowlisted and never stored
   // in plaintext or accepted with arbitrary Event/Staff metadata.
   if(state.operationReviews!==undefined)trustedRecords(state.operationReviews);
+  // Discord-native #18 message replay cursor and denied-command count are
+  // encrypted-only metadata, never actual Event records or booked capacity.
+  if(state.discordReviewCursor!==undefined&&
+    state.discordReviewCursor!=='0'&&
+    !(typeof state.discordReviewCursor==='string'&&
+      /^\d{17,22}$/.test(state.discordReviewCursor)))
+    throw new Error('Event Operations Discord cursor unverified');
+  if(state.discordReviewIgnored!==undefined&&
+    (!Number.isSafeInteger(state.discordReviewIgnored)||
+      state.discordReviewIgnored<0||state.discordReviewIgnored>1000000))
+    throw new Error('Event Operations Discord review count unverified');
   return state;
 }
 

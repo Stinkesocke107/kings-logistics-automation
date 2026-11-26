@@ -153,6 +153,15 @@ const WORKFLOW_REGISTRY = Object.freeze(
       "severity": "warning"
     },
     {
+      "file": "event-operations-discord-review.yml",
+      "label": "Event Operations Discord Staff Review",
+      "mode": "scheduled",
+      "area": "Convoys",
+      "maxAgeMinutes": 90,
+      "severity": "warning",
+      "optionalUntilFirstRun": true
+    },
+    {
       "file": "event-operations-manual-review.yml",
       "label": "Event Operations Manual Staff Review",
       "mode": "manual",
