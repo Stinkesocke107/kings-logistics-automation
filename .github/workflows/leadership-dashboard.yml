@@ -14,6 +14,8 @@ on:
       - 'event-capacity-pilot-source.js'
       - 'event-invitation-tracker-source.js'
       - 'event-operations-staff-triage.js'
+      - 'event-operations-manual-review-state.js'
+      - 'data/event-leadership-report-state.json'
       - 'event-leadership-state.js'
       - 'hr-driver-register-status.js'
       - 'leadership-message-sync.js'
@@ -59,6 +61,7 @@ jobs:
           node --check event-capacity-pilot-source.js
           node --check event-invitation-tracker-source.js
           node --check event-operations-staff-triage.js
+          node --check event-operations-manual-review-state.js
           node --check hr-driver-register-status.js
 
       - name: Update one Leadership message per channel
