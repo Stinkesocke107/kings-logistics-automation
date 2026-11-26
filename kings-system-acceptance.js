@@ -150,6 +150,9 @@ const namedEventSystems=Object.freeze([
       item('scheduler_recovery_guard',
         'Owner-enabled overdue Discord poll recovery has offline gating and cooldown tests',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45901478091']),
+      item('scheduler_live_recovery',
+        'Central Scheduler actually recovered a delayed Discord Staff poll; idle poll made no protected state write',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45901564388',EVIDENCE_ROOT+'actions/runs/45901614835']),
       item('refresh_after_new_review','Live dashboard refresh triggered by a later real Staff change'),
       item('cross_system_review','Full live review flow across #12, #14, #15 and #16'),
       item('operator_handover','Event Team confirms understandable handling and error recovery')
