@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const {readNewCommands}=require('./discord-command-cursor');
+const {authorizedHrApprover}=require('./hr-driver-decision-source');
+const STAFF_ID=/^\\d{17,20}$/;
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
@@ -180,7 +182,8 @@ async function discord(pathname, options = {}) {
 
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+    // Never expose private Discord API response bodies or HR command text in CI.
+    throw new Error(`Kings HR Discord request failed (HTTP ${response.status}, ${method}).`);
   }
 
   if (!text) return null;
@@ -391,6 +394,37 @@ async function handleList(channel, hrState) {
   await post(channel.id, ['📋 **Probation Reviews**', '', ...lines].join('\n'));
 }
 
+// Reuse the existing HR admission authority contract for internal Probation
+// review commands. Permission to view/post in a channel alone is not
+// authority to complete or extend a person's protected HR review.
+async function authorizedHrCommandActors(messages){
+  const actors=[...new Set(messages.filter(message=>
+    !message.author?.bot&&!message.webhook_id&&!message.edited_timestamp&&
+    /^!probation(?:\\s|$)/i.test(String(message.content||'').trim())&&
+    STAFF_ID.test(String(message.author?.id||''))
+  ).map(message=>String(message.author.id)))];
+  if(!actors.length)return new Map();
+  if(actors.length>30)
+    throw Error('Kings HR Probation authorized command author batch too large');
+  const [guild,roles]=await Promise.all([
+    discord(`/guilds/${DISCORD_GUILD_ID}`),
+    discord(`/guilds/${DISCORD_GUILD_ID}/roles`)
+  ]);
+  if(String(guild?.id||'')!==DISCORD_GUILD_ID||
+    !STAFF_ID.test(String(guild?.owner_id||''))||
+    !Array.isArray(roles)||!roles.length)
+    throw Error('Kings HR Probation staff authority source unverified');
+  const authorized=new Map();
+  for(const actor of actors){
+    // Fetch the actual Discord membership, never trust a forged message
+    // author role list, role name, or Discord display name from its content.
+    const member=await discord(`/guilds/${DISCORD_GUILD_ID}/members/${actor}`);
+    authorized.set(actor,authorizedHrApprover(
+      actor,[member],roles,guild.owner_id));
+  }
+  return authorized;
+}
+
 async function processCommands(channel, driverState, hrState) {
   const history=await readNewCommands({
     channelId:String(channel.id),cursor:hrState.lastProcessedMessageId,
@@ -404,12 +438,17 @@ async function processCommands(channel, driverState, hrState) {
     return 0;
   }
   const fresh=history.messages;
+  // Missing/invalid authorization blocks processing before any protected
+  // probation status or cursor is written. Untrusted authors are ignored.
+  const actorAllowed=await authorizedHrCommandActors(fresh);
 
   let processed = 0;
   for (const message of fresh) {
-    if (message.author?.bot || message.webhook_id) continue;
-    const content = String(message.content || '').trim();
-    if (!content.toLowerCase().startsWith('!probation')) continue;
+    if (message.author?.bot||message.webhook_id||
+      message.edited_timestamp)continue;
+    const content=String(message.content||'').trim();
+    if(!/^!probation(?:\\s|$)/i.test(content))continue;
+    if(actorAllowed.get(String(message.author?.id||''))!==true)continue;
 
     const parts = content.split(/\s+/);
     const action = String(parts[1] || 'help').toLowerCase();
