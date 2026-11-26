@@ -11,14 +11,14 @@ test('completion audit inventories every workflow without reporting synthetic ap
   assert.equal(result.counts.workflows,46);
   assert.equal(result.counts.scheduled,33);
   assert.equal(result.counts.manualOrOnChange,13);
-  assert.equal(result.counts.assessed,16);
-  assert.equal(result.counts.notAssessed,30);
+  assert.equal(result.counts.assessed,23);
+  assert.equal(result.counts.notAssessed,23);
   assert.equal(result.counts.complete,0);
   assert.equal(result.allWorkflows.length,WORKFLOW_REGISTRY.length);
   assert.equal(new Set(result.allWorkflows.map(w=>w.file)).size,46);
   assert.ok(result.allWorkflows.every(w=>w.open));
   assert.equal(result.eventSystems.length,5);
-  assert.equal(result.operationalSystems.length,15);
+  assert.equal(result.operationalSystems.length,22);
   assert.ok(!result.eventSystems.some(x=>x.id==='17'));
   assert.ok(result.exclusions.some(x=>x.startsWith('17')));
 });
@@ -42,6 +42,9 @@ test('remaining real-world evidence and owner signoff are visible instead of ass
   assert.ok(report.operationalSystems.some(x=>x.id==='CONVOY_CHECKER'));
   assert.ok(report.operationalSystems.some(x=>x.id==='LEADERSHIP_DASHBOARD_VERIFICATION'));
   assert.ok(report.operationalSystems.some(x=>x.id==='EVENT_LEADERSHIP_REPORTS'));
+  assert.ok(report.operationalSystems.some(x=>x.id==='CENTRAL_SCHEDULER'));
+  assert.ok(report.operationalSystems.some(x=>x.id==='SAFE_SELF_HEALING'));
+  assert.ok(report.operationalSystems.some(x=>x.id==='NEWS_PRODUCTION_VERIFICATION'));
   assert.ok(!report.unassessedWorkflows.some(x=>x.file==='backup-recovery-verification.yml'));
   assert.ok(report.unassessedWorkflows.some(x=>x.file==='core-recovery.yml'));
   assert.ok(report.unassessedWorkflows.some(x=>x.file==='monthly-report.yml'));
