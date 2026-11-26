@@ -67,23 +67,26 @@
       },
       "firstAlertedAt": "2026-11-25T20:08:53.927Z"
     },
-    "workflow-no-runs:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has no workflow runs.",
-      "details": null,
-      "firstAlertedAt": "2026-11-26T01:08:07.211Z"
-    },
-    "workflow-overdue:event-operations-discord-review.yml": {
-      "severity": "warning",
-      "system": "Event Operations Discord Staff Review",
-      "message": "Event Operations Discord Staff Review has not run within the expected time window.",
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "latestActivityAt": "2026-11-26T01:57:31Z",
-        "ageMinutes": 148,
-        "maxAgeMinutes": 90
+        "ageMinutes": 201,
+        "latestCount": 39
       },
-      "firstAlertedAt": "2026-11-26T04:26:39.251Z"
+      "firstAlertedAt": "2026-11-26T08:55:05.820Z"
+    },
+    "stale-data:data/driver-management-summary.json": {
+      "severity": "critical",
+      "system": "Driver Management data",
+      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-26T05:33:29.854Z",
+        "ageMinutes": 201,
+        "maxAgeMinutes": 160
+      },
+      "firstAlertedAt": "2026-11-26T08:55:05.820Z"
     }
   },
   "pending": {}
