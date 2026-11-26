@@ -111,3 +111,16 @@ The Event dashboard now presents **Manual Staff Progress** before technical sour
 Offline synthetic tests cover strict Discord privacy overwrites, immutable Guild Event role IDs regardless of cosmetic names, GET-only API calls, member checks, forged/stale codes, first-run bootstrap and replay, bounded pagination, denied message-content access and AES-protected state. A successful GitHub workflow does not prove the actual Discord channel has been configured; **production adoption requires the owner-provided secret values and a successful real source check**.
 
 This is a low-infrastructure command polling adapter built on existing GitHub/Discord permissions, **not a continuously connected Discord Gateway bot**. For future instant slash commands, Kings would need a separately deployed secure Discord interactions endpoint with signature verification and controlled write persistence. That deployment is not implied or created here.
+
+
+## Recovery for delayed GitHub schedule — guarded follow-up
+
+The normal scheduled #18 worker remains a 10-minute poll with the pre-existing private authorization. GitHub schedule runs can be delayed or omitted, so a **controlled Central Scheduler fallback** checks overdue runs:
+
+- The fallback is **strictly off** unless the owner-supplied Actions secret `KINGS_EVENT_DISCORD_REVIEW_ENABLED` is exactly `VERIFY_ONLY` or `ENABLED`. Unset or unknown values cause no #18 dispatch at all.
+- The target workflow itself must still be `active`. Scheduler recovery cannot enable a disabled GitHub Action or create/change private Discord roles, credentials, messages, invitations, approvals or bookings.
+- Recovery is eligible only after **30 minutes without a successful completed #18 poll**; existing queued/running polls suppress duplicates. A failed completed poll enforces a **15-minute retry cooldown**.
+- The dispatched worker independently checks the **same secret** and the same channel/role policy again. In `VERIFY_ONLY`, the run performs metadata GETs only. In `ENABLED`, it may process genuinely new authorized human commands using the established encrypted cursor/journal. No older commands are replayed.
+- No manual staff-review input, live Driver Loyalty role sync, event booking, slot action, or Discord permission change is added to the scheduler.
+
+**Acceptance limit:** this guard adds a recovery mechanism, not a proof of permanent cron reliability, fresh Staff changes, successful dashboard refresh or Event-Team handover. The next real scheduler-triggered recovery and private dashboard update must still be checked independently. System #17 remains excluded.
