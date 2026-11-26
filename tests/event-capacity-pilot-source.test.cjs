@@ -654,3 +654,29 @@ test('Three mixed priority Convoys fit daily max without claiming booking author
   assert.equal(m.daysRequiringReview,0);
   assert.equal(monthsFrom(f,NOW).freeSlotsCertified,false);
 });
+
+test('first visible UTC month carries preceding-month departure spacing without counting past claims',()=>{
+  const f=withCurrentEvents([
+    {type:'External Convoy',departure:'2027-02-28T23:45:00Z'},
+    {type:'Kings Convoy',departure:'2027-03-01T00:30:00Z'}
+  ]);
+  const calendar=monthsFrom(f,NOW);
+  assert.equal(calendar.months.length,12);
+  assert.equal(calendar.months[0].utcMonth,'2027-03');
+  assert.equal(calendar.months[1].utcMonth,'2027-04');
+  assert.equal(calendar.months[0].centerClaims,1,'February claim must not increase March totals');
+  assert.equal(calendar.months[0].daysWithDepartureSpacingWarning,1);
+  assert.equal(calendar.months[0].daysRequiringReview,1);
+  assert.equal(calendar.freeSlotsCertified,false);
+  const cancelled=withCurrentEvents([
+    {type:'External Convoy',departure:'2027-02-28T23:45:00Z',status:'Cancelled'},
+    {type:'Kings Convoy',departure:'2027-03-01T00:30:00Z'}
+  ]);
+  assert.equal(monthsFrom(cancelled,NOW).months[0].daysWithDepartureSpacingWarning,0,
+    'Cancelled previous-month claims cannot create a false cross-border alert');
+  const outsideWindow=withCurrentEvents([
+    {type:'External Convoy',departure:'2027-02-28T21:00:00Z'},
+    {type:'Kings Convoy',departure:'2027-03-01T00:30:00Z'}
+  ]);
+  assert.equal(monthsFrom(outsideWindow,NOW).months[0].daysWithDepartureSpacingWarning,0);
+});
