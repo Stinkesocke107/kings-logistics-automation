@@ -22,6 +22,11 @@ const BACKUP_DIRECTORY =
 const BASE_PATHS = [
   "data",
   ".github/workflows",
+  // Restore the entire runnable automation environment, not just its root JS:
+  // the newer Kings systems depend on these scripts and test/operation files.
+  "scripts",
+  "tests",
+  "docs",
   "README.md"
 ];
 
@@ -90,6 +95,19 @@ const CRITICAL_FILES = [
 
   "core-backup.js",
   "core-recovery.js",
+
+  // Critical current automation modules and operator recovery tooling.
+  "kings-workflow-registry.js",
+  "kings-system-acceptance.js",
+  "event-review-dashboard-readonly-proof.js",
+  "event-leadership-state.js",
+  "event-operations-discord-review.js",
+  "live-outage-notice.js",
+  "live-map-auto-probe.js",
+  "truckersmp-official-live.js",
+  "scripts/git-safe-push.sh",
+  "scripts/migrate-event-leadership-state.js",
+  "docs/KINGS-SYSTEM-UND-FUNKTIONSABNAHME-2026-11-26.md",
 
   ".github/workflows/core-backup.yml",
   ".github/workflows/core-recovery.yml"
