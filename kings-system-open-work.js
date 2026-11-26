@@ -6,23 +6,34 @@ const {snapshot,FUNCTION_IDS}=require('./kings-system-acceptance');
 const {WORKFLOW_REGISTRY}=require('./kings-workflow-registry');
 
 function buildOpenWork(acceptance=snapshot(),registry=WORKFLOW_REGISTRY){
-  if(!acceptance||!Array.isArray(acceptance.workflows)||
-     !Array.isArray(acceptance.eventSystems)||
+  if(!acceptance||!Array.isArray(acceptance.eventSystems)||
      !Array.isArray(acceptance.operationalSystems)||
-     !Array.isArray(registry)||
-     acceptance.totalWorkflows!==registry.length||
-     acceptance.workflows.length!==registry.length)
+     !Array.isArray(registry)||acceptance.totalWorkflows!==registry.length)
     throw Error('Kings acceptance and workflow inventory disagree');
+  // snapshot() intentionally does not export raw workflow rows: derive the
+  // same strict one-to-one owner mapping from the authoritative registry.
+  // No unassessed workflow inherits verification from a neighbouring system.
+  const mappedSystems=new Map([
+    ['event-operations-discord-review.yml',
+      acceptance.eventSystems.find(x=>x.id==='18')],
+    ...acceptance.operationalSystems.map(x=>[x.workflow,x])
+  ]);
   const files=new Set();
-  const workflows=acceptance.workflows.map(w=>{
-    const registered=registry.find(r=>r.file===w.file);
-    if(!registered||files.has(w.file)||registered.area!==w.area||
-       !['NOT_ASSESSED','PARTIALLY_VERIFIED','COMPLETE'].includes(w.status))
+  const workflows=registry.map(w=>{
+    if(files.has(w.file)||
+       !['scheduled','manual','on-change'].includes(w.mode))
       throw Error('Kings workflow coverage is incomplete or inconsistent');
     files.add(w.file);
-    return {file:w.file,name:w.label,area:w.area,mode:registered.mode,
-      acceptance:w.status,open:w.status!=='COMPLETE'};
+    const accepted=mappedSystems.get(w.file);
+    const status=accepted?.acceptance||'NOT_ASSESSED';
+    if(!['NOT_ASSESSED','PARTIALLY_VERIFIED','COMPLETE'].includes(status))
+      throw Error('Invalid Kings workflow acceptance status');
+    return {file:w.file,name:w.label,area:w.area,mode:w.mode,
+      acceptance:status,open:status!=='COMPLETE'};
   });
+  if(workflows.filter(w=>w.acceptance!=='NOT_ASSESSED').length!==
+     acceptance.assessedWorkflows)
+    throw Error('Kings acceptance and workflow inventory disagree');
   const summarizeSystem=system=>{
     const checks=[...system.gates,...(system.capabilities||[])];
     const missing=checks.filter(x=>x.state!=='VERIFIED').map(x=>({
