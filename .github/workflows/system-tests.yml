@@ -21,7 +21,8 @@ permissions:
   actions: read
 
 concurrency:
-  group: kings-offline-system-verification
+  # Cancel superseded runs only for the same PR/branch, never another PR.
+  group: kings-offline-system-verification-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
