@@ -21,7 +21,8 @@ permissions:
   actions: read
 
 concurrency:
-  group: kings-offline-system-verification
+  # Cancel superseded runs only for the same PR/branch, never another PR.
+  group: kings-offline-system-verification-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -42,6 +43,13 @@ jobs:
           node -e "const fs=require('fs');const d=fs.readFileSync('driver-updates.js','utf8');const i=fs.readFileSync('data-integrity.js','utf8');const a=d.match(/const DRIVER_AUTHORITY\\s*=\\s*'([^']+)'/);const b=i.match(/const authorityOk = data\\.driverUpdates\\?\\.authority === '([^']+)'/);if(!a||!b||a[1]!==b[1]){console.error('Driver authority mismatch between publisher and monitoring');process.exit(1)}"
       - name: Run isolated regression and integration tests
         run: node --test tests/*.test.cjs
+
+      # Read-only release/acceptance matrix for all 46 registered workflows.
+      # Never touches Discord or private sources; do not equate a green test
+      # with a real Staff action, a booked Event or CEO approval.
+      - name: Publish open system acceptance gates
+        if: always()
+        run: node kings-system-open-work.js --summary >> "$GITHUB_STEP_SUMMARY"
 
       # Opt-in on main; automatic only on the separate trusted PR for validation.
       # No Discord/Staff/private-store secret and no artifact downloads.
