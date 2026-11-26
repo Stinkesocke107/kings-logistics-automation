@@ -163,6 +163,82 @@ const namedEventSystems=Object.freeze([
       'Event staff operational handover and CEO final signoff remain open'
     ]}
 ].map(x=>Object.freeze(x)));
+
+// Non-Event functional acceptance is added one explicitly scoped workflow at
+// a time. A green producer poll is never proof that a real Driver transition,
+// HR Staff approval, Discord publication or CEO signoff has happened.
+const namedOperationalSystems=Object.freeze([
+  {id:'DRIVER_UPDATES',name:'Driver Updates — VTC membership changes',
+    workflow:'driver-updates.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('live_roster_poll','Actual VTC roster was fetched by the production Driver Updates workflow',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45901569737']),
+      item('live_no_change','Production run detected no new Driver changes without inventing a join or departure',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45901569737']),
+      item('real_join_leave_delivery','A genuine Driver membership change reaches protected state and the intended Discord update'),
+      item('cross_system_driver_reconciliation','Driver Updates and Driver Management agree on a real roster change'),
+      item('operational_handover','Driver Operations confirms real recovery, alerts and public output')
+    ]),
+    blockers:[
+      'A green no-change poll does not test an actual join, departure or Discord delivery',
+      'Full cross-system source-to-state-to-Discord evidence and operator recovery remain pending',
+      'No CEO final acceptance is recorded'
+    ]},
+  {id:'DRIVER_MANAGEMENT',name:'Driver Management — internal roster and LOA',
+    workflow:'driver-management.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('live_management_poll','Current Driver Management workflow completed after state safety update',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45902760777']),
+      item('protected_conflict_detection','Real isolated Git race fails the workflow instead of hiding a lost Driver state commit',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45902677492']),
+      item('real_driver_loa_lifecycle','An authorized real leave-of-absence request and return update protected state correctly'),
+      item('driver_discord_handover','Real Driver change reaches the approved private management view and team'),
+      item('recovery_without_personnel_changes','Recovery and operational ownership are signed off without automatic disciplinary action')
+    ]),
+    blockers:[
+      'Actual LOA command lifecycle and source-to-private-management publication not yet verified end to end',
+      'A same-file Git conflict is detected but a human-safe replay/reconciliation procedure still needs operational review',
+      'No Driver Team handover or CEO final acceptance is recorded'
+    ]},
+  {id:'HR_PROBATION',name:'HR Leadership — private probation reviews',
+    workflow:'hr-leadership.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('live_hr_poll','HR Leadership probation workflow completed after protected-state safety update',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45902760787']),
+      item('protected_hr_conflict','Real isolated Git race fails rather than silently discarding encrypted HR review status',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45902677492']),
+      item('real_authorized_hr_command','Authorized real probation command is processed and durably stored'),
+      item('hr_leadership_handover','Current HR review, original evidence and private Leadership presentation are reconciled'),
+      item('hr_recovery_confirmed','HR Team validates failed-save recovery and command idempotence')
+    ]),
+    blockers:[
+      'The successful HR polling run is not evidence that a new human command was processed',
+      'Private Staff decision provenance and a complete source-to-state-to-view live test remain open',
+      'HR operator recovery procedure and CEO signoff remain open'
+    ]},
+  {id:'STAFF_MANAGEMENT',name:'Staff Management — VTC hierarchy and public Staff updates',
+    workflow:'staff-management.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('live_staff_poll','Staff Management workflow completed after new state-integrity safeguards',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45902761042']),
+      item('corrupt_state_fail_closed','Malformed existing encrypted Staff history cannot become a fake first-run baseline',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45902677492']),
+      item('protected_staff_conflict','Real isolated Git race refuses false success if newer Staff state is already on main',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45902677492']),
+      item('real_staff_lifecycle','Real joining, promotion and departure are reconciled with approved VTC and Discord evidence'),
+      item('public_staff_delivery','Real approved Staff announcement is independently confirmed in the correct Discord channel'),
+      item('staff_operator_handover','Staff team signs off role hierarchy, message safety and manual recovery')
+    ]),
+    blockers:[
+      'Successful roster polling does not prove a real promotion, departure or public Discord delivery',
+      'Auxiliary public Staff update errors and protected-state retry scenarios require live operator follow-up',
+      'No Staff team or CEO final acceptance is recorded'
+    ]}
+].map(x=>Object.freeze(x)));
 const AREA_ORDER=Object.freeze([
   'Automation','Backup','Changelog','Convoys','Drivers',
   'HR & Staff','Leadership','Live Data','News','Reports','Security'
@@ -176,12 +252,16 @@ function assertEvidence(evidence){
   }
 }
 function assertAcceptance(){
-  const ids=namedEventSystems.map(x=>x.id);
+  const systems=[...namedEventSystems,...namedOperationalSystems];
+  const ids=systems.map(x=>x.id);
   if(new Set(ids).size!==ids.length||ids.includes('17'))
     throw Error('Cancelled Event System #17 must never enter acceptance');
+  if(new Set(namedOperationalSystems.map(x=>x.workflow)).size!==namedOperationalSystems.length||
+    namedOperationalSystems.some(x=>!WORKFLOW_REGISTRY.some(w=>w.file===x.workflow)))
+    throw Error('Operational acceptance requires unique registered workflows');
   if(new Set(WORKFLOW_REGISTRY.map(x=>x.file)).size!==WORKFLOW_REGISTRY.length)
     throw Error('Workflow inventory must be unique');
-  for(const system of namedEventSystems){
+  for(const system of systems){
     if(system.gates.length!==FUNCTION_IDS.length||
       new Set(system.gates.map(x=>x.id)).size!==FUNCTION_IDS.length)
       throw Error('System acceptance checklist is incomplete');
@@ -213,19 +293,21 @@ function acceptanceStatus({gates,capabilities=[],blockers=[],ownerApproval=null}
 }
 function snapshot(){
   assertAcceptance();
-  const eventSystems=namedEventSystems.map(s=>{
+  const withStatus=s=>{
     const ownerApproval=s.ownerApproval||null;
-    return {...s,ownerApproval,
-      acceptance:acceptanceStatus({...s,ownerApproval})};
-  });
+    return {...s,ownerApproval,acceptance:acceptanceStatus({...s,ownerApproval})};
+  };
+  const eventSystems=namedEventSystems.map(withStatus);
+  const operationalSystems=namedOperationalSystems.map(withStatus);
   // Map workflows to the independently accepted business systems that own
   // them. Additional mappings require explicitly reviewed systems first.
   const workflowSystemRefs=Object.freeze({
-    'event-operations-discord-review.yml':'18'
+    'event-operations-discord-review.yml':'18',
+    ...Object.fromEntries(namedOperationalSystems.map(x=>[x.workflow,x.id]))
   });
   const workflows=WORKFLOW_REGISTRY.map(w=>{
     const reference=workflowSystemRefs[w.file];
-    const system=reference?eventSystems.find(s=>s.id===reference):null;
+    const system=reference?[...eventSystems,...operationalSystems].find(s=>s.id===reference):null;
     if(reference&&!system)throw Error('Unregistered Kings system acceptance reference');
     return {
       file:w.file,label:w.label,area:w.area,
@@ -249,7 +331,7 @@ function snapshot(){
             'PARTIALLY_VERIFIED':'NOT_ASSESSED'
       };
     }),
-    eventSystems,
+    eventSystems,operationalSystems,
     excluded:Object.freeze(['17 — Event Booking & Slot Management (cancelled)'])
   });
 }
@@ -264,10 +346,16 @@ if(require.main===module){
       verifiedFunctions:[...e.gates,...(e.capabilities||[])].filter(x=>x.state===VERIFIED).length,
       totalFunctions:e.gates.length+(e.capabilities||[]).length,
       openBlockers:e.blockers.length
+    })),
+    operationalSystems:s.operationalSystems.map(e=>({
+      id:e.id,name:e.name,status:e.acceptance,
+      verifiedFunctions:[...e.gates,...(e.capabilities||[])].filter(x=>x.state===VERIFIED).length,
+      totalFunctions:e.gates.length+(e.capabilities||[]).length,
+      openBlockers:e.blockers.length
     }))
   },null,2));
 }
 module.exports={
-  VERIFIED,PENDING,FUNCTION_IDS,namedEventSystems,AREA_ORDER,
+  VERIFIED,PENDING,FUNCTION_IDS,namedEventSystems,namedOperationalSystems,AREA_ORDER,
   assertAcceptance,acceptanceStatus,snapshot
 };
