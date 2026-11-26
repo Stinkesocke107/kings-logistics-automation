@@ -85,5 +85,18 @@
       "firstAlertedAt": "2026-11-26T01:09:23.482Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:event-operations-discord-review.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-26T01:16:51.163Z",
+      "system": "Event Operations Discord Staff Review",
+      "message": "Event Operations Discord Staff Review latest completed run ended with failure."
+    },
+    "workflow-overdue:event-operations-discord-review.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-26T01:16:51.163Z",
+      "system": "Event Operations Discord Staff Review",
+      "message": "Event Operations Discord Staff Review has not run within the expected time window."
+    }
+  }
 }
