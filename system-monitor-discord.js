@@ -120,6 +120,16 @@ function liveMapAvailabilityLine(health) {
     Array.isArray(proof.displaysVerified) &&
     required.every(name => proof.displaysVerified.includes(name));
   const liveRunOk = liveWorkflow?.ok === true;
+  const official=health.data?.officialTracker;
+  // Show the explicitly chosen official-only Tracker as its own healthy
+  // LIMITED function. Never imply verified Kings player presence, restore
+  // old map-derived statistics, or mask unrelated overall health failures.
+  if(official?.mode==='map-independent'){
+    if(official.status==='verified'&&liveRunOk){
+      return '🟢 📡 **Kings Live Tracker (no map):** Official membership and TruckersMP server totals verified on all 3 displays. Kings Drivers online: **Unavailable (not 0)**.';
+    }
+    return '🔴 📡 **Kings Live Tracker (no map):** Official data or 3-display delivery is unverified. Kings Drivers online: **Unavailable (not 0)**.';
+  }
 
   if (service?.status === 'down' || service?.status === 'degraded') {
     if (recent && allDisplays && liveRunOk && proof?.mode === 'fallback-delivered') {

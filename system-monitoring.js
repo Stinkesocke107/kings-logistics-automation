@@ -356,6 +356,56 @@ function checkApiHealth(issues) {
   };
 }
 
+// A map-free Tracker has its OWN fresh, officially sourced aggregate data.
+// It must never be promoted into a verified Kings player-presence feed.
+// The legacy player-map snapshot remains historical and is checked separately.
+function checkOfficialTrackerSource(delivery,now=Date.now()){
+  let configured=false;
+  try{
+    configured=/KINGS_TRACKER_SOURCE_MODE:\s*'official'/.test(
+      fs.readFileSync(path.join(ROOT,'.github/workflows/live-tracker.yml'),'utf8'));
+  }catch{
+    return {mode:'unknown',status:'not-verified'};
+  }
+  if(!configured)return {mode:'map',status:'not-applicable'};
+  const state=readJson('data/live-tracker-official.json');
+  const value=state.data;
+  const ms=Date.parse(value?.updatedAt||'');
+  const checked=Date.parse(delivery?.checkedAt||'');
+  const fresh=ts=>Number.isFinite(ts)&&ts>0&&
+    ts<=now+5*60000&&now-ts<=25*60000;
+  const labels=['Live Tracker','Advanced Statistics','Central Overview'];
+  const fullLabels=delivery?.allDisplaysVerified===true&&
+    Array.isArray(delivery.displaysVerified)&&
+    labels.every(label=>delivery.displaysVerified.includes(label));
+  const memberOk=Number.isSafeInteger(value?.vtcMemberCount)&&
+    value.vtcMemberCount>=0&&value.vtcMemberCount<=20000;
+  const totalsPresent=value?.allTruckersMpPlayers!==null;
+  const totalsOk=totalsPresent?
+    Number.isSafeInteger(value?.allTruckersMpPlayers)&&
+    Number.isSafeInteger(value?.ets2AllPlayers)&&
+    Number.isSafeInteger(value?.atsAllPlayers)&&
+    Number.isSafeInteger(value?.activeTruckersMpServers)&&
+    value.ets2AllPlayers>=0&&value.atsAllPlayers>=0&&
+    value.allTruckersMpPlayers===value.ets2AllPlayers+value.atsAllPlayers&&
+    value.activeTruckersMpServers>=0:
+    value?.ets2AllPlayers===null&&value?.atsAllPlayers===null&&
+    value?.activeTruckersMpServers===null;
+  const source=totalsPresent?'official-vtc-and-servers':'official-vtc-only';
+  const ok=!state.error&&state.exists&&value?.version===1&&
+    value.source==='truckersmp-official-v2'&&
+    value.sourceMode==='map-independent'&&value.kingsOnline===null&&
+    memberOk&&totalsOk&&fresh(ms)&&fresh(checked)&&
+    Math.abs(checked-ms)<=25*60000&&fullLabels&&
+    delivery.mode==='fallback-delivered'&&delivery.source===source&&
+    delivery.livePlayerCountsAvailable===false;
+  return ok?{
+    mode:'map-independent',status:'verified',source,
+    updatedAt:value.updatedAt,vtcMemberCount:value.vtcMemberCount,
+    allTruckersMpPlayers:value.allTruckersMpPlayers,kingsOnline:null
+  }:{mode:'map-independent',status:'not-verified'};
+}
+
 function checkCrossSystemIntegrity(issues) {
   const live = readJson('data/live-tracker-snapshot.json').data;
   const driver = readJson('data/driver-management-summary.json').data;
@@ -742,6 +792,7 @@ async function main() {
   const liveDeliveryResult = readJson('data/live-systems-delivery.json');
   const liveDelivery = liveDeliveryResult.exists && !liveDeliveryResult.error
     ? liveDeliveryResult.data : null;
+  const officialTracker=checkOfficialTrackerSource(liveDelivery);
 
   issues.sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || a.system.localeCompare(b.system));
 
@@ -788,6 +839,7 @@ async function main() {
       freshness: freshData,
       apiHealth,
       liveDelivery,
+      officialTracker,
       integrity,
       convoyCompleteness,
       encryptedStates
