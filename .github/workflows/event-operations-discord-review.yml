@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "7,17,27,37,47,57 * * * *"
   workflow_dispatch:
+    inputs:
+      verify_message_access:
+        description: "Read-only proof of a human KINGS-EVENT-READ-TEST message (VERIFY_ONLY only)"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -36,6 +42,7 @@ jobs:
       - name: Read private Discord Staff commands and update encrypted review state only
         env:
           KINGS_EVENT_DISCORD_REVIEW_ENABLED: ${{ secrets.KINGS_EVENT_DISCORD_REVIEW_ENABLED }}
+          KINGS_EVENT_REVIEW_MESSAGE_ACCESS_PROBE: ${{ github.event_name == 'workflow_dispatch' && inputs.verify_message_access && 'YES' || 'NO' }}
           KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID: ${{ secrets.KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID }}
           KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS: ${{ secrets.KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
