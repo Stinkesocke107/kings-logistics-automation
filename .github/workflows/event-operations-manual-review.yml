@@ -1,0 +1,95 @@
+name: Kings Event Operations — Manual Staff Review
+
+on:
+  workflow_dispatch:
+    inputs:
+      review_scope:
+        description: "Source review kind (no private Event content)"
+        type: choice
+        required: true
+        options:
+          - worklist
+          - history
+      review_code:
+        description: "Exact safe task code from #18 Staff review docs; never paste Event details"
+        type: string
+        required: true
+      utc_month:
+        description: "YYYY-MM for History or UNDATED for undated records / worklist"
+        type: string
+        required: true
+        default: UNDATED
+      action:
+        description: "Only manually recorded progress, NOT original event approval"
+        type: choice
+        required: true
+        options:
+          - start
+          - block
+          - record_check
+          - reopen
+      evidence_kind:
+        description: "Record type checked privately by Staff (do not paste URLs)"
+        type: choice
+        required: true
+        default: NONE
+        options:
+          - NONE
+          - ORIGINAL_DISCORD
+          - ORIGINAL_EVENT_PAGE
+          - STAFF_RECORD
+      confirmation:
+        description: "For record_check only: type ORIGINAL_RECORDS_CHECKED; else leave empty"
+        type: string
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kings-event-leadership-reports
+  cancel-in-progress: false
+
+jobs:
+  manual_review:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Validate review modules without private output
+        run: |
+          node --check event-operations-manual-review-state.js
+          node --check event-operations-manual-review.js
+          node --check event-leadership-state.js
+      - name: Apply authorised review status to existing AES-protected Event state
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          KINGS_EVENT_REVIEW_OPERATORS: ${{ secrets.KINGS_EVENT_REVIEW_OPERATORS }}
+          GITHUB_TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          INPUT_SCOPE: ${{ inputs.review_scope }}
+          INPUT_CODE: ${{ inputs.review_code }}
+          INPUT_MONTH: ${{ inputs.utc_month }}
+          INPUT_ACTION: ${{ inputs.action }}
+          INPUT_EVIDENCE_KIND: ${{ inputs.evidence_kind }}
+          INPUT_CONFIRMATION: ${{ inputs.confirmation }}
+        run: node event-operations-manual-review.js
+      - name: Save only encrypted review journal to main
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- data/event-leadership-report-state.json; then
+            echo "Kings Event Operations: protected journal unchanged."
+            exit 1
+          fi
+          git config user.name "Kings Logistics Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/event-leadership-report-state.json
+          git commit -m "Record authorised Kings Event Operations manual review status"
+          bash scripts/git-safe-push.sh main
