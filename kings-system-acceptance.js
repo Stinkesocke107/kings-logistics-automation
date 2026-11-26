@@ -663,6 +663,64 @@ const namedOperationalSystems=Object.freeze([
       'Real source and Discord discrepancy/retry scenarios still require operational evidence',
       'Final team handover and CEO acceptance remain open'
     ]}
+,
+  {id:'CORE_BACKUP',name:'Core Backup — recurring protected source backup',
+    workflow:'core-backup.yml',gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_historical_backup_package',
+        'Real scheduled Core Backup produced a source package and uploaded the verified backup artifact, with healthy source and archive checks',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45817451307']),
+      item('real_historical_archive_integrity',
+        'That production run checked all 266 then-selected source files and their SHA-256 checksums, including six encrypted state fields',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45817451307']),
+      item('updated_current_441_plus_retention',
+        'Repeated current production backups after source evolution, integrity, retention and storage alerting independently verified'),
+      item('backup_real_disaster_and_handover',
+        'Operator verifies complete authorized restore, secret/key custody and cross-service recovery')
+    ]),
+    blockers:[
+      'The 266-file production archive is historical; the newer separately verified 441-file isolated restore does not independently prove current recurring backup retention',
+      'Production disaster recovery and protected secret custody are still unaccepted',
+      'CEO final signoff not recorded'
+    ]},
+  {id:'DRIVER_ONBOARDING',name:'Driver Registration & Onboarding — protected roster audit',
+    workflow:'driver-register-onboarding.yml',gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_driver_only_register_audit',
+        'Actual private Driver registration audit compared all then-current Kings Driver identities in the private register without editing roles',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45869866678']),
+      item('real_safe_audit_publication',
+        'The real read-only register audit published a protected summary, without creating approvals or register writes',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45869866678']),
+      item('real_new_driver_registration_and_human_hr',
+        'Authentic new Driver onboarding or returner has verified VTC/Discord source mapping and a recorded HR handover'),
+      item('register_errors_and_operator_handover',
+        'Missing identity, duplicates, private permission recovery, original HR decisions and CEO acceptance verified')
+    ]),
+    blockers:[
+      'Existing Driver-only registration audit is not evidence of a genuinely new onboarding event',
+      'The optional private HR decision source was NOT_CONFIGURED in that run; HR admission cannot be inferred',
+      'Team handover and CEO final signoff not recorded'
+    ]},
+  {id:'DRIVER_ACHIEVEMENTS',name:'Driver Achievements — protected Loyalty role dry-run',
+    workflow:'driver-achievements.yml',gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_private_driver_source_dry_run',
+        'Actual Driver Loyalty production dry-run validated the then-current private Driver roster/date records without applying a role change',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45881195938']),
+      item('real_manual_live_write_guard',
+        'Actual run explicitly selected dry-run and did not change any Discord roles; protected summary was safely persisted',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45881195938']),
+      item('achievement_award_lifecycle',
+        'An actually eligible Driver meets validated achievement rules and any authorized one-time recognition is independently confirmed'),
+      item('loyalty_live_authority',
+        'Management explicitly approves each real role sync, rollback and conflict recovery, without reintroducing retired Driver Level roles')
+    ]),
+    blockers:[
+      'A clean dry-run proves no roles were changed; it is not evidence of an achievement being newly earned or granted',
+      'Live roles require explicit separate private approval, source validation and operator follow-up',
+      'No CEO final signoff'
+    ]}
 
 ].map(x=>Object.freeze(x)));
 const AREA_ORDER=Object.freeze([
