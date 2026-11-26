@@ -74,16 +74,6 @@
       },
       "firstAlertedAt": "2026-11-26T10:49:38.532Z"
     },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 162,
-        "latestCount": 39
-      },
-      "firstAlertedAt": "2026-11-26T18:28:48.647Z"
-    },
     "workflow-schedule-late:driver-register-onboarding.yml": {
       "severity": "warning",
       "system": "Driver Registration Onboarding",
@@ -97,14 +87,18 @@
         "runId": 45869866678
       },
       "firstAlertedAt": "2026-11-26T19:52:52.382Z"
+    },
+    "workflow-overdue:event-operations-discord-review.yml": {
+      "severity": "warning",
+      "system": "Event Operations Discord Staff Review",
+      "message": "Event Operations Discord Staff Review has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-26T18:48:40Z",
+        "ageMinutes": 157,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-11-26T21:26:28.952Z"
     }
   },
-  "pending": {
-    "workflow-overdue:event-operations-discord-review.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-26T21:25:10.321Z",
-      "system": "Event Operations Discord Staff Review",
-      "message": "Event Operations Discord Staff Review has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
