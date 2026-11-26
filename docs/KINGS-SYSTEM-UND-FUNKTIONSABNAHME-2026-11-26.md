@@ -41,7 +41,7 @@ Die ausführbare Übersicht ist `kings-system-acceptance.js` und liest die **46*
 | System | Momentane Abnahme | Offene Pflichtarbeit |
 |---|---|---|
 | **#12 Event Capacity** | **PARTIALLY_VERIFIED** | UTC-Kapazitäts-/Abstandsregel, Quellenabgleich, Read-only-Kalender und Übergabe an Staff Review teilweise belegt; echte Originalfreigaben/Restkapazität sowie Staff-/CEO-Abnahme bleiben offen |
-| **#14 Event History** | NOT_ASSESSED | Originalquellen, Datenherkunft, korrekte historische Aussagen und Übernahme prüfen |
+| **#14 Event History** | **PARTIALLY_VERIFIED** | Synthetische Quellen-/Monatsvalidierung einschließlich [PR #195](https://github.com/Stinkesocke107/kings-logistics-automation/pull/195) und [erfolgreicher CI](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45900507573) nachgewiesen; originaler vollständiger 24-Monats-Bestand, echte Staff-Entscheidungen, Live-Übergabe und CEO-Abnahme offen |
 | **#15 Invitation Tracker** | NOT_ASSESSED | Quellen, Tags, Statusaussagen, Dubletten und Integration mit aktuellen Event-Daten prüfen |
 | **#16 Event Calendar** | NOT_ASSESSED | Reale Kalenderquellen, Warnlogik und Integration prüfen |
 | **#18 Discord Staff Review** | PARTIALLY_VERIFIED | End-to-End-Dashboard-Aktualisierung nach **neuer echter** Staff-Änderung, Verbindungen zu #12/#14/#15/#16, Team-Bedienbarkeit und CEO-Schlussabnahme |
