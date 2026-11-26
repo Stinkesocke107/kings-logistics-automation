@@ -299,10 +299,15 @@ function walkPath(
     return;
   }
 
+  // Never follow symlink targets out of the checked-out repository.
+  // Even a seemingly harmless docs/test link could otherwise copy a runner
+  // secret or a file from outside the Kings source tree into an artifact.
   const stat =
-    fs.statSync(
+    fs.lstatSync(
       absolutePath
     );
+
+  if (stat.isSymbolicLink()) return;
 
   if (
     stat.isDirectory()
@@ -372,7 +377,7 @@ function collectFiles() {
       );
 
     if (
-      !fs.statSync(
+      !fs.lstatSync(
         absolutePath
       ).isFile()
     ) {
