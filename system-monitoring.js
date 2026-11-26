@@ -360,14 +360,44 @@ function checkApiHealth(issues) {
 // It must never be promoted into a verified Kings player-presence feed.
 // The legacy player-map snapshot remains historical and is checked separately.
 function checkOfficialTrackerSource(delivery,now=Date.now()){
-  let configured=false;
+  let configured=false,autoMode=false;
   try{
-    configured=/KINGS_TRACKER_SOURCE_MODE:\s*'official'/.test(
-      fs.readFileSync(path.join(ROOT,'.github/workflows/live-tracker.yml'),'utf8'));
+    const workflow=fs.readFileSync(
+      path.join(ROOT,'.github/workflows/live-tracker.yml'),'utf8');
+    autoMode=/KINGS_TRACKER_SOURCE_MODE:\s*'auto'/.test(workflow);
+    configured=autoMode||/KINGS_TRACKER_SOURCE_MODE:\s*'official'/.test(workflow);
   }catch{
     return {mode:'unknown',status:'not-verified'};
   }
   if(!configured)return {mode:'map',status:'not-applicable'};
+  const recent=timestamp=>{
+    const ms=Date.parse(timestamp||'');
+    return Number.isFinite(ms)&&ms>0&&
+      ms<=now+5*60000&&now-ms<=25*60000;
+  };
+  const labels=['Live Tracker','Advanced Statistics','Central Overview'];
+  const delivered=delivery?.allDisplaysVerified===true&&
+    Array.isArray(delivery.displaysVerified)&&
+    labels.every(label=>delivery.displaysVerified.includes(label));
+  if(autoMode&&delivery?.mode==='verified-live'){
+    // Recovery canary is NOT sufficient: actual full Tracker, Statistics and
+    // Overview must share one recent, proven generation before map is green.
+    const snapshot=readJson('data/live-tracker-snapshot.json').data;
+    const statistics=readJson('data/statistics.json').data;
+    const online=Number.isSafeInteger(snapshot?.online)&&snapshot.online>=0;
+    const games=Number.isSafeInteger(snapshot?.ets2Online)&&snapshot.ets2Online>=0&&
+      Number.isSafeInteger(snapshot?.atsOnline)&&snapshot.atsOnline>=0;
+    const verified=delivery.source==='verified-map'&&
+      delivery.livePlayerCountsAvailable===true&&delivered&&
+      recent(delivery.checkedAt)&&recent(snapshot?.updatedAt)&&
+      delivery.sourceSnapshotAt===snapshot?.updatedAt&&
+      statistics?.sourceSnapshotAt===snapshot?.updatedAt&&
+      online&&games&&snapshot.online===snapshot.ets2Online+snapshot.atsOnline;
+    return verified?
+      {mode:'map-live',status:'verified',source:'verified-map',
+       updatedAt:snapshot.updatedAt,kingsOnline:snapshot.online}:
+      {mode:'map-live',status:'not-verified'};
+  }
   const state=readJson('data/live-tracker-official.json');
   const value=state.data;
   const ms=Date.parse(value?.updatedAt||'');
