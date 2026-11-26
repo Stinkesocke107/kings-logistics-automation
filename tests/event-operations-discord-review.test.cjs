@@ -220,6 +220,44 @@ test('no MESSAGE_CONTENT privileged intent and lost backlog fail closed without 
  const many=discordFetch(oldMessages);
  await assert.rejects(()=>ingest({state,...args,transport:many.transport}),/unverified/);
 });
+test('VERIFY_ONLY checks real private Discord source access without reading commands or state',async()=>{
+ const requests=discordFetch([message(MSG2,'!kings-review '+reviewToken()+' start')]);
+ let stateReads=0,encryptedWrites=0;
+ const env={
+   GITHUB_REF:'refs/heads/main',GITHUB_EVENT_NAME:'workflow_dispatch',
+   KINGS_EVENT_DISCORD_REVIEW_ENABLED:'VERIFY_ONLY',
+   KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID:CHANNEL,
+   KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS:ROLE,
+   DISCORD_BOT_TOKEN:'SYNTHETIC_BOT_TOKEN'
+ };
+ const opts={
+   env,nowMs:NOW,transport:requests.transport,
+   read:()=>{stateReads++;throw Error('preflight must not read private state');},
+   write:()=>{encryptedWrites++;throw Error('preflight must not write state');}
+ };
+ const result=await run(opts);
+ assert.deepEqual(result,{
+   status:'SOURCE_PRIVACY_VERIFIED',changed:false,
+   readOnlyDiscord:true,discordWrites:0
+ });
+ assert.equal(stateReads,0);
+ assert.equal(encryptedWrites,0);
+ assert.equal(requests.seen.length,4);
+ assert.ok(requests.seen.every(x=>x.method==='GET'));
+ assert.ok(requests.seen.every(x=>!x.url.includes('/messages?')));
+ assert.ok(requests.seen.every(x=>!x.url.includes('/members/'+STAFF)));
+ const invalid=discordFetch([],{channel:{...channel,type:5}});
+ await assert.rejects(()=>run({
+   ...opts,transport:invalid.transport
+ }),/unverified/);
+ assert.equal(stateReads,0);
+ assert.equal(encryptedWrites,0);
+ assert.ok(invalid.seen.every(x=>!x.url.includes('/messages?')));
+ await assert.rejects(()=>run({...opts,env:{
+   ...env,GITHUB_REF:'refs/heads/untrusted'
+ }}),/not authorized/);
+ assert.equal(stateReads,0);
+});
 test('disabled entrypoint performs no reads; enabled path encrypts cursor, never prints private data',async()=>{
  const state=sourceState(),container=encryptEventState(state,SECRET);
  const writes=[];
