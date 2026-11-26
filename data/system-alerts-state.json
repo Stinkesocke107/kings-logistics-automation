@@ -93,17 +93,6 @@
         "completedAt": "2026-11-26T01:24:20Z"
       },
       "firstAlertedAt": "2026-11-26T01:25:17.823Z"
-    },
-    "workflow-overdue:event-operations-discord-review.yml": {
-      "severity": "warning",
-      "system": "Event Operations Discord Staff Review",
-      "message": "Event Operations Discord Staff Review has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-11-26T01:25:17.823Z"
     }
   },
   "pending": {}
