@@ -15,12 +15,15 @@ async function run({env=process.env,read=fs.readFileSync,
     throw Error('Kings Discord review source not authorized');
   const channelId=String(env.KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID||'');
   const roleIds=roleIdsFromSecret(env.KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS);
-  // Owner-only VERIFY_ONLY never loads private Event state and cannot
-  // read/replay commands or advance the encrypted journal cursor.
+  // Owner-only VERIFY_ONLY never loads private Event state, processes
+  // commands or advances the encrypted journal cursor. A one-time manual
+  // workflow input can request a bounded, read-only message-content proof.
   if(mode==='VERIFY_ONLY')
     return preflight({
       token:String(env.DISCORD_BOT_TOKEN||''),channelId,
-      staffRoleIds:roleIds,transport
+      staffRoleIds:roleIds,transport,
+      probeMessageAccess:env.GITHUB_EVENT_NAME==='workflow_dispatch'&&
+        env.KINGS_EVENT_REVIEW_MESSAGE_ACCESS_PROBE==='YES'
     });
   const secret=String(env.DRIVER_STATE_KEY||'');
   if(secret.length<32)throw Error('Kings review private state unavailable');
