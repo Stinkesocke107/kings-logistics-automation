@@ -157,3 +157,17 @@ Die Sicherungs- und Wiederherstellungsfunktion `backup-recovery-verification.yml
 - **Nicht dadurch nachgewiesen:** kontrollierte Wiederinbetriebnahme im Ernstfall, Wiederherstellung externer Dienste und gesicherte Schlüssel-/Secret-Übergabe. Ein isolierter Wiederherstellungstest darf keine fiktive reale Katastrophen-Recovery oder CEO-Abnahme auslösen.
 - **Offen für COMPLETE:** tatsächlicher autorisierter Recovery-/Wiederanlauf-Nachweis, Operator-Runbook und Schlüsselverwahrung, Sicherheits-/Betriebsübergabe sowie ausdrückliche CEO-Endfreigabe.
 
+
+
+## Zusatz-Einzelprüfung — 27. November 2026 (Sicherheit und Betriebsmonitoring)
+
+Die folgenden drei zuvor ausschließlich inventarisierten Workflows besitzen jetzt **eigenständige, konkret belegte positive Teilfunktionen** in der maschinenlesbaren Systemabnahme. Die ursprünglichen älteren Zahlen auf dieser Seite bleiben als historische Zwischenstände stehen.
+
+| Einzelworkflow | Konkreter positiver Nachweis | Weiter offen |
+|---|---|---|
+| `system-tests.yml` — Offline System Verification | [GitHub-PR-Test #45910987965](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45910987965): echte Syntaxprüfung, isolierte Regressionen und Integrationstests erfolgreich, individuelle 46er-Abschlussübersicht erzeugt. | Vollständige Einzelfunktionsabdeckung, tatsächlicher Betrieb, Betreiberübergabe, CEO-Abnahme. |
+| `git-state-hardening-verification.yml` — Git State Hardening | [Git-/State-Lauf #45910026256](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45910026256): isolierter Conflict-/Rebase-/Safe-Push-Testbericht mit neun von neun technischen Teilprüfungen erfolgreich. | Echte vollständige Recovery-Praxis bei konkurrierenden produktiven Schreibvorgängen und Betreiberfreigabe. |
+| `system-monitoring.yml` — System Monitoring | [Produktionslauf #45910473380](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45910473380): 46-Workflow-Überwachung, vier echte kritische Core-Befunde weiterhin **UNHEALTHY**, 13/13 technische Discord-Permissions und Update der vorhandenen Monitor-Nachricht. | Unabhängiger Discord-GET-Readback des Monitorinhalts, echter Alarm-/Entwarnungszyklus, Recovery, Operator-/CEO-Abnahme. |
+
+Damit sind **10 von 46 Workflows einzeln teilweise verifiziert, 36 noch nicht individuell nach dem Abnahmeschema bewertet und 0 abschließend freigegeben.** Die fünf separat erfassten Event-Fachsysteme #12/#14/#15/#16/#18 bleiben teilweise geprüft. Insbesondere die externen Map-API- und Freshness-Blocker werden nicht herabgestuft oder als gelöst markiert; die Zahlen sind keine funktionalen Prozentwerte.
+

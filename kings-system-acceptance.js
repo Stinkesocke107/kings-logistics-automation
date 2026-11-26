@@ -318,7 +318,75 @@ const namedOperationalSystems=Object.freeze([
       'A successful disposable isolated restore is not proof of a real production disaster recovery or full external-service restoration',
       'Secret/key custody and a runbook for personnel-authorized live restore still need operator verification',
       'Formal CEO final acceptance has not been recorded'
+    ]},
+  {id:'OFFLINE_VERIFICATION',name:'Offline System Verification — safe regression suite',
+    workflow:'system-tests.yml',
+    gates:fullGateList({
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45910987965']
+    }),
+    capabilities:Object.freeze([
+      item('real_ci_syntax_and_regressions',
+        'Actual PR CI passed JavaScript/shell syntax and isolated regression and integration tests',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910987965']),
+      item('real_ci_closeout_report',
+        'Actual CI generated the open-system acceptance summary for all 46 registered workflows',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910987965',EVIDENCE_ROOT+'pull/222']),
+      item('independent_functional_coverage',
+        'Each registered producer and manual verifier has separately audited functional and recovery coverage'),
+      item('production_vs_offline_handover',
+        'Operators verify that safe CI coverage never substitutes for real integration and final CEO acceptance')
+    ]),
+    blockers:[
+      'Passing an offline suite does not prove real Driver, HR, Event or Discord operations',
+      'Individual regression scope and operator handover are not fully accepted',
+      'Final CEO acceptance has not been recorded'
+    ]},
+  {id:'GIT_STATE_HARDENING',name:'Git State Hardening Verification — safe state writes',
+    workflow:'git-state-hardening-verification.yml',
+    gates:fullGateList({
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45910026256']
+    }),
+    capabilities:Object.freeze([
+      item('isolated_conflict_matrix',
+        'Actual GitHub verification passed the isolated Git/state race matrix and reported 9 of 9 safe-push capabilities',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910026256']),
+      item('repository_policy_audit',
+        'Actual verification completed the repository Git-state policy audit and hardening report',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910026256']),
+      item('real_protected_writer_recovery',
+        'Safe operator-guided reconciliation after a real conflicting protected production write is independently accepted'),
+      item('operational_security_handover',
+        'Operators validate actual protected pushes, recovery procedures, permissions and CEO signoff')
+    ]),
+    blockers:[
+      'Isolated state-race success does not demonstrate all live concurrent production writer recovery paths',
+      'Recovery handover and full cross-system write conflict evidence remain open',
+      'Final CEO acceptance has not been recorded'
+    ]},
+  {id:'SYSTEM_MONITORING',name:'System Monitoring — technical incident detection and Discord report',
+    workflow:'system-monitoring.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_46_workflow_monitor',
+        'Actual production monitoring evaluated source freshness and recorded four still-unresolved critical map/freshness findings',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910473380']),
+      item('live_monitor_discord_update',
+        'Actual production run updated its existing Discord system-monitor message and completed technical health verification',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910473380']),
+      item('real_discord_permissions',
+        'Live Discord permission audit completed 13 of 13 approved technical permission checks',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910473380']),
+      item('discord_get_readback_and_recovery',
+        'Stored monitor message content independently read back from Discord after a real alert and a later resolution'),
+      item('full_real_alert_lifecycle',
+        'Operators confirm alert, dedupe, acknowledge, recovery and escalation under a real transient failure')
+    ]),
+    blockers:[
+      'A production Discord update log does not independently establish content GET readback or successful later resolution',
+      'Full real alert-to-recovery lifecycle and operator handover still require proof',
+      'Four external map/freshness critical Core findings remain open; CEO final acceptance is not recorded'
     ]}
+
 ].map(x=>Object.freeze(x)));
 const AREA_ORDER=Object.freeze([
   'Automation','Backup','Changelog','Convoys','Drivers',
