@@ -132,7 +132,7 @@ test('consolidated Leadership decrypts real AES Event container, never treats ci
   assert.match(JSON.stringify(event),/months with claims/);
   assert.match(JSON.stringify(event),/Event History — Decision Evidence Review/);
   assert.match(JSON.stringify(event),/frozen Legacy claims requiring original Staff records/);
-  assert.match(JSON.stringify(event),/Event History — Monthly Staff Review Order/);
+  assert.match(JSON.stringify(event),/Event History — Priority Months/);
   assert.match(JSON.stringify(event),/2026-11/);
   assert.doesNotMatch(JSON.stringify(event),/SECRET PRIVATE LEADERSHIP/);
   assert.doesNotMatch(JSON.stringify(sealed),/SECRET PRIVATE LEADERSHIP/);
