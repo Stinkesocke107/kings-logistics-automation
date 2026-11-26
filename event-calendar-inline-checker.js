@@ -42,7 +42,10 @@ function inspectInline({read=loadReport,nowMs=Date.now()}={}){
     if(calendar?.months?.length!==12 || calendar?.freeSlotsCertified!==false ||
        calendar?.ready!==false || calendar?.dailyTotalLimit!==3 ||
        calendar?.monthlyLimitValueConfirmed!==true ||
-       calendar.months.some(month=>
+       calendar.months.some((month,i)=>
+         month.utcMonth!==new Date(Date.UTC(
+           new Date(nowMs).getUTCFullYear(),
+           new Date(nowMs).getUTCMonth()+i,1)).toISOString().slice(0,7)||
          month.partnerMonthlyLimit!==20||month.externalMonthlyLimit!==20||
          month.kingsMonthlyLimit!==null||month.monthlyRemainingVerified!==null))
       throw Error('Unverified Event Capacity rules');
