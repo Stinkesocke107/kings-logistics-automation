@@ -393,7 +393,14 @@ function buildEvent(data, now = Date.now()) {
       field('⏱️ Event Operations — Review Order',renderOperationsWorklist(operations)),
       field('📝 Event Operations — Manual Staff Progress',renderReviewSummary(state,now)),
       field('🔐 Event Operations — Private Review Codes',
-        renderPrivateReviewTokens(state,String(DRIVER_STATE_KEY),now))
+        renderPrivateReviewTokens(state,String(DRIVER_STATE_KEY),now)),
+      field('💬 Event Operations — Discord Staff Commands',
+        state.discordReviewCursor===undefined
+          ? 'Inactive — no private Discord Staff command reader has been initialized. Activation requires a protected channel and approved Event Coordination role IDs.'
+          : 'Private Discord command reader initialized. Commands not applied **'+
+            (Number.isSafeInteger(state.discordReviewIgnored)?
+              state.discordReviewIgnored:'Unavailable')+
+            '**. Format: !kings-review <code> start | block | reopen | record_check. Copy the current private code above; no automatic Event approvals, bookings or released capacity.')
     ],
     footer: { text: 'Kings Logistics • Event Leadership • Internal operations' },
     timestamp: nowISO()
