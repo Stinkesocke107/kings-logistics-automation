@@ -12,9 +12,11 @@ const VIEW=1n<<10n,SEND=1n<<11n,ADMIN=1n<<3n;
 const MAX_PAGES=8;
 const MAX_COMMANDS=800;
 const CMD=/^!kings-review (KR[a-f0-9]{24}) (start|block|reopen|record_check)(?: (ORIGINAL_DISCORD|ORIGINAL_EVENT_PAGE|STAFF_RECORD) (ORIGINAL_RECORDS_CHECKED))?$/;
+// Owner-approved #18 command operators: all six Event leadership tiers.
+// Exact Discord role IDs must still be explicitly configured privately.
 const STAFF_NAMES=new Set([
-  'Event Coordinator','Event Coordinators',
-  'Event Coordination Lead','Event Coordinator Lead'
+  'CEO','Head Management Event','Event Management','Event Director',
+  'Event Coordination Lead','Event Coordinator'
 ]);
 function reject(){throw Error('Kings Event Operations Discord source unverified');}
 function roleIdsFromSecret(text){
@@ -39,7 +41,10 @@ function validatePrivateChannel({channel,roles,bot,botMember,allowedRoles,channe
   if(has(roleById.get(GUILD).permissions,ADMIN))reject();
   for(const id of allowedRoles){
     const role=roleById.get(id);
-    if(!role||!STAFF_NAMES.has(role.name)||has(role.permissions,ADMIN))
+    // CEO has the server Administrator permission and legitimately bypasses
+    // channel overwrites. No other configured Event command role may be Admin.
+    if(!role||!STAFF_NAMES.has(role.name)||
+      (has(role.permissions,ADMIN)&&role.name!=='CEO'))
       reject();
   }
   const overrides=channel.permission_overwrites;
@@ -62,7 +67,12 @@ function validatePrivateChannel({channel,roles,bot,botMember,allowedRoles,channe
     if(item.type===0&&!roleById.has(item.id))reject();
   }
   for(const id of allowedRoles){
+    const role=roleById.get(id);
     const overwrite=overrides.find(x=>x.type===0&&x.id===id);
+    // Discord's Administrator bypasses channel-specific VIEW/SEND grants;
+    // CEO can appear in permissions without a role overwrite. All other
+    // authorised roles need explicit VIEW and SEND grants on this channel.
+    if(role.name==='CEO'&&has(role.permissions,ADMIN))continue;
     if(!overwrite||!has(overwrite.allow,VIEW)||
       !has(overwrite.allow,SEND)||has(overwrite.deny,VIEW)||
       has(overwrite.deny,SEND))reject();
