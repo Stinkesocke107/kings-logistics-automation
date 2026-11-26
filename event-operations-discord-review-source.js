@@ -12,19 +12,17 @@ const VIEW=1n<<10n,SEND=1n<<11n,ADMIN=1n<<3n;
 const MAX_PAGES=8;
 const MAX_COMMANDS=800;
 const CMD=/^!kings-review (KR[a-f0-9]{24}) (start|block|reopen|record_check)(?: (ORIGINAL_DISCORD|ORIGINAL_EVENT_PAGE|STAFF_RECORD) (ORIGINAL_RECORDS_CHECKED))?$/;
-// Owner-approved #18 command operators: all six Event leadership tiers.
-// Exact Discord role IDs must still be explicitly configured privately.
-const STAFF_NAMES=new Set([
-  'CEO','Head Management Event','Event Management','Event Director',
-  'Event Coordination Lead','Event Coordinator'
-]);
+// Owner-approved #18 command operators are identified by immutable
+// private Discord role IDs, not their editable display names. The owner
+// configures the six IDs in order, CEO first, then five Event staff tiers.
+// Administrator is permitted only for the first configured ID (CEO).
 // Only fixed, identifier-free error categories may reach public CI logs.
 // Raw HTTP errors, URLs, Discord role/member IDs and tokens are never logged.
 const SAFE_PREFLIGHT_CODES=new Set([
   'CONFIG_INVALID','CHANNEL_UNAVAILABLE','GUILD_ROLES_UNAVAILABLE',
   'BOT_AUTH_UNAVAILABLE','BOT_MEMBER_UNAVAILABLE',
   'CHANNEL_METADATA_INVALID','ROLE_POLICY_INVALID',
-  'ROLE_MISSING','ROLE_NAME_MISMATCH','ROLE_UNEXPECTED_ADMIN',
+  'ROLE_MISSING','ROLE_UNEXPECTED_ADMIN',
   'CHANNEL_PRIVATE_POLICY_INVALID','ROLE_ACCESS_INVALID'
 ]);
 function reject(code){
@@ -55,13 +53,13 @@ function validatePrivateChannel({channel,roles,bot,botMember,allowedRoles,channe
     reject('ROLE_POLICY_INVALID');
   if(has(roleById.get(GUILD).permissions,ADMIN))
     reject('ROLE_POLICY_INVALID');
-  for(const id of allowedRoles){
-    const role=roleById.get(id);
-    // Keep the underlying role ID private; only fixed, safe diagnostics.
-    // CEO may be Administrator; a non-CEO Admin role requires owner review.
+  for(let i=0;i<allowedRoles.length;i++){
+    const role=roleById.get(allowedRoles[i]);
+    // Only immutable owner-approved IDs grant access. Discord role display
+    // names may be decorated or renamed without changing authorization.
+    // The owner MUST place the CEO role ID first in the private secret.
     if(!role)reject('ROLE_MISSING');
-    if(!STAFF_NAMES.has(role.name))reject('ROLE_NAME_MISMATCH');
-    if(has(role.permissions,ADMIN)&&role.name!=='CEO')
+    if(has(role.permissions,ADMIN)&&i!==0)
       reject('ROLE_UNEXPECTED_ADMIN');
   }
   const overrides=channel.permission_overwrites;
@@ -86,13 +84,13 @@ function validatePrivateChannel({channel,roles,bot,botMember,allowedRoles,channe
     if(item.type===0&&!roleById.has(item.id))
       reject('CHANNEL_PRIVATE_POLICY_INVALID');
   }
-  for(const id of allowedRoles){
-    const role=roleById.get(id);
+  for(let i=0;i<allowedRoles.length;i++){
+    const id=allowedRoles[i],role=roleById.get(id);
     const overwrite=overrides.find(x=>x.type===0&&x.id===id);
-    // Discord's Administrator bypasses channel-specific VIEW/SEND grants;
-    // CEO can appear in permissions without a role overwrite. All other
-    // authorised roles need explicit VIEW and SEND grants on this channel.
-    if(role.name==='CEO'&&has(role.permissions,ADMIN))continue;
+    // The first privately configured role ID is the CEO. Discord's
+    // Administrator permission bypasses channel-specific VIEW/SEND grants.
+    // Every non-Administrator operator needs an explicit channel overwrite.
+    if(i===0&&has(role.permissions,ADMIN))continue;
     if(!overwrite||!has(overwrite.allow,VIEW)||
       !has(overwrite.allow,SEND)||has(overwrite.deny,VIEW)||
       has(overwrite.deny,SEND))

@@ -106,12 +106,13 @@ test('staff channel is private, Event Coordination role verified, and no broad g
    channel:broken,roles:guildRoles,bot,botMember,
    allowedRoles:[ROLE],channelId:CHANNEL
  }),/unverified/);
- assert.throws(()=>validatePrivateChannel({
+ // Names do not authorize; verified owner-selected immutable role IDs do.
+ assert.equal(validatePrivateChannel({
    channel,roles:[everyone,
-     {id:ROLE,name:'Verified Driver',permissions:'0'},
+     {id:ROLE,name:'│ Event Coordinator 👑',permissions:'0'},
      ...guildRoles.slice(2)],bot,botMember,
    allowedRoles:[ROLE],channelId:CHANNEL
- }),/unverified/);
+ }),true);
  for(const invalid of ['',ROLE+','+ROLE,GUILD,'123','not-a-role'])
    assert.throws(()=>roleIdsFromSecret(invalid),/unverified/);
 });
@@ -157,15 +158,19 @@ test('CEO and every Event leadership tier can use review commands with individua
    assert.equal(result.state.eventSourceObservation.staffApprovalsVerified,false);
    assert.equal(result.state.eventSourceObservation.freeSlotsCertified,false);
  }
- for(const broken of [
-   roles.map(role=>role.name==='Event Director'?
-     {...role,permissions:'8'}:role),
-   roles.map(role=>role.name==='Event Management'?
-     {...role,name:'Verified Driver'}:role),
-   roles.map(role=>role.name==='CEO'?
-     {...role,name:'Owner'}:role)
- ])assert.throws(()=>validatePrivateChannel({
-   channel:privateChannel,roles:broken,bot,botMember,
+ // A CEO role may be visually decorated; other verified roles may be
+ // renamed without changing their immutable role IDs or operator rights.
+ const decoratedRoles=roles.map(role=>
+   role.name==='CEO'?{...role,name:'│ CEO'}:
+   role.name==='Event Management'?{...role,name:'Events Manager 👑'}:role);
+ assert.equal(validatePrivateChannel({
+   channel:privateChannel,roles:decoratedRoles,bot,botMember,
+   allowedRoles:allIds,channelId:CHANNEL
+ }),true);
+ const unexpectedAdmin=roles.map(role=>role.name==='Event Director'?
+   {...role,permissions:'8'}:role);
+ assert.throws(()=>validatePrivateChannel({
+   channel:privateChannel,roles:unexpectedAdmin,bot,botMember,
    allowedRoles:allIds,channelId:CHANNEL
  }),/unverified/);
  const withoutLead={...privateChannel,permission_overwrites:
@@ -300,8 +305,8 @@ test('VERIFY_ONLY emits only bounded redacted diagnostic codes for private sourc
    KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS:ROLE,
    DISCORD_BOT_TOKEN:'SYNTHETIC_BOT_TOKEN'
  };
- async function verifyDiagnostic(transport,expected){
-   await assert.rejects(()=>run({env,transport,
+ async function verifyDiagnostic(transport,expected,effectiveEnv=env){
+   await assert.rejects(()=>run({env:effectiveEnv,transport,
      read:()=>{throw Error('private state must never be read');},
      write:()=>{throw Error('private state must never be written');}
    }),error=>{
@@ -329,20 +334,26 @@ test('VERIFY_ONLY emits only bounded redacted diagnostic codes for private sourc
    permission_overwrites:channel.permission_overwrites.slice(1)
  }}).transport;
  await verifyDiagnostic(privateFailure,'CHANNEL_PRIVATE_POLICY_INVALID');
- const badRole=discordFetch([],{roles:[
-   everyone,{id:ROLE,name:'Verified Driver',permissions:'0'},
+ const renamedRole=discordFetch([],{roles:[
+   everyone,{id:ROLE,name:'Event Coordinator (decorated)',permissions:'0'},
    {id:BOTROLE,name:'Bots',permissions:'0'}
  ]}).transport;
- await verifyDiagnostic(badRole,'ROLE_NAME_MISMATCH');
+ const renamedResult=await run({env,transport:renamedRole,
+   read:()=>{throw Error('preflight must not read private state');},
+   write:()=>{throw Error('preflight must not write state');}
+ });
+ assert.equal(renamedResult.status,'SOURCE_METADATA_CHECKED');
  const missingRole=discordFetch([],{roles:[everyone,
    {id:BOTROLE,name:'Bots',permissions:'0'}
  ]}).transport;
  await verifyDiagnostic(missingRole,'ROLE_MISSING');
  const unexpectedAdmin=discordFetch([],{roles:[everyone,
-   {id:ROLE,name:'Event Coordinator',permissions:'8'},
-   {id:BOTROLE,name:'Bots',permissions:'0'}
+   {id:ROLE,name:'Event Coordinator',permissions:'0'},
+   {id:BOTROLE,name:'Bots',permissions:'8'}
  ]}).transport;
- await verifyDiagnostic(unexpectedAdmin,'ROLE_UNEXPECTED_ADMIN');
+ await verifyDiagnostic(unexpectedAdmin,'ROLE_UNEXPECTED_ADMIN',{
+   ...env,KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS:ROLE+','+BOTROLE
+ });
  const roleWithoutSend=discordFetch([],{channel:{
    ...channel,
    permission_overwrites:channel.permission_overwrites.map(x=>
