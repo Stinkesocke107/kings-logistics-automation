@@ -42,6 +42,10 @@ jobs:
     timeout-minutes: 15
     env:
       KINGS_API_HEALTH_NAMESPACE: 'live-systems'
+      # Operator-selected official, map-independent mode. Kings online counts
+      # remain unavailable because the public TruckersMP API has no per-player
+      # presence endpoint. This is NOT a fake replacement for live map players.
+      KINGS_TRACKER_SOURCE_MODE: 'official'
 
     steps:
       - name: Checkout repository
@@ -64,6 +68,7 @@ jobs:
 
       - name: Update Kings Live Tracker
         id: live_tracker
+        if: ${{ env.KINGS_TRACKER_SOURCE_MODE == 'map' }}
         # A map/provider incident must not halt the whole Kings Live Systems
         # pipeline before the independently verified fallback can publish.
         continue-on-error: true
@@ -80,7 +85,9 @@ jobs:
       # explicitly unavailable, without resetting their verified history.
       # If even the stored Tracker message cannot be edited, fail the job.
       - name: Continue Kings Live Systems without the live map
-        if: ${{ steps.live_tracker.outcome == 'failure' }}
+        # Official mode never calls the external player map. If explicitly
+        # restored to map mode, a failed map scan still uses the same fallback.
+        if: ${{ env.KINGS_TRACKER_SOURCE_MODE == 'official' || steps.live_tracker.outcome == 'failure' }}
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
@@ -90,9 +97,8 @@ jobs:
           TRUCKERSMP_OFFICIAL_FEED_ENABLED: 'true'
         run: |
           node live-outage-notice.js
-          echo "::warning::Live player data unavailable; Kings Live Tracker is operating in verified offline-map mode."
-          echo "### Kings Live Systems: operating without live player map" >> "$GITHUB_STEP_SUMMARY"
-          echo "Official VTC membership and global TruckersMP server totals are shown when verified. Kings-specific live player counts are unavailable, not zero. No historic live snapshot was overwritten." >> "$GITHUB_STEP_SUMMARY"
+          echo "### Kings Live Tracker — map-independent official mode" >> "$GITHUB_STEP_SUMMARY"
+          echo "Official Kings VTC membership and total TruckersMP server populations are refreshed without any live-map calls. Kings-specific live online/player positions are unavailable, never zero. Historical verified player statistics are preserved." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Update Kings Advanced Statistics
         if: ${{ steps.live_tracker.outcome == 'success' }}
@@ -130,7 +136,7 @@ jobs:
         run: |
           git config user.name "Kings Logistics Automation"
           git config user.email "actions@users.noreply.github.com"
-          for file in data/live-tracker-snapshot.json data/statistics.json data/central-overview.json data/live-systems-delivery.json data/api-health; do
+          for file in data/live-tracker-snapshot.json data/live-tracker-official.json data/statistics.json data/central-overview.json data/live-systems-delivery.json data/api-health; do
             if [ -n "$(git status --porcelain -- "$file")" ]; then
               git add -A -- "$file"
             fi
