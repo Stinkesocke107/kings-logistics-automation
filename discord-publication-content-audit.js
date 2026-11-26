@@ -213,7 +213,7 @@ function verifyVerifiedMapPublication(message,label,tracker){
    if(!desc.includes(presence)||!desc.includes(ets)||
       !desc.includes(ats))
      return 'verified-map-tracker-online-mismatch';
-   const published=desc.match(/Last updated <t:(\\d+):R>/);
+   const published=desc.match(/Last updated <t:(\d+):R>/);
    if(!published||Math.abs(Number(published[1])-timestamp)>300)
      return 'verified-map-tracker-time-mismatch';
    return null;
