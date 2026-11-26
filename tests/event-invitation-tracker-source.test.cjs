@@ -369,3 +369,23 @@ test('only existing GET-only source and encrypted reporting are wired; no invita
   assert.doesNotMatch(reader,/(?:writeFileSync|appendFileSync|console\.log)\(/);
   assert.doesNotMatch(reports,/console\.log\(.*invitationSourceObservation/);
 });
+
+test('invitation rows without a human author or posted by a webhook are never counted as VTC replies',()=>{
+  const f=fixture(),messages=f.messagesByThread.get(C);
+  const content='Proof VTC — TMP VTC page: https://truckersmp.com/vtc/40404 — Invited by: @Events — Response: Accepted';
+  messages.push(
+    {id:'555555555555555551',content,author:null},
+    {id:'555555555555555552',content,author:{id:'555555555555555555',bot:false},
+      webhook_id:'555555555555555556'},
+    {id:'555555555555555553',content,author:{id:'555555555555555555'}}
+  );
+  const x=summarizeTracker(f);
+  assert.equal(x.invitedVtcs,4); // only the final genuine human row is new
+  assert.equal(x.recordedAccepted,2);
+  assert.equal(x.malformedReplies,3); // original malformed + two untrusted rows
+  assert.equal(x.staffApprovalsVerified,false);
+  assert.equal(x.invitationDecisionsVerified,false);
+  assert.equal(x.bookingsCreated,0);
+  assert.equal(trustedInvitationObservation(x,NOW),x);
+  assert.doesNotMatch(JSON.stringify(x),/40404|555555555555555551|555555555555555552/);
+});
