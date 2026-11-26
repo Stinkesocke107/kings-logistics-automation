@@ -190,7 +190,14 @@ function reviewSummary(state,nowMs=Date.now()){
     recheck:live.filter(x=>x.status==='RECHECK_REQUIRED').length,
     noLongerActive:records.filter(x=>!current.some(y=>
       x.key===keyOf(y.scope,y.code,y.month))).length,
-    lines:live.slice(0,5).map(x=>x.status+' · '+
+    // Show human-progress items first so an active monthly Staff review is
+    // not hidden behind untouched source categories. The source issue
+    // priority worklist itself is unaffected.
+    lines:[...live].sort((a,b)=>{
+      const order={NEEDS_EVIDENCE:0,RECHECK_REQUIRED:1,IN_REVIEW:2,
+        STAFF_CHECK_RECORDED:3,OPEN:4};
+      return order[a.status]-order[b.status];
+    }).slice(0,5).map(x=>x.status+' · '+
       (x.scope==='history'?(x.month||'Undated')+' · ':'')+
       (x.scope==='history'?CODES[x.code]:WORK_LABELS[x.code]))
   });
