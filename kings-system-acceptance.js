@@ -193,6 +193,9 @@ const namedOperationalSystems=Object.freeze([
         [EVIDENCE_ROOT+'actions/runs/45902760777']),
       item('protected_conflict_detection','Real isolated Git race fails the workflow instead of hiding a lost Driver state commit',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45902677492']),
+      item('loa_private_cursor_pagination','Driver LOA command cursor handles real-structure multi-page history and rejects truncated batches offline',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45903917911',
+         EVIDENCE_ROOT+'actions/runs/45904002762']),
       item('real_driver_loa_lifecycle','An authorized real leave-of-absence request and return update protected state correctly'),
       item('driver_discord_handover','Real Driver change reaches the approved private management view and team'),
       item('recovery_without_personnel_changes','Recovery and operational ownership are signed off without automatic disciplinary action')
@@ -210,6 +213,12 @@ const namedOperationalSystems=Object.freeze([
         [EVIDENCE_ROOT+'actions/runs/45902760787']),
       item('protected_hr_conflict','Real isolated Git race fails rather than silently discarding encrypted HR review status',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45902677492']),
+      item('hr_command_cursor_pagination','HR private command reader paginates back to protected cursor and rejects gaps and bad IDs',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45903917911',
+         EVIDENCE_ROOT+'actions/runs/45904002869']),
+      item('hr_command_actor_authority','Actual guild membership and approved HR roles are required for unedited human commands; outsider or webhook rejected offline',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45904130702',
+         EVIDENCE_ROOT+'actions/runs/45904230707']),
       item('real_authorized_hr_command','Authorized real probation command is processed and durably stored'),
       item('hr_leadership_handover','Current HR review, original evidence and private Leadership presentation are reconciled'),
       item('hr_recovery_confirmed','HR Team validates failed-save recovery and command idempotence')
@@ -229,6 +238,9 @@ const namedOperationalSystems=Object.freeze([
         [EVIDENCE_ROOT+'actions/runs/45902677492']),
       item('protected_staff_conflict','Real isolated Git race refuses false success if newer Staff state is already on main',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45902677492']),
+      item('public_staff_journal_fail_closed','Corrupted encrypted public Staff announcement dedupe history cannot silently create a new baseline; actual Staff producer still ran after deployment',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45904297317',
+         EVIDENCE_ROOT+'actions/runs/45904393705']),
       item('real_staff_lifecycle','Real joining, promotion and departure are reconciled with approved VTC and Discord evidence'),
       item('public_staff_delivery','Real approved Staff announcement is independently confirmed in the correct Discord channel'),
       item('staff_operator_handover','Staff team signs off role hierarchy, message safety and manual recovery')
