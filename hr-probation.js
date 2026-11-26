@@ -2,6 +2,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const {readNewCommands}=require('./discord-command-cursor');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
@@ -391,19 +392,18 @@ async function handleList(channel, hrState) {
 }
 
 async function processCommands(channel, driverState, hrState) {
-  const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
-  const maxId = maxSnowflake(messages || []);
-
-  if (!hrState.lastProcessedMessageId) {
-    hrState.lastProcessedMessageId = maxId;
+  const history=await readNewCommands({
+    channelId:String(channel.id),cursor:hrState.lastProcessedMessageId,
+    fetchPage:before=>discord(`/channels/${channel.id}/messages?limit=100`+
+      (before?`&before=${before}`:''))
+  });
+  if(history.bootstrap){
+    hrState.lastProcessedMessageId=history.newestId;
     writeHrState(hrState);
     console.log('HR probation command baseline initialized. Historical messages were not processed.');
     return 0;
   }
-
-  const fresh = (messages || [])
-    .filter((message) => snowflakeGreater(message.id, hrState.lastProcessedMessageId))
-    .sort((a, b) => (snowflakeGreater(a.id, b.id) ? 1 : -1));
+  const fresh=history.messages;
 
   let processed = 0;
   for (const message of fresh) {
@@ -422,9 +422,8 @@ async function processCommands(channel, driverState, hrState) {
     else await post(channel.id, helpText());
   }
 
-  if (maxId && snowflakeGreater(maxId, hrState.lastProcessedMessageId)) {
-    hrState.lastProcessedMessageId = maxId;
-  }
+  if(snowflakeGreater(history.newestId,hrState.lastProcessedMessageId))
+    hrState.lastProcessedMessageId=history.newestId;
 
   writeHrState(hrState);
   return processed;

@@ -2,6 +2,7 @@ require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const {readNewCommands}=require('./discord-command-cursor');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
@@ -434,19 +435,18 @@ async function handleList(channel, loaState) {
 }
 
 async function processCommands(channel, managementState, loaState) {
-  const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
-  const maxId = maxSnowflake(messages || []);
-
-  if (!loaState.lastProcessedMessageId) {
-    loaState.lastProcessedMessageId = maxId;
+  const history=await readNewCommands({
+    channelId:String(channel.id),cursor:loaState.lastProcessedMessageId,
+    fetchPage:before=>discord(`/channels/${channel.id}/messages?limit=100`+
+      (before?`&before=${before}`:''))
+  });
+  if(history.bootstrap){
+    loaState.lastProcessedMessageId=history.newestId;
     writeLoaState(loaState);
     console.log('Driver LOA command baseline initialized. Historical messages were not processed.');
     return 0;
   }
-
-  const newMessages = (messages || [])
-    .filter((message) => snowflakeGreater(message.id, loaState.lastProcessedMessageId))
-    .sort((a, b) => (snowflakeGreater(a.id, b.id) ? 1 : -1));
+  const newMessages=history.messages;
 
   let commands = 0;
 
@@ -470,9 +470,8 @@ async function processCommands(channel, managementState, loaState) {
     }
   }
 
-  if (maxId && snowflakeGreater(maxId, loaState.lastProcessedMessageId)) {
-    loaState.lastProcessedMessageId = maxId;
-  }
+  if(snowflakeGreater(history.newestId,loaState.lastProcessedMessageId))
+    loaState.lastProcessedMessageId=history.newestId;
 
   writeLoaState(loaState);
   return commands;
