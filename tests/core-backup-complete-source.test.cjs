@@ -17,6 +17,12 @@ test('Core backup includes every current automation code, test and operator-docu
  }
  assert.match(backup,/basename === "\.env"/);
 });
+test('Core backup cannot follow symlinks into runner secrets or external files',()=>{
+ assert.match(backup,/fs\.lstatSync\(/);
+ assert.match(backup,/stat\.isSymbolicLink\(\)/);
+ assert.doesNotMatch(backup,/fs\.statSync\(\s*absolutePath/);
+});
+
 test('Critical backup checks cover protected Event review, live data and recovery scripts',()=>{
  const critical=backup.slice(backup.indexOf('const CRITICAL_FILES'),
    backup.indexOf('const EXCLUDED_PREFIXES'));
