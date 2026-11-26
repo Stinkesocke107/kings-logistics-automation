@@ -73,14 +73,17 @@
       "message": "Final Freeze Verification has no workflow runs.",
       "details": null,
       "firstAlertedAt": "2026-11-26T01:08:07.211Z"
+    },
+    "workflow-failed:staff-leadership-live-overview.yml": {
+      "severity": "warning",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
+      "details": {
+        "runId": 45733552212,
+        "completedAt": "2026-11-26T01:07:47Z"
+      },
+      "firstAlertedAt": "2026-11-26T01:09:23.482Z"
     }
   },
-  "pending": {
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-26T01:08:07.211Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
