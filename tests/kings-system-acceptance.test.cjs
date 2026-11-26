@@ -39,7 +39,15 @@ test('a successful workflow or many offline tests never grant full System #18 ac
  assert.ok(capacity.capabilities.some(x=>
    x.id==='owner_final_approval'&&x.state===PENDING));
  assert.ok(capacity.blockers.length>0);
- for(const code of ['14','15','16'])
+ const history=s.eventSystems.find(x=>x.id==='14');
+ assert.equal(history.acceptance,'PARTIALLY_VERIFIED');
+ assert.equal(history.ownerApproval,null);
+ assert.ok(history.capabilities.some(x=>
+   x.id==='month_source_integrity'&&x.state===VERIFIED));
+ assert.ok(history.capabilities.some(x=>
+   x.id==='original_archive_completeness'&&x.state===PENDING));
+ assert.ok(history.blockers.length>0);
+ for(const code of ['15','16'])
   assert.equal(s.eventSystems.find(x=>x.id===code).acceptance,'NOT_ASSESSED');
  assert.ok(!s.eventSystems.some(x=>x.acceptance==='COMPLETE'));
 });

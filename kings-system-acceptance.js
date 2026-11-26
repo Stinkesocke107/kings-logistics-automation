@@ -54,8 +54,32 @@ const namedEventSystems=Object.freeze([
       'Full real planning-to-authorized-Staff handover and monitoring proof pending',
       'Explicit CEO final acceptance not recorded'
     ]},
-  {id:'14',name:'Event History',gates:fullGateList(),
-    blockers:['System-specific final acceptance not independently documented']},
+  {id:'14',name:'Event History',
+    gates:fullGateList({
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45900507573']
+    }),
+    capabilities:Object.freeze([
+      item('reconciled_history_projection',
+        '24-month source-claim projection separates Convoy Center and frozen Legacy',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45899560178']),
+      item('month_source_integrity',
+        'Exact UTC month continuity, bounded counts and contradictory outcome protection',VERIFIED,
+        [EVIDENCE_ROOT+'pull/195',EVIDENCE_ROOT+'actions/runs/45900507573']),
+      item('protected_review_agenda',
+        'Private month-level read-only evidence review without per-event identifiers',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45900507573']),
+      item('original_archive_completeness',
+        'All original 24-month Event records independently reconciled'),
+      item('historical_staff_decisions',
+        'Approvals, cancellations and attendance checked against original Staff evidence'),
+      item('real_staff_to_dashboard_handover',
+        'Real source-to-private-dashboard and team handling confirmed')
+    ]),
+    blockers:[
+      'Original Event archive coverage across all 24 UTC months is unverified',
+      'Historical Staff approvals, cancellations and attendance are not independently evidenced',
+      'Real full source-to-Staff handover, operations and CEO signoff remain pending'
+    ]},
   {id:'15',name:'Invitation Tracker',gates:fullGateList(),
     blockers:['System-specific final acceptance not independently documented']},
   {id:'16',name:'Event Calendar',gates:fullGateList(),
