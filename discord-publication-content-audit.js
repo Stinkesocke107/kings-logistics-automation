@@ -276,7 +276,7 @@ async function main(){
      if(String(message?.id||'')!==String(state[cfg.field]))return 'fixed-message-id-mismatch';
      if(fullMap)return verifyNormal(message,cfg.title);
      if(fallback)return verifyOfficialFallback(message,
-       cfg.key==='statistics-outage'?'Statistics':cfg.label||(
+       cfg.key==='statistics-outage'?'Advanced Statistics':cfg.label||(
          cfg.key==='central-overview-outage'?'Central Overview':'Live Tracker'),
        fallback);
      // A claimed official/full-map delivery without its matching fresh
