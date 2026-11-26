@@ -8,7 +8,7 @@ const {decryptEventState}=require('./event-leadership-state');
 const {trustedEventObservation}=require('./event-leadership-observation');
 const {trustedInvitationObservation}=require('./event-invitation-tracker-source');
 const {observeOperations,renderOperationsReview,operationsWorklist,renderOperationsWorklist,WORK_LABELS}=require('./event-operations-staff-triage');
-const {reviewSummary,renderReviewSummary}=require('./event-operations-manual-review-state');
+const {reviewSummary,renderReviewSummary,renderPrivateReviewTokens}=require('./event-operations-manual-review-state');
 const {renderReviewAgenda,CODES}=require('./event-history-review-agenda');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
@@ -391,7 +391,9 @@ function buildEvent(data, now = Date.now()) {
       field('✉️ Invitation Tracker — Source Review',invitationLine),
       field('🛠️ Event Operations — Staff Triage',renderOperationsReview(operations)),
       field('⏱️ Event Operations — Review Order',renderOperationsWorklist(operations)),
-      field('📝 Event Operations — Manual Staff Progress',renderReviewSummary(state,now))
+      field('📝 Event Operations — Manual Staff Progress',renderReviewSummary(state,now)),
+      field('🔐 Event Operations — Private Review Codes',
+        renderPrivateReviewTokens(state,String(DRIVER_STATE_KEY),now))
     ],
     footer: { text: 'Kings Logistics • Event Leadership • Internal operations' },
     timestamp: nowISO()
