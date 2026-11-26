@@ -3,17 +3,25 @@
 // Only the AES-GCM Event Leadership state and encrypted replay cursor change.
 const fs=require('node:fs'),path=require('node:path');
 const {decryptEventState,encryptEventState}=require('./event-leadership-state');
-const {roleIdsFromSecret,ingest}=require('./event-operations-discord-review-source');
+const {roleIdsFromSecret,ingest,preflight}=require('./event-operations-discord-review-source');
 const STATE=path.join(__dirname,'data/event-leadership-report-state.json');
 async function run({env=process.env,read=fs.readFileSync,
   write=fs.writeFileSync,transport=fetch,nowMs=Date.now()}={}){
-  if(env.KINGS_EVENT_DISCORD_REVIEW_ENABLED!=='ENABLED')
+  const mode=env.KINGS_EVENT_DISCORD_REVIEW_ENABLED;
+  if(mode!=='ENABLED'&&mode!=='VERIFY_ONLY')
     return Object.freeze({status:'DISABLED',changed:false,readOnlyDiscord:true});
   if(env.GITHUB_REF!=='refs/heads/main'||
     !['schedule','workflow_dispatch'].includes(env.GITHUB_EVENT_NAME))
     throw Error('Kings Discord review source not authorized');
   const channelId=String(env.KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID||'');
   const roleIds=roleIdsFromSecret(env.KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS);
+  // Owner-only VERIFY_ONLY never loads private Event state and cannot
+  // read/replay commands or advance the encrypted journal cursor.
+  if(mode==='VERIFY_ONLY')
+    return preflight({
+      token:String(env.DISCORD_BOT_TOKEN||''),channelId,
+      staffRoleIds:roleIds,transport
+    });
   const secret=String(env.DRIVER_STATE_KEY||'');
   if(secret.length<32)throw Error('Kings review private state unavailable');
   const encoded=JSON.parse(read(STATE,'utf8'));
