@@ -309,7 +309,7 @@ async function readInvitationTracker({token,transport=fetch,
     // Before-cursors must move strictly backward, never repeat or jump
     // forward. A drifting page is not proof that the archive is complete.
     const parsed=Date.parse(next);
-    if(typeof next!=='string'||!/Z$/.test(next)||
+    if(typeof next!=='string'||!/(?:Z|[+-]\\d{2}:\\d{2})$/.test(next)||
        !Number.isFinite(parsed)||next===before||
        (before!==null&&parsed>=Date.parse(before)))
       refuse('ARCHIVE_PAGE_INCOMPLETE');
