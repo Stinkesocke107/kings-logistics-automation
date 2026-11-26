@@ -117,18 +117,26 @@ function acceptanceStatus({gates,capabilities=[],blockers=[],ownerApproval=null}
 }
 function snapshot(){
   assertAcceptance();
-  const eventSystems=namedEventSystems.map(s=>({
-    ...s,ownerApproval:null,
-    acceptance:acceptanceStatus({...s,ownerApproval:null})
-  }));
-  const eventDiscord=eventSystems.find(s=>s.id==='18');
-  const workflows=WORKFLOW_REGISTRY.map(w=>({
-    file:w.file,label:w.label,area:w.area,
-    // A system-level evidence review may inform, but does NOT overwrite,
-    // unrelated workflow acceptance decisions.
-    status:w.file==='event-operations-discord-review.yml'?
-      eventDiscord.acceptance:'NOT_ASSESSED'
-  }));
+  const eventSystems=namedEventSystems.map(s=>{
+    const ownerApproval=s.ownerApproval||null;
+    return {...s,ownerApproval,
+      acceptance:acceptanceStatus({...s,ownerApproval})};
+  });
+  // Map workflows to the independently accepted business systems that own
+  // them. Additional mappings require explicitly reviewed systems first.
+  const workflowSystemRefs=Object.freeze({
+    'event-operations-discord-review.yml':'18'
+  });
+  const workflows=WORKFLOW_REGISTRY.map(w=>{
+    const reference=workflowSystemRefs[w.file];
+    const system=reference?eventSystems.find(s=>s.id===reference):null;
+    if(reference&&!system)throw Error('Unregistered Kings system acceptance reference');
+    return {
+      file:w.file,label:w.label,area:w.area,
+      // A documented system gate does not silently approve other workflows.
+      status:system?system.acceptance:'NOT_ASSESSED'
+    };
+  });
   for(const workflow of workflows)
     if(!AREA_ORDER.includes(workflow.area))
       throw Error('Workflow area is missing from acceptance reporting');
