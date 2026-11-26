@@ -238,8 +238,9 @@ const namedOperationalSystems=Object.freeze([
         [EVIDENCE_ROOT+'actions/runs/45902677492']),
       item('protected_staff_conflict','Real isolated Git race refuses false success if newer Staff state is already on main',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45902677492']),
-      item('public_staff_journal_fail_closed','Corrupted encrypted public Staff announcement dedupe history cannot silently create a new baseline',VERIFIED,
-        [EVIDENCE_ROOT+'actions/runs/45904297317']),
+      item('public_staff_journal_fail_closed','Corrupted encrypted public Staff announcement dedupe history cannot silently create a new baseline; actual Staff producer still ran after deployment',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45904297317',
+         EVIDENCE_ROOT+'actions/runs/45904393705']),
       item('real_staff_lifecycle','Real joining, promotion and departure are reconciled with approved VTC and Discord evidence'),
       item('public_staff_delivery','Real approved Staff announcement is independently confirmed in the correct Discord channel'),
       item('staff_operator_handover','Staff team signs off role hierarchy, message safety and manual recovery')
