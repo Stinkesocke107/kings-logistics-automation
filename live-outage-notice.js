@@ -133,7 +133,8 @@ function outageEmbed(config,state,official=null){
        value:'<t:'+Math.floor(Date.parse(official.observedAt)/1000)+':F> (<t:'+
          Math.floor(Date.parse(official.observedAt)/1000)+':R>)',inline:false}:
       {name:'Last confirmed player-data sample',value:lastVerified(state,config),inline:false},
-    {name:'Kings Drivers currently online',value:'**Unavailable — not zero**',inline:false}
+    {name:mapFree?'Kings Drivers currently online':'Current online count',
+     value:'**Unavailable — not zero**',inline:false}
   ];
   const membership=official?null:freshMemberCount();
   if(membership){
