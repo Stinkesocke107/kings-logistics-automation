@@ -585,6 +585,14 @@ test('GitHub schedule is opt-in; private source command channel and role IDs exi
  assert.match(workflow,/KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID: \$\{\{ secrets\.KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID \}\}/);
  assert.match(workflow,/KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS: \$\{\{ secrets\.KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS \}\}/);
  assert.match(workflow,/git add data\/event-leadership-report-state\.json/);
+ // A GITHUB_TOKEN state push cannot fire a normal push-triggered dashboard.
+ // Only changed encrypted Event state explicitly dispatches the fixed
+ // Leadership dashboard; idle scheduled polls must not do so.
+ assert.match(workflow,/actions: write/);
+ assert.match(workflow,/id: persist/);
+ assert.match(workflow,/echo "changed=true" >> "\$GITHUB_OUTPUT"/);
+ assert.match(workflow,/if: steps\.persist\.outputs\.changed == 'true'/);
+ assert.match(workflow,/gh workflow run leadership-dashboard\.yml/);
  assert.doesNotMatch(workflow,/run:.*(?:post|patch|delete)|DISCORD_WRITE_MODE: 'true'/i);
  const source=fs.readFileSync(path.join(root,
    'event-operations-discord-review-source.js'),'utf8');
