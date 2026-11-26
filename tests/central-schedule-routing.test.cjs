@@ -110,3 +110,19 @@ test('missed TruckersMP publication verification is restarted separately from th
  assert.ok(scheduler.includes('dispatch_if_due news-production-verification.yml 4500'));
  assert.doesNotMatch(code,/post_latest_test=true/);
 });
+
+test('overdue #18 Discord Staff Review recovery respects owner mode, active state, cooldown and no role writes',()=>{
+  const scheduler=workflow('central-scheduler');
+  const review=workflow('event-operations-discord-review');
+  assert.match(scheduler,/EVENT_REVIEW_MODE: \\$\\{\\{ secrets\\.KINGS_EVENT_DISCORD_REVIEW_ENABLED \\}\\}/);
+  assert.match(scheduler,/EVENT_REVIEW_MODE:-\\}" = "ENABLED"/);
+  assert.match(scheduler,/EVENT_REVIEW_MODE:-\\}" = "VERIFY_ONLY"/);
+  assert.match(scheduler,/event_review_workflow_state.*event-operations-discord-review\\.yml/);
+  assert.match(scheduler,/if \\[ "\\$event_review_workflow_state" = "active" \\]/);
+  assert.ok(scheduler.includes("dispatch_if_due event-operations-discord-review.yml 1800 '' 1200 900"));
+  assert.equal((scheduler.match(/dispatch_if_due event-operations-discord-review\\.yml/g)||[]).length,1);
+  assert.match(scheduler,/owner mode disabled; no recovery dispatched/);
+  assert.match(review,/KINGS_EVENT_DISCORD_REVIEW_ENABLED: \\$\\{\\{ secrets\\.KINGS_EVENT_DISCORD_REVIEW_ENABLED \\}\\}/);
+  assert.doesNotMatch(scheduler,/dispatch_if_due event-operations-manual-review\\.yml/);
+  assert.doesNotMatch(scheduler,/inputs\\[role_sync_mode\\]=live/);
+});
