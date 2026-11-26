@@ -4,7 +4,7 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const {decryptEventState,encryptEventState}=require('./event-leadership-state');
-const {hasAuthorizedActor,applyManualReview}=
+const {hasAuthorizedActor,applyManualReview,resolvePrivateToken}=
   require('./event-operations-manual-review-state');
 const STATE=path.join(__dirname,'data/event-leadership-report-state.json');
 function run({env=process.env,read=fs.readFileSync,write=fs.writeFileSync,
@@ -22,10 +22,13 @@ function run({env=process.env,read=fs.readFileSync,write=fs.writeFileSync,
   // This workflow cannot silently migrate an old plaintext repository file.
   if(raw?.encrypted!==true)throw Error('Kings Event Operations encrypted state required');
   const state=decryptEventState(raw,key);
+  // The public Actions UI contains ONLY an opaque code, never a sensitive
+  // UTC month, review reason, original Discord record or source count.
+  const selected=resolvePrivateToken({
+    state,token:env.INPUT_REVIEW_TOKEN,secret:key,nowMs
+  });
   const next=applyManualReview({
-    state,scope:env.INPUT_SCOPE,code:env.INPUT_CODE,
-    month:env.INPUT_MONTH==='UNDATED'?null:
-      env.INPUT_SCOPE==='worklist'?null:env.INPUT_MONTH,
+    state,scope:selected.scope,code:selected.code,month:selected.month,
     action:env.INPUT_ACTION,actor:env.GITHUB_ACTOR,
     evidenceKind:env.INPUT_EVIDENCE_KIND||'NONE',
     confirmation:env.INPUT_CONFIRMATION||'',nowMs
