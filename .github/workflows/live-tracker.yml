@@ -14,6 +14,7 @@ on:
       - 'driver-loyalty-register.js'
       - 'driver-identity-register.js'
       - 'live-outage-notice.js'
+      - 'live-map-auto-probe.js'
       - 'live-systems-delivery.js'
       - 'truckersmp-official-live.js'
       - 'statistics.js'
@@ -42,10 +43,10 @@ jobs:
     timeout-minutes: 15
     env:
       KINGS_API_HEALTH_NAMESPACE: 'live-systems'
-      # Operator-selected official, map-independent mode. Kings online counts
-      # remain unavailable because the public TruckersMP API has no per-player
-      # presence endpoint. This is NOT a fake replacement for live map players.
-      KINGS_TRACKER_SOURCE_MODE: 'official'
+      # Automatic dual-source Tracker: official VTC and server data always
+      # remain available; restore verified full per-player map scans when a
+      # bounded read-only canary succeeds. Never treat a canary as live proof.
+      KINGS_TRACKER_SOURCE_MODE: 'auto'
 
     steps:
       - name: Checkout repository
@@ -66,9 +67,15 @@ jobs:
         continue-on-error: true
         run: node scripts/map-provider-diagnostic.js
 
+      - name: Probe Kings player-map recovery (read-only)
+        id: map_probe
+        if: ${{ env.KINGS_TRACKER_SOURCE_MODE == 'auto' }}
+        continue-on-error: true
+        run: node live-map-auto-probe.js
+
       - name: Update Kings Live Tracker
         id: live_tracker
-        if: ${{ env.KINGS_TRACKER_SOURCE_MODE == 'map' }}
+        if: ${{ env.KINGS_TRACKER_SOURCE_MODE == 'map' || (env.KINGS_TRACKER_SOURCE_MODE == 'auto' && steps.map_probe.outcome == 'success') }}
         # A map/provider incident must not halt the whole Kings Live Systems
         # pipeline before the independently verified fallback can publish.
         continue-on-error: true
@@ -80,14 +87,15 @@ jobs:
           TRACKER_IDENTITY_SYNC_ENABLED: 'true'
         run: node tracker.js
 
-      # A failed map scan uses an independent, real-time official TMP feed.
+      # A failed/absent recovery probe OR a failed full map scan uses
+      # the independently verified official VTC feed on the same run.
       # It updates only the three existing Discord messages, with Kings online
       # explicitly unavailable, without resetting their verified history.
       # If even the stored Tracker message cannot be edited, fail the job.
       - name: Continue Kings Live Systems without the live map
-        # Official mode never calls the external player map. If explicitly
-        # restored to map mode, a failed map scan still uses the same fallback.
-        if: ${{ env.KINGS_TRACKER_SOURCE_MODE == 'official' || steps.live_tracker.outcome == 'failure' }}
+        # The full verified map (not the canary alone) is the ONLY trigger
+        # to publish Kings member locations. Otherwise use official data.
+        if: ${{ env.KINGS_TRACKER_SOURCE_MODE == 'official' || steps.live_tracker.outcome == 'failure' || (env.KINGS_TRACKER_SOURCE_MODE == 'auto' && steps.live_tracker.outcome != 'success') }}
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           STATS_DISCORD_WEBHOOK_URL: ${{ secrets.STATS_DISCORD_WEBHOOK_URL }}
@@ -97,8 +105,8 @@ jobs:
           TRUCKERSMP_OFFICIAL_FEED_ENABLED: 'true'
         run: |
           node live-outage-notice.js
-          echo "### Kings Live Tracker — map-independent official mode" >> "$GITHUB_STEP_SUMMARY"
-          echo "Official Kings VTC membership and total TruckersMP server populations are refreshed without any live-map calls. Kings-specific live online/player positions are unavailable, never zero. Historical verified player statistics are preserved." >> "$GITHUB_STEP_SUMMARY"
+          echo "### Kings Live Tracker — automatic official-data fallback" >> "$GITHUB_STEP_SUMMARY"
+          echo "The verified player-map scan was not available. The existing three Discord displays use official Kings VTC and public TMP server aggregates; Kings online counts remain unavailable, never zero. The system will automatically retry map recovery on the next scheduled refresh." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Update Kings Advanced Statistics
         if: ${{ steps.live_tracker.outcome == 'success' }}
