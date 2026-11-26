@@ -19,14 +19,14 @@ test('every live Kings workflow appears exactly once in the acceptance overview'
  assert.ok(s.excluded.some(x=>x.startsWith('17')));
  assert.equal(files.includes('17'),false);
  assert.equal(files.includes('18'),true);
- assert.equal(s.assessedWorkflows,15);
- assert.equal(s.operationalSystems.length,14);
+ assert.equal(s.assessedWorkflows,16);
+ assert.equal(s.operationalSystems.length,15);
  assert.deepEqual(s.operationalSystems.map(x=>x.id),[
    'DRIVER_UPDATES','DRIVER_MANAGEMENT','HR_PROBATION','STAFF_MANAGEMENT','LIVE_TRACKER_OFFICIAL','BACKUP_RECOVERY',
    'OFFLINE_VERIFICATION','GIT_STATE_HARDENING','SYSTEM_MONITORING',
    'CONVOY_CHECKER','CONVOY_ANNOUNCEMENT_VERIFICATION',
    'STAFF_LEADERSHIP_LIVE_OVERVIEW','LEADERSHIP_DASHBOARD',
-   'LEADERSHIP_DASHBOARD_VERIFICATION'
+   'LEADERSHIP_DASHBOARD_VERIFICATION','EVENT_LEADERSHIP_REPORTS'
  ]);
  assertAcceptance();
 });
@@ -160,7 +160,7 @@ test('new HR role, LOA pagination and Staff dedupe safety proof is recorded with
     assert.ok(item.gates.some(g=>g.id==='real_world_e2e'&&g.state===PENDING));
     assert.ok(item.gates.some(g=>g.id==='owner_signoff'&&g.state===PENDING));
   }
-  assert.equal(s.assessedWorkflows,15);
+  assert.equal(s.assessedWorkflows,16);
   assert.equal(s.completeWorkflows,0);
 });
 
@@ -189,7 +189,7 @@ test('Kings Auto Tracker preserves verified official fallback but cannot claim r
   assert.ok(tracker.blockers.length>=2);
   assert.equal(s.areas.find(x=>x.name==='Live Data').acceptance,'PARTIALLY_VERIFIED');
   assert.equal(s.completeWorkflows,0);
-  assert.equal(s.assessedWorkflows,15);
+  assert.equal(s.assessedWorkflows,16);
 });
 
 test('real 441-file isolated backup restoration is evidenced but real production recovery stays pending',()=>{
@@ -238,7 +238,7 @@ test('real security and technical monitoring runs count as partial evidence only
    assert.equal(system.gates.find(x=>x.id==='owner_signoff').state,PENDING);
    assert.ok(system.blockers.length);
  }
- assert.equal(s.assessedWorkflows,15);
+ assert.equal(s.assessedWorkflows,16);
  assert.equal(s.completeWorkflows,0);
 });
 
@@ -266,6 +266,31 @@ test('five real Convoy, Staff and Leadership workflows have bounded individual p
    assert.equal(system.gates.find(x=>x.id==='real_world_e2e').state,PENDING,id);
    assert.equal(system.gates.find(x=>x.id==='owner_signoff').state,PENDING,id);
  }
- assert.equal(s.assessedWorkflows,15);
+ assert.equal(s.assessedWorkflows,16);
+ assert.equal(s.completeWorkflows,0);
+});
+
+test('real integrated Event source-to-triage proof covers all five linked Events, not original approval',()=>{
+ const s=snapshot();
+ for(const id of ['12','14','15','16','18']){
+   const sys=s.eventSystems.find(x=>x.id===id);
+   assert.ok(sys,id);
+   const p=sys.capabilities.find(x=>x.id==='real_joint_source_advisory_triage');
+   assert.equal(p?.state,VERIFIED,id);
+   assert.deepEqual([...p.evidence],[ROOT+'actions/runs/45911909091']);
+   assert.equal(sys.acceptance,'PARTIALLY_VERIFIED');
+   assert.equal(sys.ownerApproval,null);
+   assert.equal(sys.gates.find(x=>x.id==='real_world_e2e').state,PENDING);
+   assert.equal(sys.gates.find(x=>x.id==='owner_signoff').state,PENDING);
+ }
+ const reporting=s.operationalSystems.find(x=>x.id==='EVENT_LEADERSHIP_REPORTS');
+ assert.ok(reporting);
+ assert.equal(reporting.workflow,'event-leadership-reports.yml');
+ assert.equal(reporting.acceptance,'PARTIALLY_VERIFIED');
+ for(const code of ['real_all_event_sources_to_worklist','real_invitation_forum_tag_source'])
+   assert.equal(reporting.capabilities.find(x=>x.id===code)?.state,VERIFIED);
+ for(const code of ['real_daily_report_publication','real_weekly_monthly_report_periods'])
+   assert.equal(reporting.capabilities.find(x=>x.id===code)?.state,PENDING);
+ assert.equal(s.assessedWorkflows,16);
  assert.equal(s.completeWorkflows,0);
 });
