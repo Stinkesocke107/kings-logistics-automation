@@ -17,6 +17,7 @@ on:
       - 'event-operations-manual-review-state.js'
       - 'data/event-leadership-report-state.json'
       - 'event-leadership-state.js'
+      - 'event-review-dashboard-readonly-proof.js'
       - 'hr-driver-register-status.js'
       - 'leadership-message-sync.js'
       - '.github/workflows/leadership-dashboard.yml'
@@ -55,6 +56,7 @@ jobs:
           node --check leadership-message-sync.js
           node --check leadership-dashboard.js
           node --check event-leadership-state.js
+          node --check event-review-dashboard-readonly-proof.js
           node --check event-leadership-observation.js
           node --check event-history-leadership-bridge.js
           node --check event-history-review-agenda.js
@@ -84,3 +86,12 @@ jobs:
           git restore --worktree .
           rm -f data/api-health/truckersmp-vtc-members.json data/api-health/truckersmp-vtc-roles.json
           bash scripts/git-safe-push.sh main
+
+      # #18: decrypted journal is compared privately to the exact
+      # owner-bot Event dashboard field AFTER publication/persistence.
+      # GET-only, no new Staff commands, Events, member changes or Discord edits.
+      - name: Verify current encrypted Event Staff review in actual Discord dashboard
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: node event-review-dashboard-readonly-proof.js
