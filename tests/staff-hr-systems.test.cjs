@@ -196,3 +196,33 @@ test('Staff public updates use the shared Kings banner for joins, promotions and
     assert.match(embed.description, /123456789123456789/);
   }
 });
+
+
+test('Staff Management refuses corrupt existing private JSON instead of silently reinitializing historical Staff',()=>{
+  const filename='data/staff-management.json';
+  for(const raw of ['{broken','null','{}',
+    '{"encrypted":false,"algorithm":"aes-256-gcm"}',
+    '{"encrypted":true,"algorithm":"invalid"}']){
+    const s=sandbox('staff-management.js',{files:{[filename]:raw}});
+    assert.throws(()=>s.run('loadState()'),/refusing to reset existing state/);
+    assert.equal(s.files.get(filename),raw);
+    assert.equal(s.calls.length,0);
+  }
+  const empty=sandbox('staff-management.js');
+  assert.equal(empty.run('loadState()'),null,'Only truly absent state may initialize');
+});
+
+test('Staff Management validates decrypted journal shape and refuses broken public summary',()=>{
+  const filename='data/staff-management.json';
+  const original=sandbox('staff-management.js');
+  const invalid=original.run("encryptState({version:2,mode:'advisory-only',staff:[],history:[]})");
+  const s=sandbox('staff-management.js',{
+    files:{[filename]:JSON.stringify(invalid)}
+  });
+  assert.throws(()=>s.run('loadState()'),/schema invalid; refusing to reset/);
+  assert.equal(s.files.get(filename),JSON.stringify(invalid));
+  const summary='data/staff-management-summary.json';
+  const broken=sandbox('staff-management.js',{files:{[summary]:'{bad'}});
+  assert.throws(()=>broken.run('readJson(SUMMARY_FILE, null)'),/refusing to reset existing state/);
+  assert.equal(broken.files.get(summary),'{bad');
+});
