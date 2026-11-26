@@ -198,6 +198,11 @@ function trustedInvitationObservation(x,nowMs=Date.now()){
   if(!Number.isFinite(t)||t>nowMs+5*60*1000||nowMs-t>MAX_AGE_MS||
     FIELD_NAMES.some(k=>!Number.isSafeInteger(x[k])||
       x[k]<0||x[k]>100000))return null;
+  // An unresolved Forum mapping cannot yield any certified lifecycle count.
+  // Keep a tampered aggregate from showing plausible but invented statuses.
+  if(x.tagSchemaVerified===false&&
+    (x.ongoingThreads!==0||x.doneThreads!==0||
+     x.completedThreads!==0||x.tagIssues!==x.convoyThreads))return null;
   if(x.ongoingThreads+x.doneThreads+x.completedThreads+x.tagIssues!==x.convoyThreads||
     x.eventLinksRecorded+x.eventLinksMissing!==x.convoyThreads||
     x.recordedAccepted+x.recordedDeclined+x.recordedPending+x.replyNotRecorded!==x.invitedVtcs||
