@@ -19,10 +19,10 @@ test('every live Kings workflow appears exactly once in the acceptance overview'
  assert.ok(s.excluded.some(x=>x.startsWith('17')));
  assert.equal(files.includes('17'),false);
  assert.equal(files.includes('18'),true);
- assert.equal(s.assessedWorkflows,5);
- assert.equal(s.operationalSystems.length,4);
+ assert.equal(s.assessedWorkflows,6);
+ assert.equal(s.operationalSystems.length,5);
  assert.deepEqual(s.operationalSystems.map(x=>x.id),[
-   'DRIVER_UPDATES','DRIVER_MANAGEMENT','HR_PROBATION','STAFF_MANAGEMENT'
+   'DRIVER_UPDATES','DRIVER_MANAGEMENT','HR_PROBATION','STAFF_MANAGEMENT','LIVE_TRACKER_OFFICIAL'
  ]);
  assertAcceptance();
 });
@@ -154,6 +154,34 @@ test('new HR role, LOA pagination and Staff dedupe safety proof is recorded with
     assert.ok(item.gates.some(g=>g.id==='real_world_e2e'&&g.state===PENDING));
     assert.ok(item.gates.some(g=>g.id==='owner_signoff'&&g.state===PENDING));
   }
-  assert.equal(s.assessedWorkflows,5);
+  assert.equal(s.assessedWorkflows,6);
   assert.equal(s.completeWorkflows,0);
+});
+
+
+test('official Kings Tracker is independently accepted only as partially verified map-free functionality',()=>{
+  const s=snapshot();
+  const tracker=s.operationalSystems.find(x=>x.id==='LIVE_TRACKER_OFFICIAL');
+  assert.ok(tracker);
+  assert.equal(tracker.workflow,'live-tracker.yml');
+  assert.equal(tracker.acceptance,'PARTIALLY_VERIFIED');
+  assert.equal(tracker.ownerApproval,null);
+  for(const id of ['official_no_map_gate','source_to_discord_live',
+    'separate_public_snapshot','truthful_online_unavailability',
+    'official_health_separation']){
+    const feature=tracker.capabilities.find(x=>x.id===id);
+    assert.ok(feature,id);
+    assert.equal(feature.state,VERIFIED);
+    assert.ok(feature.evidence.some(x=>x.startsWith(ROOT+'actions/runs/')));
+  }
+  for(const id of ['monitor_post_deploy_live','recurring_feed_resilience','operational_handover']){
+    const feature=tracker.capabilities.find(x=>x.id===id);
+    assert.ok(feature,id);
+    assert.equal(feature.state,PENDING);
+    assert.deepEqual([...feature.evidence],[]);
+  }
+  assert.ok(tracker.blockers.length>=2);
+  assert.equal(s.areas.find(x=>x.name==='Live Data').acceptance,'PARTIALLY_VERIFIED');
+  assert.equal(s.completeWorkflows,0);
+  assert.equal(s.assessedWorkflows,6);
 });
