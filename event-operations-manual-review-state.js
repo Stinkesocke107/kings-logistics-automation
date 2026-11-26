@@ -295,8 +295,8 @@ function renderPrivateReviewTokens(state,secret,nowMs=Date.now()){
           (row.scope==='history'?CODES[row.code]:WORK_LABELS[row.code]);
         const token=issueToken(state,row,secret,nowMs);
         const startable=row.status==='OPEN'||row.status==='RECHECK_REQUIRED';
-        return name+'\n'+(startable
-          ? '▶ !kings-review '+token+' start'
+        return name+' — '+(startable
+          ? '`!kings-review '+token+' start`'
           : 'Status '+row.status+' · Review code: '+token);
       }),
       'Codes expire with source updates or a new UTC day. They never approve Events.'
