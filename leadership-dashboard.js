@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const { syncEmbedMessage } = require('./leadership-message-sync');
 const {decryptEventState}=require('./event-leadership-state');
 const {trustedEventObservation}=require('./event-leadership-observation');
-const {trustedInvitationObservation}=require('./event-invitation-tracker-source');
+const {trustedInvitationObservation,renderInvitationDashboardSource}=require('./event-invitation-tracker-source');
 const {observeOperations,renderOperationsReview,operationsWorklist,renderOperationsWorklist,WORK_LABELS}=require('./event-operations-staff-triage');
 const {reviewSummary,renderReviewSummary,renderPrivateReviewTokens}=require('./event-operations-manual-review-state');
 const {renderReviewAgenda,CODES}=require('./event-history-review-agenda');
@@ -353,26 +353,7 @@ function buildEvent(data, now = Date.now()) {
       '** · UTC days with departures <2h apart **'+observed.futureDaysWithShortDepartureGap+
       '**. Spacing is warning-only. No free slots certified, no automated decisions.'
     : 'Unavailable — no recent reconciled capacity source. Never infer an empty calendar or available bookings.';
-  const invitationLifecycle=invitations?.tagSchemaVerified===true
-    ? ' · ongoing **'+invitations.ongoingThreads+
-      '** · invitations done **'+invitations.doneThreads+
-      '** · convoys completed **'+invitations.completedThreads+'**'
-    : ' · Forum lifecycle tag names UNVERIFIED (status counts withheld)';
-  const invitationLine=invitations
-    ? 'Visible convoy threads **'+invitations.convoyThreads+
-      '** · documented unique VTC invites **'+invitations.invitedVtcs+
-      '**'+invitationLifecycle+
-      '.\nFor Staff review: duplicate VTC replies **'+invitations.duplicateVtcReplies+
-      '** · invalid replies **'+invitations.malformedReplies+
-      '** · tag problems **'+invitations.tagIssues+
-      '** · event links missing **'+invitations.eventLinksMissing+
-      '** · event links matched to current Center **'+invitations.linkedToCenter+
-      '**.\nRecorded response labels: accepted **'+invitations.recordedAccepted+
-      '** · declined **'+invitations.recordedDeclined+
-      '** · pending **'+invitations.recordedPending+
-      '** · not recorded **'+invitations.replyNotRecorded+
-      '**. Source reports only, NOT verified approvals or participation.'
-    : 'Unavailable — private Invitation Tracker source missing, stale, unreadable or incomplete; no invitation totals certified.';
+  const invitationLine=renderInvitationDashboardSource(state.invitationSourceObservation,now);
   return {
     title: '📅 Kings Event Leadership Dashboard',
     description: 'One fixed Event Operations dashboard. Verified convoy attendance/history remains a separate statistics dataset. Source review is advisory, not Staff approval. Private data stay encrypted.',
