@@ -31,6 +31,18 @@ The owner can set the private Actions secret `KINGS_EVENT_DISCORD_REVIEW_ENABLED
 
 This mode uses four Discord **GET** requests. It does **not** read channel messages, member commands, Event records, the AES-protected Event journal or its replay cursor; it does not create or update a GitHub state commit. Public logs expose only `SOURCE_METADATA_CHECKED` on success or `SOURCE_UNAVAILABLE` plus a **fixed, identifier-free diagnostic category** on failure. They never disclose raw Discord responses, channel or role IDs, bot tokens, or source records. The result checks the returned metadata **at inspection time only**. It does not independently prove effective permissions for all server administrators, full Discord message-read access, message-content intent, or that future human decisions are correct. An offline test cannot substitute for an actual owner-configured Discord source check.
 
+### Separate one-time message-history and content proof
+
+**Do this only after `SOURCE_METADATA_CHECKED`** and while `KINGS_EVENT_DISCORD_REVIEW_ENABLED=VERIFY_ONLY`. Regular scheduled runs and ordinary manual runs remain metadata-only. The additional message-content check is an explicit **manual checkbox**; it is not enabled by setting secrets and never authorises live Staff commands.
+
+1. An approved CEO/Event leadership member posts exactly this harmless test message to the already approved private Event Operations channel: `KINGS-EVENT-READ-TEST`. This is **not** a `!kings-review` command, contains no Event data or secret, and cannot change records.
+2. In GitHub Actions, open `Kings Event Operations — Discord Staff Review` and select **Run workflow** on `main`. Enable the boolean **verify_message_access** checkbox. Do not change the existing secret from `VERIFY_ONLY`.
+3. The worker first repeats the original four safe metadata GETs; **only for that manual checkbox** it reads at most the latest 25 private channel messages by a single GET and searches in memory for the exact plain-text marker from a non-bot account. For the matching sender it also GETs current Guild role membership and requires at least one of the six privately configured operator roles.
+4. A successful run logs only `MESSAGE_CONTENT_VERIFIED`. This confirms that the bot could retrieve a genuine authorized human test message's text through its current Discord API permissions. No other message text, IDs, authors, channel IDs, response bodies, member lists, secrets or Event details are logged or persisted; **no Event state file is opened or written**.
+5. If the marker is missing/empty, the history request is inaccessible, or the author is not authorised, it fails closed with a fixed code. Correct the underlying condition and repeat the **manual** proof if appropriate. The marker must be among the latest 25 channel messages, and its author must still hold an approved role.
+
+The probe does not verify the correctness of any specific Event review decision, does not create a cursor, does not enable actual command processing, and does not authorise `ENABLED`. Keep the channel otherwise free of sensitive discussion. Optional: delete the harmless test message afterwards in Discord (not performed by GitHub).
+
 ### Reading a failed preflight
 
 In `VERIFY_ONLY`, a failed run may now show `SOURCE_UNAVAILABLE [CATEGORY]`:
@@ -42,6 +54,10 @@ In `VERIFY_ONLY`, a failed run may now show `SOURCE_UNAVAILABLE [CATEGORY]`:
 | `GUILD_ROLES_UNAVAILABLE` | Check that the configured bot token belongs to a bot in the Kings Discord server |
 | `BOT_AUTH_UNAVAILABLE` | Check the existing `DISCORD_BOT_TOKEN` privately in GitHub Secrets; never share the value |
 | `BOT_MEMBER_UNAVAILABLE` | Verify bot membership and its ability to read guild membership metadata |
+| `MESSAGE_HISTORY_UNAVAILABLE` | The bot could not fetch the latest messages in the private channel; inspect **View Channel** and **Read Message History** for the bot and API permissions |
+| `MESSAGE_HISTORY_INVALID` | The message-history API returned an unexpected structure; no message data is used |
+| `MESSAGE_TEST_NOT_FOUND` | The exact `KINGS-EVENT-READ-TEST` human marker is not among the latest 25 visible messages; check the marker, **Read Message History** and privileged **Message Content** access |
+| `MESSAGE_TEST_NOT_AUTHORIZED` | The visible marker's author is not presently a member of any of the six configured reviewer roles; ask an authorised member to post the marker |
 | `CHANNEL_METADATA_INVALID` | Confirm this is a normal private server text channel, not a thread/forum or other channel type |
 | `ROLE_POLICY_INVALID` | Discord's Guild role response has invalid or incomplete general role metadata |
 | `ROLE_MISSING` | An ID saved in the operator-role secret is not a role in the Kings Discord server; recheck all six role IDs privately |
