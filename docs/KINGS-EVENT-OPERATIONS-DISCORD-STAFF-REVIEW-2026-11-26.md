@@ -41,7 +41,10 @@ In `VERIFY_ONLY`, a failed run may now show `SOURCE_UNAVAILABLE [CATEGORY]`:
 | `BOT_AUTH_UNAVAILABLE` | Check the existing `DISCORD_BOT_TOKEN` privately in GitHub Secrets; never share the value |
 | `BOT_MEMBER_UNAVAILABLE` | Verify bot membership and its ability to read guild membership metadata |
 | `CHANNEL_METADATA_INVALID` | Confirm this is a normal private server text channel, not a thread/forum or other channel type |
-| `ROLE_POLICY_INVALID` | Check all six exact role names and IDs; only CEO may have Administrator permission among operator roles |
+| `ROLE_POLICY_INVALID` | Discord's Guild role response has invalid or incomplete general role metadata |
+| `ROLE_MISSING` | An ID saved in the operator-role secret is not a role in the Kings Discord server; recheck all six role IDs privately |
+| `ROLE_NAME_MISMATCH` | A configured role exists, but its actual Discord name differs from the six exact allowed names; compare spelling, whitespace and role IDs |
+| `ROLE_UNEXPECTED_ADMIN` | At least one non-CEO configured role has Discord server-wide Administrator permission; owner should review the elevated role permission, rather than silently disabling the safety check |
 | `CHANNEL_PRIVATE_POLICY_INVALID` | Explicitly deny **View Channel** for `@everyone`; remove any unintended user or unrelated role grants |
 | `ROLE_ACCESS_INVALID` | Give each non-Administrator operator role explicit **View Channel + Send Messages** allowances |
 

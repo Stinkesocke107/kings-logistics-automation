@@ -333,7 +333,16 @@ test('VERIFY_ONLY emits only bounded redacted diagnostic codes for private sourc
    everyone,{id:ROLE,name:'Verified Driver',permissions:'0'},
    {id:BOTROLE,name:'Bots',permissions:'0'}
  ]}).transport;
- await verifyDiagnostic(badRole,'ROLE_POLICY_INVALID');
+ await verifyDiagnostic(badRole,'ROLE_NAME_MISMATCH');
+ const missingRole=discordFetch([],{roles:[everyone,
+   {id:BOTROLE,name:'Bots',permissions:'0'}
+ ]}).transport;
+ await verifyDiagnostic(missingRole,'ROLE_MISSING');
+ const unexpectedAdmin=discordFetch([],{roles:[everyone,
+   {id:ROLE,name:'Event Coordinator',permissions:'8'},
+   {id:BOTROLE,name:'Bots',permissions:'0'}
+ ]}).transport;
+ await verifyDiagnostic(unexpectedAdmin,'ROLE_UNEXPECTED_ADMIN');
  const roleWithoutSend=discordFetch([],{channel:{
    ...channel,
    permission_overwrites:channel.permission_overwrites.map(x=>
