@@ -90,6 +90,93 @@ function verifyNormal(message,title) {
  if(String(message.embeds[0]?.title||'')===title)return 'outage-still-shown-after-fresh-snapshot';
  return null;
 }
+// Modern official map-free feed is a real fallback, not the legacy outage
+// banner. Validate one fresh aggregate generation and three-display proof
+// before accepting the visible Discord embeds as source-backed.
+const LIVE_DISPLAYS=Object.freeze(['Live Tracker','Advanced Statistics','Central Overview']);
+function trustedOfficialFallback(official,delivery,now=Date.now()){
+ if(!official||official.version!==1||
+    official.source!=='truckersmp-official-v2'||
+    official.sourceMode!=='map-independent'||official.kingsOnline!==null||
+    !ageOk(official.updatedAt,20,now)||
+    !Number.isSafeInteger(official.vtcMemberCount)||
+    official.vtcMemberCount<0||official.vtcMemberCount>20000||
+    !delivery||delivery.version!==1||
+    delivery.mode!=='fallback-delivered'||
+    !['official-vtc-and-servers','official-vtc-only'].includes(delivery.source)||
+    delivery.livePlayerCountsAvailable!==false||
+    delivery.allDisplaysVerified!==true||!ageOk(delivery.checkedAt,20,now)||
+    !Array.isArray(delivery.displaysVerified)||
+    delivery.displaysVerified.length!==LIVE_DISPLAYS.length||
+    new Set(delivery.displaysVerified).size!==LIVE_DISPLAYS.length||
+    !LIVE_DISPLAYS.every(name=>delivery.displaysVerified.includes(name))||
+    Math.abs(Date.parse(delivery.checkedAt)-Date.parse(official.updatedAt))>120000)
+   return null;
+ const nums=['allTruckersMpPlayers','ets2AllPlayers',
+   'atsAllPlayers','activeTruckersMpServers'];
+ if(delivery.source==='official-vtc-and-servers'){
+   if(nums.some(key=>!Number.isSafeInteger(official[key])||
+      official[key]<0||official[key]>1000000)||
+      official.allTruckersMpPlayers!==
+       official.ets2AllPlayers+official.atsAllPlayers)return null;
+ }else if(nums.some(key=>official[key]!==null))return null;
+ return official;
+}
+function trustedVerifiedMap(delivery,tracker,statistics,now=Date.now()){
+ return !!(delivery?.version===1&&delivery.mode==='verified-live'&&
+   delivery.source==='verified-map'&&delivery.allDisplaysVerified===true&&
+   delivery.livePlayerCountsAvailable===true&&
+   Array.isArray(delivery.displaysVerified)&&
+   delivery.displaysVerified.length===LIVE_DISPLAYS.length&&
+   new Set(delivery.displaysVerified).size===LIVE_DISPLAYS.length&&
+   LIVE_DISPLAYS.every(x=>delivery.displaysVerified.includes(x))&&
+   ageOk(delivery.checkedAt,20,now)&&ageOk(tracker?.updatedAt,20,now)&&
+   Number.isSafeInteger(tracker?.online)&&tracker.online>=0&&
+   Number.isSafeInteger(tracker?.members)&&tracker.members>=tracker.online&&
+   statistics?.sourceSnapshotAt===tracker.updatedAt&&
+   delivery.sourceSnapshotAt===tracker.updatedAt);
+}
+function verifyOfficialFallback(message,label,official){
+ const embed=Array.isArray(message?.embeds)&&message.embeds.length===1?
+   message.embeds[0]:null;
+ if(!embed||!String(embed.title||'').endsWith('Kings '+label+' — Official Data'))
+   return 'official-title-missing';
+ const description=String(embed.description||'');
+ if(!description.includes('Map-independent Tracker active.')||
+    !description.includes('No live-map connection is required.')||
+    !description.includes('Individual Kings Drivers online and live locations cannot be measured'))
+   return 'official-source-limits-missing';
+ const fields=Array.isArray(embed.fields)?embed.fields:[];
+ const unique=new Set(fields.map(row=>row?.name));
+ if(unique.size!==fields.length)return 'official-fields-duplicate';
+ const find=name=>fields.find(row=>row?.name===name);
+ const online=find('Kings Drivers currently online');
+ if(online?.value!=='**Unavailable — not zero**'||
+    find('Current online count'))return 'official-kings-online-unavailable-missing';
+ const stamp=Math.floor(Date.parse(official.updatedAt)/1000);
+ if(!String(find('Official Tracker data refreshed')?.value||'').includes('<t:'+stamp+':F>'))
+   return 'official-observation-timestamp-mismatch';
+ const member=String(find('Kings VTC membership (official TruckersMP)')?.value||'');
+ if(!member.startsWith('**'+official.vtcMemberCount+' registered VTC members**')||
+    !member.includes('<t:'+stamp+':R>'))
+   return 'official-vtc-membership-mismatch';
+ const total=find('ALL TruckersMP players online (not Kings Drivers)');
+ if(official.allTruckersMpPlayers===null){
+   if(total)return 'unverified-global-online-number-present';
+ }else{
+   const expected='**'+official.allTruckersMpPlayers+' players** across '+
+     official.activeTruckersMpServers+' online servers (ETS2: **'+
+     official.ets2AllPlayers+'** · ATS: **'+official.atsAllPlayers+'**)';
+   if(!String(total?.value||'').startsWith(expected)||
+      !String(total?.value||'').includes('<t:'+stamp+':R>'))
+      return 'official-global-population-mismatch';
+ }
+ if(!String(embed?.footer?.text||'').includes(
+   'Kings player presence unavailable without verified player data'))
+   return 'official-fallback-qualification-missing';
+ return null;
+}
+
 function verifyStaff(message,state,summary,botId,now=Date.now()){
  if(!validId(state?.channelId)||state.channelId!==STAFF_CHANNEL||
     !validId(state?.messageId)||message?.id!==state.messageId)return 'staff-message-identity-mismatch';
@@ -175,7 +262,11 @@ async function main(){
  const now=Date.now();
  const readOnly=botHeaders();
  const reports=[];
- const fresh=sourceIsFresh(now);
+ const delivery=read('live-systems-delivery.json');
+ const official=read('live-tracker-official.json');
+ const fallback=trustedOfficialFallback(official,delivery,now);
+ const fullMap=trustedVerifiedMap(delivery,read('live-tracker-snapshot.json'),
+   read('statistics.json'),now);
  for(const cfg of OUTAGE){
    reports.push(await inspectKey(cfg.key,async()=>{
      const state=read(cfg.state);
@@ -183,7 +274,18 @@ async function main(){
      if(!url)return 'webhook-or-stored-message-missing';
      const message=await getJson(url);
      if(String(message?.id||'')!==String(state[cfg.field]))return 'fixed-message-id-mismatch';
-     return fresh?verifyNormal(message,cfg.title):verifyOutage(message,cfg.title);
+     if(fullMap)return verifyNormal(message,cfg.title);
+     if(fallback)return verifyOfficialFallback(message,
+       cfg.key==='statistics-outage'?'Advanced Statistics':cfg.label||(
+         cfg.key==='central-overview-outage'?'Central Overview':'Live Tracker'),
+       fallback);
+     // A claimed official/full-map delivery without its matching fresh
+     // source proof must NOT fall back to a green legacy outage check.
+     if(['fallback-delivered','verified-live'].includes(delivery?.mode))
+       return 'current-live-source-proof-unverified';
+     if(delivery?.mode==='fallback-incomplete')
+       return 'live-delivery-incomplete';
+     return verifyOutage(message,cfg.title);
    }));
  }
  const id=await getJson(API+'/users/@me',readOnly).then(x=>x?.id);
@@ -226,4 +328,4 @@ if(require.main===module)main().catch(()=>{
  console.error('Kings read-only publication content audit incomplete; no Discord writes attempted.');
  process.exitCode=1;
 });
-module.exports={OUTAGE,validId,ageOk,sourceIsFresh,webhookUrl,webhookIdentity,verifyOutage,verifyNormal,verifyStaff,verifyNews,verifyMonitor,verifyConvoyOverview,findUnique,ownedFixedAndRecent,MONITOR_FIXED_MESSAGE_ID,CONVOY_FIXED_MESSAGE_ID};
+module.exports={OUTAGE,validId,ageOk,sourceIsFresh,webhookUrl,webhookIdentity,verifyOutage,verifyNormal,trustedOfficialFallback,trustedVerifiedMap,verifyOfficialFallback,verifyStaff,verifyNews,verifyMonitor,verifyConvoyOverview,findUnique,ownedFixedAndRecent,MONITOR_FIXED_MESSAGE_ID,CONVOY_FIXED_MESSAGE_ID};
