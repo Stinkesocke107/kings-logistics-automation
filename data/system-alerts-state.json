@@ -53,16 +53,6 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 114,
-        "latestCount": 39
-      },
-      "firstAlertedAt": "2026-11-26T10:49:38.532Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
@@ -83,20 +73,32 @@
         "maxAgeMinutes": 540
       },
       "firstAlertedAt": "2026-11-26T10:49:38.532Z"
-    }
-  },
-  "pending": {
+    },
     "workflow-overdue:event-operations-discord-review.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-26T10:49:38.532Z",
+      "severity": "warning",
       "system": "Event Operations Discord Staff Review",
-      "message": "Event Operations Discord Staff Review has not run within the expected time window."
+      "message": "Event Operations Discord Staff Review has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-26T08:53:31Z",
+        "ageMinutes": 198,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-11-26T12:12:10.063Z"
     },
     "workflow-schedule-missing:driver-register-onboarding.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-26T10:49:38.532Z",
+      "severity": "warning",
       "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period."
+      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period.",
+      "details": {
+        "status": "missing",
+        "expectedAt": "2026-11-26T07:17:00.000Z",
+        "actualAt": null,
+        "delayMinutes": null,
+        "graceMinutes": 120,
+        "latestScheduledAt": "2026-11-25T17:56:36.000Z"
+      },
+      "firstAlertedAt": "2026-11-26T12:12:10.063Z"
     }
-  }
+  },
+  "pending": {}
 }
