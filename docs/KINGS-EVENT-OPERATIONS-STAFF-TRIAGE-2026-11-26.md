@@ -42,3 +42,8 @@ Current staff review tasks are: unclassified Event types; UTC calendar days requ
 The queue uses fixed internal reason codes and optional aggregate counts. Its `owner` field denotes a **suggested functional reviewer**, never an actual individual, appointment, approval or notification. Existing **Event Leadership** displays up to seven ordered items in a new field, and the existing **Management Leadership** shows just the top suggested issue plus source readiness. It does not introduce another channel or board.
 
 Missing source creates an explicit *BLOCKED* work item, not a green "no action" outcome. **Forum lifecycle tags unverified** is a separate *NORMAL* work item even when the private invitation replies themselves are readable. All tasks remain human-controlled, with no CEO sign-off for routine invitations and no Booking #17.
+
+
+## Neuer Echtbetriebsnachweis vom 27. November 2026
+
+Die früher auf dieser Seite genannte Forum-Tag-Abweichung war ein **damaliger** Befund. Der aktuelle [Event Leadership Lauf #45911909091](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45911909091) meldete `READ_ONLY_SOURCE_VERIFIED` für die private Einladungsliste sowie `EVENT_SOURCE_TO_STAFF_TRIAGE_RECONCILED` für die gemeinsame Quellen- und Aufgabenlistenprüfung von #12/#14/#15/#16/#18. Der Test verändert keine Event-, Staff-, Discord- oder Rollen-Daten. Historische Vollständigkeit, Originalantworten, Genehmigungen, neue menschliche Review-Kommandos und alle abschließenden Abnahmen bleiben offen.
