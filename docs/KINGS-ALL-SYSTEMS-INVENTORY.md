@@ -1,4 +1,4 @@
-# Kings Logistics — Vollständiges Systemverzeichnis (46 registrierte Workflows)
+# Kings Logistics — Vollständiges Systemverzeichnis (46 aktive Workflows)
 
 Stand: 26. November 2026. Dieses Dokument deckt **jede derzeit im Kings-GitHub-Repository vorhandene GitHub-Actions-YAML-Datei** ab. Die eigentlichen Skripte und Discord-Ausgaben hängen jeweils an diesen Workflows; ein Workflow kann mehrere zusammengehörige Schritte ausführen.
 
