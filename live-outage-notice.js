@@ -167,7 +167,7 @@ function outageEmbed(config,state,official=null){
   }
   return {
     title:mapFree?
-      (official?'👑 Kings '+config.label+' — Official Data (No Live Map)':
+      (official?'👑 Kings '+config.label+' — Official Data':
         '👑 Kings '+config.label+' — Official Feed Unavailable'):
       config.title,
     description:mapFree&&official?
