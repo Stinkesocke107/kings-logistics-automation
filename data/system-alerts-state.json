@@ -66,14 +66,14 @@
         "runId": 45869866678
       },
       "firstAlertedAt": "2026-11-26T19:52:52.382Z"
+    },
+    "workflow-no-runs:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has no workflow runs.",
+      "details": null,
+      "firstAlertedAt": "2026-11-26T23:46:43.846Z"
     }
   },
-  "pending": {
-    "workflow-no-runs:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-26T23:45:39.627Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has no workflow runs."
-    }
-  }
+  "pending": {}
 }
