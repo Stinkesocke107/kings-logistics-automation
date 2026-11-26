@@ -67,16 +67,6 @@
       },
       "firstAlertedAt": "2026-11-26T19:52:52.382Z"
     },
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "severity": "warning",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
-      "details": {
-        "runId": 45897928348,
-        "completedAt": "2026-11-26T21:24:54Z"
-      },
-      "firstAlertedAt": "2026-11-26T21:50:00.631Z"
-    },
     "workflow-failed:final-freeze-verification.yml": {
       "severity": "warning",
       "system": "Final Freeze Verification",
