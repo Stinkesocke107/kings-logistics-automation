@@ -186,3 +186,16 @@ Fünf weitere bisher nicht individuell bewertete Workflows wurden anhand **konkr
 | `leadership-dashboard-verification.yml` | [Reale Read-only-Überprüfung #45909350372](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45909350372): fünf Leadership-Inhaltsverträge und aktuelle Public-/Event-Publikationen geprüft. | Vier historische Legacy-Leadership-Nachrichten waren **NOT_VISIBLE** und sind keine bestätigten Auslieferungen. |
 
 **Aktuelle Bilanz: 15/46 einzeln teilverifiziert, 31/46 noch nicht einzeln bewertet, 0/46 vollständig freigegeben.** Alle Event- und Organisationssysteme behalten ihre offenen realen E2E-, Fehlerbehandlungs-, Team- und CEO-Gates. Die externen Core-Blocker bleiben ungeändert.
+
+
+## Gemeinsamer Event-Quellenlauf — 27. November 2026 (PR #224)
+
+Nach [PR #224](https://github.com/Stinkesocke107/kings-logistics-automation/pull/224) führte das bestehende Event-Leadership-Workflow-System [Produktionslauf #45911909091](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45911909091) auf `main` erfolgreich den neuen, getrennten **GET-only**-Integrationsjob aus:
+
+- Prüfergebnis `EVENT_SOURCE_TO_STAFF_TRIAGE_RECONCILED`: aktuelle Convoy-Center-, 24-Monats-History-, 12-Monats-Calendar-, Capacity- und Invitation-Quellen wurden im selben Prüflauf bis zur Staff-Review-Aufgabenliste zusammengeführt und auf passende Warnungsübergaben geprüft.
+- Der unabhängige private Invitation-Tracker-Job meldete `READ_ONLY_SOURCE_VERIFIED`; die echten Forum-Tag-Namen wurden im neuen Lauf erfolgreich zugeordnet.
+- Es wurden **keine Genehmigungen, Staff-Entscheidungen, Einladungen, Event-Buchungen, Discord-Nachrichten oder Rollenänderungen** durchgeführt.
+- Für #12, #14, #15, #16 und #18 ist der neue **eng begrenzte Live-Quellen-/Staff-Triage-Nachweis** separat als VERIFIED vermerkt. Die vollständige Event-E2E-Abnahme mit *menschlicher Staff-Aktion*, unabhängiger Originalhistorie und echtem Dashboard-Readback nach dieser Aktion ist **nicht** gegeben.
+- `event-leadership-reports.yml` hat jetzt einen eigens einzeln geprüften Quellen-/Integrationsteil. Die täglichen, wöchentlichen und monatlichen Berichtsauslieferungen benötigen weiterhin echte Perioden- und Discord-Zustellprüfungen.
+
+**Aktuelle Bilanz: 16/46 registrierte Workflows einzeln teilweise verifiziert, 30 noch nicht individuell bewertet, 0 vollständig freigegeben.** #17 Booking bleibt ausgeschlossen.
