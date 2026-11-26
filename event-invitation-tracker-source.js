@@ -210,6 +210,30 @@ function trustedInvitationObservation(x,nowMs=Date.now()){
   ].includes(k)))return null;
   return x;
 }
+function renderInvitationDashboardSource(value,nowMs=Date.now()){
+  const invitations=trustedInvitationObservation(value,nowMs);
+  const invitationLifecycle=invitations?.tagSchemaVerified===true
+    ? ' · ongoing **'+invitations.ongoingThreads+
+      '** · invitations done **'+invitations.doneThreads+
+      '** · convoys completed **'+invitations.completedThreads+'**'
+    : ' · Forum lifecycle tag names UNVERIFIED (status counts withheld)';
+  const invitationLine=invitations
+    ? 'Visible convoy threads **'+invitations.convoyThreads+
+      '** · documented unique VTC invites **'+invitations.invitedVtcs+
+      '**'+invitationLifecycle+
+      '.\nFor Staff review: duplicate VTC replies **'+invitations.duplicateVtcReplies+
+      '** · invalid replies **'+invitations.malformedReplies+
+      '** · tag problems **'+invitations.tagIssues+
+      '** · event links missing **'+invitations.eventLinksMissing+
+      '** · event links matched to current Center **'+invitations.linkedToCenter+
+      '**.\nRecorded response labels: accepted **'+invitations.recordedAccepted+
+      '** · declined **'+invitations.recordedDeclined+
+      '** · pending **'+invitations.recordedPending+
+      '** · not recorded **'+invitations.replyNotRecorded+
+      '**. Source reports only, NOT verified approvals or participation.'
+    : 'Unavailable — private Invitation Tracker source missing, stale, unreadable or incomplete; no invitation totals certified.';
+  return invitationLine;
+}
 function createDiscordReader({token,transport=fetch}={}){
   if(typeof token!=='string'||token.length<20||token.length>1024||
     /[\r\n]/.test(token)||typeof transport!=='function')refuse();
@@ -313,4 +337,4 @@ async function readInvitationTracker({token,transport=fetch,
 }
 module.exports={GUILD,FORUM,MODES,GUIDE_TAG,canonicalTagName,
   readEntry,eventIdFrom,approvedTags,summarizeTracker,
-  trustedInvitationObservation,readInvitationTracker};
+  trustedInvitationObservation,renderInvitationDashboardSource,readInvitationTracker};
