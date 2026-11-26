@@ -10,6 +10,7 @@ on:
       - 'leadership-dashboard.js'
       - 'event-leadership-observation.js'
       - 'event-history-leadership-bridge.js'
+      - 'event-history-review-agenda.js'
       - 'event-capacity-pilot-source.js'
       - 'event-invitation-tracker-source.js'
       - 'event-operations-staff-triage.js'
@@ -54,6 +55,7 @@ jobs:
           node --check event-leadership-state.js
           node --check event-leadership-observation.js
           node --check event-history-leadership-bridge.js
+          node --check event-history-review-agenda.js
           node --check event-capacity-pilot-source.js
           node --check event-invitation-tracker-source.js
           node --check event-operations-staff-triage.js

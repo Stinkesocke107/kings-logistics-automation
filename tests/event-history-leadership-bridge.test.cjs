@@ -47,6 +47,11 @@ test('Event History and Calendar bridge reconciles existing Center and frozen Le
   assert.equal(result.historyMonthsLegacyOnly,1);
   assert.equal(result.historyMonthsBothSources,0);
   assert.equal(result.pastCenterOutcomeUnresolved,0);
+  assert.ok(result.reviewAgenda.length>0&&result.reviewAgenda.length<=6);
+  assert.ok(result.reviewAgenda.every(row=>
+    ['code','count','utcMonth'].every(key=>Object.hasOwn(row,key))));
+  assert.ok(result.reviewAgenda.some(row=>
+    row.code==='LEGACY_ORIGINAL_EVIDENCE'&&row.utcMonth==='2026-11'));
   assert.equal(result.legacyClaimsNeedingOriginalEvidence,1);
   assert.equal(result.futureDatedLegacyHoldReview,0);
   assert.equal(result.undatedHistoricalSourceClaims,0);
@@ -138,6 +143,11 @@ test('historical proof gaps separate past unresolved outcomes, source overlap, f
   assert.equal(x.datedCenterClaims,2);
   assert.equal(x.datedFrozenLegacyClaims,1);
   assert.equal(x.pastCenterOutcomeUnresolved,1);
+  assert.ok(x.reviewAgenda.some(row=>row.code==='FUTURE_LEGACY_HOLD'&&
+    row.utcMonth==='2027-04'&&row.count===1));
+  assert.ok(x.reviewAgenda.some(row=>row.code==='PAST_CENTER_OUTCOME'&&
+    row.utcMonth==='2026-11'&&row.count===1));
+  assert.ok(x.reviewAgenda.some(row=>row.code==='UNDATED_LEGACY'&&row.count===1));
   assert.equal(x.legacyClaimsNeedingOriginalEvidence,3);
   assert.equal(x.futureDatedLegacyHoldReview,1);
   assert.equal(x.undatedLegacyClaims,1);

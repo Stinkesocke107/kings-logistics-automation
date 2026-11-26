@@ -2,6 +2,7 @@
 // Private, aggregate-only Kings Event Center -> Calendar/History observation.
 // This is NOT an Invitation Tracker, a booking engine or an approval source.
 const {summarizeOperations}=require('./event-history-leadership-bridge');
+const {trustedReviewAgenda}=require('./event-history-review-agenda');
 const MAX_AGE_MS=36*60*60*1000;
 const MAX_CLOCK_SKEW_MS=5*60*1000;
 const COUNT_FIELDS=Object.freeze([
@@ -54,7 +55,8 @@ function buildEventObservation(report,overview,nowMs=Date.now()){
     historyLegacyEvidencePending:review.legacyClaimsNeedingOriginalEvidence,
     historyFutureLegacyHoldReview:review.futureDatedLegacyHoldReview,
     historyUndatedClaims:review.undatedHistoricalSourceClaims,
-    historyReadErrors:review.historySourceReadErrors
+    historyReadErrors:review.historySourceReadErrors,
+    reviewAgenda:review.reviewAgenda
   });
   if(!trustedEventObservation(observation,nowMs))
     throw Error('Kings Event source integrity unavailable');
@@ -76,6 +78,12 @@ function trustedEventObservation(value,nowMs=Date.now()){
     nowMs-observed>MAX_AGE_MS||
     compiled>observed+MAX_CLOCK_SKEW_MS||
     observed-compiled>30*60*1000)return null;
+  // Older encrypted observations may not have a monthly agenda. Do not
+  // invent an empty agenda; the dashboard marks it Unavailable until refresh.
+  // Any supplied agenda is validated against the exact allowlisted schema
+  // so private Event details cannot enter the encrypted aggregate.
+  if(value.reviewAgenda!==undefined&&
+    !trustedReviewAgenda(value.reviewAgenda))return null;
   if(COUNT_FIELDS.some(field=>!Number.isSafeInteger(value[field])||
     value[field]<0||value[field]>100000))return null;
   if(value.historyMonthsWithClaims+value.historyMonthsWithoutClaims!==24||
