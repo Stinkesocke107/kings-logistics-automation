@@ -86,3 +86,24 @@ test('review agenda uses only source-safe read-only logic and is not a new booki
   assert.doesNotMatch(src,/fetch\(|method:\s*['"](?:POST|PATCH|DELETE)|writeFileSync|discord\(/);
   assert.doesNotMatch(src,/approveBooking|reserveSlot|StaffAssignment/);
 });
+
+test('month-level history review fails closed on missing, shifted or contradictory source rows',()=>{
+  const cases=[
+    f=>{f.history[0].utcMonth='2024-01';},
+    f=>{f.history[0].utcMonth=f.history[1].utcMonth;},
+    f=>{f.history[1].utcMonth=undefined;},
+    f=>{f.history[1].centerClaims=undefined;},
+    f=>{f.history[1].legacyClaims=-1;},
+    f=>{f.history[23].centerOutcomeUnresolved=3;},
+    f=>{f.history[23]=null;},
+    f=>{f.future[0].legacyDatedKeptSeparate=undefined;},
+    f=>{f.future[1].legacyDatedKeptSeparate=-1;},
+    f=>{f.future[2]=null;},
+    f=>{f.undatedCenter=100001;}
+  ];
+  for(const modify of cases){
+    const input=fixture();
+    modify(input);
+    assert.throws(()=>buildReviewAgenda(input),/source unverified/);
+  }
+});

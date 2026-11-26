@@ -43,6 +43,25 @@ function buildReviewAgenda({history,future,undatedCenter=0,
     !Number.isSafeInteger(undatedCenter)||undatedCenter<0||
     !Number.isSafeInteger(undatedLegacy)||undatedLegacy<0)
     throw Error('Kings historical review agenda source unverified');
+  // Reject incomplete, stale, reordered or contradictory monthly claims.
+  // A missing field must NEVER silently become an empty Staff review list.
+  const validCount=n=>Number.isSafeInteger(n)&&n>=0&&n<=100000;
+  for(let i=0;i<history.length;i++){
+    const row=history[i];
+    if(!row||Array.isArray(row)||typeof row!=='object'||
+      row.utcMonth!==monthAt(nowMs,i-23)||
+      !validCount(row.centerClaims)||!validCount(row.legacyClaims)||
+      !validCount(row.centerOutcomeUnresolved)||
+      row.centerOutcomeUnresolved>row.centerClaims)
+      throw Error('Kings historical review agenda source unverified');
+  }
+  for(const row of future){
+    if(!row||Array.isArray(row)||typeof row!=='object'||
+      !validCount(row.legacyDatedKeptSeparate))
+      throw Error('Kings historical review agenda source unverified');
+  }
+  if(!validCount(undatedCenter)||!validCount(undatedLegacy))
+    throw Error('Kings historical review agenda source unverified');
   const groups=[];
   const append=(code,month,count)=>{
     if(!Object.hasOwn(CODES,code))throw Error('Kings review code unverified');
