@@ -58,6 +58,16 @@ async function inspect({
      triage.calendarAvailabilityCertified!==false||
      triage.invitationsSent!==0||triage.bookingsCreated!==0||
      triage.staffAssignmentsChanged!==0||
+     triage.review.eventTypeUnclassified!==event.futureUnclassified||
+     triage.review.calendarDaysNeedingReview!==event.futureDaysRequiringReview||
+     triage.review.daysOverThreeSourceClaims!==event.futureDaysOverDailyLimit||
+     triage.review.partnerMonthsOver20!==event.futurePartnerMonthsOver20||
+     triage.review.externalMonthsOver20!==event.futureExternalMonthsOver20||
+     triage.review.daysWithShortDepartureGap!==event.futureDaysWithShortDepartureGap||
+     triage.review.historyMonthsWithoutClaims!==event.historyMonthsWithoutClaims||
+     triage.review.pastOutcomesUnresolved!==event.historyPastCenterOutcomeUnresolved||
+     triage.review.legacyClaimsMissingOriginalEvidence!==event.historyLegacyEvidencePending||
+     triage.review.futureLegacyHoldReview!==event.historyFutureLegacyHoldReview||
      triage.review.invitationsMissingEventLinks!==invite.eventLinksMissing||
      triage.review.invitationDuplicateEventLinks!==invite.duplicateConvoyEvents||
      triage.review.invitationDuplicateVtcs!==invite.duplicateVtcReplies||
@@ -68,12 +78,16 @@ async function inspect({
   const work=operationsWorklist(triage);
   if(!Array.isArray(work))refuse();
   const expected=[
+    ['REVIEW_EVENT_TYPES',event.futureUnclassified],
     ['REVIEW_DAILY_CAP',event.futureDaysOverDailyLimit],
     ['REVIEW_PARTNER_MONTH_CAP',event.futurePartnerMonthsOver20],
     ['REVIEW_EXTERNAL_MONTH_CAP',event.futureExternalMonthsOver20],
     ['REVIEW_CALENDAR_DAYS',event.futureDaysRequiringReview],
     ['REVIEW_DEPARTURE_SPACING',event.futureDaysWithShortDepartureGap],
     ['REVIEW_FUTURE_LEGACY_HOLDS',event.historyFutureLegacyHoldReview],
+    ['REVIEW_HISTORY_GAPS',event.historyMonthsWithoutClaims],
+    ['REVIEW_PAST_OUTCOMES',event.historyPastCenterOutcomeUnresolved],
+    ['REVIEW_LEGACY_EVIDENCE',event.historyLegacyEvidencePending],
     ['REVIEW_MISSING_EVENT_LINKS',invite.eventLinksMissing],
     ['REVIEW_INVITATION_DUPLICATES',invite.duplicateVtcReplies],
     ['REVIEW_EVENT_LINK_DUPLICATES',invite.duplicateConvoyEvents],
