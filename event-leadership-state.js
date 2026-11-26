@@ -2,6 +2,7 @@
 'use strict';
 
 const crypto = require('node:crypto');
+const {trustedRecords}=require('./event-operations-manual-review-state');
 const DOMAIN = 'kings-event-leadership-private-state-v1';
 
 function deriveKey(secret) {
@@ -23,6 +24,9 @@ function validateState(state) {
       || !Array.isArray(state.monthlyReports)) {
     throw new Error('Event Leadership private state structure is invalid.');
   }
+  // Manual Staff review records are strictly allowlisted and never stored
+  // in plaintext or accepted with arbitrary Event/Staff metadata.
+  if(state.operationReviews!==undefined)trustedRecords(state.operationReviews);
   return state;
 }
 
