@@ -70,10 +70,9 @@ jobs:
 
           git add data/hr-probation.json
           git commit -m "Update Kings HR Probation state"
-          if ! bash scripts/git-safe-push.sh main; then
-            echo "::warning::State changed concurrently. Keeping the newer remote state and treating this persistence conflict as non-fatal."
-            git rebase --abort >/dev/null 2>&1 || true
-            git fetch origin main >/dev/null 2>&1 || true
-            git reset --hard origin/main >/dev/null 2>&1 || true
-            exit 0
-          fi
+          # A protected HR/Staff/Driver state change is only successful after
+          # its commit reaches remote main. A same-file race must NOT reset
+          # the local encrypted state and falsely report workflow success.
+          # git-safe-push already retries harmless races and fails closed
+          # without overwriting either side on a genuine conflict.
+          bash scripts/git-safe-push.sh main
