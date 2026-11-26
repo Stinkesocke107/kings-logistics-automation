@@ -117,23 +117,35 @@ function acceptanceStatus({gates,capabilities=[],blockers=[],ownerApproval=null}
 }
 function snapshot(){
   assertAcceptance();
+  const eventSystems=namedEventSystems.map(s=>({
+    ...s,ownerApproval:null,
+    acceptance:acceptanceStatus({...s,ownerApproval:null})
+  }));
+  const eventDiscord=eventSystems.find(s=>s.id==='18');
   const workflows=WORKFLOW_REGISTRY.map(w=>({
     file:w.file,label:w.label,area:w.area,
-    status:w.file==='event-operations-discord-review.yml'?'PARTIALLY_VERIFIED':'NOT_ASSESSED'
+    // A system-level evidence review may inform, but does NOT overwrite,
+    // unrelated workflow acceptance decisions.
+    status:w.file==='event-operations-discord-review.yml'?
+      eventDiscord.acceptance:'NOT_ASSESSED'
   }));
+  for(const workflow of workflows)
+    if(!AREA_ORDER.includes(workflow.area))
+      throw Error('Workflow area is missing from acceptance reporting');
   return Object.freeze({
     totalWorkflows:workflows.length,
     assessedWorkflows:workflows.filter(w=>w.status!=='NOT_ASSESSED').length,
-    completeWorkflows:0,
-    areas:AREA_ORDER.map(area=>({
-      name:area,
-      total:workflows.filter(w=>w.area===area).length,
-      acceptance:'NOT_ASSESSED'
-    })),
-    eventSystems:namedEventSystems.map(s=>({
-      ...s,ownerApproval:null,
-      acceptance:acceptanceStatus({...s,ownerApproval:null})
-    })),
+    completeWorkflows:workflows.filter(w=>w.status==='COMPLETE').length,
+    areas:AREA_ORDER.map(area=>{
+      const members=workflows.filter(w=>w.area===area);
+      return {
+        name:area,total:members.length,
+        acceptance:members.length&&members.every(w=>w.status==='COMPLETE')?
+          'COMPLETE':members.some(w=>w.status!=='NOT_ASSESSED')?
+            'PARTIALLY_VERIFIED':'NOT_ASSESSED'
+      };
+    }),
+    eventSystems,
     excluded:Object.freeze(['17 — Event Booking & Slot Management (cancelled)'])
   });
 }
