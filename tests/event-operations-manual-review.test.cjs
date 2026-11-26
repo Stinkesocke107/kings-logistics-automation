@@ -74,7 +74,7 @@ test('manual review status changes require a fresh real source task and a two-st
     'start','block','start','record_check'
   ]);
   assert.equal(reviewSummary(checked,NOW+180000).staffChecksRecorded,1);
-  assert.match(renderReviewSummary(checked,NOW+180000),/source conflicts remain/i);
+  assert.match(renderReviewSummary(checked,NOW+180000),/never suppresses a current source conflict/i);
   assert.equal(checked.eventSourceObservation.staffApprovalsVerified,false);
   assert.equal(checked.eventSourceObservation.freeSlotsCertified,false);
   assert.equal(checked.eventSourceObservation.bookingsCreated,0);
