@@ -53,33 +53,50 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "workflow-schedule-late:driver-register-onboarding.yml": {
-      "severity": "warning",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding scheduled run started 639 minutes after its UTC slot.",
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "status": "late",
-        "expectedAt": "2026-11-25T07:17:00.000Z",
-        "actualAt": "2026-11-25T17:56:36.000Z",
-        "delayMinutes": 639,
-        "graceMinutes": 120,
-        "runId": 45670004198
+        "ageMinutes": 114,
+        "latestCount": 39
       },
-      "firstAlertedAt": "2026-11-25T20:08:53.927Z"
+      "firstAlertedAt": "2026-11-26T10:49:38.532Z"
+    },
+    "workflow-failed:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 45787012456,
+        "completedAt": "2026-11-26T08:55:53Z"
+      },
+      "firstAlertedAt": "2026-11-26T10:49:38.532Z"
+    },
+    "workflow-overdue:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-11-26T10:49:38.532Z"
     }
   },
   "pending": {
-    "workflow-failed:final-freeze-verification.yml": {
+    "workflow-overdue:event-operations-discord-review.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-26T08:56:30.455Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
+      "firstSeenAt": "2026-11-26T10:49:38.532Z",
+      "system": "Event Operations Discord Staff Review",
+      "message": "Event Operations Discord Staff Review has not run within the expected time window."
     },
-    "workflow-overdue:final-freeze-verification.yml": {
+    "workflow-schedule-missing:driver-register-onboarding.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-26T08:56:30.455Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "firstSeenAt": "2026-11-26T10:49:38.532Z",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period."
     }
   }
 }
