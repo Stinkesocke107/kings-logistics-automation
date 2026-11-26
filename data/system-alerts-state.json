@@ -83,16 +83,6 @@
         "completedAt": "2026-11-26T01:07:47Z"
       },
       "firstAlertedAt": "2026-11-26T01:09:23.482Z"
-    },
-    "workflow-failed:event-operations-discord-review.yml": {
-      "severity": "warning",
-      "system": "Event Operations Discord Staff Review",
-      "message": "Event Operations Discord Staff Review latest completed run ended with failure.",
-      "details": {
-        "runId": 45735506101,
-        "completedAt": "2026-11-26T01:24:20Z"
-      },
-      "firstAlertedAt": "2026-11-26T01:25:17.823Z"
     }
   },
   "pending": {}
