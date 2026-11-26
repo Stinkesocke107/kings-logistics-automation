@@ -466,3 +466,31 @@ test('unverified lifecycle mapping cannot be laundered into certified status cou
   assert.equal(observation.invitationDecisionsVerified,false);
   assert.equal(observation.bookingsCreated,0);
 });
+
+test('Discord offset-aware UTC archive timestamps paginate safely without creating invitations',async()=>{
+  const f=fixture();
+  const pageUrls=[];
+  const transport=async url=>{
+    if(url.endsWith('/channels/'+FORUM))return Response.json(f.forum);
+    if(url.endsWith('/guilds/'+GUILD+'/threads/active'))
+      return Response.json({threads:[]});
+    if(url.includes('/channels/'+FORUM+'/threads/archived/public?')){
+      pageUrls.push(url);
+      return Response.json(pageUrls.length===1?{threads:[{
+        ...f.threads[0],
+        thread_metadata:{archive_timestamp:'2026-11-24T08:00:00.000+00:00'}
+      }],has_more:true}:{threads:[],has_more:false});
+    }
+    if(url.includes('/channels/'+A+'/messages?'))
+      return Response.json(f.messagesByThread.get(A));
+    throw Error('Unexpected private route');
+  };
+  const r=await readInvitationTracker({
+    token:'synthetic-test-bot-token-not-a-secret',transport,nowMs:NOW
+  });
+  assert.equal(pageUrls.length,2);
+  assert.ok(pageUrls[1].includes('before='));
+  assert.equal(r.convoyThreads,1);
+  assert.equal(r.bookingsCreated,0);
+  assert.equal(r.invitationDecisionsVerified,false);
+});
