@@ -30,7 +30,16 @@ test('a successful workflow or many offline tests never grant full System #18 ac
  assert.ok(event.capabilities.some(x=>x.id==='refresh_after_new_review'&&x.state===PENDING));
  assert.ok(event.capabilities.some(x=>x.id==='operator_handover'&&x.state===PENDING));
  assert.ok(event.blockers.length>0);
- for(const code of ['12','14','15','16'])
+ const capacity=s.eventSystems.find(x=>x.id==='12');
+ assert.equal(capacity.acceptance,'PARTIALLY_VERIFIED');
+ assert.ok(capacity.capabilities.some(x=>
+   x.id==='live_calendar_source'&&x.state===VERIFIED));
+ assert.ok(capacity.capabilities.some(x=>
+   x.id==='live_integrated_acceptance'&&x.state===PENDING));
+ assert.ok(capacity.capabilities.some(x=>
+   x.id==='owner_final_approval'&&x.state===PENDING));
+ assert.ok(capacity.blockers.length>0);
+ for(const code of ['14','15','16'])
   assert.equal(s.eventSystems.find(x=>x.id===code).acceptance,'NOT_ASSESSED');
  assert.ok(!s.eventSystems.some(x=>x.acceptance==='COMPLETE'));
 });

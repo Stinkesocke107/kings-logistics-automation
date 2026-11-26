@@ -28,8 +28,32 @@ function fullGateList(verified={}){
       verified[id]||[])));
 }
 const namedEventSystems=Object.freeze([
-  {id:'12',name:'Event Capacity (advisory)',gates:fullGateList(),
-    blockers:['System-specific final acceptance not independently documented']},
+  {id:'12',name:'Event Capacity (advisory)',
+    gates:fullGateList({
+      implementation:[EVIDENCE_ROOT+'pull/194'],
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45899560178'],
+      security:[EVIDENCE_ROOT+'actions/runs/45899560178']
+    }),
+    capabilities:Object.freeze([
+      item('utc_policy','3 total UTC/day; Partner and External each 20/month; Kings monthly unlimited',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45899560178']),
+      item('departure_warning','Under-120-minute departure gap, including UTC month boundary, is warning-only',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45899560178']),
+      item('source_reconciliation','Mismatch, stale report and frozen Legacy hold do not create free capacity',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45899560178']),
+      item('advisory_integration','Planning, 12-month Calendar, History/Leadership and Staff triage agree offline',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45899560178']),
+      item('live_calendar_source','Real Convoy Checker completed read-only same-run Calendar source verification',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45897888431']),
+      item('live_integrated_acceptance','Full real original-source planning-to-Staff human review verified'),
+      item('operator_handover','Event Team validates capacity interpretation and incident handling'),
+      item('owner_final_approval','CEO signs off #12 advisory capacity as a whole')
+    ]),
+    blockers:[
+      'Actual remaining/bookable capacity must never be inferred from source claims',
+      'Full real planning-to-authorized-Staff handover and monitoring proof pending',
+      'Explicit CEO final acceptance not recorded'
+    ]},
   {id:'14',name:'Event History',gates:fullGateList(),
     blockers:['System-specific final acceptance not independently documented']},
   {id:'15',name:'Invitation Tracker',gates:fullGateList(),

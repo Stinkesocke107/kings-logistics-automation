@@ -40,7 +40,7 @@ Die ausführbare Übersicht ist `kings-system-acceptance.js` und liest die **46*
 
 | System | Momentane Abnahme | Offene Pflichtarbeit |
 |---|---|---|
-| **#12 Event Capacity** | NOT_ASSESSED | Eigenständige vollständige Funktions-/Echtbetriebsabnahme; keine Verfügbarkeit oder Buchungen behaupten |
+| **#12 Event Capacity** | **PARTIALLY_VERIFIED** | UTC-Kapazitäts-/Abstandsregel, Quellenabgleich, Read-only-Kalender und Übergabe an Staff Review teilweise belegt; echte Originalfreigaben/Restkapazität sowie Staff-/CEO-Abnahme bleiben offen |
 | **#14 Event History** | NOT_ASSESSED | Originalquellen, Datenherkunft, korrekte historische Aussagen und Übernahme prüfen |
 | **#15 Invitation Tracker** | NOT_ASSESSED | Quellen, Tags, Statusaussagen, Dubletten und Integration mit aktuellen Event-Daten prüfen |
 | **#16 Event Calendar** | NOT_ASSESSED | Reale Kalenderquellen, Warnlogik und Integration prüfen |
@@ -82,3 +82,19 @@ Die separate Regression `tests/event-operations-cross-system-acceptance.test.cjs
 - **Sicherheitsgrenzen:** Unberechtigte Autoren bewirken keine Reviewänderung; geänderte Quelldaten verlangen `RECHECK_REQUIRED`. Alle simulierten Discord-Abfragen bleiben GET-only, und keine Originalquelle wird geändert.
 
 Dies ist ein **echter Code-Integrationstest**, jedoch ausdrücklich **kein realer Discord-Live- oder CEO-Schlussabnahmenachweis**. Der automatische Dashboard-Refresh durch eine **spätere echte** Statusänderung und die Teamabnahme bleiben offen.
+
+## #12 — Neue Funktions- und Quellenprüfung (26.11.2026)
+
+Die zusätzliche Regression `tests/event-capacity-functional-acceptance.test.cjs` vergleicht **dieselben synthetischen Convoy-Ansprüche** in den tatsächlichen Implementierungen für operationales Planning, zwölfmonatigen UTC-Calendar, 24-monatige History/Leadership-Übernahme und Event Operations:
+
+- **3 source-claimed Convoys pro UTC-Tag insgesamt**, unabhängig vom Typ; **20 Partner + 20 External pro UTC-Monat jeweils separat**, Kings ohne Monatsdeckel;
+- Warnung bei **weniger als 120 Minuten** zwischen Abfahrten auch über UTC-Mitternacht/Monatswechsel, ohne automatische Event-Ablehnung oder Umbuchung;
+- vollständiger Abgleich von Convoy Checker vs. Overview und fail-closed bei alten, falschen oder widersprüchlichen Quelldaten;
+- eingefrorene Legacy-Ansprüche bleiben separat, dürfen weder die Zahl freier Plätze erhöhen noch einen bestätigten Hold freigeben;
+- Statusschritte melden **Prüfbedarf** an das Event-Team, niemals automatisch bestätigte Kapazität, Originalgenehmigungen, Ticket-Buchungen oder Einladungsentscheidungen.
+
+**Beleg für die Funktionsprüfungen:** [CI #45899560178](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45899560178) — 734/734 Tests bestanden.
+
+**Zusätzlicher echter Live-Nachweis:** Der echte [Convoy Checker-Lauf #45897888431](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45897888431) meldete `SOURCE_CALENDAR_READONLY_READY` im Schritt „Check read-only Event Calendar source from finalized Convoy Center“. Das bestätigt die erfolgreiche *Read-only-Datenübergabe innerhalb dieses einen Laufs*, **keine** dauerhaft gültige Event-Verfügbarkeit, keinen ursprünglichen Staff-Abgleich und keine automatisch freigebbaren Event-Slots.
+
+**Noch erforderlich für #12 COMPLETE:** Reale, vollständig nachvollzogene Quelle → Staff-Prüfung → eindeutige Rückmeldung einschließlich Fehlerszenario, Verantwortlichkeit und Recovery; separate Funktions-/Sicherheits-/Betriebsabnahme samt CEO-Freigabe. **System #17 bleibt gestrichen**, kein neues Booking/Slot-System als Voraussetzung einplanen.
