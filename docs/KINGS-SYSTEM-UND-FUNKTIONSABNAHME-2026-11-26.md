@@ -171,3 +171,18 @@ Die folgenden drei zuvor ausschließlich inventarisierten Workflows besitzen jet
 
 Damit sind **10 von 46 Workflows einzeln teilweise verifiziert, 36 noch nicht individuell nach dem Abnahmeschema bewertet und 0 abschließend freigegeben.** Die fünf separat erfassten Event-Fachsysteme #12/#14/#15/#16/#18 bleiben teilweise geprüft. Insbesondere die externen Map-API- und Freshness-Blocker werden nicht herabgestuft oder als gelöst markiert; die Zahlen sind keine funktionalen Prozentwerte.
 
+
+
+## Zusätzliche Einzelabnahmen — 27. November 2026 (Events, Staff und Leadership)
+
+Fünf weitere bisher nicht individuell bewertete Workflows wurden anhand **konkreter produktiver Läufe** als `PARTIALLY_VERIFIED` aufgenommen, ohne eine Echtentscheidung oder vollständige Betriebsfreigabe zu behaupten.
+
+| Workflow | Nachweis | Verbleibende wichtige Lücke |
+|---|---|---|
+| `convoy-checker.yml` | [Realer Convoy-Center-Lauf #45909598171](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45909598171): originale Quellen verarbeitet, source-only UTC-Calendar-Check bestanden und bestehende Discord-Übersicht aktualisiert. | Keine authentische neue Genehmigung nachgewiesen; ein gleichzeitig aufgetretener Git-Baseline-Konflikt wurde als Warnung behandelt und erfordert gesonderte Recovery-Abnahme. |
+| `convoy-announcement-verifier.yml` | [Realer Prüflauf #45911305606](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45911305606) hat einen älteren veröffentlichten Kings Convoy anhand der tatsächlichen Discord-Nachricht bestätigt. | In der jüngsten Prüfung gab es **0** neu fällige Quellen; ein neuer Versand, Dubletten- und Retry-Fall bleibt offen. |
+| `staff-leadership-live-overview.yml` | [Realer Staff-Lauf #45908590431](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45908590431): bestehende Staff-Hierarchie-Nachricht aktualisiert, Message-ID erhalten, Zustand sicher in Git persistiert. | Reale neue Beförderung oder Austritt mit unabhängiger Rückleseprüfung fehlen. |
+| `leadership-dashboard.yml` | [Realer Dashboard-Lauf #45909541123](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45909541123): vorhandene fünf konsolidierte Discord-Ausgaben aktualisiert; aktuellen AES-geschützten Event-Review-Zustand in der sichtbaren Event-Ausgabe mittels Discord-GET bestätigt. | Neues Staff-Kommando nach Integration, vollständige fachliche Quellen-Matrix und Freigabe fehlen. |
+| `leadership-dashboard-verification.yml` | [Reale Read-only-Überprüfung #45909350372](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45909350372): fünf Leadership-Inhaltsverträge und aktuelle Public-/Event-Publikationen geprüft. | Vier historische Legacy-Leadership-Nachrichten waren **NOT_VISIBLE** und sind keine bestätigten Auslieferungen. |
+
+**Aktuelle Bilanz: 15/46 einzeln teilverifiziert, 31/46 noch nicht einzeln bewertet, 0/46 vollständig freigegeben.** Alle Event- und Organisationssysteme behalten ihre offenen realen E2E-, Fehlerbehandlungs-, Team- und CEO-Gates. Die externen Core-Blocker bleiben ungeändert.
