@@ -18,7 +18,19 @@ const STAFF_NAMES=new Set([
   'CEO','Head Management Event','Event Management','Event Director',
   'Event Coordination Lead','Event Coordinator'
 ]);
-function reject(){throw Error('Kings Event Operations Discord source unverified');}
+// Only fixed, identifier-free error categories may reach public CI logs.
+// Raw HTTP errors, URLs, Discord role/member IDs and tokens are never logged.
+const SAFE_PREFLIGHT_CODES=new Set([
+  'CONFIG_INVALID','CHANNEL_UNAVAILABLE','GUILD_ROLES_UNAVAILABLE',
+  'BOT_AUTH_UNAVAILABLE','BOT_MEMBER_UNAVAILABLE',
+  'CHANNEL_METADATA_INVALID','ROLE_POLICY_INVALID',
+  'CHANNEL_PRIVATE_POLICY_INVALID','ROLE_ACCESS_INVALID'
+]);
+function reject(code){
+  const error=Error('Kings Event Operations Discord source unverified');
+  if(SAFE_PREFLIGHT_CODES.has(code))error.preflightCode=code;
+  throw error;
+}
 function roleIdsFromSecret(text){
   if(typeof text!=='string'||!text||text.length>512)reject();
   const ids=text.split(',').map(x=>x.trim());
@@ -35,36 +47,42 @@ function validatePrivateChannel({channel,roles,bot,botMember,allowedRoles,channe
     channel.type!==0||!Array.isArray(channel.permission_overwrites)||
     !Array.isArray(roles)||!roles.length||
     !ID.test(String(bot?.id||''))||bot.bot!==true||
-    !Array.isArray(botMember?.roles)||!allowedRoles?.length)reject();
+    !Array.isArray(botMember?.roles)||!allowedRoles?.length)
+    reject('CHANNEL_METADATA_INVALID');
   const roleById=new Map(roles.map(r=>[String(r?.id),r]));
-  if(roleById.size!==roles.length||!roleById.has(GUILD))reject();
-  if(has(roleById.get(GUILD).permissions,ADMIN))reject();
+  if(roleById.size!==roles.length||!roleById.has(GUILD))
+    reject('ROLE_POLICY_INVALID');
+  if(has(roleById.get(GUILD).permissions,ADMIN))
+    reject('ROLE_POLICY_INVALID');
   for(const id of allowedRoles){
     const role=roleById.get(id);
     // CEO has the server Administrator permission and legitimately bypasses
     // channel overwrites. No other configured Event command role may be Admin.
     if(!role||!STAFF_NAMES.has(role.name)||
       (has(role.permissions,ADMIN)&&role.name!=='CEO'))
-      reject();
+      reject('ROLE_POLICY_INVALID');
   }
   const overrides=channel.permission_overwrites;
   const everyone=overrides.filter(x=>x.id===GUILD&&x.type===0);
   if(everyone.length!==1||!has(everyone[0].deny,VIEW)||
-    has(everyone[0].allow,VIEW))reject();
+    has(everyone[0].allow,VIEW))
+    reject('CHANNEL_PRIVATE_POLICY_INVALID');
   const seen=new Set();
   const botRoles=new Set(botMember.roles.map(String));
   for(const item of overrides){
     if(!ID.test(String(item?.id||''))||
-      ![0,1].includes(item?.type))reject();
+      ![0,1].includes(item?.type))
+      reject('CHANNEL_PRIVATE_POLICY_INVALID');
     const key=item.type+':'+item.id;
-    if(seen.has(key))reject();
+    if(seen.has(key))reject('CHANNEL_PRIVATE_POLICY_INVALID');
     seen.add(key);
     if(item.type===1&&item.id!==bot.id&&has(item.allow,VIEW))
-      reject();
+      reject('CHANNEL_PRIVATE_POLICY_INVALID');
     if(item.type===0&&item.id!==GUILD&&has(item.allow,VIEW)&&
       !allowedRoles.includes(item.id)&&!botRoles.has(item.id))
-      reject();
-    if(item.type===0&&!roleById.has(item.id))reject();
+      reject('CHANNEL_PRIVATE_POLICY_INVALID');
+    if(item.type===0&&!roleById.has(item.id))
+      reject('CHANNEL_PRIVATE_POLICY_INVALID');
   }
   for(const id of allowedRoles){
     const role=roleById.get(id);
@@ -75,7 +93,8 @@ function validatePrivateChannel({channel,roles,bot,botMember,allowedRoles,channe
     if(role.name==='CEO'&&has(role.permissions,ADMIN))continue;
     if(!overwrite||!has(overwrite.allow,VIEW)||
       !has(overwrite.allow,SEND)||has(overwrite.deny,VIEW)||
-      has(overwrite.deny,SEND))reject();
+      has(overwrite.deny,SEND))
+      reject('ROLE_ACCESS_INVALID');
   }
   return true;
 }
@@ -116,26 +135,39 @@ function getMessageIds(messages,cursor,channelId){
 // Shared, strictly GET-only Discord source access for both the review
 // worker and its metadata-only opt-in preflight. No Event data is returned.
 function readOnlyGet(transport,token){
-  if(typeof transport!=='function'||typeof token!=='string'||!token)reject();
+  if(typeof transport!=='function'||typeof token!=='string'||!token)
+    reject('CONFIG_INVALID');
   return async function get(route){
-    const response=await transport(API+route,{
-      method:'GET',headers:{Authorization:'Bot '+token}
-    });
-    if(!response||!response.ok)reject();
-    return response.json();
+    // This code classifies *only* known metadata GET routes. Never print
+    // the requested URL, response body, authentication header or raw errors.
+    const code=route.startsWith('/channels/')?'CHANNEL_UNAVAILABLE':
+      route==='/guilds/'+GUILD+'/roles'?'GUILD_ROLES_UNAVAILABLE':
+      route==='/users/@me'?'BOT_AUTH_UNAVAILABLE':
+      route.startsWith('/guilds/'+GUILD+'/members/')?
+        'BOT_MEMBER_UNAVAILABLE':'CONFIG_INVALID';
+    try{
+      const response=await transport(API+route,{
+        method:'GET',headers:{Authorization:'Bot '+token}
+      });
+      if(!response||!response.ok)reject(code);
+      return await response.json();
+    }catch{
+      reject(code);
+    }
   };
 }
 async function verifySourceConfiguration(get,channelId,staffRoleIds){
   if(typeof get!=='function'||!ID.test(channelId)||
     !Array.isArray(staffRoleIds)||staffRoleIds.length<1||
     staffRoleIds.length>8||staffRoleIds.some(id=>!ID.test(id))||
-    new Set(staffRoleIds).size!==staffRoleIds.length)reject();
+    new Set(staffRoleIds).size!==staffRoleIds.length)
+    reject('CONFIG_INVALID');
   const [channel,roles,bot]=await Promise.all([
     get('/channels/'+channelId),
     get('/guilds/'+GUILD+'/roles'),
     get('/users/@me')
   ]);
-  if(!ID.test(String(bot?.id||'')))reject();
+  if(!ID.test(String(bot?.id||'')))reject('BOT_AUTH_UNAVAILABLE');
   const botMember=await get('/guilds/'+GUILD+'/members/'+bot.id);
   return validatePrivateChannel({
     channel,roles,bot,botMember,allowedRoles:staffRoleIds,channelId
@@ -232,5 +264,5 @@ async function ingest({state,secret,token,channelId,staffRoleIds,
 }
 module.exports={
   GUILD,ID,roleIdsFromSecret,validatePrivateChannel,parseCommand,
-  ingest,preflight,MAX_PAGES,MAX_COMMANDS
+  ingest,preflight,SAFE_PREFLIGHT_CODES,MAX_PAGES,MAX_COMMANDS
 };
