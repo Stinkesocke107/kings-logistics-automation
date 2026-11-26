@@ -82,10 +82,58 @@ function archivedChangelogField(){
     inline:false};
 }
 
+// The new official-source snapshot is independent of the last verified
+// map-derived per-player snapshot. Never erase real historical Kings online
+// counts, never put player identities or tokens in public state.
+function storeOfficialTrackerSnapshot(official){
+  const observed=Date.parse(official?.observedAt||'');
+  const now=Date.now();
+  if(official?.source!=='truckersmp-official-v2'||
+     !Number.isFinite(observed)||observed<=0||
+     observed>now+5*60000||now-observed>15*60000||
+     !Number.isSafeInteger(official.vtcMemberCount)||
+     official.vtcMemberCount<0||official.vtcMemberCount>20000||
+     official.kingsOnline!==null){
+    throw new Error('Kings official tracker source unverified');
+  }
+  const totalsPresent=official.totalAllPlayers!==undefined;
+  if(totalsPresent&&(
+     !Number.isSafeInteger(official.activeServers)||official.activeServers<0||
+     !Number.isSafeInteger(official.ets2AllPlayers)||official.ets2AllPlayers<0||
+     !Number.isSafeInteger(official.atsAllPlayers)||official.atsAllPlayers<0||
+     !Number.isSafeInteger(official.totalAllPlayers)||
+     official.totalAllPlayers!==official.ets2AllPlayers+official.atsAllPlayers)){
+    throw new Error('Kings official tracker server aggregation unverified');
+  }
+  const state={
+    version:1,
+    source:'truckersmp-official-v2',
+    sourceMode:'map-independent',
+    updatedAt:official.observedAt,
+    vtcMemberCount:official.vtcMemberCount,
+    kingsOnline:null,
+    allTruckersMpPlayers:totalsPresent?official.totalAllPlayers:null,
+    ets2AllPlayers:totalsPresent?official.ets2AllPlayers:null,
+    atsAllPlayers:totalsPresent?official.atsAllPlayers:null,
+    activeTruckersMpServers:totalsPresent?official.activeServers:null
+  };
+  const file=path.join(ROOT,'data','live-tracker-official.json');
+  fs.mkdirSync(path.dirname(file),{recursive:true});
+  fs.writeFileSync(file,JSON.stringify(state,null,2)+'\n','utf8');
+  return state;
+}
+function officialDisplayMode(){
+  return process.env.KINGS_TRACKER_SOURCE_MODE==='official';
+}
 function outageEmbed(config,state,official=null){
+  const mapFree=officialDisplayMode();
   const fields=[
-    {name:'Last confirmed player-data sample',value:lastVerified(state,config),inline:false},
-    {name:'Current online count',value:'**Unavailable — not zero**',inline:false}
+    mapFree&&official?
+      {name:'Official Tracker data refreshed',
+       value:'<t:'+Math.floor(Date.parse(official.observedAt)/1000)+':F> (<t:'+
+         Math.floor(Date.parse(official.observedAt)/1000)+':R>)',inline:false}:
+      {name:'Last confirmed player-data sample',value:lastVerified(state,config),inline:false},
+    {name:'Kings Drivers currently online',value:'**Unavailable — not zero**',inline:false}
   ];
   const membership=official?null:freshMemberCount();
   if(membership){
@@ -117,13 +165,24 @@ function outageEmbed(config,state,official=null){
     if(changelog)fields.push(changelog);
   }
   return {
-    title:config.title,
-    description:'⚠️ **Current TruckersMP player status is temporarily unavailable.**\n\n' +
+    title:mapFree?
+      (official?'👑 Kings '+config.label+' — Official Data (No Live Map)':
+        '👑 Kings '+config.label+' — Official Feed Unavailable'):
+      config.title,
+    description:mapFree&&official?
+      '✅ **Map-independent Tracker active.**\n\n'+
+      'Kings VTC membership and global TruckersMP server populations are verified directly from the official source. '+
+      'No live-map connection is required.\n\n'+
+      '**Individual Kings Drivers online and live locations cannot be measured by this feed.** '+
+      'Previously verified player statistics remain historical and are not overwritten.':
+      '⚠️ **Current TruckersMP player status is temporarily unavailable.**\n\n' +
       'The latest live refresh could not be verified. No one is being marked online or offline from missing information.\n\n' +
       'Previously confirmed statistics and historical records remain preserved.',
     color:KINGS_BLUE,
     fields,
-    footer:{text:'Kings Systems | Live source unavailable; refresh will resume automatically after a successful verified run.'}
+    footer:{text:mapFree?
+      'Kings Systems | Official TruckersMP source; Kings player presence unavailable without verified player data.':
+      'Kings Systems | Live source unavailable; refresh will resume automatically after a successful verified run.'}
   };
 }
 function webhookBase(value){
@@ -216,6 +275,22 @@ async function main(){
       displayResults.push({label:config.label,ok:false});
       // Never print webhook secrets, Discord message bodies or player IDs.
       console.error(config.label+': status edit failed ('+String(error?.name||'Error')+').');
+    }
+  }
+  // Official mode is a real source-dependent Tracker, not a green
+  // "unavailable" notice. If neither official roster nor server data can
+  // be confirmed, publish the safe status but return a failed producer.
+  if(officialDisplayMode()&&!official){
+    problems++;
+    console.error('Kings map-independent Tracker cannot verify its official VTC roster.');
+  }
+  if(official){
+    try{
+      storeOfficialTrackerSnapshot(official);
+      console.log('Kings official map-independent Tracker aggregate snapshot saved.');
+    }catch{
+      problems++;
+      console.error('Kings official Tracker aggregate state could not be saved.');
     }
   }
   // Persist aggregate delivery evidence even on partial failure. This
