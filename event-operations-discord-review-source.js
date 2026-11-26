@@ -11,6 +11,10 @@ const ID=/^\d{17,22}$/;
 const VIEW=1n<<10n,SEND=1n<<11n,ADMIN=1n<<3n;
 const MAX_PAGES=8;
 const MAX_COMMANDS=800;
+// Deliberately NOT a !kings-review command; this is a safe owner-triggered
+// message-content proof, never a staff action or Event state transition.
+const SOURCE_PROBE_MARKER='KINGS-EVENT-READ-TEST';
+const SOURCE_PROBE_LIMIT=25;
 const CMD=/^!kings-review (KR[a-f0-9]{24}) (start|block|reopen|record_check)(?: (ORIGINAL_DISCORD|ORIGINAL_EVENT_PAGE|STAFF_RECORD) (ORIGINAL_RECORDS_CHECKED))?$/;
 // Owner-approved #18 command operators are identified by immutable
 // private Discord role IDs, not their editable display names. The owner
@@ -25,6 +29,8 @@ const SAFE_ROLE_ACCESS_REASONS=Object.freeze([
 const SAFE_PREFLIGHT_CODES=new Set([
   'CONFIG_INVALID','CHANNEL_UNAVAILABLE','GUILD_ROLES_UNAVAILABLE',
   'BOT_AUTH_UNAVAILABLE','BOT_MEMBER_UNAVAILABLE',
+  'MESSAGE_HISTORY_UNAVAILABLE','MESSAGE_HISTORY_INVALID',
+  'MESSAGE_TEST_NOT_FOUND','MESSAGE_TEST_NOT_AUTHORIZED',
   'CHANNEL_METADATA_INVALID','ROLE_POLICY_INVALID',
   'ROLE_MISSING','ROLE_UNEXPECTED_ADMIN',
   'CHANNEL_PRIVATE_POLICY_INVALID','ROLE_ACCESS_INVALID',
@@ -155,7 +161,9 @@ function readOnlyGet(transport,token){
   return async function get(route){
     // This code classifies *only* known metadata GET routes. Never print
     // the requested URL, response body, authentication header or raw errors.
-    const code=route.startsWith('/channels/')?'CHANNEL_UNAVAILABLE':
+    const code=route.startsWith('/channels/')&&route.includes('/messages?')?
+      'MESSAGE_HISTORY_UNAVAILABLE':
+      route.startsWith('/channels/')?'CHANNEL_UNAVAILABLE':
       route==='/guilds/'+GUILD+'/roles'?'GUILD_ROLES_UNAVAILABLE':
       route==='/users/@me'?'BOT_AUTH_UNAVAILABLE':
       route.startsWith('/guilds/'+GUILD+'/members/')?
@@ -188,13 +196,38 @@ async function verifySourceConfiguration(get,channelId,staffRoleIds){
     channel,roles,bot,botMember,allowedRoles:staffRoleIds,channelId
   });
 }
-// Owners can inspect access before activation without reading command
-// history, opening the Event state, advancing a cursor, or writing Discord.
-async function preflight({token,channelId,staffRoleIds,transport=fetch}={}){
+// Owners can inspect metadata without reading command history or touching
+// encrypted Event state. A separate explicit manual probe can additionally
+// verify that the bot can read human-authored message content.
+async function preflight({token,channelId,staffRoleIds,
+  probeMessageAccess=false,transport=fetch}={}){
   const get=readOnlyGet(transport,token);
   await verifySourceConfiguration(get,channelId,staffRoleIds);
-  return Object.freeze({
+  if(!probeMessageAccess)return Object.freeze({
     status:'SOURCE_METADATA_CHECKED',changed:false,
+    readOnlyDiscord:true,discordWrites:0
+  });
+  // Exactly one bounded Discord message-history GET. No raw content is
+  // printed, returned, persisted or interpreted as an Event command.
+  const messages=await get('/channels/'+channelId+'/messages?limit='+
+    SOURCE_PROBE_LIMIT);
+  if(!Array.isArray(messages)||messages.length>SOURCE_PROBE_LIMIT)
+    reject('MESSAGE_HISTORY_INVALID');
+  const proof=messages.find(message=>
+    message?.channel_id===channelId&&
+    ID.test(String(message?.id||''))&&
+    ID.test(String(message?.author?.id||''))&&
+    message.author.bot===false&&
+    message.content===SOURCE_PROBE_MARKER);
+  if(!proof)reject('MESSAGE_TEST_NOT_FOUND');
+  // Even the read-only probe must originate from a currently authorised
+  // human Event operator, not a spoofed identity or unapproved member.
+  const member=await get('/guilds/'+GUILD+'/members/'+proof.author.id);
+  if(!Array.isArray(member?.roles)||
+    !member.roles.some(id=>staffRoleIds.includes(String(id))))
+    reject('MESSAGE_TEST_NOT_AUTHORIZED');
+  return Object.freeze({
+    status:'MESSAGE_CONTENT_VERIFIED',changed:false,
     readOnlyDiscord:true,discordWrites:0
   });
 }
@@ -279,5 +312,6 @@ async function ingest({state,secret,token,channelId,staffRoleIds,
 }
 module.exports={
   GUILD,ID,roleIdsFromSecret,validatePrivateChannel,parseCommand,
-  ingest,preflight,SAFE_PREFLIGHT_CODES,MAX_PAGES,MAX_COMMANDS
+  ingest,preflight,SAFE_PREFLIGHT_CODES,MAX_PAGES,MAX_COMMANDS,
+  SOURCE_PROBE_MARKER,SOURCE_PROBE_LIMIT
 };

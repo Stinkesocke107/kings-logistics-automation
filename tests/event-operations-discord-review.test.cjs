@@ -429,6 +429,105 @@ test('VERIFY_ONLY checks real private Discord source access without reading comm
  }}),/not authorized/);
  assert.equal(stateReads,0);
 });
+test('manual VERIFY_ONLY validates human message content without Event-state access or writes',async()=>{
+ const env={
+   GITHUB_REF:'refs/heads/main',GITHUB_EVENT_NAME:'workflow_dispatch',
+   KINGS_EVENT_DISCORD_REVIEW_ENABLED:'VERIFY_ONLY',
+   KINGS_EVENT_REVIEW_MESSAGE_ACCESS_PROBE:'YES',
+   KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID:CHANNEL,
+   KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS:ROLE,
+   DISCORD_BOT_TOKEN:'SYNTHETIC_BOT_TOKEN'
+ };
+ const m=message(MSG2,'KINGS-EVENT-READ-TEST');
+ const requests=discordFetch([m]);
+ let reads=0,writes=0;
+ const opts={env,nowMs:NOW,transport:requests.transport,
+   read:()=>{reads++;throw Error('Forbidden private state read');},
+   write:()=>{writes++;throw Error('Forbidden state write');}
+ };
+ const success=await run(opts);
+ assert.deepEqual(success,{
+   status:'MESSAGE_CONTENT_VERIFIED',changed:false,
+   readOnlyDiscord:true,discordWrites:0
+ });
+ assert.equal(reads,0);assert.equal(writes,0);
+ assert.equal(requests.seen.length,6);
+ assert.ok(requests.seen.every(x=>x.method==='GET'));
+ assert.equal(requests.seen.filter(x=>x.url.includes('/messages?')).length,1);
+ assert.ok(requests.seen.some(x=>
+   x.url.endsWith('/channels/'+CHANNEL+'/messages?limit=25')));
+ assert.ok(requests.seen.some(x=>
+   x.url.endsWith('/guilds/'+GUILD+'/members/'+STAFF)));
+ // A scheduled VERIFY_ONLY run ignores an input flag even if injected.
+ const scheduled=discordFetch([m]);
+ const scheduledResult=await run({...opts,env:{
+   ...env,GITHUB_EVENT_NAME:'schedule'
+ },transport:scheduled.transport});
+ assert.equal(scheduledResult.status,'SOURCE_METADATA_CHECKED');
+ assert.equal(scheduled.seen.length,4);
+ assert.ok(scheduled.seen.every(x=>!x.url.includes('/messages?')));
+ // Default manual VERIFY_ONLY retains metadata-only behavior.
+ const metadata=discordFetch([m]);
+ const metadataResult=await run({...opts,env:{
+   ...env,KINGS_EVENT_REVIEW_MESSAGE_ACCESS_PROBE:'NO'
+ },transport:metadata.transport});
+ assert.equal(metadataResult.status,'SOURCE_METADATA_CHECKED');
+ assert.equal(metadata.seen.length,4);
+ assert.equal(reads,0);assert.equal(writes,0);
+});
+test('manual message proof refuses absent marker, missing content, outsider and history errors',async()=>{
+ const env={
+   GITHUB_REF:'refs/heads/main',GITHUB_EVENT_NAME:'workflow_dispatch',
+   KINGS_EVENT_DISCORD_REVIEW_ENABLED:'VERIFY_ONLY',
+   KINGS_EVENT_REVIEW_MESSAGE_ACCESS_PROBE:'YES',
+   KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID:CHANNEL,
+   KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS:ROLE,
+   DISCORD_BOT_TOKEN:'SYNTHETIC_BOT_TOKEN'
+ };
+ const runProbe=async(transport,expected)=>{
+   await assert.rejects(()=>run({env,transport,
+     read:()=>{throw Error('Forbidden private state read');},
+     write:()=>{throw Error('Forbidden state write');}
+   }),error=>{
+     assert.equal(error.message,
+       'Kings Event Operations Discord source unverified');
+     assert.equal(error.preflightCode,expected);
+     return true;
+   });
+ };
+ await runProbe(discordFetch([]).transport,'MESSAGE_TEST_NOT_FOUND');
+ await runProbe(discordFetch([
+   message(MSG2,'')
+ ]).transport,'MESSAGE_TEST_NOT_FOUND');
+ await runProbe(discordFetch([
+   message(MSG2,'!kings-review '+reviewToken()+' start')
+ ]).transport,'MESSAGE_TEST_NOT_FOUND');
+ await runProbe(discordFetch([
+   message(MSG2,'KINGS-EVENT-READ-TEST',OUTSIDER)
+ ]).transport,'MESSAGE_TEST_NOT_AUTHORIZED');
+ await runProbe(discordFetch([
+   message(MSG2,'KINGS-EVENT-READ-TEST')
+ ],{staffRoles:[BOTROLE]}).transport,'MESSAGE_TEST_NOT_AUTHORIZED');
+ const base=discordFetch([
+   message(MSG2,'KINGS-EVENT-READ-TEST')
+ ]).transport;
+ const broken=async(url,options)=>{
+   if(url.includes('/messages?'))
+     return {ok:false,status:403,json:async()=>[]};
+   return base(url,options);
+ };
+ await runProbe(broken,'MESSAGE_HISTORY_UNAVAILABLE');
+ const malformed=async(url,options)=>{
+   if(url.includes('/messages?'))
+     return {ok:true,json:async()=>({message:'NO'})};
+   return base(url,options);
+ };
+ await runProbe(malformed,'MESSAGE_HISTORY_INVALID');
+ const spoofedMessage=discordFetch([{
+   ...message(MSG2,'KINGS-EVENT-READ-TEST'),channel_id:OUTSIDER
+ }]);
+ await runProbe(spoofedMessage.transport,'MESSAGE_TEST_NOT_FOUND');
+});
 test('disabled entrypoint performs no reads; enabled path encrypts cursor, never prints private data',async()=>{
  const state=sourceState(),container=encryptEventState(state,SECRET);
  const writes=[];
