@@ -13,6 +13,9 @@ on:
 
 permissions:
   contents: write
+  # Dispatch the existing dashboard ONLY after an encrypted Event-state
+  # change was committed, not after an idle 10-minute Discord poll.
+  actions: write
 
 # Same protected Event-state lock as all normal Event Leadership publishers.
 concurrency:
@@ -49,6 +52,7 @@ jobs:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
         run: node event-operations-discord-review.js
       - name: Persist encrypted review state only if changed
+        id: persist
         run: |
           set -euo pipefail
           if git diff --quiet -- data/event-leadership-report-state.json; then
@@ -60,3 +64,14 @@ jobs:
           git add data/event-leadership-report-state.json
           git commit -m "Record protected Discord Event Operations Staff review progress"
           bash scripts/git-safe-push.sh main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      # Actions pushes made with GITHUB_TOKEN do NOT trigger normal push
+      # workflows. Explicit workflow_dispatch is the supported exception.
+      # Only a changed, safely persisted encrypted journal justifies
+      # refreshing the one existing consolidated Leadership dashboard.
+      - name: Refresh Leadership dashboard when protected review changed
+        if: steps.persist.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run leadership-dashboard.yml --repo "$GITHUB_REPOSITORY" --ref main

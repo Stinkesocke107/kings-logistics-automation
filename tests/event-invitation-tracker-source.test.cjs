@@ -349,8 +349,10 @@ test('Leadership keeps verified reply inventory but withholds unresolved Forum l
   assert.ok(invitation.value.includes('documented unique VTC invites **3**'));
   assert.match(invitation.value,/Forum lifecycle tag names UNVERIFIED/);
   assert.ok(!invitation.value.includes('ongoing **0**'));
-  const operations=event.fields.find(x=>x.name.includes('Event Operations'));
-  assert.match(operations.value,/Forum lifecycle tags UNVERIFIED/);
+  const operations=event.fields.find(x=>x.name.includes('Event Operations — Review Order'));
+  assert.ok(operations);
+  assert.match(operations.value,/Reconcile existing Forum tag names manually/);
+  assert.match(operations.value,/Source-data alerts, not Staff progress/);
   assert.doesNotMatch(JSON.stringify(event),/First VTC|Different Forum Tag/);
 });
 test('only existing GET-only source and encrypted reporting are wired; no invitation sender or booking engine',()=>{

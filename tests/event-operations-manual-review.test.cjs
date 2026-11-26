@@ -75,7 +75,7 @@ test('manual review status changes require a fresh real source task and a two-st
     'start','block','start','record_check'
   ]);
   assert.equal(reviewSummary(checked,NOW+180000).staffChecksRecorded,1);
-  assert.match(renderReviewSummary(checked,NOW+180000),/never suppresses a current source conflict/i);
+  assert.match(renderReviewSummary(checked,NOW+180000),/does not clear a BLOCKED source/i);
   assert.equal(checked.eventSourceObservation.staffApprovalsVerified,false);
   assert.equal(checked.eventSourceObservation.freeSlotsCertified,false);
   assert.equal(checked.eventSourceObservation.bookingsCreated,0);
@@ -96,7 +96,7 @@ test('a recorded check becomes RECHECK_REQUIRED when aggregate count changes or 
   const summary=reviewSummary(newCount,NOW+120000);
   assert.equal(summary.staffChecksRecorded,0);
   assert.equal(summary.recheck,1);
-  assert.match(renderReviewSummary(newCount,NOW+120000),/RECHECK_REQUIRED/);
+  assert.match(renderReviewSummary(newCount,NOW+120000),/Recheck needed/);
   const later=NOW+8*86400000;
   const refreshed=structuredClone(state);
   refreshed.eventSourceObservation.observedAt=new Date(later).toISOString();
@@ -199,9 +199,16 @@ test('existing private Leadership dashboards show manual progress without treati
   const progress=event.fields.find(x=>x.name.includes('Manual Staff Progress'));
   assert.ok(progress);
   assert.match(progress.value,/In review \*\*1\*\*/);
+  assert.match(progress.value,/In progress/);
+  assert.match(progress.value,/does not clear a BLOCKED source/i);
   assert.match(progress.value,/no.*approval/i);
   assert.doesNotMatch(JSON.stringify(event),/EventLead/);
   assert.equal(event.fields.find(x=>x.name.includes('Review Order'))!==undefined,true);
+  const codes=event.fields.find(x=>x.name.includes('Private Review Codes'));
+  assert.ok(codes);
+  assert.match(codes.value,/!kings-review KR[a-f0-9]{24} start/);
+  assert.ok(event.fields.find(x=>x.name.includes('Discord Staff Commands')));
+  assert.equal(event.fields.some(x=>x.name.includes('Staff Triage')),false);
   const management=s.run('buildManagement('+JSON.stringify({
     eventReports:state,driverSummary:{currentDrivers:1,activity:{}},
     staffSummary:{currentStaff:0,changesLast30Days:{}},
@@ -271,4 +278,21 @@ test('manual workflow requires private actor allowlist and never accepts raw evi
   assert.doesNotMatch(workflow,/DISCORD_BOT_TOKEN|DISCORD_WRITE_MODE|evidence_url|event_id|person_name/);
   assert.doesNotMatch(code,/discord\.com|fetch\(|POST|PATCH|DELETE/);
   assert.doesNotMatch(code,/console\.[a-z]+\([^\n]*(?:state|actor|env|err\.message)/);
+});
+
+test('both private manual review entry points request dashboard refresh only after safe state persistence',()=>{
+  const root=path.resolve(__dirname,'..');
+  for(const workflowFile of [
+    'event-operations-discord-review.yml',
+    'event-operations-manual-review.yml'
+  ]){
+    const yaml=fs.readFileSync(path.join(root,'.github/workflows',workflowFile),'utf8');
+    assert.match(yaml,/actions: write/);
+    assert.match(yaml,/id: persist/);
+    assert.match(yaml,/git add data\/event-leadership-report-state\.json/);
+    assert.match(yaml,/bash scripts\/git-safe-push\.sh main/);
+    assert.match(yaml,/echo "changed=true" >> "\$GITHUB_OUTPUT"/);
+    assert.match(yaml,/if: steps\.persist\.outputs\.changed == 'true'/);
+    assert.match(yaml,/gh workflow run leadership-dashboard\.yml --repo "\$GITHUB_REPOSITORY" --ref main/);
+  }
 });

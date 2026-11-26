@@ -91,6 +91,12 @@ Post ONLY a private message using these exact templates (one command/message; no
 
 For the final command, `STAFF_RECORD` can also be `ORIGINAL_DISCORD` or `ORIGINAL_EVENT_PAGE`. The final phrase indicates the human has manually checked the original record separately. The system records only evidence **kind**, not its private content; it does not verify the original independently. `record_check` requires a previously authorized `start` action on the current same source finding. Messages from users without one of the six approved roles are ignored.
 
+## Human-friendly Leadership dashboard and automatic refresh
+
+When a Staff `!kings-review` command is accepted and the protected Event-state file is successfully committed to `main`, the review workflow explicitly dispatches the existing **Kings Consolidated Leadership Dashboard** workflow. GitHub Actions commits made using the normal `GITHUB_TOKEN` do not automatically fire other workflows' `push` triggers, which previously left the dashboard showing **OPEN** and **Inactive** even after an actual journal update. The explicit `workflow_dispatch` exception solves this without additional bots, hosting or credentials. Idle scheduled polls **never** trigger a dashboard refresh. The authorized GitHub manual review workflow uses the same refresh behavior.
+
+The Event dashboard now presents **Manual Staff Progress** before technical source warnings, uses plain English labels, and offers a ready-to-copy `!kings-review ... start` message for current OPEN review tasks. A **BLOCKED source warning** and **IN_REVIEW Staff progress** are deliberately separate: opening a human review never certifies the source as available, verifies a convoy, grants free slots, or changes original approvals. The displayed Discord reader status reflects its **last encrypted saved initialization**, not an always-online heartbeat or a claim that private GitHub secrets have not changed.
+
 ## Safety / idempotence
 
 - Before ANY command is processed, the worker GETs real guild role metadata, its own bot member roles and the channel's actual overwrites; it refuses public/unapproved or changed channels and no Discord writes are performed.

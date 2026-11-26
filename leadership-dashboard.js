@@ -389,18 +389,22 @@ function buildEvent(data, now = Date.now()) {
           'Unavailable — a fresh reconciled Event source is required.'),
       field('📊 Event Capacity — Advisory Review',capacityLine),
       field('✉️ Invitation Tracker — Source Review',invitationLine),
-      field('🛠️ Event Operations — Staff Triage',renderOperationsReview(operations)),
-      field('⏱️ Event Operations — Review Order',renderOperationsWorklist(operations)),
+      // Put real human progress and copy-ready instructions before source
+      // diagnostics. A blocked SOURCE and an ongoing STAFF review are
+      // different states and must never be mistaken for one another.
       field('📝 Event Operations — Manual Staff Progress',renderReviewSummary(state,now)),
       field('🔐 Event Operations — Private Review Codes',
         renderPrivateReviewTokens(state,String(DRIVER_STATE_KEY),now)),
       field('💬 Event Operations — Discord Staff Commands',
         state.discordReviewCursor===undefined
-          ? 'Inactive — no private Discord Staff command reader has been initialized. Activation requires a protected channel and approved Event Coordination role IDs.'
-          : 'Private Discord command reader initialized. Commands not applied **'+
+          ? 'Not initialized in this published snapshot. Use the dedicated private Event Operations workflow to set up Staff review commands.'
+          : 'Discord review reader initialized in the saved state. Staff can send a copy-ready command from the private codes above into #event-operations. This shows the saved state, not a live online indicator. Unapplied commands **'+
             (Number.isSafeInteger(state.discordReviewIgnored)?
-              state.discordReviewIgnored:'Unavailable')+
-            '**. Format: !kings-review <code> start | block | reopen | record_check. Copy the current private code above; no automatic Event approvals, bookings or released capacity.')
+              state.discordReviewIgnored:'Unknown')+
+            '**. Review progress never approves Events or opens booking slots.'),
+      field('⏱️ Event Operations — Review Order',
+        'Source-data alerts, not Staff progress. A BLOCKED source can still be actively under Staff review.\n'+
+          renderOperationsWorklist(operations))
     ],
     footer: { text: 'Kings Logistics • Event Leadership • Internal operations' },
     timestamp: nowISO()

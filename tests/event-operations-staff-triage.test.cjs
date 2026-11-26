@@ -131,9 +131,10 @@ test('validated Event Operations triage appears only on existing Event and Manag
       invitationSourceObservation:f.invitationSourceObservation,
       weeklyReports:[],monthlyReports:[]}
   })+','+f.nowMs+')');
-  const field=event.fields.find(x=>x.name.includes('Event Operations'));
+  const field=event.fields.find(x=>x.name.includes('Manual Staff Progress'));
   assert.ok(field);
-  assert.match(field.value,/Classify \*\*3\*\*/);
+  assert.match(field.value,/Team review only/);
+  assert.match(field.value,/Classify missing Kings \/ Partner \/ External event types/);
   assert.doesNotMatch(field.value,/automatic approve|book available/i);
   assert.equal(event.title,'📅 Kings Event Leadership Dashboard');
   const capacity=event.fields.find(x=>x.name.includes('Event Capacity'));

@@ -216,16 +216,25 @@ function reviewSummary(state,nowMs=Date.now()){
 function renderReviewSummary(state,nowMs=Date.now()){
   const s=reviewSummary(state,nowMs);
   if(!s.valid)return s.lines[0];
+  const names={
+    OPEN:'⚪ Not started',IN_REVIEW:'🔵 In progress',
+    NEEDS_EVIDENCE:'🟠 Evidence needed',
+    STAFF_CHECK_RECORDED:'✅ Original record check logged',
+    RECHECK_REQUIRED:'🔄 Recheck needed'
+  };
+  const simplified=s.lines.map(line=>{
+    const match=/^(OPEN|IN_REVIEW|NEEDS_EVIDENCE|STAFF_CHECK_RECORDED|RECHECK_REQUIRED) · (.*)$/.exec(line);
+    return match?names[match[1]]+' — '+match[2]:line;
+  });
   const msg=[
-    'Staff progress only — not original Event approvals or released capacity.',
-    'Active source review categories **'+s.active+
-      '** · In review **'+s.inReview+'** · Evidence missing **'+s.needsEvidence+
-      '** · Staff checks recorded **'+s.staffChecksRecorded+
-      '** · Recheck required **'+s.recheck+'**.',
-    ...(s.lines.length?s.lines:['No currently observed source review item. No original approvals certified.']),
-    'Previous journal records without current source findings **'+s.noLongerActive+
-      '** (not automatically closed).',
-    'A recorded check never suppresses a current source conflict.'
+    'Team review only — no automatic Event approvals or free slots.',
+    'Items **'+s.active+'** · In review **'+s.inReview+
+      '** · Evidence needed **'+s.needsEvidence+
+      '** · Checks logged **'+s.staffChecksRecorded+
+      '** · Recheck **'+s.recheck+'**.',
+    ...(simplified.length?simplified:['Nothing currently needs a Staff source review.']),
+    ...(s.noLongerActive?['Earlier entries no longer on the current source list: **'+s.noLongerActive+'**.']:[]),
+    'Source warnings remain visible until their original records are verified. Starting a review does not clear a BLOCKED source.'
   ].join('\n');
   if(msg.length>1024)fail();
   return msg;
@@ -280,12 +289,17 @@ function renderPrivateReviewTokens(state,secret,nowMs=Date.now()){
     }
     if(!rows.length)return 'No source review issue selected. No Staff decisions verified.';
     const lines=[
-      'Private review codes for Actions - Event Operations Manual Review.',
-      ...rows.map(row=>row.status+' - '+
-        (row.scope==='history'?(row.month||'Undated')+' - ':'')+
-        (row.scope==='history'?CODES[row.code]:WORK_LABELS[row.code])+
-        ' : '+issueToken(state,row,secret,nowMs)),
-      'Codes change when sources refresh or the UTC date changes. Staff checks are NOT Event approvals.'
+      'For an OPEN item, copy the whole command to private #event-operations:',
+      ...rows.map(row=>{
+        const name=(row.scope==='history'?(row.month||'Undated')+' — ':'')+
+          (row.scope==='history'?CODES[row.code]:WORK_LABELS[row.code]);
+        const token=issueToken(state,row,secret,nowMs);
+        const startable=row.status==='OPEN'||row.status==='RECHECK_REQUIRED';
+        return name+' — '+(startable
+          ? '`!kings-review '+token+' start`'
+          : 'Status '+row.status+' · Review code: '+token);
+      }),
+      'Codes expire with source updates or a new UTC day. They never approve Events.'
     ];
     const text=lines.join('\n');
     if(text.length>1024)fail();
