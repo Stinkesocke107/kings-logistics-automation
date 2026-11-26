@@ -32,6 +32,8 @@ test('a successful workflow or many offline tests never grant full System #18 ac
  assert.equal(event.ownerApproval,null);
  assert.ok(event.capabilities.some(x=>x.id==='encrypted_journal'&&x.state===VERIFIED));
  assert.ok(event.capabilities.some(x=>x.id==='dashboard_readback_verified'&&x.state===VERIFIED));
+ assert.ok(event.capabilities.some(x=>x.id==='current_encrypted_review_dashboard_live'&&x.state===VERIFIED));
+ assert.ok(event.capabilities.some(x=>x.id==='refresh_after_new_review'&&x.state===PENDING));
  assert.ok(event.capabilities.some(x=>x.id==='refresh_after_new_review'&&x.state===PENDING));
  assert.ok(event.capabilities.some(x=>x.id==='operator_handover'&&x.state===PENDING));
  assert.ok(event.capabilities.some(x=>x.id==='webhook_timeout_guard'&&x.state===VERIFIED));
