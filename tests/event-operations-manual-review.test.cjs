@@ -279,3 +279,20 @@ test('manual workflow requires private actor allowlist and never accepts raw evi
   assert.doesNotMatch(code,/discord\.com|fetch\(|POST|PATCH|DELETE/);
   assert.doesNotMatch(code,/console\.[a-z]+\([^\n]*(?:state|actor|env|err\.message)/);
 });
+
+test('both private manual review entry points request dashboard refresh only after safe state persistence',()=>{
+  const root=path.resolve(__dirname,'..');
+  for(const workflowFile of [
+    'event-operations-discord-review.yml',
+    'event-operations-manual-review.yml'
+  ]){
+    const yaml=fs.readFileSync(path.join(root,'.github/workflows',workflowFile),'utf8');
+    assert.match(yaml,/actions: write/);
+    assert.match(yaml,/id: persist/);
+    assert.match(yaml,/git add data\/event-leadership-report-state\.json/);
+    assert.match(yaml,/bash scripts\/git-safe-push\.sh main/);
+    assert.match(yaml,/echo "changed=true" >> "\$GITHUB_OUTPUT"/);
+    assert.match(yaml,/if: steps\.persist\.outputs\.changed == 'true'/);
+    assert.match(yaml,/gh workflow run leadership-dashboard\.yml --repo "\$GITHUB_REPOSITORY" --ref main/);
+  }
+});
