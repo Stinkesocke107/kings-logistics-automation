@@ -17,7 +17,8 @@ function simulate({tagVerified=true,invalidHistory=false,failSource=false,
     historyPastCenterOutcomeUnresolved:1,historyFutureLegacyHoldReview:1,
     futureDaysOverDailyLimit:1,futurePartnerMonthsOver20:1,
     futureExternalMonthsOver20:0,futureDaysRequiringReview:1,
-    futureDaysWithShortDepartureGap:1,
+    futureDaysWithShortDepartureGap:1,futureUnclassified:1,
+    historyLegacyEvidencePending:1,
     privateMarker:PRIVATE
   };
   const history={
@@ -40,11 +41,18 @@ function simulate({tagVerified=true,invalidHistory=false,failSource=false,
   const report={mode:'READ_ONLY',sourceMarker:PRIVATE};
   const overview={sourceMarker:PRIVATE};
   const review={
+    eventTypeUnclassified:1,calendarDaysNeedingReview:1,
+    daysOverThreeSourceClaims:1,partnerMonthsOver20:1,externalMonthsOver20:0,
+    daysWithShortDepartureGap:1,historyMonthsWithoutClaims:21,
+    pastOutcomesUnresolved:1,legacyClaimsMissingOriginalEvidence:1,
+    futureLegacyHoldReview:1,
     invitationsMissingEventLinks:1,invitationDuplicateEventLinks:0,
     invitationDuplicateVtcs:1,invitationMalformedReplies:1,
     invitationPendingOrUnrecorded:badTriage?0:2
   };
   const work=[
+    ['REVIEW_EVENT_TYPES',1],['REVIEW_HISTORY_GAPS',21],
+    ['REVIEW_PAST_OUTCOMES',1],['REVIEW_LEGACY_EVIDENCE',1],
     ['REVIEW_DAILY_CAP',1],['REVIEW_PARTNER_MONTH_CAP',1],
     ['REVIEW_CALENDAR_DAYS',1],['REVIEW_DEPARTURE_SPACING',1],
     ['REVIEW_FUTURE_LEGACY_HOLDS',1],['REVIEW_MISSING_EVENT_LINKS',1],
