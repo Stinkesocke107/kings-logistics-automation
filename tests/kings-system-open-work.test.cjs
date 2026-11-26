@@ -49,7 +49,7 @@ test('generated markdown is actionable and cannot pretend original records were 
 });
 test('registry drift, missing workflows or forged complete status cause a hard failure',()=>{
   const s=snapshot();
-  assert.throws(()=>buildOpenWork({...s,workflows:s.workflows.slice(1)}),
+  assert.throws(()=>buildOpenWork({...s,totalWorkflows:s.totalWorkflows-1}),
     /inventory disagree/);
   assert.throws(()=>buildOpenWork(s,WORKFLOW_REGISTRY.slice(1)),
     /inventory disagree/);
