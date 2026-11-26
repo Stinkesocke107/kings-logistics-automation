@@ -45,6 +45,9 @@ const namedEventSystems=Object.freeze([
         [EVIDENCE_ROOT+'actions/runs/45899560178']),
       item('live_calendar_source','Real Convoy Checker completed read-only same-run Calendar source verification',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45897888431']),
+      item('live_capacity_staff_worklist',
+        'Real read-only Convoy/Calendar source passed mandatory Capacity-to-Staff worklist warning checks',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45901364553']),
       item('live_integrated_acceptance','Full real original-source planning-to-Staff human review verified'),
       item('operator_handover','Event Team validates capacity interpretation and incident handling'),
       item('owner_final_approval','CEO signs off #12 advisory capacity as a whole')
@@ -141,6 +144,12 @@ const namedEventSystems=Object.freeze([
         [EVIDENCE_ROOT+'actions/runs/45740141908']),
       item('cross_system_offline','Capacity, Calendar, History and Invitation sources pass a synthetic encrypted Staff-to-dashboard integration',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45899041605']),
+      item('webhook_timeout_guard',
+        'Webhooks cannot act as Staff commands and Discord source requests are GET-only, redirect-rejecting and time-bounded',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45901257045']),
+      item('scheduler_recovery_guard',
+        'Owner-enabled overdue Discord poll recovery has offline gating and cooldown tests',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45901478091']),
       item('refresh_after_new_review','Live dashboard refresh triggered by a later real Staff change'),
       item('cross_system_review','Full live review flow across #12, #14, #15 and #16'),
       item('operator_handover','Event Team confirms understandable handling and error recovery')
