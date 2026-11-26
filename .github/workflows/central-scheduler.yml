@@ -65,6 +65,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           FORCE_ALL_INPUT: ${{ inputs.force_all }}
+          EVENT_REVIEW_MODE: ${{ secrets.KINGS_EVENT_DISCORD_REVIEW_ENABLED }}
         shell: bash
         run: |
           set -euo pipefail
@@ -252,6 +253,24 @@ jobs:
             # delayed workflow_run callback must not make news verification
             # disappear while the News fetcher continues successfully.
             dispatch_if_due news-production-verification.yml 4500
+            # A missed 10-minute Discord Staff Review cron may be recovered
+            # ONLY when the owner already activated the protected source
+            # through its private GitHub Actions mode secret. Disabled means
+            # no dispatched runs, no Discord GETs, no journal writes.
+            if [ "${EVENT_REVIEW_MODE:-}" = "ENABLED" ] || [ "${EVENT_REVIEW_MODE:-}" = "VERIFY_ONLY" ]; then
+              event_review_workflow_state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/event-operations-discord-review.yml" --jq '.state' 2>/dev/null || true)"
+              if [ "$event_review_workflow_state" = "active" ]; then
+                # Only after 30min without success, never duplicate an
+                # active run, and wait at least 15min after a failed poll.
+                # All source access / actual state writes remain protected
+                # by the existing #18 Discord worker's own mode and role gates.
+                dispatch_if_due event-operations-discord-review.yml 1800 '' 1200 900
+              else
+                echo "::warning::Event Operations Discord Staff Review workflow is unavailable; no recovery dispatched."
+              fi
+            else
+              echo "Event Operations Discord Staff Review: owner mode disabled; no recovery dispatched."
+            fi
             # Loyalty roles are NEVER dispatched live by recovery.
             # The scheduled driver-achievements.yml is independently dry-run.
             echo "Driver Loyalty: automatic role sync disabled; manual CEO/authorized review required for live."
