@@ -27,7 +27,25 @@ The owner can set the private Actions secret `KINGS_EVENT_DISCORD_REVIEW_ENABLED
 - The six exact CEO-approved Guild role IDs and role names (including the CEO Administrator exception);
 - The bot identity and current Guild bot membership roles.
 
-This mode uses four Discord **GET** requests. It does **not** read channel messages, member commands, Event records, the AES-protected Event journal or its replay cursor; it does not create or update a GitHub state commit. Public logs expose only `SOURCE_METADATA_CHECKED` on a successful metadata check or the fixed `SOURCE_UNAVAILABLE` error. The result checks the returned metadata **at inspection time only**. It does not independently prove effective permissions for all server administrators, full Discord message-read access, message-content intent, or that future human decisions are correct. An offline test cannot substitute for an actual owner-configured Discord source check.
+This mode uses four Discord **GET** requests. It does **not** read channel messages, member commands, Event records, the AES-protected Event journal or its replay cursor; it does not create or update a GitHub state commit. Public logs expose only `SOURCE_METADATA_CHECKED` on success or `SOURCE_UNAVAILABLE` plus a **fixed, identifier-free diagnostic category** on failure. They never disclose raw Discord responses, channel or role IDs, bot tokens, or source records. The result checks the returned metadata **at inspection time only**. It does not independently prove effective permissions for all server administrators, full Discord message-read access, message-content intent, or that future human decisions are correct. An offline test cannot substitute for an actual owner-configured Discord source check.
+
+### Reading a failed preflight
+
+In `VERIFY_ONLY`, a failed run may now show `SOURCE_UNAVAILABLE [CATEGORY]`:
+
+| Category | Safe next check |
+| --- | --- |
+| `CONFIG_INVALID` | Recheck the private Actions secret format: one Discord channel ID; comma-separated real operator role IDs; existing bot token |
+| `CHANNEL_UNAVAILABLE` | Confirm the bot account is in the server and has **View Channel** for the private Event Operations channel |
+| `GUILD_ROLES_UNAVAILABLE` | Check that the configured bot token belongs to a bot in the Kings Discord server |
+| `BOT_AUTH_UNAVAILABLE` | Check the existing `DISCORD_BOT_TOKEN` privately in GitHub Secrets; never share the value |
+| `BOT_MEMBER_UNAVAILABLE` | Verify bot membership and its ability to read guild membership metadata |
+| `CHANNEL_METADATA_INVALID` | Confirm this is a normal private server text channel, not a thread/forum or other channel type |
+| `ROLE_POLICY_INVALID` | Check all six exact role names and IDs; only CEO may have Administrator permission among operator roles |
+| `CHANNEL_PRIVATE_POLICY_INVALID` | Explicitly deny **View Channel** for `@everyone`; remove any unintended user or unrelated role grants |
+| `ROLE_ACCESS_INVALID` | Give each non-Administrator operator role explicit **View Channel + Send Messages** allowances |
+
+The exact first failing category is a diagnostic aid, not proof that every other setting is correct. Correct the cause and re-run in `VERIFY_ONLY`. The existing restrictive gates remain unchanged; a failure never permits command processing.
 
 To activate human command processing later, an owner must separately change this same secret to `ENABLED`, after verifying effective staff privacy, intent availability, and review policy. An absent or unknown value still disables all network access. No Staff commands, bookings, invitations, approvals, role changes or messages are sent by the preflight.
 

@@ -292,6 +292,58 @@ test('no MESSAGE_CONTENT privileged intent and lost backlog fail closed without 
  const many=discordFetch(oldMessages);
  await assert.rejects(()=>ingest({state,...args,transport:many.transport}),/unverified/);
 });
+test('VERIFY_ONLY emits only bounded redacted diagnostic codes for private source failures',async()=>{
+ const env={
+   GITHUB_REF:'refs/heads/main',GITHUB_EVENT_NAME:'workflow_dispatch',
+   KINGS_EVENT_DISCORD_REVIEW_ENABLED:'VERIFY_ONLY',
+   KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID:CHANNEL,
+   KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS:ROLE,
+   DISCORD_BOT_TOKEN:'SYNTHETIC_BOT_TOKEN'
+ };
+ async function verifyDiagnostic(transport,expected){
+   await assert.rejects(()=>run({env,transport,
+     read:()=>{throw Error('private state must never be read');},
+     write:()=>{throw Error('private state must never be written');}
+   }),error=>{
+     assert.equal(error.preflightCode,expected);
+     assert.equal(error.message,'Kings Event Operations Discord source unverified');
+     return true;
+   });
+ }
+ const base=discordFetch().transport;
+ for(const [path,expected] of [
+   ['/channels/'+CHANNEL,'CHANNEL_UNAVAILABLE'],
+   ['/guilds/'+GUILD+'/roles','GUILD_ROLES_UNAVAILABLE'],
+   ['/users/@me','BOT_AUTH_UNAVAILABLE'],
+   ['/guilds/'+GUILD+'/members/'+BOT,'BOT_MEMBER_UNAVAILABLE']
+ ]){
+   const broken=async(url,options)=>{
+     if(url.endsWith(path))return {ok:false,status:403,
+       json:async()=>{throw Error('PRIVATE_DISCORD_RESPONSE');}};
+     return base(url,options);
+   };
+   await verifyDiagnostic(broken,expected);
+ }
+ const privateFailure=discordFetch([],{channel:{
+   ...channel,
+   permission_overwrites:channel.permission_overwrites.slice(1)
+ }}).transport;
+ await verifyDiagnostic(privateFailure,'CHANNEL_PRIVATE_POLICY_INVALID');
+ const badRole=discordFetch([],{roles:[
+   everyone,{id:ROLE,name:'Verified Driver',permissions:'0'},
+   {id:BOTROLE,name:'Bots',permissions:'0'}
+ ]}).transport;
+ await verifyDiagnostic(badRole,'ROLE_POLICY_INVALID');
+ const roleWithoutSend=discordFetch([],{channel:{
+   ...channel,
+   permission_overwrites:channel.permission_overwrites.map(x=>
+     x.id===ROLE?{...x,allow:'1024'}:x)
+ }}).transport;
+ await verifyDiagnostic(roleWithoutSend,'ROLE_ACCESS_INVALID');
+ const badConfig={...env,KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID:'not-an-id'};
+ await assert.rejects(()=>run({env:badConfig,transport:base}),
+   error=>error.preflightCode==='CONFIG_INVALID');
+});
 test('VERIFY_ONLY checks real private Discord source access without reading commands or state',async()=>{
  const requests=discordFetch([message(MSG2,'!kings-review '+reviewToken()+' start')]);
  let stateReads=0,encryptedWrites=0;
