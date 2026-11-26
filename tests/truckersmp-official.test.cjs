@@ -33,6 +33,15 @@ test('Official TruckersMP server API may return the literal string false for its
  assert.throws(()=>parseOfficialSnapshot(roster(110),{error:'true',response:rows},now));
 });
 
+test('Official VTC roster string false remains valid in the joint server snapshot, but string true is rejected',()=>{
+ const r=parseOfficialSnapshot({error:'false',response:{members:Array.from({length:110},()=>({}))}},servers(rows),now);
+ assert.equal(r.vtcMemberCount,110);
+ assert.equal(r.totalAllPlayers,2000);
+ assert.equal(r.kingsOnline,null);
+ assert.throws(()=>parseOfficialSnapshot(
+  {error:'true',response:{members:[]}},servers(rows),now));
+});
+
 test('TruckersMP official data rejects incomplete or misleading responses',()=>{
  for(const bad of [
   null,{}, {error:true,response:{members:[]}},
