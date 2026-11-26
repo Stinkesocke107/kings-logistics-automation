@@ -5,7 +5,8 @@ const fs=require('node:fs'),path=require('node:path');
 const {COUNT_FIELDS}=require('../event-leadership-observation');
 const {encryptEventState,decryptEventState}=require('../event-leadership-state');
 const {STATES,keyOf,trustedRecords,hasAuthorizedActor,applyManualReview,
-  taskFromSources,reviewSummary,renderReviewSummary}=require('../event-operations-manual-review-state');
+  taskFromSources,reviewSummary,renderReviewSummary,
+  resolvePrivateToken,renderPrivateReviewTokens}=require('../event-operations-manual-review-state');
 const {run}=require('../event-operations-manual-review');
 const {sandbox}=require('./sandbox.cjs');
 const NOW=Date.parse('2026-11-26T13:00:00.000Z');
@@ -147,14 +148,22 @@ test('encrypted state accepts only exact review schema and never leaks actor or 
 test('authorized run persists the journal ONLY to existing encrypted Event state; unauthorized run writes nothing',()=>{
   const original=makeState();
   const container=encryptEventState(original,SECRET);
+  const issued=renderPrivateReviewTokens(original,SECRET,NOW);
+  const tokenLine=issued.split('\n').find(x=>
+    x.includes('Review UTC days above 3 source-claimed convoys'));
+  assert.ok(tokenLine,'The daily cap remains an actionable private review');
+  const token=tokenLine.match(/KR[a-f0-9]{24}/)?.[0];
+  assert.ok(token);
+  assert.deepEqual(resolvePrivateToken({
+    state:original,token,secret:SECRET,nowMs:NOW
+  }).code,'REVIEW_DAILY_CAP');
   const writes=[];
   const env={
     DRIVER_STATE_KEY:SECRET,
     GITHUB_ACTOR:'EventLead',GITHUB_TRIGGERING_ACTOR:'EventLead',
     GITHUB_REF:'refs/heads/main',GITHUB_EVENT_NAME:'workflow_dispatch',
     KINGS_EVENT_REVIEW_OPERATORS:'EventLead,CoordinatorTwo',
-    INPUT_SCOPE:'worklist',INPUT_CODE:'REVIEW_DAILY_CAP',
-    INPUT_MONTH:'UNDATED',INPUT_ACTION:'start',
+    INPUT_REVIEW_TOKEN:token,INPUT_ACTION:'start',
     INPUT_EVIDENCE_KIND:'NONE',INPUT_CONFIRMATION:''
   };
   const options={
@@ -174,6 +183,9 @@ test('authorized run persists the journal ONLY to existing encrypted Event state
   assert.deepEqual(parsed.eventSourceObservation,original.eventSourceObservation);
   assert.throws(()=>run({...options,env:{...env,
     KINGS_EVENT_REVIEW_OPERATORS:''}}),/not authorised/);
+  assert.equal(writes.length,1);
+  assert.throws(()=>run({...options,env:{...env,
+    INPUT_REVIEW_TOKEN:'KR'+'0'.repeat(24)}}),/unverified/);
   assert.equal(writes.length,1);
   assert.throws(()=>run({...options,env:{...env,
     INPUT_ACTION:'record_check',INPUT_EVIDENCE_KIND:'ORIGINAL_EVENT_PAGE',
@@ -199,6 +211,48 @@ test('existing private Leadership dashboards show manual progress without treati
   assert.match(JSON.stringify(management),/Manual checks recorded/);
   assert.doesNotMatch(JSON.stringify(management),/EventLead/);
 });
+test('opaque private review codes hide the actual Event issue and month from public Actions inputs',()=>{
+  const original=makeState();
+  const output=renderPrivateReviewTokens(original,SECRET,NOW);
+  assert.match(output,/Review UTC days above 3 source-claimed convoys/);
+  assert.match(output,/2026-12/);
+  assert.match(output,/KR[a-f0-9]{24}/);
+  const codes=[...output.matchAll(/KR[a-f0-9]{24}/g)].map(x=>x[0]);
+  assert.equal(codes.length,5);
+  assert.equal(new Set(codes).size,codes.length);
+  for(const token of codes){
+    assert.equal(token.includes('2026-12'),false);
+    assert.equal(token.includes('REVIEW_'),false);
+    assert.equal(token.includes('EventLead'),false);
+    const row=resolvePrivateToken({state:original,token,secret:SECRET,nowMs:NOW});
+    assert.ok(['worklist','history'].includes(row.scope));
+  }
+  const historyLine=output.split('\n').find(x=>x.includes('2026-12'));
+  const historyToken=historyLine.match(/KR[a-f0-9]{24}/)[0];
+  const history=resolvePrivateToken({
+    state:original,token:historyToken,secret:SECRET,nowMs:NOW
+  });
+  assert.equal(history.scope,'history');
+  assert.equal(history.month,'2026-12');
+  assert.equal(history.code,'FUTURE_LEGACY_HOLD');
+  assert.throws(()=>resolvePrivateToken({
+    state:original,token:historyToken,secret:'OTHER_ONLY_SECRET_WITH_MINIMUM_32_CHARS',
+    nowMs:NOW
+  }),/unverified/);
+  assert.throws(()=>resolvePrivateToken({
+    state:original,token:historyToken,secret:SECRET,
+    nowMs:NOW+86400000
+  }),/unverified/);
+  const altered=structuredClone(original);
+  altered.eventSourceObservation.observedAt=new Date(NOW+60000).toISOString();
+  assert.throws(()=>resolvePrivateToken({
+    state:altered,token:historyToken,secret:SECRET,nowMs:NOW+60000
+  }),/unverified/);
+  assert.throws(()=>resolvePrivateToken({
+    state:original,token:'history:FUTURE_LEGACY_HOLD:2026-12',
+    secret:SECRET,nowMs:NOW
+  }),/unverified/);
+});
 test('manual workflow requires private actor allowlist and never accepts raw evidence links or Discord writes',()=>{
   const workflow=fs.readFileSync(path.join(__dirname,'..',
     '.github/workflows/event-operations-manual-review.yml'),'utf8');
@@ -210,6 +264,10 @@ test('manual workflow requires private actor allowlist and never accepts raw evi
   assert.match(workflow,/github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow,/bash scripts\/git-safe-push\.sh main/);
   assert.match(workflow,/git add data\/event-leadership-report-state\.json/);
+  assert.match(workflow,/review_token:/);
+  assert.match(workflow,/INPUT_REVIEW_TOKEN: \$\{\{ inputs\.review_token \}\}/);
+  assert.doesNotMatch(workflow,/review_scope:|review_code:|utc_month:/);
+  assert.doesNotMatch(workflow,/INPUT_SCOPE:|INPUT_CODE:|INPUT_MONTH:/);
   assert.doesNotMatch(workflow,/DISCORD_BOT_TOKEN|DISCORD_WRITE_MODE|evidence_url|event_id|person_name/);
   assert.doesNotMatch(code,/discord\.com|fetch\(|POST|PATCH|DELETE/);
   assert.doesNotMatch(code,/console\.[a-z]+\([^\n]*(?:state|actor|env|err\.message)/);
