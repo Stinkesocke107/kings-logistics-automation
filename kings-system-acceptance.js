@@ -57,6 +57,8 @@ const namedEventSystems=Object.freeze([
         [EVIDENCE_ROOT+'actions/runs/45878834923']),
       item('dashboard_publication','Revised private Event dashboard was published',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45740141908']),
+      item('cross_system_offline','Capacity, Calendar, History and Invitation sources pass a synthetic encrypted Staff-to-dashboard integration',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45899041605']),
       item('refresh_after_new_review','Live dashboard refresh triggered by a later real Staff change'),
       item('cross_system_review','Full live review flow across #12, #14, #15 and #16'),
       item('operator_handover','Event Team confirms understandable handling and error recovery')

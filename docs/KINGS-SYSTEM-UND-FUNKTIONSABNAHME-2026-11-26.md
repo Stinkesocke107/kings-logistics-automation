@@ -58,14 +58,27 @@ Die ausführbare Übersicht ist `kings-system-acceptance.js` und liest die **46*
 | Echter Staff-Befehl + verschlüsselte Statusspeicherung | Bestätigt | [SOURCE_REVIEWS_RECORDED](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45739168709) |
 | Automatischer leerer Lauf ohne versehentliche Änderung | Bestätigt | [NO_NEW_MESSAGES](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45878834923) |
 | Neues, übersichtlicheres Event Leadership Dashboard veröffentlicht | Bestätigt | [Dashboard-Erneuerung](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45740141908) |
+| #12 Capacity / #16 Calendar / #14 History / #15 Invitation Tracker → #18 Discord Review → Dashboard | **Offline integriert und getestet** | [Automatisierter Integrationstest](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45899041605) – nur synthetische Daten, keine echten Eventänderungen |
 | Automatischer Dashboard-Refresh *nach einer späteren echten neuen Staff-Änderung* | **Offen** | Technische Verdrahtung ist implementiert, aber noch kein eigener Live-Durchlauf nachgewiesen |
 | Zusammenhängender echter Workflow mit #12, #14, #15, #16 | **Offen** | Fachliche und technische Integrationsabnahme ausstehend |
 | Bedienbarkeit, verständliche Fehlermeldungen, Betriebsübergabe | **Offen** | Rückmeldung/Abnahme des Event-Teams und CEO nötig |
 
-**Keine künstlichen Prozentwerte:** 6 von 9 beispielhaften Teilfunktionen mit Nachweisen sind nicht gleich 67 % „Gesamtsystem fertig“. Sicherheits-, Funktions- und Live-Abnahmekriterien sind Pflicht; nicht nur eine gewichtete Fortschrittsanzeige.
+**Keine künstlichen Prozentwerte:** Die bereits getesteten Teilfunktionen sind nicht gleich einer prozentualen Gesamtfertigstellung. Sicherheits-, Funktions- und Live-Abnahmekriterien sind Pflicht; nicht nur eine gewichtete Fortschrittsanzeige.
 
 ## Nächste Reihenfolge
 
 **Zuerst #18 sauber abschließen:** realen Dashboard-Refresh nach einer späteren Änderung nachweisen, dann den Prozess und die sichtbaren Status mit Event-Team/CEO abnehmen. Anschließend #12, #14, #15, #16 auf ihre echten Quellen, Funktionen und Übergaben prüfen. Dann die anderen Kings-Logistics-Bereiche anhand derselben Kriterien durchgehen.
 
 **Wartung:** Bei jeder größeren Änderung die zugehörigen Test-, Live- und Bediennachweise aktualisieren. Ein ehemaliger Abschluss gilt nicht automatisch auch für neue Funktionen, Rollen, Schnittstellen oder Event-Regeln. Drittanbieter-Plattformen und Zukunftsprojekte (Kings Website / Driver Hub, RealmMP) haben separate Abnahmegrenzen.
+
+## #18 – Ergänzender Integrationstest (26.11.2026)
+
+Die separate Regression `tests/event-operations-cross-system-acceptance.test.cjs` verbindet die tatsächlich vorhandenen Codepfade mit **synthetischen** und streng validierten Quellen:
+
+- #12 + #16: künftige UTC-Kalenderwarnungen und Kapazitäts-Quellenkonflikte bleiben prüfpflichtige Hinweise;
+- #14: historische Originalnachweise und Prioritätsmonate fließen in die Review-Aufgaben, ohne Vergangenheitsfreigaben zu erfinden;
+- #15: private Invitation-Traces und fehlende Event-Links erscheinen in der Staff-Liste, ohne RSVP- oder Einladungsergebnisse zu zertifizieren;
+- #18: ein freigegebener Discord-Autor kann mehrere unverwechselbare Review-Codes in den AES-GCM-gesicherten Staff-Status schreiben, die im Leadership Dashboard als **In Review** erscheinen;
+- **Sicherheitsgrenzen:** Unberechtigte Autoren bewirken keine Reviewänderung; geänderte Quelldaten verlangen `RECHECK_REQUIRED`. Alle simulierten Discord-Abfragen bleiben GET-only, und keine Originalquelle wird geändert.
+
+Dies ist ein **echter Code-Integrationstest**, jedoch ausdrücklich **kein realer Discord-Live- oder CEO-Schlussabnahmenachweis**. Der automatische Dashboard-Refresh durch eine **spätere echte** Statusänderung und die Teamabnahme bleiben offen.
