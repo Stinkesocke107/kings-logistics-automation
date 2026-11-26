@@ -216,3 +216,18 @@ Der aktuelle Stand umfasst **sieben weitere** einzeln teilweise bewertete Workfl
 | `news-production-verification.yml` | [#45906382475](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45906382475) bestätigte eine bereits früher verifizierte echte News-Publikation (Artikel 71252) und bestand die Deduplizierungs-/Sicherheitstests. | Unabhängige neue Veröffentlichung und Recovery bei aktueller Inhaltsabweichung. |
 
 **Neuer Umfang: 23 von 46 Workflows individuell teilverifiziert, weitere 23 noch nicht einzeln beurteilt, 0 komplett freigegeben.** Diese Ergebnisse sind reale technische Teilbelege, keine pauschale Funktionsabnahme; externes Kartenmonitoring bleibt kritisch und das Event-Booking-System #17 gestrichen.
+
+
+## Weitere echte Teilabnahmen — 27. November 2026 (Backup, Onboarding, Loyalty)
+
+Drei weitere Workflows besitzen jeweils einen **eng abgegrenzten** tatsächlich ausgeführten Produktivnachweis:
+
+| Workflow | Belegter Teil | Offen |
+|---|---|---|
+| `core-backup.yml` | [Backup-Run #45817451307](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45817451307) erzeugte und publizierte ein gesundes Sicherungsartefakt; damals **266 von 266** ausgewählte Dateien mit SHA-256 geprüft und 6/6 verschlüsselte Zustände validiert. | **Historischer** Stand: neuer gesonderter isolierter 441-Datei-Restore ist dokumentiert, belegt aber noch nicht die wiederkehrende aktuelle Sicherung/Retention und echtes autorisiertes Disaster-Recovery. |
+| `driver-register-onboarding.yml` | [Onboarding-Run #45869866678](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45869866678): echter privater Kings Driver Register-Bestand wurde gelesen, vollständig für aktuelle Driver geprüft und ein sicherer Audit veröffentlicht, ohne Rollenänderungen. | Keine neue Person aufgenommen, HR-Entscheidungsquelle damals **NOT CONFIGURED**, echte Aufnahme-/Rückkehr- und HR-Entscheidungskette bleibt offen. |
+| `driver-achievements.yml` | [Loyalty-Dry-Run #45881195938](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45881195938): aktuelle Driver und private Kings-Eintrittsdaten geprüft, Synchronisation ausdrücklich im Dry-Run, **keine Discord-Rolle verändert**, Ergebnis sicher persistiert. | Tatsächlicher neu erreichter Award, ausdrücklich genehmigte Live-Synchronisierung, sicherer Rollback und CEO-Abnahme unbewiesen. Abgeschaffte Driver Level 1–7 bleiben entfernt. |
+
+**Stand der Einzelabnahme: 26/46 Workflows teilweise belegt, 20/46 noch nicht individuell geprüft, 0/46 vollständig abgenommen.**
+
+**Abgrenzung der Legacy-Reports:** Die älteren erfolgreichen Driver-/HR-/Staff-Leadership-Report-Runs [#45738750297](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45738750297), [#45739155592](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45739155592) und [#45740163803](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45740163803) meldeten jeweils ausdrücklich `Legacy Leadership report intentionally suppressed; no publication state or snapshots recorded`. Daher ist KEINER dieser drei Läufe ein Beleg für eine veröffentlichte, vollständige periodische Leadership-Berichtsausgabe. Diese Reports bleiben unbewertet, bis ein passender anderer echter Publikationsbeweis vorliegt.
