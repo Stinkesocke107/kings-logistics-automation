@@ -19,11 +19,14 @@ test('every live Kings workflow appears exactly once in the acceptance overview'
  assert.ok(s.excluded.some(x=>x.startsWith('17')));
  assert.equal(files.includes('17'),false);
  assert.equal(files.includes('18'),true);
- assert.equal(s.assessedWorkflows,10);
- assert.equal(s.operationalSystems.length,9);
+ assert.equal(s.assessedWorkflows,15);
+ assert.equal(s.operationalSystems.length,14);
  assert.deepEqual(s.operationalSystems.map(x=>x.id),[
    'DRIVER_UPDATES','DRIVER_MANAGEMENT','HR_PROBATION','STAFF_MANAGEMENT','LIVE_TRACKER_OFFICIAL','BACKUP_RECOVERY',
-   'OFFLINE_VERIFICATION','GIT_STATE_HARDENING','SYSTEM_MONITORING'
+   'OFFLINE_VERIFICATION','GIT_STATE_HARDENING','SYSTEM_MONITORING',
+   'CONVOY_CHECKER','CONVOY_ANNOUNCEMENT_VERIFICATION',
+   'STAFF_LEADERSHIP_LIVE_OVERVIEW','LEADERSHIP_DASHBOARD',
+   'LEADERSHIP_DASHBOARD_VERIFICATION'
  ]);
  assertAcceptance();
 });
@@ -157,7 +160,7 @@ test('new HR role, LOA pagination and Staff dedupe safety proof is recorded with
     assert.ok(item.gates.some(g=>g.id==='real_world_e2e'&&g.state===PENDING));
     assert.ok(item.gates.some(g=>g.id==='owner_signoff'&&g.state===PENDING));
   }
-  assert.equal(s.assessedWorkflows,10);
+  assert.equal(s.assessedWorkflows,15);
   assert.equal(s.completeWorkflows,0);
 });
 
@@ -186,7 +189,7 @@ test('Kings Auto Tracker preserves verified official fallback but cannot claim r
   assert.ok(tracker.blockers.length>=2);
   assert.equal(s.areas.find(x=>x.name==='Live Data').acceptance,'PARTIALLY_VERIFIED');
   assert.equal(s.completeWorkflows,0);
-  assert.equal(s.assessedWorkflows,10);
+  assert.equal(s.assessedWorkflows,15);
 });
 
 test('real 441-file isolated backup restoration is evidenced but real production recovery stays pending',()=>{
@@ -235,6 +238,34 @@ test('real security and technical monitoring runs count as partial evidence only
    assert.equal(system.gates.find(x=>x.id==='owner_signoff').state,PENDING);
    assert.ok(system.blockers.length);
  }
- assert.equal(s.assessedWorkflows,10);
+ assert.equal(s.assessedWorkflows,15);
+ assert.equal(s.completeWorkflows,0);
+});
+
+test('five real Convoy, Staff and Leadership workflows have bounded individual proof only',()=>{
+ const s=snapshot();
+ const required={
+   CONVOY_CHECKER:['real_center_source_pipeline','real_calendar_and_discord_overview'],
+   CONVOY_ANNOUNCEMENT_VERIFICATION:['real_historical_post_readback','real_empty_window_verification'],
+   STAFF_LEADERSHIP_LIVE_OVERVIEW:['real_current_role_overview_update','real_safe_state_persistence'],
+   LEADERSHIP_DASHBOARD:['real_consolidated_dashboard_update','real_encrypted_event_review_readback'],
+   LEADERSHIP_DASHBOARD_VERIFICATION:['real_five_content_contract_audit','real_event_driven_and_public_audit']
+ };
+ for(const [id,codes] of Object.entries(required)){
+   const system=s.operationalSystems.find(x=>x.id===id);
+   assert.ok(system,id);
+   assert.equal(system.acceptance,'PARTIALLY_VERIFIED',id);
+   assert.equal(system.ownerApproval,null,id);
+   assert.ok(system.blockers.length>0,id);
+   for(const code of codes){
+     const proof=system.capabilities.find(x=>x.id===code);
+     assert.equal(proof?.state,VERIFIED,id+' '+code);
+     assert.ok(proof.evidence.every(uri=>uri.startsWith(ROOT+'actions/runs/')));
+   }
+   assert.ok(system.capabilities.some(x=>x.state===PENDING),id);
+   assert.equal(system.gates.find(x=>x.id==='real_world_e2e').state,PENDING,id);
+   assert.equal(system.gates.find(x=>x.id==='owner_signoff').state,PENDING,id);
+ }
+ assert.equal(s.assessedWorkflows,15);
  assert.equal(s.completeWorkflows,0);
 });
