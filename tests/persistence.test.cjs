@@ -64,3 +64,65 @@ test('related API state is committed together; unrelated tracked dirt blocks saf
   assert.equal(command(a,'git',['show','origin/main:data/api-health/test.json']).stdout,'{"status":"degraded"}');
   assert.equal(command(a,'git',['show','origin/main:data/live-tracker-snapshot.json']).stdout,'{"online":2}');
 });
+
+
+const PROTECTED_STATE_WORKFLOWS = [
+  { workflow:'driver-management', step:'Save Driver Management Data and API Health Together',
+    file:'data/driver-management.json' },
+  { workflow:'hr-leadership', step:'Save HR Probation Data Safely',
+    file:'data/hr-probation.json' },
+  { workflow:'staff-management', step:'Save Staff Management Data and API Health Together',
+    file:'data/staff-management.json' }
+];
+
+function workflowSaveScript(workflow,step) {
+  const yaml=fs.readFileSync(path.resolve(__dirname,
+    '../.github/workflows/'+workflow+'.yml'),'utf8');
+  const marker='      - name: '+step+'\n';
+  assert.equal(yaml.split(marker).length,2,'Exactly one persistence step: '+workflow);
+  const tail=yaml.split(marker)[1];
+  const start=tail.indexOf('        run: |\n');
+  assert.ok(start>=0,'Missing save script in '+workflow);
+  const raw=tail.slice(start+'        run: |\n'.length);
+  const end=raw.indexOf('\n      - name: ');
+  const block=(end<0?raw:raw.slice(0,end));
+  return block.split('\n').map(line=>line.startsWith('          ')
+    ?line.slice(10):line).join('\n');
+}
+
+test('Driver, HR and Staff encrypted-state writes fail closed on real Git race instead of reporting green', t=>{
+  for(const {workflow,step,file} of PROTECTED_STATE_WORKFLOWS){
+    const {a,b}=fixture(t);
+    const script=workflowSaveScript(workflow,step);
+    assert.match(script,/bash scripts\/git-safe-push\.sh main/);
+    assert.doesNotMatch(script,/reset --hard|treating this persistence conflict as non-fatal|exit 0\s*\n\s*fi\s*$/);
+    fs.mkdirSync(path.dirname(path.join(a,file)),{recursive:true});
+    fs.mkdirSync(path.dirname(path.join(b,file)),{recursive:true});
+    fs.mkdirSync(path.join(b,'scripts'),{recursive:true});
+    fs.copyFileSync(helper,path.join(b,'scripts/git-safe-push.sh'));
+
+    // A genuinely newer encrypted-state placeholder is committed remotely.
+    // The stale runner B then attempts to save the SAME path from an old
+    // checkpoint; neither content nor identity is ever sent to real GitHub.
+    commit(a,file,'{"snapshot":"newer"}\n');
+    command(a,'bash',[helper,'main']);
+    fs.writeFileSync(path.join(b,file),'{"snapshot":"stale"}\n','utf8');
+    const result=command(b,'bash',['-e','-o','pipefail','-c',script],false);
+    assert.notEqual(result.status,0,workflow+' must not report a successful unpersisted journal');
+    assert.match(result.stdout+result.stderr,/Rebase conflict detected/,workflow);
+    command(b,'git',['fetch','origin','main']);
+    assert.equal(command(b,'git',['show','origin/main:'+file]).stdout,
+      '{"snapshot":"newer"}\n',workflow+' must preserve the newer remote file');
+    assert.equal(command(b,'git',['show','HEAD:'+file]).stdout,
+      '{"snapshot":"stale"}\n',workflow+' must preserve the local conflicting commit');
+  }
+});
+
+test('Driver, HR and Staff save steps exit successfully when protected data is already up to date',t=>{
+  for(const {workflow,step} of PROTECTED_STATE_WORKFLOWS){
+    const {b}=fixture(t);
+    const script=workflowSaveScript(workflow,step);
+    // No durable data changed: the existing no-change fast path is still safe.
+    command(b,'bash',['-e','-o','pipefail','-c',script]);
+  }
+});
