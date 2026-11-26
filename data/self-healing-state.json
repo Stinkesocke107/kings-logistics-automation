@@ -1,34 +1,10 @@
 {
   "version": 1,
   "mode": "technical-safe-self-healing",
-  "updatedAt": "2026-11-26T10:50:22.025Z",
+  "updatedAt": "2026-11-26T14:04:00.695Z",
   "repairs": {
     "live-tracker": {
       "attempts": [
-        {
-          "at": "2026-11-25T11:23:22.500Z",
-          "outcome": "failed",
-          "action": "dispatched",
-          "runId": 45603881285,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-failed:live-tracker.yml",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
-        {
-          "at": "2026-11-25T12:46:55.595Z",
-          "outcome": "failed",
-          "action": "wait-existing",
-          "runId": 45617013113,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json",
-            "workflow-failed:live-tracker.yml",
-            "workflow-overdue:live-tracker.yml"
-          ]
-        },
         {
           "at": "2026-11-25T15:29:10.833Z",
           "outcome": "failed",
@@ -142,11 +118,21 @@
             "stale-data:data/live-tracker-snapshot.json",
             "stale-data:data/statistics.json"
           ]
+        },
+        {
+          "at": "2026-11-26T14:04:00.695Z",
+          "outcome": "verification-failed",
+          "action": "dispatched",
+          "runId": 45835163886,
+          "issueIds": [
+            "stale-data:data/live-tracker-snapshot.json",
+            "stale-data:data/statistics.json"
+          ]
         }
       ],
-      "lastAttemptAt": "2026-11-26T10:50:22.025Z",
+      "lastAttemptAt": "2026-11-26T14:04:00.695Z",
       "lastSuccessAt": "2026-11-18T12:19:46.364Z",
-      "lastFailureAt": "2026-11-26T10:50:22.025Z"
+      "lastFailureAt": "2026-11-26T14:04:00.695Z"
     },
     "driver-updates": {
       "attempts": [],
