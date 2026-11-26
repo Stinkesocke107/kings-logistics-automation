@@ -296,3 +296,32 @@ test('both private manual review entry points request dashboard refresh only aft
     assert.match(yaml,/gh workflow run leadership-dashboard\.yml --repo "\$GITHUB_REPOSITORY" --ref main/);
   }
 });
+
+test('a recorded Staff evidence check cannot be silently restarted without explicit reopen',()=>{
+  const started=change(makeState(),'start');
+  const checked=change(started,'record_check',NOW+1000,{
+    evidenceKind:'ORIGINAL_DISCORD',confirmation:'ORIGINAL_RECORDS_CHECKED'
+  });
+  assert.throws(()=>change(checked,'start',NOW+2000),/unverified/);
+  assert.equal(checked.operationReviews[0].status,'STAFF_CHECK_RECORDED');
+  const reopened=change(checked,'reopen',NOW+2000);
+  const restarted=change(reopened,'start',NOW+3000);
+  assert.equal(restarted.operationReviews[0].status,'IN_REVIEW');
+  assert.deepEqual(restarted.operationReviews[0].audit.map(x=>x.action),[
+    'start','record_check','reopen','start'
+  ]);
+});
+
+test('Staff journal rejects reordered or future-dated audit history and mismatched evidence kind',()=>{
+  let state=change(makeState(),'start');
+  state=change(state,'block',NOW+3000);
+  const original=state.operationReviews[0];
+  const failOn=patch=>assert.throws(()=>
+    trustedRecords([{...original,...patch}]),/unverified/);
+  failOn({audit:[{...original.audit[0],at:new Date(NOW+5000).toISOString()},
+    original.audit[1]]});
+  failOn({audit:[original.audit[0],
+    {...original.audit[1],at:new Date(NOW+6000).toISOString()}]});
+  failOn({evidenceKind:'STAFF_RECORD'});
+  assert.equal(trustedRecords([original]).length,1);
+});
