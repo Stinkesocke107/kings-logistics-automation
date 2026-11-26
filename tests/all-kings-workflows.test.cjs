@@ -13,9 +13,9 @@ test('all Kings workflows have explicit ownership, cadence mode, and health poli
   const files=fs.readdirSync(dir).filter(n=>/\.ya?ml$/i.test(n)).sort();
   const registered=WORKFLOW_REGISTRY.map(w=>w.file).sort();
   assert.deepEqual(registered,files,'Every workflow file must be registered: no invisible systems');
-  assert.equal(WORKFLOW_REGISTRY.length,44);
+  assert.equal(WORKFLOW_REGISTRY.length,45);
   assert.equal(SCHEDULED_WORKFLOWS.length,32);
-  assert.equal(ON_DEMAND_WORKFLOWS.length,12);
+  assert.equal(ON_DEMAND_WORKFLOWS.length,13);
   for(const item of WORKFLOW_REGISTRY){
     const yaml=fs.readFileSync(path.join(dir,item.file),'utf8');
     const actuallyScheduled=/^  schedule:/m.test(yaml);
@@ -55,7 +55,7 @@ test('Discord Kings System Monitor aggregates every area without stale leadershi
   const s=sandbox('system-monitor-discord.js',{files:{'data/system-health.json':JSON.stringify(health)},
     env:{DISCORD_BOT_TOKEN:'test-only'}});
   const msg=s.run('buildMessage('+JSON.stringify(health)+')');
-  assert.match(msg,/44 total workflows \(12 on-demand\)/);
+  assert.match(msg,/45 total workflows \(13 on-demand\)/);
   for(const phrase of ['Drivers, Probation & Awards','Convoy Center & Events','HR & Staff Systems',
     'Live Tracker & Statistics','Leadership & Periodic Reports','Backup & Restore Health','News & Changelog']){
     assert.ok(msg.includes(phrase),phrase);
