@@ -52,7 +52,10 @@ function readJson(file, fallback = null) {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
   } catch {
-    return fallback;
+    // A corrupted published-event dedupe journal must never be mistaken
+    // for first activation. Silently resetting it may suppress or duplicate
+    // real Staff joins, promotions and departures.
+    throw new Error('Kings public Staff Updates stored JSON invalid; refusing to reset existing publication history.');
   }
 }
 
@@ -110,9 +113,19 @@ function decrypt(container) {
 }
 
 function loadState() {
-  const container = readJson(STATE_FILE, null);
-  if (!container) return null;
-  return decrypt(container);
+  // Only a genuinely absent state permits bootstrap. Existing corrupted
+  // encrypted journals fail closed before any public Staff announcement.
+  if(!fs.existsSync(STATE_FILE))return null;
+  const container=readJson(STATE_FILE,null);
+  if(!container||container.encrypted!==true||
+      container.algorithm!=='aes-256-gcm')
+    throw new Error('Kings public Staff Updates encrypted history invalid; refusing to reset.');
+  const state=decrypt(container);
+  if(!state||Array.isArray(state)||state.version!==1||
+      !Array.isArray(state.members)||!Array.isArray(state.delivered)||
+      state.delivered.some(key=>typeof key!=='string'||!key||key.length>256))
+    throw new Error('Kings public Staff Updates history schema invalid; refusing to reset.');
+  return state;
 }
 
 function loadStaffManagementState() {
