@@ -3,7 +3,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {WORKFLOW_REGISTRY}=require('../kings-workflow-registry');
 const {
- VERIFIED,PENDING,FUNCTION_IDS,namedEventSystems,AREA_ORDER,
+ VERIFIED,PENDING,FUNCTION_IDS,namedEventSystems,namedOperationalSystems,AREA_ORDER,
  assertAcceptance,acceptanceStatus,snapshot
 }=require('../kings-system-acceptance');
 const ROOT='https://github.com/Stinkesocke107/kings-logistics-automation/';
@@ -19,7 +19,11 @@ test('every live Kings workflow appears exactly once in the acceptance overview'
  assert.ok(s.excluded.some(x=>x.startsWith('17')));
  assert.equal(files.includes('17'),false);
  assert.equal(files.includes('18'),true);
- assert.equal(s.assessedWorkflows,1);
+ assert.equal(s.assessedWorkflows,5);
+ assert.equal(s.operationalSystems.length,4);
+ assert.deepEqual(s.operationalSystems.map(x=>x.id),[
+   'DRIVER_UPDATES','DRIVER_MANAGEMENT','HR_PROBATION','STAFF_MANAGEMENT'
+ ]);
  assertAcceptance();
 });
 test('a successful workflow or many offline tests never grant full System #18 acceptance',()=>{
@@ -84,7 +88,7 @@ test('a system is only COMPLETE after every function, all checks, zero blockers,
    ...approval,evidence:['https://invalid.example/stuff']}}),/repository evidence/);
 });
 test('only exact evidence may be attached to a verified function',()=>{
- for(const system of namedEventSystems){
+ for(const system of [...namedEventSystems,...namedOperationalSystems]){
   assert.equal(system.gates.length,FUNCTION_IDS.length);
   for(const g of [...system.gates,...(system.capabilities||[])]){
    if(g.state===VERIFIED){
@@ -95,4 +99,35 @@ test('only exact evidence may be attached to a verified function',()=>{
  }
  assert.equal(namedEventSystems.find(x=>x.id==='18').name,
    'Event Operations — Discord Staff Review');
+});
+
+
+test('real Driver and Staff poll evidence is strictly partial and cannot authorize personnel activity',()=>{
+  const s=snapshot(),workflows={
+    DRIVER_UPDATES:'driver-updates.yml',
+    DRIVER_MANAGEMENT:'driver-management.yml',
+    HR_PROBATION:'hr-leadership.yml',
+    STAFF_MANAGEMENT:'staff-management.yml'
+  };
+  for(const [id,filename] of Object.entries(workflows)){
+    const item=s.operationalSystems.find(x=>x.id===id);
+    assert.ok(item,id);
+    assert.equal(item.workflow,filename);
+    assert.equal(item.acceptance,'PARTIALLY_VERIFIED',id);
+    assert.equal(item.ownerApproval,null,id);
+    assert.ok(item.blockers.length>0,id);
+    assert.ok(item.capabilities.some(x=>x.state===VERIFIED),id);
+    assert.ok(item.capabilities.some(x=>x.state===PENDING),id);
+    assert.ok(item.gates.some(x=>x.id==='owner_signoff'&&x.state===PENDING),id);
+  }
+  const staff=s.operationalSystems.find(x=>x.id==='STAFF_MANAGEMENT');
+  assert.ok(staff.capabilities.some(x=>x.id==='corrupt_state_fail_closed'&&x.state===VERIFIED));
+  assert.ok(staff.capabilities.some(x=>x.id==='real_staff_lifecycle'&&x.state===PENDING));
+  const hr=s.operationalSystems.find(x=>x.id==='HR_PROBATION');
+  assert.ok(hr.capabilities.some(x=>x.id==='real_authorized_hr_command'&&x.state===PENDING));
+  const driver=s.operationalSystems.find(x=>x.id==='DRIVER_MANAGEMENT');
+  assert.ok(driver.capabilities.some(x=>x.id==='real_driver_loa_lifecycle'&&x.state===PENDING));
+  assert.equal(s.areas.find(x=>x.name==='Drivers').acceptance,'PARTIALLY_VERIFIED');
+  assert.equal(s.areas.find(x=>x.name==='HR & Staff').acceptance,'PARTIALLY_VERIFIED');
+  assert.equal(s.completeWorkflows,0);
 });
