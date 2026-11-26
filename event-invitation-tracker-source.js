@@ -156,7 +156,14 @@ function summarizeTracker({forum,threads,messagesByThread,centerReport=null,nowM
     } else count.eventLinksMissing++;
     const seenVtcs=new Set();
     for(const message of messages){
-      if(String(message.id)===String(source.id)||message.author?.bot)continue;
+      if(String(message.id)===String(source.id)||message.author?.bot===true)continue;
+      // A formatted invitation line without a verifiable Discord human
+      // author (or one posted by a webhook) is not a provenance-backed
+      // invitation reply. Flag it for human review, never count an RSVP.
+      if(!ID.test(String(message.author?.id||''))||
+         message.webhook_id!=null){
+        count.malformedReplies++;continue;
+      }
       const entry=readEntry(message.content||'');
       if(!entry){count.malformedReplies++;continue;}
       if(seenVtcs.has(entry.vtcId)){count.duplicateVtcReplies++;continue;}
