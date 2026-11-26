@@ -474,7 +474,7 @@ async function discord(pathname, options = {}) {
         signal: AbortSignal.timeout(15000)
       });
       const text = await response.text();
-      if (!response.ok) throw new Error(`Discord ${response.status}: ${text.slice(0,300)}`);
+      if (!response.ok) throw new Error(`Discord API ${response.status} (Leadership request failed)`);
       return text ? JSON.parse(text) : null;
     } catch (error) {
       lastError = error;
@@ -571,7 +571,9 @@ async function main() {
       embed: dashboards[key],
       userAgent: 'Kings Consolidated Leadership Dashboard/1.0',
       messageId: state.messageIds[key],
-      createWithoutDiscovery: true
+      createWithoutDiscovery: true,
+      // #18 Event Staff reviews need a real Discord read-back of the saved embed.
+      verifyDelivery: key === 'event'
     });
     state.messageIds[key] = result.messageId || state.messageIds[key];
     const removed = await cleanupOld(key, state.messageIds[key], self.id);
