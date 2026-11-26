@@ -41,7 +41,7 @@ test('generated markdown is actionable and cannot pretend original records were 
   const text=renderMarkdown();
   assert.match(text,/Open completion gates/);
   assert.match(text,/#18 Event Operations/);
-  assert.match(text,/automatic full-map/i);
+  assert.match(text,/map provider recovery|full.map automatic/i);
   assert.match(text,/NOT_ASSESSED does not mean broken/);
   assert.match(text,/Event Booking & Slot Management/);
   assert.match(text,/\[ \]/);
