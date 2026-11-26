@@ -153,6 +153,12 @@ const WORKFLOW_REGISTRY = Object.freeze(
       "severity": "warning"
     },
     {
+      "file": "event-operations-manual-review.yml",
+      "label": "Event Operations Manual Staff Review",
+      "mode": "manual",
+      "area": "Convoys"
+    },
+    {
       "file": "final-freeze-verification.yml",
       "label": "Final Freeze Verification",
       "mode": "scheduled",
