@@ -67,17 +67,6 @@
       },
       "firstAlertedAt": "2026-11-26T19:52:52.382Z"
     },
-    "workflow-overdue:event-operations-discord-review.yml": {
-      "severity": "warning",
-      "system": "Event Operations Discord Staff Review",
-      "message": "Event Operations Discord Staff Review has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-26T18:48:40Z",
-        "ageMinutes": 157,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-11-26T21:26:28.952Z"
-    },
     "workflow-failed:staff-leadership-live-overview.yml": {
       "severity": "warning",
       "system": "Staff Leadership Live Overview",
@@ -87,20 +76,28 @@
         "completedAt": "2026-11-26T21:24:54Z"
       },
       "firstAlertedAt": "2026-11-26T21:50:00.631Z"
-    }
-  },
-  "pending": {
+    },
     "workflow-failed:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-26T21:57:39.520Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 45901390110,
+        "completedAt": "2026-11-26T21:56:51Z"
+      },
+      "firstAlertedAt": "2026-11-26T21:58:51.045Z"
     },
     "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-26T21:57:39.520Z",
+      "severity": "warning",
       "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-11-26T21:58:51.045Z"
     }
-  }
+  },
+  "pending": {}
 }
