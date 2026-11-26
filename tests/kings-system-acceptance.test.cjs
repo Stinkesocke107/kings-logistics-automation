@@ -47,8 +47,20 @@ test('a successful workflow or many offline tests never grant full System #18 ac
  assert.ok(history.capabilities.some(x=>
    x.id==='original_archive_completeness'&&x.state===PENDING));
  assert.ok(history.blockers.length>0);
- for(const code of ['15','16'])
-  assert.equal(s.eventSystems.find(x=>x.id===code).acceptance,'NOT_ASSESSED');
+ assert.ok(history.capabilities.some(x=>
+   x.id==='live_reconciled_source_probe'&&x.state===VERIFIED));
+ const invite=s.eventSystems.find(x=>x.id==='15');
+ assert.equal(invite.acceptance,'PARTIALLY_VERIFIED');
+ assert.ok(invite.capabilities.some(x=>
+   x.id==='live_tag_schema'&&x.state===VERIFIED));
+ assert.ok(invite.capabilities.some(x=>
+   x.id==='invitation_archive_coverage'&&x.state===PENDING));
+ const calendar=s.eventSystems.find(x=>x.id==='16');
+ assert.equal(calendar.acceptance,'PARTIALLY_VERIFIED');
+ assert.ok(calendar.capabilities.some(x=>
+   x.id==='live_readonly_calendar_source'&&x.state===VERIFIED));
+ assert.ok(calendar.capabilities.some(x=>
+   x.id==='original_calendar_decisions'&&x.state===PENDING));
  assert.ok(!s.eventSystems.some(x=>x.acceptance==='COMPLETE'));
 });
 test('a system is only COMPLETE after every function, all checks, zero blockers, CEO signoff and source proof',()=>{

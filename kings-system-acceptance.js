@@ -68,6 +68,9 @@ const namedEventSystems=Object.freeze([
       item('protected_review_agenda',
         'Private month-level read-only evidence review without per-event identifiers',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45900507573']),
+      item('live_reconciled_source_probe',
+        'Real Convoy Center and frozen Legacy source passed read-only History/Calendar reconciliation',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45900603134']),
       item('original_archive_completeness',
         'All original 24-month Event records independently reconciled'),
       item('historical_staff_decisions',
@@ -80,10 +83,41 @@ const namedEventSystems=Object.freeze([
       'Historical Staff approvals, cancellations and attendance are not independently evidenced',
       'Real full source-to-Staff handover, operations and CEO signoff remain pending'
     ]},
-  {id:'15',name:'Invitation Tracker',gates:fullGateList(),
-    blockers:['System-specific final acceptance not independently documented']},
-  {id:'16',name:'Event Calendar',gates:fullGateList(),
-    blockers:['System-specific final acceptance not independently documented']},
+  {id:'15',name:'Invitation Tracker',
+    gates:fullGateList({offline_tests:[EVIDENCE_ROOT+'actions/runs/45900507573']}),
+    capabilities:Object.freeze([
+      item('live_forum_readonly', 'Original private invitation forum was fully readable through GET-only probe',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45900603134']),
+      item('live_tag_schema','Three approved status tags matched actual Forum labels',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45900603134']),
+      item('duplicate_and_reply_safety','Invitation reply/duplicate review and privacy boundaries pass offline checks',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45900507573']),
+      item('invitation_archive_coverage','Original historical invitation archive independently checked for completeness'),
+      item('real_observation_delivery','Fresh invitation observation confirmed in encrypted state and private dashboard'),
+      item('recorded_reply_provenance','Recorded responses and invitation claims reconciled with original human records'),
+      item('team_owner_handover','Event Coordination team and CEO complete operational signoff')
+    ]),
+    blockers:[
+      'Forum readability does not certify historical invitation completeness or external response authenticity',
+      'Real encrypted state-to-dashboard publication and authorized team handover remain unverified',
+      'CEO final acceptance not recorded'
+    ]},
+  {id:'16',name:'Event Calendar',
+    gates:fullGateList({offline_tests:[EVIDENCE_ROOT+'actions/runs/45900507573']}),
+    capabilities:Object.freeze([
+      item('twelve_month_review','12-month UTC calendar claims and warning calculations tested offline',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45899560178']),
+      item('live_readonly_calendar_source','Real Convoy Center/Legacy Calendar read-only source reconciled',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45900603134']),
+      item('original_calendar_decisions','All approvals, confirmed holds and cancellations reconciled with original Staff evidence'),
+      item('live_staff_calendar_review','Real Calendar changes reach authorized Event Staff and private dashboard'),
+      item('team_owner_handover','Event team confirms calendar interpretation, recovery and CEO signoff')
+    ]),
+    blockers:[
+      'Source claims cannot certify free slots, confirmed holds or complete original calendar decisions',
+      'Live Staff review and dashboard refresh after actual calendar change unverified',
+      'CEO final acceptance not recorded'
+    ]},
   {id:'18',name:'Event Operations — Discord Staff Review',
     gates:fullGateList({
       implementation:[EVIDENCE_ROOT+'pull/191'],
