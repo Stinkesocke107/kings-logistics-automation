@@ -65,6 +65,21 @@ Die ausführbare Übersicht ist `kings-system-acceptance.js` und liest die **46*
 
 **Keine künstlichen Prozentwerte:** Die bereits getesteten Teilfunktionen sind nicht gleich einer prozentualen Gesamtfertigstellung. Sicherheits-, Funktions- und Live-Abnahmekriterien sind Pflicht; nicht nur eine gewichtete Fortschrittsanzeige.
 
+## Fahrer und HR / Staff — zweite Einzelfunktionsabnahme
+
+**Vier zusätzliche, klar getrennte Betriebs-Workflows sind jetzt einzeln erfasst.** Damit sind fünf der 46 registrierten Workflows (einschließlich #18) formal bewertet, weiterhin **kein einziger vollständig abgenommen**. „Nicht bewertet“ bei den anderen 41 ist keine Ausfallmeldung. Die vollständige maschinenlesbare Funktionsliste und die acht Pflicht-Gates liegen in `kings-system-acceptance.js` unter `operationalSystems`.
+
+| System / zugehöriger Workflow | Nachweis im echten Betrieb | Offen bis zur Abnahme |
+|---|---|---|
+| **Driver Updates** — `driver-updates.yml` | [Produktionslauf #45901569737](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45901569737): echte VTC-Mitglieder abgerufen, bei unverändertem Bestand keine erfundenen Join-/Leave-Meldungen | Echte Mitgliedsänderung → verschlüsselter Zustand → korrekte Discord-Mitteilung, Abgleich mit Driver Management, Driver-Team- und CEO-Abnahme |
+| **Driver Management** — `driver-management.yml` | [Produktionslauf #45902760777](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45902760777) nach Sicherheitskorrektur erfolgreich; [Git-Konfliktschutz offline getestet](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45902677492) | Echte LOA-Anfrage/Beendigung, gesicherter Status, Management-Ansicht, dokumentierter Recovery-Prozess und CEO-Freigabe |
+| **HR Leadership / Probation** — `hr-leadership.yml` | [Produktionslauf #45902760787](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45902760787) erfolgreich; [verschlüsselte HR-Statusänderung bei Git-Konflikt fail-closed](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45902677492) geprüft | Neuer echter autorisierter Probation-Befehl mit dauerhaftem Status und privater Leadership-Ausgabe; HR-Team-, Recovery- und CEO-Abnahme |
+| **Staff Management** — `staff-management.yml` | [Produktionslauf #45902761042](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45902761042) erfolgreich; [kaputte verschlüsselte Staff-Historie und verlorener Git-Commit blockiert](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45902677492) | Echter Staff-Beitritt/Rollenwechsel/Austritt, bestätigte öffentliche Discord-Ausgabe, Zuständigkeiten, Wiederanlauf und CEO-Freigabe |
+
+**Sicherheitskorrektur PR #201:** Früher konnten Driver Management, HR Leadership und Staff Management einen fehlgeschlagenen Git-Safe-Push als Warnung behandeln und trotzdem mit „Erfolg“ enden. Jetzt darf der gesicherte Commit nicht stillschweigend gelöscht oder als erfolgreich ausgegeben werden. Ebenso muss eine bereits vorhandene, aber kaputte Staff-Historie hart fehlschlagen und darf **nicht** als neuer erster Staff-Stand interpretiert werden. Die Regression verwendet ausschließlich isolierte lokale Test-Git-Repositories, keine echten Mitglieder, Rollen oder Personalentscheidungen.
+
+**Keine vollständige Abnahme:** Die reinen erfolgreichen regelmäßigen Abfragen belegen keine echten neuen Personalereignisse. Keine Staff-Entscheidungen, Probation-Bestätigungen, Discord-Nachrichten, Loyalty-Rollen oder LOA-Status wurden zu Testzwecken erzeugt. Verbleibende echte End-to-End- und Betriebsnachweise sowie eine ausdrückliche CEO-Schlussfreigabe bleiben als Pflicht offen.
+
 ## Nächste Reihenfolge
 
 **Zuerst #18 sauber abschließen:** realen Dashboard-Refresh nach einer späteren Änderung nachweisen, dann den Prozess und die sichtbaren Status mit Event-Team/CEO abnehmen. Anschließend #12, #14, #15, #16 auf ihre echten Quellen, Funktionen und Übergaben prüfen. Dann die anderen Kings-Logistics-Bereiche anhand derselben Kriterien durchgehen.
