@@ -186,7 +186,7 @@ test('Event #12/#16 capacity-calendar, #14 history, #15 invitation sources feed 
   assert.ok(discord.seen.some(x=>x.url.includes('/messages?')));
   assert.ok(discord.seen.some(x=>x.url.includes('/members/'+STAFF)));
 });
-test('changed source evidence immediately causes RECHECK_REQUIRED without falsely certifying Events',()=>{
+test('changed source evidence immediately causes RECHECK_REQUIRED without falsely certifying Events',async()=>{
   const initial=state();
   const token=tokenFor(initial,'Review UTC days above 3 source-claimed convoys');
   const discord=mockDiscord([msg(String(BigInt(CURSOR)+1n),
