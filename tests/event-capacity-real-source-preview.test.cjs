@@ -5,13 +5,15 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..');
 const script=fs.readFileSync(path.join(root,'event-capacity-real-source-preview.js'),'utf8');
 const PRIV='SYNTHETIC_PRIVATE_STAFF_VTC_EVENT_DO_NOT_LOG';
-function simulate({readFails=false,badObservation=false,badReview=false}={}){
+function simulate({readFails=false,badObservation=false,badReview=false,missingWorklist=false}={}){
   const logs=[],errors=[],proc={exitCode:0};
   const observation={
     sourceReconciled:true,readOnly:true,
     historyVerified:false,freeSlotsCertified:false,
     staffApprovalsVerified:false,bookingsCreated:0,
     futurePartnerMonthsOver20:1,futureExternalMonthsOver20:2,
+    futureUnclassified:0,futureDaysOverDailyLimit:1,
+    historyFutureLegacyHoldReview:0,
     futureDaysWithShortDepartureGap:3,futureDaysRequiringReview:4,
     name:PRIV
   };
@@ -33,12 +35,22 @@ function simulate({readFails=false,badObservation=false,badReview=false}={}){
           eventSource:'RECONCILED',readOnly:true,
           calendarAvailabilityCertified:false,staffDecisionsVerified:false,
           bookingsCreated:0,review:{
+            eventTypeUnclassified:0,
+            calendarDaysNeedingReview:4,
+            daysOverThreeSourceClaims:1,
             partnerMonthsOver20:badReview?99:1,
             externalMonthsOver20:2,
-            daysWithShortDepartureGap:3
+            daysWithShortDepartureGap:3,
+            futureLegacyHoldReview:0
           }
         }),
-        operationsWorklist:()=>[]
+        operationsWorklist:()=>[
+          ['REVIEW_CALENDAR_DAYS',4],
+          ['REVIEW_DAILY_CAP',1],
+          ['REVIEW_PARTNER_MONTH_CAP',1],
+          ['REVIEW_EXTERNAL_MONTH_CAP',2],
+          ...(!missingWorklist?[['REVIEW_DEPARTURE_SPACING',3]]:[])
+        ].map(([code,count])=>({code,count}))
       };
       throw Error('Unexpected private source read '+name);
     }
@@ -62,7 +74,7 @@ test('real Capacity live proof verifies source-only policies with fixed public s
   assert.deepEqual(r.errors,[]);
 });
 test('missing real source, bookings and mismatched Staff review all fail closed without private exception data',()=>{
-  for(const opts of [{readFails:true},{badObservation:true},{badReview:true}]){
+  for(const opts of [{readFails:true},{badObservation:true},{badReview:true},{missingWorklist:true}]){
     const r=simulate(opts);
     assert.equal(r.result.status,'SOURCE_UNVERIFIED');
     assert.equal(r.result.freeSlotsCertified,false);
