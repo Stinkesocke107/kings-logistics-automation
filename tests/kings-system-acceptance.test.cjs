@@ -131,3 +131,29 @@ test('real Driver and Staff poll evidence is strictly partial and cannot authori
   assert.equal(s.areas.find(x=>x.name==='HR & Staff').acceptance,'PARTIALLY_VERIFIED');
   assert.equal(s.completeWorkflows,0);
 });
+
+
+test('new HR role, LOA pagination and Staff dedupe safety proof is recorded without false complete status',()=>{
+  const s=snapshot();
+  const checks={
+    DRIVER_MANAGEMENT:['loa_private_cursor_pagination'],
+    HR_PROBATION:['hr_command_cursor_pagination','hr_command_actor_authority'],
+    STAFF_MANAGEMENT:['public_staff_journal_fail_closed']
+  };
+  for(const [id,codes] of Object.entries(checks)){
+    const item=s.operationalSystems.find(x=>x.id===id);
+    assert.ok(item,id);
+    for(const code of codes){
+      const cap=item.capabilities.find(c=>c.id===code);
+      assert.ok(cap,id+' '+code);
+      assert.equal(cap.state,VERIFIED);
+      assert.ok(cap.evidence.every(uri=>uri.startsWith(ROOT+'actions/runs/')));
+    }
+    assert.equal(item.acceptance,'PARTIALLY_VERIFIED');
+    assert.equal(item.ownerApproval,null);
+    assert.ok(item.gates.some(g=>g.id==='real_world_e2e'&&g.state===PENDING));
+    assert.ok(item.gates.some(g=>g.id==='owner_signoff'&&g.state===PENDING));
+  }
+  assert.equal(s.assessedWorkflows,5);
+  assert.equal(s.completeWorkflows,0);
+});
