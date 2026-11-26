@@ -115,6 +115,78 @@ test('staff channel is private, Event Coordination role verified, and no broad g
  for(const invalid of ['',ROLE+','+ROLE,GUILD,'123','not-a-role'])
    assert.throws(()=>roleIdsFromSecret(invalid),/unverified/);
 });
+test('CEO and every Event leadership tier can use review commands with individually verified roles',async()=>{
+ const approved=[
+   ['777777777777777790','CEO','8'],
+   ['777777777777777791','Head Management Event','0'],
+   ['777777777777777792','Event Management','0'],
+   ['777777777777777793','Event Director','0'],
+   ['777777777777777794','Event Coordination Lead','0'],
+   [ROLE,'Event Coordinator','0']
+ ];
+ const extraRoles=approved.filter(([id])=>id!==ROLE)
+   .map(([id,name,permissions])=>({id,name,permissions}));
+ const roles=[...guildRoles,...extraRoles];
+ const allIds=approved.map(([id])=>id);
+ const privateChannel={
+   ...channel,
+   permission_overwrites:[
+     channel.permission_overwrites[0],
+     ...approved.filter(([id])=>id!=='777777777777777790')
+       .map(([id])=>({id,type:0,allow:'3072',deny:'0'})),
+     channel.permission_overwrites[2]
+   ]
+ };
+ assert.deepEqual(roleIdsFromSecret(allIds.join(',')),allIds);
+ assert.equal(validatePrivateChannel({
+   channel:privateChannel,roles,bot,botMember,allowedRoles:allIds,
+   channelId:CHANNEL
+ }),true);
+ const token=reviewToken();
+ for(const [roleId,roleName] of approved){
+   const state={...sourceState(),discordReviewCursor:MSG1};
+   const {transport}=discordFetch([
+     message(MSG2,'!kings-review '+token+' start'),
+     message(MSG1,'setup')
+   ],{channel:privateChannel,roles,staffRoles:[roleId]});
+   const result=await ingest({
+     state,...args,staffRoleIds:allIds,transport
+   });
+   assert.equal(result.mode,'SOURCE_REVIEWS_RECORDED',roleName);
+   assert.equal(result.state.operationReviews[0].status,'IN_REVIEW',roleName);
+   assert.equal(result.state.eventSourceObservation.staffApprovalsVerified,false);
+   assert.equal(result.state.eventSourceObservation.freeSlotsCertified,false);
+ }
+ for(const broken of [
+   roles.map(role=>role.name==='Event Director'?
+     {...role,permissions:'8'}:role),
+   roles.map(role=>role.name==='Event Management'?
+     {...role,name:'Verified Driver'}:role),
+   roles.map(role=>role.name==='CEO'?
+     {...role,name:'Owner'}:role)
+ ])assert.throws(()=>validatePrivateChannel({
+   channel:privateChannel,roles:broken,bot,botMember,
+   allowedRoles:allIds,channelId:CHANNEL
+ }),/unverified/);
+ const withoutLead={...privateChannel,permission_overwrites:
+   privateChannel.permission_overwrites.filter(x=>
+     x.id!=='777777777777777794')};
+ assert.throws(()=>validatePrivateChannel({
+   channel:withoutLead,roles,bot,botMember,allowedRoles:allIds,
+   channelId:CHANNEL
+ }),/unverified/);
+ // Unlisted users still cannot operate the journal.
+ const outsider=discordFetch([
+   message(MSG2,'!kings-review '+token+' start',OUTSIDER),
+   message(MSG1,'setup')
+ ],{channel:privateChannel,roles});
+ const ignored=await ingest({
+   state:{...sourceState(),discordReviewCursor:MSG1},
+   ...args,staffRoleIds:allIds,transport:outsider.transport
+ });
+ assert.equal(ignored.state.operationReviews,undefined);
+ assert.equal(ignored.state.discordReviewIgnored,1);
+});
 test('Discord command format is strict and never accepts original evidence, URLs or mentions',()=>{
  const token=reviewToken();
  assert.deepEqual(parseCommand('!kings-review '+token+' start'),{
@@ -219,6 +291,44 @@ test('no MESSAGE_CONTENT privileged intent and lost backlog fail closed without 
      '!kings-review '+reviewToken(state)+' start'));
  const many=discordFetch(oldMessages);
  await assert.rejects(()=>ingest({state,...args,transport:many.transport}),/unverified/);
+});
+test('VERIFY_ONLY checks real private Discord source access without reading commands or state',async()=>{
+ const requests=discordFetch([message(MSG2,'!kings-review '+reviewToken()+' start')]);
+ let stateReads=0,encryptedWrites=0;
+ const env={
+   GITHUB_REF:'refs/heads/main',GITHUB_EVENT_NAME:'workflow_dispatch',
+   KINGS_EVENT_DISCORD_REVIEW_ENABLED:'VERIFY_ONLY',
+   KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID:CHANNEL,
+   KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS:ROLE,
+   DISCORD_BOT_TOKEN:'SYNTHETIC_BOT_TOKEN'
+ };
+ const opts={
+   env,nowMs:NOW,transport:requests.transport,
+   read:()=>{stateReads++;throw Error('preflight must not read private state');},
+   write:()=>{encryptedWrites++;throw Error('preflight must not write state');}
+ };
+ const result=await run(opts);
+ assert.deepEqual(result,{
+   status:'SOURCE_METADATA_CHECKED',changed:false,
+   readOnlyDiscord:true,discordWrites:0
+ });
+ assert.equal(stateReads,0);
+ assert.equal(encryptedWrites,0);
+ assert.equal(requests.seen.length,4);
+ assert.ok(requests.seen.every(x=>x.method==='GET'));
+ assert.ok(requests.seen.every(x=>!x.url.includes('/messages?')));
+ assert.ok(requests.seen.every(x=>!x.url.includes('/members/'+STAFF)));
+ const invalid=discordFetch([],{channel:{...channel,type:5}});
+ await assert.rejects(()=>run({
+   ...opts,transport:invalid.transport
+ }),/unverified/);
+ assert.equal(stateReads,0);
+ assert.equal(encryptedWrites,0);
+ assert.ok(invalid.seen.every(x=>!x.url.includes('/messages?')));
+ await assert.rejects(()=>run({...opts,env:{
+   ...env,GITHUB_REF:'refs/heads/untrusted'
+ }}),/not authorized/);
+ assert.equal(stateReads,0);
 });
 test('disabled entrypoint performs no reads; enabled path encrypts cursor, never prints private data',async()=>{
  const state=sourceState(),container=encryptEventState(state,SECRET);
