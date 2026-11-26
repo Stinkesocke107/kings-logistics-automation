@@ -217,7 +217,8 @@ async function preflight({token,channelId,staffRoleIds,
     message?.channel_id===channelId&&
     ID.test(String(message?.id||''))&&
     ID.test(String(message?.author?.id||''))&&
-    message.author.bot===false&&
+    message.author.bot!==true&&
+    !message.webhook_id&&
     message.content===SOURCE_PROBE_MARKER);
   if(!proof)reject('MESSAGE_TEST_NOT_FOUND');
   // Even the read-only probe must originate from a currently authorised

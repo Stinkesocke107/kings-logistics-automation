@@ -438,7 +438,9 @@ test('manual VERIFY_ONLY validates human message content without Event-state acc
    KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS:ROLE,
    DISCORD_BOT_TOKEN:'SYNTHETIC_BOT_TOKEN'
  };
+ // Discord User.bot is optional: ordinary human authors commonly omit it.
  const m=message(MSG2,'KINGS-EVENT-READ-TEST');
+ delete m.author.bot;
  const requests=discordFetch([m]);
  let reads=0,writes=0;
  const opts={env,nowMs:NOW,transport:requests.transport,
@@ -505,6 +507,16 @@ test('manual message proof refuses absent marker, missing content, outsider and 
  await runProbe(discordFetch([
    message(MSG2,'KINGS-EVENT-READ-TEST',OUTSIDER)
  ]).transport,'MESSAGE_TEST_NOT_AUTHORIZED');
+ // Explicit bots and webhooks cannot impersonate an authorised human author.
+ await runProbe(discordFetch([{
+   ...message(MSG2,'KINGS-EVENT-READ-TEST'),
+   author:{id:STAFF,bot:true}
+ }]).transport,'MESSAGE_TEST_NOT_FOUND');
+ await runProbe(discordFetch([{
+   ...message(MSG2,'KINGS-EVENT-READ-TEST'),
+   webhook_id:OUTSIDER,
+   author:{id:STAFF}
+ }]).transport,'MESSAGE_TEST_NOT_FOUND');
  await runProbe(discordFetch([
    message(MSG2,'KINGS-EVENT-READ-TEST')
  ],{staffRoles:[BOTROLE]}).transport,'MESSAGE_TEST_NOT_AUTHORIZED');
