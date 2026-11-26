@@ -249,6 +249,34 @@ const namedOperationalSystems=Object.freeze([
       'Successful roster polling does not prove a real promotion, departure or public Discord delivery',
       'Auxiliary public Staff update errors and protected-state retry scenarios require live operator follow-up',
       'No Staff team or CEO final acceptance is recorded'
+    ]},
+  {id:'LIVE_TRACKER_OFFICIAL',name:'Live Tracker — official map-independent operation',
+    workflow:'live-tracker.yml',
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('official_no_map_gate',
+        'Production workflow uses the official TruckersMP source by default and does not call the external player-map provider',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45905349148']),
+      item('source_to_discord_live',
+        'Real official VTC roster and server aggregates were published by updating all three existing Discord displays',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45905430735']),
+      item('separate_public_snapshot',
+        'Actual production run saved current non-personal official source data without rewriting older Kings player-map measurements',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45905430735']),
+      item('truthful_online_unavailability',
+        'Offline tests prohibit equating overall TruckersMP players with Kings Drivers currently online',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45905349148']),
+      item('official_health_separation',
+        'Read-only monitoring differentiates the verified map-free Tracker from full historical map-based Core status',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45905628464']),
+      item('monitor_post_deploy_live','Actual production monitoring artifact confirms the official map-free source verified and three displays delivered, while Core remains honestly UNHEALTHY',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45905733795']),
+      item('recurring_feed_resilience','Repeated official-only scheduled refresh and safe failure recovery are verified in production'),
+      item('operational_handover','Driver/Leadership operators review source limits, display accuracy and outage handling')
+    ]),
+    blockers:[
+      'Map-free operation succeeded in one real production run; ongoing scheduled stability and operating handover remain to be accepted',
+      'CEO final signoff has not been issued; map-derived per-player status is intentionally out of scope and never fabricated'
     ]}
 ].map(x=>Object.freeze(x)));
 const AREA_ORDER=Object.freeze([

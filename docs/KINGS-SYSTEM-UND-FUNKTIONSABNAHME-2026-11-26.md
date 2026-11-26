@@ -67,7 +67,7 @@ Die ausführbare Übersicht ist `kings-system-acceptance.js` und liest die **46*
 
 ## Fahrer und HR / Staff — zweite Einzelfunktionsabnahme
 
-**Vier zusätzliche, klar getrennte Betriebs-Workflows sind jetzt einzeln erfasst.** Damit sind fünf der 46 registrierten Workflows (einschließlich #18) formal bewertet, weiterhin **kein einziger vollständig abgenommen**. „Nicht bewertet“ bei den anderen 41 ist keine Ausfallmeldung. Die vollständige maschinenlesbare Funktionsliste und die acht Pflicht-Gates liegen in `kings-system-acceptance.js` unter `operationalSystems`.
+**Vier Fahrer-/HR-/Staff-Workflows und zusätzlich der kartenunabhängige Live Tracker sind nun einzeln erfasst.** Gemeinsam mit Event-System #18 sind **sechs von 46 registrierten Workflows** formal bewertet, weiterhin **kein einziger vollständig abgenommen**. „Nicht bewertet“ bei den anderen 40 ist keine Ausfallmeldung. Die maschinenlesbare Funktionsliste und acht Pflicht-Gates stehen in `kings-system-acceptance.js` unter `operationalSystems`.
 
 | System / zugehöriger Workflow | Nachweis im echten Betrieb | Offen bis zur Abnahme |
 |---|---|---|
@@ -89,6 +89,18 @@ Die ausführbare Übersicht ist `kings-system-acceptance.js` und liest die **46*
 - **Öffentliche Staff-Updates – verschlüsselte Veröffentlichungshistorie:** [PR #205](https://github.com/Stinkesocke107/kings-logistics-automation/pull/205) und [CI #45904297317](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45904297317) blockieren das stille Zurücksetzen bei kaputtem JSON, falscher Verschlüsselungsstruktur und ungültiger Deduplizierungs-Historie. Nur eine tatsächlich fehlende Datei erlaubt den ersten Start. Nach der Änderung war der [Staff-Management-Live-Lauf #45904393705](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45904393705) erfolgreich. Ein echter neuer Staff-Beitritt, eine Beförderung oder ein Austritt mit bestätigter Discord-Nachricht bleibt gesondert nachzuweisen.
 
 **Abnahmegrenze:** Dies sind **nachgewiesene technische Schutzfunktionen**, keine autorisierten echten Personalereignisse, keine Garantie dauerhaft funktionierender externer APIs und keine CEO-Abnahme. Die betroffenen Systeme bleiben `PARTIALLY_VERIFIED`. Der separat offene Live-Tracker-/Kartenprovider-Blocker wird nicht durch grüne HR-Tests behoben.
+
+## Live Tracker — kartenunabhängiger offizieller Betriebsmodus (Entscheidung 26.11.2026)
+
+**Neue verbindliche Produktabgrenzung:** Kings Live Tracker muss **keine Live Map mehr verwenden, verlinken oder von einem Kartenanbieter abhängig sein**. `.github/workflows/live-tracker.yml` stellt den Standardbetrieb auf `KINGS_TRACKER_SOURCE_MODE: 'official'` um. Die reguläre Aktualisierung kommt ausschließlich aus der öffentlichen offiziellen TruckersMP-API; die drei bestehenden Discord-Nachrichten für Live Tracker, Advanced Statistics und Central Overview werden aktualisiert, nicht neu dupliziert.
+
+- **Erfolgreiche echte Quell- und Anzeigeprüfung:** [Kings Live Systems #45905430735](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45905430735), **26.11.2026 um 22:32 UTC**. Der Karten-Trakker-Schritt wurde planmäßig **übersprungen**, der offizielle kartenfreie Schritt und alle drei bestehenden Discord-Nachrichten waren erfolgreich. Die gesicherte Git-Persistenz war erfolgreich.
+- **Tatsächlich gespeicherte offizielle Zahlen dieses Stichprobenzeitpunkts:** 110 Kings-VTC-Mitglieder, 1.509 TruckersMP-Spieler insgesamt (1.458 ETS2 / 51 ATS) auf 10 aktiven TMP-Servern. **Die 1.509 sind keine Kings-Online-Fahrer.**
+- **Eigene aktuelle Datenquelle:** `data/live-tracker-official.json` enthält ausschließlich neu geprüfte, nicht personenbezogene VTC-/Server-Aggregate und ausdrücklich `kingsOnline: null`. `data/live-tracker-snapshot.json` und die Kings-eigenen historischen Spieler-/Spitzenstatistiken werden nicht mit unbewiesenen Nullwerten oder globalen Spielern überschrieben.
+- **Monitor getrennt – jetzt auch live nachgewiesen:** [Monitoring-CI #45905628464](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45905628464) prüfte Quelle und Sicherheitsgrenzen. Die echte [Kings-System-Monitor-Ausführung #45905733795](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45905733795) speicherte einen Health-Report als GitHub-Artefakt. Dessen überprüftes Feld `data.officialTracker` meldet `mode: map-independent`, `status: verified`, `source: official-vtc-and-servers`, VTC 110 und `kingsOnline: null`; gleichzeitig blieb der Gesamtstatus korrekt `UNHEALTHY` (vier kritische Punkte wegen historischer Kartenstatistik und zwei externen Kartenprovidern). Damit ist die **erfolgreiche Erkennung im echten Monitor** belegt, ohne die anderen Core-Blocker zu verstecken.
+- **Noch offen für COMPLETE:** nachgewiesene regelmäßige Laufstabilität und Fehler-Recovery über mehrere Intervalle, Staff/Driver-Operations-Übergabe und abschließende CEO-Freigabe. Das nicht mehr gewünschte individuelle Karten-Tracking wird **nicht** wieder zur Pflichtvoraussetzung erklärt. Der ursprüngliche Systemverbund kann unabhängig davon weiterhin historische Core- oder Statistik-Warnungen zeigen.
+
+**Abnahme:** `LIVE_TRACKER_OFFICIAL` / Workflow `live-tracker.yml` = `PARTIALLY_VERIFIED`. Der neue offizielle Tracker arbeitet technisch bereits im Echtbetrieb; es gibt **keinen** fingierten Kings-Online-Wert und **keine** vorgezogene finale Systemfreigabe.
 
 ## Nächste Reihenfolge
 
