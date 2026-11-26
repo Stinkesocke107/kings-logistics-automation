@@ -199,3 +199,20 @@ Nach [PR #224](https://github.com/Stinkesocke107/kings-logistics-automation/pull
 - `event-leadership-reports.yml` hat jetzt einen eigens einzeln geprüften Quellen-/Integrationsteil. Die täglichen, wöchentlichen und monatlichen Berichtsauslieferungen benötigen weiterhin echte Perioden- und Discord-Zustellprüfungen.
 
 **Aktuelle Bilanz: 16/46 registrierte Workflows einzeln teilweise verifiziert, 30 noch nicht individuell bewertet, 0 vollständig freigegeben.** #17 Booking bleibt ausgeschlossen.
+
+
+## Weitere echte Teilfunktionsnachweise — 27. November 2026 (Automations, News, Driver)
+
+Der aktuelle Stand umfasst **sieben weitere** einzeln teilweise bewertete Workflows, jeweils mit realem GitHub-Produktionsnachweis und expliziten Grenzen:
+
+| Workflow | Positiver Produktionsbefund | Was damit NICHT bewiesen ist |
+|---|---|---|
+| `milestones.yml` | [#45911512791](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45911512791) hat die echte VTC-Mitgliederquelle und nächsten Milestone ausgewertet, **0** neue Ereignisse erkannt und keinen falschen Post versendet. | Veröffentlichung, Dubletten und Retry bei einem *neuen* Milestone. |
+| `news.yml` | [#45911292610](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45911292610) hat die echte News-API gelesen; kein neuer Artikel, **0** Nachrichten versandt. | Echte Veröffentlichung eines nächsten neuen Artikels und Fehlerwiederanlauf. |
+| `changelog.yml` | [#45911969613](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45911969613) fand eine leere Warteschlange und versandte nichts doppelt; [separates Discord-Content-Audit #45909350372](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45909350372) bestätigte den existierenden letzten Changelog-Post. | Neue Queue → frische Veröffentlichung → unabhängige Rückleseprüfung → Retry. |
+| `central-scheduler.yml` | [#45912098795](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45912098795) kontrollierte Zeitpläne und löste tatsächlich überfällige HR-/Staff-Polls aus. | Downstream-Personalergebnisse, vollständige Sperren-/Duplikatsicherheit und fehlgeschlagene Recovery-Kette. |
+| `self-healing.yml` | [#45908025405](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45908025405) meldete ehrlich `EXTERNAL-LIVE-DATA-BLOCKED`, hielt kritische Kartenfehler sichtbar und speicherte den technischen Zustand. | Reparatur des externen Providers, erfolgreiche andere echte technische Störungsbehebung und operativer Endtest. |
+| `probation.yml` | [#45905153729](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45905153729) prüfte echte Probezeitdaten, fand **0** fällige Erinnerungen und schrieb keine unnötigen Zustandsänderungen. | Eine *tatsächlich fällige* HR-Erinnerung, Originalentscheidung und sichere Statusübergabe. |
+| `news-production-verification.yml` | [#45906382475](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45906382475) bestätigte eine bereits früher verifizierte echte News-Publikation (Artikel 71252) und bestand die Deduplizierungs-/Sicherheitstests. | Unabhängige neue Veröffentlichung und Recovery bei aktueller Inhaltsabweichung. |
+
+**Neuer Umfang: 23 von 46 Workflows individuell teilverifiziert, weitere 23 noch nicht einzeln beurteilt, 0 komplett freigegeben.** Diese Ergebnisse sind reale technische Teilbelege, keine pauschale Funktionsabnahme; externes Kartenmonitoring bleibt kritisch und das Event-Booking-System #17 gestrichen.
