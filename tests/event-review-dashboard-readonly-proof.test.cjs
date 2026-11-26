@@ -5,7 +5,8 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {encryptEventState}=require('../event-leadership-state');
 const {renderReviewSummary}=require('../event-operations-manual-review-state');
-const {run,FIELD,TITLE,CHANNEL}=require('../event-review-dashboard-readonly-proof');
+const {renderInvitationDashboardSource}=require('../event-invitation-tracker-source');
+const {run,FIELD,INVITATION_FIELD,TITLE,CHANNEL}=require('../event-review-dashboard-readonly-proof');
 const NOW=Date.parse('2026-11-27T00:00:00.000Z');
 const SECRET='SYNTHETIC_PRIVATE_EVENT_TEST_SECRET_MORE_THAN_32_BYTES';
 const BOT='777777777777777771';
@@ -17,6 +18,8 @@ function state(){
 }
 function harness({
   rawState=state(),fieldValue=renderReviewSummary(rawState,NOW),
+  invitationValue=renderInvitationDashboardSource(rawState.invitationSourceObservation,NOW),
+  missingInvitation=false,duplicateInvitation=false,
   messageAuthor=BOT,channelId=CHANNEL,botId=BOT,
   plain=false,wrongMessage=false
 }={}){
@@ -40,7 +43,11 @@ function harness({
    if(url.endsWith('/channels/'+CHANNEL+'/messages/'+MESSAGE))
      return reply({id:wrongMessage?BOT:MESSAGE,channel_id:channelId,
        author:{id:messageAuthor,bot:true},
-       embeds:[{title:TITLE,fields:[{name:FIELD,value:fieldValue}]}]});
+       embeds:[{title:TITLE,fields:[
+         {name:FIELD,value:fieldValue},
+         ...(!missingInvitation?[{name:INVITATION_FIELD,value:invitationValue}]:[]),
+         ...(duplicateInvitation?[{name:INVITATION_FIELD,value:invitationValue}]:[])
+       ]}]});
    throw Error('Unexpected synthetic network request');
  };
  const env={DRIVER_STATE_KEY:SECRET,DISCORD_BOT_TOKEN:'SYNTHETIC_BOT_TOKEN'};
@@ -97,4 +104,44 @@ test('dashboard workflow checks private journal only after actual publication an
  assert.match(workflow,/DISCORD_BOT_TOKEN:/);
  const worker=fs.readFileSync(path.join(__dirname,'../event-review-dashboard-readonly-proof.js'),'utf8');
  assert.doesNotMatch(worker,/method:['"](?:POST|PATCH|DELETE)['"]/);
+});
+
+test('Invitation Tracker must match same encrypted source and exact stored Discord message',async()=>{
+ const h=harness();
+ assert.equal((await run({...h,nowMs:NOW})).status,'VERIFIED');
+ for(const invalid of [
+   harness({invitationValue:'Old invitation inventory'}),
+   harness({missingInvitation:true}),
+   harness({duplicateInvitation:true})
+ ])await assert.rejects(()=>run({...invalid,nowMs:NOW}),/unverified/i);
+});
+
+test('fresh private Invitation Tracker source changes require the actual dashboard to refresh',async()=>{
+ const make=(invitedVtcs,stamp=NOW)=>({
+   version:1,readOnly:true,sourceForumVerified:true,
+   tagSchemaVerified:true,invitationDecisionsVerified:false,
+   staffApprovalsVerified:false,bookingsCreated:0,
+   observedAt:new Date(stamp).toISOString(),
+   convoyThreads:1,invitedVtcs,ongoingThreads:1,doneThreads:0,
+   completedThreads:0,tagIssues:0,malformedReplies:0,
+   duplicateVtcReplies:0,eventLinksRecorded:1,eventLinksMissing:0,
+   duplicateConvoyEvents:0,linkedToCenter:1,recordedAccepted:0,
+   recordedDeclined:0,recordedPending:0,replyNotRecorded:invitedVtcs
+ });
+ const previous=state();
+ previous.invitationSourceObservation=make(1);
+ const updated=state();
+ updated.invitationSourceObservation=make(2);
+ const previouslyPublished=renderInvitationDashboardSource(
+   previous.invitationSourceObservation,NOW);
+ assert.match(previouslyPublished,/unique VTC invites \*\*1\*\*/);
+ const old=harness({rawState:updated,invitationValue:previouslyPublished});
+ await assert.rejects(()=>run({...old,nowMs:NOW}),/unverified/i);
+ const published=harness({rawState:updated});
+ const result=await run({...published,nowMs:NOW});
+ assert.equal(result.status,'VERIFIED');
+ assert.equal(result.staffCommandsExecuted,0);
+ assert.equal(result.discordWrites,0);
+ assert.equal(result.originalStaffApprovalsVerified,false);
+ assert.doesNotMatch(JSON.stringify(result),/777777777777|invitedVtcs/);
 });
