@@ -389,3 +389,80 @@ test('invitation rows without a human author or posted by a webhook are never co
   assert.equal(trustedInvitationObservation(x,NOW),x);
   assert.doesNotMatch(JSON.stringify(x),/40404|555555555555555551|555555555555555552/);
 });
+
+test('duplicate active and archived Invitation forum identities fail closed instead of silently overwriting',async()=>{
+  const f=fixture();
+  const calls=[];
+  const transport=async url=>{
+    calls.push(url);
+    if(url.endsWith('/channels/'+FORUM))return Response.json(f.forum);
+    if(url.endsWith('/guilds/'+GUILD+'/threads/active'))
+      return Response.json({threads:f.threads});
+    if(url.includes('/channels/'+FORUM+'/threads/archived/public?'))
+      return Response.json({threads:[{...f.threads[0],
+        applied_tags:[tags[2]]}],has_more:false});
+    throw Error('Private messages must not be requested on inconsistent source');
+  };
+  await assert.rejects(()=>readInvitationTracker({
+    token:'synthetic-test-bot-token-not-a-secret',transport,nowMs:NOW
+  }),e=>e.sourceReason==='SOURCE_INCONSISTENT');
+  assert.equal(calls.some(x=>x.includes('/messages?')),false);
+});
+
+test('archives with a repeated thread on a later page fail before reading invitation messages',async()=>{
+  const f=fixture();
+  let page=0;
+  const transport=async url=>{
+    if(url.endsWith('/channels/'+FORUM))return Response.json(f.forum);
+    if(url.endsWith('/guilds/'+GUILD+'/threads/active'))
+      return Response.json({threads:[]});
+    if(url.includes('/channels/'+FORUM+'/threads/archived/public?')){
+      page++;
+      const row={...f.threads[0],thread_metadata:{
+        archive_timestamp:'2026-11-24T08:00:00.000Z'
+      }};
+      return Response.json({threads:[row],has_more:page===1});
+    }
+    throw Error('Messages must not be read for repeated archived pages');
+  };
+  await assert.rejects(()=>readInvitationTracker({
+    token:'synthetic-test-bot-token-not-a-secret',transport,nowMs:NOW
+  }),e=>e.sourceReason==='SOURCE_INCONSISTENT');
+  assert.equal(page,2);
+});
+
+test('archive pagination cursor must move backward in UTC, never forward or repeat',async()=>{
+  const f=fixture();
+  let page=0;
+  const transport=async url=>{
+    if(url.endsWith('/channels/'+FORUM))return Response.json(f.forum);
+    if(url.endsWith('/guilds/'+GUILD+'/threads/active'))
+      return Response.json({threads:[]});
+    if(url.includes('/channels/'+FORUM+'/threads/archived/public?')){
+      page++;
+      const next=page===1?'2026-11-24T08:00:00.000Z':
+        '2026-11-25T08:00:00.000Z';
+      const row={...f.threads[page],thread_metadata:{archive_timestamp:next}};
+      return Response.json({threads:[row],has_more:true});
+    }
+    throw Error('Messages must not be read on nondecreasing archived cursor');
+  };
+  await assert.rejects(()=>readInvitationTracker({
+    token:'synthetic-test-bot-token-not-a-secret',transport,nowMs:NOW
+  }),e=>e.sourceReason==='ARCHIVE_PAGE_INCOMPLETE');
+  assert.equal(page,2);
+});
+
+test('unverified lifecycle mapping cannot be laundered into certified status counters',()=>{
+  const f=fixture();
+  f.forum.available_tags=[{id:tags[0],name:'Unapproved name'}];
+  const observation=summarizeTracker(f);
+  assert.equal(observation.tagSchemaVerified,false);
+  assert.equal(observation.tagIssues,observation.convoyThreads);
+  assert.equal(trustedInvitationObservation({
+    ...observation,ongoingThreads:1,tagIssues:observation.tagIssues-1
+  },NOW),null);
+  assert.equal(trustedInvitationObservation(observation,NOW),observation);
+  assert.equal(observation.invitationDecisionsVerified,false);
+  assert.equal(observation.bookingsCreated,0);
+});
