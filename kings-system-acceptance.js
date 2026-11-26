@@ -285,6 +285,39 @@ const namedOperationalSystems=Object.freeze([
       'Official outage fallback has succeeded in production; actual full-map automatic restoration is not yet confirmed against a recovered provider',
       'Repeated scheduled dual-mode stability and operator handover remain open',
       'CEO final signoff has not been issued; map-derived per-player status is intentionally out of scope and never fabricated'
+    ]},
+  {id:'BACKUP_RECOVERY',name:'Backup & Recovery — complete source and isolated roundtrip',
+    workflow:'backup-recovery-verification.yml',
+    gates:fullGateList({
+      implementation:[EVIDENCE_ROOT+'pull/220'],
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45909939222'],
+      security:[EVIDENCE_ROOT+'pull/220',
+        EVIDENCE_ROOT+'actions/runs/45909939222']
+    }),
+    capabilities:Object.freeze([
+      item('full_current_source_coverage',
+        'The backup includes current automation scripts, all 46 workflow sources, tests, docs, protected data files and required operator procedures',VERIFIED,
+        [EVIDENCE_ROOT+'pull/220',EVIDENCE_ROOT+'actions/runs/45910026083']),
+      item('isolated_full_archive_roundtrip',
+        'A real isolated production verification restored all 441 manifest files, without touching the live repo, and removed its disposable sandbox',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910026083']),
+      item('restored_sha256_integrity',
+        'Every one of the 441 restored files passed individual SHA-256 comparison; all 48 critical source files were present',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910026083']),
+      item('secret_and_symlink_exclusions',
+        'Repo symlinks are not followed and environment/private key paths are excluded from published backup collection',VERIFIED,
+        [EVIDENCE_ROOT+'pull/220',EVIDENCE_ROOT+'actions/runs/45909939222']),
+      item('actual_disaster_recovery',
+        'A real controlled disaster-recovery scenario and cross-service return to service are independently verified'),
+      item('private_key_recovery_handover',
+        'Authorized operator verifies protected key custody, restore prerequisites and revocation procedure without exposing keys'),
+      item('backup_operations_signoff',
+        'Owner and responsible operators validate backup rotation, retention and production restoration playbook')
+    ]),
+    blockers:[
+      'A successful disposable isolated restore is not proof of a real production disaster recovery or full external-service restoration',
+      'Secret/key custody and a runbook for personnel-authorized live restore still need operator verification',
+      'Formal CEO final acceptance has not been recorded'
     ]}
 ].map(x=>Object.freeze(x)));
 const AREA_ORDER=Object.freeze([
