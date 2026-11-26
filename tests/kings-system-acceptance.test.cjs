@@ -19,10 +19,10 @@ test('every live Kings workflow appears exactly once in the acceptance overview'
  assert.ok(s.excluded.some(x=>x.startsWith('17')));
  assert.equal(files.includes('17'),false);
  assert.equal(files.includes('18'),true);
- assert.equal(s.assessedWorkflows,6);
- assert.equal(s.operationalSystems.length,5);
+ assert.equal(s.assessedWorkflows,7);
+ assert.equal(s.operationalSystems.length,6);
  assert.deepEqual(s.operationalSystems.map(x=>x.id),[
-   'DRIVER_UPDATES','DRIVER_MANAGEMENT','HR_PROBATION','STAFF_MANAGEMENT','LIVE_TRACKER_OFFICIAL'
+   'DRIVER_UPDATES','DRIVER_MANAGEMENT','HR_PROBATION','STAFF_MANAGEMENT','LIVE_TRACKER_OFFICIAL','BACKUP_RECOVERY'
  ]);
  assertAcceptance();
 });
@@ -33,7 +33,6 @@ test('a successful workflow or many offline tests never grant full System #18 ac
  assert.ok(event.capabilities.some(x=>x.id==='encrypted_journal'&&x.state===VERIFIED));
  assert.ok(event.capabilities.some(x=>x.id==='dashboard_readback_verified'&&x.state===VERIFIED));
  assert.ok(event.capabilities.some(x=>x.id==='current_encrypted_review_dashboard_live'&&x.state===VERIFIED));
- assert.ok(event.capabilities.some(x=>x.id==='refresh_after_new_review'&&x.state===PENDING));
  assert.ok(event.capabilities.some(x=>x.id==='refresh_after_new_review'&&x.state===PENDING));
  assert.ok(event.capabilities.some(x=>x.id==='operator_handover'&&x.state===PENDING));
  assert.ok(event.capabilities.some(x=>x.id==='webhook_timeout_guard'&&x.state===VERIFIED));
@@ -157,7 +156,7 @@ test('new HR role, LOA pagination and Staff dedupe safety proof is recorded with
     assert.ok(item.gates.some(g=>g.id==='real_world_e2e'&&g.state===PENDING));
     assert.ok(item.gates.some(g=>g.id==='owner_signoff'&&g.state===PENDING));
   }
-  assert.equal(s.assessedWorkflows,6);
+  assert.equal(s.assessedWorkflows,7);
   assert.equal(s.completeWorkflows,0);
 });
 
@@ -186,5 +185,29 @@ test('Kings Auto Tracker preserves verified official fallback but cannot claim r
   assert.ok(tracker.blockers.length>=2);
   assert.equal(s.areas.find(x=>x.name==='Live Data').acceptance,'PARTIALLY_VERIFIED');
   assert.equal(s.completeWorkflows,0);
-  assert.equal(s.assessedWorkflows,6);
+  assert.equal(s.assessedWorkflows,7);
+});
+
+test('real 441-file isolated backup restoration is evidenced but real production recovery stays pending',()=>{
+ const s=snapshot(),backup=s.operationalSystems.find(x=>x.id==='BACKUP_RECOVERY');
+ assert.ok(backup);
+ assert.equal(backup.workflow,'backup-recovery-verification.yml');
+ assert.equal(backup.acceptance,'PARTIALLY_VERIFIED');
+ assert.equal(backup.ownerApproval,null);
+ for(const id of [
+   'full_current_source_coverage','isolated_full_archive_roundtrip',
+   'restored_sha256_integrity','secret_and_symlink_exclusions'
+ ]){
+   const verified=backup.capabilities.find(x=>x.id===id);
+   assert.equal(verified?.state,VERIFIED,id);
+   assert.ok(verified.evidence.length>0,id);
+ }
+ for(const id of ['actual_disaster_recovery','private_key_recovery_handover',
+   'backup_operations_signoff']){
+   assert.equal(backup.capabilities.find(x=>x.id===id)?.state,PENDING,id);
+ }
+ assert.equal(backup.gates.find(x=>x.id==='real_world_e2e').state,PENDING);
+ assert.equal(backup.gates.find(x=>x.id==='owner_signoff').state,PENDING);
+ assert.equal(s.areas.find(x=>x.name==='Backup').acceptance,'PARTIALLY_VERIFIED');
+ assert.equal(s.completeWorkflows,0);
 });
