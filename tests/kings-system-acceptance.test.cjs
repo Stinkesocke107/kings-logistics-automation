@@ -168,13 +168,13 @@ test('official Kings Tracker is independently accepted only as partially verifie
   assert.equal(tracker.ownerApproval,null);
   for(const id of ['official_no_map_gate','source_to_discord_live',
     'separate_public_snapshot','truthful_online_unavailability',
-    'official_health_separation']){
+    'official_health_separation','monitor_post_deploy_live']){
     const feature=tracker.capabilities.find(x=>x.id===id);
     assert.ok(feature,id);
     assert.equal(feature.state,VERIFIED);
     assert.ok(feature.evidence.some(x=>x.startsWith(ROOT+'actions/runs/')));
   }
-  for(const id of ['monitor_post_deploy_live','recurring_feed_resilience','operational_handover']){
+  for(const id of ['recurring_feed_resilience','operational_handover']){
     const feature=tracker.capabilities.find(x=>x.id===id);
     assert.ok(feature,id);
     assert.equal(feature.state,PENDING);
