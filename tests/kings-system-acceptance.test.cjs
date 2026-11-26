@@ -156,7 +156,7 @@ test('new HR role, LOA pagination and Staff dedupe safety proof is recorded with
     assert.ok(item.gates.some(g=>g.id==='real_world_e2e'&&g.state===PENDING));
     assert.ok(item.gates.some(g=>g.id==='owner_signoff'&&g.state===PENDING));
   }
-  assert.equal(s.assessedWorkflows,6);
+  assert.equal(s.assessedWorkflows,7);
   assert.equal(s.completeWorkflows,0);
 });
 
@@ -185,7 +185,7 @@ test('Kings Auto Tracker preserves verified official fallback but cannot claim r
   assert.ok(tracker.blockers.length>=2);
   assert.equal(s.areas.find(x=>x.name==='Live Data').acceptance,'PARTIALLY_VERIFIED');
   assert.equal(s.completeWorkflows,0);
-  assert.equal(s.assessedWorkflows,6);
+  assert.equal(s.assessedWorkflows,7);
 });
 
 test('real 441-file isolated backup restoration is evidenced but real production recovery stays pending',()=>{
