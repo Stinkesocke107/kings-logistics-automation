@@ -276,7 +276,6 @@ const namedOperationalSystems=Object.freeze([
     ]),
     blockers:[
       'Map-free operation succeeded in one real production run; ongoing scheduled stability and operating handover remain to be accepted',
-      'Independent historical map-only Statistics and Core readiness remain separately unresolved; these are not a prerequisite for truthful official-only Tracker operation',
       'CEO final signoff has not been issued; map-derived per-player status is intentionally out of scope and never fabricated'
     ]}
 ].map(x=>Object.freeze(x)));
