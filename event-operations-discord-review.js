@@ -3,7 +3,7 @@
 // Only the AES-GCM Event Leadership state and encrypted replay cursor change.
 const fs=require('node:fs'),path=require('node:path');
 const {decryptEventState,encryptEventState}=require('./event-leadership-state');
-const {roleIdsFromSecret,ingest,preflight}=require('./event-operations-discord-review-source');
+const {roleIdsFromSecret,ingest,preflight,SAFE_PREFLIGHT_CODES}=require('./event-operations-discord-review-source');
 const STATE=path.join(__dirname,'data/event-leadership-report-state.json');
 async function run({env=process.env,read=fs.readFileSync,
   write=fs.writeFileSync,transport=fetch,nowMs=Date.now()}={}){
@@ -46,10 +46,14 @@ async function main(){
     const result=await run();
     console.log('Kings Event Operations Discord: '+result.status);
     return result;
-  }catch{
-    // Public GitHub logs must never contain private channel, role, author,
-    // raw command, issue month, token, encrypted state or source IDs.
-    console.error('Kings Event Operations Discord: SOURCE_UNAVAILABLE');
+  }catch(error){
+    // Public logs may include a fixed, identifier-free failure category
+    // ONLY in read-only VERIFY_ONLY mode. Never print the raw exception,
+    // Discord URL/body, IDs, token or Event-state data.
+    const category=process.env.KINGS_EVENT_DISCORD_REVIEW_ENABLED==='VERIFY_ONLY'&&
+      SAFE_PREFLIGHT_CODES.has(error?.preflightCode)?
+      ' ['+error.preflightCode+']':'';
+    console.error('Kings Event Operations Discord: SOURCE_UNAVAILABLE'+category);
     process.exitCode=1;
     return Object.freeze({status:'SOURCE_UNAVAILABLE',
       changed:false,readOnlyDiscord:true,discordWrites:0});
