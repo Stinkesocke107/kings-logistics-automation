@@ -3,6 +3,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {snapshot}=require('../kings-system-acceptance');
 const {WORKFLOW_REGISTRY}=require('../kings-workflow-registry');
+const {individualCloseoutRequirements}=require('../kings-workflow-closeout-requirements');
 const {buildOpenWork,renderMarkdown}=require('../kings-system-open-work');
 
 test('completion audit inventories every workflow without reporting synthetic approval',()=>{
@@ -58,4 +59,29 @@ test('registry drift, missing workflows or forged complete status cause a hard f
   const forged={...s,eventSystems:s.eventSystems.map(x=>
     x.id==='18'?{...x,acceptance:'COMPLETE'}:x)};
   assert.throws(()=>buildOpenWork(forged),/cannot be marked COMPLETE/);
+});
+
+test('all 46 workflows have individual explicit open evidence, not inferred signoff',()=>{
+  const requirements=individualCloseoutRequirements();
+  const rows=buildOpenWork().allWorkflows;
+  assert.equal(Object.keys(requirements).length,46);
+  assert.equal(rows.length,46);
+  for(const w of rows){
+    assert.deepEqual(w.requirements,requirements[w.file]);
+    assert.equal(w.requirements.length,2,w.file);
+    assert.ok(w.requirements.every(x=>typeof x==='string'&&x.trim().length>20),w.file);
+  }
+  const markdown=renderMarkdown();
+  for(const w of rows)assert.ok(markdown.includes('(`'+w.file+'`)'),w.file);
+  assert.match(markdown,/All 46 workflows — individual outstanding closeout evidence/);
+  assert.throws(()=>individualCloseoutRequirements(WORKFLOW_REGISTRY.slice(1)),/inventory mismatch/);
+  assert.throws(()=>individualCloseoutRequirements([...WORKFLOW_REGISTRY.slice(0,-1),WORKFLOW_REGISTRY[0]]),
+    /Missing individual Kings workflow review/);
+});
+
+test('open work asOf is generated from UTC date, never fixed to a prior audit day',()=>{
+  assert.equal(buildOpenWork(snapshot(),WORKFLOW_REGISTRY,'2030-01-05T23:45:00-05:00').asOf,'2030-01-06');
+  assert.match(renderMarkdown(buildOpenWork(snapshot(),WORKFLOW_REGISTRY,'2030-01-05T23:45:00-05:00')),
+    /Report generated \(UTC\): 2030-01-06/);
+  assert.throws(()=>buildOpenWork(snapshot(),WORKFLOW_REGISTRY,'not-a-date'),/Invalid Kings closeout report date/);
 });
