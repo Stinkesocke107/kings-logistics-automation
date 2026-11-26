@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-26T19:52:06.196Z",
+  "updatedAt": "2026-11-26T21:25:29.021Z",
   "currentDrivers": 110,
   "onlineNow": null,
   "onlineObservationStatus": "unavailable",
@@ -20,8 +20,8 @@
   },
   "tenure": {
     "known": 110,
-    "under1Month": 6,
-    "oneToThreeMonths": 5,
+    "under1Month": 5,
+    "oneToThreeMonths": 6,
     "threeToSixMonths": 29,
     "sixToTwelveMonths": 35,
     "oneToTwoYears": 27,
