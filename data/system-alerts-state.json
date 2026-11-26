@@ -53,27 +53,6 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "workflow-failed:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure.",
-      "details": {
-        "runId": 45787012456,
-        "completedAt": "2026-11-26T08:55:53Z"
-      },
-      "firstAlertedAt": "2026-11-26T10:49:38.532Z"
-    },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 540
-      },
-      "firstAlertedAt": "2026-11-26T10:49:38.532Z"
-    },
     "workflow-schedule-late:driver-register-onboarding.yml": {
       "severity": "warning",
       "system": "Driver Registration Onboarding",
