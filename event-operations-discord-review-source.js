@@ -24,6 +24,7 @@ const SAFE_PREFLIGHT_CODES=new Set([
   'CONFIG_INVALID','CHANNEL_UNAVAILABLE','GUILD_ROLES_UNAVAILABLE',
   'BOT_AUTH_UNAVAILABLE','BOT_MEMBER_UNAVAILABLE',
   'CHANNEL_METADATA_INVALID','ROLE_POLICY_INVALID',
+  'ROLE_MISSING','ROLE_NAME_MISMATCH','ROLE_UNEXPECTED_ADMIN',
   'CHANNEL_PRIVATE_POLICY_INVALID','ROLE_ACCESS_INVALID'
 ]);
 function reject(code){
@@ -56,11 +57,12 @@ function validatePrivateChannel({channel,roles,bot,botMember,allowedRoles,channe
     reject('ROLE_POLICY_INVALID');
   for(const id of allowedRoles){
     const role=roleById.get(id);
-    // CEO has the server Administrator permission and legitimately bypasses
-    // channel overwrites. No other configured Event command role may be Admin.
-    if(!role||!STAFF_NAMES.has(role.name)||
-      (has(role.permissions,ADMIN)&&role.name!=='CEO'))
-      reject('ROLE_POLICY_INVALID');
+    // Keep the underlying role ID private; only fixed, safe diagnostics.
+    // CEO may be Administrator; a non-CEO Admin role requires owner review.
+    if(!role)reject('ROLE_MISSING');
+    if(!STAFF_NAMES.has(role.name))reject('ROLE_NAME_MISMATCH');
+    if(has(role.permissions,ADMIN)&&role.name!=='CEO')
+      reject('ROLE_UNEXPECTED_ADMIN');
   }
   const overrides=channel.permission_overwrites;
   const everyone=overrides.filter(x=>x.id===GUILD&&x.type===0);
