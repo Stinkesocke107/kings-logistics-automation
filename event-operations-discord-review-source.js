@@ -103,6 +103,44 @@ function getMessageIds(messages,cursor,channelId){
   }
   return messages.filter(m=>BigInt(m.id)>BigInt(cursor));
 }
+// Shared, strictly GET-only Discord source access for both the review
+// worker and its metadata-only opt-in preflight. No Event data is returned.
+function readOnlyGet(transport,token){
+  if(typeof transport!=='function'||typeof token!=='string'||!token)reject();
+  return async function get(route){
+    const response=await transport(API+route,{
+      method:'GET',headers:{Authorization:'Bot '+token}
+    });
+    if(!response||!response.ok)reject();
+    return response.json();
+  };
+}
+async function verifySourceConfiguration(get,channelId,staffRoleIds){
+  if(typeof get!=='function'||!ID.test(channelId)||
+    !Array.isArray(staffRoleIds)||staffRoleIds.length<1||
+    staffRoleIds.length>8||staffRoleIds.some(id=>!ID.test(id))||
+    new Set(staffRoleIds).size!==staffRoleIds.length)reject();
+  const [channel,roles,bot]=await Promise.all([
+    get('/channels/'+channelId),
+    get('/guilds/'+GUILD+'/roles'),
+    get('/users/@me')
+  ]);
+  if(!ID.test(String(bot?.id||'')))reject();
+  const botMember=await get('/guilds/'+GUILD+'/members/'+bot.id);
+  return validatePrivateChannel({
+    channel,roles,bot,botMember,allowedRoles:staffRoleIds,channelId
+  });
+}
+// Owners can inspect access before activation without reading command
+// history, opening the Event state, advancing a cursor, or writing Discord.
+async function preflight({token,channelId,staffRoleIds,transport=fetch}={}){
+  const get=readOnlyGet(transport,token);
+  await verifySourceConfiguration(get,channelId,staffRoleIds);
+  return Object.freeze({
+    status:'SOURCE_PRIVACY_VERIFIED',changed:false,
+    readOnlyDiscord:true,discordWrites:0
+  });
+}
 async function ingest({state,secret,token,channelId,staffRoleIds,
   transport=fetch,nowMs=Date.now()}={}){
   if(!state||typeof state!=='object'||!ID.test(channelId)||
@@ -111,26 +149,10 @@ async function ingest({state,secret,token,channelId,staffRoleIds,
     typeof token!=='string'||!token||
     !Number.isSafeInteger(nowMs)||nowMs<=0||
     typeof secret!=='string'||secret.length<32)reject();
-  async function get(route){
-    const url=API+route;
-    const response=await transport(url,{
-      method:'GET',headers:{Authorization:'Bot '+token}
-    });
-    if(!response||!response.ok)reject();
-    return response.json();
-  }
-  // Always revalidate channel privacy and the real Discord member roles,
-  // not claimed usernames, message mentions, or a public user-supplied role.
-  const [channel,roles,bot]=await Promise.all([
-    get('/channels/'+channelId),
-    get('/guilds/'+GUILD+'/roles'),
-    get('/users/@me')
-  ]);
-  if(!ID.test(String(bot?.id||'')))reject();
-  const botMember=await get('/guilds/'+GUILD+'/members/'+bot.id);
-  validatePrivateChannel({
-    channel,roles,bot,botMember,allowedRoles:staffRoleIds,channelId
-  });
+  const get=readOnlyGet(transport,token);
+  // Always revalidate live channel privacy and Guild role membership before
+  // reading commands; VERIFY_ONLY shares this exact authorization gate.
+  await verifySourceConfiguration(get,channelId,staffRoleIds);
   const originalCursor=initializedCursor(state);
   const messages=[];
   let before=null,done=false;
@@ -200,5 +222,5 @@ async function ingest({state,secret,token,channelId,staffRoleIds,
 }
 module.exports={
   GUILD,ID,roleIdsFromSecret,validatePrivateChannel,parseCommand,
-  ingest,MAX_PAGES,MAX_COMMANDS
+  ingest,preflight,MAX_PAGES,MAX_COMMANDS
 };
