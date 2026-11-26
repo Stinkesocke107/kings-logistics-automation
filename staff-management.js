@@ -62,7 +62,9 @@ function readJson(file, fallback = null) {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
   } catch {
-    return fallback;
+    // Existing encrypted State and public summary must NEVER be replaced by
+    // an empty baseline merely because a disk snapshot is damaged.
+    throw new Error('Kings Staff Management persisted JSON invalid; refusing to reset existing state.');
   }
 }
 
@@ -380,9 +382,18 @@ function currentStaffRoster(members, staffRoles) {
 }
 
 function loadState() {
+  // Missing state permits first-run bootstrap, but malformed existing state
+  // must block every roster change, alert and replacement write.
+  if (!fs.existsSync(STATE_FILE)) return null;
   const container = readJson(STATE_FILE, null);
-  if (!container) return null;
-  return decryptState(container);
+  if (!container || container.encrypted !== true ||
+      container.algorithm !== 'aes-256-gcm')
+    throw new Error('Kings Staff Management encrypted state invalid; refusing to reset existing state.');
+  const state = decryptState(container);
+  if (!state || state.version !== 1 || state.mode !== 'advisory-only' ||
+      !Array.isArray(state.staff) || !Array.isArray(state.history))
+    throw new Error('Kings Staff Management state schema invalid; refusing to reset existing state.');
+  return state;
 }
 
 function sameStringArray(a, b) {
