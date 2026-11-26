@@ -31,6 +31,7 @@ test('a successful workflow or many offline tests never grant full System #18 ac
  assert.ok(event.capabilities.some(x=>x.id==='operator_handover'&&x.state===PENDING));
  assert.ok(event.capabilities.some(x=>x.id==='webhook_timeout_guard'&&x.state===VERIFIED));
  assert.ok(event.capabilities.some(x=>x.id==='scheduler_recovery_guard'&&x.state===VERIFIED));
+ assert.ok(event.capabilities.some(x=>x.id==='scheduler_live_recovery'&&x.state===VERIFIED));
  assert.ok(event.blockers.length>0);
  const capacity=s.eventSystems.find(x=>x.id==='12');
  assert.equal(capacity.acceptance,'PARTIALLY_VERIFIED');
