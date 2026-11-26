@@ -137,7 +137,7 @@ async function preflight({token,channelId,staffRoleIds,transport=fetch}={}){
   const get=readOnlyGet(transport,token);
   await verifySourceConfiguration(get,channelId,staffRoleIds);
   return Object.freeze({
-    status:'SOURCE_PRIVACY_VERIFIED',changed:false,
+    status:'SOURCE_METADATA_CHECKED',changed:false,
     readOnlyDiscord:true,discordWrites:0
   });
 }
