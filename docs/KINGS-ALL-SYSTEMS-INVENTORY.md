@@ -50,7 +50,7 @@ Stand: 26. November 2026. Dieses Dokument deckt **jede derzeit im Kings-GitHub-R
 | `convoy-announcement-verifier.yml` | Automatisch | 180 Min. (Warnung) |
 | `convoy-checker.yml` | Automatisch | 45 Min. (kritisch) |
 | `event-operations-manual-review.yml` | Nur manuell | Keine zeitgesteuerte Frist |
-| `event-operations-discord-review.yml` | Automatisch, standardmäßig deaktiviert | 10 Min. Prüftakt nur nach privater Freigabe; keine Eventänderung |
+| `event-operations-discord-review.yml` | Automatisch | Standardmäßig deaktiviert; 10 Min. Prüftakt nur nach privater Freigabe; keine Eventänderung |
 | `legacy-convoy-import.yml` | Nur manuell | Keine zeitgesteuerte Frist |
 
 ### Drivers
