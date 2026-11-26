@@ -63,6 +63,41 @@ jobs:
           console.log(`Restored JSON verified: ${restore.summary.restoredJsonVerified}`);
           NODE
 
+      - name: Verify essential automation sources, tests and procedures are actually restorable
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs'),crypto=require('node:crypto'),path=require('node:path');
+          const manifest=JSON.parse(fs.readFileSync('backup-staging/backup-manifest.json','utf8'));
+          const restore=JSON.parse(fs.readFileSync('backup-staging/backup-restore-verification.json','utf8'));
+          const recorded=new Map((manifest.files||[]).map(x=>[x.path,x]));
+          const required=[
+            'scripts/git-safe-push.sh',
+            'scripts/migrate-event-leadership-state.js',
+            'tests/sandbox.cjs',
+            'tests/all-kings-workflows.test.cjs',
+            'docs/KINGS-ALL-SYSTEMS-INVENTORY.md',
+            'docs/KINGS-SYSTEM-UND-FUNKTIONSABNAHME-2026-11-26.md',
+            'kings-system-acceptance.js',
+            'event-review-dashboard-readonly-proof.js'
+          ];
+          if(restore.healthy!==true||restore.summary.manifestFiles!==restore.summary.restoredFiles||
+             restore.summary.manifestFiles!==restore.summary.checksumsVerified)
+            throw Error('Kings restored archive does not match original manifest');
+          for(const name of required){
+            const row=recorded.get(name);
+            if(!row||!/^\d+$/.test(String(row.size))||
+               !/^[a-f0-9]{64}$/.test(String(row.sha256||'')))
+              throw Error('Required Kings recovery component missing from the backup manifest');
+            const file=path.join('backup-staging',name);
+            const bytes=fs.readFileSync(file);
+            if(bytes.length!==row.size||
+               crypto.createHash('sha256').update(bytes).digest('hex')!==row.sha256)
+              throw Error('A required Kings recovery component is not intact');
+          }
+          console.log('All essential Kings scripts, tests and operator docs included and restored with SHA-256 proof.');
+          NODE
+
       - name: Verify disposable restore sandbox was removed
         shell: bash
         run: |
