@@ -30,6 +30,8 @@ on:
       - 'event-history-review-agenda.js'
       - 'event-capacity-pilot-source.js'
       - 'event-capacity-real-source-preview.js'
+      - 'event-operations-manual-review-state.js'
+      - 'event-operations-manual-review.js'
       - 'convoy-planning-limits.js'
       - '.github/workflows/event-leadership-reports.yml'
 
@@ -76,6 +78,8 @@ jobs:
           node --check event-invitation-tracker-source.js
           node --check event-history-real-source-preview.js
           node --check event-capacity-real-source-preview.js
+          node --check event-operations-manual-review-state.js
+          node --check event-operations-manual-review.js
           node --check scripts/migrate-event-leadership-state.js
 
       # Strict read-only operational proof of the newly connected systems.
