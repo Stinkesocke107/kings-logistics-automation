@@ -87,6 +87,7 @@ function trustedRecords(records){
     const key=keyOf(rec.scope,rec.code,rec.month);
     if(rec.key!==key||seen.has(key))fail();
     seen.add(key);
+    let precedingAt=Date.parse(rec.createdAt);
     for(const step of rec.audit){
       if(!step||Array.isArray(step)||typeof step!=='object'||
         Object.keys(step).sort().join(',')!==
@@ -95,7 +96,11 @@ function trustedRecords(records){
         !validTime(step.at)||!Object.hasOwn(ACTIONS,step.action)||
         ACTIONS[step.action]!==step.status||
         !EVIDENCE.includes(step.evidenceKind))fail();
+      const at=Date.parse(step.at);
+      if(at<precedingAt||at>Date.parse(rec.updatedAt))fail();
+      precedingAt=at;
     }
+    if(rec.evidenceKind!==rec.audit[rec.audit.length-1].evidenceKind)fail();
   }
   return records;
 }
@@ -132,6 +137,9 @@ function applyManualReview({state,scope,code,month=null,action,
   if(action==='record_check'&&(!stillCurrent||
     old.status!=='IN_REVIEW'))fail();
   if(action==='reopen'&&(!old||old.status==='OPEN'))fail();
+  // Preserve a completed human evidence check until an explicit reopen.
+  // A second start cannot silently erase this status in the dashboard.
+  if(action==='start'&&old?.status==='STAFF_CHECK_RECORDED')fail();
   if((action==='block'||action==='start')&&
     old?.status===ACTIONS[action]&&stillCurrent)fail();
   const status=ACTIONS[action];
