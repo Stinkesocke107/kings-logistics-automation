@@ -270,7 +270,14 @@ function resolvePrivateToken({state,token,secret,nowMs=Date.now()}={}){
 }
 function renderPrivateReviewTokens(state,secret,nowMs=Date.now()){
   try{
-    const rows=reviewRowsWithStatus(state,nowMs).live.slice(0,5);
+    const all=reviewRowsWithStatus(state,nowMs).live;
+    let rows=all.slice(0,5);
+    // Keep a future/history month selectable even when broad worklist
+    // categories are numerous; no new task source or user assignment.
+    if(!rows.some(x=>x.scope==='history')){
+      const firstHistory=all.find(x=>x.scope==='history');
+      if(firstHistory)rows=[...rows.slice(0,4),firstHistory];
+    }
     if(!rows.length)return 'No source review issue selected. No Staff decisions verified.';
     const lines=[
       'Private review codes for Actions - Event Operations Manual Review.',
