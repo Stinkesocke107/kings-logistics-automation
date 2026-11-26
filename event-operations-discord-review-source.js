@@ -18,13 +18,27 @@ const CMD=/^!kings-review (KR[a-f0-9]{24}) (start|block|reopen|record_check)(?: 
 // Administrator is permitted only for the first configured ID (CEO).
 // Only fixed, identifier-free error categories may reach public CI logs.
 // Raw HTTP errors, URLs, Discord role/member IDs and tokens are never logged.
+const SAFE_ROLE_ACCESS_REASONS=Object.freeze([
+  'OVERWRITE_MISSING','VIEW_NOT_ALLOWED','SEND_NOT_ALLOWED',
+  'VIEW_DENIED','SEND_DENIED'
+]);
 const SAFE_PREFLIGHT_CODES=new Set([
   'CONFIG_INVALID','CHANNEL_UNAVAILABLE','GUILD_ROLES_UNAVAILABLE',
   'BOT_AUTH_UNAVAILABLE','BOT_MEMBER_UNAVAILABLE',
   'CHANNEL_METADATA_INVALID','ROLE_POLICY_INVALID',
   'ROLE_MISSING','ROLE_UNEXPECTED_ADMIN',
-  'CHANNEL_PRIVATE_POLICY_INVALID','ROLE_ACCESS_INVALID'
+  'CHANNEL_PRIVATE_POLICY_INVALID','ROLE_ACCESS_INVALID',
+  ...Array.from({length:8},(_,i)=>
+    SAFE_ROLE_ACCESS_REASONS.map(reason=>
+      'ROLE_'+(i+1)+'_'+reason)).flat()
 ]);
+function rejectRoleAccess(index,reason){
+  // Index is a bounded position in the owner's private role-ID secret.
+  // Only one of 40 predeclared constant codes can ever reach GitHub logs.
+  if(!Number.isInteger(index)||index<0||index>=8||
+    !SAFE_ROLE_ACCESS_REASONS.includes(reason))reject();
+  reject('ROLE_'+(index+1)+'_'+reason);
+}
 function reject(code){
   const error=Error('Kings Event Operations Discord source unverified');
   if(SAFE_PREFLIGHT_CODES.has(code))error.preflightCode=code;
@@ -91,10 +105,11 @@ function validatePrivateChannel({channel,roles,bot,botMember,allowedRoles,channe
     // Administrator permission bypasses channel-specific VIEW/SEND grants.
     // Every non-Administrator operator needs an explicit channel overwrite.
     if(i===0&&has(role.permissions,ADMIN))continue;
-    if(!overwrite||!has(overwrite.allow,VIEW)||
-      !has(overwrite.allow,SEND)||has(overwrite.deny,VIEW)||
-      has(overwrite.deny,SEND))
-      reject('ROLE_ACCESS_INVALID');
+    if(!overwrite)rejectRoleAccess(i,'OVERWRITE_MISSING');
+    if(has(overwrite.deny,VIEW))rejectRoleAccess(i,'VIEW_DENIED');
+    if(has(overwrite.deny,SEND))rejectRoleAccess(i,'SEND_DENIED');
+    if(!has(overwrite.allow,VIEW))rejectRoleAccess(i,'VIEW_NOT_ALLOWED');
+    if(!has(overwrite.allow,SEND))rejectRoleAccess(i,'SEND_NOT_ALLOWED');
   }
   return true;
 }

@@ -47,7 +47,16 @@ In `VERIFY_ONLY`, a failed run may now show `SOURCE_UNAVAILABLE [CATEGORY]`:
 | `ROLE_MISSING` | An ID saved in the operator-role secret is not a role in the Kings Discord server; recheck all six role IDs privately |
 | `ROLE_UNEXPECTED_ADMIN` | At least one non-CEO configured role has Discord server-wide Administrator permission; owner should review the elevated role permission, rather than silently disabling the safety check |
 | `CHANNEL_PRIVATE_POLICY_INVALID` | Explicitly deny **View Channel** for `@everyone`; remove any unintended user or unrelated role grants |
-| `ROLE_ACCESS_INVALID` | Give each non-Administrator operator role explicit **View Channel + Send Messages** allowances |
+| `ROLE_ACCESS_INVALID` | Older generic role-access error, still safely recognized |
+| `ROLE_N_OVERWRITE_MISSING` | For role position N in the owner secret, no explicit channel permission overwrite exists |
+| `ROLE_N_VIEW_NOT_ALLOWED` | Role position N does not have the explicit green **View Channel** allow |
+| `ROLE_N_SEND_NOT_ALLOWED` | Role position N does not have the explicit green **Send Messages** allow |
+| `ROLE_N_VIEW_DENIED` | Role position N has an explicit **View Channel** deny on this channel |
+| `ROLE_N_SEND_DENIED` | Role position N has an explicit **Send Messages** deny on this channel |
+
+`N` is a public-safe number 1 through 8 denoting the **position** of an already owner-approved ID in the *private* `KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS` secret. For this deployment, **1 = CEO, 2 = Head Management Event, 3 = Event Management, 4 = Event Director, 5 = Event Coordination Lead, 6 = Event Coordinator**. Neither Discord IDs nor raw channel metadata are printed. These messages describe the returned Discord *permission overwrites*, **not** the user's general effective access through other roles or Administrator rights.
+
+The check intentionally remains strict: each non-Administrator operator needs explicit role-level permission allows in this private channel. A role being listed in Discord does not by itself establish those two green allows. Do not remove private-channel security checks solely to force a pass.
 
 The exact first failing category is a diagnostic aid, not proof that every other setting is correct. Correct the cause and re-run in `VERIFY_ONLY`. The existing restrictive gates remain unchanged; a failure never permits command processing.
 

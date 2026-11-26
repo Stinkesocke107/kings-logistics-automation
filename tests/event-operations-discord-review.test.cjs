@@ -359,7 +359,34 @@ test('VERIFY_ONLY emits only bounded redacted diagnostic codes for private sourc
    permission_overwrites:channel.permission_overwrites.map(x=>
      x.id===ROLE?{...x,allow:'1024'}:x)
  }}).transport;
- await verifyDiagnostic(roleWithoutSend,'ROLE_ACCESS_INVALID');
+ await verifyDiagnostic(roleWithoutSend,'ROLE_1_SEND_NOT_ALLOWED');
+ for(const [overwrites,expected] of [
+   [channel.permission_overwrites.filter(x=>x.id!==ROLE),
+     'ROLE_1_OVERWRITE_MISSING'],
+   [channel.permission_overwrites.map(x=>x.id===ROLE?
+     {...x,allow:'2048'}:x),'ROLE_1_VIEW_NOT_ALLOWED'],
+   [channel.permission_overwrites.map(x=>x.id===ROLE?
+     {...x,deny:'1024'}:x),'ROLE_1_VIEW_DENIED'],
+   [channel.permission_overwrites.map(x=>x.id===ROLE?
+     {...x,deny:'2048'}:x),'ROLE_1_SEND_DENIED']
+ ]){
+   const transport=discordFetch([],{channel:{
+     ...channel,permission_overwrites:overwrites
+   }}).transport;
+   await verifyDiagnostic(transport,expected);
+ }
+ // Diagnose must identify the *position in the private owner-configured
+ // role-ID list*, never emit the actual ID or role display name.
+ const approvedIds=[BOTROLE,ROLE];
+ const secondRoleChannel={...channel,permission_overwrites:[
+   channel.permission_overwrites[0],
+   {id:BOTROLE,type:0,allow:'3072',deny:'0'},
+   {id:ROLE,type:0,allow:'1024',deny:'0'}
+ ]};
+ const secondRoleTransport=discordFetch([],{channel:secondRoleChannel}).transport;
+ await verifyDiagnostic(secondRoleTransport,'ROLE_2_SEND_NOT_ALLOWED',{
+   ...env,KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS:approvedIds.join(',')
+ });
  const badConfig={...env,KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID:'not-an-id'};
  await assert.rejects(()=>run({env:badConfig,transport:base}),
    error=>error.preflightCode==='CONFIG_INVALID');
