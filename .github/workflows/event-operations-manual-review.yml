@@ -33,6 +33,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: kings-event-leadership-reports
@@ -68,6 +69,7 @@ jobs:
           INPUT_CONFIRMATION: ${{ inputs.confirmation }}
         run: node event-operations-manual-review.js
       - name: Save only encrypted review journal to main
+        id: persist
         run: |
           set -euo pipefail
           if git diff --quiet -- data/event-leadership-report-state.json; then
@@ -79,3 +81,12 @@ jobs:
           git add data/event-leadership-report-state.json
           git commit -m "Record authorised Kings Event Operations manual review status"
           bash scripts/git-safe-push.sh main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      # Review changes pushed via GITHUB_TOKEN do not trigger push workflows.
+      # Refresh the existing consolidated dashboard only after persisting.
+      - name: Refresh Leadership dashboard after manual Staff review
+        if: steps.persist.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run leadership-dashboard.yml --repo "$GITHUB_REPOSITORY" --ref main
