@@ -11,9 +11,34 @@ on:
           - worklist
           - history
       review_code:
-        description: "Exact safe task code from #18 Staff review docs; never paste Event details"
-        type: string
+        description: "Choose an existing Event/History source-review reason; no private Event data"
+        type: choice
         required: true
+        options:
+          - CONVOY_SOURCE_UNAVAILABLE
+          - INVITATION_SOURCE_UNAVAILABLE
+          - REVIEW_DAILY_CAP
+          - REVIEW_PARTNER_MONTH_CAP
+          - REVIEW_EXTERNAL_MONTH_CAP
+          - REVIEW_EVENT_TYPES
+          - REVIEW_FUTURE_LEGACY_HOLDS
+          - REVIEW_CALENDAR_DAYS
+          - REVIEW_DEPARTURE_SPACING
+          - VERIFY_FORUM_TAG_MAPPING
+          - REVIEW_INVITATION_DUPLICATES
+          - REVIEW_EVENT_LINK_DUPLICATES
+          - REVIEW_INVITATION_FORMAT
+          - REVIEW_MISSING_EVENT_LINKS
+          - REVIEW_PENDING_REPLIES
+          - REVIEW_PAST_OUTCOMES
+          - REVIEW_LEGACY_EVIDENCE
+          - REVIEW_HISTORY_GAPS
+          - FUTURE_LEGACY_HOLD
+          - PAST_CENTER_OUTCOME
+          - UNDATED_LEGACY
+          - UNDATED_CENTER
+          - LEGACY_ORIGINAL_EVIDENCE
+          - HISTORICAL_MONTH_NO_CLAIMS
       utc_month:
         description: "YYYY-MM for History or UNDATED for undated records / worklist"
         type: string
