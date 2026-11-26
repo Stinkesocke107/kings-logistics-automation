@@ -4,7 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 const {readNewCommands}=require('./discord-command-cursor');
 const {authorizedHrApprover}=require('./hr-driver-decision-source');
-const STAFF_ID=/^\\d{17,20}$/;
+const STAFF_ID=/^\d{17,20}$/;
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || null;
@@ -400,7 +400,7 @@ async function handleList(channel, hrState) {
 async function authorizedHrCommandActors(messages){
   const actors=[...new Set(messages.filter(message=>
     !message.author?.bot&&!message.webhook_id&&!message.edited_timestamp&&
-    /^!probation(?:\\s|$)/i.test(String(message.content||'').trim())&&
+    /^!probation(?:\s|$)/i.test(String(message.content||'').trim())&&
     STAFF_ID.test(String(message.author?.id||''))
   ).map(message=>String(message.author.id)))];
   if(!actors.length)return new Map();
@@ -447,7 +447,7 @@ async function processCommands(channel, driverState, hrState) {
     if (message.author?.bot||message.webhook_id||
       message.edited_timestamp)continue;
     const content=String(message.content||'').trim();
-    if(!/^!probation(?:\\s|$)/i.test(content))continue;
+    if(!/^!probation(?:\s|$)/i.test(content))continue;
     if(actorAllowed.get(String(message.author?.id||''))!==true)continue;
 
     const parts = content.split(/\s+/);
