@@ -3,47 +3,10 @@ name: Kings Event Operations — Manual Staff Review
 on:
   workflow_dispatch:
     inputs:
-      review_scope:
-        description: "Source review kind (no private Event content)"
-        type: choice
-        required: true
-        options:
-          - worklist
-          - history
-      review_code:
-        description: "Choose an existing Event/History source-review reason; no private Event data"
-        type: choice
-        required: true
-        options:
-          - CONVOY_SOURCE_UNAVAILABLE
-          - INVITATION_SOURCE_UNAVAILABLE
-          - REVIEW_DAILY_CAP
-          - REVIEW_PARTNER_MONTH_CAP
-          - REVIEW_EXTERNAL_MONTH_CAP
-          - REVIEW_EVENT_TYPES
-          - REVIEW_FUTURE_LEGACY_HOLDS
-          - REVIEW_CALENDAR_DAYS
-          - REVIEW_DEPARTURE_SPACING
-          - VERIFY_FORUM_TAG_MAPPING
-          - REVIEW_INVITATION_DUPLICATES
-          - REVIEW_EVENT_LINK_DUPLICATES
-          - REVIEW_INVITATION_FORMAT
-          - REVIEW_MISSING_EVENT_LINKS
-          - REVIEW_PENDING_REPLIES
-          - REVIEW_PAST_OUTCOMES
-          - REVIEW_LEGACY_EVIDENCE
-          - REVIEW_HISTORY_GAPS
-          - FUTURE_LEGACY_HOLD
-          - PAST_CENTER_OUTCOME
-          - UNDATED_LEGACY
-          - UNDATED_CENTER
-          - LEGACY_ORIGINAL_EVIDENCE
-          - HISTORICAL_MONTH_NO_CLAIMS
-      utc_month:
-        description: "YYYY-MM for History or UNDATED for undated records / worklist"
+      review_token:
+        description: "Opaque code copied from private Event Leadership dashboard; no Event data"
         type: string
         required: true
-        default: UNDATED
       action:
         description: "Only manually recorded progress, NOT original event approval"
         type: choice
@@ -99,9 +62,7 @@ jobs:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           KINGS_EVENT_REVIEW_OPERATORS: ${{ secrets.KINGS_EVENT_REVIEW_OPERATORS }}
           GITHUB_TRIGGERING_ACTOR: ${{ github.triggering_actor }}
-          INPUT_SCOPE: ${{ inputs.review_scope }}
-          INPUT_CODE: ${{ inputs.review_code }}
-          INPUT_MONTH: ${{ inputs.utc_month }}
+          INPUT_REVIEW_TOKEN: ${{ inputs.review_token }}
           INPUT_ACTION: ${{ inputs.action }}
           INPUT_EVIDENCE_KIND: ${{ inputs.evidence_kind }}
           INPUT_CONFIRMATION: ${{ inputs.confirmation }}
