@@ -526,6 +526,142 @@ const namedOperationalSystems=Object.freeze([
       'This read-only cross-source proof verifies current source claims, not real new human Staff decisions, 24-month archive completeness or actual invitations accepted',
       'Recurring daily, weekly and monthly report delivery with direct Discord readback is still not independently accepted',
       'Operator recovery and formal CEO final approval remain open'
+    ]},
+  {id:'VTC_MILESTONES',name:'VTC Milestones — genuine threshold detection',
+    workflow:'milestones.yml',gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_member_threshold_poll',
+        'Actual production fetched the current Kings VTC membership threshold and evaluated the next milestone',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911512791']),
+      item('real_no_event_dedupe',
+        'No new milestone was due; production correctly published no fabricated celebration and made no unnecessary state write',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911512791']),
+      item('real_milestone_publication',
+        'A genuinely reached new VTC milestone is posted once in the approved Discord channel and independently read back'),
+      item('milestone_operator_recovery',
+        'Source change, retry, dedupe and operator/CEO signoff are accepted')
+    ]),
+    blockers:[
+      'The verified current run had no newly reached milestone, so new announcement delivery remains unproven',
+      'Cross-system celebration/Changelog source agreement and retry remain open',
+      'No CEO final acceptance is recorded'
+    ]},
+  {id:'TRUCKERSMP_NEWS',name:'TruckersMP News — current Kings source polling',
+    workflow:'news.yml',gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_current_news_api_read',
+        'Actual production fetched the TruckersMP Kings VTC News API and processed the current historical article feed',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911292610']),
+      item('real_no_new_article_dedupe',
+        'No new article was due and the producer sent zero messages rather than replaying earlier posts',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911292610']),
+      item('real_new_article_delivery',
+        'A genuinely new original article reaches the intended Discord message with independent content readback'),
+      item('news_api_recovery',
+        'Failures, altered/deleted articles, retry/idempotence, privacy and operator handover are accepted')
+    ]),
+    blockers:[
+      'The latest successful API poll found no new post; new-message delivery is not proven by this run',
+      'End-to-end recovery and independent original-article/Discord agreement remain open',
+      'Final CEO signoff is not recorded'
+    ]},
+  {id:'CHANGELOG_PUBLISHER',name:'Changelog Publisher — queued changes',
+    workflow:'changelog.yml',gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_empty_queue_safety',
+        'Production Changelog publisher observed an empty queue and did not manufacture duplicate publications',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911969613']),
+      item('independent_existing_changelog_audit',
+        'Independent real Discord source/content audit confirmed the existing latest Changelog publication against release history',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45909350372']),
+      item('new_queue_delivery_lifecycle',
+        'New authorized entry is validated, committed, posted and independently read back exactly once'),
+      item('changelog_retry_recovery',
+        'A failed Discord delivery is retried safely without losing or duplicating queued entries')
+    ]),
+    blockers:[
+      'The newest producer run had no pending Changelog entry, so fresh queue-to-publication was not exercised',
+      'Historic content audit and an empty queue do not close the next delivery/recovery lifecycle',
+      'Team ownership and CEO final approval remain open'
+    ]},
+  {id:'CENTRAL_SCHEDULER',name:'Central Scheduler — approved overdue workflow recovery',
+    workflow:'central-scheduler.yml',gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_registered_schedule_check',
+        'Actual production checked approved enabled schedule workflows and their most recent successful runs',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45912098795']),
+      item('real_overdue_safe_dispatch',
+        'Actual scheduler dispatched overdue HR Leadership and Staff Management polling workflows as recovery, without claiming human decisions',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45912098795']),
+      item('real_recovery_result_and_dedupe',
+        'Every authorized recovery dispatch is traced to completed downstream results and repeat/overlap limits'),
+      item('scheduler_failures_and_handover',
+        'Recovery failure, escalation, authorization, retention and operator/CEO approval are accepted')
+    ]),
+    blockers:[
+      'Recovery dispatch succeeded, but the end-to-end downstream HR/Staff action and any authentic decisions are separate',
+      'Parallel recovery, lockout behavior and failure escalation still need independent real observation',
+      'No final operator or CEO signoff'
+    ]},
+  {id:'SAFE_SELF_HEALING',name:'Safe Self-Healing — bounded technical recovery',
+    workflow:'self-healing.yml',gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_fail_closed_external_escalation',
+        'Production Self-Healing explicitly reported EXTERNAL-LIVE-DATA-BLOCKED and did not claim the external map API was repaired',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45908025405']),
+      item('real_technical_state_and_monitor_check',
+        'Actual run re-checked monitoring and backup health, safely persisted repair state and kept critical incidents visible',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45908025405']),
+      item('real_permitted_fault_recovery',
+        'A safe allowed internal failure is recovered with verified downstream result, limited retries and no forbidden writes'),
+      item('healing_recurring_stress',
+        'Repeated parallel faults, exclusions, escalation and recovery handover accepted')
+    ]),
+    blockers:[
+      'The provider-dependent tracker recovery was explicitly blocked, not completed',
+      'A real successful permitted internal recovery plus stress/race handling is not yet accepted',
+      'Final Team and CEO signoff remain open'
+    ]},
+  {id:'DRIVER_PROBATION',name:'Driver Probation — HR-controlled reminder tracking',
+    workflow:'probation.yml',gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('real_due_reminder_poll',
+        'Actual scheduled protected probation check completed and found no reminders to send, without generating false Staff decisions',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45905153729']),
+      item('real_no_change_persistence',
+        'No probation reminders were due and no unnecessary protected state change was written',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45905153729']),
+      item('real_due_reminder_delivery',
+        'A genuinely due probation review reaches the authorized HR channel and saved reminder dedupe status'),
+      item('real_human_probation_result',
+        'Authentic authorized HR decision, correct preserved audit history, failure retry and operator handover confirmed')
+    ]),
+    blockers:[
+      'Zero due reminders cannot prove actual reminder or HR-decision delivery',
+      'No automatic disciplinary or membership decisions may be inferred or generated',
+      'HR Team and CEO final acceptance remain open'
+    ]},
+  {id:'NEWS_PRODUCTION_VERIFICATION',name:'News Production Verification — original article readback',
+    workflow:'news-production-verification.yml',
+    gates:fullGateList({
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45906382475']
+    }),
+    capabilities:Object.freeze([
+      item('real_prior_article_publication_proof',
+        'Production verifier recognized a previously accepted genuine article publication evidence record for article 71252',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45906382475']),
+      item('verified_news_dedupe_security_tests',
+        'Actual run passed offline tests for first-run suppression, message checkpointing, invalid state and refusal to advance when Discord lacks delivery evidence',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45906382475']),
+      item('next_article_independent_readback',
+        'A newly published original article is independently matched to its current Discord message and state checkpoint'),
+      item('news_fault_recovery_handover',
+        'Real API outage, retry, duplicate prevention, stale-message recovery and operator/CEO review completed')
+    ]),
+    blockers:[
+      'Previously accepted article evidence is not a newly generated article in the latest verification run',
+      'Real source and Discord discrepancy/retry scenarios still require operational evidence',
+      'Final team handover and CEO acceptance remain open'
     ]}
 
 ].map(x=>Object.freeze(x)));
