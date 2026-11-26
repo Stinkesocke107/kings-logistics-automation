@@ -124,6 +124,12 @@ function liveMapAvailabilityLine(health) {
   // Show the explicitly chosen official-only Tracker as its own healthy
   // LIMITED function. Never imply verified Kings player presence, restore
   // old map-derived statistics, or mask unrelated overall health failures.
+  if(official?.mode==='map-live'){
+    if(official.status==='verified'&&liveRunOk){
+      return '🟢 🗺️ **Kings Live Tracker:** Verified player map restored automatically; current Kings online data and all 3 displays are current.';
+    }
+    return '🔴 🗺️ **Kings Live Tracker:** Full player-map coverage or 3-display delivery is not verified.';
+  }
   if(official?.mode==='map-independent'){
     if(official.status==='verified'&&liveRunOk){
       return '🟢 📡 **Kings Live Tracker (no map):** Official membership and TruckersMP server totals verified on all 3 displays. Kings Drivers online: **Unavailable (not 0)**.';

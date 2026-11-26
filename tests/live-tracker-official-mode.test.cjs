@@ -54,13 +54,13 @@ function fixture({serverFail=false,memberFail=false,targetsFail=false}={}){
     })
   };
 }
-test('the production Kings Tracker defaults to a real official feed with ZERO live-map requests',()=>{
-  assert.match(workflow,/KINGS_TRACKER_SOURCE_MODE: 'official'/);
+test('Kings Tracker in automatic mode requires a healthy probe before attempting the full player map',()=>{
+  assert.match(workflow,/KINGS_TRACKER_SOURCE_MODE: 'auto'/);
   const tracker=workflow.split('      - name: Update Kings Live Tracker\n')[1].split('      - name: Continue Kings Live Systems without the live map')[0];
-  assert.match(tracker,/if: \$\{\{ env\.KINGS_TRACKER_SOURCE_MODE == 'map' \}\}/);
+  assert.match(tracker,/steps\.map_probe\.outcome == 'success'/);
   const fallback=workflow.split('      - name: Continue Kings Live Systems without the live map\n')[1]
     .split('      - name: Update Kings Advanced Statistics')[0];
-  assert.match(fallback,/env\.KINGS_TRACKER_SOURCE_MODE == 'official'/);
+  assert.match(fallback,/env\.KINGS_TRACKER_SOURCE_MODE == 'auto'/);
   assert.match(fallback,/steps\.live_tracker\.outcome == 'failure'/);
   assert.match(fallback,/node live-outage-notice\.js/);
   assert.match(workflow,/data\/live-tracker-official\.json/);

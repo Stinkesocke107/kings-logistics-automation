@@ -123,7 +123,9 @@ function storeOfficialTrackerSnapshot(official){
   return state;
 }
 function officialDisplayMode(){
-  return process.env.KINGS_TRACKER_SOURCE_MODE==='official';
+  // The automatic tracker uses exactly this official-only display contract
+  // whenever a map canary/full-scan fails. No stale player-map links or counts.
+  return ['official','auto'].includes(process.env.KINGS_TRACKER_SOURCE_MODE);
 }
 function outageEmbed(config,state,official=null){
   const mapFree=officialDisplayMode();

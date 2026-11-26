@@ -159,7 +159,7 @@ test('new HR role, LOA pagination and Staff dedupe safety proof is recorded with
 });
 
 
-test('official Kings Tracker is independently accepted only as partially verified map-free functionality',()=>{
+test('Kings Auto Tracker preserves verified official fallback but cannot claim real map recovery before it happens',()=>{
   const s=snapshot();
   const tracker=s.operationalSystems.find(x=>x.id==='LIVE_TRACKER_OFFICIAL');
   assert.ok(tracker);
@@ -174,7 +174,7 @@ test('official Kings Tracker is independently accepted only as partially verifie
     assert.equal(feature.state,VERIFIED);
     assert.ok(feature.evidence.some(x=>x.startsWith(ROOT+'actions/runs/')));
   }
-  for(const id of ['recurring_feed_resilience','operational_handover']){
+  for(const id of ['automatic_map_restoration_live','recurring_feed_resilience','operational_handover']){
     const feature=tracker.capabilities.find(x=>x.id===id);
     assert.ok(feature,id);
     assert.equal(feature.state,PENDING);

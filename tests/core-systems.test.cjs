@@ -304,15 +304,15 @@ test('live outage notice is idempotent and never creates messages on missing tar
   assert.equal(s.run("webhookBase('http://discord.com/api/webhooks/123456789012345678/token')"),null);
 });
 
-test('official no-map Tracker is the default; map-dependent steps stay gated', () => {
+test('auto Tracker probes before full map scan and fails back to official data', () => {
   const fs=require('node:fs');
   const path=require('node:path');
   const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/live-tracker.yml'),'utf8');
   assert.match(workflow,/id: live_tracker/);
   assert.match(workflow,/continue-on-error: true/);
-  assert.match(workflow,/KINGS_TRACKER_SOURCE_MODE: 'official'/);
-  assert.match(workflow,/if: \${{ env\.KINGS_TRACKER_SOURCE_MODE == 'map' }}/);
-  assert.match(workflow,/env\.KINGS_TRACKER_SOURCE_MODE == 'official' \|\| steps\.live_tracker\.outcome == 'failure'/);
+  assert.match(workflow,/KINGS_TRACKER_SOURCE_MODE: 'auto'/);
+  assert.match(workflow,/steps\.map_probe\.outcome == 'success'/);
+  assert.match(workflow,/steps\.live_tracker\.outcome != 'success'/);
   assert.match(workflow,/node live-outage-notice\.js/);
   assert.match(workflow,/if: \${{ steps\.live_tracker\.outcome == 'success' }}/);
   assert.match(workflow,/if: always\(\)/);
