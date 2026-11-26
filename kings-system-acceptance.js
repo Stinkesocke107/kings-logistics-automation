@@ -48,6 +48,9 @@ const namedEventSystems=Object.freeze([
       item('live_capacity_staff_worklist',
         'Real read-only Convoy/Calendar source passed mandatory Capacity-to-Staff worklist warning checks',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45901364553']),
+      item('real_joint_source_advisory_triage',
+        'Real Convoy Center, 24-month History, 12-month Calendar and Invitation Forum source claims reconciled into the existing Event Operations Staff triage without writes',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911909091']),
       item('live_integrated_acceptance','Full real original-source planning-to-Staff human review verified'),
       item('operator_handover','Event Team validates capacity interpretation and incident handling'),
       item('owner_final_approval','CEO signs off #12 advisory capacity as a whole')
@@ -74,6 +77,9 @@ const namedEventSystems=Object.freeze([
       item('live_reconciled_source_probe',
         'Real Convoy Center and frozen Legacy source passed read-only History/Calendar reconciliation',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45900603134']),
+      item('real_joint_source_advisory_triage',
+        'Real Convoy Center, 24-month History, 12-month Calendar and Invitation Forum source claims reconciled into the existing Event Operations Staff triage without writes',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911909091']),
       item('original_archive_completeness',
         'All original 24-month Event records independently reconciled'),
       item('historical_staff_decisions',
@@ -95,6 +101,9 @@ const namedEventSystems=Object.freeze([
         [EVIDENCE_ROOT+'actions/runs/45900603134']),
       item('duplicate_and_reply_safety','Invitation reply/duplicate review and privacy boundaries pass offline checks',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45900507573']),
+      item('real_joint_source_advisory_triage',
+        'Real Convoy Center, 24-month History, 12-month Calendar and Invitation Forum source claims reconciled into the existing Event Operations Staff triage without writes',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911909091']),
       item('invitation_archive_coverage','Original historical invitation archive independently checked for completeness'),
       item('real_observation_delivery','Fresh invitation observation confirmed in encrypted state and private dashboard'),
       item('recorded_reply_provenance','Recorded responses and invitation claims reconciled with original human records'),
@@ -112,6 +121,9 @@ const namedEventSystems=Object.freeze([
         [EVIDENCE_ROOT+'actions/runs/45899560178']),
       item('live_readonly_calendar_source','Real Convoy Center/Legacy Calendar read-only source reconciled',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45900603134']),
+      item('real_joint_source_advisory_triage',
+        'Real Convoy Center, 24-month History, 12-month Calendar and Invitation Forum source claims reconciled into the existing Event Operations Staff triage without writes',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911909091']),
       item('original_calendar_decisions','All approvals, confirmed holds and cancellations reconciled with original Staff evidence'),
       item('live_staff_calendar_review','Real Calendar changes reach authorized Event Staff and private dashboard'),
       item('team_owner_handover','Event team confirms calendar interpretation, recovery and CEO signoff')
@@ -159,6 +171,9 @@ const namedEventSystems=Object.freeze([
       item('scheduler_live_recovery',
         'Central Scheduler actually recovered a delayed Discord Staff poll; idle poll made no protected state write',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45901564388',EVIDENCE_ROOT+'actions/runs/45901614835']),
+      item('real_joint_source_advisory_triage',
+        'Real Convoy Center, 24-month History, 12-month Calendar and Invitation Forum source claims reconciled into the existing Event Operations Staff triage without writes',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911909091']),
       item('refresh_after_new_review','Live dashboard refresh triggered by a later real Staff change'),
       item('cross_system_review','Full live review flow across #12, #14, #15 and #16'),
       item('operator_handover','Event Team confirms understandable handling and error recovery')
@@ -487,6 +502,30 @@ const namedOperationalSystems=Object.freeze([
       'Four original historical Legacy Leadership messages were NOT_VISIBLE in the production audit',
       'One successful cross-channel read-only audit does not prove future real changes and recovery',
       'Full Team and CEO final approval are missing'
+    ]},
+  {id:'EVENT_LEADERSHIP_REPORTS',name:'Event Leadership Reports — reconciled advisory source and reporting',
+    workflow:'event-leadership-reports.yml',
+    gates:fullGateList({
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45911822884']
+    }),
+    capabilities:Object.freeze([
+      item('real_all_event_sources_to_worklist',
+        'Actual main workflow read Convoy/Calendar/History and private Invitation sources and reconciled all advisory warnings into the protected Staff worklist',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911909091']),
+      item('real_invitation_forum_tag_source',
+        'Actual private Forum source read reported READ_ONLY_SOURCE_VERIFIED and human-only tag mapping, without Event approval',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45911909091']),
+      item('real_daily_report_publication',
+        'Genuine daily Event Leadership report reaches its authorized Discord target and is independently read back'),
+      item('real_weekly_monthly_report_periods',
+        'Whole real weekly and monthly report periods agree with original source decisions and exactly-once delivery'),
+      item('event_team_reporting_handover',
+        'Event Coordination verifies operating instructions, recovery, source completeness and CEO approval')
+    ]),
+    blockers:[
+      'This read-only cross-source proof verifies current source claims, not real new human Staff decisions, 24-month archive completeness or actual invitations accepted',
+      'Recurring daily, weekly and monthly report delivery with direct Discord readback is still not independently accepted',
+      'Operator recovery and formal CEO final approval remain open'
     ]}
 
 ].map(x=>Object.freeze(x)));
