@@ -66,28 +66,14 @@
         "runId": 45670004198
       },
       "firstAlertedAt": "2026-11-25T20:08:53.927Z"
-    },
-    "workflow-failed:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure.",
-      "details": {
-        "runId": 45709151795,
-        "completedAt": "2026-11-25T21:59:37Z"
-      },
-      "firstAlertedAt": "2026-11-25T22:03:58.149Z"
-    },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "severity": "warning",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": null,
-        "ageMinutes": null,
-        "maxAgeMinutes": 540
-      },
-      "firstAlertedAt": "2026-11-25T22:03:58.149Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-no-runs:final-freeze-verification.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-26T00:37:11.590Z",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has no workflow runs."
+    }
+  }
 }
