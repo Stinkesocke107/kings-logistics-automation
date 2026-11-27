@@ -72,12 +72,10 @@ function readJson(
         "utf8"
       )
     );
-  } catch (error) {
-    console.error(
-      `Could not read ${path.basename(file)}.`
-    );
-
-    return fallback;
+  } catch {
+    // A damaged existing state or history is NOT a first-run file.
+    // Returning a default could republish an old KL number.
+    throw new Error(`Changelog source file invalid: ${path.basename(file)}`);
   }
 }
 
@@ -132,42 +130,18 @@ function getDiscordDate() {
 // ======================================================
 
 function loadState() {
-  const state =
-    readJson(
-      STATE_FILE,
-      null
-    );
-
-  if (!state) {
-    /*
-      KL04 is currently the latest existing
-      Kings Logistics changelog.
-
-      Therefore the first automatic changelog
-      will become KL05.
-    */
-
-    return {
-      season:
-        "S01",
-
-      nextNumber:
-        5
-    };
+  const state=readJson(STATE_FILE,null);
+  if(state===null&&!fs.existsSync(STATE_FILE)){
+    // Existing Kings S01-KL04 predates the first automated changelog.
+    return {season:'S01',nextNumber:5};
   }
-
-  return {
-    season:
-      state.season ||
-      "S01",
-
-    nextNumber:
-      Number(
-        state.nextNumber
-      ) || 5
-  };
+  if(!state||typeof state!=='object'||Array.isArray(state)||
+     !/^S\\d{2,3}$/.test(state.season)||
+     !Number.isSafeInteger(state.nextNumber)||
+     state.nextNumber<5||state.nextNumber>9999)
+    throw Error('Existing Changelog numbering state unverified');
+  return {season:state.season,nextNumber:state.nextNumber};
 }
-
 
 function saveState(
   state
@@ -215,25 +189,19 @@ function clearQueue() {
 // ======================================================
 
 function loadHistory() {
-  const history =
-    readJson(
-      HISTORY_FILE,
-      {
-        changelogs: []
-      }
-    );
-
-  if (
-    !Array.isArray(
-      history.changelogs
-    )
-  ) {
-    history.changelogs = [];
+  const history=readJson(HISTORY_FILE,{changelogs:[]});
+  if(!history||typeof history!=='object'||Array.isArray(history)||
+     !Array.isArray(history.changelogs))throw Error('Changelog history unverified');
+  const ids=new Set();
+  for(const row of history.changelogs){
+    if(!row||typeof row!=='object'||Array.isArray(row)||
+       typeof row.id!=='string'||!/^[Ss]\\d{2,3}-KL\\d{2,4}$/.test(row.id)||
+       ids.has(row.id)||!Array.isArray(row.entries))
+      throw Error('Changelog history contains invalid or duplicate release');
+    ids.add(row.id);
   }
-
   return history;
 }
-
 
 function saveHistory(
   history
@@ -249,39 +217,23 @@ function saveHistory(
 // NORMALIZE QUEUE ENTRIES
 // ======================================================
 
-function normalizeEntries(
-  entries
-) {
-  return entries
-    .map(entry => ({
-      category:
-        String(
-          entry.category ||
-          "Other Changes"
-        ).trim(),
-
-      text:
-        String(
-          entry.text ||
-          ""
-        ).trim(),
-
-      source:
-        String(
-          entry.source ||
-          "manual"
-        ).trim(),
-
-      addedAt:
-        entry.addedAt ||
-        null
-    }))
-    .filter(
-      entry =>
-        entry.text.length > 0
-    );
+function normalizeEntries(entries) {
+  if(!Array.isArray(entries))throw Error('Changelog Queue unverified');
+  return entries.map(entry=>{
+    if(!entry||typeof entry!=='object'||Array.isArray(entry)||
+       typeof entry.text!=='string'||!entry.text.trim()||
+       entry.text.length>1000||
+       (entry.category!==undefined&&typeof entry.category!=='string')||
+       (entry.source!==undefined&&typeof entry.source!=='string'))
+      throw Error('Changelog Queue contains an invalid entry');
+    return {
+      category:(entry.category||'Other Changes').trim()||'Other Changes',
+      text:entry.text.trim(),
+      source:(entry.source||'manual').trim()||'manual',
+      addedAt:entry.addedAt||null
+    };
+  });
 }
-
 
 // ======================================================
 // GROUP ENTRIES BY CATEGORY
@@ -455,17 +407,10 @@ function buildDiscordMessages(
       is extremely long.
     */
 
-    if (
-      current.length >
-      1850
-    ) {
-      current =
-        current.slice(
-          0,
-          1800
-        ) +
-        "\n\n*Additional details were shortened to stay within Discord limits.*";
-    }
+    // Never silently discard already-approved changes when a category
+    // section exceeds Discord's limit. Fail before sending ANY messages.
+    if(current.length + footerSpace.length > MAX_DISCORD_LENGTH)
+      throw Error('Changelog section too long: divide the queued changes before publishing');
   }
 
   /*
@@ -540,12 +485,9 @@ async function sendDiscordMessage(
   if (
     !response.ok
   ) {
-    const errorText =
-      await response.text();
-
-    throw new Error(
-      `Discord changelog post failed: HTTP ${response.status} - ${errorText}`
-    );
+    // Discord error bodies can contain private values and should never be
+    // echoed into a public GitHub Actions log.
+    throw new Error(`Discord changelog post failed: HTTP ${response.status}`);
   }
 }
 
@@ -593,6 +535,16 @@ async function publishChangelog() {
   // BUILD CHANGELOG
   // ====================================================
 
+  // Preflight the entire archive BEFORE posting to Discord. Invalid or
+  // duplicate release numbering can otherwise lead to a successful public
+  // post followed by a failed archival write (and another post on retry).
+  const history=loadHistory();
+  const duplicateId=state.season+'-KL'+String(state.nextNumber).padStart(2,'0');
+  if(history.changelogs.some(x=>x.id===duplicateId)||
+    history.changelogs.some(x=>x.season===state.season&&
+      Number(x.number)>=state.nextNumber))
+    throw Error('Changelog release numbering conflicts with existing history');
+
   const changelog =
     buildChangelog(
       state,
@@ -634,9 +586,6 @@ async function publishChangelog() {
   // ====================================================
   // ARCHIVE
   // ====================================================
-
-  const history =
-    loadHistory();
 
   history.changelogs.push({
     id:
