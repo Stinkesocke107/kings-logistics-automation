@@ -359,10 +359,22 @@ jobs:
           KINGS_VTC_NAME: 'Kings Logistics'
           CONVOY_FINALIZE_WRITE_MODE: 'false'
         run: |
-          node convoy-checker.js
-          node convoy-truckersmp-sync.js
-          node convoy-finalize.js
-          node convoy-overview.js
+          set -euo pipefail
+          if [ "${{ steps.mode.outputs.mode }}" = "source-refresh" ]; then
+            # Public Actions on code pushes must never print private Forum,
+            # VTC, Staff or Event details returned by the original pipeline.
+            for script in convoy-checker.js convoy-truckersmp-sync.js convoy-finalize.js convoy-overview.js; do
+              if ! node "$script" >/dev/null 2>&1; then
+                echo "Kings protected Event source refresh: ORIGINAL_SOURCE_UNAVAILABLE"
+                exit 1
+              fi
+            done
+          else
+            node convoy-checker.js
+            node convoy-truckersmp-sync.js
+            node convoy-finalize.js
+            node convoy-overview.js
+          fi
 
       - name: Create Event Leadership report
         env:
