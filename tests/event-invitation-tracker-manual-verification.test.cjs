@@ -34,6 +34,7 @@ test('manual integrated source proof also checks actual stored Event dashboard, 
   assert.ok(job.indexOf('event-operations-integrated-readonly-proof.js')<
     job.lastIndexOf('event-review-dashboard-readonly-proof.js'));
   assert.match(job,/DRIVER_STATE_KEY: \$\{\{ secrets\.DRIVER_STATE_KEY \}\}/);
+  assert.match(job,/KINGS_EVENT_READBACK_REQUIRE_FRESH_SOURCE: 'true'/);
   assert.match(job,/DISCORD_BOT_TOKEN: \$\{\{ secrets\.DISCORD_BOT_TOKEN \}\}/);
   assert.match(job,/contents: read/);
   assert.doesNotMatch(job,/run: node leadership-dashboard\.js/);
