@@ -13,7 +13,7 @@ function sandbox(script, queue, failSend = false, overrides = {}) {
   if (queue !== undefined) files.set('changelog-queue.json', queue);
   files.set('changelog-state.json',
     overrides.state ?? JSON.stringify({ season: 'S01', nextNumber: 6 }));
-  files.set('changelog-history.json',
+  if(!overrides.missingHistory)files.set('changelog-history.json',
     overrides.history ?? JSON.stringify({ changelogs: [] }));
   const sent = [];
   const fakeFs = {
@@ -170,4 +170,12 @@ test('manual Changelog Editor writes valid entry, preserves deduplication, and d
    assert.notEqual(corrupt.status,0);
    assert.equal(fs.readFileSync(entryFile,'utf8'),'[null]');
  }finally{fs.rmSync(dir,{recursive:true,force:true})}
+});
+
+test('missing historical archive blocks publishing later release numbers',async()=>{
+ const s=sandbox('changelog.js',JSON.stringify([existing]),false,{missingHistory:true});
+ await assert.rejects(s.run('publishChangelog()'),/archive missing/);
+ assert.equal(s.sent.length,0);
+ assert.equal(s.files.has('changelog-history.json'),false);
+ assert.equal(JSON.parse(s.files.get('changelog-queue.json')).length,1);
 });
