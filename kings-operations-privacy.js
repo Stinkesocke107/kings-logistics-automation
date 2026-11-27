@@ -61,14 +61,15 @@ function validatePrivateOperationsChannel({
     if (positiveView) {
       if (type === 1 && id !== String(bot.id)) reject();
       if (type === 0 && id !== guildId &&
-          !approvedRoleIds.includes(id) && !botRoles.has(id)) reject();
+          !approvedRoleIds.includes(id)) reject();
     }
   }
   const everyone = overwrites.get('0:' + guildId);
   if (!everyone || !hasBit(everyone.deny,VIEW) || hasBit(everyone.allow,VIEW))
     reject();
 
-  // Every approved audience role needs explicit visibility, rather than
+  // Every approved audience role (including a bot role, if explicitly granted)
+  // needs explicit visibility, rather than
   // relying on display names, inherited permissions, or an accidental admin role.
   for (const id of approvedRoleIds) {
     const item = overwrites.get('0:' + id);
