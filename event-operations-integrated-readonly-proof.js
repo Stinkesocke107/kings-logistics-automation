@@ -35,8 +35,8 @@ async function inspect({
      event.historyPastCenterOutcomeUnresolved!==history.pastCenterOutcomeUnresolved||
      event.historyFutureLegacyHoldReview!==history.futureDatedLegacyHoldReview||
      event.futureDaysOverDailyLimit!==history.futureDaysOverClaimedDailyLimit||
-     event.futurePartnerMonthsOver20!==history.partnerMonthsOverClaimedLimit||
-     event.futureExternalMonthsOver20!==history.externalMonthsOverClaimedLimit)
+     event.futurePartnerMonthsOver30!==history.partnerMonthsOverClaimedLimit||
+     event.futureExternalMonthsOver30!==history.externalMonthsOverClaimedLimit)
     refuse();
   const invite=await invitationReader({
     token:env.DISCORD_BOT_TOKEN,centerReport:report,nowMs,
@@ -61,8 +61,8 @@ async function inspect({
      triage.review.eventTypeUnclassified!==event.futureUnclassified||
      triage.review.calendarDaysNeedingReview!==event.futureDaysRequiringReview||
      triage.review.daysOverThreeSourceClaims!==event.futureDaysOverDailyLimit||
-     triage.review.partnerMonthsOver20!==event.futurePartnerMonthsOver20||
-     triage.review.externalMonthsOver20!==event.futureExternalMonthsOver20||
+     triage.review.partnerMonthsOver30!==event.futurePartnerMonthsOver30||
+     triage.review.externalMonthsOver30!==event.futureExternalMonthsOver30||
      triage.review.daysWithShortDepartureGap!==event.futureDaysWithShortDepartureGap||
      triage.review.historyMonthsWithoutClaims!==event.historyMonthsWithoutClaims||
      triage.review.pastOutcomesUnresolved!==event.historyPastCenterOutcomeUnresolved||
@@ -80,8 +80,8 @@ async function inspect({
   const expected=[
     ['REVIEW_EVENT_TYPES',event.futureUnclassified],
     ['REVIEW_DAILY_CAP',event.futureDaysOverDailyLimit],
-    ['REVIEW_PARTNER_MONTH_CAP',event.futurePartnerMonthsOver20],
-    ['REVIEW_EXTERNAL_MONTH_CAP',event.futureExternalMonthsOver20],
+    ['REVIEW_PARTNER_MONTH_CAP',event.futurePartnerMonthsOver30],
+    ['REVIEW_EXTERNAL_MONTH_CAP',event.futureExternalMonthsOver30],
     ['REVIEW_CALENDAR_DAYS',event.futureDaysRequiringReview],
     ['REVIEW_DEPARTURE_SPACING',event.futureDaysWithShortDepartureGap],
     ['REVIEW_FUTURE_LEGACY_HOLDS',event.historyFutureLegacyHoldReview],
