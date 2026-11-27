@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const {evaluateMonthlyProof,VERIFIED}=require('./monthly-recurring-proof');
 
 const ROOT = __dirname;
 const DATA = path.join(ROOT, 'data');
@@ -96,6 +97,34 @@ function collectMonthly() {
   return { mode: 'monthly', status: proof.status, reused: false, proof };
 }
 
+// Repeatable monthly proof, stored per month; preserves historic September
+// 2026 one-off acceptance record and prevents overwriting any accepted month.
+function collectMonthlyRecurring() {
+  const report = read(path.join(OUTPUT,'monthly-report-verification.json'));
+  if (!report) throw Error('monthly-report-verification.json is missing.');
+  const result = evaluateMonthlyProof(report);
+  if (result.status !== VERIFIED) return {
+    mode:'monthly-recurring',status:result.status,reason:result.reason,
+    targetMonth:report.targetMonth || null
+  };
+  const key = result.proof.targetMonth.key;
+  const proofPath = path.join(DATA,'monthly-live-proofs',key+'.json');
+  const prior = read(proofPath);
+  if (prior) {
+    if (prior.version !== 1 || prior.status !== VERIFIED ||
+        prior.targetMonth?.key !== key ||
+        prior.discordChannelId !== result.proof.discordChannelId ||
+        prior.discordWebhookId !== result.proof.discordWebhookId ||
+        prior.discordMessageId !== result.proof.discordMessageId ||
+        prior.stateEntryKey !== key) {
+      throw Error('Monthly proof conflicts with an earlier accepted monthly record.');
+    }
+    return {mode:'monthly-recurring',status:VERIFIED,reused:true,proof:prior};
+  }
+  write(proofPath,result.proof);
+  return {mode:'monthly-recurring',status:VERIFIED,reused:false,proof:result.proof};
+}
+
 function collectConvoy() {
   const proofFile = path.join(DATA, 'public-convoy-live-proof.json');
   const existing = validExisting(proofFile, 'VERIFIED-LIVE-PUBLIC-CONVOY-35810');
@@ -142,8 +171,9 @@ function main() {
   let result;
   if (mode === 'weekly') result = collectWeekly();
   else if (mode === 'monthly') result = collectMonthly();
+  else if (mode === 'monthly-recurring') result = collectMonthlyRecurring();
   else if (mode === 'convoy') result = collectConvoy();
-  else throw new Error('Usage: node production-proof-collector.js <weekly|monthly|convoy>');
+  else throw new Error('Usage: node production-proof-collector.js <weekly|monthly|monthly-recurring|convoy>');
 
   const reportFile = path.join(OUTPUT, `production-proof-${mode}.json`);
   write(reportFile, { version: 1, checkedAt: new Date().toISOString(), ...result });
