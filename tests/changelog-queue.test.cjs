@@ -16,6 +16,10 @@ function sandbox(script, queue, failSend = false, overrides = {}) {
   if(!overrides.missingHistory)files.set('changelog-history.json',
     overrides.history ?? JSON.stringify({ changelogs: [] }));
   const sent = [];
+  const discordMessages = [...(overrides.previousMessages || [])];
+  const WEBHOOK = '111111111111111111';
+  const CHANNEL = '222222222222222222';
+  const GUILD = '1114967437788577792';
   const fakeFs = {
     existsSync: p => files.has(path.basename(p)),
     readFileSync: p => files.get(path.basename(p)),
@@ -26,15 +30,41 @@ function sandbox(script, queue, failSend = false, overrides = {}) {
     require: name => name === 'fs' ? fakeFs : name === './kings-branding' ? { installDiscordBranding() {} } : name.startsWith('.') ? require(path.join(root, name)) : require(name),
     __dirname: root,
     console: { log() {}, error() {} },
-    process: { env: { CHANGELOG_DISCORD_WEBHOOK_URL: 'https://invalid.test/webhook' } },
-    fetch: async (url, options) => {
-      sent.push(JSON.parse(options.body));
-      return { ok: !failSend, status: 500, text: async () => 'simulated failure' };
+    process: { env: {
+      CHANGELOG_DISCORD_WEBHOOK_URL:
+        'https://discord.com/api/webhooks/'+WEBHOOK+'/synthetic-webhook-token',
+      DISCORD_BOT_TOKEN: overrides.noBotToken ? '' : 'synthetic-bot'
+    } },
+    fetch: async (url, options={}) => {
+      if (options.method === 'GET') {
+        if (overrides.failRead)
+          return { ok: false, status: 403 };
+        if (url.includes('/webhooks/'))
+          return { ok: true, json: async () => ({
+            id:WEBHOOK, guild_id:GUILD, channel_id:CHANNEL
+          }) };
+        if (url.includes('/channels/'+CHANNEL+'/messages?')) {
+          const before = /[?&]before=(\d+)/.exec(url)?.[1];
+          const list = before ? discordMessages.filter(x=>BigInt(x.id)<BigInt(before))
+            : discordMessages;
+          return { ok:true, json:async()=>list.slice(0,100) };
+        }
+        return { ok:false,status:404 };
+      }
+      const body=JSON.parse(options.body);
+      sent.push(body);
+      const fail = failSend || (overrides.failAfterPost !== undefined &&
+        sent.length > overrides.failAfterPost);
+      if (!fail) discordMessages.unshift({
+        id:String(333333333333333333n+BigInt(discordMessages.length)),
+        webhook_id:WEBHOOK,content:body.content
+      });
+      return {ok:!fail,status:fail?500:204,text:async()=> 'simulated response'};
     }
   });
   const source = fs.readFileSync(path.join(root, script), 'utf8');
   vm.runInContext(source.slice(0, source.lastIndexOf('start().catch')), ctx);
-  return { files, sent, run: code => vm.runInContext(code, ctx) };
+  return { files, sent, discordMessages, run: code => vm.runInContext(code, ctx) };
 }
 
 for (const [label, value] of [
@@ -178,4 +208,54 @@ test('missing historical archive blocks publishing later release numbers',async(
  assert.equal(s.sent.length,0);
  assert.equal(s.files.has('changelog-history.json'),false);
  assert.equal(JSON.parse(s.files.get('changelog-queue.json')).length,1);
+});
+
+
+test('Discord accepts release but Git state is lost: retry recovers without a second POST',async()=>{
+ const s=sandbox('changelog.js',JSON.stringify([existing]));
+ const before=[...s.files];
+ await s.run('publishChangelog()');
+ assert.equal(s.sent.length,1);
+ for(const [k,v] of before)s.files.set(k,v);
+ await s.run('publishChangelog()');
+ assert.equal(s.sent.length,1,'recovery must not send a second public message');
+ assert.equal(JSON.parse(s.files.get('changelog-state.json')).nextNumber,7);
+ assert.equal(JSON.parse(s.files.get('changelog-history.json')).changelogs.length,1);
+ assert.deepEqual(JSON.parse(s.files.get('changelog-queue.json')),[]);
+});
+
+test('partial multi-part Discord delivery blocks retry and preserves original queue',async()=>{
+ const queue=JSON.stringify([
+   {category:'First',text:'x'.repeat(920)},
+   {category:'Second',text:'y'.repeat(920)}
+ ]);
+ const s=sandbox('changelog.js',queue,false,{failAfterPost:1});
+ const before=[...s.files];
+ await assert.rejects(s.run('publishChangelog()'),/HTTP 500/);
+ assert.ok(s.discordMessages.length===1);
+ const originalRequests=s.sent.length;
+ await assert.rejects(s.run('publishChangelog()'),/partially published/);
+ assert.equal(s.sent.length,originalRequests);
+ assert.deepEqual([...s.files],before);
+});
+
+test('tampered previously delivered release must never be silently re-archived or reposted',async()=>{
+ const s=sandbox('changelog.js',JSON.stringify([existing]));
+ const before=[...s.files];
+ await s.run('publishChangelog()');
+ s.discordMessages[0].content=s.discordMessages[0].content.replace('Existing entry','Tampered entry');
+ for(const [k,v] of before)s.files.set(k,v);
+ await assert.rejects(s.run('publishChangelog()'),/content conflicts/);
+ assert.equal(s.sent.length,1);
+ assert.deepEqual([...s.files],before);
+});
+
+test('Discord GET failure or unavailable private bot credential blocks all public sends',async()=>{
+ for(const config of [{failRead:true},{noBotToken:true}]) {
+   const s=sandbox('changelog.js',JSON.stringify([existing]),false,config);
+   const before=[...s.files];
+   await assert.rejects(s.run('publishChangelog()'),/readback|credentials/i);
+   assert.equal(s.sent.length,0);
+   assert.deepEqual([...s.files],before);
+ }
 });
