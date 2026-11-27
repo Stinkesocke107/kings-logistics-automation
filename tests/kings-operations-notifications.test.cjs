@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {eventSnapshot,publishEventSnapshot}=require('../kings-operations-notifications');
+const {eventSnapshot,eventEmbed,publishEventSnapshot}=require('../kings-operations-notifications');
 const {roleList,validatePrivateOperationsChannel}=require('../kings-operations-privacy');
 
 const GUILD='1114967437788577792',CHANNEL='1551676060645597256';
@@ -64,7 +64,7 @@ function scenario({history=[],overwrites=null,name='operations-notifications',
        route.startsWith('/api/v10/channels/'+CHANNEL+'/messages')){
       const id=method==='POST'?NOTICE:route.split('/').at(-1);
       const old=current.findIndex(x=>x.id===id);
-      const next={id,author:{id:BOT,bot:true},embeds:body.embeds};
+      const next={id,channel_id:CHANNEL,author:{id:BOT,bot:true},embeds:body.embeds};
       if(old>=0)current[old]=next;else current.unshift(next);
       return respond({id});
     }
@@ -195,4 +195,37 @@ test('Duplicate/full history and failed Discord readback are never accepted',asy
   const lost=scenario({readbackOverride:{id:NOTICE,author:{id:OUTSIDER},embeds:[]}});
   await assert.rejects(lost.publish(),/readback/);
   assert.equal(lost.calls.filter(c=>c.method==='POST').length,1);
+});
+
+test('Operations notice never trusts an unchanged footer when actual Discord content was edited',async()=>{
+  const x=scenario();
+  assert.equal((await x.publish()).status,'SENT');
+  const notice=x.current[0];
+  const canonical=notice.embeds[0].description;
+  notice.embeds[0].description='Tampered content with unchanged marker';
+  const repaired=await x.publish();
+  assert.equal(repaired.status,'UPDATED');
+  assert.equal(x.current[0].embeds[0].description,canonical);
+  assert.deepEqual(x.calls.filter(c=>['POST','PATCH'].includes(c.method))
+    .map(c=>c.method),['POST','PATCH']);
+  // Even a visually correct primary notice must not keep extra embeds.
+  x.current[0].embeds.push({title:'Unapproved extra'});
+  assert.equal((await x.publish()).status,'UPDATED');
+  assert.equal(x.current[0].embeds.length,1);
+});
+
+test('Operations notice rejects forged complete-footer readback and wrong destination',async()=>{
+  const expected=eventEmbed(eventSnapshot(report(),NOW));
+  for(const altered of [
+    {id:NOTICE,channel_id:CHANNEL,author:{id:BOT,bot:true},
+      embeds:[{...expected,description:'Modified despite same digest'}]},
+    {id:NOTICE,channel_id:OTHER_ROLE,author:{id:BOT,bot:true},
+      embeds:[expected]},
+    {id:NOTICE,channel_id:CHANNEL,author:{id:BOT,bot:true},
+      embeds:[{...expected,fields:[{name:'extra',value:'data'}]}]}
+  ]){
+    const x=scenario({readbackOverride:altered});
+    await assert.rejects(x.publish(),/readback/);
+    assert.equal(x.calls.filter(c=>c.method==='POST').length,1);
+  }
 });
