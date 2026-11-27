@@ -1,6 +1,7 @@
 require('./kings-branding').installDiscordBranding();
 
 const fs = require('fs');
+const {loadPublicationKeyState} = require('./report-publication-journal-guard');
 const path = require('path');
 const crypto = require('crypto');
 const { syncTextMessage } = require('./leadership-message-sync');
@@ -101,18 +102,10 @@ function emptyReportState() {
 }
 
 function readReportState() {
-  const state = readJson(REPORT_STATE_FILE, null);
-  if (!state) return emptyReportState();
-
-  return {
-    ...emptyReportState(),
-    ...state,
-    publishedDailyKeys: Array.isArray(state.publishedDailyKeys) ? state.publishedDailyKeys : [],
-    publishedMonthlyKeys: Array.isArray(state.publishedMonthlyKeys) ? state.publishedMonthlyKeys : [],
-    monthlyReports: Array.isArray(state.monthlyReports) ? state.monthlyReports : []
-  };
+  const state=loadPublicationKeyState(REPORT_STATE_FILE,
+    ['publishedDailyKeys','publishedMonthlyKeys'],['monthlyReports'],emptyReportState);
+  return {...emptyReportState(),...state};
 }
-
 function saveReportState(state) {
   state.updatedAt = nowISO();
   state.publishedDailyKeys = state.publishedDailyKeys.slice(-60);
@@ -458,7 +451,7 @@ async function discord(pathname, options = {}) {
 
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: [redacted]`);
   }
 
   if (!text) return null;
