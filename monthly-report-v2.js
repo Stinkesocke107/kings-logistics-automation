@@ -1,5 +1,6 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
+const {readStatisticsDocument} = require('./statistics-source-provenance');
 const {loadPublicationState} = require('./report-publication-journal-guard');
 const { attendedRegisteredConvoysForPeriod } = require('./convoy-participation');
 const path = require('path');
@@ -122,18 +123,9 @@ function eachUtcDate(period) {
 }
 
 function loadStatistics() {
-  const raw = readJson(STATISTICS_FILE, null);
-  if (!raw) throw new Error('Statistics data does not exist.');
-  const history = Array.isArray(raw)
-    ? raw
-    : Array.isArray(raw.history)
-      ? raw.history
-      : Array.isArray(raw.days)
-        ? raw.days
-        : [];
-  return history
-    .filter((day) => day && /^\d{4}-\d{2}-\d{2}$/.test(String(day.date || '')))
-    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const raw=readStatisticsDocument(STATISTICS_FILE);
+  const history=Array.isArray(raw)?raw:(Array.isArray(raw.history)?raw.history:raw.days);
+  return history.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
 }
 
 function getMonthStatistics(history, period) {
