@@ -87,16 +87,6 @@
         "runId": 46041824790
       },
       "firstAlertedAt": "2026-11-27T18:05:42.214Z"
-    },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 82,
-        "latestCount": 40
-      },
-      "firstAlertedAt": "2026-11-27T21:37:43.941Z"
     }
   },
   "pending": {}
