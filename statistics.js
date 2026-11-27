@@ -1,5 +1,6 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
+const {readStatisticsDocument,validateStatisticsLiveSnapshot} = require('./statistics-source-provenance');
 const path = require('path');
 
 const KINGS_BLUE = 0x182dff;
@@ -68,6 +69,9 @@ function progressBar(value) {
 function loadLiveSnapshot() {
   const snapshot = readJson(LIVE_SNAPSHOT_FILE, null);
   if (!snapshot || typeof snapshot !== 'object') throw new Error('Kings Live Tracker snapshot does not exist.');
+  // A successful HTTP/json read is insufficient: reject missing/unknown Kings
+  // online values, incomplete servers and future-dated map observations.
+  validateStatisticsLiveSnapshot(snapshot);
 
   const updatedAt = normalizeDate(snapshot.updatedAt);
   if (!updatedAt) throw new Error('Kings Live Tracker snapshot has no valid updatedAt timestamp.');
@@ -120,7 +124,7 @@ function normalizeDay(entry = {}) {
 }
 
 function loadStatistics() {
-  const raw = readJson(STATE_FILE, {});
+  const raw = readStatisticsDocument(STATE_FILE,{allowMissing:true});
   const historySource = Array.isArray(raw)
     ? raw
     : Array.isArray(raw.history)
@@ -382,7 +386,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('Kings Advanced Statistics failed:');
-  console.error(error);
+  // Never print arbitrary private Discord/HTTP payloads or webhook URLs.
+  console.error('Kings Advanced Statistics failed (details withheld; inspect readiness signals).');
   process.exit(1);
 });

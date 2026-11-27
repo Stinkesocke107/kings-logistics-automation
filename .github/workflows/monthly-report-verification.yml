@@ -10,6 +10,7 @@ on:
     paths:
       - 'monthly-report-v2.js'
       - 'monthly-report-verifier.js'
+      - 'statistics-source-provenance.js'
       - 'production-proof-collector.js'
       - '.github/workflows/monthly-report.yml'
       - '.github/workflows/monthly-report-verification.yml'

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const {readStatisticsDocument} = require('./statistics-source-provenance');
 const {loadPublicationState} = require('./report-publication-journal-guard');
 const path = require('path');
 
@@ -45,16 +46,14 @@ function expectedDates(period, now, fullMonth) {
 }
 
 function loadHistory() {
-  const raw = readJson('statistics.json', null);
-  if (!raw) throw new Error('statistics.json is missing.');
-  return (Array.isArray(raw) ? raw : Array.isArray(raw.history) ? raw.history : Array.isArray(raw.days) ? raw.days : [])
-    .filter((day) => /^\d{4}-\d{2}-\d{2}$/.test(String(day?.date || '')));
+  const raw=readStatisticsDocument(path.join(DATA,'statistics.json'));
+  return Array.isArray(raw)?raw:(Array.isArray(raw.history)?raw.history:raw.days);
 }
 
 async function requestJson(url, headers = {}) {
   const response = await fetch(url, { method: 'GET', headers, signal: AbortSignal.timeout(TIMEOUT_MS) });
   const text = await response.text();
-  if (!response.ok) throw new Error(`HTTP ${response.status} on GET ${url}: [redacted]`);
+  if (!response.ok) throw new Error(`Kings Monthly read-only source HTTP ${response.status} (endpoint and credentials withheld)`);
   return text ? JSON.parse(text) : null;
 }
 
