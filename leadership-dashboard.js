@@ -381,10 +381,10 @@ function buildEvent(data, now = Date.now()) {
       field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
       field('🗓️ Calendar / History — Source Review',calendarLine),
       field('📊 Event Capacity — Advisory Review',capacityLine),
+      field('🧾 Event History — Decision Evidence Review',historyEvidenceLine),
       field('🗂️ Event History — Priority Months',
         observed?renderReviewAgenda(observed.reviewAgenda):
           'Unavailable — a fresh reconciled Event source is required.'),
-      field('🧾 Event History — Decision Evidence Review',historyEvidenceLine),
       field('✉️ Invitation Tracker — Source Review',invitationLine)
     ],
     footer: { text: 'Kings Logistics • Event Leadership • Internal operations' },
