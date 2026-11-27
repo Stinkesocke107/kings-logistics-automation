@@ -32,6 +32,11 @@ function sourceTriageNotices(report,at=new Date().toISOString()){
   }];
 }
 function describe(w){
+  if(w.code==='duplicate-source-claim')
+    return 'Convoy Center has **'+w.count+
+      '** duplicate source claim(s) for '+w.period+
+      ' (UTC). Original Event/Forum records need Staff reconciliation.'+
+      ' No duplicate claim is a confirmed extra Event; no capacity is released.';
   if(w.code==='event-source-triage'){
     return 'Convoy Center requires Staff source review: **'+w.unknownTypes+
       '** unclassified Event type(s) and **'+w.missingDepartures+

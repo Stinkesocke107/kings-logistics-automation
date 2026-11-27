@@ -41,7 +41,7 @@ function departureMsFrom(value) {
   return timestamp;
 }
 function evaluate(input) {
-  const records = [], seen = new Set(), unknownTypes = [], missingDepartures = [], resolvedEventTypes = [];
+  const records = [], seen = new Set(), unknownTypes = [], missingDepartures = [], resolvedEventTypes = [], duplicateSourceClaims = [];
   for (const original of input || []) {
     if (!original || original.ignored || original.error || original.testThread || /^\s*\[?test\]?(?:\s|[-_:])/i.test(original.name || '')) continue;
     if (/^(Cancelled|Canceled)$/i.test(String(original.status || ''))) continue;
@@ -59,7 +59,13 @@ function evaluate(input) {
       : dateFrom(original.validation?.parsed?.eventDate || original.eventDate);
     if (!date) continue;
     const key = original.eventId ? 'event:' + String(original.eventId) : 'thread:' + String(original.threadId || original.legacyId || '');
-    if (seen.has(key)) continue;
+    if (seen.has(key)) {
+      // Repeated event IDs or Forum references must not count twice, but
+      // silently dropping them could hide a source conflict from Event Staff.
+      // Store only UTC day/category in the advisory, never private thread IDs.
+      duplicateSourceClaims.push({date,kind:original.eventId?'event':'thread'});
+      continue;
+    }
     seen.add(key);
     if (verified) resolvedEventTypes.push({ threadId: original.threadId || null, eventId: verified.eventId, type: verified.type, source: 'truckersmp-authoritative-kings-host' });
     if (!type) {
@@ -77,12 +83,22 @@ function evaluate(input) {
     records.push({ id: key, threadId: original.threadId || null, name: original.name || null, type, date, departureMs: Number.isFinite(departureMs) ? departureMs : null });
   }
   const months = {}, days = {}, warnings = [];
+  const duplicateDays = {};
   for (const r of records) {
     const month = r.date.slice(0,7);
     (months[month] ||= { external: 0, partner: 0, kings: 0 });
     (days[r.date] ||= { external: 0, partner: 0, kings: 0 });
     const field = r.type === 'External Convoy' ? 'external' : r.type === 'Partner Convoy' ? 'partner' : 'kings';
     months[month][field]++; days[r.date][field]++;
+  }
+  for (const duplicate of duplicateSourceClaims) {
+    duplicateDays[duplicate.date]=(duplicateDays[duplicate.date]||0)+1;
+  }
+  for (const [period,count] of Object.entries(duplicateDays)) {
+    warnings.push({
+      code:'duplicate-source-claim',period,count,
+      actionRequired:'Event Staff must reconcile original records'
+    });
   }
   for (const [month, counts] of Object.entries(months)) {
     for (const category of ['external','partner']) {
@@ -124,6 +140,8 @@ function evaluate(input) {
   // evidence. NEVER calculate or publish certified remaining/bookable slots.
   return { version:2, mode:'advisory-only', limits:LIMITS, months, days,
     warnings, unknownTypes, missingDepartures, resolvedEventTypes,
+    duplicateSourceClaims:Object.entries(duplicateDays).map(([period,count])=>({period,count})),
+    sourceUniquenessVerified:duplicateSourceClaims.length===0,
     counted:records.length, freeSlotsCertified:false,
     historicalApprovalsVerified:false, sourceClaimsOnly:true };
 }
