@@ -397,3 +397,21 @@ test('private instructions distinguish blocked, active, recorded and stale revie
   assert.doesNotMatch(shown,/EventLead|ORIGINAL event URL/);
   assert.ok(shown.length<=1024);
 });
+
+
+test('private source-unavailable review can be blocked but never presents record_check',()=>{
+  const missing={...makeState(),eventSourceObservation:null};
+  const started=applyManualReview({
+    state:missing,scope:'worklist',code:'CONVOY_SOURCE_UNAVAILABLE',
+    month:null,actor:'EventLead',action:'start',nowMs:NOW
+  });
+  const help=renderPrivateReviewTokens(started,SECRET,NOW);
+  const line=help.split('\n').find(x=>x.includes('Review Convoy Center source access / freshness'));
+  assert.match(line,/IN_REVIEW.*!kings-review KR[a-f0-9]{24} block/);
+  assert.doesNotMatch(line,/record_check/);
+  assert.throws(()=>applyManualReview({
+    state:started,scope:'worklist',code:'CONVOY_SOURCE_UNAVAILABLE',
+    actor:'EventLead',action:'record_check',evidenceKind:'STAFF_RECORD',
+    confirmation:'ORIGINAL_RECORDS_CHECKED',nowMs:NOW+1000
+  }),/unverified/);
+});
