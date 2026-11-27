@@ -1,6 +1,6 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
-const {readStatisticsDocument} = require('./statistics-source-provenance');
+const {readStatisticsDocument,validateStatisticsLiveSnapshot} = require('./statistics-source-provenance');
 const path = require('path');
 
 const KINGS_BLUE = 0x182dff;
@@ -69,6 +69,9 @@ function progressBar(value) {
 function loadLiveSnapshot() {
   const snapshot = readJson(LIVE_SNAPSHOT_FILE, null);
   if (!snapshot || typeof snapshot !== 'object') throw new Error('Kings Live Tracker snapshot does not exist.');
+  // A successful HTTP/json read is insufficient: reject missing/unknown Kings
+  // online values, incomplete servers and future-dated map observations.
+  validateStatisticsLiveSnapshot(snapshot);
 
   const updatedAt = normalizeDate(snapshot.updatedAt);
   if (!updatedAt) throw new Error('Kings Live Tracker snapshot has no valid updatedAt timestamp.');
