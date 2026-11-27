@@ -120,7 +120,11 @@ function validatePrivateChannel({channel,roles,bot,botMember,allowedRoles,channe
   return true;
 }
 function parseCommand(content){
-  if(typeof content!=='string'||content.length>256)reject();
+  if(typeof content!=='string')reject();
+  // Normal private Staff conversation may be much longer than a supported
+  // 256-character command. Ignore it instead of halting every later review.
+  // The strict grammar remains the only route to a state change.
+  if(content.length>256)return null;
   const match=CMD.exec(content);
   if(!match)return null;
   if(match[2]==='record_check'){
@@ -278,7 +282,15 @@ async function ingest({state,secret,token,channelId,staffRoleIds,
     // A webhook message is not a human Staff command, even if its
     // author shape or claimed role resembles an approved operator.
     if(message.author.bot||message.webhook_id)continue;
-    if(message.content==='')reject(); // MESSAGE_CONTENT intent not verified.
+    if(message.content===''){
+      // A valid attachment-only or embedded Staff message is not a command.
+      // Missing Message Content intent still fails closed when no independently
+      // supplied non-text message payload exists.
+      const nonText=(Array.isArray(message.attachments)&&message.attachments.length>0)||
+        (Array.isArray(message.embeds)&&message.embeds.length>0);
+      if(nonText)continue;
+      reject();
+    }
     const command=parseCommand(message.content);
     if(!command)continue;
     const member=await get('/guilds/'+GUILD+'/members/'+message.author.id);
