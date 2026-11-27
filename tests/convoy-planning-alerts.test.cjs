@@ -164,3 +164,21 @@ test('duplicate-source alert is private, stable, source-only and never certifies
   assert.equal(keyOf(w),keyOf({...w,count:3}));
   assert.doesNotMatch(text,/123456789012345678|PRIVATE_EVENT_MARKER/);
 });
+
+
+test('independent 30/month warning text and staged 20,25,30 review thresholds remain advisory-only',()=>{
+ const {describe}=require('../convoy-planning-alerts');
+ for(const category of ['partner','external']){
+   for(const threshold of [20,25,30]){
+     const notice={code:category+'-month-threshold',period:'2027-05',threshold,count:30};
+     const text=describe(notice);
+     assert.match(text,new RegExp('30/30'));
+     assert.match(text,new RegExp('review threshold '+threshold+'/30'));
+     assert.match(text,/not automatic approval/);
+   }
+   const above=describe({code:category+'-month-over-limit',period:'2027-05',count:31,limit:30});
+   assert.match(above,/31\/30/);
+   assert.match(above,/30\/month/);
+   assert.match(above,/no existing approval is displaced/);
+ }
+});
