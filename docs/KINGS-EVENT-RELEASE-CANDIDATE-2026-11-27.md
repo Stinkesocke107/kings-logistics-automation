@@ -16,6 +16,10 @@
 - A successful read-only source inventory cannot prove all 24 historical months contain every original Event or that recorded invitation replies represent externally verified acceptance.
 - The existing diagnostic 3/day, 20/month and 120-minute spacing calculations remain advisory, not a final policy authorization or reservation availability. Zero invitation claims must never be inferred from an unavailable source.
 
+## Production read-only proof (27 November 2026)
+
+The existing `event_integrated_source_verify` job was executed again, without dispatching any Staff action, in [Kings Event Leadership Reports, run 45914805638, attempt 2](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45914805638). The source stage reported `EVENT_SOURCE_TO_STAFF_TRIAGE_RECONCILED`, and the separate protected dashboard GET comparison reported `VERIFIED`. This narrows the remaining **technical read-only** evidence for #12, #14, #15, #16 and #18. It is not a manual `integration-check` invocation, nor proof of a new authenticated Staff decision.
+
 ## After code review and safe merge: exact final real-world checks
 1. An authorized operator runs **Kings Event Leadership Reports → `integration-check`** on `main`. Both the original source stage and independent protected stored-message stage must actually succeed. Record the Actions run URL in the private operator acceptance evidence.
 2. Event Coordination Lead reconciles the original 24-month Event and Legacy source, the twelve-month future Calendar, actual cancellations/holds, Invitation Tracker original forum replies, missing/duplicate references, true ownership and responsible Staff roles. Record the exceptions and genuine decisions only in protected evidence, not public GitHub.
