@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const {assertManifest, verifiedSource} = require('./recovery-path-guard');
 
 const ROOT = __dirname;
 const STAGING = path.join(ROOT, 'backup-staging');
@@ -59,9 +60,15 @@ function walk(directory, predicate, output = []) {
   if (!fs.existsSync(directory)) return output;
   for (const name of fs.readdirSync(directory)) {
     const absolute = path.join(directory, name);
-    const stat = fs.statSync(absolute);
+    const relative = normalize(path.relative(ROOT, absolute));
+    // Historical backup artifacts are not part of the live state inventory.
+    if (relative === 'data/backups' || relative.startsWith('data/backups/')) continue;
+    const stat = fs.lstatSync(absolute);
+    if (stat.isSymbolicLink()) {
+      throw new Error('Symlink in backup coverage source: ' + relative);
+    }
     if (stat.isDirectory()) walk(absolute, predicate, output);
-    else if (stat.isFile() && predicate(absolute)) output.push(normalize(path.relative(ROOT, absolute)));
+    else if (stat.isFile() && predicate(absolute)) output.push(relative);
   }
   return output;
 }
@@ -71,8 +78,10 @@ function expectedRepositoryCoverage() {
 
   for (const name of fs.readdirSync(ROOT)) {
     const absolute = path.join(ROOT, name);
-    if (fs.statSync(absolute).isFile() && (name.endsWith('.js') || name === 'package.json' || name === 'package-lock.json')) {
-      expected.add(name);
+    if (name.endsWith('.js') || name === 'package.json' || name === 'package-lock.json') {
+      const stat = fs.lstatSync(absolute);
+      if (stat.isSymbolicLink()) throw new Error('Symlink in core backup source: ' + name);
+      if (stat.isFile()) expected.add(name);
     }
   }
 
@@ -114,6 +123,9 @@ function main() {
     throw new Error('Backup manifest contains no files.');
   }
 
+  // Validate every path, size and SHA-256 before converting to a Map:
+  // duplicate or escaping paths must never disappear through key overwrite.
+  assertManifest(manifest.files);
   const manifestByPath = new Map(manifest.files.map((item) => [normalize(item.path), item]));
   const expected = expectedRepositoryCoverage();
   const missingCoverage = expected.filter((file) => !manifestByPath.has(file));
@@ -137,18 +149,13 @@ function main() {
 
   let checksumChecked = 0;
   for (const [relativePath, info] of manifestByPath) {
-    const staged = path.join(STAGING, relativePath);
-    if (!fs.existsSync(staged) || !fs.statSync(staged).isFile()) {
-      errors.push({ type: 'staged-file-missing', file: relativePath, message: 'Manifest file is missing from backup staging.' });
-      continue;
-    }
-    if (!info.sha256) {
-      errors.push({ type: 'manifest-hash-missing', file: relativePath, message: 'Manifest entry has no SHA-256 hash.' });
-      continue;
-    }
-    checksumChecked++;
-    if (sha256(staged) !== String(info.sha256)) {
-      errors.push({ type: 'checksum-mismatch', file: relativePath, message: 'Staged backup SHA-256 does not match manifest.' });
+    try {
+      // Recheck destination root, parent components, regular-file type,
+      // declared size and SHA-256. statSync alone would follow a linked file.
+      verifiedSource(STAGING, info);
+      checksumChecked++;
+    } catch (error) {
+      errors.push({ type: 'staged-source-invalid', file: relativePath, message: 'Staged file failed safe path / SHA-256 verification.' });
     }
   }
 
