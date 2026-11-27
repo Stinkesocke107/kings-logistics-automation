@@ -538,6 +538,8 @@ async function publishChangelog() {
   // Preflight the entire archive BEFORE posting to Discord. Invalid or
   // duplicate release numbering can otherwise lead to a successful public
   // post followed by a failed archival write (and another post on retry).
+  if(!fs.existsSync(HISTORY_FILE)&&state.nextNumber>5)
+    throw Error('Existing Changelog archive missing; do not reset release history');
   const history=loadHistory();
   const duplicateId=state.season+'-KL'+String(state.nextNumber).padStart(2,'0');
   if(history.changelogs.some(x=>x.id===duplicateId)||
