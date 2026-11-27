@@ -87,6 +87,16 @@
         "runId": 46041824790
       },
       "firstAlertedAt": "2026-11-27T18:05:42.214Z"
+    },
+    "workflow-failed:live-tracker.yml": {
+      "severity": "critical",
+      "system": "Live Tracker / Statistics",
+      "message": "Live Tracker / Statistics latest completed run ended with cancelled.",
+      "details": {
+        "runId": 46082302675,
+        "completedAt": "2026-11-27T23:24:19Z"
+      },
+      "firstAlertedAt": "2026-11-27T23:29:03.252Z"
     }
   },
   "pending": {}
