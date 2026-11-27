@@ -25,7 +25,7 @@ function mockDiscord(history = []) {
     const path = new URL(url).pathname;
     requests.push({path,method:options.method,body:options.body ? JSON.parse(options.body) : null});
     if (options.method === 'GET' && path.endsWith('/channels/' + CHANNEL)) {
-      return ok({id:CHANNEL,guild_id:GUILD,type:0,
+      return ok({id:CHANNEL,guild_id:GUILD,type:0,name:'operations-notifications',
         permission_overwrites:[{id:GUILD,type:0,deny:'1024',allow:'0'}]});
     }
     if (options.method === 'GET' && path.endsWith('/users/@me'))
@@ -98,7 +98,7 @@ test('Public channels and unresolved source data always fail closed', async () =
   const calls=[];
   const transport = async (url,options) => {
     calls.push(options.method);
-    return ok({id:CHANNEL,guild_id:GUILD,type:0,permission_overwrites:[]});
+    return ok({id:CHANNEL,guild_id:GUILD,type:0,name:'operations-notifications',permission_overwrites:[]});
   };
   await assert.rejects(publishEventSnapshot({
     enabled:'ENABLED',report:report(),channelId:CHANNEL,
