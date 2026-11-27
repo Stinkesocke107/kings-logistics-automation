@@ -94,6 +94,11 @@ async function publishEventSnapshot({
       !Array.isArray(channel.permission_overwrites)) {
     throw Error('Operations channel is not the approved private text channel');
   }
+  const channelName = String(channel.name || '').toLowerCase()
+    .normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  if (!['operations-notifications','kings-operations-notifications'].includes(channelName)) {
+    throw Error('Operations target channel name is not allowlisted');
+  }
   const everyone = channel.permission_overwrites.find(o =>
     o?.type === 0 && String(o.id) === guildId);
   // Deny @everyone "View Channel" (bit 1<<10) in this private staff feed.
