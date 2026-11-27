@@ -21,8 +21,8 @@ test('Convoy Overview shows a verified snapshot, event type, separate meeting an
   const message = s.run('buildMessage(' + JSON.stringify(data) + ')');
   assert.match(message, /Kings Convoy Center snapshot/);
   assert.match(message, /Event Type:\*\* Partner Convoy/);
-  assert.match(message, /Meeting Time:\*\* <t:\d+:/);
-  assert.match(message, /Departure Time:\*\* <t:\d+:/);
+  assert.match(message, /Meeting Time:\*\* \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC\+0/);
+  assert.match(message, /Departure Time:\*\* \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC\+0/);
   assert.match(message, /Kings Slot:\*\* Slot 3/);
   assert.match(message, /GitHub may delay/);
   assert.ok(message.length <= 1950);
