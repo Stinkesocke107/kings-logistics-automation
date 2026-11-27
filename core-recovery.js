@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const {safeRelative,safeTarget,assertManifest,verifiedSource}=require("./recovery-path-guard");
 
 // ======================================================
 // KINGS LOGISTICS — AUTOMATION CORE & SAFETY
@@ -159,69 +160,10 @@ function sha256(file) {
 // SAFE PATH VALIDATION
 // ======================================================
 
-function validateRestorePath(
-  relativePath
-) {
-  if (
-    typeof relativePath !==
-      "string" ||
-    !relativePath.trim()
-  ) {
-    throw new Error(
-      "Empty restore path detected."
-    );
-  }
-
-  const raw =
-    normalizePath(
-      relativePath.trim()
-    );
-
-  const normalized =
-    path.posix.normalize(
-      raw
-    );
-
-  if (
-    normalized === "." ||
-    normalized === ".." ||
-    normalized.startsWith("../") ||
-    normalized.startsWith("/") ||
-    path.isAbsolute(
-      relativePath
-    )
-  ) {
-    throw new Error(
-      `Unsafe restore path detected: ${relativePath}`
-    );
-  }
-
-  const destination =
-    path.resolve(
-      ROOT,
-      normalized
-    );
-
-  const rootResolved =
-    path.resolve(
-      ROOT
-    );
-
-  if (
-    destination !==
-      rootResolved &&
-    !destination.startsWith(
-      rootResolved +
-      path.sep
-    )
-  ) {
-    throw new Error(
-      `Restore path escapes repository: ${relativePath}`
-    );
-  }
-
-  return normalized;
+function validateRestorePath(relativePath) {
+  return safeRelative(relativePath);
 }
+
 
 // ======================================================
 // RECOVERY MODE
@@ -332,6 +274,10 @@ function validateBackup() {
     );
   }
 
+  // Independently reject unsafe, duplicate or parent/child colliding manifest
+  // paths even when the Actions safety gate ran earlier.
+  assertManifest(manifest.files);
+
   if (
     manifest.commit &&
     restorePoint.commit &&
@@ -394,11 +340,7 @@ function verifyBackupFiles(
         fileInfo.path
       );
 
-    const backupFile =
-      path.join(
-        RESTORE_SOURCE,
-        relativePath
-      );
+    const backupFile=verifiedSource(RESTORE_SOURCE,fileInfo);
 
     if (
       !fs.existsSync(
@@ -505,11 +447,7 @@ function buildRecoveryPlan(
         fileInfo.path
       );
 
-    const currentFile =
-      path.join(
-        ROOT,
-        relativePath
-      );
+    const currentFile=safeTarget(ROOT,relativePath);
 
     let status;
 
@@ -758,6 +696,16 @@ function applyRecovery(
 
   const restored = [];
 
+  // Preflight every source and target before any repository write.
+  for(const fileInfo of actions){
+    verifiedSource(RESTORE_SOURCE,{
+      path:fileInfo.path,
+      sha256:fileInfo.backupSha256,
+      size:fileInfo.backupSize
+    });
+    safeTarget(ROOT,fileInfo.path);
+  }
+
   if (
     actions.length ===
     0
@@ -792,17 +740,12 @@ function applyRecovery(
         fileInfo.path
       );
 
-    const source =
-      path.join(
-        RESTORE_SOURCE,
-        relativePath
-      );
-
-    const destination =
-      path.join(
-        ROOT,
-        relativePath
-      );
+    const source=verifiedSource(RESTORE_SOURCE,{
+      path:relativePath,
+      sha256:fileInfo.backupSha256,
+      size:fileInfo.backupSize
+    });
+    const destination=safeTarget(ROOT,relativePath);
 
     if (
       !fs.existsSync(
@@ -814,23 +757,6 @@ function applyRecovery(
     ) {
       throw new Error(
         `Recovery source file missing: ${relativePath}`
-      );
-    }
-
-    if (
-      fs.existsSync(
-        destination
-      ) &&
-      fs.statSync(
-        destination
-      ).isDirectory()
-    ) {
-      fs.rmSync(
-        destination,
-        {
-          recursive: true,
-          force: true
-        }
       );
     }
 
@@ -922,11 +848,7 @@ function verifyRecoveredRepository(
         fileInfo.path
       );
 
-    const currentFile =
-      path.join(
-        ROOT,
-        relativePath
-      );
+    const currentFile=safeTarget(ROOT,relativePath);
 
     if (
       !fs.existsSync(

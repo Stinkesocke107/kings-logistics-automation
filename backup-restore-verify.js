@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const {safeRelative,safeTarget,assertManifest,verifiedSource}=require('./recovery-path-guard');
 
 // ======================================================
 // KINGS LOGISTICS — ISOLATED BACKUP RESTORE VERIFICATION
@@ -25,29 +26,7 @@ function sha256(file) {
 }
 
 function safeRelativePath(value) {
-  if (typeof value !== 'string' || !value.trim()) {
-    throw new Error('Empty backup manifest path.');
-  }
-
-  const raw = normalizePath(value.trim());
-  const normalized = path.posix.normalize(raw);
-  if (
-    normalized === '.' ||
-    normalized === '..' ||
-    normalized.startsWith('../') ||
-    normalized.startsWith('/') ||
-    path.isAbsolute(value)
-  ) {
-    throw new Error(`Unsafe backup manifest path: ${value}`);
-  }
-
-  const destination = path.resolve(VERIFY_ROOT, normalized);
-  const root = path.resolve(VERIFY_ROOT);
-  if (destination !== root && !destination.startsWith(root + path.sep)) {
-    throw new Error(`Restore verification path escapes sandbox: ${value}`);
-  }
-
-  return normalized;
+  return safeRelative(value);
 }
 
 function writeResult(result) {
@@ -60,10 +39,12 @@ function main() {
   }
 
   const manifest = JSON.parse(fs.readFileSync(MANIFEST_FILE, 'utf8'));
-  if (!Array.isArray(manifest.files) || manifest.files.length === 0) {
-    throw new Error('Backup manifest contains no restorable files.');
+  assertManifest(manifest.files);
+  // Do not remove a symlinked disposable directory that may point outside
+  // this runner. Every restore target is separately guarded below.
+  if (fs.existsSync(VERIFY_ROOT) && fs.lstatSync(VERIFY_ROOT).isSymbolicLink()) {
+    throw new Error('Disposable restore verification root cannot be a symlink.');
   }
-
   fs.rmSync(VERIFY_ROOT, { recursive: true, force: true });
   fs.mkdirSync(VERIFY_ROOT, { recursive: true });
 
@@ -75,14 +56,10 @@ function main() {
   try {
     for (const entry of manifest.files) {
       const relativePath = safeRelativePath(entry.path);
-      const source = path.join(BACKUP_ROOT, relativePath);
-      const destination = path.join(VERIFY_ROOT, relativePath);
-
-      if (!fs.existsSync(source) || !fs.statSync(source).isFile()) {
-        errors.push({ path: relativePath, reason: 'Backup source file is missing.' });
-        continue;
-      }
-
+      // Revalidate original source integrity before copying, even when
+      // verify-roundtrip runs independently of the recovery safety workflow.
+      const source=verifiedSource(BACKUP_ROOT,entry);
+      const destination=safeTarget(VERIFY_ROOT,relativePath);
       fs.mkdirSync(path.dirname(destination), { recursive: true });
       fs.copyFileSync(source, destination);
       restored += 1;

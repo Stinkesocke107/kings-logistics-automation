@@ -59,6 +59,12 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Verify independent recovery filesystem boundaries
+        run: |
+          node --check recovery-path-guard.js
+          node --check core-recovery.js
+          node --test tests/recovery-path-guard.test.cjs
+
       - name: Validate Recovery Request
         shell: bash
         env:

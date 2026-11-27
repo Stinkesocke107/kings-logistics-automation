@@ -95,6 +95,7 @@ const CRITICAL_FILES = [
 
   "core-backup.js",
   "core-recovery.js",
+  "recovery-path-guard.js",
 
   // Critical current automation modules and operator recovery tooling.
   "kings-workflow-registry.js",

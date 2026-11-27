@@ -6,6 +6,10 @@ on:
     branches: [main]
     paths:
       - 'core-backup.js'
+      - 'core-recovery.js'
+      - 'recovery-path-guard.js'
+      - 'recovery-safety-check.js'
+      - 'tests/recovery-path-guard.test.cjs'
       - 'backup-final-check.js'
       - 'backup-restore-verify.js'
       - '.github/workflows/core-backup.yml'
@@ -33,6 +37,13 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
+
+      - name: Prove recovery path guard with isolated real CLI tests
+        run: |
+          node --check recovery-path-guard.js
+          node --check core-recovery.js
+          node --check backup-restore-verify.js
+          node --test tests/recovery-path-guard.test.cjs
 
       - name: Build current Kings backup
         run: node core-backup.js
@@ -79,7 +90,9 @@ jobs:
             'docs/KINGS-ALL-SYSTEMS-INVENTORY.md',
             'docs/KINGS-SYSTEM-UND-FUNKTIONSABNAHME-2026-11-26.md',
             'kings-system-acceptance.js',
-            'event-review-dashboard-readonly-proof.js'
+            'event-review-dashboard-readonly-proof.js',
+            'recovery-path-guard.js',
+            'tests/recovery-path-guard.test.cjs'
           ];
           if(restore.healthy!==true||restore.summary.manifestFiles!==restore.summary.restoredFiles||
              restore.summary.manifestFiles!==restore.summary.checksumsVerified)
