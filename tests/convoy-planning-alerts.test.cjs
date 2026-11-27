@@ -107,3 +107,49 @@ test('Event triage reuses durable Staff alert deduplication and never publishes 
   assert.match(source,/CONVOY_DRY_RUN/);
   assert.match(source,/Convoy Alert Key/);
 });
+
+test('only authenticated bot-owned complete-history markers recover sent alerts',()=>{
+  const {botOwnedAlertKeys}=require('../convoy-planning-alerts');
+  const botId='111111111111111111';
+  const key='abcdefabcdefabcdefabcdef';
+  const content='Private notice\nConvoy Alert Key: '+key;
+  const human={author:{id:'222222222222222222',bot:false},content};
+  const webhook={author:{id:'333333333333333333',bot:true},content};
+  const bot={author:{id:botId,bot:true},content};
+  assert.equal(botOwnedAlertKeys([human,webhook],botId).size,0);
+  assert.deepEqual([...botOwnedAlertKeys([human,webhook,bot],botId)],[key]);
+  assert.equal(botOwnedAlertKeys([{...bot,content:content+'\nEdited'}],botId).size,0);
+  assert.throws(()=>botOwnedAlertKeys(new Array(100).fill(human),botId),/incomplete/);
+  assert.throws(()=>botOwnedAlertKeys(null,botId),/incomplete/);
+});
+
+test('Discord acknowledgment is not publication proof until exact stored bot message is read',()=>{
+  const {validAlertDelivery}=require('../convoy-planning-alerts');
+  const expected={id:'123456789012345678',botId:'111111111111111111',
+    channelId:'333333333333333333',content:'Hello'};
+  const saved={id:expected.id,channel_id:expected.channelId,
+    author:{id:expected.botId,bot:true},content:expected.content};
+  assert.equal(validAlertDelivery(saved,expected),true);
+  for(const changed of [
+    {...saved,content:'Modified'}, {...saved,author:{id:'999999999999999999',bot:true}},
+    {...saved,channel_id:'555555555555555555'}, {...saved,author:{id:expected.botId,bot:false}}
+  ])assert.equal(validAlertDelivery(changed,expected),false);
+  assert.equal(validAlertDelivery(null,expected),false);
+});
+
+test('live event planning alerts and durable state require verified original sources',()=>{
+  const fs=require('node:fs'),path=require('node:path');
+  const workflow=fs.readFileSync(path.join(__dirname,'..','.github','workflows','convoy-checker.yml'),'utf8');
+  const block=workflow.split('- name: Notify Event Leadership about new planning conflicts')[1]
+    ?.split('- name: Persist sent planning alert keys')[0]||'';
+  for(const stage of ['convoy_stage_0','convoy_stage_1','convoy_stage_2',
+    'convoy_completeness','convoy_stage_8'])
+    assert.ok(block.includes('steps.'+stage+'.outcome == \'success\''),stage);
+  const persist=workflow.split('- name: Persist sent planning alert keys')[1]
+    ?.split('- name: Send private Kings Operations Notices')[0]||'';
+  assert.match(persist,/steps\.convoy_planning_alerts\.outcome == 'success'/);
+  const source=fs.readFileSync(path.join(__dirname,'..','convoy-planning-alerts.js'),'utf8');
+  assert.doesNotMatch(source,/await res\.text\(\)/);
+  assert.match(source,/validAlertDelivery\(saved,/);
+  assert.match(source,/botOwnedAlertKeys\(recent,bot\.id\)/);
+});
