@@ -86,8 +86,8 @@ test('all four Leadership publishers validate key-based journals before publishi
   for(const file of ['driver-leadership-reports.js','hr-leadership-reports.js',
     'staff-leadership-reports.js','management-monthly-report.js']){
     const source=fs.readFileSync(path.join(__dirname,'..',file),'utf8');
-    assert.match(source,/require\\(['"]\\.\\/report-publication-journal-guard['"]\\)/,file);
-    assert.match(source,/loadPublicationKeyState\\(/,file);
-    assert.doesNotMatch(source,/text\\.slice\\(0,\\s*500\\)/,file);
+    assert.ok(source.includes("require('./report-publication-journal-guard')"),file);
+    assert.ok(source.includes('loadPublicationKeyState('),file);
+    assert.ok(!source.includes('text.slice(0, 500)'),file);
   }
 });
