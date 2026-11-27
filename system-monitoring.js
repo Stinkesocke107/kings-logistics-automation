@@ -618,17 +618,22 @@ async function checkWorkflow(config, issues) {
     reasons.push('schedule-' + scheduleCadence.status);
   }
 
+  const impossibleFutureSuccess = Number.isFinite(age) && age < -5;
   if (!isFreshAge(age, config.maxAgeMinutes)) {
-    if (recentActiveRun) {
+    // A concurrent active run may excuse an overdue prior success; it must
+    // never excuse a mathematically impossible future-dated success.
+    if (recentActiveRun && !impossibleFutureSuccess) {
       reasons.push('active-run-in-progress');
     } else {
       ok = false;
-      reasons.push('overdue');
+      reasons.push(impossibleFutureSuccess ? 'future-dated-success' : 'overdue');
       issues.push(issue(
-        `workflow-overdue:${config.file}`,
+        `${impossibleFutureSuccess ? 'workflow-future-success' : 'workflow-overdue'}:${config.file}`,
         config.severity,
         config.label,
-        `${config.label} has not run within the expected time window.`,
+        impossibleFutureSuccess
+          ? `${config.label} has a successful run timestamp more than five minutes in the future.`
+          : `${config.label} has not run within the expected time window.`,
         { latestActivityAt: activityAt || null, ageMinutes: Number.isFinite(age) ? age : null, maxAgeMinutes: config.maxAgeMinutes }
       ));
     }
