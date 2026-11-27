@@ -23,7 +23,7 @@ const REQUIREMENTS=Object.freeze(Object.fromEntries(
   [
     "backup-recovery-verification.yml",
     [
-      "Den nachgewiesenen isolierten 441-Dateien-Restore von einer echten Notfallwiederherstellung getrennt dokumentieren.",
+      "Den nachgewiesenen isolierten vollständigen Restore (aktueller Prüflauf: 454 von 454 Dateien) von einer echten Notfallwiederherstellung getrennt dokumentieren.",
       "Autorisierte Recovery-Prozedur, Schlüsselverwahrung, Wiederinbetriebnahme und Freigabe kontrolliert abnehmen."
     ]
   ],
