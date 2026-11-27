@@ -74,26 +74,6 @@
       "details": null,
       "firstAlertedAt": "2026-11-26T23:46:43.846Z"
     },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
-      "details": {
-        "ageMinutes": 70,
-        "latestCount": 40
-      },
-      "firstAlertedAt": "2026-11-27T02:05:38.862Z"
-    },
-    "workflow-failed:convoy-checker.yml": {
-      "severity": "critical",
-      "system": "Convoy / Event System",
-      "message": "Convoy / Event System latest completed run ended with cancelled.",
-      "details": {
-        "runId": 45926163499,
-        "completedAt": "2026-11-27T02:04:26Z"
-      },
-      "firstAlertedAt": "2026-11-27T02:05:38.862Z"
-    },
     "workflow-failed:hr-leadership.yml": {
       "severity": "critical",
       "system": "HR Leadership",
@@ -113,26 +93,38 @@
         "completedAt": "2026-11-27T02:05:28Z"
       },
       "firstAlertedAt": "2026-11-27T02:05:38.862Z"
-    }
-  },
-  "pending": {
+    },
     "stale-data:data/staff-management-summary.json": {
-      "count": 1,
-      "firstSeenAt": "2026-11-27T02:05:38.862Z",
+      "severity": "warning",
       "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
+      "message": "Staff Management data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-22T21:06:56.031Z",
+        "ageMinutes": 6060,
+        "maxAgeMinutes": 180
+      },
+      "firstAlertedAt": "2026-11-27T02:07:00.479Z"
     },
     "workflow-failed:news.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-27T02:05:38.862Z",
+      "severity": "warning",
       "system": "TruckersMP News",
-      "message": "TruckersMP News latest completed run ended with failure."
+      "message": "TruckersMP News latest completed run ended with failure.",
+      "details": {
+        "runId": 45926188251,
+        "completedAt": "2026-11-27T02:05:09Z"
+      },
+      "firstAlertedAt": "2026-11-27T02:07:00.479Z"
     },
     "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-27T02:05:38.862Z",
+      "severity": "warning",
       "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with cancelled."
+      "message": "Safe Self-Healing latest completed run ended with cancelled.",
+      "details": {
+        "runId": 45926200570,
+        "completedAt": "2026-11-27T02:04:49Z"
+      },
+      "firstAlertedAt": "2026-11-27T02:07:00.479Z"
     }
-  }
+  },
+  "pending": {}
 }
