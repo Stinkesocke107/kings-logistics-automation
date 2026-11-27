@@ -11,6 +11,7 @@ const {observeOperations,renderOperationsReview,operationsWorklist,renderOperati
 const {reviewSummary,renderReviewSummary,renderPrivateReviewTokens}=require('./event-operations-manual-review-state');
 const {renderReviewAgenda,CODES}=require('./event-history-review-agenda');
 const {renderEventReviewCommandGuide}=require('./event-review-command-guide');
+const {fitEventEmbed}=require('./kings-leadership-embed-budget');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -376,7 +377,7 @@ function buildEvent(data, now = Date.now()) {
       '**. Spacing is warning-only. No free slots certified, no automated decisions.'
     : 'Unavailable — no recent reconciled capacity source. Never infer an empty calendar or available bookings.';
   const invitationLine=renderInvitationDashboardSource(state.invitationSourceObservation,now);
-  return {
+  return fitEventEmbed({
     title: '📅 Kings Event Leadership Dashboard',
     description: 'One fixed Event Operations dashboard. Verified convoy attendance/history remains a separate statistics dataset. Source review is advisory, not Staff approval. Private data stay encrypted.',
     color: KINGS_BLUE,
@@ -410,7 +411,7 @@ function buildEvent(data, now = Date.now()) {
     ],
     footer: { text: 'Kings Logistics • Event Leadership • Internal operations' },
     timestamp: nowISO()
-  };
+  });
 }
 
 function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
