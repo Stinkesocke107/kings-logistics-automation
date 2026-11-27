@@ -12,6 +12,7 @@ on:
           - invitation-check
           - capacity-check
           - integration-check
+          - command-proof
           - daily-preview
           - daily-publish
           - weekly-preview
@@ -236,8 +237,51 @@ jobs:
           node --check event-review-dashboard-readonly-proof.js
           node event-review-dashboard-readonly-proof.js
 
+  # #18 opt-in authentic Staff command acceptance; GET-only and fail-closed.
+  event_staff_command_verify:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.report == 'command-proof'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout immutable source and protected history
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Select previous and recorded encrypted Event command snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_file=data/event-leadership-report-state.json
+          commit="$(git log -1 --format=%H --fixed-strings --grep='Record protected Discord Event Operations Staff review progress' -- "$source_file")"
+          if [ -z "$commit" ]; then
+            echo "Kings Event Operations: COMMAND_SNAPSHOT_UNAVAILABLE"
+            exit 1
+          fi
+          if ! git show "$commit^:$source_file" > "$RUNNER_TEMP/kings-event-command-before.json" ||
+             ! git show "$commit:$source_file" > "$RUNNER_TEMP/kings-event-command-after.json" ||
+             ! cmp -s "$RUNNER_TEMP/kings-event-command-after.json" "$source_file"; then
+            echo "Kings Event Operations: COMMAND_SNAPSHOT_UNAVAILABLE"
+            exit 1
+          fi
+      - name: Verify genuine Discord Staff command replay and actual protected dashboard
+        env:
+          INPUT_REPORT: ${{ inputs.report }}
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID: ${{ secrets.KINGS_EVENT_REVIEW_DISCORD_CHANNEL_ID }}
+          KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS: ${{ secrets.KINGS_EVENT_REVIEW_DISCORD_ROLE_IDS }}
+        run: |
+          node --check event-operations-authentic-command-proof.js
+          node event-operations-authentic-command-proof.js
+
   report:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'push' && inputs.report != 'invitation-check' && inputs.report != 'capacity-check' && inputs.report != 'integration-check'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'push' && inputs.report != 'invitation-check' && inputs.report != 'capacity-check' && inputs.report != 'integration-check' && inputs.report != 'command-proof'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
