@@ -1,4 +1,5 @@
 const fs = require('fs');
+const {loadPublicationState} = require('./report-publication-journal-guard');
 const path = require('path');
 
 const WEBHOOK_URL = process.env.MONTHLY_REPORT_DISCORD_WEBHOOK_URL || null;
@@ -53,7 +54,7 @@ function loadHistory() {
 async function requestJson(url, headers = {}) {
   const response = await fetch(url, { method: 'GET', headers, signal: AbortSignal.timeout(TIMEOUT_MS) });
   const text = await response.text();
-  if (!response.ok) throw new Error(`HTTP ${response.status} on GET ${url}: ${text.slice(0, 300)}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status} on GET ${url}: [redacted]`);
   return text ? JSON.parse(text) : null;
 }
 
@@ -91,7 +92,7 @@ async function main() {
   const driverInitialized = driverHistory?.initializedAt ? new Date(driverHistory.initializedAt) : null;
   const driverHistoryComplete = Boolean(driverInitialized && !Number.isNaN(driverInitialized.getTime()) && driverInitialized <= period.start);
 
-  const state = readJson('monthly-report-state.json', { publishedMonths: [] });
+  const state = loadPublicationState(path.join(DATA,'monthly-report-state.json'),'publishedMonths',()=>({publishedMonths:[]}));
   const stateEntry = (state?.publishedMonths || []).find((item) => item.key === period.key) || null;
 
   const target = await getWebhookTarget();
