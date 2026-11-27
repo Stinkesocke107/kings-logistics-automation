@@ -287,7 +287,7 @@ function resolvePrivateToken({state,token,secret,nowMs=Date.now()}={}){
 }
 function renderPrivateReviewTokens(state,secret,nowMs=Date.now()){
   try{
-    const all=reviewRowsWithStatus(state,nowMs).live;
+    const {live:all,records}=reviewRowsWithStatus(state,nowMs);
     let rows=all.slice(0,5);
     // Keep a future/history month selectable even when broad worklist
     // categories are numerous; no new task source or user assignment.
@@ -296,20 +296,49 @@ function renderPrivateReviewTokens(state,secret,nowMs=Date.now()){
       if(firstHistory)rows=[...rows.slice(0,4),firstHistory];
     }
     if(!rows.length)return 'No source review issue selected. No Staff decisions verified.';
-    const lines=[
-      'For an OPEN item, copy the whole command to private #event-operations:',
-      ...rows.map(row=>{
+    const commandFor=row=>{
+      // A recorded check cannot be silently overwritten with "start".
+      // RECHECK_REQUIRED can represent multiple underlying journal states;
+      // a previously recorded check requires an explicit human reopen first.
+      const old=records.find(x=>x.key===keyOf(row.scope,row.code,row.month));
+      if(row.status==='STAFF_CHECK_RECORDED'||(
+        row.status==='RECHECK_REQUIRED'&&old?.status==='STAFF_CHECK_RECORDED'))
+        return 'reopen';
+      if(row.status==='IN_REVIEW'){
+        const task=taskFromSources({state,scope:row.scope,code:row.code,
+          month:row.month,nowMs});
+        // A missing original source can be blocked, never "record_checked".
+        return task?.sourceReady
+          ?'record_check STAFF_RECORD ORIGINAL_RECORDS_CHECKED':'block';
+      }
+      return 'start';
+    };
+    const tick=String.fromCharCode(96);
+    const render=shown=>[
+      'Private #event-operations; use only after checking original records:',
+      ...shown.map(row=>{
         const name=(row.scope==='history'?(row.month||'Undated')+' — ':'')+
           (row.scope==='history'?CODES[row.code]:WORK_LABELS[row.code]);
         const token=issueToken(state,row,secret,nowMs);
-        const startable=row.status==='OPEN'||row.status==='RECHECK_REQUIRED';
-        return name+' — '+(startable
-          ? '`!kings-review '+token+' start`'
-          : 'Status '+row.status+' · Review code: '+token);
+        return name+' ['+row.status+'] — '+
+          tick+'!kings-review '+token+' '+commandFor(row)+tick;
       }),
-      'Codes expire with source updates or a new UTC day. They never approve Events.'
-    ];
-    const text=lines.join('\n');
+      ...(shown.length<rows.length?
+        ['More active reviews remain in private Staff Progress.']:[]),
+      'In review: block if evidence is missing; record_check ONLY after original records were checked (STAFF_RECORD / ORIGINAL_DISCORD / ORIGINAL_EVENT_PAGE).',
+      'For a logged check, reopen before a new review. KR codes expire on source/new UTC day. No Event approval.'
+    ].join('\n');
+    // Discord embed field max is 1024 characters. Multiple in-progress
+    // record_check commands can overflow the private field. Keep at least
+    // one actionable command; prefer retaining a history review month.
+    let shown=rows;
+    let text=render(shown);
+    while(text.length>1024&&shown.length>1){
+      const tailHistory=shown.at(-1).scope==='history';
+      const drop=tailHistory?shown.length-2:shown.length-1;
+      shown=shown.filter((_,index)=>index!==drop);
+      text=render(shown);
+    }
     if(text.length>1024)fail();
     return text;
   }catch{
