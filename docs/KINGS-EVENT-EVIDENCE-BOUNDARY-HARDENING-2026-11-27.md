@@ -20,8 +20,14 @@ This change advances the **existing** Event Capacity (#12), Event History (#14),
 ## Still open for acceptance
 
 - Original Event Center / Legacy / Invitation forum provenance, full 24-month archive, UTC month and date changes, and same-source Leadership dashboard read-back after a **new authentic authorized Staff action**.
-- Confirm the proposed daily/event-type rules with the CEO; existing diagnostic 3/day and 120-min warnings remain advisory, **not** final approved business policy.
+- **CEO planning policy confirmed on 27 November 2026:** max **3 combined Kings/Partner/External per UTC day**, **30 Partner** and **30 External** claims separately per UTC month, no monthly cap for Kings and no weekly/weekend caps. Under **120 minutes** between verified departures is a **Staff review warning only**. The policy is settled; original records, actual human decisions, booking status and final system acceptance are **not** independently verified.
 - Real Staff handover, error/retry evidence, end-to-end authorization and independent CEO release approval.
 - Full live third-party map-provider recovery and Core/Final Freeze approval remain separate blockers.
 
 **Release classification: DRAFT / NOT PRODUCTION-ACCEPTED.** The mandatory Event Booking & Slot Management #17 remains explicitly excluded.
+
+## Follow-up source integrity guard (27 November 2026)
+
+`event-history-leadership-bridge.js` now rejects impossible ISO local dates (including 30 February and non-leap 29 February), invalid time/offset components and non-explicit timestamps before allocating an Event source claim to any of the 24 UTC historical months. Valid ISO UTC and ±offset dates retain their original instant. Unverifiable dates become an **undated original-source review flag**, or cause the source chain to fail closed if a stricter upstream Calendar check rejects the record. No original Event date, approval, participant or attendance is fabricated. Regression tests are in `tests/event-history-leadership-bridge.test.cjs`.
+
+This is source-only hardening; it does **not** prove full historical archive coverage, a Staff signoff, confirmed Calendar availability or a final system release. The existing #17 Booking/Slot feature remains cancelled.
