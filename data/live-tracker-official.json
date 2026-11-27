@@ -2,11 +2,11 @@
   "version": 1,
   "source": "truckersmp-official-v2",
   "sourceMode": "map-independent",
-  "updatedAt": "2026-11-27T08:19:21.206Z",
+  "updatedAt": "2026-11-27T08:32:48.509Z",
   "vtcMemberCount": 110,
   "kingsOnline": null,
-  "allTruckersMpPlayers": 600,
-  "ets2AllPlayers": 577,
-  "atsAllPlayers": 23,
+  "allTruckersMpPlayers": 643,
+  "ets2AllPlayers": 623,
+  "atsAllPlayers": 20,
   "activeTruckersMpServers": 10
 }
