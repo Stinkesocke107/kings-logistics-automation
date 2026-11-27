@@ -105,16 +105,6 @@
       },
       "firstAlertedAt": "2026-11-27T02:07:00.479Z"
     },
-    "workflow-failed:news.yml": {
-      "severity": "warning",
-      "system": "TruckersMP News",
-      "message": "TruckersMP News latest completed run ended with failure.",
-      "details": {
-        "runId": 45926188251,
-        "completedAt": "2026-11-27T02:05:09Z"
-      },
-      "firstAlertedAt": "2026-11-27T02:07:00.479Z"
-    },
     "workflow-failed:self-healing.yml": {
       "severity": "warning",
       "system": "Safe Self-Healing",
@@ -134,14 +124,18 @@
         "completedAt": "2026-11-27T02:07:14Z"
       },
       "firstAlertedAt": "2026-11-27T02:08:11.917Z"
+    },
+    "workflow-overdue:self-healing.yml": {
+      "severity": "warning",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": "2026-11-27T00:09:03Z",
+        "ageMinutes": 136,
+        "maxAgeMinutes": 90
+      },
+      "firstAlertedAt": "2026-11-27T02:25:47.978Z"
     }
   },
-  "pending": {
-    "workflow-overdue:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-27T02:12:18.716Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window."
-    }
-  }
+  "pending": {}
 }
