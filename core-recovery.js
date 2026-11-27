@@ -34,6 +34,8 @@ const RESTORE_POINT_FILE =
     "restore-point.json"
   );
 
+const FINAL_HEALTH_FILE = path.join(RESTORE_SOURCE, "backup-final-health.json");
+
 const RECOVERY_PLAN_FILE =
   path.join(
     ROOT,
@@ -243,6 +245,16 @@ function validateBackup() {
       RESTORE_POINT_FILE
     );
 
+  // This check also applies when the CLI is invoked directly instead of
+  // through the independent GitHub Actions recovery safety gate.
+  const finalHealth = fs.existsSync(FINAL_HEALTH_FILE) ? readJson(FINAL_HEALTH_FILE) : null;
+  if (RECOVERY_MODE === "apply" && !finalHealth) {
+    throw new Error("APPLY requires a finalized and verified backup.");
+  }
+  if (finalHealth && (finalHealth.healthy !== true || finalHealth.status !== "HEALTHY")) {
+    throw new Error("Selected Restore Point final backup health is not HEALTHY.");
+  }
+
   if (
     health.healthy !== true ||
     health.status !==
@@ -277,6 +289,28 @@ function validateBackup() {
   // Independently reject unsafe, duplicate or parent/child colliding manifest
   // paths even when the Actions safety gate ran earlier.
   assertManifest(manifest.files);
+
+  // APPLY is never authorized by a single confirmation string. Verify the
+  // selected original workflow run, target repository and protected main
+  // branch even when the core CLI is called outside the Actions wrapper.
+  if (RECOVERY_MODE === "apply") {
+    const runId = String(process.env.RECOVERY_SOURCE_RUN_ID || "");
+    const runNumber = String(process.env.RECOVERY_TARGET_RUN || "");
+    const repository = String(process.env.GITHUB_REPOSITORY || "");
+    const branch = String(process.env.GITHUB_REF_NAME || "");
+    if (!/^\d+$/.test(runId) || !/^\d+$/.test(runNumber) ||
+        !repository || branch !== "main") {
+      throw new Error("APPLY requires verified original run, repository and main branch context.");
+    }
+    for (const metadata of [manifest, restorePoint]) {
+      if (String(metadata.repository || "") !== repository ||
+          String(metadata.branch || "") !== branch ||
+          String(metadata.workflowRunId || "") !== runId ||
+          String(metadata.workflowRunNumber || "") !== runNumber) {
+        throw new Error("Restore Point origin does not match the selected authorized backup run.");
+      }
+    }
+  }
 
   if (
     manifest.commit &&
