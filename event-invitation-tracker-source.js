@@ -198,6 +198,11 @@ function trustedInvitationObservation(x,nowMs=Date.now()){
   if(!Number.isFinite(t)||t>nowMs+5*60*1000||nowMs-t>MAX_AGE_MS||
     FIELD_NAMES.some(k=>!Number.isSafeInteger(x[k])||
       x[k]<0||x[k]>100000))return null;
+  // An unresolved Forum mapping cannot yield any certified lifecycle count.
+  // Keep a tampered aggregate from showing plausible but invented statuses.
+  if(x.tagSchemaVerified===false&&
+    (x.ongoingThreads!==0||x.doneThreads!==0||
+     x.completedThreads!==0||x.tagIssues!==x.convoyThreads))return null;
   if(x.ongoingThreads+x.doneThreads+x.completedThreads+x.tagIssues!==x.convoyThreads||
     x.eventLinksRecorded+x.eventLinksMissing!==x.convoyThreads||
     x.recordedAccepted+x.recordedDeclined+x.recordedPending+x.replyNotRecorded!==x.invitedVtcs||
@@ -209,6 +214,30 @@ function trustedInvitationObservation(x,nowMs=Date.now()){
     'staffApprovalsVerified','bookingsCreated','observedAt',...FIELD_NAMES
   ].includes(k)))return null;
   return x;
+}
+function renderInvitationDashboardSource(value,nowMs=Date.now()){
+  const invitations=trustedInvitationObservation(value,nowMs);
+  const invitationLifecycle=invitations?.tagSchemaVerified===true
+    ? ' · ongoing **'+invitations.ongoingThreads+
+      '** · invitations done **'+invitations.doneThreads+
+      '** · convoys completed **'+invitations.completedThreads+'**'
+    : ' · Forum lifecycle tag names UNVERIFIED (status counts withheld)';
+  const invitationLine=invitations
+    ? 'Visible convoy threads **'+invitations.convoyThreads+
+      '** · documented unique VTC invites **'+invitations.invitedVtcs+
+      '**'+invitationLifecycle+
+      '.\nFor Staff review: duplicate VTC replies **'+invitations.duplicateVtcReplies+
+      '** · invalid replies **'+invitations.malformedReplies+
+      '** · tag problems **'+invitations.tagIssues+
+      '** · event links missing **'+invitations.eventLinksMissing+
+      '** · event links matched to current Center **'+invitations.linkedToCenter+
+      '**.\nRecorded response labels: accepted **'+invitations.recordedAccepted+
+      '** · declined **'+invitations.recordedDeclined+
+      '** · pending **'+invitations.recordedPending+
+      '** · not recorded **'+invitations.replyNotRecorded+
+      '**. Source reports only, NOT verified approvals or participation.'
+    : 'Unavailable — private Invitation Tracker source missing, stale, unreadable or incomplete; no invitation totals certified.';
+  return invitationLine;
 }
 function createDiscordReader({token,transport=fetch}={}){
   if(typeof token!=='string'||token.length<20||token.length>1024||
@@ -250,8 +279,19 @@ async function readInvitationTracker({token,transport=fetch,
   const active=await get('/guilds/'+GUILD+'/threads/active');
   if(!Array.isArray(active?.threads))refuse('ACTIVE_THREAD_LIST');
   const collected=new Map();
-  for(const t of active.threads)if(String(t.parent_id)===FORUM)
-    collected.set(String(t.id),t);
+  // Active/archived inventories are separate snapshots. A duplicate thread
+  // would otherwise be silently overwritten, masking a tag/status race.
+  // Fail closed and retry the read-only scan instead of certifying it.
+  function collectThread(t){
+    const id=String(t?.id||'');
+    if(!ID.test(id)||String(t?.parent_id)!==FORUM||
+      !Array.isArray(t?.applied_tags)||collected.has(id))
+      refuse('SOURCE_INCONSISTENT');
+    collected.set(id,t);
+    if(collected.size>MAX_THREADS)refuse('SOURCE_INCONSISTENT');
+  }
+  for(const t of active.threads)if(String(t?.parent_id)===FORUM)
+    collectThread(t);
   let before=null,complete=false;
   for(let page=0;page<10;page++){
     const query='/channels/'+FORUM+'/threads/archived/public?limit=100'+
@@ -261,13 +301,18 @@ async function readInvitationTracker({token,transport=fetch,
       typeof response.has_more!=='boolean')refuse('ARCHIVE_PAGE_INCOMPLETE');
     for(const t of response.threads){
       if(String(t.parent_id)!==FORUM)refuse();
-      collected.set(String(t.id),t);
+      collectThread(t);
     }
-    if(collected.size>MAX_THREADS)refuse();
     if(!response.has_more){complete=true;break;}
     const last=response.threads.at(-1);
     const next=last?.thread_metadata?.archive_timestamp;
-    if(typeof next!=='string'||next===before)refuse('ARCHIVE_PAGE_INCOMPLETE');
+    // Before-cursors must move strictly backward, never repeat or jump
+    // forward. A drifting page is not proof that the archive is complete.
+    const parsed=Date.parse(next);
+    if(typeof next!=='string'||!/(?:Z|[+-]\d{2}:\d{2})$/.test(next)||
+       !Number.isFinite(parsed)||next===before||
+       (before!==null&&parsed>=Date.parse(before)))
+      refuse('ARCHIVE_PAGE_INCOMPLETE');
     before=next;
   }
   if(!complete)refuse('ARCHIVE_PAGE_INCOMPLETE'); // never silently treat partially read archive as complete
@@ -297,4 +342,4 @@ async function readInvitationTracker({token,transport=fetch,
 }
 module.exports={GUILD,FORUM,MODES,GUIDE_TAG,canonicalTagName,
   readEntry,eventIdFrom,approvedTags,summarizeTracker,
-  trustedInvitationObservation,readInvitationTracker};
+  trustedInvitationObservation,renderInvitationDashboardSource,readInvitationTracker};

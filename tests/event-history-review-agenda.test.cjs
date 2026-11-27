@@ -12,7 +12,10 @@ function fixture(){
       now.getUTCMonth()-23+i,1)).toISOString().slice(0,7),
     centerClaims:0,legacyClaims:0,centerOutcomeUnresolved:0
   }));
-  const future=Array.from({length:12},()=>({legacyDatedKeptSeparate:0}));
+  const future=Array.from({length:12},(_,i)=>({
+    utcMonth:new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth()+i,1)).toISOString().slice(0,7),
+    legacyDatedKeptSeparate:0
+  }));
   history[23].centerClaims=2;
   history[23].centerOutcomeUnresolved=1;
   history[22].legacyClaims=1;
@@ -96,6 +99,9 @@ test('month-level history review fails closed on missing, shifted or contradicto
     f=>{f.history[1].legacyClaims=-1;},
     f=>{f.history[23].centerOutcomeUnresolved=3;},
     f=>{f.history[23]=null;},
+    f=>{f.future[0].utcMonth='2028-01';},
+    f=>{f.future[1].utcMonth=f.future[0].utcMonth;},
+    f=>{delete f.future[3].utcMonth;},
     f=>{f.future[0].legacyDatedKeptSeparate=undefined;},
     f=>{f.future[1].legacyDatedKeptSeparate=-1;},
     f=>{f.future[2]=null;},

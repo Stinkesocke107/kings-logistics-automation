@@ -80,6 +80,11 @@ test('Kings Event Operations #18 combines #12/#13/#14/#15/#16 advisory source fl
 test('Event Operations flags readable replies with unverified Forum lifecycle tags',()=>{
   const f=observationFixtures();
   f.invitationSourceObservation.tagSchemaVerified=false;
+  // If status tag mapping is unknown, no lifecycle state can be certified.
+  f.invitationSourceObservation.ongoingThreads=0;
+  f.invitationSourceObservation.doneThreads=0;
+  f.invitationSourceObservation.completedThreads=0;
+  f.invitationSourceObservation.tagIssues=f.invitationSourceObservation.convoyThreads;
   const ops=observeOperations(f);
   assert.equal(ops.invitationSource,'INVITATIONS_READABLE_TAGS_UNVERIFIED');
   assert.equal(ops.review.invitationDuplicateVtcs,2);

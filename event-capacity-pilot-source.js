@@ -124,7 +124,9 @@ function monthsFrom(data,nowMs){
   const first=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),1);
   const starts=Array.from({length:13},(_,i)=>
     Date.UTC(now.getUTCFullYear(),now.getUTCMonth()+i,1));
-  const months=Array.from({length:12},()=>({
+  const months=Array.from({length:12},(_,i)=>({
+    // Explicit UTC month identity for downstream Calendar/History checks.
+    utcMonth:new Date(starts[i]).toISOString().slice(0,7),
     centerClaims:0,unclassified:0,pending:0,cancelled:0,scheduled:0,
     // Source-reported accepted status claims only. They are NOT
     // Staff-approved reservations or independently verified free slots.
@@ -142,6 +144,9 @@ function monthsFrom(data,nowMs){
   }));
   const days=Array.from({length:12},()=>new Map());
   let undatedCenter=0,undatedLegacy=0,legacyOutside=0;
+  // At the first visible UTC month boundary, include prior-month active
+  // departures only as spacing context. Never count them as new-month claims.
+  const precedingDepartures=[];
   const center=report.threads.filter(x=>x&&!x.ignored&&!x.testThread&&
     !/^\s*\[?test\]?(?:\s|[-_:])/i.test(String(x.name||'')));
   const legacy=overview.registeredConvoys.filter(x=>x?.source==='legacy-calendar');
@@ -149,6 +154,9 @@ function monthsFrom(data,nowMs){
     const departure=stamp(x.validation?.parsed?.departureAtUtc||
       x.departureAtUtc);
     if(departure===null){undatedCenter++;continue;}
+    if(departure>=first-120*60000&&departure<first&&
+      ['Scheduled','Completed','Rescheduled'].includes(x.status))
+      precedingDepartures.push({instant:departure,utcDay:null,monthIndex:-1});
     const idx=starts.findIndex((s,i)=>i<12&&departure>=s&&departure<starts[i+1]);
     if(idx<0)continue;
     const row=months[idx];
@@ -225,14 +233,14 @@ function monthsFrom(data,nowMs){
   // (including across calendar MONTH boundaries). Review the UTC date of
   // the LATER departure. Without this pass, Calendar and the operational
   // Convoy Checker disagree about cross-midnight warnings.
-  const sortedDepartures=[];
+  const sortedDepartures=[...precedingDepartures];
   for(let i=0;i<days.length;i++)for(const [utcDay,day] of days[i])
     for(const instant of day.departures)
       sortedDepartures.push({instant,utcDay,monthIndex:i});
   sortedDepartures.sort((a,b)=>a.instant-b.instant);
   for(let i=1;i<sortedDepartures.length;i++){
     const earlier=sortedDepartures[i-1],later=sortedDepartures[i];
-    if(later.instant-earlier.instant>=120*60000||
+    if(later.monthIndex<0||later.instant-earlier.instant>=120*60000||
       earlier.utcDay===later.utcDay)continue;
     const day=days[later.monthIndex].get(later.utcDay);
     const month=months[later.monthIndex];
