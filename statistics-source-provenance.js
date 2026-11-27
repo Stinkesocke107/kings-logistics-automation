@@ -66,4 +66,43 @@ function readStatisticsDocument(file,{allowMissing=false}={}){
   validateStatisticsDocument(data);
   return data;
 }
-module.exports={validDay,validateStatisticsDocument,readStatisticsDocument};
+
+function validateStatisticsLiveSnapshot(snapshot,nowMs=Date.now()){
+  if(!snapshot||typeof snapshot!=='object'||Array.isArray(snapshot)||
+    snapshot.version!==2||!Number.isFinite(nowMs))
+    throw new Error('Kings Statistics live player-map snapshot has invalid identity');
+  const date=Date.parse(snapshot.updatedAt);
+  if(typeof snapshot.updatedAt!=='string'||!snapshot.updatedAt.endsWith('Z')||
+    !Number.isFinite(date)||date>nowMs+5*60*1000||
+    nowMs-date>20*60*1000)
+    throw new Error('Kings Statistics player-map snapshot is stale or future-dated');
+  for(const key of ['members','online','ets2Online','atsOnline']){
+    if(!requireBounded(snapshot[key]))
+      throw new Error('Kings Statistics player-map counters are unverified');
+  }
+  if(snapshot.online>snapshot.members||
+     snapshot.ets2Online+snapshot.atsOnline!==snapshot.online)
+    throw new Error('Kings Statistics player-map player totals disagree');
+  if(!Array.isArray(snapshot.activeServers))
+    throw new Error('Kings Statistics player-map active server evidence is missing');
+  const seen=new Set();
+  const byGame={ETS2:0,ATS:0};
+  for(const server of snapshot.activeServers){
+    if(!server||typeof server!=='object'||Array.isArray(server)||
+      !['ETS2','ATS'].includes(server.game)||
+      typeof server.name!=='string'||server.name.length===0||server.name.length>180||
+      !requireBounded(server.online)||server.online<1)
+      throw new Error('Kings Statistics player-map server sample is invalid');
+    const key=server.game+'\0'+server.name;
+    if(seen.has(key))
+      throw new Error('Kings Statistics player-map server was counted twice');
+    seen.add(key);
+    byGame[server.game]+=server.online;
+  }
+  if(byGame.ETS2!==snapshot.ets2Online||
+     byGame.ATS!==snapshot.atsOnline)
+    throw new Error('Kings Statistics player-map server coverage does not match online totals');
+  return snapshot;
+}
+
+module.exports={validDay,validateStatisticsDocument,readStatisticsDocument,validateStatisticsLiveSnapshot};
