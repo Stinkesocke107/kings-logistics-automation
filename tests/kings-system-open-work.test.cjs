@@ -12,7 +12,7 @@ test('completion audit inventories every workflow without reporting synthetic ap
   assert.equal(result.counts.scheduled,33);
   assert.equal(result.counts.manualOrOnChange,13);
   assert.equal(result.counts.assessed,27);
-  assert.equal(result.counts.notAssessed,20);
+  assert.equal(result.counts.notAssessed,19);
   assert.equal(result.counts.complete,0);
   assert.equal(result.allWorkflows.length,WORKFLOW_REGISTRY.length);
   assert.equal(new Set(result.allWorkflows.map(w=>w.file)).size,46);
