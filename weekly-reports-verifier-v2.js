@@ -1,4 +1,5 @@
 const fs = require('fs');
+const {loadPublicationState} = require('./report-publication-journal-guard');
 const path = require('path');
 const crypto = require('crypto');
 
@@ -66,7 +67,7 @@ async function discord(pathname) {
       const body = await response.text();
       if (response.ok) return body ? JSON.parse(body) : null;
 
-      const error = new Error(`Discord API ${response.status} on GET ${pathname}: ${body.slice(0, 300)}`);
+      const error = new Error(`Discord API ${response.status} on GET ${pathname}: [redacted]`);
       error.status = response.status;
       if (response.status !== 429 || attempt === 3) throw error;
 
@@ -145,9 +146,9 @@ async function main() {
   const shortLabel = `${fmt(period.start, 'short')} – ${fmt(endDisplay, 'short')}`;
   const longLabel = `${fmt(period.start, 'long')} – ${fmt(endDisplay, 'long')}`;
 
-  const driverState = readJson('driver-weekly-summary-state.json');
-  const hrState = readJson('hr-weekly-summary-state.json');
-  const managementState = readJson('management-weekly-overview-state.json');
+  const driverState = loadPublicationState(path.join(DATA,'driver-weekly-summary-state.json'),'publishedWeeks',()=>({publishedWeeks:[]}));
+  const hrState = loadPublicationState(path.join(DATA,'hr-weekly-summary-state.json'),'publishedWeeks',()=>({publishedWeeks:[]}));
+  const managementState = loadPublicationState(path.join(DATA,'management-weekly-overview-state.json'),'publishedWeeks',()=>({publishedWeeks:[]}));
   const staff = readJson('staff-management-summary.json');
   const driverEncrypted = readJson('driver-management.json');
   if (!driverEncrypted) throw new Error('Driver Management state is missing.');
