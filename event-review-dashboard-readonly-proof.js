@@ -17,17 +17,34 @@ const ID=/^\d{17,22}$/;
 const TITLE='📅 Kings Event Leadership Dashboard';
 const FIELD='📝 Event Operations — Manual Staff Progress';
 const INVITATION_FIELD='✉️ Invitation Tracker — Source Review';
-function fail(){throw Error('Kings private Event dashboard delivery unverified');}
+// Diagnostic labels are fixed, non-sensitive. Never expose decrypted Event
+// records, Discord payloads, private message IDs or API error bodies in Actions.
+const SAFE_REASONS=new Set([
+  'CONFIG_UNVERIFIED','ENCRYPTED_SOURCE_UNVERIFIED',
+  'FRESH_EVENT_SOURCE_UNVERIFIED','FRESH_INVITATION_SOURCE_UNVERIFIED',
+  'DASHBOARD_POINTER_UNVERIFIED','DISCORD_GET_UNVERIFIED',
+  'BOT_OR_MESSAGE_UNVERIFIED','STAFF_FIELD_MISMATCH',
+  'INVITATION_FIELD_MISMATCH','UNVERIFIED'
+]);
+function fail(reason='UNVERIFIED'){
+  const error=Error('Kings private Event dashboard delivery unverified');
+  error.publicReason=SAFE_REASONS.has(reason)?reason:'UNVERIFIED';
+  throw error;
+}
 async function run({env=process.env,read=fs.readFileSync,
   transport=fetch,nowMs=Date.now()}={}){
   if(!Number.isSafeInteger(nowMs)||nowMs<=0||
      typeof env.DISCORD_BOT_TOKEN!=='string'||!env.DISCORD_BOT_TOKEN||
      typeof env.DRIVER_STATE_KEY!=='string'||
      Buffer.byteLength(env.DRIVER_STATE_KEY,'utf8')<32||
-     typeof transport!=='function')fail();
-  const encoded=JSON.parse(read(EVENT,'utf8'));
-  if(encoded?.encrypted!==true||encoded?.algorithm!=='aes-256-gcm')fail();
-  const privateState=decryptEventState(encoded,env.DRIVER_STATE_KEY);
+     typeof transport!=='function')fail('CONFIG_UNVERIFIED');
+  let privateState;
+  try {
+    const encoded=JSON.parse(read(EVENT,'utf8'));
+    if(encoded?.encrypted!==true||encoded?.algorithm!=='aes-256-gcm')
+      fail('ENCRYPTED_SOURCE_UNVERIFIED');
+    privateState=decryptEventState(encoded,env.DRIVER_STATE_KEY);
+  }catch{fail('ENCRYPTED_SOURCE_UNVERIFIED');}
   // Ordinary scheduled delivery verification can correctly prove that an
   // "Unavailable" embed matches its source. That alone is not source
   // acceptance. Only the manually requested integrated proof requires both
@@ -36,11 +53,14 @@ async function run({env=process.env,read=fs.readFileSync,
     const event=trustedEventObservation(privateState.eventSourceObservation,nowMs);
     const invites=trustedInvitationObservation(
       privateState.invitationSourceObservation,nowMs);
-    if(!event||!invites||invites.tagSchemaVerified!==true)fail();
+    if(!event)fail('FRESH_EVENT_SOURCE_UNVERIFIED');
+    if(!invites||invites.tagSchemaVerified!==true)
+      fail('FRESH_INVITATION_SOURCE_UNVERIFIED');
   }
-  const messageState=JSON.parse(read(DASH,'utf8'));
-  const messageId=messageState?.messageIds?.event;
-  if(!ID.test(messageId))fail();
+  let messageId;
+  try {messageId=JSON.parse(read(DASH,'utf8'))?.messageIds?.event;}
+  catch{fail('DASHBOARD_POINTER_UNVERIFIED');}
+  if(!ID.test(messageId))fail('DASHBOARD_POINTER_UNVERIFIED');
   const get=async route=>{
     let response;
     try{
@@ -53,7 +73,7 @@ async function run({env=process.env,read=fs.readFileSync,
       const body=await response.text();
       if(typeof body!=='string'||body.length>120000)fail();
       return JSON.parse(body);
-    }catch{fail()}
+    }catch{fail('DISCORD_GET_UNVERIFIED')}
   };
   const [bot,message]=await Promise.all([
     get('/users/@me'),
@@ -65,11 +85,11 @@ async function run({env=process.env,read=fs.readFileSync,
      String(message?.author?.id||'')!==bot.id||
      !Array.isArray(message?.embeds)||message.embeds.length!==1||
      message.embeds[0]?.title!==TITLE||
-     !Array.isArray(message.embeds[0]?.fields))fail();
+     !Array.isArray(message.embeds[0]?.fields))fail('BOT_OR_MESSAGE_UNVERIFIED');
   const actual=message.embeds[0].fields.filter(x=>x?.name===FIELD);
   if(actual.length!==1||typeof actual[0].value!=='string'||
      actual[0].value!==renderReviewSummary(privateState,nowMs))
-    fail();
+    fail('STAFF_FIELD_MISMATCH');
   // The same stored bot-authored message must also reflect the freshest
   // read-only #15 invitation observation in this encrypted source. A stale
   // invitation field cannot be hidden by an otherwise matching Staff field.
@@ -78,7 +98,7 @@ async function run({env=process.env,read=fs.readFileSync,
   if(invitation.length!==1||typeof invitation[0].value!=='string'||
      invitation[0].value!==renderInvitationDashboardSource(
        privateState.invitationSourceObservation,nowMs))
-    fail();
+    fail('INVITATION_FIELD_MISMATCH');
   return Object.freeze({status:'VERIFIED',readOnlyDiscord:true,
     encryptedSource:true,staffCommandsExecuted:0,discordWrites:0,
     originalStaffApprovalsVerified:false,bookingsCreated:0});
@@ -88,8 +108,11 @@ async function main(){
     const result=await run();
     console.log('Kings Event Staff review-to-dashboard: '+result.status+
       ' (existing protected state and stored bot message; no new Staff action claimed).');
-  }catch{
-    console.error('Kings Event Staff review-to-dashboard: UNVERIFIED');
+  }catch(error){
+    const reason=SAFE_REASONS.has(error?.publicReason)?
+      error.publicReason:'UNVERIFIED';
+    console.error('Kings Event Staff review-to-dashboard: UNVERIFIED ('+
+      reason+')');
     process.exitCode=1;
   }
 }
