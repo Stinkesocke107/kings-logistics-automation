@@ -35,6 +35,15 @@ const KINGS_HEART =
 
 const MAX_DISCORD_LENGTH = 2000;
 
+// Read-only proof against the existing webhook destination before any POST.
+// Full prior delivery can recover after a Git push failure without reposting;
+// partial or unverifiable delivery stops for an authorized operator.
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || '';
+const KINGS_GUILD_ID = '1114967437788577792';
+const RELEASE_MARKER = 'Kings Logistics Changelog release';
+const WEBHOOK_URL = /^https:\/\/(?:discord\.com|discordapp\.com)\/api(?:\/v(?:9|10))?\/webhooks\/(\d{15,22})\/[A-Za-z0-9._-]+\/?$/;
+const DISCORD_ID = /^\d{15,22}$/;
+
 
 // ======================================================
 // HELPERS
@@ -444,6 +453,104 @@ function buildDiscordMessages(
 }
 
 
+
+// ======================================================
+// PUBLICATION RECOVERY / DUPLICATE PROTECTION
+// ======================================================
+
+function releaseMarker(changelogId, index, total) {
+  return '-# ' + RELEASE_MARKER + ' ' + changelogId + ' · ' + index + '/' + total;
+}
+
+function markedMessages(changelog, messages) {
+  return messages.map((content, index) => {
+    const marked = content + '\n\n' +
+      releaseMarker(changelog.changelogId, index + 1, messages.length);
+    if (marked.length > MAX_DISCORD_LENGTH)
+      throw Error('Changelog exceeds Discord message limit after release marker');
+    return marked;
+  });
+}
+
+function stableReleaseContent(content) {
+  // A completed Discord delivery can cross UTC midnight before Git persistence.
+  // Ignore only the rendered title date, preserving every approved change.
+  return String(content).replace(
+    /\| \d{1,2} [A-Za-z]+ \d{4}\*\*/g, '| [DATE]**'
+  );
+}
+
+async function getVerifiedDiscordJson(url, headers = {}) {
+  let response;
+  try {
+    response = await fetch(url, {
+      method:'GET', headers:{Accept:'application/json',...headers}
+    });
+  } catch {
+    throw Error('Changelog Discord readback unavailable');
+  }
+  if(!response?.ok)throw Error('Changelog Discord readback unavailable');
+  try { return await response.json(); }
+  catch { throw Error('Changelog Discord readback invalid'); }
+}
+
+async function publishedReleaseState(changelog, messages) {
+  // Never post if a trustworthy readback is unavailable.
+  if (!DISCORD_WEBHOOK_URL || !WEBHOOK_URL.test(DISCORD_WEBHOOK_URL) ||
+      !DISCORD_BOT_TOKEN)
+    throw Error('Changelog Discord readback credentials unverified');
+  const webhookId = DISCORD_WEBHOOK_URL.match(WEBHOOK_URL)[1];
+  const webhook = await getVerifiedDiscordJson(DISCORD_WEBHOOK_URL);
+  if(String(webhook?.id||'')!==webhookId ||
+     String(webhook?.guild_id||'')!==KINGS_GUILD_ID ||
+     !DISCORD_ID.test(String(webhook?.channel_id||'')))
+    throw Error('Changelog Discord webhook target unverified');
+
+  const channelId = String(webhook.channel_id);
+  const expectedMarkers = messages.map((_,index)=>
+    releaseMarker(changelog.changelogId,index+1,messages.length));
+  const found = [];
+  let before = '';
+  let exhausted = false;
+  // Paginate until complete; if history is inaccessible, never assume
+  // there has been no previous public delivery.
+  for(let pageNumber=0;pageNumber<60;pageNumber++){
+    const url='https://discord.com/api/v10/channels/'+channelId+
+      '/messages?limit=100'+(before?'&before='+before:'');
+    const page=await getVerifiedDiscordJson(url,{
+      Authorization:'Bot '+DISCORD_BOT_TOKEN
+    });
+    if(!Array.isArray(page)||page.length>100)
+      throw Error('Changelog Discord history unverified');
+    for(const message of page){
+      if(!DISCORD_ID.test(String(message?.id||'')))
+        throw Error('Changelog Discord message cursor invalid');
+      if(String(message?.webhook_id||'')!==webhookId)continue;
+      const content=String(message.content||'');
+      if(content.includes(RELEASE_MARKER+' '+changelog.changelogId+' · '))
+        found.push(content);
+    }
+    if(page.length<100){exhausted=true;break;}
+    const last=String(page[page.length-1]?.id||'');
+    if(!DISCORD_ID.test(last)||last===before)
+      throw Error('Changelog Discord pagination unverified');
+    before=last;
+  }
+  if(!exhausted)
+    throw Error('Changelog Discord history exceeds verified read window');
+  if(found.length===0)return 'NOT_POSTED';
+
+  if(found.length!==messages.length)
+    throw Error('Changelog partially published; authorized operator recovery required');
+  for(let i=0;i<messages.length;i++){
+    const matched=found.filter(content=>content.endsWith(expectedMarkers[i]));
+    if(matched.length!==1||
+       stableReleaseContent(matched[0])!==stableReleaseContent(messages[i]))
+      throw Error('Changelog published content conflicts; operator review required');
+  }
+  return 'ALREADY_POSTED';
+}
+
 // ======================================================
 // SEND TO DISCORD
 // ======================================================
@@ -553,10 +660,7 @@ async function publishChangelog() {
       entries
     );
 
-  const messages =
-    buildDiscordMessages(
-      changelog
-    );
+  const messages = markedMessages(changelog, buildDiscordMessages(changelog));
 
   console.log("");
   console.log(
@@ -567,13 +671,19 @@ async function publishChangelog() {
     `Discord messages required: ${messages.length}`
   );
 
+  // Protect against repeated webhook POST after successful Discord delivery
+  // followed by a Git-state persistence conflict.
+  const delivery = await publishedReleaseState(changelog, messages);
+  if (delivery === 'ALREADY_POSTED')
+    console.log('Previous Changelog delivery verified; recovering state without reposting.');
+
   // ====================================================
   // SEND
   // ====================================================
 
   for (
     let i = 0;
-    i < messages.length;
+    delivery === 'NOT_POSTED' && i < messages.length;
     i++
   ) {
     console.log(
