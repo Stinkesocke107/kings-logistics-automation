@@ -358,8 +358,8 @@ test('private command suggestions preserve explicit reopen before a new original
   assert.match(inProgress,/IN_REVIEW/);
   assert.match(inProgress,/!kings-review KR[a-f0-9]{24} record_check STAFF_RECORD ORIGINAL_RECORDS_CHECKED/);
   const fullHelp=renderPrivateReviewTokens(started,SECRET,NOW);
-  assert.match(fullHelp,/use block if evidence is missing/);
-  assert.match(fullHelp,/ONLY after a real check/);
+  assert.match(fullHelp,/block if evidence is missing/);
+  assert.match(fullHelp,/ONLY after original records were checked/);
   assert.ok(fullHelp.length<=1024);
 
   const checked=change(started,'record_check',NOW,{
@@ -414,4 +414,26 @@ test('private source-unavailable review can be blocked but never presents record
     actor:'EventLead',action:'record_check',evidenceKind:'STAFF_RECORD',
     confirmation:'ORIGINAL_RECORDS_CHECKED',nowMs:NOW+1000
   }),/unverified/);
+});
+
+
+test('many simultaneous Staff reviews retain valid private commands within Discord field limit',()=>{
+  let state=makeState();
+  const before=renderPrivateReviewTokens(state,SECRET,NOW);
+  const tokens=[...before.matchAll(/KR[a-f0-9]{24}/g)].map(x=>x[0]);
+  assert.equal(tokens.length,5);
+  for(const token of tokens){
+    const task=resolvePrivateToken({state,token,secret:SECRET,nowMs:NOW});
+    state=applyManualReview({
+      state,scope:task.scope,code:task.code,month:task.month,
+      actor:'EventLead',action:'start',nowMs:NOW
+    });
+  }
+  const shown=renderPrivateReviewTokens(state,SECRET,NOW);
+  assert.ok(shown.length<=1024);
+  assert.match(shown,/!kings-review KR[a-f0-9]{24}/);
+  assert.doesNotMatch(shown,/Unavailable - private review code source/);
+  assert.match(shown,/No Event approval/);
+  assert.ok(shown.includes('More active reviews remain')||
+    [...shown.matchAll(/KR[a-f0-9]{24}/g)].length===5);
 });
