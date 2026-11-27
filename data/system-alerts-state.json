@@ -53,39 +53,44 @@
       "firstAlertedAt": "2026-11-18T19:38:50.279Z",
       "escalatedAt": "2026-11-18T22:20:21.254Z"
     },
-    "workflow-schedule-late:driver-register-onboarding.yml": {
-      "severity": "warning",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding scheduled run started 624 minutes after its UTC slot.",
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "status": "late",
-        "expectedAt": "2026-11-26T07:17:00.000Z",
-        "actualAt": "2026-11-26T17:41:35.000Z",
-        "delayMinutes": 624,
-        "graceMinutes": 120,
-        "runId": 45869866678
+        "ageMinutes": 123,
+        "latestCount": 40
       },
-      "firstAlertedAt": "2026-11-26T19:52:52.382Z"
+      "firstAlertedAt": "2026-11-27T11:10:33.667Z"
+    },
+    "workflow-failed:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification latest completed run ended with failure.",
+      "details": {
+        "runId": 45970736222,
+        "completedAt": "2026-11-27T09:07:20Z"
+      },
+      "firstAlertedAt": "2026-11-27T11:10:33.667Z"
+    },
+    "workflow-overdue:final-freeze-verification.yml": {
+      "severity": "warning",
+      "system": "Final Freeze Verification",
+      "message": "Final Freeze Verification has not run within the expected time window.",
+      "details": {
+        "latestActivityAt": null,
+        "ageMinutes": null,
+        "maxAgeMinutes": 540
+      },
+      "firstAlertedAt": "2026-11-27T11:10:33.667Z"
     }
   },
   "pending": {
-    "workflow-failed:final-freeze-verification.yml": {
+    "workflow-schedule-missing:driver-register-onboarding.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-27T09:07:57.518Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification latest completed run ended with failure."
-    },
-    "workflow-failed:self-healing.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-27T09:07:57.518Z",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with failure."
-    },
-    "workflow-overdue:final-freeze-verification.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-27T09:07:57.518Z",
-      "system": "Final Freeze Verification",
-      "message": "Final Freeze Verification has not run within the expected time window."
+      "firstSeenAt": "2026-11-27T11:10:33.667Z",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period."
     }
   }
 }
