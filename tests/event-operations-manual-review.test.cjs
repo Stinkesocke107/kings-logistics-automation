@@ -347,7 +347,7 @@ test('Event source publication refreshes the private command selector only after
 
 
 test('private command suggestions preserve explicit reopen before a new original check',()=>{
-  const dailyLine=state=>renderPrivateReviewTokens(state,SECRET,NOW)
+  const dailyLine=(state,at=NOW)=>renderPrivateReviewTokens(state,SECRET,at)
     .split('\n').find(x=>x.includes('Review UTC days above 3 source-claimed convoys'));
   const state0=makeState();
   const initial=dailyLine(state0);
@@ -376,7 +376,7 @@ test('private command suggestions preserve explicit reopen before a new original
   assert.match(dailyLine(changed),/RECHECK_REQUIRED.*!kings-review KR[a-f0-9]{24} reopen/);
   assert.throws(()=>change(changed,'start',NOW+1000),/unverified/);
   const reopened=change(changed,'reopen',NOW+1000);
-  assert.match(dailyLine(reopened),/OPEN.*!kings-review KR[a-f0-9]{24} start/);
+  assert.match(dailyLine(reopened,NOW+1000),/OPEN.*!kings-review KR[a-f0-9]{24} start/);
   assert.equal(change(reopened,'start',NOW+2000).operationReviews[0].status,'IN_REVIEW');
 });
 
@@ -385,14 +385,14 @@ test('private instructions distinguish blocked, active, recorded and stale revie
     .split('\n').find(x=>x.includes('Review UTC days above 3 source-claimed convoys'));
   const started=change(makeState(),'start',NOW);
   const blocked=change(started,'block',NOW+1000);
-  assert.match(dailyLine(blocked),/NEEDS_EVIDENCE.*!kings-review KR[a-f0-9]{24} start/);
+  assert.match(dailyLine(blocked,NOW+1000),/NEEDS_EVIDENCE.*!kings-review KR[a-f0-9]{24} start/);
   // A source-count change invalidates an in-progress human check, but does
   // not require reopening an unrecorded status.
   const stale=structuredClone(started);
   stale.eventSourceObservation.futureDaysOverDailyLimit=2;
   stale.eventSourceObservation.futureDaysRequiringReview=2;
   assert.match(dailyLine(stale),/RECHECK_REQUIRED.*!kings-review KR[a-f0-9]{24} start/);
-  const shown=renderPrivateReviewTokens(blocked,SECRET,NOW);
+  const shown=renderPrivateReviewTokens(blocked,SECRET,NOW+1000);
   assert.match(shown,/No Event approval/);
   assert.doesNotMatch(shown,/EventLead|ORIGINAL event URL/);
   assert.ok(shown.length<=1024);
