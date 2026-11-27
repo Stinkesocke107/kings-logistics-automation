@@ -8,6 +8,7 @@ on:
       - main
     paths:
       - 'leadership-dashboard.js'
+      - 'kings-leadership-embed-budget.js'
       - 'event-leadership-observation.js'
       - 'event-history-leadership-bridge.js'
       - 'event-history-review-agenda.js'
@@ -55,6 +56,7 @@ jobs:
         run: |
           node --check leadership-message-sync.js
           node --check leadership-dashboard.js
+          node --check kings-leadership-embed-budget.js
           node --check event-leadership-state.js
           node --check event-review-dashboard-readonly-proof.js
           node --check event-leadership-observation.js
