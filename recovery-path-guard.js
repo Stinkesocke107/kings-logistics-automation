@@ -33,6 +33,11 @@ function safeTarget(root,relative){
   const clean=safeRelative(relative),base=path.resolve(root);
   const target=path.resolve(base,clean);
   if(target===base||!target.startsWith(base+path.sep))fail();
+  // Never trust a symlinked root itself: otherwise all individually safe
+  // children could still resolve outside the intended isolated source/tree.
+  let baseStat;
+  try{baseStat=fs.lstatSync(base);}catch{fail();}
+  if(baseStat.isSymbolicLink()||!baseStat.isDirectory())fail();
   // Detect links even when dangling: existsSync would silently miss them.
   for(let i=0,parts=clean.split('/'),at=base;i<parts.length;i++){
     at=path.join(at,parts[i]);

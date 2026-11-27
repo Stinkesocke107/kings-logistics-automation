@@ -40,6 +40,9 @@ function main() {
 
   const manifest = JSON.parse(fs.readFileSync(MANIFEST_FILE, 'utf8'));
   assertManifest(manifest.files);
+  // Validate the *complete* source set before deleting or writing to the
+  // disposable sandbox. Each file is checked again immediately before copy.
+  for (const entry of manifest.files) verifiedSource(BACKUP_ROOT, entry);
   // Do not remove a symlinked disposable directory that may point outside
   // this runner. Every restore target is separately guarded below.
   if (fs.existsSync(VERIFY_ROOT) && fs.lstatSync(VERIFY_ROOT).isSymbolicLink()) {
