@@ -283,7 +283,7 @@ test('real integrated Event source-to-triage proof covers all five linked Events
    assert.ok(sys,id);
    const p=sys.capabilities.find(x=>x.id==='real_joint_source_advisory_triage');
    assert.equal(p?.state,VERIFIED,id);
-   assert.deepEqual([...p.evidence],[ROOT+'actions/runs/45911909091']);
+   assert.deepEqual([...p.evidence],[ROOT+'actions/runs/45911909091',ROOT+'actions/runs/45914805638']);
    assert.equal(sys.acceptance,'PARTIALLY_VERIFIED');
    assert.equal(sys.ownerApproval,null);
    assert.equal(sys.gates.find(x=>x.id==='real_world_e2e').state,PENDING);
