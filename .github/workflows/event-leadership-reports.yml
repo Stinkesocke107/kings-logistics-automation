@@ -189,7 +189,9 @@ jobs:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.report == 'integration-check'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    continue-on-error: true
+    # A manually requested production acceptance proof must fail visibly.
+    # Keep optional push-time diagnostics nonblocking for existing reports.
+    continue-on-error: ${{ github.event_name == 'push' }}
     permissions:
       contents: read
     steps:
@@ -220,6 +222,18 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_INVITATION_TAG_IDS: ${{ secrets.DISCORD_INVITATION_TAG_IDS }}
         run: node event-operations-integrated-readonly-proof.js
+
+      # Independent GET of the actual owner-bot Event dashboard after
+      # reading the existing AES-protected source. This checks stored
+      # Invitation and Manual Staff fields, but does not assert that a new
+      # human command occurred during this read-only verification.
+      - name: Independently verify stored Event dashboard fields without writes
+        env:
+          DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: |
+          node --check event-review-dashboard-readonly-proof.js
+          node event-review-dashboard-readonly-proof.js
 
   report:
     if: github.ref == 'refs/heads/main' && github.event_name != 'push' && inputs.report != 'invitation-check' && inputs.report != 'capacity-check' && inputs.report != 'integration-check'
