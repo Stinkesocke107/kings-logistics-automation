@@ -199,3 +199,25 @@ test('strict live acceptance preflight only passes with fresh both-source state 
  assert.equal(result.discordWrites,0);
  assert.equal(h.calls.length,2);
 });
+
+
+test('Event dashboard read-back identifies the safe failure class without private data',async()=>{
+  for(const [caseName,h,reason] of [
+    ['stale Staff field',harness({fieldValue:'SECRET_PRIVATE_EVENT_SOURCE'}),'STAFF_FIELD_MISMATCH'],
+    ['stale Invitation field',harness({invitationValue:'SECRET_PRIVATE_INVITE_SOURCE'}),'INVITATION_FIELD_MISMATCH'],
+    ['wrong owner bot',harness({messageAuthor:'777777777777777775'}),'BOT_OR_MESSAGE_UNVERIFIED'],
+    ['invalid encrypted container',harness({plain:true}),'ENCRYPTED_SOURCE_UNVERIFIED']
+  ]){
+    await assert.rejects(()=>run({...h,nowMs:NOW}),err=>{
+      assert.equal(err.publicReason,reason,caseName);
+      assert.equal(err.message,'Kings private Event dashboard delivery unverified');
+      assert.doesNotMatch(JSON.stringify(err),/SECRET_PRIVATE/);
+      return true;
+    });
+  }
+  const h=harness({rawState:state()});
+  await assert.rejects(()=>run({...h,nowMs:NOW,
+    env:{...h.env,KINGS_EVENT_READBACK_REQUIRE_FRESH_SOURCE:'true'}}),
+    err=>err.publicReason==='FRESH_EVENT_SOURCE_UNVERIFIED');
+  assert.equal(h.calls.length,0,'Unverified source must never contact Discord');
+});
