@@ -282,6 +282,11 @@ jobs:
 
   report:
     if: github.ref == 'refs/heads/main' && github.event_name != 'push' && inputs.report != 'invitation-check' && inputs.report != 'capacity-check' && inputs.report != 'integration-check' && inputs.report != 'command-proof'
+    # The existing Leadership message must refresh when the protected Event
+    # source changes, otherwise displayed KR command codes become invalid.
+    permissions:
+      contents: write
+      actions: write
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -352,6 +357,7 @@ jobs:
         run: node event-leadership-reports.js
 
       - name: Save Event Leadership report state
+        id: persist_event_source
         if: ${{ steps.mode.outputs.preview == 'false' }}
         run: |
           if git diff --quiet -- data/event-leadership-report-state.json && [ -z "$(git status --porcelain data/event-leadership-report-state.json)" ]; then
@@ -364,3 +370,14 @@ jobs:
           git add data/event-leadership-report-state.json
           git commit -m "Update Event Leadership report state"
           bash scripts/git-safe-push.sh main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # GITHUB_TOKEN Git state pushes do not trigger normal push-based
+      # downstream workflows. Dispatch only after the encrypted source commit
+      # succeeded, preserving original Staff/Discord approval boundaries.
+      - name: Refresh Leadership command codes after changed Event source
+        if: steps.persist_event_source.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run leadership-dashboard.yml --repo "$GITHUB_REPOSITORY" --ref main
