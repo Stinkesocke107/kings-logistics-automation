@@ -261,6 +261,19 @@ jobs:
             fi
           fi
 
+      # Independent non-technical staff notices; owner-controlled opt-in.
+      # No new workflow, hosting or Event/HR/Driver data writes.
+      - name: Send private Kings Operations Notices (opt-in)
+        if: steps.mode.outputs.dry_run != 'true' && steps.convoy_stage_0.outcome == 'success'
+        continue-on-error: true
+        env:
+          KINGS_OPERATIONS_NOTIFICATIONS_ENABLED: ${{ secrets.KINGS_OPERATIONS_NOTIFICATIONS_ENABLED }}
+          KINGS_OPERATIONS_CHANNEL_ID: ${{ secrets.KINGS_OPERATIONS_CHANNEL_ID }}
+          SYSTEM_ALERTS_CHANNEL_ID: ${{ secrets.SYSTEM_ALERTS_CHANNEL_ID }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1114967437788577792'
+        run: node kings-operations-notifications.js
+
       - name: Sync convoy overview to Discord
         id: convoy_stage_9
         continue-on-error: true
