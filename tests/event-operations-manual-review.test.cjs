@@ -325,3 +325,22 @@ test('Staff journal rejects reordered or future-dated audit history and mismatch
   failOn({evidenceKind:'STAFF_RECORD'});
   assert.equal(trustedRecords([original]).length,1);
 });
+
+
+test('Event source publication refreshes the private command selector only after durable commit, with midnight rollover repair',()=>{
+  const fs=require('node:fs'),path=require('node:path');
+  const root=path.resolve(__dirname,'..');
+  const reports=fs.readFileSync(path.join(root,'.github/workflows/event-leadership-reports.yml'),'utf8');
+  const dashboard=fs.readFileSync(path.join(root,'.github/workflows/leadership-dashboard.yml'),'utf8');
+  const reportBlock=reports.split('\n  report:\n')[1];
+  assert.ok(reportBlock,'Event report publication job exists');
+  assert.match(reportBlock,/actions: write/);
+  assert.match(reportBlock,/id: persist_event_source/);
+  assert.match(reportBlock,/bash scripts\/git-safe-push\.sh main\n\s+echo "changed=true" >> "\$GITHUB_OUTPUT"/);
+  assert.match(reportBlock,/if: steps\.persist_event_source\.outputs\.changed == 'true'/);
+  assert.match(reportBlock,/gh workflow run leadership-dashboard\.yml/);
+  assert.match(reportBlock,/if: \$\{\{ steps\.mode\.outputs\.preview == 'false' \}\}/);
+  assert.match(dashboard,/- cron: "5 0 \* \* \*"/);
+  assert.match(dashboard,/node event-review-dashboard-readonly-proof\.js/);
+  assert.equal((reports.match(/gh workflow run leadership-dashboard\.yml/g)||[]).length,1);
+});

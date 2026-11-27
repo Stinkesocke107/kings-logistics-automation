@@ -24,6 +24,9 @@ on:
       - '.github/workflows/leadership-dashboard.yml'
 
   schedule:
+    # Private KR command selectors expire on UTC-day rollover.
+    # Refresh the already-owned Leadership messages soon after midnight.
+    - cron: "5 0 * * *"
     - cron: "15 8,20 * * *"
     - cron: "30 19 * * *"
     - cron: "45 10 * * 1"

@@ -414,19 +414,20 @@ function buildEvent(data, now = Date.now()) {
   });
 }
 
-function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
+function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed, now = Date.now()) {
   const dw = latest(data.managementWeekly.publishedWeeks);
   const mm = latest(data.managementMonthly.monthlyReports);
   const ds = data.driverSummary;
   const ss = data.staffSummary;
-  const eventSource=trustedEventObservation(data.eventReports?.eventSourceObservation);
-  const invitationSource=trustedInvitationObservation(data.eventReports?.invitationSourceObservation);
+  const eventSource=trustedEventObservation(data.eventReports?.eventSourceObservation,now);
+  const invitationSource=trustedInvitationObservation(data.eventReports?.invitationSourceObservation,now);
   const operations=observeOperations({
     eventSourceObservation:data.eventReports?.eventSourceObservation,
-    invitationSourceObservation:data.eventReports?.invitationSourceObservation
+    invitationSourceObservation:data.eventReports?.invitationSourceObservation,
+    nowMs:now
   });
   const nextOperationsReview=operationsWorklist(operations)[0]||null;
-  const manualProgress=reviewSummary(data.eventReports||{});
+  const manualProgress=reviewSummary(data.eventReports||{},now);
   const reviewAgenda=eventSource?.reviewAgenda;
   const nextHistoryMonth=Array.isArray(reviewAgenda)&&reviewAgenda.length
     ?reviewAgenda[0]:null;
