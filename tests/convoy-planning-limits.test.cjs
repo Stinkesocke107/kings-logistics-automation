@@ -183,3 +183,36 @@ test('invalid display dates cannot silently create artificial capacity days',()=
   assert.equal(r.missingDepartures.length,1);
   assert.equal(r.freeSlotsCertified,false);
 });
+
+test('duplicate Event or Forum references are not silently dropped from Staff capacity review',()=>{
+  const id='90210', date='2027-04-02';
+  const original=entry(id,'Partner Convoy',date,'2027-04-02T16:00:00Z');
+  const duplicate={...original,threadId:'123456789012345678',name:'PRIVATE_EVENT_MARKER'};
+  const otherDate=entry('90211','External Convoy','2027-04-03','2027-04-03T17:00:00Z');
+  const first=evaluate([original,duplicate,otherDate]);
+  assert.equal(first.counted,2);
+  assert.equal(first.months['2027-04'].partner,1);
+  assert.equal(first.sourceUniquenessVerified,false);
+  assert.deepEqual(first.duplicateSourceClaims,[{period:date,count:1}]);
+  const notice=first.warnings.find(w=>w.code==='duplicate-source-claim');
+  assert.equal(notice.period,date);
+  assert.equal(notice.count,1);
+  assert.equal(first.freeSlotsCertified,false);
+  assert.equal(first.historicalApprovalsVerified,false);
+  assert.ok(!JSON.stringify(first.duplicateSourceClaims).includes('PRIVATE_EVENT_MARKER'));
+  assert.ok(!JSON.stringify(first.duplicateSourceClaims).includes('123456789012345678'));
+  const healthy=evaluate([original,otherDate]);
+  assert.equal(healthy.sourceUniquenessVerified,true);
+  assert.deepEqual(healthy.duplicateSourceClaims,[]);
+  assert.equal(healthy.warnings.some(w=>w.code==='duplicate-source-claim'),false);
+});
+
+test('repeated unidentifiable Forum references are also surfaced for Staff review',()=>{
+  const date='2027-04-09';
+  const base={name:'Private item',eventDate:date,eventType:'External Convoy',
+    departureAtUtc:'2027-04-09T12:00:00Z'};
+  const value=evaluate([base,{...base,name:'Second unidentifiable item'}]);
+  assert.equal(value.counted,1);
+  assert.equal(value.duplicateSourceClaims[0].count,1);
+  assert.equal(value.freeSlotsCertified,false);
+});
