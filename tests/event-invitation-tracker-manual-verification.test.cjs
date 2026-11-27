@@ -23,3 +23,19 @@ test('manual Invitation check does not grant permissions or create invitations',
   assert.doesNotMatch(probe,/fetch\(.+method:\s*['"]POST/);
   assert.doesNotMatch(probe,/JSON\.stringify\(result\)/);
 });
+
+test('manual integrated source proof also checks actual stored Event dashboard, without public source export',()=>{
+  const job=yaml.slice(yaml.indexOf('  event_integrated_source_verify:'),
+    yaml.indexOf('\n  report:',yaml.indexOf('  event_integrated_source_verify:')));
+  assert.match(job,/inputs\.report == 'integration-check'/);
+  assert.match(job,/continue-on-error: \$\{\{ github\.event_name == 'push' \}\}/);
+  assert.match(job,/node event-operations-integrated-readonly-proof\.js/);
+  assert.match(job,/node event-review-dashboard-readonly-proof\.js/);
+  assert.ok(job.indexOf('event-operations-integrated-readonly-proof.js')<
+    job.lastIndexOf('event-review-dashboard-readonly-proof.js'));
+  assert.match(job,/DRIVER_STATE_KEY: \$\{\{ secrets\.DRIVER_STATE_KEY \}\}/);
+  assert.match(job,/DISCORD_BOT_TOKEN: \$\{\{ secrets\.DISCORD_BOT_TOKEN \}\}/);
+  assert.match(job,/contents: read/);
+  assert.doesNotMatch(job,/run: node leadership-dashboard\.js/);
+  assert.doesNotMatch(job,/git push|gh workflow run|POST|PATCH|DELETE/);
+});
