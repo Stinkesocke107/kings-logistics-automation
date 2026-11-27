@@ -140,44 +140,79 @@ sind **andere Projekte** und hier keine Pflichtaufgaben.
 
 ## Neues, separates System: Kings Operations Notices
 
-Ziel: non-technische **Betriebsmitteilungen** in
+Ziel: nichttechnische **Betriebsmitteilungen** in
 `#operations-notifications` oder
 `#kings-operations-notifications`.
-`#system-alerts` bleibt exklusiv
-für technische Fehler, Eskalationen und Entwarnungen.
-Andere private Einzelmeldungen bleiben in ihren Fachkanälen.
+`#system-alerts` bleibt exklusiv für technische Fehler,
+Eskalationen und Entwarnungen. Vertrauliche Personal-/HR-Fälle verbleiben in
+ihren geschützten Fachkanälen.
 
-**In diesem PR technisch vorbereitet:** opt-in, ausschließlich aggregierte
-Event-Statusübersicht aus dem vorhandenen Convoy Checker. Sie unterdrückt
-unverifizierte/stale/fehlerhafte Quellen, Testthreads, Fremdkanäle, Erwähnungen
-und Doppeleinträge. Sie verändert weder Rollen/Personal noch Events.
-Es wird **kein 47. GitHub-Workflow** und kein externer Server benötigt.
+**Im Draft PR technisch vorbereitet:** erster, ausdrücklich opt-in
+**Event-Aggregat-Pilot** im bereits vorhandenen Convoy Checker. Nur nach
+erfolgreichem Checker, TruckersMP-Abgleich, Finalizer, Completeness-Prüfung
+und Convoy-Overview dürfen frische, konsistente Statuszahlen erscheinen.
+Es werden keine Event-Namen, persönlichen Daten, internen Fall-IDs,
+Staff-Kommandos, Buchungsentscheidungen oder freien Plätze veröffentlicht.
 
-**Noch NICHT live:** Discord-Channel und dessen genaue Rollenrechte sind
-im Repository nicht belegt; keine GitHub-Secrets wurden gesetzt. Ohne
-explizite Aktivierung sendet die Funktion **nichts**.
+**Ein festes Message-Embed statt Meldungsflut:** einmaliges Bot-POST,
+anschließend bei Event-Änderung nur PATCH auf exakt **dieselbe bot-eigene**
+Nachricht; unveränderte Quellstände ergeben keine Discord-Schreibaktion.
+Der Digest bezieht die individuellen Statusänderungen ein, auch wenn die
+aggregierten Summen gleich geblieben sind. Jeder Discord-Write benötigt
+anschließend eine echte GET-Rücklesung desselben Bot-Messages. Mehrere
+historische Bot-Statusmeldungen oder eine volle 100er-History-Seite stoppen
+die Veröffentlichung sicher statt riskanter Dubletten-/Löschaktionen.
 
-Nötige Einrichtung vor Live-Test durch den Serverinhaber:
-1. Privaten Discord-Textchannel mit genau einem der zwei Namen anlegen.
-   `@everyone` benötigt ein explizites **Deny View Channel**; nur freigegebene
-   Staff/Leadership-Rollen und Bot dürfen View/Read History/Send erhalten.
-2. In **GitHub Actions → Repository secrets** setzen:
-   `KINGS_OPERATIONS_CHANNEL_ID` auf die echte Kanal-ID, bei Bedarf
-   `SYSTEM_ALERTS_CHANNEL_ID` für explizite Zieltrennung. Nicht in Chat/README
-   Zugangstoken posten. Der vorhandene `DISCORD_BOT_TOKEN` wird wiederverwendet.
-3. Separat genehmigt `KINGS_OPERATIONS_NOTIFICATIONS_ENABLED=ENABLED`
-   setzen. Bis dahin bleibt alles inaktiv.
-4. Echten Convoy Checker ausführen, Ergebnis im privaten Channel überprüfen,
-   bei unveränderten Quellen keine Doppelposts akzeptieren. Fehlende/mehrfache
-   Nachrichten und Berechtigungsfehler anschließend unabhängig abnehmen.
+**Privacy-Härtung:** Die echte Kanal-ID, der Kanalname und die Guild-ID
+müssen zusammenpassen. Auf jedem Lauf prüft das System per Discord GET
+die Serverrollen, Bot-Identität/-Rollen und **alle** Kanal-Overwrites.
+`@everyone` braucht explizites **Deny View Channel**.
+Jede Rolle, die den Kanal über einen positiven View-Overwrite lesen kann,
+muss über ihre unveränderliche Rollen-ID ausdrücklich im vom CEO
+genehmigten Secret stehen — **auch eine Bot-Rolle**, falls ihr View explizit
+erlaubt wird. Unbekannte Rollen, individuelle View-Freigaben an andere
+Nutzer, fehlende genehmigte Rollen oder Mehrfach-Overwrites stoppen den
+Publisher. Discord-Serverrollen mit **Administrator** können Kanal-Denies
+trotzdem umgehen; deren separate Kontrolle ist erforderlich.
 
-**Weitere non-technische Bereiche erst einzeln anbinden:** Driver-Handover
-(ohne Namen/Privatdaten), Staff-Termine, Awards (nach Genehmigung), Partner-
-Status, Berichte, Support-Aufkommen und Event-Einladungsstatus. Für jeden
-Bereich braucht es einen freigegebenen, datensparsamen Quellvertrag mit
-Benachrichtigungstyp, Zielrollen, Dublettenschutz, Rücklesung und Löschkonzept.
-Es wäre irreführend, heute "alle Betriebsereignisse" als integriert zu
-kennzeichnen.
+**Noch NICHT live:** Eine echte Discord-Channel-ID, die aktuellen genehmigten
+Role-IDs und die ausdrücklich bestätigte Aktivierung wurden nicht gesetzt.
+Der PR wird nicht automatisch gemerged oder produktiv geschaltet. Es
+existiert kein eigener 47. GitHub-Workflow und kein externer Server.
+
+### Autorisierte Inbetriebnahme (noch ausstehend)
+
+1. Privaten **Text**-Channel genau `operations-notifications` oder
+   `kings-operations-notifications` einrichten. Positiv View nur
+   für genehmigte Leadership/Staff-Rollen und gegebenenfalls ausdrücklich
+   genehmigte Bot-Rolle oder Bot-Einzelaccount, negativ View für
+   `@everyone`; Bot muss lesen, History abrufen, schreiben und seine
+   eigene Nachricht editieren können.
+2. In **GitHub Actions Repository Secrets** privat hinterlegen:
+   `KINGS_OPERATIONS_CHANNEL_ID` (echte Channel-ID),
+   `SYSTEM_ALERTS_CHANNEL_ID` (echte *andere* Channel-ID),
+   `KINGS_OPERATIONS_ALLOWED_ROLE_IDS` (kommagetrennte, genehmigte
+   aktuelle Role-IDs einschließlich jeder Bot-Rolle mit positiver View
+   Permission). Den vorhandenen `DISCORD_BOT_TOKEN` nur als Secret
+   verwenden; keine IDs/Tokens in öffentliche CI-Logs oder Chat kopieren.
+3. **Separat genehmigt** exakt
+   `KINGS_OPERATIONS_NOTIFICATIONS_ENABLED=ENABLED` als Secret
+   setzen. Vorher ist der Publisher vollständig inaktiv.
+4. Nach CI-Grün einen echten Convoy-Checker-Live-Lauf und Discord-Readback
+   prüfen. Ein ursprünglicher POST, spätere PATCH-Updates und keine doppelten
+   Statusmeldungen müssen dokumentiert werden. Rechteänderungen, API-Fehler,
+   Replay und ältere/volle History sind als echte Negativfälle abzugleichen.
+5. Solange kein humaner Live-Nachweis und keine fachliche CEO-Freigabe
+   vorliegen, bleibt die Abnahme ausdrücklich offen. Ein optionaler
+   fehlgeschlagener Publisher-Schritt erzeugt eine GitHub-Warnung; er
+   bescheinigt **keinen** erfolgreichen Versand.
+
+**Spätere Quelladapter separat prüfen:** Driver-Handover (ohne
+personenbezogene Daten), Staff-Termine, freigegebene Awards, Partner-Status,
+Reports, Support-Volumen und Event-Einladungsstatus. Jede Kategorie braucht
+Quellfrische, deduplizierbare Statusdaten, ein freigegebenes Publikum,
+Datenschutzprüfung und unabhängigen Discord-Readback.
+**Die aktuelle Implementierung umfasst nur den Event-Aggregat-Pilot.**
 
 ## Gemeinsame Abschlussregel
 
