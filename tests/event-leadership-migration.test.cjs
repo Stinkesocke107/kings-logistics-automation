@@ -80,3 +80,15 @@ test('source writer and integrated GET-only retry both read current protected ma
   assert.match(source,/contents: read/);
   assert.match(report,/contents: write/);
 });
+
+
+test('push-only Event source refresh suppresses private original Forum details in public Actions logs',()=>{
+  const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/event-leadership-reports.yml'),'utf8');
+  const report=workflow.split('\n  report:\n').at(-1)||'';
+  const step=report.split('- name: Build fresh read-only Event Leadership data')[1]
+    ?.split('- name: Create Event Leadership report')[0]||'';
+  assert.match(step,/source-refresh/);
+  assert.match(step,/node "\$script" >\/dev\/null 2>&1/);
+  assert.match(step,/ORIGINAL_SOURCE_UNAVAILABLE/);
+  assert.match(step,/set -euo pipefail/);
+});
