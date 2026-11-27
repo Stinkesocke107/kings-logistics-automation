@@ -9,7 +9,10 @@ const yaml=fs.readFileSync(
 test('manual Invitation Tracker check is source-only, does not accidentally publish daily Event reports',()=>{
   assert.match(yaml,/options:\s*\n\s*- invitation-check/);
   assert.match(yaml,/invitation_source_verify:\s*\n\s*if: .*inputs\.report == 'invitation-check'/);
-  assert.match(yaml,/report:\s*\n\s*if: .*inputs\.report != 'invitation-check'/);
+  const reportJob=yaml.split('\n  report:\n').at(-1)||'';
+  assert.match(reportJob,/inputs\.report != 'invitation-check'/);
+  assert.match(reportJob,/github\.event_name == 'push'/);
+  assert.match(reportJob,/MODE=source-refresh/);
   assert.match(yaml,/node event-invitation-tracker-readonly-proof\.js/);
   assert.match(yaml,/contents: read/);
   assert.match(yaml,/DISCORD_INVITATION_TAG_IDS: \$\{\{ secrets\.DISCORD_INVITATION_TAG_IDS \}\}/);
