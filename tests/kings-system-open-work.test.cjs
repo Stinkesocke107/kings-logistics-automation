@@ -11,14 +11,14 @@ test('completion audit inventories every workflow without reporting synthetic ap
   assert.equal(result.counts.workflows,46);
   assert.equal(result.counts.scheduled,33);
   assert.equal(result.counts.manualOrOnChange,13);
-  assert.equal(result.counts.assessed,26);
+  assert.equal(result.counts.assessed,27);
   assert.equal(result.counts.notAssessed,20);
   assert.equal(result.counts.complete,0);
   assert.equal(result.allWorkflows.length,WORKFLOW_REGISTRY.length);
   assert.equal(new Set(result.allWorkflows.map(w=>w.file)).size,46);
   assert.ok(result.allWorkflows.every(w=>w.open));
   assert.equal(result.eventSystems.length,5);
-  assert.equal(result.operationalSystems.length,25);
+  assert.equal(result.operationalSystems.length,26);
   assert.ok(!result.eventSystems.some(x=>x.id==='17'));
   assert.ok(result.exclusions.some(x=>x.startsWith('17')));
 });
