@@ -63,7 +63,7 @@ async function verify({
      canonical(before.state)===canonical(after.state))refuse();
   mustAdvance(before.state,after.state);
   const timestamp=after.state.updatedAt;
-  if(typeof timestamp!=='string'||!/^\\d{4}-\\d{2}-\\d{2}T/.test(timestamp))
+  if(typeof timestamp!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(timestamp))
     refuse();
   const commandMs=Date.parse(timestamp);
   if(!Number.isSafeInteger(commandMs)||commandMs<=0||
