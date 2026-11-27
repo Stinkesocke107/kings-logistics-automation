@@ -153,3 +153,14 @@ test('live event planning alerts and durable state require verified original sou
   assert.match(source,/validAlertDelivery\(saved,/);
   assert.match(source,/botOwnedAlertKeys\(recent,bot\.id\)/);
 });
+
+test('duplicate-source alert is private, stable, source-only and never certifies free capacity',()=>{
+  const {describe,keyOf}=require('../convoy-planning-alerts');
+  const w={code:'duplicate-source-claim',period:'2027-04-02',count:1};
+  const text=describe(w);
+  assert.match(text,/duplicate source claim/);
+  assert.match(text,/Staff reconciliation/);
+  assert.match(text,/no capacity is released/);
+  assert.equal(keyOf(w),keyOf({...w,count:3}));
+  assert.doesNotMatch(text,/123456789012345678|PRIVATE_EVENT_MARKER/);
+});
