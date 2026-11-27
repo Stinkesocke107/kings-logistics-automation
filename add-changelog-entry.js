@@ -54,10 +54,9 @@ function readJson(
         "utf8"
       )
     );
-  } catch (error) {
-    throw new Error(
-      `Could not read ${path.basename(file)}: ${error.message}`
-    );
+  } catch {
+    // JSON parser details can include sensitive human-entered content.
+    throw new Error(`Could not read ${path.basename(file)}: invalid JSON`);
   }
 }
 
