@@ -30,7 +30,8 @@ test('Critical backup checks cover protected Event review, live data and recover
    'kings-workflow-registry.js','kings-system-acceptance.js',
    'event-review-dashboard-readonly-proof.js','event-leadership-state.js',
    'live-outage-notice.js','live-map-auto-probe.js',
-   'scripts/git-safe-push.sh','scripts/migrate-event-leadership-state.js'
+   'scripts/git-safe-push.sh','scripts/migrate-event-leadership-state.js',
+   'recovery-path-guard.js'
  ]){
    assert.ok(critical.includes('"'+required+'"'),required);
    assert.ok(fs.existsSync(path.join(ROOT,required)),required);
@@ -42,7 +43,8 @@ test('real isolated backup verification enforces presence and SHA256 of new sour
    'scripts/migrate-event-leadership-state.js',
    'tests/sandbox.cjs',
    'docs/KINGS-ALL-SYSTEMS-INVENTORY.md',
-   'event-review-dashboard-readonly-proof.js'
+   'event-review-dashboard-readonly-proof.js',
+   'recovery-path-guard.js','tests/recovery-path-guard.test.cjs'
  ])assert.ok(verification.includes("'"+required+"'"),required);
  assert.match(verification,/restore\.summary\.manifestFiles!==restore\.summary\.restoredFiles/);
  assert.match(verification,/restore\.summary\.manifestFiles!==restore\.summary\.checksumsVerified/);
