@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const {
-  readStatisticsDocument,validateStatisticsDocument,validDay
+  readStatisticsDocument,validateStatisticsDocument,validDay,validateStatisticsLiveSnapshot
 }=require('../statistics-source-provenance');
 const root=path.resolve(__dirname,'..');
 
@@ -71,4 +71,26 @@ test('monthly publisher and independent verifier consume the same validated sour
   assert.doesNotMatch(verifier,/console\.error\(\s*error\s*\)/);
   const stats=fs.readFileSync(path.join(root,'statistics.js'),'utf8');
   assert.doesNotMatch(stats,/console\.error\(\s*error\s*\)/);
+});
+
+test('verified Tracker snapshot must have real bounded totals and complete server coverage',()=>{
+  const now=Date.now();
+  const valid={version:2,updatedAt:new Date(now-10000).toISOString(),
+    members:110,online:2,ets2Online:1,atsOnline:1,
+    activeServers:[
+      {game:'ETS2',name:'Simulation 1',online:1,isEvent:false},
+      {game:'ATS',name:'US Simulation',online:1,isEvent:false}
+    ]};
+  assert.equal(validateStatisticsLiveSnapshot(valid,now),valid);
+  for(const bad of [
+    {...valid,online:null},{...valid,online:0},
+    {...valid,online:3},{...valid,online:111},
+    {...valid,atsOnline:null},{...valid,activeServers:[]},
+    {...valid,activeServers:undefined},
+    {...valid,activeServers:[valid.activeServers[0],valid.activeServers[0],valid.activeServers[1]]},
+    {...valid,activeServers:[{...valid.activeServers[0],online:null},valid.activeServers[1]]},
+    {...valid,updatedAt:new Date(now+10*60000).toISOString()},
+    {...valid,updatedAt:new Date(now-30*60000).toISOString()}
+  ])assert.throws(()=>validateStatisticsLiveSnapshot(bad,now),
+    /unverified|disagree|missing|invalid|counted twice|stale|coverage/);
 });
