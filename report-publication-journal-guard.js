@@ -36,4 +36,38 @@ function loadPublicationState(file, field, createInitialState){
   }
   return state;
 }
-module.exports={loadPublicationState};
+
+function loadPublicationKeyState(file,keyFields,reportFields,createInitialState){
+  if(!Array.isArray(keyFields)||!keyFields.length||
+     !Array.isArray(reportFields)||typeof createInitialState!=='function')
+    throw new Error('Invalid Kings leadership publication journal configuration');
+  if(!fs.existsSync(file))return createInitialState();
+  const label=path.basename(file);
+  let state;
+  try{state=JSON.parse(fs.readFileSync(file,'utf8'));}
+  catch{throw new Error('Existing Kings publication journal is unreadable: '+label+
+      ' (manual recovery required; refusing empty-state reset)');}
+  if(!state||typeof state!=='object'||Array.isArray(state))
+    throw new Error('Existing Kings publication journal has invalid schema: '+label);
+  for(const field of [...keyFields,...reportFields]){
+    if(!Array.isArray(state[field]))
+      throw new Error('Existing Kings publication journal has invalid schema for '+field+': '+label);
+    const seen=new Set();
+    const month=field==='publishedMonths'||/Monthly/.test(field)||field==='monthlyReports';
+    const format=month?/^\\d{4}-(0[1-9]|1[0-2])$/:/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/;
+    for(const value of state[field]){
+      const key=reportFields.includes(field)?value?.key:value;
+      if(typeof key!=='string'||!format.test(key))
+        throw new Error('Existing Kings publication journal has invalid period key for '+field+': '+label);
+      const date=new Date(key+(month?'-01':'')+'T00:00:00.000Z');
+      if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,month?7:10)!==key)
+        throw new Error('Existing Kings publication journal has nonexistent period for '+field+': '+label);
+      if(seen.has(key))
+        throw new Error('Existing Kings publication journal has duplicate periods in '+field+': '+label);
+      seen.add(key);
+    }
+  }
+  return state;
+}
+
+module.exports={loadPublicationState,loadPublicationKeyState};
