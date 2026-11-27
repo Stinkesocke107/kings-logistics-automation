@@ -3,6 +3,7 @@ const path = require('path');
 const { resilientFetchJson } = require('./api-resilience');
 const { operationalReadinessFromIssues } = require('./system-health-readiness');
 const {assessDailyUtcSchedule} = require('./scheduled-cadence-health');
+const { isOperationalWorkflowRun } = require('./workflow-run-classifier');
 
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'data');
@@ -557,21 +558,11 @@ async function checkWorkflow(config, issues) {
       scheduleCadence
     ));
   }
-  // Monitor operational executions, not CI-only push checks. A code-push
-  // verifier failure should stay visible in GitHub CI without recursively
-  // marking unrelated live producers unhealthy. Convoy dry-runs must not count
-  // as valid production updates.
-  const runs = allRuns.filter((run) => {
-    // Workflow-run callbacks deliberately skipped by a verifier's trigger
-    // guard (e.g. a Convoy Checker dry-run) did not execute a health check.
-    // Ignore only those non-executions; genuine completed failures still alert.
-    if (run.event === 'workflow_run') {
-      return !(run.status === 'completed' && run.conclusion === 'skipped');
-    }
-    if (run.event === 'schedule') return true;
-    if (run.event !== 'workflow_dispatch') return false;
-    return config.file !== 'convoy-checker.yml' || /\blive\b/i.test(run.display_title || '');
-  });
+  // Count genuine full-production push runs for the three protected
+  // personnel producers too: a successful post-fix main push must supersede
+  // an older failed manual run. All CI-only push events and Convoy dry-runs
+  // remain excluded by the fail-closed, file-specific classifier.
+  const runs = allRuns.filter((run) => isOperationalWorkflowRun(run, config.file));
 
   if (!runs.length) {
     if (!config.optionalUntilFirstRun) {
