@@ -6,8 +6,8 @@
   "currentTrialDrivers": 0,
   "discordDriverRoleId": "1204836048845410405",
   "discordDriverRoleName": "| Kings Driver",
-  "truckersmpAdvisoryDrivers": 110,
+  "truckersmpAdvisoryDrivers": 111,
   "safelyMatchedToTruckersmp": 22,
-  "updatedAt": "2026-11-22T02:36:30.548Z",
+  "updatedAt": "2026-11-27T18:02:42.476Z",
   "note": "Discord Kings Driver and Kings Trial roles are authoritative. currentDrivers is the combined total; TruckersMP roster is advisory only."
 }

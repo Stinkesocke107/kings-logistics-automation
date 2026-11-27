@@ -74,7 +74,8 @@ jobs:
             local workflow="$1"
             gh api --method GET \
               "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/runs" \
-              -f per_page=50
+              -f per_page=50 \
+              -f branch=main
           }
 
           active_managed_run() {
@@ -124,7 +125,7 @@ jobs:
             local max_active_age_seconds="${4:-1200}"
             local cooldown_seconds="${5:-300}"
             local active active_id active_status active_created active_epoch active_age
-            local latest_success latest_epoch latest_completed completed_epoch now age snapshot
+            local latest_success latest_epoch latest_completed completed_epoch completed_age now age snapshot
 
             now="$(date -u +%s)"
             # One API read per producer per pass, not two or three. This also
@@ -137,6 +138,13 @@ jobs:
               if [ -n "$active_created" ]; then
                 active_epoch="$(date -u -d "$active_created" +%s)"
                 active_age=$(( now - active_epoch ))
+              fi
+
+              # Do not silently interpret future-dated GitHub metadata as healthy.
+              # Defer uncertain recovery rather than duplicating an active job.
+              if [ "$active_age" -lt -300 ]; then
+                echo "::warning::${workflow}: future-dated active run (>5 min); recovery deferred for operator review."
+                return 0
               fi
 
               if [ "$active_age" -le "$max_active_age_seconds" ]; then
@@ -152,6 +160,10 @@ jobs:
             if [ -n "$latest_success" ]; then
               latest_epoch="$(date -u -d "$latest_success" +%s)"
               age=$(( now - latest_epoch ))
+              if [ "$age" -lt -300 ]; then
+                echo "::warning::${workflow}: future-dated success (>5 min); recovery deferred for operator review."
+                return 0
+              fi
               if [ "$age" -lt "$max_success_age_seconds" ]; then
                 echo "${workflow}: last successful managed run is ${age}s old; still healthy."
                 return 0
@@ -165,7 +177,12 @@ jobs:
               latest_completed="$(latest_completed_run "$snapshot")"
               if [ -n "$latest_completed" ]; then
                 completed_epoch="$(date -u -d "$latest_completed" +%s)"
-                if [ $(( now - completed_epoch )) -lt "$cooldown_seconds" ]; then
+                completed_age=$(( now - completed_epoch ))
+                if [ "$completed_age" -lt -300 ]; then
+                  echo "::warning::${workflow}: future-dated completion (>5 min); recovery deferred for operator review."
+                  return 0
+                fi
+                if [ "$completed_age" -lt "$cooldown_seconds" ]; then
                   echo "${workflow}: recently completed a managed run; observing ${cooldown_seconds}-second recovery cooldown."
                   return 0
                 fi

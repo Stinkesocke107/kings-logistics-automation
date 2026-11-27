@@ -74,20 +74,29 @@
       },
       "firstAlertedAt": "2026-11-27T11:10:33.667Z"
     },
-    "workflow-schedule-missing:driver-register-onboarding.yml": {
-      "severity": "warning",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding did not deliver the expected daily scheduled run within the grace period.",
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
       "details": {
-        "status": "missing",
-        "expectedAt": "2026-11-27T07:17:00.000Z",
-        "actualAt": null,
-        "delayMinutes": null,
-        "graceMinutes": 120,
-        "latestScheduledAt": "2026-11-26T17:41:35.000Z"
+        "ageMinutes": 145,
+        "latestCount": 40
       },
-      "firstAlertedAt": "2026-11-27T12:35:11.856Z"
+      "firstAlertedAt": "2026-11-27T18:04:03.202Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:event-operations-discord-review.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-27T18:04:03.202Z",
+      "system": "Event Operations Discord Staff Review",
+      "message": "Event Operations Discord Staff Review has not run within the expected time window."
+    },
+    "workflow-schedule-late:driver-register-onboarding.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-27T18:04:03.202Z",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding scheduled run started 609 minutes after its UTC slot."
+    }
+  }
 }

@@ -4,6 +4,7 @@ const { resilientFetchJson } = require('./api-resilience');
 const { operationalReadinessFromIssues } = require('./system-health-readiness');
 const {assessDailyUtcSchedule} = require('./scheduled-cadence-health');
 const { isOperationalWorkflowRun } = require('./workflow-run-classifier');
+const {ageMinutes, isFreshAge} = require('./monitoring-time');
 
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'data');
@@ -76,7 +77,7 @@ function checkConvoyCompleteness(issues) {
     return { ok: false, reason: 'invalid-snapshot' };
   }
   const age = ageMinutes(result.data.updatedAt);
-  if (age === null || age > 45 || age < -5) {
+  if (!isFreshAge(age, 45)) {
     issues.push(issue('convoy-completeness-stale', 'critical', 'Convoy Completeness', 'No healthy convoy snapshot in the last 45 minutes.', { ageMinutes: age, latestCount: result.data.actualConvoys }));
     return { ok: false, reason: 'stale', ageMinutes: age };
   }
@@ -100,13 +101,6 @@ function readJson(relativePath) {
 function writeJson(file, value) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
-}
-
-function ageMinutes(value) {
-  if (!value) return Infinity;
-  const time = new Date(value).getTime();
-  if (!Number.isFinite(time)) return Infinity;
-  return Math.max(0, Math.floor((Date.now() - time) / 60000));
 }
 
 function severityRank(value) {
@@ -235,7 +229,10 @@ function checkFreshData(issues, workflows = []) {
     const staffWorkflow = config.file === 'data/staff-management-summary.json'
       ? workflows.find((item) => item.file === 'staff-management.yml') : null;
     const workflowHeartbeat = Boolean(staffWorkflow?.ok);
-    const ok = workflowHeartbeat || (Number.isFinite(age) && age <= config.maxAgeMinutes);
+    // A healthy Staff workflow may substitute for a missing summary timestamp,
+    // but an explicitly future-dated summary must never be accepted as fresh.
+    const futureTimestamp = Number.isFinite(age) && age < -5;
+    const ok = !futureTimestamp && (workflowHeartbeat || isFreshAge(age, config.maxAgeMinutes));
     if (!ok) {
       issues.push(issue(
         `stale-data:${config.file}`,
@@ -595,8 +592,7 @@ async function checkWorkflow(config, issues) {
     : 20;
   const recentActiveRun = Boolean(
     latestActive &&
-    Number.isFinite(activeAge) &&
-    activeAge <= activeGraceMinutes
+    isFreshAge(activeAge, activeGraceMinutes)
   );
   const newerRecoveryActive = Boolean(
     latestCompleted &&
@@ -614,8 +610,7 @@ async function checkWorkflow(config, issues) {
   const age = ageMinutes(activityAt);
   const cancelledWithFreshSuccess = Boolean(
     latestCompleted?.conclusion === 'cancelled' &&
-    Number.isFinite(age) &&
-    age <= config.maxAgeMinutes
+    isFreshAge(age, config.maxAgeMinutes)
   );
   let ok = !scheduleCadence || scheduleCadence.status === 'on-time';
   const reasons = [];
@@ -623,17 +618,22 @@ async function checkWorkflow(config, issues) {
     reasons.push('schedule-' + scheduleCadence.status);
   }
 
-  if (!Number.isFinite(age) || age > config.maxAgeMinutes) {
-    if (recentActiveRun) {
+  const impossibleFutureSuccess = Number.isFinite(age) && age < -5;
+  if (!isFreshAge(age, config.maxAgeMinutes)) {
+    // A concurrent active run may excuse an overdue prior success; it must
+    // never excuse a mathematically impossible future-dated success.
+    if (recentActiveRun && !impossibleFutureSuccess) {
       reasons.push('active-run-in-progress');
     } else {
       ok = false;
-      reasons.push('overdue');
+      reasons.push(impossibleFutureSuccess ? 'future-dated-success' : 'overdue');
       issues.push(issue(
-        `workflow-overdue:${config.file}`,
+        `${impossibleFutureSuccess ? 'workflow-future-success' : 'workflow-overdue'}:${config.file}`,
         config.severity,
         config.label,
-        `${config.label} has not run within the expected time window.`,
+        impossibleFutureSuccess
+          ? `${config.label} has a successful run timestamp more than five minutes in the future.`
+          : `${config.label} has not run within the expected time window.`,
         { latestActivityAt: activityAt || null, ageMinutes: Number.isFinite(age) ? age : null, maxAgeMinutes: config.maxAgeMinutes }
       ));
     }
