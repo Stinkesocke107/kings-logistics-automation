@@ -51,6 +51,8 @@ function sandbox(script, queue, failSend = false, overrides = {}) {
         }
         return { ok:false,status:404 };
       }
+      if (overrides.throwSend)
+        throw Error('synthetic private transport debug token DO_NOT_EXPOSE');
       const body=JSON.parse(options.body);
       sent.push(body);
       const fail = failSend || (overrides.failAfterPost !== undefined &&
@@ -258,4 +260,35 @@ test('Discord GET failure or unavailable private bot credential blocks all publi
    assert.equal(s.sent.length,0);
    assert.deepEqual([...s.files],before);
  }
+});
+
+test('ambiguous network transport errors never reveal private webhook/debug data',async()=>{
+ const s=sandbox('changelog.js',JSON.stringify([existing]),false,{throwSend:true});
+ const before=[...s.files];
+ await assert.rejects(s.run('publishChangelog()'),error=>{
+   assert.match(error.message,/post outcome unverified/);
+   assert.equal(error.message.includes('DO_NOT_EXPOSE'),false);
+   return true;
+ });
+ assert.equal(s.sent.length,0);
+ assert.deepEqual([...s.files],before);
+});
+
+test('Editor malformed confidential JSON is rejected without echoing its contents',()=>{
+ const os=require('node:os'),cp=require('node:child_process');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'kings-changelog-editor-private-'));
+ try{
+   fs.copyFileSync(path.join(root,'add-changelog-entry.js'),
+     path.join(dir,'add-changelog-entry.js'));
+   fs.mkdirSync(path.join(dir,'data'));
+   fs.writeFileSync(path.join(dir,'data','changelog-queue.json'),
+     '{"private":"DO_NOT_EXPOSE_SECRET", broken');
+   const result=cp.spawnSync(process.execPath,['add-changelog-entry.js'],{
+     cwd:dir,env:{...process.env,CHANGELOG_CATEGORY:'Kings',
+       CHANGELOG_TEXT:'Approved synthetic change'},encoding:'utf8'
+   });
+   assert.notEqual(result.status,0);
+   assert.match(result.stderr,/invalid JSON/);
+   assert.equal(result.stderr.includes('DO_NOT_EXPOSE_SECRET'),false);
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });

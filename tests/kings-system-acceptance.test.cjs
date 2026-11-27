@@ -283,7 +283,7 @@ test('real integrated Event source-to-triage proof covers all five linked Events
    assert.ok(sys,id);
    const p=sys.capabilities.find(x=>x.id==='real_joint_source_advisory_triage');
    assert.equal(p?.state,VERIFIED,id);
-   assert.deepEqual([...p.evidence],[ROOT+'actions/runs/45911909091']);
+   assert.deepEqual([...p.evidence],[ROOT+'actions/runs/45911909091',ROOT+'actions/runs/45914805638']);
    assert.equal(sys.acceptance,'PARTIALLY_VERIFIED');
    assert.equal(sys.ownerApproval,null);
    assert.equal(sys.gates.find(x=>x.id==='real_world_e2e').state,PENDING);
@@ -382,4 +382,18 @@ test('manual Changelog Editor and protected new Backup/Publisher guards are part
    'add-changelog-entry.yml');
  assert.equal(s.operationalSystems.find(x=>x.id==='CHANGELOG_EDITOR')
    .capabilities.find(x=>x.id==='genuine_authorized_entry').state,PENDING);
+});
+
+test('fresh real Event readback verifies existing five-system integration but never human approval',()=>{
+ const s=snapshot();
+ for(const id of ['12','14','15','16','18']){
+   const event=s.eventSystems.find(x=>x.id===id);
+   assert.ok(event,id);
+   const check=event.capabilities.find(x=>x.id==='read_only_source_and_dashboard_same_run');
+   assert.equal(check?.state,VERIFIED,id);
+   assert.ok(check.evidence.some(x=>x.endsWith('actions/runs/45914805638')),id);
+   assert.equal(event.acceptance,'PARTIALLY_VERIFIED',id);
+   assert.ok(event.gates.some(x=>x.id==='real_world_e2e'&&x.state===PENDING),id);
+   assert.ok(event.gates.some(x=>x.id==='owner_signoff'&&x.state===PENDING),id);
+ }
 });

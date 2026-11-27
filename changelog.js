@@ -566,8 +566,9 @@ async function sendDiscordMessage(
     );
   }
 
-  const response =
-    await fetch(
+  let response;
+  try {
+    response = await fetch(
       DISCORD_WEBHOOK_URL,
       {
         method:
@@ -588,6 +589,11 @@ async function sendDiscordMessage(
           })
       }
     );
+  } catch {
+    // The request may have reached Discord. Never expose webhook tokens or
+    // transport error bodies in a public CI log; readback gates any retry.
+    throw new Error('Discord changelog post outcome unverified; safe retry requires Discord readback');
+  }
 
   if (
     !response.ok
