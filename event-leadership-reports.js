@@ -586,6 +586,30 @@ async function main() {
   if (!report || !overview) throw new Error('Fresh convoy report/overview is missing.');
 
   const state = loadState();
+  // Code/policy pushes must refresh CURRENT original Event + Invitation source
+  // together before the existing consolidated dashboard can be accepted.
+  // This mode records only encrypted observations. No legacy report, Staff
+  // command, Event approval, slot, invitation, or public Discord post.
+  if (REPORT_MODE === 'source-refresh') {
+    if (PREVIEW) throw Error('Kings Event source refresh requires real GET-only evidence');
+    const event=buildEventObservation(report,overview);
+    const invitation=await readInvitationTracker({
+      token:DISCORD_BOT_TOKEN,centerReport:report,
+      tagIds:process.env.DISCORD_INVITATION_TAG_IDS||null
+    });
+    if(invitation?.sourceForumVerified!==true||
+       invitation?.tagSchemaVerified!==true||
+       invitation?.readOnly!==true||
+       invitation?.bookingsCreated!==0||
+       invitation?.staffApprovalsVerified!==false)
+      throw Error('Kings Event source refresh not fully reconciled');
+    // Atomic in-memory assignment: never persist a half-refreshed state.
+    state.eventSourceObservation=event;
+    state.invitationSourceObservation=invitation;
+    saveState(state);
+    console.log('Kings Event protected source: BOTH_SOURCE_OBSERVATIONS_REFRESHED');
+    return;
+  }
   let invitationUpdated=false;
   // Existing private Forum #15. Strictly GET-only and aggregates-only.
   // A missing permission, incomplete archived scan or malformed source must
