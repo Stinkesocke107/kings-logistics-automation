@@ -4,6 +4,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {encryptEventState}=require('../event-leadership-state');
+const {COUNT_FIELDS}=require('../event-leadership-observation');
 const {renderReviewSummary}=require('../event-operations-manual-review-state');
 const {renderInvitationDashboardSource}=require('../event-invitation-tracker-source');
 const {run,FIELD,INVITATION_FIELD,TITLE,CHANNEL}=require('../event-review-dashboard-readonly-proof');
@@ -144,4 +145,57 @@ test('fresh private Invitation Tracker source changes require the actual dashboa
  assert.equal(result.discordWrites,0);
  assert.equal(result.originalStaffApprovalsVerified,false);
  assert.doesNotMatch(JSON.stringify(result),/777777777777|invitedVtcs/);
+});
+
+function fullyReconciledSource(nowMs=NOW){
+ const at=new Date(nowMs).toISOString();
+ const event={
+   version:1,observedAt:at,sourceCompiledAt:new Date(nowMs-60_000).toISOString(),
+   sourceReconciled:true,readOnly:true,historyVerified:false,
+   staffApprovalsVerified:false,freeSlotsCertified:false,bookingsCreated:0,
+   ...Object.fromEntries(COUNT_FIELDS.map(k=>[k,0])),
+   historyMonthsWithClaims:0,historyMonthsWithoutClaims:24
+ };
+ const invites={
+   version:1,readOnly:true,sourceForumVerified:true,tagSchemaVerified:true,
+   invitationDecisionsVerified:false,staffApprovalsVerified:false,
+   bookingsCreated:0,observedAt:at,
+   convoyThreads:0,invitedVtcs:0,ongoingThreads:0,doneThreads:0,
+   completedThreads:0,tagIssues:0,malformedReplies:0,
+   duplicateVtcReplies:0,eventLinksRecorded:0,eventLinksMissing:0,
+   duplicateConvoyEvents:0,linkedToCenter:0,recordedAccepted:0,
+   recordedDeclined:0,recordedPending:0,replyNotRecorded:0
+ };
+ return {...state(),eventSourceObservation:event,invitationSourceObservation:invites};
+}
+test('manual strict source gate refuses matched but unverified dashboard and does not request Discord',async()=>{
+ for(const raw of [
+   state(),{...state(),eventSourceObservation:fullyReconciledSource().eventSourceObservation},
+   {...fullyReconciledSource(),invitationSourceObservation:{
+     ...fullyReconciledSource().invitationSourceObservation,
+     tagSchemaVerified:false
+   }},
+   {...fullyReconciledSource(),eventSourceObservation:{
+     ...fullyReconciledSource().eventSourceObservation,
+     observedAt:new Date(NOW-37*3600000).toISOString(),
+     sourceCompiledAt:new Date(NOW-37*3600000-60000).toISOString()
+   }}
+ ]){
+   const h=harness({rawState:raw});
+   await assert.rejects(()=>run({...h,nowMs:NOW,
+     env:{...h.env,KINGS_EVENT_READBACK_REQUIRE_FRESH_SOURCE:'true'}}),
+   /unverified/i);
+   assert.equal(h.calls.length,0);
+ }
+});
+test('strict live acceptance preflight only passes with fresh both-source state and stored bot fields',async()=>{
+ const h=harness({rawState:fullyReconciledSource()});
+ const result=await run({...h,nowMs:NOW,env:{
+   ...h.env,KINGS_EVENT_READBACK_REQUIRE_FRESH_SOURCE:'true'
+ }});
+ assert.equal(result.status,'VERIFIED');
+ assert.equal(result.staffCommandsExecuted,0);
+ assert.equal(result.originalStaffApprovalsVerified,false);
+ assert.equal(result.discordWrites,0);
+ assert.equal(h.calls.length,2);
 });
