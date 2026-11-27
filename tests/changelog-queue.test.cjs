@@ -8,11 +8,13 @@ const { test } = require('node:test');
 // No real webhook, repository data, or network request is used.
 const root = path.resolve(__dirname, '..');
 const existing = { category: 'Kings Systems', text: 'Existing entry', source: 'manual-test' };
-function sandbox(script, queue, failSend = false) {
+function sandbox(script, queue, failSend = false, overrides = {}) {
   const files = new Map();
   if (queue !== undefined) files.set('changelog-queue.json', queue);
-  files.set('changelog-state.json', JSON.stringify({ season: 'S01', nextNumber: 6 }));
-  files.set('changelog-history.json', JSON.stringify({ changelogs: [] }));
+  files.set('changelog-state.json',
+    overrides.state ?? JSON.stringify({ season: 'S01', nextNumber: 6 }));
+  files.set('changelog-history.json',
+    overrides.history ?? JSON.stringify({ changelogs: [] }));
   const sent = [];
   const fakeFs = {
     existsSync: p => files.has(path.basename(p)),
@@ -63,7 +65,7 @@ for (const [label, value] of [
 test('failed Discord send keeps queue, history and numbering unchanged', async () => {
   const s = sandbox('changelog.js', JSON.stringify([existing]), true);
   const before = [...s.files];
-  await assert.rejects(s.run('publishChangelog()'), /simulated failure/);
+  await assert.rejects(s.run('publishChangelog()'), /HTTP 500/);
   assert.deepEqual([...s.files], before);
 });
 for (const value of ['{broken', 'null', '{"unexpected":true}']) {
@@ -85,4 +87,87 @@ test('empty or missing queue sends nothing; first milestone can be added', async
     m.run('addMilestoneToChangelog(150)');
     assert.equal(JSON.parse(m.files.get('changelog-queue.json')).length, 1);
   }
+});
+
+test('existing corrupted release numbering or history blocks webhook before any publication',async()=>{
+ const invalid=[
+   {state:'{broken'},
+   {state:'null'},
+   {state:JSON.stringify({season:'S01',nextNumber:0})},
+   {state:JSON.stringify({season:'S01',nextNumber:'6'})},
+   {history:'{broken'},
+   {history:'null'},
+   {history:JSON.stringify({unexpected:true})},
+   {history:JSON.stringify({changelogs:[
+     {id:'S01-KL06',season:'S01',number:6,entries:[]},
+     {id:'S01-KL06',season:'S01',number:6,entries:[]}
+   ]})},
+   {history:JSON.stringify({changelogs:[
+     {id:'S01-KL06',season:'S01',number:6,entries:[]}
+   ]})},
+   {history:JSON.stringify({changelogs:[
+     {id:'S01-KL07',season:'S01',number:7,entries:[]}
+   ]})}
+ ];
+ for(const override of invalid){
+   const s=sandbox('changelog.js',JSON.stringify([existing]),false,override);
+   const before=[...s.files];
+   await assert.rejects(s.run('publishChangelog()'),/invalid|unverified|conflicts/i);
+   assert.equal(s.sent.length,0);
+   assert.deepEqual([...s.files],before);
+ }
+});
+test('invalid queue entries do not disappear into an apparently successful post',async()=>{
+ const wrong=[
+   [{category:'Kings Systems',text:' '},{...existing}],
+   [null],
+   [{category:'Kings',text:5}],
+   [{category:'Kings',text:'x'.repeat(1001)}]
+ ];
+ for(const entries of wrong){
+   const s=sandbox('changelog.js',JSON.stringify(entries));
+   const before=[...s.files];
+   await assert.rejects(s.run('publishChangelog()'),/invalid entry/i);
+   assert.equal(s.sent.length,0);
+   assert.deepEqual([...s.files],before);
+ }
+});
+test('overlarge Changelog category must stop before sending instead of truncating approved text',async()=>{
+ const entries=[1,2,3].map(n=>({
+   category:'Kings Systems',text:'Critical change '+n+': '+'x'.repeat(820),
+   source:'manual-test'
+ }));
+ const s=sandbox('changelog.js',JSON.stringify(entries));
+ const before=[...s.files];
+ await assert.rejects(s.run('publishChangelog()'),/too long/i);
+ assert.equal(s.sent.length,0);
+ assert.deepEqual([...s.files],before);
+});
+
+test('manual Changelog Editor writes valid entry, preserves deduplication, and does not log text',()=>{
+ const os=require('node:os'),cp=require('node:child_process');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'kings-changelog-editor-'));
+ try{
+   fs.copyFileSync(path.join(root,'add-changelog-entry.js'),
+     path.join(dir,'add-changelog-entry.js'));
+   fs.mkdirSync(path.join(dir,'data'));
+   const entryFile=path.join(dir,'data','changelog-queue.json');
+   fs.writeFileSync(entryFile,'[]');
+   const secretText='Synthetic internal release payload: do not echo this';
+   const run=()=>cp.spawnSync(process.execPath,['add-changelog-entry.js'],{
+     cwd:dir,env:{...process.env,CHANGELOG_CATEGORY:'Kings Systems',
+       CHANGELOG_TEXT:secretText},encoding:'utf8'
+   });
+   const first=run();
+   assert.equal(first.status,0,first.stderr);
+   assert.equal(first.stdout.includes(secretText),false);
+   assert.equal(JSON.parse(fs.readFileSync(entryFile)).length,1);
+   const second=run();
+   assert.equal(second.status,0,second.stderr);
+   assert.equal(JSON.parse(fs.readFileSync(entryFile)).length,1);
+   fs.writeFileSync(entryFile,JSON.stringify([null]));
+   const corrupt=run();
+   assert.notEqual(corrupt.status,0);
+   assert.equal(fs.readFileSync(entryFile,'utf8'),'[null]');
+ }finally{fs.rmSync(dir,{recursive:true,force:true})}
 });
