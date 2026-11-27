@@ -1,23 +1,23 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const {evaluate}=require('../convoy-planning-limits');
 function entry(id,type,date,departure,status='Scheduled'){return {eventId:String(id),threadId:String(id),name:'Convoy '+id,status,validation:{parsed:{eventType:type,eventDate:date,departureAtUtc:departure}}};}
-test('operational planning uses 3 total/day including Kings, 20/month External and Partner separately',()=>{
+test('operational planning uses 3 total/day including Kings, 30/month External and Partner separately',()=>{
   const items=[];
-  for(let i=0;i<21;i++)items.push(entry(i,'External Convoy',
+  for(let i=0;i<31;i++)items.push(entry(1000+i,'External Convoy',
     '2026-11-'+String(i<3?1:i).padStart(2,'0'),null));
   for(let i=30;i<34;i++)items.push(entry(i,'Partner Convoy','2026-11-01',null));
   items.push(entry(90,'Kings Convoy','2026-11-01',null));
   items.push(entry(91,'External Convoy','2026-11-01',null,'Cancelled'));
   const result=evaluate(items);
   assert.equal(result.version,2);
-  assert.equal(result.months['2026-11'].external,21);
+  assert.equal(result.months['2026-11'].external,31);
   assert.equal(result.months['2026-11'].partner,4);
   assert.equal(result.months['2026-11'].kings,1);
   assert.equal(result.days['2026-11-01'].total,8);
   assert.ok(result.warnings.some(w=>w.code==='external-month-over-limit'));
   assert.ok(result.warnings.some(w=>w.code==='total-day-over-limit'&&w.limit===3));
-  assert.ok(result.warnings.some(w=>w.code==='external-month-threshold'&&w.threshold===20));
+  assert.ok(result.warnings.some(w=>w.code==='external-month-threshold'&&w.threshold===30));
   assert.equal(result.warnings.some(w=>w.code==='external-day-over-limit'||w.code==='partner-day-over-limit'),false);
-  assert.deepEqual({...result.limits},{dailyTotal:3,partnerMonthly:20,externalMonthly:20,kingsMonthly:null,separationMinutes:120});
+  assert.deepEqual({...result.limits},{dailyTotal:3,partnerMonthly:30,externalMonthly:30,kingsMonthly:null,separationMinutes:120});
   assert.equal(result.freeSlotsCertified,false);
   assert.equal(result.historicalApprovalsVerified,false);
 });
@@ -139,14 +139,14 @@ test('unclassified planning events include a public link and staff action, witho
 
 test('Partner monthly ceiling is independent from External, Kings have no monthly ceiling',()=>{
   const items=[];
-  for(let i=0;i<21;i++)items.push(entry(100+i,'Partner Convoy','2027-01-'+String(i+1).padStart(2,'0'),null));
+  for(let i=0;i<31;i++)items.push(entry(100+i,'Partner Convoy','2027-01-'+String(i+1).padStart(2,'0'),null));
   for(let i=0;i<33;i++)items.push(entry(200+i,'Kings Convoy','2027-01-'+String(i%28+1).padStart(2,'0'),null));
   const r=evaluate(items);
-  assert.equal(r.months['2027-01'].partner,21);
+  assert.equal(r.months['2027-01'].partner,31);
   assert.equal(r.months['2027-01'].external,0);
   assert.equal(r.months['2027-01'].kings,33);
   assert.ok(r.warnings.some(w=>w.code==='partner-month-over-limit'));
-  assert.ok(r.warnings.some(w=>w.code==='partner-month-threshold'&&w.threshold===20));
+  assert.ok(r.warnings.some(w=>w.code==='partner-month-threshold'&&w.threshold===30));
   assert.equal(r.warnings.some(w=>w.code==='external-month-over-limit'),false);
   assert.equal(r.warnings.some(w=>/kings-month|weekly/.test(w.code)),false);
 });
@@ -215,4 +215,35 @@ test('repeated unidentifiable Forum references are also surfaced for Staff revie
   assert.equal(value.counted,1);
   assert.equal(value.duplicateSourceClaims[0].count,1);
   assert.equal(value.freeSlotsCertified,false);
+});
+
+
+test('30 Partner and 30 External in one UTC month are allowed; weekend and weekday daily caps stay identical',()=>{
+ const rows=[];
+ for(let day=1;day<=30;day++){
+   const date='2027-05-'+String(day).padStart(2,'0');
+   rows.push(entry(10000+day,'Partner Convoy',date,date+'T11:00:00Z'));
+   rows.push(entry(20000+day,'External Convoy',date,date+'T15:00:00Z'));
+ }
+ // 1 May 2027 is Saturday and 3 May 2027 is Monday.
+ assert.equal(new Date('2027-05-01T00:00:00Z').getUTCDay(),6);
+ assert.equal(new Date('2027-05-03T00:00:00Z').getUTCDay(),1);
+ for(const day of ['2027-05-01','2027-05-03']){
+   rows.push(entry(day+'-a','Kings Convoy',day,day+'T18:00:00Z'));
+   rows.push(entry(day+'-b','Kings Convoy',day,day+'T22:00:00Z'));
+ }
+ const r=evaluate(rows);
+ assert.equal(r.months['2027-05'].partner,30);
+ assert.equal(r.months['2027-05'].external,30);
+ assert.equal(r.months['2027-05'].kings,4);
+ assert.ok(r.warnings.some(w=>w.code==='partner-month-threshold'&&w.threshold===30));
+ assert.ok(r.warnings.some(w=>w.code==='external-month-threshold'&&w.threshold===30));
+ assert.equal(r.warnings.some(w=>/month-over-limit/.test(w.code)),false);
+ for(const day of ['2027-05-01','2027-05-03']){
+   assert.equal(r.days[day].total,4);
+   assert.ok(r.warnings.some(w=>w.code==='total-day-over-limit'&&w.period===day&&w.limit===3));
+ }
+ assert.equal(r.warnings.some(w=>/week|weekend/i.test(w.code)),false);
+ assert.equal(r.freeSlotsCertified,false);
+ assert.equal(r.historicalApprovalsVerified,false);
 });

@@ -9,7 +9,7 @@ const COUNT_FIELDS=Object.freeze([
   'tracked','scheduled','readyForApproval','needsInformation','completed',
   'futureUnclassified','futureDaysRequiringReview',
   'futureDaysOverDailyLimit','futureDaysWithShortDepartureGap',
-  'futurePartnerMonthsOver20','futureExternalMonthsOver20',
+  'futurePartnerMonthsOver30','futureExternalMonthsOver30',
   'historyCenterClaims','historyLegacyClaims',
   'historyMonthsWithClaims','historyMonthsWithoutClaims',
   'historyMonthsCenterOnly','historyMonthsLegacyOnly','historyMonthsBothSources',
@@ -42,8 +42,8 @@ function buildEventObservation(report,overview,nowMs=Date.now()){
     futureDaysRequiringReview:review.futureDaysRequiringStaffReview,
     futureDaysOverDailyLimit:review.futureDaysOverClaimedDailyLimit,
     futureDaysWithShortDepartureGap:review.futureDaysWithShortDepartureGap,
-    futurePartnerMonthsOver20:review.partnerMonthsOverClaimedLimit,
-    futureExternalMonthsOver20:review.externalMonthsOverClaimedLimit,
+    futurePartnerMonthsOver30:review.partnerMonthsOverClaimedLimit,
+    futureExternalMonthsOver30:review.externalMonthsOverClaimedLimit,
     historyCenterClaims:review.datedCenterClaims,
     historyLegacyClaims:review.datedFrozenLegacyClaims,
     historyMonthsWithClaims:review.historyMonthsWithSourceClaims,
@@ -92,7 +92,7 @@ function trustedEventObservation(value,nowMs=Date.now()){
     value.historyPastCenterOutcomeUnresolved>value.historyCenterClaims||
     value.historyLegacyEvidencePending<value.historyLegacyClaims||
     value.historyFutureLegacyHoldReview>value.historyLegacyEvidencePending||
-    value.futurePartnerMonthsOver20>12||value.futureExternalMonthsOver20>12||
+    value.futurePartnerMonthsOver30>12||value.futureExternalMonthsOver30>12||
     value.futureDaysOverDailyLimit>value.futureDaysRequiringReview||
     value.futureDaysWithShortDepartureGap>value.futureDaysRequiringReview||
     value.readyForApproval>value.tracked||value.scheduled>value.tracked||

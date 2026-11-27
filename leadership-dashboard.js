@@ -369,10 +369,10 @@ function buildEvent(data, now = Date.now()) {
       '**. Historical decisions NOT verified. No free slots certified.'
     : 'Unavailable — original Event History source is missing or stale; do not interpret absent records as no confirmed events.';
   const capacityLine=observed
-    ? 'UTC advisory policy: **3 total/day** (Kings + Partner + External), **20 Partner/month**, **20 External/month**, **Kings no monthly cap**.\n'+
+    ? 'UTC advisory policy: **3 total/day** (Kings + Partner + External), **30 Partner/month**, **30 External/month**, **Kings no monthly cap**.\n'+
       'Calendar source review: days above 3 **'+observed.futureDaysOverDailyLimit+
-      '** · Partner months above 20 **'+observed.futurePartnerMonthsOver20+
-      '** · External months above 20 **'+observed.futureExternalMonthsOver20+
+      '** · Partner months above 30 **'+observed.futurePartnerMonthsOver30+
+      '** · External months above 30 **'+observed.futureExternalMonthsOver30+
       '** · UTC days with departures <2h apart **'+observed.futureDaysWithShortDepartureGap+
       '**. Spacing is warning-only. No free slots certified, no automated decisions.'
     : 'Unavailable — no recent reconciled capacity source. Never infer an empty calendar or available bookings.';
@@ -455,7 +455,7 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed, now
         ? `Historical outcomes unclear **${eventSource.historyPastCenterOutcomeUnresolved}** · frozen Legacy claims needing original records **${eventSource.historyLegacyEvidencePending}** · future Legacy dated holds to review **${eventSource.historyFutureLegacyHoldReview}**. Priority month: ${historyAgendaSummary}. No original Staff decisions independently verified.`
         : 'Unavailable — missing fresh original Event source evidence. Never infer capacity release.'),
       field('📊 Event Capacity — Source Review', eventSource
-        ? `3 total/day · Partner 20/month · External 20/month · Kings uncapped monthly. Source conflicts: days >3 **${eventSource.futureDaysOverDailyLimit}** · Partner months >20 **${eventSource.futurePartnerMonthsOver20}** · External months >20 **${eventSource.futureExternalMonthsOver20}** · UTC days <2h apart **${eventSource.futureDaysWithShortDepartureGap}**. Review only, no free slots certified.`
+        ? `3 total/day · Partner 30/month · External 30/month · Kings uncapped monthly. Source conflicts: days >3 **${eventSource.futureDaysOverDailyLimit}** · Partner months >30 **${eventSource.futurePartnerMonthsOver30}** · External months >30 **${eventSource.futureExternalMonthsOver30}** · UTC days <2h apart **${eventSource.futureDaysWithShortDepartureGap}**. Review only, no free slots certified.`
         : 'Unavailable — no verified fresh 12-month capacity review; free capacity cannot be inferred.'),
       field('📅 Events — Live', eventSource ? `Reconciled source: Tracked **${eventSource.tracked}** • Source Scheduled **${eventSource.scheduled}** • Ready **${eventReady}** • Needs Info **${eventNeeds}** (advisory, not approval)` : 'Unavailable — no recent reconciled Event source; historical state is not a verified zero.'),
       field('✉️ Event Invitations — Source Review', invitationSource ? `Documented unique VTC invitations **${invitationSource.invitedVtcs}** • convoy threads **${invitationSource.convoyThreads}** • duplicate replies **${invitationSource.duplicateVtcReplies}** • malformed replies **${invitationSource.malformedReplies}** • Forum lifecycle tags **${invitationSource.tagSchemaVerified?'schema matched':'UNVERIFIED'}** (recorded claims, NOT confirmed attendance)` : 'Unavailable — no verified recent read-only Invitation Tracker scan.'),

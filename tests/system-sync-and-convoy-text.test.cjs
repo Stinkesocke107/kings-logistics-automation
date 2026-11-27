@@ -64,7 +64,7 @@ test('operational Discord Convoy Overview displays one 3/day UTC cap, not obsole
   const now=new Date(),date=now.toISOString().slice(0,10),month=date.slice(0,7);
   const planning={
     version:2,mode:'advisory-only',sourceClaimsOnly:true,freeSlotsCertified:false,
-    limits:{dailyTotal:3,partnerMonthly:20,externalMonthly:20,
+    limits:{dailyTotal:3,partnerMonthly:30,externalMonthly:30,
       kingsMonthly:null,separationMinutes:120},
     months:{[month]:{external:2,partner:1,kings:1}},
     days:{[date]:{external:2,partner:1,kings:1,total:4}},
@@ -74,8 +74,8 @@ test('operational Discord Convoy Overview displays one 3/day UTC cap, not obsole
   const data={generatedAt:now.toISOString(),months:{},planning,countedConvoys:[],overall:{}};
   const s=sandbox('convoy-overview-discord.js',{files:{'output/convoy-overview.json':JSON.stringify(data)}});
   const message=s.run('buildMessage('+JSON.stringify(data)+')');
-  assert.match(message,/External \*\*2\/20\*\*/);
-  assert.match(message,/Partner \*\*1\/20\*\*/);
+  assert.match(message,/External \*\*2\/30\*\*/);
+  assert.match(message,/Partner \*\*1\/30\*\*/);
   assert.match(message,/UTC Today \*\*4\/3 total\*\*/);
   assert.match(message,/Daily combined cap reviews/);
   assert.match(message,/Claims are not Staff approvals|No current-month planning alerts|Needs Staff review/);
@@ -90,5 +90,5 @@ test('stale legacy planning summary is not displayed as certified Event Capacity
   const s=sandbox('convoy-overview-discord.js',{files:{'output/convoy-overview.json':JSON.stringify(data)}});
   const message=s.run('buildMessage('+JSON.stringify(data)+')');
   assert.match(message,/Capacity source not verified/);
-  assert.doesNotMatch(message,/External \*\*5\/20\*\*|Today: External/);
+  assert.doesNotMatch(message,/External \*\*5\/30\*\*|Today: External/);
 });

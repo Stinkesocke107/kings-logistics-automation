@@ -11,7 +11,7 @@ function simulate({readFails=false,badObservation=false,badReview=false,missingW
     sourceReconciled:true,readOnly:true,
     historyVerified:false,freeSlotsCertified:false,
     staffApprovalsVerified:false,bookingsCreated:0,
-    futurePartnerMonthsOver20:1,futureExternalMonthsOver20:2,
+    futurePartnerMonthsOver30:1,futureExternalMonthsOver30:2,
     futureUnclassified:0,futureDaysOverDailyLimit:1,
     historyFutureLegacyHoldReview:0,
     futureDaysWithShortDepartureGap:3,futureDaysRequiringReview:4,
@@ -38,8 +38,8 @@ function simulate({readFails=false,badObservation=false,badReview=false,missingW
             eventTypeUnclassified:0,
             calendarDaysNeedingReview:4,
             daysOverThreeSourceClaims:1,
-            partnerMonthsOver20:badReview?99:1,
-            externalMonthsOver20:2,
+            partnerMonthsOver30:badReview?99:1,
+            externalMonthsOver30:2,
             daysWithShortDepartureGap:3,
             futureLegacyHoldReview:0
           }
@@ -62,8 +62,8 @@ test('real Capacity live proof verifies source-only policies with fixed public s
   const r=simulate();
   assert.equal(r.result.status,'CAPACITY_READ_ONLY_SOURCE_RECONCILED');
   assert.equal(r.result.dailyLimit,3);
-  assert.equal(r.result.partnerMonthlyLimit,20);
-  assert.equal(r.result.externalMonthlyLimit,20);
+  assert.equal(r.result.partnerMonthlyLimit,30);
+  assert.equal(r.result.externalMonthlyLimit,30);
   assert.equal(r.result.monthlyKingsUnlimited,true);
   assert.equal(r.result.separationMinutes,120);
   assert.equal(r.result.freeSlotsCertified,false);

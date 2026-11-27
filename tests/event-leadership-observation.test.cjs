@@ -79,12 +79,12 @@ test('capacity observation exports aggregate UTC spacing conflicts and refuses a
   assert.equal(observation.futureDaysWithShortDepartureGap,1);
   assert.equal(observation.futureDaysRequiringReview,1);
   assert.equal(observation.futureDaysOverDailyLimit,0);
-  assert.equal(observation.futurePartnerMonthsOver20,0);
-  assert.equal(observation.futureExternalMonthsOver20,0);
+  assert.equal(observation.futurePartnerMonthsOver30,0);
+  assert.equal(observation.futureExternalMonthsOver30,0);
   assert.equal(trustedEventObservation(observation,NOW),observation);
   for(const invalid of [
-    {futurePartnerMonthsOver20:13},
-    {futureExternalMonthsOver20:13},
+    {futurePartnerMonthsOver30:13},
+    {futureExternalMonthsOver30:13},
     {futureDaysWithShortDepartureGap:2},
     {futureDaysOverDailyLimit:2}
   ])assert.equal(trustedEventObservation({...observation,...invalid},NOW),null);
@@ -99,7 +99,7 @@ test('unverified, stale and internally inconsistent Event source is unavailable,
     {sourceReconciled:false},{readOnly:false},{historyVerified:true},
     {staffApprovalsVerified:true},{freeSlotsCertified:true},
     {bookingsCreated:1},{historyMonthsWithoutClaims:23},
-    {futurePartnerMonthsOver20:13},{futureExternalMonthsOver20:13},
+    {futurePartnerMonthsOver30:13},{futureExternalMonthsOver30:13},
     {historyMonthsCenterOnly:7},{historyMonthsLegacyOnly:7},
     {historyMonthsBothSources:7},{historyPastCenterOutcomeUnresolved:3},
     {historyLegacyEvidencePending:0},{historyFutureLegacyHoldReview:2},

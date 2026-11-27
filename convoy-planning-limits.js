@@ -3,7 +3,7 @@
 // The binding Kings Event Capacity policy applies to ALL UTC days alike.
 // These are ADVISORY source-claim thresholds, not booking permissions.
 const LIMITS = Object.freeze({
-  dailyTotal: 3, partnerMonthly: 20, externalMonthly: 20,
+  dailyTotal: 3, partnerMonthly: 30, externalMonthly: 30,
   kingsMonthly: null, separationMinutes: 120
 });
 const TYPES = new Set(['Kings Convoy', 'Partner Convoy', 'External Convoy']);
@@ -103,7 +103,7 @@ function evaluate(input) {
   for (const [month, counts] of Object.entries(months)) {
     for (const category of ['external','partner']) {
       const monthlyLimit = category==='external'?LIMITS.externalMonthly:LIMITS.partnerMonthly;
-      for (const threshold of [15,18,20]) {
+      for (const threshold of [20,25,30]) {
         if (counts[category] >= threshold) {
           warnings.push({
             code: category+'-month-threshold', period: month,

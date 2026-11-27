@@ -46,7 +46,7 @@ function inspectInline({read=loadReport,nowMs=Date.now()}={}){
          month.utcMonth!==new Date(Date.UTC(
            new Date(nowMs).getUTCFullYear(),
            new Date(nowMs).getUTCMonth()+i,1)).toISOString().slice(0,7)||
-         month.partnerMonthlyLimit!==20||month.externalMonthlyLimit!==20||
+         month.partnerMonthlyLimit!==30||month.externalMonthlyLimit!==30||
          month.kingsMonthlyLimit!==null||month.monthlyRemainingVerified!==null))
       throw Error('Unverified Event Capacity rules');
     return Object.freeze({

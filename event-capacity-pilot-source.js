@@ -131,10 +131,10 @@ function monthsFrom(data,nowMs){
     // Source-reported accepted status claims only. They are NOT
     // Staff-approved reservations or independently verified free slots.
     kingsClaims:0,partnerClaims:0,externalClaims:0,
-    // CEO-confirmed independent monthly limits: Partner 20,
-    // External 20, Kings unlimited. No weekly or category/day cap.
+    // CEO-confirmed independent monthly limits: Partner 30,
+    // External 30, Kings unlimited. No weekly or category/day cap.
     monthlyClassifiedClaims:0,monthlyPartnerExternalClaims:0,
-    partnerMonthlyLimit:20,externalMonthlyLimit:20,kingsMonthlyLimit:null,
+    partnerMonthlyLimit:30,externalMonthlyLimit:30,kingsMonthlyLimit:null,
     monthlyPartnerOverLimit:false,monthlyExternalOverLimit:false,
     monthlyRemainingVerified:null,
     daysRequiringReview:0,daysOverDailyLimit:0,
@@ -202,7 +202,7 @@ function monthsFrom(data,nowMs){
     if(m.centerClaims!==m.scheduled+m.pending+m.cancelled||
       m.monthlyClassifiedClaims>m.scheduled||
       m.monthlyPartnerExternalClaims>m.monthlyClassifiedClaims||
-      m.partnerMonthlyLimit!==20||m.externalMonthlyLimit!==20||
+      m.partnerMonthlyLimit!==30||m.externalMonthlyLimit!==30||
       m.kingsMonthlyLimit!==null)refuse();
     m.monthlyPartnerOverLimit=m.partnerClaims>m.partnerMonthlyLimit;
     m.monthlyExternalOverLimit=m.externalClaims>m.externalMonthlyLimit;
@@ -258,7 +258,7 @@ function monthsFrom(data,nowMs){
   // Internal-only structure — NEVER returned from the public job.
   return {months,undatedCenter,undatedLegacy,legacyClaims:legacy.length,
     sourcePeriod:first,
-    // Confirmed: 3 TOTAL/day, 20 Partner/month, 20 External/month,
+    // Confirmed: 3 TOTAL/day, 30 Partner/month, 30 External/month,
     // unlimited Kings/month. There is NO week quota.
     weeklyLimitApplied:false,dailyTotalLimit:3,
     monthlyLimitRequired:true,

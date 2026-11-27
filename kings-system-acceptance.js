@@ -36,7 +36,7 @@ const namedEventSystems=Object.freeze([
       security:[EVIDENCE_ROOT+'actions/runs/45899560178']
     }),
     capabilities:Object.freeze([
-      item('utc_policy','3 total UTC/day; Partner and External each 20/month; Kings monthly unlimited',VERIFIED,
+      item('utc_policy','3 total UTC/day; Partner and External each 30/month; Kings monthly unlimited',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45899560178']),
       item('departure_warning','Under-120-minute departure gap, including UTC month boundary, is warning-only',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45899560178']),

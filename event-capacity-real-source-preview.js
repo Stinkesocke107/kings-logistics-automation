@@ -14,8 +14,8 @@ function inspectReal(nowMs=Date.now()){
   if(trustedEventObservation(observed,nowMs)!==observed||
     observed.historyVerified!==false||observed.freeSlotsCertified!==false||
     observed.staffApprovalsVerified!==false||observed.bookingsCreated!==0||
-    observed.futurePartnerMonthsOver20>12||
-    observed.futureExternalMonthsOver20>12||
+    observed.futurePartnerMonthsOver30>12||
+    observed.futureExternalMonthsOver30>12||
     observed.futureDaysWithShortDepartureGap>observed.futureDaysRequiringReview)
     throw Error('Kings Capacity source claims unverified');
   const triage=observeOperations({eventSourceObservation:observed,nowMs});
@@ -25,8 +25,8 @@ function inspectReal(nowMs=Date.now()){
     triage.review.eventTypeUnclassified!==observed.futureUnclassified||
     triage.review.calendarDaysNeedingReview!==observed.futureDaysRequiringReview||
     triage.review.daysOverThreeSourceClaims!==observed.futureDaysOverDailyLimit||
-    triage.review.partnerMonthsOver20!==observed.futurePartnerMonthsOver20||
-    triage.review.externalMonthsOver20!==observed.futureExternalMonthsOver20||
+    triage.review.partnerMonthsOver30!==observed.futurePartnerMonthsOver30||
+    triage.review.externalMonthsOver30!==observed.futureExternalMonthsOver30||
     triage.review.daysWithShortDepartureGap!==observed.futureDaysWithShortDepartureGap||
     triage.review.futureLegacyHoldReview!==observed.historyFutureLegacyHoldReview)
     throw Error('Kings Capacity Staff review source unverified');
@@ -38,8 +38,8 @@ function inspectReal(nowMs=Date.now()){
     ['REVIEW_EVENT_TYPES',observed.futureUnclassified],
     ['REVIEW_CALENDAR_DAYS',observed.futureDaysRequiringReview],
     ['REVIEW_DAILY_CAP',observed.futureDaysOverDailyLimit],
-    ['REVIEW_PARTNER_MONTH_CAP',observed.futurePartnerMonthsOver20],
-    ['REVIEW_EXTERNAL_MONTH_CAP',observed.futureExternalMonthsOver20],
+    ['REVIEW_PARTNER_MONTH_CAP',observed.futurePartnerMonthsOver30],
+    ['REVIEW_EXTERNAL_MONTH_CAP',observed.futureExternalMonthsOver30],
     ['REVIEW_DEPARTURE_SPACING',observed.futureDaysWithShortDepartureGap],
     ['REVIEW_FUTURE_LEGACY_HOLDS',observed.historyFutureLegacyHoldReview]
   ];
@@ -51,7 +51,7 @@ function inspectReal(nowMs=Date.now()){
   return Object.freeze({
     status:'CAPACITY_READ_ONLY_SOURCE_RECONCILED',readOnly:true,
     sourceClaimsOnly:true,monthlyKingsUnlimited:true,
-    dailyLimit:3,partnerMonthlyLimit:20,externalMonthlyLimit:20,
+    dailyLimit:3,partnerMonthlyLimit:30,externalMonthlyLimit:30,
     separationMinutes:120,staffApprovalsVerified:false,
     freeSlotsCertified:false,bookingsCreated:0,
     privateEventContentLogged:false
