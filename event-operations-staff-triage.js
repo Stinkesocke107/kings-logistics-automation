@@ -20,8 +20,8 @@ function observeOperations({eventSourceObservation=null,
       eventTypeUnclassified:e?e.futureUnclassified:null,
       calendarDaysNeedingReview:e?e.futureDaysRequiringReview:null,
       daysOverThreeSourceClaims:e?e.futureDaysOverDailyLimit:null,
-      partnerMonthsOver20:e?e.futurePartnerMonthsOver20:null,
-      externalMonthsOver20:e?e.futureExternalMonthsOver20:null,
+      partnerMonthsOver30:e?e.futurePartnerMonthsOver30:null,
+      externalMonthsOver30:e?e.futureExternalMonthsOver30:null,
       daysWithShortDepartureGap:e?e.futureDaysWithShortDepartureGap:null,
       historyMonthsWithoutClaims:e?e.historyMonthsWithoutClaims:null,
       pastOutcomesUnresolved:e?e.historyPastCenterOutcomeUnresolved:null,
@@ -68,8 +68,8 @@ function renderOperationsReview(status){
       '** · tag issues **'+n('invitationTagIssues')+'**.',
     'Pending/unrecorded response labels **'+n('invitationPendingOrUnrecorded')+
       '** (manual review, not a confirmed RSVP).',
-    'Capacity advisory: Partner months >20 **'+n('partnerMonthsOver20')+
-      '** · External months >20 **'+n('externalMonthsOver20')+
+    'Capacity advisory: Partner months >30 **'+n('partnerMonthsOver30')+
+      '** · External months >30 **'+n('externalMonthsOver30')+
       '** · UTC days with <2h gap **'+n('daysWithShortDepartureGap')+
       '**. Warning only; Staff decides.'
   ].join('\n');
@@ -82,8 +82,8 @@ const WORK_LABELS=Object.freeze({
   CONVOY_SOURCE_UNAVAILABLE:'Review Convoy Center source access / freshness',
   INVITATION_SOURCE_UNAVAILABLE:'Review private Invitation Tracker source access',
   REVIEW_DAILY_CAP:'Review UTC days above 3 source-claimed convoys',
-  REVIEW_PARTNER_MONTH_CAP:'Review UTC months above 20 Partner convoy claims',
-  REVIEW_EXTERNAL_MONTH_CAP:'Review UTC months above 20 External convoy claims',
+  REVIEW_PARTNER_MONTH_CAP:'Review UTC months above 30 Partner convoy claims',
+  REVIEW_EXTERNAL_MONTH_CAP:'Review UTC months above 30 External convoy claims',
   REVIEW_DEPARTURE_SPACING:'Review UTC days with under-2h departure gap (warning only)',
   REVIEW_EVENT_TYPES:'Classify missing Kings / Partner / External event types',
   REVIEW_CALENDAR_DAYS:'Review unresolved UTC calendar days',
@@ -120,9 +120,9 @@ function operationsWorklist(status){
     q.daysOverThreeSourceClaims,Number.isInteger(q.daysOverThreeSourceClaims)&&
     q.daysOverThreeSourceClaims>0);
   add('HIGH','REVIEW_PARTNER_MONTH_CAP','Event Coordination Lead',
-    q.partnerMonthsOver20,Number.isInteger(q.partnerMonthsOver20)&&q.partnerMonthsOver20>0);
+    q.partnerMonthsOver30,Number.isInteger(q.partnerMonthsOver30)&&q.partnerMonthsOver30>0);
   add('HIGH','REVIEW_EXTERNAL_MONTH_CAP','Event Coordination Lead',
-    q.externalMonthsOver20,Number.isInteger(q.externalMonthsOver20)&&q.externalMonthsOver20>0);
+    q.externalMonthsOver30,Number.isInteger(q.externalMonthsOver30)&&q.externalMonthsOver30>0);
   add('HIGH','REVIEW_EVENT_TYPES','Event Coordinators',q.eventTypeUnclassified,
     Number.isInteger(q.eventTypeUnclassified)&&q.eventTypeUnclassified>0);
   add('NORMAL','REVIEW_FUTURE_LEGACY_HOLDS','Event Coordination Lead',
