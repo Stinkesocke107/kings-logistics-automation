@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const {safeTarget} = require("./recovery-path-guard");
 
 // ======================================================
 // KINGS LOGISTICS — AUTOMATION CORE & SAFETY
@@ -615,11 +616,10 @@ function prepareBackup() {
     const relativePath
     of files
   ) {
-    const source =
-      path.join(
-        ROOT,
-        relativePath
-      );
+    // Recheck the complete repository source path immediately before
+    // copying. A symlink introduced since collectFiles() must not escape
+    // the repository or leak runner data into a backup artifact.
+    const source = safeTarget(ROOT, relativePath);
 
     const destination =
       path.join(
