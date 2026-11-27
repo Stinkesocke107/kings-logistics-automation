@@ -32,6 +32,11 @@ function sourceTriageNotices(report,at=new Date().toISOString()){
   }];
 }
 function describe(w){
+  if(w.code==='unidentified-source-claim')
+    return 'Convoy Center has **'+w.count+
+      '** original source claim(s) without a verifiable Event, Forum or Legacy ID for '+
+      w.period+' (UTC). These claims are not counted as distinct Convoys.'+
+      ' Event Staff must reconcile original records; no capacity is certified or released.';
   if(w.code==='duplicate-source-claim')
     return 'Convoy Center has **'+w.count+
       '** duplicate source claim(s) for '+w.period+
