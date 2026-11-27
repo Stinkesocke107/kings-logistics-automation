@@ -140,3 +140,41 @@ test('isolated backup verifier rejects changed sources and unsafe manifest befor
     }finally{s.dispose()}
   }
 });
+
+
+test('isolated verifier refuses a symlinked backup root without following it',()=>{
+  const s=sandbox();
+  try{
+    const displaced=path.join(s.dir,'displaced-staging');
+    fs.renameSync(s.staging,displaced);
+    fs.symlinkSync(displaced,s.staging,'dir');
+    const result=s.run('backup-restore-verify.js');
+    assert.notEqual(result.status,0);
+    assert.equal(fs.existsSync(path.join(s.dir,'restore-verification')),false);
+  }finally{s.dispose();}
+});
+
+test('direct recovery refuses symlinked restore-source root even when source bytes match',()=>{
+  const s=sandbox();
+  try{
+    const displaced=path.join(s.dir,'displaced-restore');
+    fs.renameSync(s.source,displaced);
+    fs.symlinkSync(displaced,s.source,'dir');
+    const result=s.run('core-recovery.js','apply');
+    assert.notEqual(result.status,0);
+    assert.equal(fs.existsSync(path.join(s.dir,'safe.txt')),false);
+    assert.equal(fs.existsSync(path.join(s.dir,'recovery-result.json')),false);
+  }finally{s.dispose();}
+});
+
+test('isolated verifier preflights every manifest source before sandbox setup',()=>{
+  const s=sandbox();
+  try{
+    fs.mkdirSync(path.join(s.dir,'restore-verification'));
+    fs.writeFileSync(path.join(s.dir,'restore-verification','marker'),'untouched');
+    fs.writeFileSync(path.join(s.staging,'safe.txt'),'tampered');
+    const result=s.run('backup-restore-verify.js');
+    assert.notEqual(result.status,0);
+    assert.equal(fs.readFileSync(path.join(s.dir,'restore-verification','marker'),'utf8'),'untouched');
+  }finally{s.dispose();}
+});
