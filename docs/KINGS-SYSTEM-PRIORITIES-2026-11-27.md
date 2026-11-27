@@ -15,6 +15,18 @@ Die nachfolgenden Gruppen umfassen **alle IDs 01–46 genau einmal**.
 Die Event-Fachsystemnummer #17 (Booking / Slot Management) ist **gestrichen**;
 Workflow #17 (TruckersMP Driver VTC Date Review) bleibt bestehen.
 
+## Verbindlicher Ist-Stand nach der Event-Integration (27.11.2026)
+
+- Das Repository führt weiterhin **46 registrierte Workflows in 11 Bereichen**, darunter **33 zeitgesteuerte** und **13 manuelle/bei Änderungen**. Für alle 46 liegt eine **erste individuelle technische Bewertung** vor; **0/46** erfüllen bislang die vollständigen, getrennten Betriebs-/Team-/CEO-Abnahmegates.
+- Die fünf Event-Fachsysteme **#12 Capacity, #14 History, #15 Invitation Tracker, #16 Calendar und #18 Operations** sind **keine fünf zusätzlichen GitHub-Workflows**. Ihre **technische gemeinsame Live-Integration** über echte Convoy-/Invitation-Quellen, erneuerte AES-geschützte Beobachtungen und den tatsächlich gespeicherten Discord Event Leadership Dashboard-Readback ist **VERIFIED**. [Evidenz, PRs #258–#260, Produktionsläufe](KINGS-EVENT-LIVE-INTEGRATION-EVIDENCE-2026-11-27.md).
+- Erneuter echter **Event Leadership Run #45935727894**: `BOTH_SOURCE_OBSERVATIONS_REFRESHED`, geschützte Quellpersistenz, danach **Dashboard #45935827212** mit `VERIFIED` und unabhängig wiederholte kombinierte Prüfung `EVENT_SOURCE_TO_STAFF_TRIAGE_RECONCILED` + `VERIFIED`. Ein frischer legitimer Staff-Befehl ist dadurch **nicht** nachgewiesen.
+- **Noch offen bei Events:** #12 genuine Staff-Kapazitätstriage; #14 vollständiger ursprünglicher 24-Monats-Archiv-/Entscheidungsabgleich; #15 jede relevante originale Einladung/Antwort und Dubletten; #16 12 Monate einschließlich Legacy Holds und echte Freigabe-/Absagebelege; #18 neuer autorisierter menschlicher Discord-Befehl → AES-Journal → unveränderter vorhandener Dashboard-Message-Readback, Wiederanlauf, Team-Handover. Abschließende CEO-Freigaben separat.
+- **Verbindliche CEO-Event-Regeln:** maximal **3 Kings + Partner + External zusammen je UTC-Tag**, separat **30 Partner** und **30 External je UTC-Monat**, Kings ohne eigene Monatsobergrenze; **keine abweichenden Wochenend-/Wochenlimits**; unter **120 Minuten** zwischen verifizierten Abfahrten ist **nur eine Staff-Prüfwarnung**. 20/25/30 sind **Warnschwellen** bei den Monatszahlen; dies sind keine automatisch buchbaren/zu vergebenden freien Plätze.
+- **Aktuell kritisch offen:** externe Kartendienste/Live-Tracker-Datenfrische. Die letzten belegten Core Baseline-, Core E2E- und Final Freeze-Runs **#45935727881 / #45935727823 / #45935727810** bleiben fehlerhaft. Die **Leadership Dashboard Verification #45935727830** und **Offline System Verification #45935727846** liefen erfolgreich; Erfolg der einen Prüfung bescheinigt nicht die Gesamtgesundheit.
+- **Abgrenzung:** Das ausgeschlossene Event Booking & Slot Management (Fachsystem #17) wird nicht als Pflichtaufgabe wiederbelebt. Zusätzliche Register, Operations Notices sowie Kings Website/Driver Hub, Shop, Kings Hub und RealmMP sind separat geplant und gehören **nicht** zu einer künstlich erweiterten 46-Workflow-Abnahme.
+
+Die detaillierten **noch offenen Aufgaben je einzelnem Workflow** stehen unter den 46 Zeilen der nachstehenden Prioritätsgruppen und vollständig in `kings-workflow-closeout-requirements.js`; aktuelle Management-Gates siehe [Master-Issue #213](https://github.com/Stinkesocke107/kings-logistics-automation/issues/213).
+
 ## Priorität 0 — Sicherheits- und Betriebsgrundlage
 
 | ID | Workflow | Was zunächst nachgewiesen werden muss |
@@ -51,8 +63,8 @@ als behoben markieren. Keine automatische Restore-, HR-/Staff- oder Rollenaktion
 
 Die fünf **zusätzlichen Fachsysteme** sind in vorhandene Workflows integriert,
 keine fünf neuen GitHub Actions:
-- **#12 Event Capacity:** 3 Gesamt-Convoys/UTC-Tag, 20 Partner/Monat,
-  20 External/Monat, Kings monatlich unbegrenzt; <120 Minuten Abfahrtabstand
+- **#12 Event Capacity:** 3 Gesamt-Convoys/UTC-Tag, 30 Partner/Monat,
+  30 External/Monat, Kings monatlich unbegrenzt; <120 Minuten Abfahrtabstand
   als *Warnung zur Prüfung*, nicht als automatischer Ablehnungsgrund.
   Originalquellen/Staff-Abnahme und Kapazitätsgrenzen gegenprüfen.
 - **#14 Event History:** 24 Monate vollständig mit Originalbelegen abgleichen,
