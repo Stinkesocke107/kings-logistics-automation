@@ -24,7 +24,7 @@ function report(){
 }
 const respond=payload=>({ok:true,async json(){return payload;}});
 function scenario({history=[],overwrites=null,name='operations-notifications',
-  approved=[STAFF_ROLE],roles=null,botRoles=[BOT_ROLE],full=false,
+  approved=[STAFF_ROLE,BOT_ROLE],roles=null,botRoles=[BOT_ROLE],full=false,
   readbackOverride=null}={}){
   const calls=[];
   const current=history.slice();
