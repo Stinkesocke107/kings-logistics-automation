@@ -120,16 +120,51 @@ function normalizeAttempt(item) {
 
 function normalizeState(value, nowMs = Date.now()) {
   const state = emptyState();
-  if (!value || typeof value !== 'object') return state;
+  // A missing state on the very first run is legitimate. Once a state file
+  // exists, however, silently replacing a malformed object with empty repair
+  // histories could reset the automated retry/dispatch safety budget.
+  if (value == null) return state;
+  if (!value || typeof value !== 'object' || Array.isArray(value) ||
+      value.version !== 1 || value.mode !== 'technical-safe-self-healing' ||
+      !value.repairs || typeof value.repairs !== 'object' ||
+      Array.isArray(value.repairs)) {
+    throw new Error('Invalid Self-Healing state envelope; manual inspection required.');
+  }
 
   const cutoffMs = nowMs - HISTORY_RETENTION_HOURS * 60 * 60 * 1000;
   const repairs = value.repairs && typeof value.repairs === 'object' ? value.repairs : {};
 
   for (const config of SAFE_REPAIRS) {
-    const previous = repairs[config.id] && typeof repairs[config.id] === 'object' ? repairs[config.id] : {};
-    const attempts = (Array.isArray(previous.attempts) ? previous.attempts : [])
-      .map(normalizeAttempt)
-      .filter(Boolean)
+    const existing = Object.prototype.hasOwnProperty.call(repairs, config.id);
+    if (value.updatedAt && !existing) {
+      throw new Error('Missing Self-Healing repair history for ' + config.id);
+    }
+    const previous = existing ? repairs[config.id] : {};
+    if (!previous || typeof previous !== 'object' || Array.isArray(previous)) {
+      throw new Error('Invalid Self-Healing repair record for ' + config.id);
+    }
+    const rawAttempts = previous.attempts ?? [];
+    if (!Array.isArray(rawAttempts)) {
+      throw new Error('Invalid Self-Healing attempt list for ' + config.id);
+    }
+    const parsedAttempts = rawAttempts.map(normalizeAttempt);
+    if (parsedAttempts.some((item) => !item)) {
+      throw new Error('Invalid Self-Healing attempt history for ' + config.id);
+    }
+    // Neither malformed dates nor timestamps from far in the future may
+    // silently reset the attempted-repair budget.
+    if (parsedAttempts.some((item) => Date.parse(item.at) > nowMs + 5 * 60_000)) {
+      throw new Error('Future-dated Self-Healing attempt for ' + config.id);
+    }
+    const previousLast = previous.lastAttemptAt || null;
+    if (previousLast) {
+      const lastMs = Date.parse(previousLast);
+      if (!Number.isFinite(lastMs) || lastMs > nowMs + 5 * 60_000 ||
+          (lastMs >= cutoffMs && !parsedAttempts.some((item) => item.at === previousLast))) {
+        throw new Error('Inconsistent Self-Healing last attempt for ' + config.id);
+      }
+    }
+    const attempts = parsedAttempts
       .filter((item) => Date.parse(item.at) >= cutoffMs)
       .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 
