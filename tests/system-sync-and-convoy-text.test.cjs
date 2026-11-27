@@ -92,3 +92,31 @@ test('stale legacy planning summary is not displayed as certified Event Capacity
   assert.match(message,/Capacity source not verified/);
   assert.doesNotMatch(message,/External \*\*5\/30\*\*|Today: External/);
 });
+
+
+test('official Convoy Overview uses explicit UTC+0 meeting and departure and UTC month across local-day boundaries',()=>{
+  const stamp=Math.floor(Date.parse('2027-06-01T00:30:00.000Z')/1000);
+  const convoy={
+    name:'Synthetic month boundary',eventDate:'2027-05-31',eventUnix:stamp,
+    eventTimeValid:true,departureAtUtc:'2027-06-01T01:00:00+00:00',
+    status:'Scheduled',eventType:'Partner Convoy',confirmedKingsSlot:true
+  };
+  const overview={
+    generatedAt:'2027-05-31T12:00:00.000Z',
+    months:{},countedConvoys:[convoy],overall:{}
+  };
+  const s=sandbox('convoy-overview-discord.js',{
+    files:{'output/convoy-overview.json':JSON.stringify(overview)}
+  });
+  const displayed=s.run('buildMessage('+JSON.stringify(overview)+')');
+  assert.match(displayed,/Meeting Time:\*\* 2027-06-01 00:30 UTC\+0/);
+  assert.match(displayed,/Departure Time:\*\* 2027-06-01 01:00 UTC\+0/);
+  assert.match(displayed,/2027-06-01 UTC\+0/);
+  assert.doesNotMatch(displayed,/Meeting Time:\*\* <t:|Departure Time:\*\* <t:/);
+  assert.equal(s.run('convoyMonthKey('+JSON.stringify(convoy)+')'),'2027-06');
+  const bad={...convoy,departureAtUtc:'2027-06-01T01:00:00'};
+  assert.equal(s.run('convoyDepartureLabel('+JSON.stringify(bad)+')'),null);
+  const unknown={...bad,eventUnix:null,eventTimeValid:false};
+  assert.match(s.run('convoyDateLabel('+JSON.stringify(unknown)+')'),
+    /source date; UTC\+0 time unverified/);
+});
