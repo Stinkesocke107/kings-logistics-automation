@@ -54,7 +54,7 @@ function loadPublicationKeyState(file,keyFields,reportFields,createInitialState)
       throw new Error('Existing Kings publication journal has invalid schema for '+field+': '+label);
     const seen=new Set();
     const month=field==='publishedMonths'||/Monthly/.test(field)||field==='monthlyReports';
-    const format=month?/^\\d{4}-(0[1-9]|1[0-2])$/:/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/;
+    const format=month?/^\d{4}-(0[1-9]|1[0-2])$/:/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
     for(const value of state[field]){
       const key=reportFields.includes(field)?value?.key:value;
       if(typeof key!=='string'||!format.test(key))
