@@ -10,6 +10,7 @@ const {trustedInvitationObservation,renderInvitationDashboardSource}=require('./
 const {observeOperations,renderOperationsReview,operationsWorklist,renderOperationsWorklist,WORK_LABELS}=require('./event-operations-staff-triage');
 const {reviewSummary,renderReviewSummary,renderPrivateReviewTokens}=require('./event-operations-manual-review-state');
 const {renderReviewAgenda,CODES}=require('./event-history-review-agenda');
+const {renderEventReviewCommandGuide}=require('./event-review-command-guide');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -208,6 +209,9 @@ function buildDriver(data, now = Date.now()) {
   const m = latest(data.driverReports.monthlyReports);
   const s = data.driverSummary;
   const t = s.tenure || {};
+  const activity = s.activity || {};
+  const safeActivityCount = key => Number.isSafeInteger(activity[key]) &&
+    activity[key] >= 0 ? activity[key] : 'Unavailable';
   const live =
     `VTC Drivers **${s.currentDrivers ?? current.length}** • Online **${verifiedLiveOnline(s, now)}** • Grace **${s.activity?.grace ?? 0}** • LOA **${s.activity?.approvedLeave ?? 0}**\n` +
     `Activity: Active **${s.activity?.active ?? 0}** • Info **${s.activity?.info7Days ?? 0}** • Attention **${s.activity?.attention14Days ?? 0}** • HR Review **${s.activity?.hrReview30Days ?? 0}**\n` +
@@ -231,7 +235,16 @@ function buildDriver(data, now = Date.now()) {
     title: '🚛 Kings Driver Leadership Dashboard',
     description: 'One fixed Driver dashboard. Driver totals cover the full TruckersMP VTC roster, including members without the Discord Kings Driver role. Live online status is shown only when verified.',
     color: KINGS_BLUE,
-    fields: [field('🔵 Live Overview', live), field('🟢 Last 24 Hours', daily), field('🟣 Last Completed Week', weekly), field('👑 Last Completed Month', monthly)],
+    fields: [
+      field('🔵 Live Overview',live),
+      field('🎯 Next Driver Review',
+        'Attention **'+safeActivityCount('attention14Days')+'** • HR review **'+
+        safeActivityCount('hrReview30Days')+'** • Approved LOA **'+
+        safeActivityCount('approvedLeave')+'**. Review only current trusted private Driver records; no automated decisions.'),
+      field('🟢 Last 24 Hours',daily),
+      field('🟣 Last Completed Week',weekly),
+      field('👑 Last Completed Month',monthly)
+    ],
     footer: { text: 'Kings Logistics • Driver Leadership • Advisory only' },
     timestamp: nowISO()
   };
@@ -267,6 +280,12 @@ function buildHr(data, now = Date.now()) {
     color: KINGS_BLUE,
     fields: [
       field('🔵 VTC Driver & HR Overview', `VTC Drivers **${drivers.length}** • First 7d **${first7.length}** • Open Probation **${open.length}** • Extended **${extended.length}** • 30d HR Reviews **${hrReviews.length}** • LOA active/scheduled **${activeLoa.length}/${scheduledLoa.length}**`),
+      field('🎯 Next HR Review', 'Open probation **'+open.length+
+        '** • Extended **'+extended.length+'** • HR-flagged Drivers **'+
+        hrReviews.length+'** • Driver registration **'+
+        ((register.status==='complete'||register.status==='incomplete')?
+          register.missing:'Unavailable')+
+        '** pending source review. Human HR/Management confirmation is required.'),
       field('🗂️ Kings Driver Registration — HR Review', registerStatus),
       field('🟢 Last 24 Hours', `Probation opened **${opened24.length}** • Completed **${completed24.length}** • New HR Reviews **${hrStarted24.length}** • LOA approved **${loa24.length}**`),
       field('🟣 Last Completed Week', w ? `${fmtKey(w.key)} • Drivers **${w.currentDrivers}** • Joined **${w.joined}** • Left **${w.left}** • Net **${signed(w.netGrowth)}** • Probation open **${w.openProbation ?? 0}** • HR Reviews **${w.hrReviews30d ?? 0}**` : 'No completed weekly report yet.'),
@@ -294,6 +313,9 @@ function buildStaff(data, now = Date.now()) {
     color: KINGS_BLUE,
     fields: [
       field('🔵 VTC Staff Classification', `VTC-classified Staff **${s.currentStaff ?? 0}** • Tracked Records **${s.trackedStaffRecords ?? 0}**\n${topDepartments}`),
+      field('🎯 Next Staff Review',
+        'Last 24h: joins **'+joined24+'** • departures **'+left24+
+        '** • role changes **'+role24+'**. Verify against authorised Staff-role and appointment records; no automatic personnel action.'),
       field('🟢 Last 24 Hours', `Joined **${joined24}** • Left **${left24}** • Role changes **${role24}**`),
       field('🟣 Last Completed Week', w ? `${fmtKey(w.key)} • Start **${w.startStaff}** → End **${w.endStaff}** • Joined **${w.joined}** • Left **${w.left}** • Role Changes **${w.roleChanges}** • Net **${signed(w.netGrowth)}**` : 'No completed weekly report yet.'),
       field('👑 Last Completed Month', m ? `${fmtKey(m.key)} • Start **${m.startStaff}** → End **${m.endStaff}** • Joined **${m.joined}** • Left **${m.left}** • Role Changes **${m.roleChanges}** • Net **${signed(m.netGrowth)}**` : 'No completed monthly report yet.')
@@ -360,32 +382,31 @@ function buildEvent(data, now = Date.now()) {
     color: KINGS_BLUE,
     fields: [
       field('🔵 Live Overview',sourceLine),
-      field('🟢 Last 24 Hours', 'A verified Event change feed is not currently available from the legacy publication-only state. See the current Convoy Center for individual changes.'),
-      field('🟣 Last Completed Week', w ? fmtKey(w.key)+' • Tracked **'+w.realConvoys+'** • Scheduled **'+w.scheduled+'** • Ready **'+w.ready+'** • Needs Info **'+w.needsInfo+'** • Changes **'+w.changes+'**' : 'No completed verified weekly report yet.'),
-      field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
-      field('🗓️ Calendar / History — Source Review',calendarLine),
-      field('🧾 Event History — Decision Evidence Review',historyEvidenceLine),
-      field('🗂️ Event History — Priority Months',
-        observed?renderReviewAgenda(observed.reviewAgenda):
-          'Unavailable — a fresh reconciled Event source is required.'),
-      field('📊 Event Capacity — Advisory Review',capacityLine),
-      field('✉️ Invitation Tracker — Source Review',invitationLine),
-      // Put real human progress and copy-ready instructions before source
-      // diagnostics. A blocked SOURCE and an ongoing STAFF review are
-      // different states and must never be mistaken for one another.
+      // Put next human tasks and real review progress before diagnostic
+      // details, while preserving every existing verified source check.
+      field('🎯 Next Staff Step', observed
+        ? 'Source flags **'+observed.readyForApproval+'** for review and **'+
+          observed.needsInformation+'** needing information. Check the private '+
+          'Staff Review Progress and Review Order below. These are NOT approved Events.'
+        : 'Validate a recent reconciled Event source first. Never infer free slots, '+
+          'missing approvals or an empty calendar from unavailable data.'),
       field('📝 Event Operations — Manual Staff Progress',renderReviewSummary(state,now)),
       field('🔐 Event Operations — Private Review Codes',
         renderPrivateReviewTokens(state,String(DRIVER_STATE_KEY),now)),
       field('💬 Event Operations — Discord Staff Commands',
-        state.discordReviewCursor===undefined
-          ? 'Not initialized in this published snapshot. Use the dedicated private Event Operations workflow to set up Staff review commands.'
-          : 'Discord review reader initialized in the saved state. Staff can send a copy-ready command from the private codes above into #event-operations. This shows the saved state, not a live online indicator. Unapplied commands **'+
-            (Number.isSafeInteger(state.discordReviewIgnored)?
-              state.discordReviewIgnored:'Unknown')+
-            '**. Review progress never approves Events or opens booking slots.'),
+        renderEventReviewCommandGuide(state)),
       field('⏱️ Event Operations — Review Order',
-        'Source-data alerts, not Staff progress. A BLOCKED source can still be actively under Staff review.\n'+
-          renderOperationsWorklist(operations))
+        'Source-data alerts, not Staff progress. A BLOCKED source can still be under manual review.\n'+
+          renderOperationsWorklist(operations)),
+      field('🟣 Last Completed Week', w ? fmtKey(w.key)+' • Tracked **'+w.realConvoys+'** • Scheduled **'+w.scheduled+'** • Ready **'+w.ready+'** • Needs Info **'+w.needsInfo+'** • Changes **'+w.changes+'**' : 'No completed verified weekly report yet.'),
+      field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
+      field('🗓️ Calendar / History — Source Review',calendarLine),
+      field('📊 Event Capacity — Advisory Review',capacityLine),
+      field('🧾 Event History — Decision Evidence Review',historyEvidenceLine),
+      field('🗂️ Event History — Priority Months',
+        observed?renderReviewAgenda(observed.reviewAgenda):
+          'Unavailable — a fresh reconciled Event source is required.'),
+      field('✉️ Invitation Tracker — Source Review',invitationLine)
     ],
     footer: { text: 'Kings Logistics • Event Leadership • Internal operations' },
     timestamp: nowISO()
@@ -420,6 +441,11 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
     description: `One fixed Management dashboard. Drivers count the full TruckersMP VTC roster; Staff count uses VTC Staff classification. Discord role-member counts are separate. Current attention indicators: **${attention}** (Event attention excluded if source unavailable).`,
     color: KINGS_BLUE,
     fields: [
+      field('🎯 Management — Next Review',
+        'Driver attention **'+(ds.activity?.attention14Days ?? 'Unavailable')+
+        '** • HR open/extended **'+hrOpen+'** • Event action flags **'+
+        (eventSource ? eventReady+eventNeeds : 'Unavailable')+'**. '+
+        'Event counts require source reconciliation; no automatic personnel decisions or Event approvals.'),
       field('🚛 VTC Drivers — Live', `VTC Drivers **${ds.currentDrivers ?? 0}** • Online **${verifiedLiveOnline(ds)}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
       field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
