@@ -414,7 +414,7 @@ test('Latest scheduled source query does not hide failed jobs with success filte
   assert.deepEqual(latest.workflow_runs,[]);
 });
 
-test('Single 3/day including Kings and two independent 20/month quotas, no week quota',()=>{
+test('Single 3/day including Kings and two independent 30/month quotas, no week quota',()=>{
   const r=monthsFrom(data(),NOW),m=r.months[0];
   assert.equal(r.weeklyLimitApplied,false);
   assert.equal(r.monthlyLimitRequired,true);
@@ -423,8 +423,8 @@ test('Single 3/day including Kings and two independent 20/month quotas, no week 
   assert.equal(r.dailyTotalLimit,3);
   assert.equal(m.monthlyClassifiedClaims,1);
   assert.equal(m.monthlyPartnerExternalClaims,1);
-  assert.equal(m.partnerMonthlyLimit,20);
-  assert.equal(m.externalMonthlyLimit,20);
+  assert.equal(m.partnerMonthlyLimit,30);
+  assert.equal(m.externalMonthlyLimit,30);
   assert.equal(m.kingsMonthlyLimit,null);
   assert.equal(m.monthlyPartnerOverLimit,false);
   assert.equal(m.monthlyExternalOverLimit,false);
@@ -433,7 +433,7 @@ test('Single 3/day including Kings and two independent 20/month quotas, no week 
   assert.equal('weeklyRemaining' in m,false);
   assert.equal(r.freeSlotsCertified,false);
 });
-test('Separate 20/month Partner and External quotas are tracked without confirming free slots',()=>{
+test('Separate 30/month Partner and External quotas are tracked without confirming free slots',()=>{
   // 25 reported Partner/External convoys across different days in one month.
   // This is an informational in-memory count, NEVER approved availability.
   const f=withCurrentEvents(Array.from({length:25},(_,i)=>({
@@ -445,8 +445,8 @@ test('Separate 20/month Partner and External quotas are tracked without confirmi
   assert.equal(m.externalClaims,12);
   assert.equal(m.monthlyPartnerExternalClaims,25);
   assert.equal(m.monthlyClassifiedClaims,25);
-  assert.equal(m.partnerMonthlyLimit,20);
-  assert.equal(m.externalMonthlyLimit,20);
+  assert.equal(m.partnerMonthlyLimit,30);
+  assert.equal(m.externalMonthlyLimit,30);
   assert.equal(m.kingsMonthlyLimit,null);
   assert.equal(m.monthlyPartnerOverLimit,false);
   assert.equal(m.monthlyExternalOverLimit,false);
@@ -469,8 +469,8 @@ test('Monthly counter resets at UTC month boundary and Kings claims remain separ
   assert.equal(april.partnerClaims,1);
   assert.equal(april.externalClaims,1);
   assert.equal(april.monthlyPartnerExternalClaims,2);
-  assert.equal(april.partnerMonthlyLimit,20);
-  assert.equal(april.externalMonthlyLimit,20);
+  assert.equal(april.partnerMonthlyLimit,30);
+  assert.equal(april.externalMonthlyLimit,30);
   assert.equal(april.kingsMonthlyLimit,null);
   assert.equal(result.weeklyLimitApplied,false);
 });
@@ -488,34 +488,34 @@ test('Cancelled and pending source claims do not become assumed monthly quota re
   assert.equal(m.cancelled,1);
   assert.equal(m.pending,1);
   assert.equal(m.monthlyRemainingVerified,null);
-  assert.equal(m.partnerMonthlyLimit,20);
-  assert.equal(m.externalMonthlyLimit,20);
+  assert.equal(m.partnerMonthlyLimit,30);
+  assert.equal(m.externalMonthlyLimit,30);
   assert.equal(m.kingsMonthlyLimit,null);
   assert.equal(r.freeSlotsCertified,false);
 });
 
-test('Twenty-one Partner convoys in a month are above Partner monthly cap',()=>{
-  const data=withCurrentEvents(Array.from({length:21},(_,i)=>({
+test('Thirty-one Partner convoys in a month are above Partner monthly cap',()=>{
+  const data=withCurrentEvents(Array.from({length:31},(_,i)=>({
     type:'Partner Convoy',
     departure:'2027-03-'+String(i+1).padStart(2,'0')+'T12:00:00Z'
   })));
   const m=monthsFrom(data,NOW).months[0];
-  assert.equal(m.partnerClaims,21);
+  assert.equal(m.partnerClaims,31);
   assert.equal(m.externalClaims,0);
   assert.equal(m.monthlyPartnerOverLimit,true);
   assert.equal(m.monthlyExternalOverLimit,false);
   assert.equal(m.daysRequiringReview,0);
   assert.equal(m.monthlyRemainingVerified,null);
 });
-test('External monthly cap is independent of 20 Partner requests',()=>{
-  const mixed=withCurrentEvents(Array.from({length:41},(_,i)=>({
-    type:i<20?'Partner Convoy':'External Convoy',
-    departure:'2027-03-'+String((i%21)+1).padStart(2,'0')+
-      (i>=20?'T17:00:00Z':'T12:00:00Z')
+test('External monthly cap is independent of 30 Partner requests',()=>{
+  const mixed=withCurrentEvents(Array.from({length:61},(_,i)=>({
+    type:i<30?'Partner Convoy':'External Convoy',
+    departure:'2027-03-'+String((i%31)+1).padStart(2,'0')+
+      (i>=30?'T17:00:00Z':'T12:00:00Z')
   })));
   const m=monthsFrom(mixed,NOW).months[0];
-  assert.equal(m.partnerClaims,20);
-  assert.equal(m.externalClaims,21);
+  assert.equal(m.partnerClaims,30);
+  assert.equal(m.externalClaims,31);
   assert.equal(m.monthlyPartnerOverLimit,false);
   assert.equal(m.monthlyExternalOverLimit,true);
   assert.equal(m.daysRequiringReview,0);
