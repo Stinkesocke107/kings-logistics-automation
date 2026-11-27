@@ -322,6 +322,9 @@ const namedOperationalSystems=Object.freeze([
       item('secret_and_symlink_exclusions',
         'Repo symlinks are not followed and environment/private key paths are excluded from published backup collection',VERIFIED,
         [EVIDENCE_ROOT+'pull/220',EVIDENCE_ROOT+'actions/runs/45909939222']),
+      item('safe_manifest_and_target_guard_live',
+        'Actual backup roundtrip on main validates all sources and independently guards malicious manifest, symlink, destination-directory overwrite and modified file bytes before recovery writes',VERIFIED,
+        [EVIDENCE_ROOT+'pull/233',EVIDENCE_ROOT+'actions/runs/45915470464']),
       item('actual_disaster_recovery',
         'A real controlled disaster-recovery scenario and cross-service return to service are independently verified'),
       item('private_key_recovery_handover',
@@ -565,6 +568,32 @@ const namedOperationalSystems=Object.freeze([
       'End-to-end recovery and independent original-article/Discord agreement remain open',
       'Final CEO signoff is not recorded'
     ]},
+  {id:'CHANGELOG_EDITOR',name:'Changelog Editor — authorized release queue input',
+    workflow:'add-changelog-entry.yml',
+    gates:fullGateList({
+      implementation:[EVIDENCE_ROOT+'pull/234'],
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45915696150'],
+      security:[EVIDENCE_ROOT+'actions/runs/45915696150']
+    }),
+    capabilities:Object.freeze([
+      item('isolated_manual_entry_dedupe',
+        'Actual manual editor CLI in disposable sandbox saved a valid record, rejected duplicate input and did not print release content',VERIFIED,
+        [EVIDENCE_ROOT+'pull/234',EVIDENCE_ROOT+'actions/runs/45915696150']),
+      item('corrupt_queue_guard',
+        'Existing malformed queue content is refused without rewriting or appending untrusted records',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45915696150']),
+      item('genuine_authorized_entry',
+        'New real approved human Changelog input is committed with correct source provenance'),
+      item('real_editor_to_publisher',
+        'One genuine queued release is safely passed to Publisher and independently read back from existing Discord destination'),
+      item('operator_handover',
+        'Owner verifies Git conflict/retry, privacy, permissions and final CEO signoff')
+    ]),
+    blockers:[
+      'Synthetic editor CLI is not evidence of an authentic authorized human release entry',
+      'Actual queue-to-Discord lifecycle, ambiguous delivery conflict recovery and operator handover remain unverified',
+      'Explicit CEO final acceptance is not recorded'
+    ]},
   {id:'CHANGELOG_PUBLISHER',name:'Changelog Publisher — queued changes',
     workflow:'changelog.yml',gates:fullGateList(),
     capabilities:Object.freeze([
@@ -574,6 +603,9 @@ const namedOperationalSystems=Object.freeze([
       item('independent_existing_changelog_audit',
         'Independent real Discord source/content audit confirmed the existing latest Changelog publication against release history',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45909350372']),
+      item('safe_archive_version_preflight',
+        'Corrupt history, stale numbering, invalid queue and oversized changelog sections now stop without a Discord POST or queue clear in isolated CLI tests',VERIFIED,
+        [EVIDENCE_ROOT+'pull/234',EVIDENCE_ROOT+'actions/runs/45915696150']),
       item('new_queue_delivery_lifecycle',
         'New authorized entry is validated, committed, posted and independently read back exactly once'),
       item('changelog_retry_recovery',
@@ -673,6 +705,9 @@ const namedOperationalSystems=Object.freeze([
       item('real_historical_archive_integrity',
         'That production run checked all 266 then-selected source files and their SHA-256 checksums, including six encrypted state fields',VERIFIED,
         [EVIDENCE_ROOT+'actions/runs/45817451307']),
+      item('post_guard_isolated_real_backup',
+        'After defensive recovery rollout, a real main-branch job built and restored the current entire source archive in a disposable sandbox, validated checksums and removed the sandbox',VERIFIED,
+        [EVIDENCE_ROOT+'pull/233',EVIDENCE_ROOT+'actions/runs/45915470464']),
       item('updated_current_441_plus_retention',
         'Repeated current production backups after source evolution, integrity, retention and storage alerting independently verified'),
       item('backup_real_disaster_and_handover',
