@@ -631,3 +631,77 @@ test('every Discord source request is GET-only, redirect-rejecting and time-boun
  assert.ok(calls.every(x=>x.method==='GET'&&x.redirect==='error'&&
    typeof x.signal?.addEventListener==='function'));
 });
+
+
+test('long normal Staff text and attachment-only messages never block subsequent authorized commands',async()=>{
+  const initial={...sourceState(),discordReviewCursor:MSG1};
+  const token=reviewToken(initial);
+  assert.equal(parseCommand('Normal private note: '+'x'.repeat(300)),null);
+  assert.equal(parseCommand('!kings-review '+token+' start '+'x'.repeat(300)),null);
+  const withAttachment={...message(MSG3,''),attachments:[{id:'999999999999999999'}]};
+  const withLongNote=message('777777777777777783','ordinary staff note '+'z'.repeat(300));
+  const withCommand=message('777777777777777784',
+    '!kings-review '+token+' start');
+  const {transport,seen}=discordFetch([
+    withCommand,withLongNote,withAttachment,message(MSG1,'setup')
+  ]);
+  const result=await ingest({state:initial,...args,transport});
+  assert.equal(result.mode,'SOURCE_REVIEWS_RECORDED');
+  assert.equal(result.state.discordReviewCursor,withCommand.id);
+  assert.equal(result.state.operationReviews[0].status,'IN_REVIEW');
+  assert.equal(result.state.discordReviewIgnored,0);
+  assert.equal(result.state.eventSourceObservation.staffApprovalsVerified,false);
+  assert.ok(seen.every(x=>x.method==='GET'));
+  const missingIntent=discordFetch([
+    message(MSG3,''),message(MSG1,'setup')
+  ]);
+  await assert.rejects(()=>ingest({
+    state:initial,...args,transport:missingIntent.transport
+  }),/unverified/);
+});
+
+test('all four real Discord review verbs follow authorized encrypted review transitions and leave Event approvals untouched',async()=>{
+  const {reviewSummary}=require('../event-operations-manual-review-state');
+  let state={...sourceState(),discordReviewCursor:MSG1};
+  const selector=reviewToken(state);
+  const sequence=[
+    ['start','IN_REVIEW'],
+    ['block','NEEDS_EVIDENCE'],
+    ['reopen','OPEN'],
+    ['start','IN_REVIEW'],
+    ['record_check STAFF_RECORD ORIGINAL_RECORDS_CHECKED','STAFF_CHECK_RECORDED']
+  ];
+  for(let i=0;i<sequence.length;i++){
+    const [syntax,expected]=sequence[i];
+    const id=(BigInt(MSG1)+BigInt(i+1)).toString();
+    const {transport,seen}=discordFetch([
+      message(id,'!kings-review '+selector+' '+syntax),
+      message(MSG1,'initial setup')
+    ]);
+    const result=await ingest({state,...args,
+      nowMs:NOW+(i+1)*1000,transport});
+    assert.equal(result.mode,'SOURCE_REVIEWS_RECORDED',syntax);
+    assert.equal(result.changed,true);
+    assert.equal(result.state.discordReviewCursor,id);
+    assert.equal(result.state.operationReviews[0].status,expected,syntax);
+    assert.equal(result.state.operationReviews[0].audit.length,i+1);
+    assert.deepEqual(result.state.eventSourceObservation,
+      state.eventSourceObservation,'No synthetic command changes original Event evidence');
+    assert.equal(result.state.eventSourceObservation.staffApprovalsVerified,false);
+    assert.equal(result.state.eventSourceObservation.freeSlotsCertified,false);
+    assert.equal(result.state.eventSourceObservation.bookingsCreated,0);
+    assert.ok(seen.every(x=>x.method==='GET'));
+    const persisted=encryptEventState(result.state,SECRET);
+    assert.equal(persisted.encrypted,true);
+    state=decryptEventState(persisted,SECRET);
+  }
+  const summary=reviewSummary(state,NOW+6000);
+  assert.equal(summary.staffChecksRecorded,1);
+  assert.equal(summary.inReview,0);
+  // Command replay after the state cursor has advanced is an actual no-op.
+  const repeat=discordFetch([message((BigInt(MSG1)+5n).toString(),
+    '!kings-review '+selector+' record_check STAFF_RECORD ORIGINAL_RECORDS_CHECKED')]);
+  const again=await ingest({state,...args,nowMs:NOW+6000,transport:repeat.transport});
+  assert.equal(again.changed,false);
+  assert.equal(again.mode,'NO_NEW_MESSAGES');
+});
