@@ -65,13 +65,33 @@ function nextMonthKey(monthKey) {
   return date.toISOString().slice(0, 7);
 }
 
+function verifiedDepartureMs(convoy) {
+  const raw=convoy?.departureAtUtc;
+  // Reject time-zone-less strings; GitHub runners have no authority to
+  // interpret the Event owner's local wall clock.
+  if(typeof raw!=='string' ||
+     !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/i.test(raw))
+    return null;
+  const ms=Date.parse(raw);
+  return Number.isFinite(ms)&&ms>0 ? ms : null;
+}
+function fixedUtcLabel(instantMs) {
+  if(!Number.isFinite(instantMs)||instantMs<=0)return null;
+  const date=new Date(instantMs);
+  if(!Number.isFinite(date.getTime()))return null;
+  return date.toISOString().slice(0,16).replace('T',' ')+' UTC+0';
+}
 function convoyMonthKey(convoy) {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(String(convoy?.eventDate || ''))) {
-    return convoy.eventDate.slice(0, 7);
+  // A verified UTC departure overrides a potentially local display date.
+  const departure=verifiedDepartureMs(convoy);
+  if(departure!==null)return new Date(departure).toISOString().slice(0,7);
+  const unix=Number(convoy?.eventUnix||0);
+  if(convoy?.eventTimeValid===true&&Number.isSafeInteger(unix)&&unix>0){
+    const fixed=fixedUtcLabel(unix*1000);
+    if(fixed)return fixed.slice(0,7);
   }
-  const unix = Number(convoy?.eventUnix || 0);
-  if (!Number.isFinite(unix) || unix <= 0) return null;
-  return new Date(unix * 1000).toISOString().slice(0, 7);
+  const date=String(convoy?.eventDate||'');
+  return /^\d{4}-\d{2}-\d{2}$/.test(date)?date.slice(0,7):null;
 }
 
 function convoyDateUnix(convoy) {
@@ -88,18 +108,17 @@ function convoyDateUnix(convoy) {
 }
 
 function convoyDateLabel(convoy) {
-  const unix = Number(convoy?.eventUnix || 0);
-  if (Number.isFinite(unix) && unix > 0) {
-    return discordTimestamp(unix, 'd');
+  const unix=Number(convoy?.eventUnix||0);
+  if(convoy?.eventTimeValid===true&&Number.isSafeInteger(unix)&&unix>0){
+    const fixed=fixedUtcLabel(unix*1000);
+    if(fixed)return fixed.slice(0,10)+' UTC+0';
   }
-
-  const date = String(convoy?.eventDate || '');
-  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    const parsed = Math.floor(new Date(`${date}T12:00:00Z`).getTime() / 1000);
-    return discordTimestamp(parsed, 'd');
-  }
-
-  return 'Date unavailable';
+  const departure=verifiedDepartureMs(convoy);
+  if(departure!==null)return new Date(departure).toISOString().slice(0,10)+' UTC+0';
+  const date=String(convoy?.eventDate||'');
+  if(/^\d{4}-\d{2}-\d{2}$/.test(date))
+    return date+' (source date; UTC+0 time unverified)';
+  return 'Date unavailable (UTC+0 unverified)';
 }
 
 function isPlannedUpcoming(convoy, today) {
@@ -170,17 +189,16 @@ function statusIcon(status) {
 }
 
 function convoyTimeLabel(convoy) {
-  if (convoy.eventUnix && convoy.eventTimeValid) {
-    return `${discordTimestamp(convoy.eventUnix, 'f')} · ${discordTimestamp(convoy.eventUnix, 'R')}`;
+  const unix=Number(convoy?.eventUnix||0);
+  if(convoy?.eventTimeValid===true&&Number.isSafeInteger(unix)&&unix>0){
+    const fixed=fixedUtcLabel(unix*1000);
+    if(fixed)return fixed+' · '+discordTimestamp(unix,'R');
   }
-  return '⚠️ Time unavailable';
+  return '⚠️ Time unavailable (UTC+0 not verified)';
 }
-
 function convoyDepartureLabel(convoy) {
-  const raw = convoy?.departureAtUtc;
-  if (!raw || typeof raw !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(raw)) return null;
-  const ms = Date.parse(raw);
-  return Number.isFinite(ms) ? discordTimestamp(Math.floor(ms / 1000), 'F') : null;
+  const ms=verifiedDepartureMs(convoy);
+  return ms===null?null:fixedUtcLabel(ms);
 }
 
 function compactUpcoming(convoy) {
