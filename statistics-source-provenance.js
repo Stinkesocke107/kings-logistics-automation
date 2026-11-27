@@ -27,6 +27,7 @@ function extractStatisticsHistory(raw){
 }
 function validateStatisticsDocument(raw){
   const history=extractStatisticsHistory(raw);
+  if(!history.length)throw new Error('Kings Statistics saved history lacks original samples');
   const seenDays=new Set();
   for(const item of history){
     if(!item||typeof item!=='object'||Array.isArray(item)||
