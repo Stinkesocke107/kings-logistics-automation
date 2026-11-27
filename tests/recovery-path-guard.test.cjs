@@ -22,20 +22,24 @@ function sandbox(){
   const entry={path:name,size:bytes.length,sha256:hash};
   fs.writeFileSync(path.join(source,name),bytes);
   fs.writeFileSync(path.join(staging,name),bytes);
-  const manifest={version:1,commit:'synthetic-commit',files:[entry]};
+  const provenance={repository:'Kings/test',branch:'main',workflowRunId:'123',workflowRunNumber:'42'};
+  const manifest={version:1,commit:'synthetic-commit',files:[entry],...provenance};
   const write=(root,which,obj)=>fs.writeFileSync(path.join(root,which),
     JSON.stringify(obj)+'\n');
   const update=()=>{write(source,'backup-manifest.json',manifest);
     write(staging,'backup-manifest.json',manifest)};
   update();
   write(source,'backup-health.json',{healthy:true,status:'HEALTHY'});
+  write(source,'backup-final-health.json',{healthy:true,status:'HEALTHY'});
   write(source,'restore-point.json',{type:'restore-point',commit:'synthetic-commit',
-    name:'synthetic test'});
+    name:'synthetic test',...provenance});
   function run(script,mode='preview'){
     return spawnSync(process.execPath,[script],{
       cwd:dir,
       env:{...process.env,RECOVERY_MODE:mode,
-        RECOVERY_CONFIRMATION:mode==='apply'?'RESTORE_KINGS':''},
+        RECOVERY_CONFIRMATION:mode==='apply'?'RESTORE_KINGS':'',
+        RECOVERY_TARGET_RUN:'42',RECOVERY_SOURCE_RUN_ID:'123',
+        GITHUB_REPOSITORY:'Kings/test',GITHUB_REF_NAME:'main'},
       encoding:'utf8',timeout:20000
     });
   }
@@ -176,5 +180,40 @@ test('isolated verifier preflights every manifest source before sandbox setup',(
     const result=s.run('backup-restore-verify.js');
     assert.notEqual(result.status,0);
     assert.equal(fs.readFileSync(path.join(s.dir,'restore-verification','marker'),'utf8'),'untouched');
+  }finally{s.dispose();}
+});
+
+
+test('direct APPLY requires finalized Restore Point health before any write',()=>{
+  const s=sandbox();
+  try{
+    fs.rmSync(path.join(s.source,'backup-final-health.json'));
+    const result=s.run('core-recovery.js','apply');
+    assert.notEqual(result.status,0);
+    assert.equal(fs.existsSync(path.join(s.dir,'safe.txt')),false);
+    assert.equal(fs.existsSync(path.join(s.dir,'recovery-result.json')),false);
+  }finally{s.dispose();}
+});
+
+test('direct APPLY refuses wrong original run ID and repository even if file SHA matches',()=>{
+  for(const changed of ['workflowRunId','repository','workflowRunNumber']){
+    const s=sandbox();
+    try{
+      s.manifest[changed]='wrong';
+      s.update();
+      const result=s.run('core-recovery.js','apply');
+      assert.notEqual(result.status,0,changed);
+      assert.equal(fs.existsSync(path.join(s.dir,'safe.txt')),false);
+    }finally{s.dispose();}
+  }
+});
+
+test('direct PREVIEW still supports a legacy unfinalized artifact without a write',()=>{
+  const s=sandbox();
+  try{
+    fs.rmSync(path.join(s.source,'backup-final-health.json'));
+    const result=s.run('core-recovery.js','preview');
+    assert.equal(result.status,0,result.stderr);
+    assert.equal(fs.existsSync(path.join(s.dir,'safe.txt')),false);
   }finally{s.dispose();}
 });
