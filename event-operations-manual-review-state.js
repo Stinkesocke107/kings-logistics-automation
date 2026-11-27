@@ -314,19 +314,31 @@ function renderPrivateReviewTokens(state,secret,nowMs=Date.now()){
       return 'start';
     };
     const tick=String.fromCharCode(96);
-    const lines=[
+    const render=shown=>[
       'Private #event-operations; use only after checking original records:',
-      ...rows.map(row=>{
+      ...shown.map(row=>{
         const name=(row.scope==='history'?(row.month||'Undated')+' — ':'')+
           (row.scope==='history'?CODES[row.code]:WORK_LABELS[row.code]);
         const token=issueToken(state,row,secret,nowMs);
         return name+' ['+row.status+'] — '+
           tick+'!kings-review '+token+' '+commandFor(row)+tick;
       }),
-      'In review: use block if evidence is missing. record_check ONLY after a real check; choose the matching evidence kind (STAFF_RECORD / ORIGINAL_DISCORD / ORIGINAL_EVENT_PAGE).',
-      'Reopen a logged check only for a deliberate new review. Codes expire on a source change/new UTC day. No Event approval.'
-    ];
-    const text=lines.join('\n');
+      ...(shown.length<rows.length?
+        ['More active reviews remain in private Staff Progress.']:[]),
+      'In review: block if evidence is missing; record_check ONLY after original records were checked (STAFF_RECORD / ORIGINAL_DISCORD / ORIGINAL_EVENT_PAGE).',
+      'For a logged check, reopen deliberately before a new review. KR codes expire on source/new UTC day; no approvals.'
+    ].join('\n');
+    // Discord embed field max is 1024 characters. Multiple in-progress
+    // record_check commands can overflow the private field. Keep at least
+    // one actionable command; prefer retaining a history review month.
+    let shown=rows;
+    let text=render(shown);
+    while(text.length>1024&&shown.length>1){
+      const tailHistory=shown.at(-1).scope==='history';
+      const drop=tailHistory?shown.length-2:shown.length-1;
+      shown=shown.filter((_,index)=>index!==drop);
+      text=render(shown);
+    }
     if(text.length>1024)fail();
     return text;
   }catch{
