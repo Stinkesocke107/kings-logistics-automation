@@ -375,7 +375,7 @@ function buildEvent(data, now = Date.now()) {
       field('💬 Event Operations — Discord Staff Commands',
         renderEventReviewCommandGuide(state)),
       field('⏱️ Event Operations — Review Order',
-        'Source-data warnings and Staff progress are separate. A BLOCKED source can still be under manual review.\n'+
+        'Source-data alerts, not Staff progress. A BLOCKED source can still be under manual review.\n'+
           renderOperationsWorklist(operations)),
       field('🟣 Last Completed Week', w ? fmtKey(w.key)+' • Tracked **'+w.realConvoys+'** • Scheduled **'+w.scheduled+'** • Ready **'+w.ready+'** • Needs Info **'+w.needsInfo+'** • Changes **'+w.changes+'**' : 'No completed verified weekly report yet.'),
       field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
