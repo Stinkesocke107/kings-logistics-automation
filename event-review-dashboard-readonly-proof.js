@@ -6,7 +6,8 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {decryptEventState}=require('./event-leadership-state');
 const {renderReviewSummary}=require('./event-operations-manual-review-state');
-const {renderInvitationDashboardSource}=require('./event-invitation-tracker-source');
+const {renderInvitationDashboardSource,trustedInvitationObservation}=require('./event-invitation-tracker-source');
+const {trustedEventObservation}=require('./event-leadership-observation');
 const ROOT=__dirname;
 const EVENT=path.join(ROOT,'data/event-leadership-report-state.json');
 const DASH=path.join(ROOT,'data/leadership-dashboard-state.json');
@@ -27,6 +28,16 @@ async function run({env=process.env,read=fs.readFileSync,
   const encoded=JSON.parse(read(EVENT,'utf8'));
   if(encoded?.encrypted!==true||encoded?.algorithm!=='aes-256-gcm')fail();
   const privateState=decryptEventState(encoded,env.DRIVER_STATE_KEY);
+  // Ordinary scheduled delivery verification can correctly prove that an
+  // "Unavailable" embed matches its source. That alone is not source
+  // acceptance. Only the manually requested integrated proof requires both
+  // genuine source observations to be fresh and the Forum tags reconciled.
+  if(env.KINGS_EVENT_READBACK_REQUIRE_FRESH_SOURCE==='true'){
+    const event=trustedEventObservation(privateState.eventSourceObservation,nowMs);
+    const invites=trustedInvitationObservation(
+      privateState.invitationSourceObservation,nowMs);
+    if(!event||!invites||invites.tagSchemaVerified!==true)fail();
+  }
   const messageState=JSON.parse(read(DASH,'utf8'));
   const messageId=messageState?.messageIds?.event;
   if(!ID.test(messageId))fail();
