@@ -33,6 +33,12 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Verify Changelog state, queue and publication safety offline
+        run: |
+          node --check add-changelog-entry.js
+          node --check changelog.js
+          node --test tests/changelog-queue.test.cjs
+
       - name: Publish Kings Changelog
         env:
           CHANGELOG_DISCORD_WEBHOOK_URL: ${{ secrets.CHANGELOG_DISCORD_WEBHOOK_URL }}
