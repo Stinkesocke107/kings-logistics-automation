@@ -248,3 +248,25 @@ Drei weitere Workflows besitzen jeweils einen **eng abgegrenzten** tatsächlich 
 | **Changelog Editor** – `add-changelog-entry.yml` | Gleiche Prüfungen: echtes Editor-Programm in isolierter Testumgebung, Duplikatschutz, beschädigte Queue verweigert, private Änderungstexte nicht in GitHub-Logs; jetzt **erstmals formal einzeln bewertet** | Echte autorisierte Eingabe, dauerhaft gespeicherte Queue und vollständige Editor→Publisher-Abnahme |
 
 **Offen und transparent:** Die genannten Tests beweisen technische Schutzfunktionen, **keine** echte vollständige Katastrophen-Wiederherstellung, keinen neu publizierten Changelog und keine automatische Exactly-once-Garantie bei einem Webhook-Erfolg mit anschließend fehlgeschlagenem Git-Safe-Push. Für `COMPLETE` müssen sämtliche Pflicht-Gates nachweislich bestanden und vom CEO final bestätigt werden.
+
+
+---
+
+## 27. November 2026 — Erste technische Einzelbewertung der letzten 18 Workflows
+
+**Neuer, bewusst enger Bewertungsumfang:** Alle **46/46 aktiven GitHub-Workflows** haben jetzt einen individuell benannten, isoliert getesteten Teilvertrag im ausführbaren kings-system-acceptance.js. Vorherige 28/18-Zählungen in diesem Dokument sind **historische Zwischenstände**. **0/46** sind vollständig nach Live-Daten, tatsächlich erfolgter Veröffentlichung/Recovery, Team-Übergabe und CEO-Freigabe abgeschlossen.
+
+Die letzten 18 wurden **nicht automatisch vollständig abgenommen**, sondern pro Workflow auf jeweils eine ausdrücklich nachgewiesene, begrenzte technische Schutzfunktion anhand existierender isolierter Tests geprüft. In kings-first-review-catalog.js stehen für jeden Workflow Testdatei, exakt belegter Funktionsumfang und ein einzelner echter Betriebsnachweis, der noch fehlt. Gemeinsamer unveränderter isolierter Testbeleg: [Node 24 Actions #45917194916](https://github.com/Stinkesocke107/kings-logistics-automation/actions/runs/45917194916) mit **864 bestandenen Tests, 0 Fehlern**. Das belegt **nur** die jeweils getestete Funktion, nicht die komplette Aufgabe des Workflows.
+
+| Bereich | Neu individuell mit isoliertem Teilbeleg betrachtet | Weiter offen |
+|---|---|---|
+| Core/API/Freeze | API Resilience, Core Baseline, Core End-to-End, Final Freeze, Self-Healing Stress | Echte Online-Karten-/API-Recovery, Live-E2E und autorisierter Final Freeze |
+| Driver | Driver Leadership Reports, Driver TMP/VTC Review, Driver Weekly Summary | Echte volle Zeiträume, Datenvergleich, HR-Freigaben, Discord-Read-back |
+| HR/Staff | HR Leadership Reports, HR Weekly Summary, Staff Leadership Reports | Echte geschützte Personalvorgänge, Originalquelle, Rollen-/Berechtigungsprüfung |
+| Events | Event Operations Manual Review, Legacy Convoy Import | Originale historische Events und menschlich freigegebene neue Staff-Aktion |
+| Management | Management Monthly Report, Management Weekly Overview | Echte Monats-/Wochenvollständigkeit und sichere reale Veröffentlichung |
+| Bericht-/Prüfketten | Monthly Report, Monthly Report Verification, Weekly Reports Verification | Fehlende Statistik-Tage, Quellenfrische und unabhängige tatsächliche Discord-Read-backs |
+
+Technische Report-Korrekturen der aktuellen Runde: [PR #236](https://github.com/Stinkesocke107/kings-logistics-automation/pull/236) schützt die Veröffentlichungs-Historien, [PR #237](https://github.com/Stinkesocke107/kings-logistics-automation/pull/237) korrigiert den Zugriff auf die AES-verschlüsselte Event-Monatsquelle. Das vorhandene System #17 Event Booking & Slot Management bleibt **gestrichen**.
+
+**Keine pauschale Gesamtfreigabe:** Die acht funktionsbezogenen Abnahme-Gates sämtlicher neu einzeln bewerteter Workflows bleiben PENDING, ebenso echte E2E-Betriebsproben, Teambestätigungen und CEO-Signoff. Die nachgewiesene isolierte Schutzfunktion ist jeweils nur PARTIALLY_VERIFIED. Der separate System-Monitor und aktuelle externe Karten-Blocker dürfen nicht aufgrund grüner Offline-Tests als gesund gemeldet werden.
