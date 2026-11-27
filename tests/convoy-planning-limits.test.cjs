@@ -2,7 +2,7 @@ const {test}=require('node:test');const assert=require('node:assert/strict');con
 function entry(id,type,date,departure,status='Scheduled'){return {eventId:String(id),threadId:String(id),name:'Convoy '+id,status,validation:{parsed:{eventType:type,eventDate:date,departureAtUtc:departure}}};}
 test('operational planning uses 3 total/day including Kings, 30/month External and Partner separately',()=>{
   const items=[];
-  for(let i=0;i<31;i++)items.push(entry(i,'External Convoy',
+  for(let i=0;i<31;i++)items.push(entry(1000+i,'External Convoy',
     '2026-11-'+String(i<3?1:i).padStart(2,'0'),null));
   for(let i=30;i<34;i++)items.push(entry(i,'Partner Convoy','2026-11-01',null));
   items.push(entry(90,'Kings Convoy','2026-11-01',null));
