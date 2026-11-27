@@ -6,16 +6,6 @@
     "live-tracker": {
       "attempts": [
         {
-          "at": "2026-11-26T08:55:41.949Z",
-          "outcome": "verification-failed",
-          "action": "dispatched",
-          "runId": 45787239099,
-          "issueIds": [
-            "stale-data:data/live-tracker-snapshot.json",
-            "stale-data:data/statistics.json"
-          ]
-        },
-        {
           "at": "2026-11-26T10:50:22.025Z",
           "outcome": "verification-failed",
           "action": "dispatched",
