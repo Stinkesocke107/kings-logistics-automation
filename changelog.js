@@ -136,7 +136,7 @@ function loadState() {
     return {season:'S01',nextNumber:5};
   }
   if(!state||typeof state!=='object'||Array.isArray(state)||
-     !/^S\\d{2,3}$/.test(state.season)||
+     !/^S\d{2,3}$/.test(state.season)||
      !Number.isSafeInteger(state.nextNumber)||
      state.nextNumber<5||state.nextNumber>9999)
     throw Error('Existing Changelog numbering state unverified');
@@ -195,7 +195,7 @@ function loadHistory() {
   const ids=new Set();
   for(const row of history.changelogs){
     if(!row||typeof row!=='object'||Array.isArray(row)||
-       typeof row.id!=='string'||!/^[Ss]\\d{2,3}-KL\\d{2,4}$/.test(row.id)||
+       typeof row.id!=='string'||!/^[Ss]\d{2,3}-KL\d{2,4}$/.test(row.id)||
        ids.has(row.id)||!Array.isArray(row.entries))
       throw Error('Changelog history contains invalid or duplicate release');
     ids.add(row.id);
