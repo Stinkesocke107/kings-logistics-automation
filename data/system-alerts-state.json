@@ -73,37 +73,6 @@
       "message": "Final Freeze Verification has no workflow runs.",
       "details": null,
       "firstAlertedAt": "2026-11-26T23:46:43.846Z"
-    },
-    "workflow-failed:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing latest completed run ended with cancelled.",
-      "details": {
-        "runId": 45926200570,
-        "completedAt": "2026-11-27T02:04:49Z"
-      },
-      "firstAlertedAt": "2026-11-27T02:07:00.479Z"
-    },
-    "workflow-failed:driver-management.yml": {
-      "severity": "critical",
-      "system": "Driver Management",
-      "message": "Driver Management latest completed run ended with failure.",
-      "details": {
-        "runId": 45926173839,
-        "completedAt": "2026-11-27T02:07:14Z"
-      },
-      "firstAlertedAt": "2026-11-27T02:08:11.917Z"
-    },
-    "workflow-overdue:self-healing.yml": {
-      "severity": "warning",
-      "system": "Safe Self-Healing",
-      "message": "Safe Self-Healing has not run within the expected time window.",
-      "details": {
-        "latestActivityAt": "2026-11-27T00:09:03Z",
-        "ageMinutes": 136,
-        "maxAgeMinutes": 90
-      },
-      "firstAlertedAt": "2026-11-27T02:25:47.978Z"
     }
   },
   "pending": {}
