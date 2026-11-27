@@ -53,7 +53,7 @@ test('daily Event source triage groups unresolved categories and dates without e
   const privateMarker='DO_NOT_PUBLISH_PRIVATE_EVENT_NAME';
   const source={
     version:2,mode:'advisory-only',sourceClaimsOnly:true,
-    freeSlotsCertified:false,
+    freeSlotsCertified:false,undatedSourceClaims:3,
     unknownTypes:[{threadId:'777777777777777777',name:privateMarker},
       {eventId:'123456',name:privateMarker}],
     missingDepartures:[{threadId:'888888888888888888',name:privateMarker}]
@@ -65,12 +65,14 @@ test('daily Event source triage groups unresolved categories and dates without e
   assert.equal(n.period,'2026-11-25');
   assert.equal(n.unknownTypes,2);
   assert.equal(n.missingDepartures,1);
+  assert.equal(n.undatedSourceClaims,3);
   assert.equal(keyOf(n),keyOf({...n,unknownTypes:5,missingDepartures:4}),
     'Only one private source review alert per UTC day');
   assert.notEqual(keyOf(n),keyOf({...n,period:'2026-11-26'}));
   const message=describe(n);
   assert.match(message,/2.*unclassified Event type/);
   assert.match(message,/1.*missing verified UTC departure/);
+  assert.match(message,/3.*without a valid planning date/);
   assert.match(message,/Staff source review/);
   assert.match(message,/not an Event approval, capacity release or booking/);
   for(const marker of [privateMarker,'777777777777777777','888888888888888888','123456']){
@@ -83,7 +85,7 @@ test('daily Event source triage groups unresolved categories and dates without e
 test('Event source triage is silent for clean data and rejects obsolete/unverified summaries',()=>{
   const {sourceTriageNotices}=require('../convoy-planning-alerts');
   const clean={version:2,mode:'advisory-only',
-    sourceClaimsOnly:true,freeSlotsCertified:false,
+    sourceClaimsOnly:true,freeSlotsCertified:false,undatedSourceClaims:0,
     unknownTypes:[],missingDepartures:[]};
   assert.equal(sourceTriageNotices(clean,'2026-11-25T21:00:00Z').length,0);
   for(const bad of [
@@ -92,7 +94,9 @@ test('Event source triage is silent for clean data and rejects obsolete/unverifi
     {...clean,mode:'booking',unknownTypes:[{}]},
     {...clean,sourceClaimsOnly:false,unknownTypes:[{}]},
     {...clean,unknownTypes:null},
-    {...clean,missingDepartures:null}
+    {...clean,missingDepartures:null},
+    {...clean,undatedSourceClaims:null},
+    {...clean,undatedSourceClaims:-1}
   ]){
     assert.equal(sourceTriageNotices(bad,'2026-11-25T21:00:00Z').length,0);
   }
@@ -193,4 +197,19 @@ test('unidentified original source claims alert Staff without double-counting or
   assert.match(content,/no capacity is certified or released/);
   assert.equal(keyOf(notice),keyOf({...notice,count:5}));
   assert.doesNotMatch(content,/PRIVATE_EVENT_MARKER|123456789012345678/);
+});
+
+test('undated-only source claims trigger a daily aggregate Staff warning and no private metadata',()=>{
+  const {sourceTriageNotices,describe}=require('../convoy-planning-alerts');
+  const base={version:2,mode:'advisory-only',sourceClaimsOnly:true,
+    freeSlotsCertified:false,unknownTypes:[],missingDepartures:[],
+    undatedSourceClaims:2};
+  const notice=sourceTriageNotices(base,'2027-05-02T00:03:00Z');
+  assert.equal(notice.length,1);
+  assert.equal(notice[0].period,'2027-05-02');
+  assert.equal(notice[0].unknownTypes,0);
+  assert.equal(notice[0].missingDepartures,0);
+  assert.equal(notice[0].undatedSourceClaims,2);
+  assert.match(describe(notice[0]),/2.*without a valid planning date/);
+  assert.equal(sourceTriageNotices({...base,undatedSourceClaims:0},'2027-05-02T00:03:00Z').length,0);
 });
