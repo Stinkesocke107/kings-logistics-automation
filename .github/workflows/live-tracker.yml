@@ -18,6 +18,7 @@ on:
       - 'live-systems-delivery.js'
       - 'truckersmp-official-live.js'
       - 'statistics.js'
+      - 'statistics-source-provenance.js'
       - 'central-overview.js'
       - 'api-resilience.js'
       - 'kings-branding.js'
