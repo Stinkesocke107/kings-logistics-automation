@@ -51,10 +51,10 @@ function eventEmbed(snapshot) {
   return {
     title: '📬 Kings Operations — Event Overview',
     description: [
-      '**Confirmed source:** current Convoy Center snapshot',
+      '**Source:** recent Convoy Center report (read-only; approvals unverified)',
       '**Convoy records:** ' + snapshot.total,
       '',
-      '⏳ Awaiting Staff review: **' + snapshot.counts['Ready for Approval'] + '**',
+      '⏳ Flagged for Staff review: **' + snapshot.counts['Ready for Approval'] + '**',
       '⚠️ Needs information: **' + snapshot.counts['Needs Information'] + '**',
       '📝 Submitted: **' + snapshot.counts.Submitted + '**',
       '📅 Scheduled: **' + snapshot.counts.Scheduled + '**',
