@@ -2,6 +2,7 @@ require('./kings-branding').installDiscordBranding();
 
 const fs = require('fs');
 const {loadPublicationKeyState} = require('./report-publication-journal-guard');
+const {readProtectedEventMonthlyReport} = require('./management-monthly-event-source');
 const path = require('path');
 const { syncEmbedMessage } = require('./leadership-message-sync');
 
@@ -97,7 +98,7 @@ function days(value) {
 function buildEmbed(period, reports, previous = null) {
   const { driver, hr, staff, event } = reports;
   const coverageOk = [driver, hr, staff]
-    .every((item) => item.completeCoverage !== false);
+    .every((item) => item.completeCoverage === true);
 
   const attention = number(driver.openReviews) + number(hr.openProbation) +
     number(hr.extendedProbation) + number(hr.hrReviews) + number(event.needsInfo) + number(event.ready);
@@ -110,7 +111,8 @@ function buildEmbed(period, reports, previous = null) {
     title: '👑 Kings Management — Monthly Report',
     description:
       `**Month:** ${period.label}\n` +
-      `${coverageOk ? '✅ Core leadership reporting coverage is complete.' : '⚠️ One or more source reports have partial historical coverage.'}\n` +
+      `${coverageOk ? '✅ Driver/HR/Staff report coverage explicitly marked complete.' : '⚠️ Driver/HR/Staff reporting coverage incomplete or unverified.'}\n` +
+      '⚠️ Original 24-month Event history, approvals and attendance remain unverified.\n' +
       `Management attention indicators at report time: **${attention}**`,
     color: KINGS_BLUE,
     fields: [
@@ -153,7 +155,7 @@ function buildEmbed(period, reports, previous = null) {
       {
         name: '🔒 Scope & Safety',
         value:
-          'This is the consolidated Management summary. Detailed cases remain in Driver, HR, Staff and Event Leadership. ' +
+          'This is the consolidated Management summary. Event counters reflect recorded operations only, not verified attendance or approved bookings. Detailed cases remain in Driver, HR, Staff and Event Leadership. ' +
           'Kings Systems never performs personnel, disciplinary, Staff-role or Event-approval decisions automatically.',
         inline: false
       }
@@ -220,7 +222,8 @@ async function main() {
     driver: monthlyReport(DRIVER_REPORTS, period.key),
     hr: monthlyReport(HR_REPORTS, period.key),
     staff: monthlyReport(STAFF_REPORTS, period.key),
-    event: monthlyReport(EVENT_REPORTS, period.key)
+    event: readProtectedEventMonthlyReport(EVENT_REPORTS,period.key,
+      process.env.EVENT_LEADERSHIP_STATE_KEY || process.env.DRIVER_STATE_KEY)
   };
 
   const missing = Object.entries(reports).filter(([, value]) => !value).map(([name]) => name);

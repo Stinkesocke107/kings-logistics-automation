@@ -17,6 +17,8 @@ on:
       - main
     paths:
       - 'management-monthly-report.js'
+      - 'management-monthly-event-source.js'
+      - 'event-leadership-state.js'
       - '.github/workflows/management-monthly-report.yml'
 
   schedule:
@@ -49,7 +51,10 @@ jobs:
           node-version: '24'
 
       - name: Verify Management monthly report
-        run: node --check management-monthly-report.js
+        run: |
+          node --check management-monthly-report.js
+          node --check management-monthly-event-source.js
+          node --test tests/management-monthly-encrypted-event-source.test.cjs
 
   monthly:
     if: github.ref == 'refs/heads/main' && github.event_name != 'push'
@@ -72,6 +77,8 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
           MANAGEMENT_OVERVIEW_CHANNEL_NAME: 'management-overview'
+          # Existing Event Leadership AES key; no new secret or permissions.
+          EVENT_LEADERSHIP_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           MANAGEMENT_MONTHLY_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
         run: node management-monthly-report.js
 
