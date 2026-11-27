@@ -74,29 +74,33 @@
       },
       "firstAlertedAt": "2026-11-27T11:10:33.667Z"
     },
-    "convoy-completeness-stale": {
-      "severity": "critical",
-      "system": "Convoy Completeness",
-      "message": "No healthy convoy snapshot in the last 45 minutes.",
+    "workflow-schedule-late:driver-register-onboarding.yml": {
+      "severity": "warning",
+      "system": "Driver Registration Onboarding",
+      "message": "Driver Registration Onboarding scheduled run started 609 minutes after its UTC slot.",
       "details": {
-        "ageMinutes": 145,
-        "latestCount": 40
+        "status": "late",
+        "expectedAt": "2026-11-27T07:17:00.000Z",
+        "actualAt": "2026-11-27T17:26:14.000Z",
+        "delayMinutes": 609,
+        "graceMinutes": 120,
+        "runId": 46041824790
       },
-      "firstAlertedAt": "2026-11-27T18:04:03.202Z"
+      "firstAlertedAt": "2026-11-27T18:05:42.214Z"
     }
   },
   "pending": {
-    "workflow-overdue:event-operations-discord-review.yml": {
+    "workflow-failed:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-27T18:04:03.202Z",
-      "system": "Event Operations Discord Staff Review",
-      "message": "Event Operations Discord Staff Review has not run within the expected time window."
+      "firstSeenAt": "2026-11-27T18:05:42.214Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with failure."
     },
-    "workflow-schedule-late:driver-register-onboarding.yml": {
+    "workflow-overdue:self-healing.yml": {
       "count": 1,
-      "firstSeenAt": "2026-11-27T18:04:03.202Z",
-      "system": "Driver Registration Onboarding",
-      "message": "Driver Registration Onboarding scheduled run started 609 minutes after its UTC slot."
+      "firstSeenAt": "2026-11-27T18:05:42.214Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing has not run within the expected time window."
     }
   }
 }
