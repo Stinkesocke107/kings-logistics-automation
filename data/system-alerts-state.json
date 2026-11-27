@@ -73,7 +73,66 @@
       "message": "Final Freeze Verification has no workflow runs.",
       "details": null,
       "firstAlertedAt": "2026-11-26T23:46:43.846Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 70,
+        "latestCount": 40
+      },
+      "firstAlertedAt": "2026-11-27T02:05:38.862Z"
+    },
+    "workflow-failed:convoy-checker.yml": {
+      "severity": "critical",
+      "system": "Convoy / Event System",
+      "message": "Convoy / Event System latest completed run ended with cancelled.",
+      "details": {
+        "runId": 45926163499,
+        "completedAt": "2026-11-27T02:04:26Z"
+      },
+      "firstAlertedAt": "2026-11-27T02:05:38.862Z"
+    },
+    "workflow-failed:hr-leadership.yml": {
+      "severity": "critical",
+      "system": "HR Leadership",
+      "message": "HR Leadership latest completed run ended with failure.",
+      "details": {
+        "runId": 45926172021,
+        "completedAt": "2026-11-27T02:04:56Z"
+      },
+      "firstAlertedAt": "2026-11-27T02:05:38.862Z"
+    },
+    "workflow-failed:staff-management.yml": {
+      "severity": "critical",
+      "system": "Staff Management",
+      "message": "Staff Management latest completed run ended with failure.",
+      "details": {
+        "runId": 45926178360,
+        "completedAt": "2026-11-27T02:05:28Z"
+      },
+      "firstAlertedAt": "2026-11-27T02:05:38.862Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "stale-data:data/staff-management-summary.json": {
+      "count": 1,
+      "firstSeenAt": "2026-11-27T02:05:38.862Z",
+      "system": "Staff Management data",
+      "message": "Staff Management data is stale or has no valid updatedAt timestamp."
+    },
+    "workflow-failed:news.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-27T02:05:38.862Z",
+      "system": "TruckersMP News",
+      "message": "TruckersMP News latest completed run ended with failure."
+    },
+    "workflow-failed:self-healing.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-27T02:05:38.862Z",
+      "system": "Safe Self-Healing",
+      "message": "Safe Self-Healing latest completed run ended with cancelled."
+    }
+  }
 }
