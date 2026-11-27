@@ -70,6 +70,72 @@ test('stale Live Tracker data maps to one safe Live Tracker repair', () => {
   assert.equal(result.unresolvedUnsafe.length, 0);
 });
 
+test('confirmed dual map outage skips futile extra Tracker dispatch without hiding critical incidents', async () => {
+  const now = Date.parse('2026-11-27T02:00:00Z');
+  const incidents = [
+    { id: 'api-health:ETS2Map area', severity: 'critical' },
+    { id: 'api-health:truckersmp-map-live', severity: 'critical' },
+    { id: 'stale-data:data/live-tracker-snapshot.json', severity: 'critical' },
+    { id: 'stale-data:data/statistics.json', severity: 'critical' }
+  ];
+  const current = {
+    ...health('UNHEALTHY', incidents),
+    data: { officialTracker: { mode: 'map-independent', status: 'verified' } }
+  };
+  const plan = planRepairs(current, emptyState(), now);
+  assert.equal(plan.plans.length, 0);
+  assert.equal(plan.suppressed.length, 1);
+  assert.equal(plan.suppressed[0].workflow, 'live-tracker.yml');
+  assert.equal(plan.suppressed[0].suppressionReason, 'external-map-providers-down');
+  assert.deepEqual(plan.unresolvedUnsafe.map((item) => item.id).sort(), [
+    'api-health:ETS2Map area', 'api-health:truckersmp-map-live'
+  ]);
+  let executed = false;
+  const cycle = await runHealingCycle({
+    health: current, state: emptyState(), nowMs: now,
+    execute: async () => { executed = true; throw new Error('must not dispatch'); }
+  });
+  assert.equal(executed, false);
+  assert.equal(cycle.status, 'escalation-required');
+  assert.equal(cycle.results.length, 0);
+});
+
+test('map outage suppression fails open to safe retry if fallback or map outage proof is missing', () => {
+  const now = Date.parse('2026-11-27T02:00:00Z');
+  const incidents = [
+    { id: 'api-health:ETS2Map area', severity: 'critical' },
+    { id: 'api-health:truckersmp-map-live', severity: 'critical' },
+    { id: 'stale-data:data/statistics.json', severity: 'critical' }
+  ];
+  const base = health('UNHEALTHY', incidents);
+  const invalidFallback = {
+    ...base, data: { officialTracker: { mode: 'map-independent', status: 'not-verified' } }
+  };
+  assert.equal(planRepairs(invalidFallback, emptyState(), now).plans.length, 1);
+  const singleProvider = {
+    ...health('UNHEALTHY', incidents.slice(1)),
+    data: { officialTracker: { mode: 'map-independent', status: 'verified' } }
+  };
+  assert.equal(planRepairs(singleProvider, emptyState(), now).plans.length, 1);
+});
+
+test('a genuine Tracker workflow failure is never suppressed even during confirmed dual-provider outage', () => {
+  const now = Date.parse('2026-11-27T02:00:00Z');
+  const current = {
+    ...health('UNHEALTHY', [
+      { id: 'api-health:ETS2Map area', severity: 'critical' },
+      { id: 'api-health:truckersmp-map-live', severity: 'critical' },
+      { id: 'stale-data:data/statistics.json', severity: 'critical' },
+      { id: 'workflow-failed:live-tracker.yml', severity: 'critical' }
+    ]),
+    data: { officialTracker: { mode: 'map-independent', status: 'verified' } }
+  };
+  const plan = planRepairs(current, emptyState(), now);
+  assert.equal(plan.plans.length, 1);
+  assert.equal(plan.suppressed.length, 0);
+  assert.equal(plan.plans[0].workflow, 'live-tracker.yml');
+});
+
 test('failed or overdue Core Backup maps to normal safe backup repair', () => {
   const result = planRepairs(
     health('UNHEALTHY', [
