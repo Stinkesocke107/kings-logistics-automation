@@ -204,8 +204,8 @@ function buildMessage(overview) {
   const limits=planning.limits||{};
   const capacitySourceChecked=planning.version===2 &&
     planning.sourceClaimsOnly===true && planning.freeSlotsCertified===false &&
-    limits.dailyTotal===3 && limits.partnerMonthly===20 &&
-    limits.externalMonthly===20 && limits.kingsMonthly===null &&
+    limits.dailyTotal===3 && limits.partnerMonthly===30 &&
+    limits.externalMonthly===30 && limits.kingsMonthly===null &&
     limits.separationMinutes===120;
   const monthWarnings = capacitySourceChecked
     ? (planning.warnings || []).filter(w => String(w.period || '').slice(0, 7) === currentMonth)
@@ -249,7 +249,7 @@ function buildMessage(overview) {
     '',
     '## 📈 Convoy Planning — UTC source claims only',
     capacitySourceChecked
-      ? `🚛 External **${planning.months?.[currentMonth]?.external ?? 0}/20** · 🤝 Partner **${planning.months?.[currentMonth]?.partner ?? 0}/20** · 👑 Kings **${planning.months?.[currentMonth]?.kings ?? 0}** (no monthly cap)`
+      ? `🚛 External **${planning.months?.[currentMonth]?.external ?? 0}/30** · 🤝 Partner **${planning.months?.[currentMonth]?.partner ?? 0}/30** · 👑 Kings **${planning.months?.[currentMonth]?.kings ?? 0}** (no monthly cap)`
       : '⚪ Capacity source not verified; no quotas or available slots certified.',
     capacitySourceChecked
       ? `📅 UTC Today **${todayTotal}/3 total** (Kings ${todayClaims.kings||0} · Partner ${todayClaims.partner||0} · External ${todayClaims.external||0})`
@@ -259,7 +259,7 @@ function buildMessage(overview) {
       : null,
     `🔎 Unclassified: **${unresolvedTypes.length}** · Departure time missing: **${unknownDeparture.length}** · Read errors: **${overview.overall?.convoyReadErrors ?? 0}**`,
     capacitySourceChecked && monthWarnings.length
-      ? `⚠️ **Needs Staff review:** ${monthWarnings.slice(0, 2).map(w => w.code === 'departure-under-two-hours' ? 'Spacing <120m (warning)' : w.code === 'external-month-threshold' || w.code === 'partner-month-threshold' ? (w.code.startsWith('partner')?'Partner ':'External ')+w.threshold+'/20' : w.code.replace(/-/g, ' ')).join(' · ')}${monthWarnings.length > 2 ? ' · +' + (monthWarnings.length - 2) + ' more' : ''}`
+      ? `⚠️ **Needs Staff review:** ${monthWarnings.slice(0, 2).map(w => w.code === 'departure-under-two-hours' ? 'Spacing <120m (warning)' : w.code === 'external-month-threshold' || w.code === 'partner-month-threshold' ? (w.code.startsWith('partner')?'Partner ':'External ')+w.threshold+'/30' : w.code.replace(/-/g, ' ')).join(' · ')}${monthWarnings.length > 2 ? ' · +' + (monthWarnings.length - 2) + ' more' : ''}`
       : 'ℹ️ Claims are not Staff approvals; no free capacity certified.',
     '',
     '## ⏭️ Next Convoy'
