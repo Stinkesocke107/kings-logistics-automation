@@ -231,6 +231,7 @@ jobs:
         env:
           DRIVER_STATE_KEY: ${{ secrets.DRIVER_STATE_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_EVENT_READBACK_REQUIRE_FRESH_SOURCE: 'true'
         run: |
           node --check event-review-dashboard-readonly-proof.js
           node event-review-dashboard-readonly-proof.js
