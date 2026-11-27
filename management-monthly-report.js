@@ -1,6 +1,7 @@
 require('./kings-branding').installDiscordBranding();
 
 const fs = require('fs');
+const {loadPublicationKeyState} = require('./report-publication-journal-guard');
 const path = require('path');
 const { syncEmbedMessage } = require('./leadership-message-sync');
 
@@ -61,21 +62,14 @@ function monthlyReport(file, key) {
 }
 
 function loadState() {
-  const state = readJson(STATE_FILE, null);
-  if (state && Array.isArray(state.publishedMonths) && Array.isArray(state.monthlyReports)) {
-    state.messageId = state.messageId || null;
-    return state;
-  }
-  return {
-    version: 1,
-    createdAt: nowISO(),
-    updatedAt: nowISO(),
-    publishedMonths: [],
-    monthlyReports: [],
-    messageId: null
-  };
+  const state=loadPublicationKeyState(STATE_FILE,
+    ['publishedMonths'],['monthlyReports'],()=>({
+      version:1,createdAt:nowISO(),updatedAt:nowISO(),
+      publishedMonths:[],monthlyReports:[],messageId:null
+    }));
+  state.messageId=state.messageId||null;
+  return state;
 }
-
 function saveState(state) {
   state.updatedAt = nowISO();
   state.publishedMonths = state.publishedMonths.slice(-36);
@@ -189,7 +183,7 @@ async function discord(pathname, options = {}) {
     signal: AbortSignal.timeout(15000)
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+  if (!response.ok) throw new Error(`Discord API ${response.status} on ${method} ${pathname}: [redacted]`);
   if (!text) return null;
   try { return JSON.parse(text); } catch { return text; }
 }

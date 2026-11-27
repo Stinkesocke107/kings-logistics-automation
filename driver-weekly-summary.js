@@ -1,5 +1,6 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
+const {loadPublicationState} = require('./report-publication-journal-guard');
 const path = require('path');
 const crypto = require('crypto');
 const { syncTextMessage } = require('./leadership-message-sync');
@@ -88,16 +89,9 @@ function readLoaState() {
 }
 
 function loadSummaryState() {
-  const state = readJson(SUMMARY_STATE_FILE, null);
-  if (!state || !Array.isArray(state.publishedWeeks)) {
-    return {
-      version: 1,
-      createdAt: nowISO(),
-      updatedAt: nowISO(),
-      publishedWeeks: []
-    };
-  }
-  return state;
+  return loadPublicationState(SUMMARY_STATE_FILE,'publishedWeeks',()=>({
+    version:1, createdAt:nowISO(), updatedAt:nowISO(), publishedWeeks:[]
+  }));
 }
 
 function saveSummaryState(state) {
@@ -376,7 +370,7 @@ async function discord(pathname, options = {}) {
 
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: [redacted]`);
   }
   if (!text) return null;
   try {

@@ -28,7 +28,7 @@ async function discord(pathname) {
   });
   const text = await response.text();
   if (!response.ok) {
-    const error = new Error(`Discord API ${response.status} on GET ${pathname}: ${text.slice(0, 300)}`);
+    const error = new Error(`Discord API ${response.status} on GET ${pathname}: [redacted]`);
     error.status = response.status;
     throw error;
   }

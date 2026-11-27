@@ -1,5 +1,6 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
+const {loadPublicationState} = require('./report-publication-journal-guard');
 const { attendedRegisteredConvoysForPeriod } = require('./convoy-participation');
 const path = require('path');
 
@@ -271,14 +272,12 @@ function getMilestones(period) {
 }
 
 function loadReportState() {
-  const state = readJson(STATE_FILE, null);
-  if (!state || !Array.isArray(state.publishedMonths)) {
-    return { version: 2, createdAt: nowISO(), updatedAt: nowISO(), publishedMonths: [] };
-  }
-  state.version = 2;
+  const state=loadPublicationState(STATE_FILE,'publishedMonths',()=>({
+    version:2, createdAt:nowISO(), updatedAt:nowISO(), publishedMonths:[]
+  }));
+  state.version=2;
   return state;
 }
-
 function saveReportState(state) {
   state.version = 2;
   state.updatedAt = nowISO();
@@ -344,7 +343,7 @@ async function fetchWebhookMetadata() {
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Monthly Report webhook metadata failed: HTTP ${response.status} - ${text.slice(0, 300)}`);
+  if (!response.ok) throw new Error(`Monthly Report webhook metadata failed: HTTP ${response.status} - [redacted]`);
   return text ? JSON.parse(text) : null;
 }
 
@@ -359,7 +358,7 @@ async function discordGet(pathname) {
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Discord API ${response.status} on GET ${pathname}: ${text.slice(0, 300)}`);
+  if (!response.ok) throw new Error(`Discord API ${response.status} on GET ${pathname}: [redacted]`);
   return text ? JSON.parse(text) : null;
 }
 
@@ -400,7 +399,7 @@ async function sendReport(content) {
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Monthly Report Discord webhook failed: HTTP ${response.status} - ${text.slice(0, 500)}`);
+  if (!response.ok) throw new Error(`Monthly Report Discord webhook failed: HTTP ${response.status} - [redacted]`);
   return text ? JSON.parse(text) : null;
 }
 
@@ -497,7 +496,7 @@ async function backfillOctoberConvoyParticipation() {
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
   });
   const text = await response.text();
-  if (!response.ok) throw new Error('Updating original October Discord report failed: HTTP ' + response.status + ' ' + text.slice(0, 200));
+  if (!response.ok) throw new Error('Updating original October Discord report failed: HTTP ' + response.status + ' ' + '[redacted]');
   const edited = text ? JSON.parse(text) : null;
   if (String(edited?.id) !== String(entry.discordMessageId) ||
       String(edited?.content || '') !== updatedContent) {
