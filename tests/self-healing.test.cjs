@@ -271,3 +271,47 @@ test('self-healing engine does not treat unrelated technical warnings as a repai
   assert.equal(result.plan.plans.length, 0);
   assert.deepEqual(result.plan.unresolvedUnsafe.map(item=>item.severity), ['warning']);
 });
+
+
+test('Self-Healing refuses a malformed persisted envelope instead of resetting repair limits', () => {
+  const now = Date.parse('2026-11-27T12:00:00Z');
+  assert.throws(() => normalizeState({}, now), /Invalid Self-Healing state envelope/);
+  assert.throws(() => normalizeState({ ...emptyState(), version: 99 }, now), /Invalid Self-Healing state envelope/);
+  assert.doesNotThrow(() => normalizeState(null, now)); // first boot only
+});
+
+test('Self-Healing fails closed if stored retry attempts are corrupt or missing', () => {
+  const now = Date.parse('2026-11-27T12:00:00Z');
+  const state = emptyState();
+  state.repairs['driver-updates'] = { attempts: [{ at: 'broken-date' }], lastAttemptAt: null };
+  assert.throws(() => normalizeState(state, now), /Invalid Self-Healing attempt history/);
+
+  state.repairs['driver-updates'].attempts = { at: 'not-an-array' };
+  assert.throws(() => normalizeState(state, now), /Invalid Self-Healing attempt list/);
+
+  state.repairs['driver-updates'] = { attempts: [], lastAttemptAt: new Date(now - 60000).toISOString() };
+  assert.throws(() => normalizeState(state, now), /Inconsistent Self-Healing last attempt/);
+});
+
+test('Self-Healing rejects future attempts and missing active histories', () => {
+  const now = Date.parse('2026-11-27T12:00:00Z');
+  const state = emptyState();
+  const futureAt = new Date(now + 10 * 60_000).toISOString();
+  state.repairs['core-backup'] = { attempts: [{ at: futureAt, outcome: 'failed' }], lastAttemptAt: futureAt };
+  assert.throws(() => normalizeState(state, now), /Future-dated Self-Healing attempt/);
+
+  const missing = emptyState();
+  missing.updatedAt = new Date(now).toISOString();
+  assert.throws(() => normalizeState(missing, now), /Missing Self-Healing repair history/);
+});
+
+test('a complete persisted repair history remains valid and enforces its attempt budget', () => {
+  const now = Date.parse('2026-11-27T12:00:00Z');
+  const config = SAFE_REPAIRS.find((item) => item.id === 'driver-updates');
+  let state = emptyState();
+  state = recordAttempt(state, config, {status:'failed',action:'dispatched'}, ['workflow-failed:driver-updates.yml'], now - 70 * 60_000);
+  state = recordAttempt(state, config, {status:'failed',action:'dispatched'}, ['workflow-failed:driver-updates.yml'], now - 30 * 60_000);
+  const restored = normalizeState(state, now);
+  assert.equal(restored.repairs['driver-updates'].attempts.length, 2);
+  assert.equal(attemptBudget(config, restored, now).allowed, false);
+});
