@@ -10,6 +10,7 @@ const crypto = require("crypto");
 const ROOT = __dirname;
 const RESTORE_SOURCE = path.join(ROOT, "restore-source");
 const TARGET_RUN = String(process.env.RECOVERY_TARGET_RUN || "").trim();
+const SOURCE_RUN_ID = String(process.env.RECOVERY_SOURCE_RUN_ID || "").trim();
 const MODE = String(process.env.RECOVERY_MODE || "preview").trim().toLowerCase();
 const CURRENT_REPOSITORY = String(process.env.GITHUB_REPOSITORY || "").trim();
 const CURRENT_BRANCH = String(process.env.GITHUB_REF_NAME || "main").trim();
@@ -134,6 +135,9 @@ function validate() {
   if (!/^\d+$/.test(TARGET_RUN)) {
     throw new Error("RECOVERY_TARGET_RUN must be a numeric backup run number.");
   }
+  if (!/^\d+$/.test(SOURCE_RUN_ID)) {
+    throw new Error("Recovery requires a selected successful original GitHub backup run ID.");
+  }
 
   const manifest = readJson("backup-manifest.json");
   const health = readJson("backup-health.json");
@@ -169,6 +173,19 @@ function validate() {
   assertSame("Commit", manifest.commit, restorePoint.commit);
   assertSame("Workflow run ID", manifest.workflowRunId, restorePoint.workflowRunId);
   assertSame("Workflow run number", manifest.workflowRunNumber, restorePoint.workflowRunNumber);
+
+  // Bind both metadata records to the actual successful GitHub run selected
+  // in the workflow. Merely matching two untrusted artifact files is not enough.
+  if (String(manifest.workflowRunId || "") !== SOURCE_RUN_ID ||
+      String(restorePoint.workflowRunId || "") !== SOURCE_RUN_ID) {
+    throw new Error("Restore Point run ID does not match selected GitHub backup run.");
+  }
+  if (MODE === "apply" &&
+      (!CURRENT_REPOSITORY || CURRENT_BRANCH !== "main" ||
+       !manifest.repository || !restorePoint.repository ||
+       !manifest.branch || !restorePoint.branch)) {
+    throw new Error("APPLY requires complete repository and main-branch provenance.");
+  }
 
   if (CURRENT_REPOSITORY) {
     if (manifest.repository && manifest.repository !== CURRENT_REPOSITORY) {
