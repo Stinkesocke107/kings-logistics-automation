@@ -3,6 +3,7 @@
 // proof that every functional requirement of its parent business system is done.
 // #17 Event Booking & Slot Management is explicitly cancelled and excluded.
 const {WORKFLOW_REGISTRY}=require('./kings-workflow-registry');
+const {FIRST_REVIEWS}=require('./kings-first-review-catalog');
 const EVIDENCE_ROOT='https://github.com/Stinkesocke107/kings-logistics-automation/';
 const VERIFIED='VERIFIED',PENDING='PENDING';
 const FUNCTION_IDS=Object.freeze([
@@ -784,8 +785,27 @@ const namedOperationalSystems=Object.freeze([
       'A clean dry-run proves no roles were changed; it is not evidence of an achievement being newly earned or granted',
       'Live roles require explicit separate private approval, source validation and operator follow-up',
       'No CEO final signoff'
-    ]}
-
+    ]},
+  // Narrow per-workflow initial technical assessment: the cited isolated
+  // regression is verified, but NONE of the 8 release gates nor real E2E
+  // or owner approval has been satisfied by this fact.
+  ...FIRST_REVIEWS.map(review=>({
+    id:review.id,name:review.name,workflow:review.workflow,
+    gates:fullGateList(),
+    capabilities:Object.freeze([
+      item('isolated_tested_contract',
+        review.verified+' ('+review.testFile+')',
+        VERIFIED,[EVIDENCE_ROOT+'actions/runs/45917194916']),
+      item('real_source_to_destination_acceptance',review.pending),
+      item('operator_and_ceo_release',
+        'Human operator ownership, failure recovery, original evidence and explicit CEO approval confirmed')
+    ]),
+    blockers:[
+      'Isolated tested subfunction is not a live original-source full workflow acceptance',
+      review.pending,
+      'Missing monitored real E2E, responsible Team handover and explicit CEO release'
+    ]
+  }))
 ].map(x=>Object.freeze(x)));
 const AREA_ORDER=Object.freeze([
   'Automation','Backup','Changelog','Convoys','Drivers',
