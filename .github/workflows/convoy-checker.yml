@@ -238,7 +238,15 @@ jobs:
 
       - name: Notify Event Leadership about new planning conflicts
         id: convoy_planning_alerts
-        if: steps.mode.outputs.dry_run != 'true'
+        # Never publish an advisory from a failed/partial original source.
+        # A skipped notice remains an explicit failed live gate below.
+        if: >-
+          steps.mode.outputs.dry_run != 'true' &&
+          steps.convoy_stage_0.outcome == 'success' &&
+          steps.convoy_stage_1.outcome == 'success' &&
+          steps.convoy_stage_2.outcome == 'success' &&
+          steps.convoy_completeness.outcome == 'success' &&
+          steps.convoy_stage_8.outcome == 'success'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: '1114967437788577792'
@@ -246,7 +254,9 @@ jobs:
 
       - name: Persist sent planning alert keys
         id: convoy_planning_state
-        if: steps.mode.outputs.dry_run != 'true'
+        if: >-
+          steps.mode.outputs.dry_run != 'true' &&
+          steps.convoy_planning_alerts.outcome == 'success'
         run: |
           if [ -z "$(git status --porcelain -- data/convoy-planning-alert-state.json)" ]; then
             echo "No new convoy planning warnings."
