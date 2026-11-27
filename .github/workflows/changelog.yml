@@ -42,6 +42,7 @@ jobs:
       - name: Publish Kings Changelog
         env:
           CHANGELOG_DISCORD_WEBHOOK_URL: ${{ secrets.CHANGELOG_DISCORD_WEBHOOK_URL }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
         run: node changelog.js
 
       - name: Save Changelog Data Safely
