@@ -105,20 +105,15 @@ function loadQueue() {
     { "entries": [...] }
   */
 
-  if (Array.isArray(raw)) {
-    return raw;
-  }
-
-  if (
-    raw &&
-    Array.isArray(raw.entries)
-  ) {
-    return raw.entries;
-  }
-
-  throw new Error(
-    "Changelog Queue has an unsupported format."
-  );
+  const entries=Array.isArray(raw)?raw:
+    raw&&Array.isArray(raw.entries)?raw.entries:null;
+  if(!entries||entries.some(entry=>
+    !entry||typeof entry!=='object'||Array.isArray(entry)||
+    typeof entry.category!=='string'||!entry.category.trim()||
+    typeof entry.text!=='string'||!entry.text.trim()||
+    entry.category.length>100||entry.text.length>1000))
+    throw Error('Existing Changelog Queue content unverified');
+  return entries;
 }
 
 // ======================================================
@@ -204,13 +199,9 @@ function addEntry() {
     `Current Changelog Queue entries: ${queue.length}`
   );
 
-  console.log(
-    `Category: ${category}`
-  );
-
-  console.log(
-    `Change: ${text}`
-  );
+  // Manual GitHub Actions logs can be public: never echo arbitrary
+  // operator-supplied release text or private information.
+  console.log('Manual Changelog entry validated; content omitted from log.');
 
   if (
     alreadyExists(
