@@ -198,6 +198,11 @@ function planRepairs(health, state, nowMs = Date.now()) {
   const currentIssueIds = issueIdsFromHealth(health);
   const plans = [];
   const suppressed = [];
+  const criticalIssueIds = new Set(
+    (Array.isArray(health?.issues) ? health.issues : [])
+      .filter((item) => item?.severity === 'critical')
+      .map((item) => String(item?.id || ''))
+  );
 
   for (const config of SAFE_REPAIRS) {
     const triggerIssueIds = currentIssueIds.filter((id) => config.triggerIssueIds.includes(id));
@@ -211,6 +216,24 @@ function planRepairs(health, state, nowMs = Date.now()) {
       triggerIssueIds,
       budget
     };
+
+    // Both external player-map providers are confirmed down, but the
+    // independent official VTC/server fallback is verified. The existing
+    // five-minute Live Systems schedule already checks for map recovery.
+    // Re-dispatching it for *only* stale map snapshots cannot repair the
+    // provider outage and burns the limited repair budget. Never suppress
+    // a failed/overdue Live Tracker job or an unverified fallback.
+    const mapProviderBlocked = config.id === 'live-tracker' &&
+      health?.data?.officialTracker?.mode === 'map-independent' &&
+      health?.data?.officialTracker?.status === 'verified' &&
+      criticalIssueIds.has('api-health:ETS2Map area') &&
+      criticalIssueIds.has('api-health:truckersmp-map-live') &&
+      triggerIssueIds.every((id) => id === 'stale-data:data/live-tracker-snapshot.json' ||
+        id === 'stale-data:data/statistics.json');
+    if (mapProviderBlocked) {
+      suppressed.push({ ...item, suppressionReason: 'external-map-providers-down' });
+      continue;
+    }
 
     if (budget.allowed) plans.push(item);
     else suppressed.push(item);
