@@ -420,6 +420,11 @@ function buildManagement(data, driverEmbed, hrEmbed, staffEmbed, eventEmbed) {
     description: `One fixed Management dashboard. Drivers count the full TruckersMP VTC roster; Staff count uses VTC Staff classification. Discord role-member counts are separate. Current attention indicators: **${attention}** (Event attention excluded if source unavailable).`,
     color: KINGS_BLUE,
     fields: [
+      field('🎯 Management — Next Review',
+        'Driver attention **'+(ds.activity?.attention14Days ?? 'Unavailable')+
+        '** • HR open/extended **'+hrOpen+'** • Event action flags **'+
+        (eventSource ? eventReady+eventNeeds : 'Unavailable')+'**. '+
+        'Event counts require source reconciliation; no automatic personnel decisions or Event approvals.'),
       field('🚛 VTC Drivers — Live', `VTC Drivers **${ds.currentDrivers ?? 0}** • Online **${verifiedLiveOnline(ds)}** • Info **${ds.activity?.info7Days ?? 0}** • Attention **${ds.activity?.attention14Days ?? 0}** • HR Review **${ds.activity?.hrReview30Days ?? 0}**`),
       field('👥 HR — Live', `Open/extended probation **${hrOpen}** • Active LOA **${(data.loa.leaves || []).filter(l=>leaveStatus(l)==='active').length}**`),
       field('🛡️ VTC Staff Classification', `VTC-classified Staff **${ss.currentStaff ?? 0}** • 30d joined **${ss.changesLast30Days?.joinedStaff ?? 0}** • role changes **${ss.changesLast30Days?.roleChanges ?? 0}** • left **${ss.changesLast30Days?.leftStaff ?? 0}**`),
