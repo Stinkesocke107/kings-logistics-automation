@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
-const {loadPublicationState}=require('../report-publication-journal-guard');
+const {loadPublicationState,loadPublicationKeyState}=require('../report-publication-journal-guard');
 
 function journal(t,value){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'kings-report-journal-'));
@@ -58,5 +58,36 @@ test('sensitive report APIs never copy arbitrary Discord response text to error 
   ]){
     const body=fs.readFileSync(path.join(__dirname,'..',file),'utf8');
     assert.doesNotMatch(body,/(?:text|body)\.slice\(0,\s*(?:200|300|500)\)/,file);
+  }
+});
+
+test('leadership key-based daily/weekly/monthly journals preserve all original publication history',t=>{
+  const state={
+    version:1,publishedDailyKeys:['2026-10-13'],
+    publishedWeeklyKeys:['2026-11-02'],publishedMonthlyKeys:['2026-10'],
+    weeklyReports:[{key:'2026-11-02'}],monthlyReports:[{key:'2026-10'}]
+  };
+  assert.deepEqual(loadPublicationKeyState(journal(t,JSON.stringify(state)),
+    ['publishedDailyKeys','publishedWeeklyKeys','publishedMonthlyKeys'],
+    ['weeklyReports','monthlyReports'],()=>({})),state);
+});
+test('leadership publication journals fail closed on malformed keys, duplicate keys or missing report arrays',t=>{
+  const base={version:1,publishedDailyKeys:['2026-11-21'],publishedMonthlyKeys:['2026-10'],monthlyReports:[{key:'2026-10'}]};
+  const valid=(value)=>loadPublicationKeyState(journal(t,JSON.stringify(value)),
+    ['publishedDailyKeys','publishedMonthlyKeys'],['monthlyReports'],()=>({}));
+  assert.throws(()=>valid({...base,publishedDailyKeys:['2026-11-21','2026-11-21']}),/duplicate periods/);
+  assert.throws(()=>valid({...base,publishedMonthlyKeys:['2026-13']}),/invalid period key/);
+  assert.throws(()=>valid({...base,monthlyReports:[{key:'2026-02'},{key:'2026-02'}]}),/duplicate periods/);
+  assert.throws(()=>valid({...base,monthlyReports:null}),/invalid schema/);
+  assert.throws(()=>valid({...base,publishedDailyKeys:['2026-02-30']}),/nonexistent period/);
+  assert.throws(()=>loadPublicationKeyState(journal(t,'{bad'),['publishedMonths'],['monthlyReports'],()=>({})),/unreadable/);
+});
+test('all four Leadership publishers validate key-based journals before publishing',()=>{
+  for(const file of ['driver-leadership-reports.js','hr-leadership-reports.js',
+    'staff-leadership-reports.js','management-monthly-report.js']){
+    const source=fs.readFileSync(path.join(__dirname,'..',file),'utf8');
+    assert.match(source,/require\\(['"]\\.\\/report-publication-journal-guard['"]\\)/,file);
+    assert.match(source,/loadPublicationKeyState\\(/,file);
+    assert.doesNotMatch(source,/text\\.slice\\(0,\\s*500\\)/,file);
   }
 });
