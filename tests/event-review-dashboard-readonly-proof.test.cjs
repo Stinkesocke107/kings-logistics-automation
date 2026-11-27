@@ -221,3 +221,13 @@ test('Event dashboard read-back identifies the safe failure class without privat
     err=>err.publicReason==='FRESH_EVENT_SOURCE_UNVERIFIED');
   assert.equal(h.calls.length,0,'Unverified source must never contact Discord');
 });
+
+
+test('Event integration GET-only proof follows changes in the independent dashboard readback module',()=>{
+  const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/event-leadership-reports.yml'),'utf8');
+  const pushPaths=workflow.split('  push:')[1]?.split('  schedule:')[0]||'';
+  assert.match(pushPaths,/event-review-dashboard-readonly-proof\.js/);
+  assert.match(workflow,/event_integrated_source_verify:/);
+  assert.match(workflow,/KINGS_EVENT_READBACK_REQUIRE_FRESH_SOURCE: 'true'/);
+  assert.match(workflow,/continue-on-error: \$\{\{ github\.event_name == 'push' \}\}/);
+});
