@@ -41,7 +41,7 @@ function departureMsFrom(value) {
   return timestamp;
 }
 function evaluate(input) {
-  const records = [], seen = new Set(), unknownTypes = [], missingDepartures = [], resolvedEventTypes = [], duplicateSourceClaims = [];
+  const records = [], seen = new Set(), unknownTypes = [], missingDepartures = [], resolvedEventTypes = [], duplicateSourceClaims = [], unidentifiedSourceClaims = [];
   for (const original of input || []) {
     if (!original || original.ignored || original.error || original.testThread || /^\s*\[?test\]?(?:\s|[-_:])/i.test(original.name || '')) continue;
     if (/^(Cancelled|Canceled)$/i.test(String(original.status || ''))) continue;
@@ -58,12 +58,21 @@ function evaluate(input) {
       ? new Date(departureMs).toISOString().slice(0,10)
       : dateFrom(original.validation?.parsed?.eventDate || original.eventDate);
     if (!date) continue;
-    const key = original.eventId ? 'event:' + String(original.eventId) : 'thread:' + String(original.threadId || original.legacyId || '');
+    const eventIdentity = String(original.eventId || '').trim();
+    const sourceIdentity = String(original.threadId || original.legacyId || '').trim();
+    // Two original records without any verifiable identity are NOT the same
+    // event. Never collapse them under the shared "thread:" key or count
+    // them as a verified single source claim. Human source review is required.
+    if (!eventIdentity && !sourceIdentity) {
+      unidentifiedSourceClaims.push({date});
+      continue;
+    }
+    const key = eventIdentity ? 'event:' + eventIdentity : 'thread:' + sourceIdentity;
     if (seen.has(key)) {
       // Repeated event IDs or Forum references must not count twice, but
       // silently dropping them could hide a source conflict from Event Staff.
       // Store only UTC day/category in the advisory, never private thread IDs.
-      duplicateSourceClaims.push({date,kind:original.eventId?'event':'thread'});
+      duplicateSourceClaims.push({date,kind:eventIdentity?'event':'thread'});
       continue;
     }
     seen.add(key);
@@ -83,7 +92,7 @@ function evaluate(input) {
     records.push({ id: key, threadId: original.threadId || null, name: original.name || null, type, date, departureMs: Number.isFinite(departureMs) ? departureMs : null });
   }
   const months = {}, days = {}, warnings = [];
-  const duplicateDays = {};
+  const duplicateDays = {}, unidentifiedDays = {};
   for (const r of records) {
     const month = r.date.slice(0,7);
     (months[month] ||= { external: 0, partner: 0, kings: 0 });
@@ -98,6 +107,14 @@ function evaluate(input) {
     warnings.push({
       code:'duplicate-source-claim',period,count,
       actionRequired:'Event Staff must reconcile original records'
+    });
+  }
+  for (const source of unidentifiedSourceClaims)
+    unidentifiedDays[source.date]=(unidentifiedDays[source.date]||0)+1;
+  for (const [period,count] of Object.entries(unidentifiedDays)) {
+    warnings.push({
+      code:'unidentified-source-claim',period,count,
+      actionRequired:'Event Staff must identify original Event/Forum records'
     });
   }
   for (const [month, counts] of Object.entries(months)) {
@@ -141,7 +158,8 @@ function evaluate(input) {
   return { version:2, mode:'advisory-only', limits:LIMITS, months, days,
     warnings, unknownTypes, missingDepartures, resolvedEventTypes,
     duplicateSourceClaims:Object.entries(duplicateDays).map(([period,count])=>({period,count})),
-    sourceUniquenessVerified:duplicateSourceClaims.length===0,
+    sourceUniquenessVerified:duplicateSourceClaims.length===0 && unidentifiedSourceClaims.length===0,
+    unidentifiedSourceClaims:Object.entries(unidentifiedDays).map(([period,count])=>({period,count})),
     counted:records.length, freeSlotsCertified:false,
     historicalApprovalsVerified:false, sourceClaimsOnly:true };
 }
