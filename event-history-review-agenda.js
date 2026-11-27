@@ -55,8 +55,10 @@ function buildReviewAgenda({history,future,undatedCenter=0,
       row.centerOutcomeUnresolved>row.centerClaims)
       throw Error('Kings historical review agenda source unverified');
   }
-  for(const row of future){
+  for(let i=0;i<future.length;i++){
+    const row=future[i];
     if(!row||Array.isArray(row)||typeof row!=='object'||
+      row.utcMonth!==monthAt(nowMs,i)||
       !validCount(row.legacyDatedKeptSeparate))
       throw Error('Kings historical review agenda source unverified');
   }
