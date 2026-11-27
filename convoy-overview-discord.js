@@ -77,16 +77,19 @@ function verifiedDepartureMs(convoy) {
 }
 function fixedUtcLabel(instantMs) {
   if(!Number.isFinite(instantMs)||instantMs<=0)return null;
-  const iso=new Date(instantMs).toISOString();
-  return iso.slice(0,16).replace('T',' ')+' UTC+0';
+  const date=new Date(instantMs);
+  if(!Number.isFinite(date.getTime()))return null;
+  return date.toISOString().slice(0,16).replace('T',' ')+' UTC+0';
 }
 function convoyMonthKey(convoy) {
   // A verified UTC departure overrides a potentially local display date.
   const departure=verifiedDepartureMs(convoy);
   if(departure!==null)return new Date(departure).toISOString().slice(0,7);
   const unix=Number(convoy?.eventUnix||0);
-  if(convoy?.eventTimeValid===true&&Number.isSafeInteger(unix)&&unix>0)
-    return new Date(unix*1000).toISOString().slice(0,7);
+  if(convoy?.eventTimeValid===true&&Number.isSafeInteger(unix)&&unix>0){
+    const fixed=fixedUtcLabel(unix*1000);
+    if(fixed)return fixed.slice(0,7);
+  }
   const date=String(convoy?.eventDate||'');
   return /^\d{4}-\d{2}-\d{2}$/.test(date)?date.slice(0,7):null;
 }
@@ -106,8 +109,10 @@ function convoyDateUnix(convoy) {
 
 function convoyDateLabel(convoy) {
   const unix=Number(convoy?.eventUnix||0);
-  if(convoy?.eventTimeValid===true&&Number.isSafeInteger(unix)&&unix>0)
-    return new Date(unix*1000).toISOString().slice(0,10)+' UTC+0';
+  if(convoy?.eventTimeValid===true&&Number.isSafeInteger(unix)&&unix>0){
+    const fixed=fixedUtcLabel(unix*1000);
+    if(fixed)return fixed.slice(0,10)+' UTC+0';
+  }
   const departure=verifiedDepartureMs(convoy);
   if(departure!==null)return new Date(departure).toISOString().slice(0,10)+' UTC+0';
   const date=String(convoy?.eventDate||'');
