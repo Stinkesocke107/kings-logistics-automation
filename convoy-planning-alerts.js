@@ -45,13 +45,13 @@ function describe(w){
   }
   if(w.code==='external-month-threshold'||w.code==='partner-month-threshold'){
     const type=w.code.startsWith('partner')?'Partner':'External';
-    return type+' Convoy source claims: '+w.count+'/20 in '+w.period+
-      ' (review threshold '+w.threshold+'/20; not automatic approval).';
+    return type+' Convoy source claims: '+w.count+'/30 in '+w.period+
+      ' (review threshold '+w.threshold+'/30; not automatic approval).';
   }
   if(w.code==='external-month-over-limit'||w.code==='partner-month-over-limit'){
     const type=w.code.startsWith('partner')?'Partner':'External';
-    return type+' Convoy source claims exceed the 20/month planning limit: '+
-      w.count+'/20 in '+w.period+'. Staff review required; no existing approval is displaced.';
+    return type+' Convoy source claims exceed the 30/month planning limit: '+
+      w.count+'/30 in '+w.period+'. Staff review required; no existing approval is displaced.';
   }
   if(w.code==='total-day-over-limit')return 'Combined Kings + Partner + External Convoy source claims: '+
     w.count+'/3 on '+w.period+' (UTC); Staff review required, no automatic refusal or reschedule.';
