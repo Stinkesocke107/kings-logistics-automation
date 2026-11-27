@@ -54,6 +54,32 @@ function describe(w){
     ' are '+w.minutesApart+' minutes apart (under 120 minutes is WARNING ONLY, not automatic refusal).';
   return 'Planning advisory: '+w.code;
 }
+// Only the authenticated bot's own notices count as delivered. A human
+// or webhook may copy a marker but must never suppress a genuine reminder.
+// An exactly full Discord history page cannot prove older keys are absent.
+function botOwnedAlertKeys(history, botId) {
+  if (!Array.isArray(history) || history.length >= 100 ||
+      !/^\d{17,22}$/.test(String(botId || '')))
+    throw Error('Convoy alert history incomplete');
+  const keys = new Set();
+  for (const message of history) {
+    if (String(message?.author?.id || '') !== String(botId) ||
+        message?.author?.bot !== true) continue;
+    const match = String(message.content || '')
+      .match(/(?:^|\n)Convoy Alert Key: ([a-f0-9]{24})$/);
+    if (match) keys.add(match[1]);
+  }
+  return keys;
+}
+function validAlertDelivery(message, {id, botId, channelId, content}) {
+  return /^\d{17,22}$/.test(String(id || '')) &&
+    String(message?.id || '') === String(id) &&
+    String(message?.channel_id || '') === String(channelId) &&
+    String(message?.author?.id || '') === String(botId) &&
+    message?.author?.bot === true &&
+    message?.content === content;
+}
+
 async function main(){
   if(!fs.existsSync(REPORT))throw Error('Planning report not found');
   const report=JSON.parse(fs.readFileSync(REPORT,'utf8'));
@@ -75,9 +101,16 @@ async function main(){
   const guild=process.env.DISCORD_GUILD_ID;
   if(!token||!guild)throw Error('Discord settings missing');
   async function call(uri,options={}){
-    const res=await fetch('https://discord.com/api/v10'+uri,{...options,headers:{Authorization:'Bot '+token,'Content-Type':'application/json','User-Agent':'Kings Convoy Planning Alerts/1.0'}});
-    if(!res.ok)throw Error('Discord '+res.status+' '+(await res.text()).slice(0,250));
-    return res.status===204?null:res.json();
+    const res=await fetch('https://discord.com/api/v10'+uri,{
+      ...options,redirect:'error',signal:AbortSignal.timeout(15000),
+      headers:{Authorization:'Bot '+token,'Content-Type':'application/json',
+        'User-Agent':'Kings Convoy Planning Alerts/1.0'}
+    });
+    // Raw Discord response bodies may contain private source records.
+    if(!res?.ok)throw Error('Discord Convoy alert API unavailable');
+    if(res.status===204)return null;
+    try{return await res.json();}
+    catch{throw Error('Discord Convoy alert response invalid');}
   }
   let channel=process.env.DISCORD_EVENT_LEADERSHIP_CHANNEL_ID;
   if(!channel){
@@ -86,27 +119,54 @@ async function main(){
     if(matches.length!==1)throw Error('Cannot uniquely resolve event-leadership channel');
     channel=matches[0].id;
   }
-  // Discord is the recovery ledger if the state commit failed after posting.
-  // Only inspect the latest 100 messages; older state remains in Git.
+  // Check the actual destination and authenticated bot before accepting
+  // stored markers, posting, or declaring a publication recovered.
+  const [bot,destination] = await Promise.all([
+    call('/users/@me'), call('/channels/'+channel)
+  ]);
+  if(!/^\d{17,22}$/.test(String(bot?.id||'')) ||
+     bot.bot!==true || String(destination?.id||'')!==String(channel) ||
+     String(destination?.guild_id||'')!==String(guild) ||
+     destination.type!==0)
+    throw Error('Convoy alert identity or destination unverified');
+
+  // Discord is the recovery ledger if Git persistence fails AFTER posting.
+  // Ignore copied human/webhook keys; stop on ambiguous 100-message history.
   const recent=await call('/channels/'+channel+'/messages?limit=100');
-  const posted=new Set((Array.isArray(recent)?recent:[]).flatMap(message=>{
-    const match=String(message.content||'').match(/Convoy Alert Key: ([a-f0-9]{24})/);
-    return match?[match[1]]:[];
-  }));
+  const posted=botOwnedAlertKeys(recent,bot.id);
   const state={version:1,sent:[...existing.sent]};
   for(const notice of notices){
     if(posted.has(notice.key)){
-      console.log('Recovered previously posted alert '+notice.key);
+      console.log('Recovered previously posted alert (private content withheld).');
     }else{
-      await call('/channels/'+channel+'/messages',{method:'POST',body:JSON.stringify({content:'⚠️ **Kings Convoy Planning Advisory**\n'+describe(notice.warning)+'\nReview in Convoy Center. No convoy status has been changed.\nConvoy Alert Key: '+notice.key,allowed_mentions:{parse:[]}})});
+      const content='⚠️ **Kings Convoy Planning Advisory**\n'+
+        describe(notice.warning)+
+        '\nReview in Convoy Center. No convoy status has been changed.\nConvoy Alert Key: '+
+        notice.key;
+      const acknowledgment=await call('/channels/'+channel+'/messages',{
+        method:'POST',body:JSON.stringify({content,allowed_mentions:{parse:[]}})
+      });
+      const messageId=String(acknowledgment?.id||'');
+      if(!/^\d{17,22}$/.test(messageId))
+        throw Error('Convoy alert Discord acknowledgment unverified');
+      const saved=await call('/channels/'+channel+'/messages/'+messageId);
+      if(!validAlertDelivery(saved,{
+        id:messageId,botId:bot.id,channelId:channel,content
+      })) throw Error('Convoy alert stored Discord readback failed');
       posted.add(notice.key);
     }
     state.sent.push(notice.key);
-    // Persist locally after each successful send; pipeline commits after the batch.
+    // Persist only after a genuine stored bot-owned message or a safe
+    // read-only recovery. The workflow will commit the file afterward.
     fs.mkdirSync(path.dirname(STATE),{recursive:true});
     fs.writeFileSync(STATE,JSON.stringify(state,null,2)+'\n');
   }
-  console.log('Sent '+notices.length+' new advisories.');
+  console.log('Reconciled '+notices.length+' private Convoy planning advisory notices.');
 }
-if(require.main===module)main().catch(e=>{console.error(e);process.exitCode=1});
-module.exports={keyOf,pending,describe,sourceTriageNotices};
+if(require.main===module)main().catch(()=>{
+  // Never print raw Discord HTTP errors or private Event source details.
+  console.error('Kings Convoy Planning Alerts: SOURCE_OR_DELIVERY_UNAVAILABLE');
+  process.exitCode=1;
+});
+module.exports={keyOf,pending,describe,sourceTriageNotices,
+  botOwnedAlertKeys,validAlertDelivery};
