@@ -38,7 +38,7 @@ function sandbox() {
       sha256:crypto.createHash('sha256').update(original).digest('hex')});
   }
   const manifest={version:2,files};
-  function writeManifest(){fs.writeFileSync(path.join(staging,'backup-manifest.json'),JSON.stringify(manifest)+'\\n');}
+  function writeManifest(){fs.writeFileSync(path.join(staging,'backup-manifest.json'),JSON.stringify(manifest)+'\n');}
   writeManifest();
   function run(){return spawnSync(process.execPath,['backup-final-check.js'],{
     cwd:dir,encoding:'utf8',timeout:25000
