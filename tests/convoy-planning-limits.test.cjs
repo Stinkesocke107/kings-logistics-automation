@@ -181,6 +181,7 @@ test('invalid display dates cannot silently create artificial capacity days',()=
   assert.equal(r.months['2027-02'],undefined);
   assert.equal(r.counted,1);
   assert.equal(r.missingDepartures.length,1);
+  assert.equal(r.undatedSourceClaims,1);
   assert.equal(r.freeSlotsCertified,false);
 });
 
@@ -257,4 +258,25 @@ test('30 Partner and 30 External in one UTC month are allowed; weekend and weekd
  assert.equal(r.warnings.some(w=>/week|weekend/i.test(w.code)),false);
  assert.equal(r.freeSlotsCertified,false);
  assert.equal(r.historicalApprovalsVerified,false);
+});
+
+test('undated original Event source claims remain visible to private Staff triage',()=>{
+  const rows=[
+    entry(9001,'External Convoy','2027-02-31',null),
+    entry(9002,'Partner Convoy','',null),
+    entry(9003,'Kings Convoy','2027-04-09','2027-04-09T10:00:00Z')
+  ];
+  const result=evaluate(rows);
+  assert.equal(result.undatedSourceClaims,2);
+  assert.equal(result.counted,1);
+  assert.equal(result.months['2027-02'],undefined);
+  assert.equal(result.months['2027-04'].kings,1);
+  assert.equal(result.freeSlotsCertified,false);
+  const {sourceTriageNotices}=require('../convoy-planning-alerts');
+  const notices=sourceTriageNotices(result,'2027-04-09T08:00:00Z');
+  assert.equal(notices.length,1);
+  assert.equal(notices[0].undatedSourceClaims,2);
+  assert.equal(notices[0].period,'2027-04-09');
+  assert.ok(!JSON.stringify(notices).includes('9001'));
+  assert.ok(!JSON.stringify(notices).includes('9002'));
 });

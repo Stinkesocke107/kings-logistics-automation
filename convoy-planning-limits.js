@@ -42,6 +42,7 @@ function departureMsFrom(value) {
 }
 function evaluate(input) {
   const records = [], seen = new Set(), unknownTypes = [], missingDepartures = [], resolvedEventTypes = [], duplicateSourceClaims = [], unidentifiedSourceClaims = [];
+  let undatedSourceClaims = 0;
   for (const original of input || []) {
     if (!original || original.ignored || original.error || original.testThread || /^\s*\[?test\]?(?:\s|[-_:])/i.test(original.name || '')) continue;
     if (/^(Cancelled|Canceled)$/i.test(String(original.status || ''))) continue;
@@ -57,7 +58,13 @@ function evaluate(input) {
     const date = Number.isFinite(departureMs)
       ? new Date(departureMs).toISOString().slice(0,10)
       : dateFrom(original.validation?.parsed?.eventDate || original.eventDate);
-    if (!date) continue;
+    if (!date) {
+      // Missing or invalid original calendar dates must not vanish silently.
+      // With no trustworthy UTC day, aggregate only the total for private
+      // Staff triage; never invent a date, a slot or an Event approval.
+      undatedSourceClaims++;
+      continue;
+    }
     const eventIdentity = String(original.eventId || '').trim();
     const sourceIdentity = String(original.threadId || original.legacyId || '').trim();
     // Two original records without any verifiable identity are NOT the same
@@ -160,6 +167,7 @@ function evaluate(input) {
     duplicateSourceClaims:Object.entries(duplicateDays).map(([period,count])=>({period,count})),
     sourceUniquenessVerified:duplicateSourceClaims.length===0 && unidentifiedSourceClaims.length===0,
     unidentifiedSourceClaims:Object.entries(unidentifiedDays).map(([period,count])=>({period,count})),
+    undatedSourceClaims,
     counted:records.length, freeSlotsCertified:false,
     historicalApprovalsVerified:false, sourceClaimsOnly:true };
 }

@@ -23,12 +23,14 @@ function sourceTriageNotices(report,at=new Date().toISOString()){
   if(report?.version!==2||report?.mode!=='advisory-only'||
      report?.sourceClaimsOnly!==true||report?.freeSlotsCertified!==false||
      !Array.isArray(report.unknownTypes)||!Array.isArray(report.missingDepartures)||
+     !Number.isSafeInteger(report.undatedSourceClaims)||report.undatedSourceClaims<0||
      !/^\d{4}-\d{2}-\d{2}T/.test(at))return [];
   const unknown=report.unknownTypes.length,missing=report.missingDepartures.length;
-  if(unknown===0&&missing===0)return [];
+  const undated=report.undatedSourceClaims;
+  if(unknown===0&&missing===0&&undated===0)return [];
   return [{
     code:'event-source-triage',period:at.slice(0,10),
-    unknownTypes:unknown,missingDepartures:missing
+    unknownTypes:unknown,missingDepartures:missing,undatedSourceClaims:undated
   }];
 }
 function describe(w){
@@ -45,7 +47,8 @@ function describe(w){
   if(w.code==='event-source-triage'){
     return 'Convoy Center requires Staff source review: **'+w.unknownTypes+
       '** unclassified Event type(s) and **'+w.missingDepartures+
-      '** missing verified UTC departure(s). Review in <#1550619824005062697>.'+
+      '** missing verified UTC departure(s), and **'+w.undatedSourceClaims+
+      '** original source claim(s) without a valid planning date. Review in <#1550619824005062697>.'+
       ' This is not an Event approval, capacity release or booking.';
   }
   if(w.code==='external-month-threshold'||w.code==='partner-month-threshold'){
