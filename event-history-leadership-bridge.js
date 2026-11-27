@@ -5,9 +5,30 @@ const {monthsFrom}=require('./event-capacity-pilot-source');
 const {buildReviewAgenda}=require('./event-history-review-agenda');
 const HISTORY_MONTHS=24;
 function utcInstant(value){
-  if(typeof value!=='string'||!/(?:Z|[+-]\d{2}:\d{2})$/i.test(value.trim()))return null;
-  const millis=Date.parse(value);
-  return Number.isFinite(millis)&&millis>0?millis:null;
+  if(typeof value!=='string')return null;
+  const source=value.trim();
+  // Date.parse can normalize impossible civil dates (e.g. 30 February),
+  // silently moving an original Event into another historical UTC month.
+  // Accept only explicit ISO timestamps with an actual UTC offset.
+  const match=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?(Z|[+-]\d{2}:\d{2})$/i.exec(source);
+  if(!match)return null;
+  const [,year,month,day,hour,minute,sec='00',fraction='',zone]=match;
+  const [m,d,h,min,s]=[month,day,hour,minute,sec].map(Number);
+  if(m<1||m>12||d<1||d>31||h>23||min>59||s>59)return null;
+  let offsetMinutes=0;
+  if(zone.toUpperCase()!=='Z'){
+    const oh=Number(zone.slice(1,3)),om=Number(zone.slice(4,6));
+    if(oh>14||om>59||(oh===14&&om!==0))return null;
+    offsetMinutes=(zone[0]==='-'?-1:1)*(oh*60+om);
+  }
+  const millis=Date.parse(source);
+  if(!Number.isFinite(millis)||millis<=0)return null;
+  // Compare the original local civil time after reversing the offset.
+  // This proves month/day/leap-day correctness, not merely parseability.
+  const local=new Date(millis+offsetMinutes*60000).toISOString();
+  const civil=year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+sec;
+  if(!local.startsWith(civil))return null;
+  return millis;
 }
 function historyMonthKey(time){
   return new Date(time).toISOString().slice(0,7);

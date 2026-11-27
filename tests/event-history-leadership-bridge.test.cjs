@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {summarizeOperations,compactLeadershipSection,appendPrivateLeadershipReview}=require('../event-history-leadership-bridge');
+const {summarizeOperations,compactLeadershipSection,appendPrivateLeadershipReview,utcInstant}=require('../event-history-leadership-bridge');
 const G='1114967437788577792',F='1550619824005062697';
 const NOW=Date.parse('2027-03-20T12:00:00Z');
 function fixture(){
@@ -235,4 +235,39 @@ test('daily weekly monthly existing Event Leadership messages all include safe C
   const workflow=fs.readFileSync(path.join(__dirname,'..','.github/workflows/event-leadership-reports.yml'),'utf8');
   assert.match(workflow,/DISCORD_WRITE_MODE: 'false'/);
   assert.match(workflow,/CONVOY_FINALIZE_WRITE_MODE: 'false'/);
+});
+
+test('historical source UTC dates reject non-existent calendar days and malformed offsets',()=>{
+  for(const bad of [
+    null,undefined,42,'','just text','2027-03-20T12:00:00',
+    '2027-03-20 12:00:00Z','2026-02-30T12:00:00Z',
+    '2027-02-29T12:00:00Z','2027-04-31T12:00:00Z',
+    '2027-13-01T12:00:00Z','2027-00-20T12:00:00Z',
+    '2027-03-00T12:00:00Z','2027-03-32T12:00:00Z',
+    '2027-03-20T24:00:00Z','2027-03-20T12:60:00Z',
+    '2027-03-20T12:30:60Z','2027-03-20T12:00:00+15:00',
+    '2027-03-20T12:00:00+14:01','2027-03-20T12:00:00+05:99',
+    '2027-03-20T12:00:00-24:00','2027-03-20T12:00:00.1234Z'
+  ])assert.equal(utcInstant(bad),null,'Invalid source date may not shift month: '+String(bad));
+  assert.equal(utcInstant('2024-02-29T23:30:00+01:00'),
+    Date.parse('2024-02-29T22:30:00Z'),'Real leap day with an offset remains valid');
+  assert.equal(utcInstant('2027-03-20T12:00Z'),NOW);
+  assert.equal(utcInstant('2027-03-20T12:00:00.123Z'),NOW+123);
+  assert.equal(utcInstant('2027-03-20T13:00:00+01:00'),NOW);
+  assert.equal(utcInstant('2027-03-20T06:30:00-05:30'),NOW);
+});
+
+test('past legacy impossible date remains undated or fails closed, never becomes March history',()=>{
+  const f=fixture();
+  f.overview.registeredConvoys[2].departureAtUtc='2027-02-30T18:00:00Z';
+  try{
+    const x=summarizeOperations({...f,nowMs:NOW});
+    assert.equal(x.datedFrozenLegacyClaims,0);
+    assert.equal(x.undatedLegacyClaims,1);
+    assert.equal(x.history.find(v=>v.utcMonth==='2027-03').legacyClaims,0);
+    assert.equal(x.original24MonthArchiveVerified,false);
+    assert.equal(x.freeSlotsCertified,false);
+  }catch(error){
+    assert.match(String(error),/unverified|invalid|source|calendar|date|reconcil|event/i);
+  }
 });
