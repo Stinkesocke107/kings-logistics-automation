@@ -115,14 +115,25 @@ jobs:
         run: |
           RUN_ID=$(gh run list \
             --workflow core-backup.yml \
+            --branch main \
             --limit 200 \
-            --json databaseId,number,status,conclusion \
-            --jq ".[] | select(.number == ${BACKUP_RUN_NUMBER} and .status == \"completed\" and .conclusion == \"success\") | .databaseId" \
+            --json databaseId,number,status,conclusion,event \
+            --jq ".[] | select(.number == ${BACKUP_RUN_NUMBER} and .event == \"workflow_dispatch\" and .status == \"completed\" and .conclusion == \"success\") | .databaseId" \
             | head -n 1)
 
           if [ -z "$RUN_ID" ]; then
             echo "ERROR: Backup Run #$BACKUP_RUN_NUMBER is missing, incomplete, or not successful."
             echo "Recovery accepts only successfully completed Kings Backup runs."
+            exit 1
+          fi
+
+          # A valid restore point is exactly one non-expired upload from the
+          # selected successful backup run. Never merge ambiguous artifacts.
+          ARTIFACT_COUNT=$(gh api --method GET \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts?per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false and (.name | startswith("kings-restore-point-")))] | length')
+          if [ "$ARTIFACT_COUNT" != "1" ]; then
+            echo "ERROR: Selected run must have exactly one live Kings Restore Point artifact."
             exit 1
           fi
 
@@ -154,6 +165,7 @@ jobs:
       - name: Run Independent Recovery Safety Gate
         env:
           RECOVERY_TARGET_RUN: ${{ inputs.backup_run_number }}
+          RECOVERY_SOURCE_RUN_ID: ${{ steps.backup_run.outputs.run_id }}
           RECOVERY_MODE: ${{ inputs.recovery_mode }}
         run: node recovery-safety-check.js
 
@@ -230,6 +242,8 @@ jobs:
         env:
           RECOVERY_MODE: ${{ inputs.recovery_mode }}
           RECOVERY_CONFIRMATION: ${{ inputs.confirmation }}
+          RECOVERY_TARGET_RUN: ${{ inputs.backup_run_number }}
+          RECOVERY_SOURCE_RUN_ID: ${{ steps.backup_run.outputs.run_id }}
         run: node core-recovery.js
 
       - name: Read Recovery Plan
