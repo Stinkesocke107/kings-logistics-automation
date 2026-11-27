@@ -207,14 +207,25 @@ test('duplicate Event or Forum references are not silently dropped from Staff ca
   assert.equal(healthy.warnings.some(w=>w.code==='duplicate-source-claim'),false);
 });
 
-test('repeated unidentifiable Forum references are also surfaced for Staff review',()=>{
-  const date='2027-04-09';
-  const base={name:'Private item',eventDate:date,eventType:'External Convoy',
+test('separate unidentifiable Event records cannot silently collapse into one source claim',()=>{
+  const date='2027-04-09', privateMarker='PRIVATE_EVENT_MARKER';
+  const base={name:privateMarker,eventDate:date,eventType:'External Convoy',
     departureAtUtc:'2027-04-09T12:00:00Z'};
-  const value=evaluate([base,{...base,name:'Second unidentifiable item'}]);
+  const identified=entry(8123,'Partner Convoy',date,'2027-04-09T16:00:00Z');
+  const value=evaluate([base,{...base,name:'Another private event'},identified]);
   assert.equal(value.counted,1);
-  assert.equal(value.duplicateSourceClaims[0].count,1);
+  assert.equal(value.months['2027-04'].external,0);
+  assert.equal(value.months['2027-04'].partner,1);
+  assert.deepEqual(value.duplicateSourceClaims,[]);
+  assert.deepEqual(value.unidentifiedSourceClaims,[{period:date,count:2}]);
+  assert.equal(value.sourceUniquenessVerified,false);
+  const warning=value.warnings.find(w=>w.code==='unidentified-source-claim');
+  assert.equal(warning.period,date);
+  assert.equal(warning.count,2);
   assert.equal(value.freeSlotsCertified,false);
+  assert.equal(value.historicalApprovalsVerified,false);
+  assert.ok(!JSON.stringify(value.unidentifiedSourceClaims).includes(privateMarker));
+  assert.ok(!JSON.stringify(warning).includes(privateMarker));
 });
 
 
