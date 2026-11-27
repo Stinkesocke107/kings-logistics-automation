@@ -74,37 +74,6 @@
       "details": null,
       "firstAlertedAt": "2026-11-26T23:46:43.846Z"
     },
-    "workflow-failed:hr-leadership.yml": {
-      "severity": "critical",
-      "system": "HR Leadership",
-      "message": "HR Leadership latest completed run ended with failure.",
-      "details": {
-        "runId": 45926172021,
-        "completedAt": "2026-11-27T02:04:56Z"
-      },
-      "firstAlertedAt": "2026-11-27T02:05:38.862Z"
-    },
-    "workflow-failed:staff-management.yml": {
-      "severity": "critical",
-      "system": "Staff Management",
-      "message": "Staff Management latest completed run ended with failure.",
-      "details": {
-        "runId": 45926178360,
-        "completedAt": "2026-11-27T02:05:28Z"
-      },
-      "firstAlertedAt": "2026-11-27T02:05:38.862Z"
-    },
-    "stale-data:data/staff-management-summary.json": {
-      "severity": "warning",
-      "system": "Staff Management data",
-      "message": "Staff Management data is stale or has no valid updatedAt timestamp.",
-      "details": {
-        "updatedAt": "2026-11-22T21:06:56.031Z",
-        "ageMinutes": 6060,
-        "maxAgeMinutes": 180
-      },
-      "firstAlertedAt": "2026-11-27T02:07:00.479Z"
-    },
     "workflow-failed:self-healing.yml": {
       "severity": "warning",
       "system": "Safe Self-Healing",
