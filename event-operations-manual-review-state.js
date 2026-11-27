@@ -326,7 +326,7 @@ function renderPrivateReviewTokens(state,secret,nowMs=Date.now()){
       ...(shown.length<rows.length?
         ['More active reviews remain in private Staff Progress.']:[]),
       'In review: block if evidence is missing; record_check ONLY after original records were checked (STAFF_RECORD / ORIGINAL_DISCORD / ORIGINAL_EVENT_PAGE).',
-      'For a logged check, reopen deliberately before a new review. KR codes expire on source/new UTC day; no approvals.'
+      'For a logged check, reopen before a new review. KR codes expire on source/new UTC day. No Event approval.'
     ].join('\n');
     // Discord embed field max is 1024 characters. Multiple in-progress
     // record_check commands can overflow the private field. Keep at least
