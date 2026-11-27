@@ -317,7 +317,7 @@ test('existing encrypted Event state feeds existing Event and Management dashboa
     'buildManagement({driverSummary:{currentDrivers:1,activity:{}},'+
     'hr:{reviews:[]},loa:{leaves:[]},staffSummary:{currentStaff:0,changesLast30Days:{}},'+
     'eventReports:readPrivateEventReports(),managementWeekly:{publishedWeeks:[]},'+
-    'managementMonthly:{monthlyReports:[]}}, {}, {}, {}, {})'
+    'managementMonthly:{monthlyReports:[]}}, {}, {}, {}, {}, '+NOW+')'
   );
   assert.match(JSON.stringify(management),/Event Invitations/);
   assert.match(JSON.stringify(management),/Documented unique VTC invitations/);
