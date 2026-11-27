@@ -680,3 +680,25 @@ test('first visible UTC month carries preceding-month departure spacing without 
   ]);
   assert.equal(monthsFrom(outsideWindow,NOW).months[0].daysWithDepartureSpacingWarning,0);
 });
+
+
+test('Calendar treats 30 per category in one UTC month as exactly at limit without weekend allowances',()=>{
+ const source=withCurrentEvents(Array.from({length:60},(_,i)=>({
+   type:i%2===0?'Partner Convoy':'External Convoy',
+   departure:'2027-03-'+String(Math.floor(i/2)+1).padStart(2,'0')+
+     (i%2===0?'T10:00:00Z':'T14:00:00Z')
+ })));
+ const result=monthsFrom(source,NOW);
+ const march=result.months[0];
+ assert.equal(march.partnerClaims,30);
+ assert.equal(march.externalClaims,30);
+ assert.equal(march.partnerMonthlyLimit,30);
+ assert.equal(march.externalMonthlyLimit,30);
+ assert.equal(march.monthlyPartnerOverLimit,false);
+ assert.equal(march.monthlyExternalOverLimit,false);
+ assert.equal(result.dailyTotalLimit,3);
+ assert.equal(result.weeklyLimitApplied,false);
+ assert.equal(march.daysOverDailyLimit,0);
+ assert.equal(result.freeSlotsCertified,false);
+ assert.equal(march.monthlyRemainingVerified,null);
+});
