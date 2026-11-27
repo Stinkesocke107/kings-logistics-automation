@@ -306,20 +306,20 @@ const namedOperationalSystems=Object.freeze([
     workflow:'backup-recovery-verification.yml',
     gates:fullGateList({
       implementation:[EVIDENCE_ROOT+'pull/220'],
-      offline_tests:[EVIDENCE_ROOT+'actions/runs/45909939222'],
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45909939222',EVIDENCE_ROOT+'actions/runs/45915470464'],
       security:[EVIDENCE_ROOT+'pull/220',
         EVIDENCE_ROOT+'actions/runs/45909939222']
     }),
     capabilities:Object.freeze([
       item('full_current_source_coverage',
         'The backup includes current automation scripts, all 46 workflow sources, tests, docs, protected data files and required operator procedures',VERIFIED,
-        [EVIDENCE_ROOT+'pull/220',EVIDENCE_ROOT+'actions/runs/45910026083']),
+        [EVIDENCE_ROOT+'pull/220',EVIDENCE_ROOT+'actions/runs/45910026083',EVIDENCE_ROOT+'actions/runs/45915470464']),
       item('isolated_full_archive_roundtrip',
-        'A real isolated production verification restored all 441 manifest files, without touching the live repo, and removed its disposable sandbox',VERIFIED,
-        [EVIDENCE_ROOT+'actions/runs/45910026083']),
+        'The latest isolated production verification restored all 454 manifest files, without touching the live repo, and removed its disposable sandbox',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910026083',EVIDENCE_ROOT+'actions/runs/45915470464']),
       item('restored_sha256_integrity',
-        'Every one of the 441 restored files passed individual SHA-256 comparison; all 48 critical source files were present',VERIFIED,
-        [EVIDENCE_ROOT+'actions/runs/45910026083']),
+        'All 454 restored files passed SHA-256 comparison; all 49 critical source files were present',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910026083',EVIDENCE_ROOT+'actions/runs/45915470464']),
       item('secret_and_symlink_exclusions',
         'Repo symlinks are not followed and environment/private key paths are excluded from published backup collection',VERIFIED,
         [EVIDENCE_ROOT+'pull/220',EVIDENCE_ROOT+'actions/runs/45909939222']),
@@ -341,15 +341,15 @@ const namedOperationalSystems=Object.freeze([
   {id:'OFFLINE_VERIFICATION',name:'Offline System Verification — safe regression suite',
     workflow:'system-tests.yml',
     gates:fullGateList({
-      offline_tests:[EVIDENCE_ROOT+'actions/runs/45910987965']
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45910987965',EVIDENCE_ROOT+'actions/runs/45918478489']
     }),
     capabilities:Object.freeze([
       item('real_ci_syntax_and_regressions',
-        'Actual PR CI passed JavaScript/shell syntax and isolated regression and integration tests',VERIFIED,
-        [EVIDENCE_ROOT+'actions/runs/45910987965']),
+        'Production CI passed JavaScript/shell syntax and 873 isolated regression and integration tests in the latest full Core verification',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45910987965',EVIDENCE_ROOT+'actions/runs/45918478489',EVIDENCE_ROOT+'actions/runs/45918478537']),
       item('real_ci_closeout_report',
         'Actual CI generated the open-system acceptance summary for all 46 registered workflows',VERIFIED,
-        [EVIDENCE_ROOT+'actions/runs/45910987965',EVIDENCE_ROOT+'pull/222']),
+        [EVIDENCE_ROOT+'actions/runs/45910987965',EVIDENCE_ROOT+'actions/runs/45918478489',EVIDENCE_ROOT+'pull/222']),
       item('independent_functional_coverage',
         'Each registered producer and manual verifier has separately audited functional and recovery coverage'),
       item('production_vs_offline_handover',
@@ -363,15 +363,15 @@ const namedOperationalSystems=Object.freeze([
   {id:'GIT_STATE_HARDENING',name:'Git State Hardening Verification — safe state writes',
     workflow:'git-state-hardening-verification.yml',
     gates:fullGateList({
-      offline_tests:[EVIDENCE_ROOT+'actions/runs/45910026256']
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45910026256',EVIDENCE_ROOT+'actions/runs/45918478552']
     }),
     capabilities:Object.freeze([
       item('isolated_conflict_matrix',
         'Actual GitHub verification passed the isolated Git/state race matrix and reported 9 of 9 safe-push capabilities',VERIFIED,
-        [EVIDENCE_ROOT+'actions/runs/45910026256']),
+        [EVIDENCE_ROOT+'actions/runs/45910026256',EVIDENCE_ROOT+'actions/runs/45918478552']),
       item('repository_policy_audit',
         'Actual verification completed the repository Git-state policy audit and hardening report',VERIFIED,
-        [EVIDENCE_ROOT+'actions/runs/45910026256']),
+        [EVIDENCE_ROOT+'actions/runs/45910026256',EVIDENCE_ROOT+'actions/runs/45918478552']),
       item('real_protected_writer_recovery',
         'Safe operator-guided reconciliation after a real conflicting protected production write is independently accepted'),
       item('operational_security_handover',
@@ -493,10 +493,10 @@ const namedOperationalSystems=Object.freeze([
     capabilities:Object.freeze([
       item('real_five_content_contract_audit',
         'Production read-only verification completed all five consolidated Leadership content contracts and mapped channels',VERIFIED,
-        [EVIDENCE_ROOT+'actions/runs/45909350372']),
+        [EVIDENCE_ROOT+'actions/runs/45909350372',EVIDENCE_ROOT+'actions/runs/45917281944']),
       item('real_event_driven_and_public_audit',
         'Actual Discord source/content audit verified current report, changelog and technical-alert publications and did not falsely count untriggered Staff/milestone events',VERIFIED,
-        [EVIDENCE_ROOT+'actions/runs/45909350372']),
+        [EVIDENCE_ROOT+'actions/runs/45909350372',EVIDENCE_ROOT+'actions/runs/45917281944']),
       item('historical_legacy_coverage',
         'Four historical no-longer-visible Legacy Leadership messages are resolved or explicitly retired with independently reviewed evidence'),
       item('future_cross_source_readback',
