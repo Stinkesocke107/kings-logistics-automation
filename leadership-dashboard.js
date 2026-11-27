@@ -10,6 +10,7 @@ const {trustedInvitationObservation,renderInvitationDashboardSource}=require('./
 const {observeOperations,renderOperationsReview,operationsWorklist,renderOperationsWorklist,WORK_LABELS}=require('./event-operations-staff-triage');
 const {reviewSummary,renderReviewSummary,renderPrivateReviewTokens}=require('./event-operations-manual-review-state');
 const {renderReviewAgenda,CODES}=require('./event-history-review-agenda');
+const {renderEventReviewCommandGuide}=require('./event-review-command-guide');
 
 const DRIVER_STATE_KEY = process.env.DRIVER_STATE_KEY;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -360,32 +361,31 @@ function buildEvent(data, now = Date.now()) {
     color: KINGS_BLUE,
     fields: [
       field('🔵 Live Overview',sourceLine),
-      field('🟢 Last 24 Hours', 'A verified Event change feed is not currently available from the legacy publication-only state. See the current Convoy Center for individual changes.'),
-      field('🟣 Last Completed Week', w ? fmtKey(w.key)+' • Tracked **'+w.realConvoys+'** • Scheduled **'+w.scheduled+'** • Ready **'+w.ready+'** • Needs Info **'+w.needsInfo+'** • Changes **'+w.changes+'**' : 'No completed verified weekly report yet.'),
-      field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
-      field('🗓️ Calendar / History — Source Review',calendarLine),
-      field('🧾 Event History — Decision Evidence Review',historyEvidenceLine),
-      field('🗂️ Event History — Priority Months',
-        observed?renderReviewAgenda(observed.reviewAgenda):
-          'Unavailable — a fresh reconciled Event source is required.'),
-      field('📊 Event Capacity — Advisory Review',capacityLine),
-      field('✉️ Invitation Tracker — Source Review',invitationLine),
-      // Put real human progress and copy-ready instructions before source
-      // diagnostics. A blocked SOURCE and an ongoing STAFF review are
-      // different states and must never be mistaken for one another.
+      // Put next human tasks and real review progress before diagnostic
+      // details, while preserving every existing verified source check.
+      field('🎯 Next Staff Step', observed
+        ? 'Source flags **'+observed.readyForApproval+'** for review and **'+
+          observed.needsInformation+'** needing information. Check the private '+
+          'Staff Review Progress and Review Order below. These are NOT approved Events.'
+        : 'Validate a recent reconciled Event source first. Never infer free slots, '+
+          'missing approvals or an empty calendar from unavailable data.'),
       field('📝 Event Operations — Manual Staff Progress',renderReviewSummary(state,now)),
       field('🔐 Event Operations — Private Review Codes',
         renderPrivateReviewTokens(state,String(DRIVER_STATE_KEY),now)),
       field('💬 Event Operations — Discord Staff Commands',
-        state.discordReviewCursor===undefined
-          ? 'Not initialized in this published snapshot. Use the dedicated private Event Operations workflow to set up Staff review commands.'
-          : 'Discord review reader initialized in the saved state. Staff can send a copy-ready command from the private codes above into #event-operations. This shows the saved state, not a live online indicator. Unapplied commands **'+
-            (Number.isSafeInteger(state.discordReviewIgnored)?
-              state.discordReviewIgnored:'Unknown')+
-            '**. Review progress never approves Events or opens booking slots.'),
+        renderEventReviewCommandGuide(state)),
       field('⏱️ Event Operations — Review Order',
-        'Source-data alerts, not Staff progress. A BLOCKED source can still be actively under Staff review.\n'+
-          renderOperationsWorklist(operations))
+        'Source-data warnings and Staff progress are separate. A BLOCKED source can still be under manual review.\n'+
+          renderOperationsWorklist(operations)),
+      field('🟣 Last Completed Week', w ? fmtKey(w.key)+' • Tracked **'+w.realConvoys+'** • Scheduled **'+w.scheduled+'** • Ready **'+w.ready+'** • Needs Info **'+w.needsInfo+'** • Changes **'+w.changes+'**' : 'No completed verified weekly report yet.'),
+      field('👑 Last Completed Month', m ? fmtKey(m.key)+' • Counted **'+m.counted+'** • Completed **'+m.completed+'** • Cancelled **'+m.cancelled+'** • Scheduled **'+m.scheduled+'** • Needs Info **'+m.needsInfo+'**' : 'No completed verified monthly report yet.'),
+      field('🗓️ Calendar / History — Source Review',calendarLine),
+      field('📊 Event Capacity — Advisory Review',capacityLine),
+      field('🗂️ Event History — Priority Months',
+        observed?renderReviewAgenda(observed.reviewAgenda):
+          'Unavailable — a fresh reconciled Event source is required.'),
+      field('🧾 Event History — Decision Evidence Review',historyEvidenceLine),
+      field('✉️ Invitation Tracker — Source Review',invitationLine)
     ],
     footer: { text: 'Kings Logistics • Event Leadership • Internal operations' },
     timestamp: nowISO()
