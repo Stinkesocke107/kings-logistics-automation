@@ -344,3 +344,56 @@ test('Event source publication refreshes the private command selector only after
   assert.match(dashboard,/node event-review-dashboard-readonly-proof\.js/);
   assert.equal((reports.match(/gh workflow run leadership-dashboard\.yml/g)||[]).length,1);
 });
+
+
+test('private command suggestions preserve explicit reopen before a new original check',()=>{
+  const dailyLine=state=>renderPrivateReviewTokens(state,SECRET,NOW)
+    .split('\n').find(x=>x.includes('Review UTC days above 3 source-claimed convoys'));
+  const state0=makeState();
+  const initial=dailyLine(state0);
+  assert.match(initial,/!kings-review KR[a-f0-9]{24} start/);
+
+  const started=change(state0,'start',NOW);
+  const inProgress=dailyLine(started);
+  assert.match(inProgress,/IN_REVIEW/);
+  assert.match(inProgress,/!kings-review KR[a-f0-9]{24} record_check STAFF_RECORD ORIGINAL_RECORDS_CHECKED/);
+  const fullHelp=renderPrivateReviewTokens(started,SECRET,NOW);
+  assert.match(fullHelp,/use block if evidence is missing/);
+  assert.match(fullHelp,/ONLY after a real check/);
+  assert.ok(fullHelp.length<=1024);
+
+  const checked=change(started,'record_check',NOW,{
+    evidenceKind:'ORIGINAL_DISCORD',confirmation:'ORIGINAL_RECORDS_CHECKED'
+  });
+  assert.match(dailyLine(checked),/STAFF_CHECK_RECORDED.*!kings-review KR[a-f0-9]{24} reopen/);
+  assert.throws(()=>change(checked,'start',NOW+1000),/unverified/);
+
+  // A changed source requires explicit reopen before a second check;
+  // the private help must not offer an invalid or unsafe start command.
+  const changed=structuredClone(checked);
+  changed.eventSourceObservation.futureDaysOverDailyLimit=2;
+  changed.eventSourceObservation.futureDaysRequiringReview=2;
+  assert.match(dailyLine(changed),/RECHECK_REQUIRED.*!kings-review KR[a-f0-9]{24} reopen/);
+  assert.throws(()=>change(changed,'start',NOW+1000),/unverified/);
+  const reopened=change(changed,'reopen',NOW+1000);
+  assert.match(dailyLine(reopened),/OPEN.*!kings-review KR[a-f0-9]{24} start/);
+  assert.equal(change(reopened,'start',NOW+2000).operationReviews[0].status,'IN_REVIEW');
+});
+
+test('private instructions distinguish blocked, active, recorded and stale reviews without booking decisions',()=>{
+  const dailyLine=(state,at=NOW)=>renderPrivateReviewTokens(state,SECRET,at)
+    .split('\n').find(x=>x.includes('Review UTC days above 3 source-claimed convoys'));
+  const started=change(makeState(),'start',NOW);
+  const blocked=change(started,'block',NOW+1000);
+  assert.match(dailyLine(blocked),/NEEDS_EVIDENCE.*!kings-review KR[a-f0-9]{24} start/);
+  // A source-count change invalidates an in-progress human check, but does
+  // not require reopening an unrecorded status.
+  const stale=structuredClone(started);
+  stale.eventSourceObservation.futureDaysOverDailyLimit=2;
+  stale.eventSourceObservation.futureDaysRequiringReview=2;
+  assert.match(dailyLine(stale),/RECHECK_REQUIRED.*!kings-review KR[a-f0-9]{24} start/);
+  const shown=renderPrivateReviewTokens(blocked,SECRET,NOW);
+  assert.match(shown,/No Event approval/);
+  assert.doesNotMatch(shown,/EventLead|ORIGINAL event URL/);
+  assert.ok(shown.length<=1024);
+});
