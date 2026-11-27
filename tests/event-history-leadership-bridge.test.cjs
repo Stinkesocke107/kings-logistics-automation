@@ -247,12 +247,13 @@ test('historical source UTC dates reject non-existent calendar days and malforme
     '2027-03-20T24:00:00Z','2027-03-20T12:60:00Z',
     '2027-03-20T12:30:60Z','2027-03-20T12:00:00+15:00',
     '2027-03-20T12:00:00+14:01','2027-03-20T12:00:00+05:99',
-    '2027-03-20T12:00:00-24:00','2027-03-20T12:00:00.1234Z'
+    '2027-03-20T12:00:00-24:00','2027-03-20T12:00:00.1234567890Z'
   ])assert.equal(utcInstant(bad),null,'Invalid source date may not shift month: '+String(bad));
   assert.equal(utcInstant('2024-02-29T23:30:00+01:00'),
     Date.parse('2024-02-29T22:30:00Z'),'Real leap day with an offset remains valid');
   assert.equal(utcInstant('2027-03-20T12:00Z'),NOW);
   assert.equal(utcInstant('2027-03-20T12:00:00.123Z'),NOW+123);
+  assert.equal(utcInstant('2027-03-20T12:00:00.123456Z'),NOW+123);
   assert.equal(utcInstant('2027-03-20T13:00:00+01:00'),NOW);
   assert.equal(utcInstant('2027-03-20T06:30:00-05:30'),NOW);
 });
