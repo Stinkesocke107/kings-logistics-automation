@@ -216,3 +216,34 @@ test('repeated unidentifiable Forum references are also surfaced for Staff revie
   assert.equal(value.duplicateSourceClaims[0].count,1);
   assert.equal(value.freeSlotsCertified,false);
 });
+
+
+test('30 Partner and 30 External in one UTC month are allowed; weekend and weekday daily caps stay identical',()=>{
+ const rows=[];
+ for(let day=1;day<=30;day++){
+   const date='2027-05-'+String(day).padStart(2,'0');
+   rows.push(entry(10000+day,'Partner Convoy',date,date+'T11:00:00Z'));
+   rows.push(entry(20000+day,'External Convoy',date,date+'T15:00:00Z'));
+ }
+ // 1 May 2027 is Saturday and 3 May 2027 is Monday.
+ assert.equal(new Date('2027-05-01T00:00:00Z').getUTCDay(),6);
+ assert.equal(new Date('2027-05-03T00:00:00Z').getUTCDay(),1);
+ for(const day of ['2027-05-01','2027-05-03']){
+   rows.push(entry(day+'-a','Kings Convoy',day,day+'T18:00:00Z'));
+   rows.push(entry(day+'-b','Kings Convoy',day,day+'T22:00:00Z'));
+ }
+ const r=evaluate(rows);
+ assert.equal(r.months['2027-05'].partner,30);
+ assert.equal(r.months['2027-05'].external,30);
+ assert.equal(r.months['2027-05'].kings,4);
+ assert.ok(r.warnings.some(w=>w.code==='partner-month-threshold'&&w.threshold===30));
+ assert.ok(r.warnings.some(w=>w.code==='external-month-threshold'&&w.threshold===30));
+ assert.equal(r.warnings.some(w=>/month-over-limit/.test(w.code)),false);
+ for(const day of ['2027-05-01','2027-05-03']){
+   assert.equal(r.days[day].total,4);
+   assert.ok(r.warnings.some(w=>w.code==='total-day-over-limit'&&w.period===day&&w.limit===3));
+ }
+ assert.equal(r.warnings.some(w=>/week|weekend/i.test(w.code)),false);
+ assert.equal(r.freeSlotsCertified,false);
+ assert.equal(r.historicalApprovalsVerified,false);
+});
