@@ -1,6 +1,6 @@
 # Kings Logistics — Backup & Recovery: Operator-Handover und offene Abnahmen
 
-**Stand:** 28. November 2026 (UTC) · **Repository:** `Stinkesocke107/kings-logistics-automation` · **Produktionsbranch:** `main`
+**Stand:** 28. November 2026 (MEZ; 27. November 2026 UTC) · **Repository:** `Stinkesocke107/kings-logistics-automation` · **Produktionsbranch:** `main`
 
 > **Status: CODE-HARDENING + ISOLIERTER E2E NACHGEWIESEN, NICHT FINAL ABGENOMMEN.**
 > Dieses Dokument begründet **keine** Freigabe eines produktiven Restore, keine
