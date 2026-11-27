@@ -2,14 +2,14 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {keyOf,pending}=require('../convoy-planning-alerts');
 test('threshold alerts deduplicate despite changing convoy totals',()=>{
- const one={code:'external-month-threshold',period:'2026-11',threshold:15,count:15};
- const two={...one,count:16};
+ const one={code:'external-month-threshold',period:'2026-11',threshold:20,count:20};
+ const two={...one,count:21};
  assert.equal(keyOf(one),keyOf(two));
  assert.equal(pending([two],{sent:[keyOf(one)]}).length,0);
 });
 test('separate monthly thresholds remain independently alertable',()=>{
- const a={code:'external-month-threshold',period:'2026-11',threshold:15,count:20};
- const b={...a,threshold:18};
+ const a={code:'external-month-threshold',period:'2026-11',threshold:20,count:30};
+ const b={...a,threshold:25};
  assert.notEqual(keyOf(a),keyOf(b));
 });
 test('duplicate departure pair is order-independent',()=>{
@@ -18,12 +18,12 @@ test('duplicate departure pair is order-independent',()=>{
 });
 
 test('partner monthly warning thresholds are deduplicated independently from External',()=>{
-  const partner={code:'partner-month-threshold',period:'2027-03',threshold:15,count:17};
-  const partnerRaised={...partner,count:19};
+  const partner={code:'partner-month-threshold',period:'2027-03',threshold:20,count:22};
+  const partnerRaised={...partner,count:24};
   const external={...partner,code:'external-month-threshold'};
   assert.equal(keyOf(partner),keyOf(partnerRaised));
   assert.notEqual(keyOf(partner),keyOf(external));
-  assert.notEqual(keyOf(partner),keyOf({...partner,threshold:18}));
+  assert.notEqual(keyOf(partner),keyOf({...partner,threshold:25}));
   assert.equal(pending([partnerRaised],{sent:[keyOf(partner)]}).length,0);
 });
 
