@@ -1,6 +1,7 @@
 require('./kings-branding').installDiscordBranding();
 
 const fs = require('fs');
+const {loadPublicationKeyState} = require('./report-publication-journal-guard');
 const path = require('path');
 const crypto = require('crypto');
 const { syncTextMessage } = require('./leadership-message-sync');
@@ -159,25 +160,16 @@ function defaultReportState() {
 }
 
 function readReportState() {
-  const state = readJson(REPORT_STATE_FILE, null);
-  if (!state) return defaultReportState();
-  const base = defaultReportState();
-  return {
-    ...base,
-    ...state,
-    publishedDailyKeys: Array.isArray(state.publishedDailyKeys) ? state.publishedDailyKeys : [],
-    publishedWeeklyKeys: Array.isArray(state.publishedWeeklyKeys) ? state.publishedWeeklyKeys : [],
-    publishedMonthlyKeys: Array.isArray(state.publishedMonthlyKeys) ? state.publishedMonthlyKeys : [],
-    weeklyReports: Array.isArray(state.weeklyReports) ? state.weeklyReports : [],
-    monthlyReports: Array.isArray(state.monthlyReports) ? state.monthlyReports : [],
-    messageIds: {
-      daily: state?.messageIds?.daily || null,
-      weekly: state?.messageIds?.weekly || null,
-      monthly: state?.messageIds?.monthly || null
-    }
-  };
+  const state=loadPublicationKeyState(REPORT_STATE_FILE,
+    ['publishedDailyKeys','publishedWeeklyKeys','publishedMonthlyKeys'],
+    ['weeklyReports','monthlyReports'],defaultReportState);
+  const base=defaultReportState();
+  return {...base,...state,messageIds:{
+    daily:state?.messageIds?.daily||null,
+    weekly:state?.messageIds?.weekly||null,
+    monthly:state?.messageIds?.monthly||null
+  }};
 }
-
 function saveReportState(state) {
   state.updatedAt = nowISO();
   state.publishedDailyKeys = state.publishedDailyKeys.slice(-60);
@@ -391,7 +383,7 @@ async function discord(pathname, options = {}) {
   });
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+    throw new Error(`Discord API ${response.status} on ${method} ${pathname}: [redacted]`);
   }
   if (!text) return null;
   try { return JSON.parse(text); } catch { return text; }
