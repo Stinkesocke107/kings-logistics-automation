@@ -1,5 +1,6 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
+const {loadPublicationState} = require('./report-publication-journal-guard');
 const path = require('path');
 const crypto = require('crypto');
 const { syncEmbedMessage } = require('./leadership-message-sync');
@@ -148,12 +149,11 @@ function loadHrState() {
   return container ? decrypt(container, 'kings-hr-probation-v1') : { reviews: [] };
 }
 function loadState() {
-  const state = readJson(STATE_FILE, null);
-  if (!state || !Array.isArray(state.publishedWeeks)) {
-    return { version: 3, createdAt: nowISO(), updatedAt: nowISO(), publishedWeeks: [], messageId: null };
-  }
-  state.version = 3;
-  state.messageId = state.messageId || null;
+  const state=loadPublicationState(STATE_FILE,'publishedWeeks',()=>({
+    version:3, createdAt:nowISO(), updatedAt:nowISO(), publishedWeeks:[], messageId:null
+  }));
+  state.version=3;
+  state.messageId=state.messageId||null;
   return state;
 }
 function saveState(state) {
@@ -182,7 +182,7 @@ async function discord(pathname, options = {}) {
     signal: AbortSignal.timeout(15000)
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Discord API ${response.status} on ${method} ${pathname}: ${text.slice(0, 500)}`);
+  if (!response.ok) throw new Error(`Discord API ${response.status} on ${method} ${pathname}: [redacted]`);
   if (!text) return null;
   try { return JSON.parse(text); } catch { return text; }
 }
