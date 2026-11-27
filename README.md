@@ -14,6 +14,7 @@ Automation systems and tools for Kings Logistics.
 - [Kings Staff & Leadership Data Sources](docs/KINGS-STAFF-DATA-SOURCES.md) — verified Discord Staff-role coverage separately from TMP VTC Staff classifications and not-yet-configured human Staff appointment decisions.
 - [HR admissions and private case view](docs/KINGS-HR-ADMISSION-DECISIONS.md) — independent human approval evidence, confidential individual-case review and manually gated Discord publication; not a replacement for the original Kings joining-date register.
 - [Kings Social Video News retirement](SOCIAL-NEWS-SETUP.md) — the unused YouTube automation was retired; TruckersMP News and external PostPing continue.
+- [Monthly Report #35: recurring closed-month evidence (27 November 2026)](docs/KINGS-MONTHLY-RECURRING-PROOF-2026-11-27.md) — manual previous UTC month read-only verification, immutable proof per month and preserved September baseline.
 
 - [Point 22 Self-Healing Stress Test — 1 October 2026](docs/self-healing-stress-2026-10-01.md) — controlled failure matrix, corrupt-state fail-closed recovery, Discord 429 hardening and the post-Point-22 Core v1.2 baseline.
 - [Point 21 Safe Self-Healing — 1 October 2026](docs/self-healing-2026-10-01.md) — automatic technical recovery allowlist, cooldowns, attempt budgets and verification evidence.

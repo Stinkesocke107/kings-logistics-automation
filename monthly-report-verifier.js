@@ -38,6 +38,19 @@ function periodForVerification(now = new Date()) {
   return { start: currentStart, end: nextStart, key: monthKey(currentStart), label: monthName(currentStart), phase: 'readiness' };
 }
 
+// Manual, GET-only recheck of the most recently completed UTC month.
+// The scheduled/default verifier retains its existing readiness cadence.
+function periodForPreviousMonth(now = new Date()) {
+  const end = new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),1));
+  const start = new Date(Date.UTC(end.getUTCFullYear(),end.getUTCMonth()-1,1));
+  return {start,end,key:monthKey(start),label:monthName(start),phase:'post-publish'};
+}
+function periodForVerificationTarget(target = 'current', now = new Date()) {
+  if (target === 'current') return periodForVerification(now);
+  if (target === 'previous') return periodForPreviousMonth(now);
+  throw Error('Monthly verification target is invalid');
+}
+
 function expectedDates(period, now, fullMonth) {
   const limit = fullMonth ? period.end.getTime() : Math.min(period.end.getTime(), Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
   const dates = [];
@@ -80,7 +93,7 @@ async function main() {
   if (!DISCORD_BOT_TOKEN) throw new Error('DISCORD_BOT_TOKEN is missing.');
 
   const now = new Date();
-  const period = periodForVerification(now);
+  const period = periodForVerificationTarget(process.env.KINGS_MONTHLY_VERIFICATION_TARGET || 'current',now);
   const fullMonthExpected = period.phase !== 'readiness';
   const history = loadHistory();
   const observed = new Set(history.map((day) => String(day.date)));
@@ -180,4 +193,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { periodForVerification, expectedDates };
+module.exports = { periodForVerification, periodForPreviousMonth, periodForVerificationTarget, expectedDates };

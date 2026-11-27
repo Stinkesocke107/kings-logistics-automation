@@ -2,6 +2,15 @@ name: Kings Monthly Report Verification
 
 on:
   workflow_dispatch:
+    inputs:
+      verify_month:
+        description: 'Read-only: current readiness or previous completed UTC month'
+        type: choice
+        required: true
+        default: current
+        options:
+          - current
+          - previous
   schedule:
     - cron: "0 11 1 * *"
   push:
@@ -10,6 +19,7 @@ on:
     paths:
       - 'monthly-report-v2.js'
       - 'monthly-report-verifier.js'
+      - 'monthly-recurring-proof.js'
       - 'statistics-source-provenance.js'
       - 'production-proof-collector.js'
       - '.github/workflows/monthly-report.yml'
@@ -43,31 +53,38 @@ jobs:
         run: |
           node --check monthly-report-v2.js
           node --check monthly-report-verifier.js
+          node --check monthly-recurring-proof.js
           node --check production-proof-collector.js
 
       - name: Verify Monthly Report Readiness / Publication
         env:
           MONTHLY_REPORT_DISCORD_WEBHOOK_URL: ${{ secrets.MONTHLY_REPORT_DISCORD_WEBHOOK_URL }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          KINGS_MONTHLY_VERIFICATION_TARGET: ${{ github.event_name == 'workflow_dispatch' && inputs.verify_month == 'previous' && 'previous' || 'current' }}
         run: node monthly-report-verifier.js
 
       - name: Capture durable September 2026 Monthly live proof
         run: node production-proof-collector.js monthly
 
-      - name: Persist accepted September Monthly proof
+      - name: Capture recurring verified Monthly live proof (read-only sources)
+        run: node production-proof-collector.js monthly-recurring
+
+      - name: Persist only accepted Monthly evidence (never overwrite old month)
         shell: bash
         run: |
           set -euo pipefail
-          if [ ! -e data/monthly-live-proof.json ]; then
-            echo 'September Monthly proof is still pending; nothing to persist.'
+          files=()
+          if [ -e data/monthly-live-proof.json ]; then files+=(data/monthly-live-proof.json); fi
+          if [ -d data/monthly-live-proofs ]; then files+=(data/monthly-live-proofs); fi
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo 'No accepted Monthly proof to persist.'
             exit 0
           fi
-          if [ -z "$(git status --porcelain -- data/monthly-live-proof.json)" ]; then exit 0; fi
           git config user.name 'Kings Logistics Automation'
           git config user.email 'actions@users.noreply.github.com'
-          git add -A -- data/monthly-live-proof.json
+          git add -A -- "${files[@]}"
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Record Kings September Monthly live production proof'
+          git commit -m 'Record verified Kings Monthly production evidence'
           bash scripts/git-safe-push.sh main
 
       - name: Upload Monthly Verification Report
@@ -78,7 +95,9 @@ jobs:
           path: |
             output/monthly-report-verification.json
             output/production-proof-monthly.json
+            output/production-proof-monthly-recurring.json
             data/monthly-live-proof.json
+            data/monthly-live-proofs/*.json
           if-no-files-found: warn
           retention-days: 90
 
@@ -87,7 +106,11 @@ jobs:
         run: |
           echo '## Kings Monthly Report Verification' >> "$GITHUB_STEP_SUMMARY"
           echo '- Discord writes: **none**' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Durable proof write: **only after exactly one verified September 2026 publication + matching state**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Durable proof writes: **historic September proof plus month-specific accepted records only**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Manual previous-month proof: **read-only, exact one Discord post + state ID + full UTC coverage required**' >> "$GITHUB_STEP_SUMMARY"
           if [ -f output/production-proof-monthly.json ]; then
             node -e "const r=require('./output/production-proof-monthly.json'); console.log('- September live proof: **'+r.status+'**')" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f output/production-proof-monthly-recurring.json ]; then
+            node -e "const r=require('./output/production-proof-monthly-recurring.json'); console.log('- Closed-month recurring proof: **'+r.status+'**')" >> "$GITHUB_STEP_SUMMARY"
           fi
