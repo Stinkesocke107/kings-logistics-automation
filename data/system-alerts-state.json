@@ -73,7 +73,41 @@
       "message": "Final Freeze Verification has no workflow runs.",
       "details": null,
       "firstAlertedAt": "2026-11-26T23:46:43.846Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 175,
+        "latestCount": 40
+      },
+      "firstAlertedAt": "2026-11-27T08:20:40.835Z"
+    },
+    "stale-data:data/driver-management-summary.json": {
+      "severity": "critical",
+      "system": "Driver Management data",
+      "message": "Driver Management data is stale or has no valid updatedAt timestamp.",
+      "details": {
+        "updatedAt": "2026-11-27T05:25:28.431Z",
+        "ageMinutes": 175,
+        "maxAgeMinutes": 160
+      },
+      "firstAlertedAt": "2026-11-27T08:20:40.835Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-failed:system-monitoring.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-27T08:20:40.835Z",
+      "system": "System Monitoring",
+      "message": "System Monitoring latest completed run ended with cancelled."
+    },
+    "workflow-overdue:event-operations-discord-review.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-27T08:20:40.835Z",
+      "system": "Event Operations Discord Staff Review",
+      "message": "Event Operations Discord Staff Review has not run within the expected time window."
+    }
+  }
 }
