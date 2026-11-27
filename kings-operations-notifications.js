@@ -77,6 +77,24 @@ function eventEmbed(snapshot) {
   };
 }
 
+// Compare the complete visible notice, not just its footer fingerprint.
+// A matching digest does not prove a Discord message still shows the
+// intended content; edited/corrupt embeds must be repaired or rejected.
+function sameEventEmbed(embeds,snapshot) {
+  if (!Array.isArray(embeds) || embeds.length !== 1 ||
+      !embeds[0] || typeof embeds[0] !== 'object') return false;
+  const actual=embeds[0],expected=eventEmbed(snapshot);
+  if (['fields','image','thumbnail','url','author','provider','video']
+    .some(field=>Object.hasOwn(actual,field))) return false;
+  const actualTime=Date.parse(actual.timestamp || '');
+  const expectedTime=Date.parse(expected.timestamp || '');
+  return actual.title===expected.title &&
+    actual.description===expected.description &&
+    actual.color===expected.color &&
+    actual.footer?.text===expected.footer.text &&
+    Number.isFinite(actualTime) && actualTime===expectedTime;
+}
+
 async function publishEventSnapshot({
   report, enabled, token, channelId, guildId = DEFAULT_GUILD,
   systemAlertsChannelId = null, approvedRoleIds = null,
@@ -125,7 +143,7 @@ async function publishEventSnapshot({
       String(embed?.footer?.text || ''))));
   if (previous.length > 1)
     throw Error('Multiple original Operations messages require manual review');
-  if (previous[0]?.embeds.some(embed => embed.footer?.text === MARKER + snapshot.digest))
+  if (previous[0] && sameEventEmbed(previous[0].embeds,snapshot))
     return Object.freeze({status:'UNCHANGED',writes:0});
 
   // The write allowlist is a single validated channel and either a new
@@ -149,9 +167,9 @@ async function publishEventSnapshot({
   // Never claim delivery based solely on an HTTP success or uncertain write.
   const saved = await get('/channels/' + channelId + '/messages/' + posted.id);
   if (String(saved?.id) !== String(posted.id) ||
+      String(saved?.channel_id) !== String(channelId) ||
       String(saved?.author?.id) !== String(bot.id) ||
-      !Array.isArray(saved.embeds) ||
-      !saved.embeds.some(embed => embed.footer?.text === MARKER + snapshot.digest))
+      !sameEventEmbed(saved.embeds,snapshot))
     throw Error('Operations notice Discord readback failed');
 
   return Object.freeze({status:existingId?'UPDATED':'SENT',writes:1});
