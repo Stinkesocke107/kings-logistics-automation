@@ -44,6 +44,26 @@ function refuse(reason='SOURCE_INCONSISTENT'){
   e.sourceReason=SAFE_SOURCE_REASONS.has(reason)?reason:'SOURCE_INCONSISTENT';
   throw e;
 }
+// An impossible Discord archive date must not advance a completeness
+// cursor: JavaScript Date.parse normalizes dates like 30 February.
+function archiveCursorInstant(value){
+  if(typeof value!=='string')return null;
+  const m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?(Z|[+-]\d{2}:\d{2})$/i.exec(value);
+  if(!m)return null;
+  const [,year,month,day,hour,minute,second='00',fraction='',zone]=m;
+  const [mo,dd,hh,mm,ss]=[month,day,hour,minute,second].map(Number);
+  if(mo<1||mo>12||dd<1||dd>31||hh>23||mm>59||ss>59)return null;
+  let offset=0;
+  if(zone.toUpperCase()!=='Z'){
+    const oh=Number(zone.slice(1,3)),om=Number(zone.slice(4,6));
+    if(oh>14||om>59||(oh===14&&om!==0))return null;
+    offset=(zone[0]==='-'?-1:1)*(oh*60+om);
+  }
+  const ms=Date.parse(value);
+  if(!Number.isFinite(ms)||ms<=0)return null;
+  const civil=year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+second;
+  return new Date(ms+offset*60000).toISOString().startsWith(civil)?ms:null;
+}
 function readEntry(raw){
   if(typeof raw!=='string'||raw.length>1200||raw.includes('\n'))return null;
   // Require the documented one-VTC-per-reply format, including source link
@@ -308,10 +328,10 @@ async function readInvitationTracker({token,transport=fetch,
     const next=last?.thread_metadata?.archive_timestamp;
     // Before-cursors must move strictly backward, never repeat or jump
     // forward. A drifting page is not proof that the archive is complete.
-    const parsed=Date.parse(next);
-    if(typeof next!=='string'||!/(?:Z|[+-]\d{2}:\d{2})$/.test(next)||
-       !Number.isFinite(parsed)||next===before||
-       (before!==null&&parsed>=Date.parse(before)))
+    const parsed=archiveCursorInstant(next);
+    if(parsed===null||next===before||
+       (before!==null&&(archiveCursorInstant(before)===null||
+         parsed>=archiveCursorInstant(before))))
       refuse('ARCHIVE_PAGE_INCOMPLETE');
     before=next;
   }
@@ -341,5 +361,5 @@ async function readInvitationTracker({token,transport=fetch,
     messagesByThread,centerReport,nowMs,tagIds});
 }
 module.exports={GUILD,FORUM,MODES,GUIDE_TAG,canonicalTagName,
-  readEntry,eventIdFrom,approvedTags,summarizeTracker,
+  archiveCursorInstant,readEntry,eventIdFrom,approvedTags,summarizeTracker,
   trustedInvitationObservation,renderInvitationDashboardSource,readInvitationTracker};

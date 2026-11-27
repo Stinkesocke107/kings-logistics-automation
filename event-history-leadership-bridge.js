@@ -10,7 +10,7 @@ function utcInstant(value){
   // Date.parse can normalize impossible civil dates (e.g. 30 February),
   // silently moving an original Event into another historical UTC month.
   // Accept only explicit ISO timestamps with an actual UTC offset.
-  const match=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?(Z|[+-]\d{2}:\d{2})$/i.exec(source);
+  const match=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?(Z|[+-]\d{2}:\d{2})$/i.exec(source);
   if(!match)return null;
   const [,year,month,day,hour,minute,sec='00',fraction='',zone]=match;
   const [m,d,h,min,s]=[month,day,hour,minute,sec].map(Number);

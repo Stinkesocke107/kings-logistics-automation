@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {GUILD,FORUM,MODES,GUIDE_TAG,canonicalTagName,readEntry,eventIdFrom,approvedTags,summarizeTracker,
+const {GUILD,FORUM,MODES,GUIDE_TAG,canonicalTagName,archiveCursorInstant,readEntry,eventIdFrom,approvedTags,summarizeTracker,
   readInvitationTracker,trustedInvitationObservation}=require('../event-invitation-tracker-source');
 const NOW=Date.parse('2026-11-25T15:00:00Z');
 test('uses CEO-confirmed Invitation Tracker channel ID instead of retired assumed forum ID',()=>{
@@ -493,4 +493,43 @@ test('Discord offset-aware UTC archive timestamps paginate safely without creati
   assert.equal(r.convoyThreads,1);
   assert.equal(r.bookingsCreated,0);
   assert.equal(r.invitationDecisionsVerified,false);
+});
+
+
+test('Invitation Tracker rejects normalized invalid archive UTC timestamps and keeps genuine offset dates',()=>{
+  for(const bad of [
+    undefined,null,123,'','2026-02-30T08:00:00.000Z',
+    '2027-02-29T08:00:00.000+00:00',
+    '2026-04-31T08:00:00.000Z',
+    '2026-11-24T24:00:00Z','2026-11-24T08:70:00Z',
+    '2026-11-24T08:00:00+15:00','2026-11-24T08:00:00+14:30',
+    '2026-11-24T08:00:00+05:99',
+    '2026-11-24T08:00:00','2026-11-24 08:00:00Z'
+  ])assert.equal(archiveCursorInstant(bad),null);
+  assert.equal(archiveCursorInstant('2024-02-29T23:30:00.987000+01:00'),
+    Date.parse('2024-02-29T22:30:00.987Z'));
+  assert.equal(archiveCursorInstant('2026-11-24T08:00:00.000000+00:00'),
+    Date.parse('2026-11-24T08:00:00.000Z'));
+  assert.equal(archiveCursorInstant('2026-11-24T08:00:00.000Z'),
+    Date.parse('2026-11-24T08:00:00Z'));
+});
+
+test('invalid archived Discord cursor fails closed before reading private Invitation messages',async()=>{
+  const f=fixture(),calls=[];
+  const transport=async url=>{
+    calls.push(url);
+    if(url.endsWith('/channels/'+FORUM))return Response.json(f.forum);
+    if(url.endsWith('/guilds/'+GUILD+'/threads/active'))
+      return Response.json({threads:[]});
+    if(url.includes('/channels/'+FORUM+'/threads/archived/public?'))
+      return Response.json({threads:[{
+        ...f.threads[0],
+        thread_metadata:{archive_timestamp:'2026-02-30T08:00:00.000+00:00'}
+      }],has_more:true});
+    throw Error('Private message must never be fetched with an invalid archive cursor');
+  };
+  await assert.rejects(()=>readInvitationTracker({
+    token:'synthetic-test-bot-token-not-a-secret',transport,nowMs:NOW
+  }),e=>e.sourceReason==='ARCHIVE_PAGE_INCOMPLETE');
+  assert.ok(!calls.some(url=>url.includes('/messages?')));
 });
