@@ -718,6 +718,35 @@ const namedOperationalSystems=Object.freeze([
       'Production disaster recovery and protected secret custody are still unaccepted',
       'CEO final signoff not recorded'
     ]},
+  {id:'CORE_RECOVERY',name:'Core Recovery — protected manual emergency restore',
+    workflow:'core-recovery.yml',
+    gates:fullGateList({
+      implementation:[EVIDENCE_ROOT+'pull/233'],
+      offline_tests:[EVIDENCE_ROOT+'actions/runs/45915374413'],
+      security:[EVIDENCE_ROOT+'actions/runs/45915470464']
+    }),
+    capabilities:Object.freeze([
+      item('isolated_preview_and_apply',
+        'The actual recovery CLI proved preview and confirmed APPLY inside disposable test directories; no real repository data were overwritten',VERIFIED,
+        [EVIDENCE_ROOT+'actions/runs/45915470464']),
+      item('symlink_and_manifest_preflight',
+        'Malformed manifests, source/target symlinks, parent collisions and occupied directories now fail before restore writes',VERIFIED,
+        [EVIDENCE_ROOT+'pull/233',EVIDENCE_ROOT+'actions/runs/45915470464']),
+      item('protected_recovery_workflow_contract',
+        'Existing recovery workflow retains explicit main-branch confirmation and protected production environment; it now runs isolated guard tests before any restore',VERIFIED,
+        [EVIDENCE_ROOT+'pull/233',EVIDENCE_ROOT+'actions/runs/45915374413']),
+      item('authorized_real_disaster_restore',
+        'Approved real Recovery Point APPLY is completed under protected operator authority and post-restore data checks'),
+      item('cross_service_restart',
+        'Operators independently verify service state, key custody, Discord outputs, required secrets and rollback after a real restore'),
+      item('operator_owner_signoff',
+        'Emergency handover and explicit CEO final release acceptance are recorded')
+    ]),
+    blockers:[
+      'The successful APPLY proof ran exclusively on disposable synthetic directories; no genuine production recovery was performed',
+      'Disaster/key custody, post-restore service readiness, recovery timing and operator approval remain unverified',
+      'CEO final acceptance not recorded'
+    ]},
   {id:'DRIVER_ONBOARDING',name:'Driver Registration & Onboarding — protected roster audit',
     workflow:'driver-register-onboarding.yml',gates:fullGateList(),
     capabilities:Object.freeze([
