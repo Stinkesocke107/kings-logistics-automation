@@ -304,8 +304,13 @@ function renderPrivateReviewTokens(state,secret,nowMs=Date.now()){
       if(row.status==='STAFF_CHECK_RECORDED'||(
         row.status==='RECHECK_REQUIRED'&&old?.status==='STAFF_CHECK_RECORDED'))
         return 'reopen';
-      if(row.status==='IN_REVIEW')
-        return 'record_check STAFF_RECORD ORIGINAL_RECORDS_CHECKED';
+      if(row.status==='IN_REVIEW'){
+        const task=taskFromSources({state,scope:row.scope,code:row.code,
+          month:row.month,nowMs});
+        // A missing original source can be blocked, never "record_checked".
+        return task?.sourceReady
+          ?'record_check STAFF_RECORD ORIGINAL_RECORDS_CHECKED':'block';
+      }
       return 'start';
     };
     const tick=String.fromCharCode(96);
