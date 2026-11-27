@@ -1,5 +1,6 @@
 require('./kings-branding').installDiscordBranding();
 const fs = require('fs');
+const {readStatisticsDocument} = require('./statistics-source-provenance');
 const path = require('path');
 
 const KINGS_BLUE = 0x182dff;
@@ -120,7 +121,7 @@ function normalizeDay(entry = {}) {
 }
 
 function loadStatistics() {
-  const raw = readJson(STATE_FILE, {});
+  const raw = readStatisticsDocument(STATE_FILE,{allowMissing:true});
   const historySource = Array.isArray(raw)
     ? raw
     : Array.isArray(raw.history)
@@ -382,7 +383,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('Kings Advanced Statistics failed:');
-  console.error(error);
+  // Never print arbitrary private Discord/HTTP payloads or webhook URLs.
+  console.error('Kings Advanced Statistics failed (details withheld; inspect readiness signals).');
   process.exit(1);
 });
