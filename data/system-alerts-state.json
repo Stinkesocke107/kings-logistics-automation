@@ -124,6 +124,16 @@
         "completedAt": "2026-11-27T02:04:49Z"
       },
       "firstAlertedAt": "2026-11-27T02:07:00.479Z"
+    },
+    "workflow-failed:driver-management.yml": {
+      "severity": "critical",
+      "system": "Driver Management",
+      "message": "Driver Management latest completed run ended with failure.",
+      "details": {
+        "runId": 45926173839,
+        "completedAt": "2026-11-27T02:07:14Z"
+      },
+      "firstAlertedAt": "2026-11-27T02:08:11.917Z"
     }
   },
   "pending": {}
