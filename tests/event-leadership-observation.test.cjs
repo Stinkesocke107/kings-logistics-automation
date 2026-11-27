@@ -168,6 +168,6 @@ test('suppressed legacy Event messages can refresh encrypted observations withou
   assert.match(reports,/readInvitationTracker\(/);
   assert.match(reports,/invitationSourceObservation/);
   assert.match(dashboard,/eventReports: readPrivateEventReports\(\)/);
-  assert.match(dashboard,/trustedEventObservation\(data\.eventReports\?\.eventSourceObservation\)/);
+  assert.match(dashboard,/trustedEventObservation\(data\.eventReports\?\.eventSourceObservation,\s*now\)/);
   assert.doesNotMatch(dashboard,/eventReports: readJson\(FILES\.eventReports, \{\}\)/);
 });
