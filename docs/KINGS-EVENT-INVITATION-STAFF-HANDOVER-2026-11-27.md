@@ -19,13 +19,29 @@ This handover covers the **existing**, private Event Invitation Tracker forum an
 6. Record the run IDs, date/time, source freshness, responsible human reviewer, documented exception handling, retry/recovery, and final private leadership verification in the private team evidence register. Do not upload raw invitation names, VTC identities, Discord private messages, Staff personal data or tokens to public GitHub.
 7. An authorized Event Coordination Lead performs operational handover; the CEO separately signs off **only** those individually evidenced functions. A working read-only inventory does **not** equal final #15/#18 signoff.
 
+## Private #18 Staff command quick guide (operator aid, not approval)
+
+The private Event Leadership dashboard's **Private Review Codes** field shows up to five current, opaque `KR...` selectors. Only authorised Event Team operators should copy the proposed command into the existing private `#event-operations` channel. Commands are polled by the existing GitHub workflow; this is **not** a live slash-command bot and there is no public acknowledgement or automatic Event decision.
+
+| Current private status | Human action | Expected safe next command |
+| --- | --- | --- |
+| OPEN | Begin original-source investigation | `!kings-review KR... start` |
+| IN_REVIEW | Original source still missing | `!kings-review KR... block` |
+| IN_REVIEW | Original record truly checked | `!kings-review KR... record_check STAFF_RECORD ORIGINAL_RECORDS_CHECKED` (replace `STAFF_RECORD` with `ORIGINAL_DISCORD` or `ORIGINAL_EVENT_PAGE` only when appropriate) |
+| NEEDS_EVIDENCE | Actual source becomes available | `!kings-review KR... start` |
+| STAFF_CHECK_RECORDED | Deliberate correction or new review needed | `!kings-review KR... reopen`, then review and `start` |
+| RECHECK_REQUIRED | Prior status was a recorded Staff check | **`reopen` before `start`**; an immediate `start` is deliberately blocked |
+| RECHECK_REQUIRED | No prior recorded Staff check | `start` again, with fresh original-source investigation |
+
+Never record a check for unavailable original data, never paste source URLs or identifying names into a GitHub Actions input and never infer approval/attendance from a check. The review code changes with original-source observations or a new UTC day. A genuine end-to-end signoff still requires the specific authorised human command, current Discord role validation, encrypted journal commit, dispatcher run, **actual stored Discord dashboard GET** and documented recovery/retry evidence. Retain private run IDs and reviewer signoff separately.
+
 ## Failure handling
 - **Source unavailable / access denied / rate limited:** keep the item open; never interpret missing scans as zero invitations.
 - **Unverified Forum tags or duplicated thread/archive page:** manually inspect original records and retry read-only scan after the source is stable. Do not infer a lifecycle from labels or override an authentic tag decision automatically.
 - **Missing/duplicate VTC reply or event reference:** human Event Coordinator resolves the original thread. No automated deletion, new invitation or reply.
 - **Dashboard stored message not matching encrypted source:** block the dashboard acceptance gate, examine publish/persist/GET verification in order, recover through the existing authorized workflow; never fabricate a green result.
 - **Staff action unverified:** keep original Staff decision proof open even if the journal or offline tests succeed.
-- **Policy unclear:** daily/monthly convoy limits and spacing thresholds remain their existing advisory semantics until the CEO explicitly confirms final rules.
+- **CEO policy confirmed (27 Nov 2026):** up to 3 combined Kings/Partner/External source claims per UTC day, separately 30 Partner and 30 External per UTC month; less than 120 minutes between verified departures is a **Staff review warning only**. These thresholds never create, reject, cancel or release a booking. Original decisions and final acceptance remain unverified.
 
 ## Proof status
 - **Code-level guards:** duplicate thread identity rejection; non-decreasing archive cursor rejection; lifecycle counts withheld when tag mapping unverified; shared, privacy-safe Invitation dashboard projection; actual stored message read-back of both Invitation and Staff progress fields.
