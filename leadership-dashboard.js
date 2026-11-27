@@ -209,6 +209,9 @@ function buildDriver(data, now = Date.now()) {
   const m = latest(data.driverReports.monthlyReports);
   const s = data.driverSummary;
   const t = s.tenure || {};
+  const activity = s.activity || {};
+  const safeActivityCount = key => Number.isSafeInteger(activity[key]) &&
+    activity[key] >= 0 ? activity[key] : 'Unavailable';
   const live =
     `VTC Drivers **${s.currentDrivers ?? current.length}** • Online **${verifiedLiveOnline(s, now)}** • Grace **${s.activity?.grace ?? 0}** • LOA **${s.activity?.approvedLeave ?? 0}**\n` +
     `Activity: Active **${s.activity?.active ?? 0}** • Info **${s.activity?.info7Days ?? 0}** • Attention **${s.activity?.attention14Days ?? 0}** • HR Review **${s.activity?.hrReview30Days ?? 0}**\n` +
@@ -232,7 +235,16 @@ function buildDriver(data, now = Date.now()) {
     title: '🚛 Kings Driver Leadership Dashboard',
     description: 'One fixed Driver dashboard. Driver totals cover the full TruckersMP VTC roster, including members without the Discord Kings Driver role. Live online status is shown only when verified.',
     color: KINGS_BLUE,
-    fields: [field('🔵 Live Overview', live), field('🟢 Last 24 Hours', daily), field('🟣 Last Completed Week', weekly), field('👑 Last Completed Month', monthly)],
+    fields: [
+      field('🔵 Live Overview',live),
+      field('🎯 Next Driver Review',
+        'Attention **'+safeActivityCount('attention14Days')+'** • HR review **'+
+        safeActivityCount('hrReview30Days')+'** • Approved LOA **'+
+        safeActivityCount('approvedLeave')+'**. Review only current trusted private Driver records; no automated decisions.'),
+      field('🟢 Last 24 Hours',daily),
+      field('🟣 Last Completed Week',weekly),
+      field('👑 Last Completed Month',monthly)
+    ],
     footer: { text: 'Kings Logistics • Driver Leadership • Advisory only' },
     timestamp: nowISO()
   };
@@ -268,6 +280,12 @@ function buildHr(data, now = Date.now()) {
     color: KINGS_BLUE,
     fields: [
       field('🔵 VTC Driver & HR Overview', `VTC Drivers **${drivers.length}** • First 7d **${first7.length}** • Open Probation **${open.length}** • Extended **${extended.length}** • 30d HR Reviews **${hrReviews.length}** • LOA active/scheduled **${activeLoa.length}/${scheduledLoa.length}**`),
+      field('🎯 Next HR Review', 'Open probation **'+open.length+
+        '** • Extended **'+extended.length+'** • HR-flagged Drivers **'+
+        hrReviews.length+'** • Driver registration **'+
+        ((register.status==='complete'||register.status==='incomplete')?
+          register.missing:'Unavailable')+
+        '** pending source review. Human HR/Management confirmation is required.'),
       field('🗂️ Kings Driver Registration — HR Review', registerStatus),
       field('🟢 Last 24 Hours', `Probation opened **${opened24.length}** • Completed **${completed24.length}** • New HR Reviews **${hrStarted24.length}** • LOA approved **${loa24.length}**`),
       field('🟣 Last Completed Week', w ? `${fmtKey(w.key)} • Drivers **${w.currentDrivers}** • Joined **${w.joined}** • Left **${w.left}** • Net **${signed(w.netGrowth)}** • Probation open **${w.openProbation ?? 0}** • HR Reviews **${w.hrReviews30d ?? 0}**` : 'No completed weekly report yet.'),
@@ -295,6 +313,9 @@ function buildStaff(data, now = Date.now()) {
     color: KINGS_BLUE,
     fields: [
       field('🔵 VTC Staff Classification', `VTC-classified Staff **${s.currentStaff ?? 0}** • Tracked Records **${s.trackedStaffRecords ?? 0}**\n${topDepartments}`),
+      field('🎯 Next Staff Review',
+        'Last 24h: joins **'+joined24+'** • departures **'+left24+
+        '** • role changes **'+role24+'**. Verify against authorised Staff-role and appointment records; no automatic personnel action.'),
       field('🟢 Last 24 Hours', `Joined **${joined24}** • Left **${left24}** • Role changes **${role24}**`),
       field('🟣 Last Completed Week', w ? `${fmtKey(w.key)} • Start **${w.startStaff}** → End **${w.endStaff}** • Joined **${w.joined}** • Left **${w.left}** • Role Changes **${w.roleChanges}** • Net **${signed(w.netGrowth)}**` : 'No completed weekly report yet.'),
       field('👑 Last Completed Month', m ? `${fmtKey(m.key)} • Start **${m.startStaff}** → End **${m.endStaff}** • Joined **${m.joined}** • Left **${m.left}** • Role Changes **${m.roleChanges}** • Net **${signed(m.netGrowth)}**` : 'No completed monthly report yet.')
