@@ -69,3 +69,14 @@ test('main Event source change uses atomic encrypted source-only refresh and exi
   assert.match(refresh,/BOTH_SOURCE_OBSERVATIONS_REFRESHED/);
   assert.match(refresh,/if \(PREVIEW\) throw/);
 });
+
+
+test('source writer and integrated GET-only retry both read current protected main',()=>{
+  const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/event-leadership-reports.yml'),'utf8');
+  const source=workflow.split('  event_integrated_source_verify:')[1]?.split('  event_staff_command_verify:')[0]||'';
+  const report=workflow.split('\n  report:\n').at(-1)||'';
+  assert.match(source,/Checkout repository[\s\S]*?ref: main/);
+  assert.match(report,/Checkout repository[\s\S]*?ref: main/);
+  assert.match(source,/contents: read/);
+  assert.match(report,/contents: write/);
+});
