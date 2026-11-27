@@ -182,3 +182,15 @@ test('independent 30/month warning text and staged 20,25,30 review thresholds re
    assert.match(above,/no existing approval is displaced/);
  }
 });
+
+test('unidentified original source claims alert Staff without double-counting or leaking private records',()=>{
+  const {describe,keyOf}=require('../convoy-planning-alerts');
+  const notice={code:'unidentified-source-claim',period:'2027-04-09',count:2};
+  const content=describe(notice);
+  assert.match(content,/without a verifiable Event, Forum or Legacy ID/);
+  assert.match(content,/not counted as distinct Convoys/);
+  assert.match(content,/Event Staff must reconcile original records/);
+  assert.match(content,/no capacity is certified or released/);
+  assert.equal(keyOf(notice),keyOf({...notice,count:5}));
+  assert.doesNotMatch(content,/PRIVATE_EVENT_MARKER|123456789012345678/);
+});
