@@ -45,3 +45,27 @@ test('the workflow uses a private key and never runs a Discord publisher while m
   assert.doesNotMatch(source,/discord\(/);
   assert.doesNotMatch(source,/node event-leadership-reports\.js/);
 });
+
+
+test('main Event source change uses atomic encrypted source-only refresh and existing dashboard dispatch',()=>{
+  const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/event-leadership-reports.yml'),'utf8');
+  const script=fs.readFileSync(path.join(__dirname,'../event-leadership-reports.js'),'utf8');
+  assert.match(workflow,/github\.event_name == 'push'/);
+  assert.match(workflow,/MODE=source-refresh/);
+  assert.match(workflow,/LEADERSHIP_CONSOLIDATED_ONLY: 'true'/);
+  assert.match(workflow,/gh workflow run leadership-dashboard\.yml/);
+  const start=script.indexOf("if (REPORT_MODE === 'source-refresh')");
+  const end=script.indexOf('let invitationUpdated=false;',start);
+  assert.ok(start>0&&end>start);
+  const refresh=script.slice(start,end);
+  const build=refresh.indexOf('buildEventObservation(report,overview)');
+  const invite=refresh.indexOf('await readInvitationTracker(');
+  const verify=refresh.indexOf('invitation?.tagSchemaVerified!==true');
+  const eventAssign=refresh.indexOf('state.eventSourceObservation=event');
+  const inviteAssign=refresh.indexOf('state.invitationSourceObservation=invitation');
+  const save=refresh.indexOf('saveState(state)');
+  assert.ok(build>=0&&invite>build&&verify>invite&&eventAssign>verify&&inviteAssign>eventAssign&&save>inviteAssign);
+  assert.doesNotMatch(refresh,/syncTextMessage|method:\s*['"](?:POST|PATCH|DELETE)['"]/);
+  assert.match(refresh,/BOTH_SOURCE_OBSERVATIONS_REFRESHED/);
+  assert.match(refresh,/if \(PREVIEW\) throw/);
+});
