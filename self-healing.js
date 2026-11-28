@@ -72,9 +72,16 @@ function ageMinutes(timestamp, nowMs = Date.now()) {
   return Math.max(0, (nowMs - parsed) / 60_000);
 }
 
+function isManagedActiveRun(run) {
+  return Boolean(run && ['queued', 'in_progress', 'waiting', 'pending', 'requested'].includes(run.status));
+}
+
 function isRecentActiveRun(run, nowMs = Date.now()) {
-  if (!run || !['queued', 'in_progress', 'waiting', 'pending', 'requested'].includes(run.status)) return false;
-  const timestamp = run.run_started_at || run.created_at;
+  if (!isManagedActiveRun(run)) return false;
+  const timestamp = run.created_at || run.run_started_at;
+  const parsed = Date.parse(timestamp || '');
+  // An absent or future-dated timestamp cannot prove a safe recent execution.
+  if (!Number.isFinite(parsed) || parsed > nowMs + 5 * 60_000) return false;
   return ageMinutes(timestamp, nowMs) <= RECENT_ACTIVE_MINUTES;
 }
 
@@ -343,8 +350,11 @@ async function githubJson(repo, token, endpoint, options = {}) {
 
 async function getRuns(repo, token, workflow) {
   const encoded = encodeURIComponent(workflow);
-  const data = await githubJson(repo, token, `/actions/workflows/${encoded}/runs?branch=main&per_page=10`);
-  return Array.isArray(data?.workflow_runs) ? data.workflow_runs : [];
+  const data = await githubJson(repo, token, `/actions/workflows/${encoded}/runs?branch=main&per_page=100`);
+  if (!Array.isArray(data?.workflow_runs)) {
+    throw new Error(`Invalid GitHub run history for ${workflow}; repair dispatch blocked.`);
+  }
+  return data.workflow_runs;
 }
 
 async function dispatchWorkflow(repo, token, config) {
@@ -383,13 +393,25 @@ async function waitForResult(repo, token, workflow, notBeforeMs, waitMs, pollMs)
 
 async function executeRepair(repo, token, config, waitMs, pollMs) {
   const runs = await getRuns(repo, token, config.workflow);
-  const active = runs.find((run) => isRecentActiveRun(run));
+  const active = runs.find(isManagedActiveRun);
   let action = 'wait-existing';
   let notBeforeMs = Date.now();
 
   if (active) {
-    const created = Date.parse(active.created_at || active.run_started_at || '');
-    if (Number.isFinite(created)) notBeforeMs = created;
+    const timestamp = active.created_at || active.run_started_at;
+    const created = Date.parse(timestamp || '');
+    if (!isRecentActiveRun(active) || !Number.isFinite(created)) {
+      // Never create a second run while any first run remains active.
+      // GitHub may be delayed, or its clock/run metadata may be unreliable.
+      console.warn(`[SELF-HEAL] ${config.label}: existing ${active.status} run is stale or has uncertain timestamps; manual operator review required. No duplicate dispatch.`);
+      return {
+        id: config.id, label: config.label, workflow: config.workflow,
+        action: 'operator-review', verification: 'existing-active-run',
+        status: 'blocked-active-run', runId: active.id || null,
+        conclusion: null, completedAt: null
+      };
+    }
+    notBeforeMs = created;
     console.log(`[SELF-HEAL] ${config.label}: recent run already ${active.status}; waiting instead of dispatching a duplicate.`);
   } else {
     await dispatchWorkflow(repo, token, config);
@@ -573,6 +595,8 @@ module.exports = {
   FORBIDDEN_WORKFLOW_PATTERN,
   ageMinutes,
   isRecentActiveRun,
+  isManagedActiveRun,
+  executeRepair,
   parsePositiveInt,
   emptyState,
   normalizeState,

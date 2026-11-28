@@ -315,3 +315,45 @@ test('a complete persisted repair history remains valid and enforces its attempt
   assert.equal(restored.repairs['driver-updates'].attempts.length, 2);
   assert.equal(attemptBudget(config, restored, now).allowed, false);
 });
+
+test('Self-Healing never redispatches an older active run even when repair is overdue', async () => {
+  const {executeRepair, isManagedActiveRun, isRecentActiveRun} = require('../self-healing.js');
+  const active = {id:987, status:'in_progress', event:'schedule',
+    created_at:new Date(Date.now()-60*60*1000).toISOString()};
+  assert.equal(isManagedActiveRun(active), true);
+  assert.equal(isRecentActiveRun(active), false);
+  const originalFetch = global.fetch;
+  let posts = 0;
+  global.fetch = async (url, options) => {
+    if (options.method === 'POST') { posts += 1; throw Error('Duplicate dispatch attempted'); }
+    assert.match(String(url), /\/actions\/workflows\/driver-updates\.yml\/runs\?branch=main&per_page=100/);
+    return new Response(JSON.stringify({workflow_runs:[active]}), {status:200,headers:{'content-type':'application/json'}});
+  };
+  try {
+    const result = await executeRepair('test/kings','test-only-token',
+      SAFE_REPAIRS.find((item) => item.id === 'driver-updates'), 50, 10);
+    assert.equal(result.action, 'operator-review');
+    assert.equal(result.status, 'blocked-active-run');
+    assert.equal(result.runId, 987);
+    assert.equal(posts, 0);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('Self-Healing rejects malformed GitHub run histories instead of treating them as idle', async () => {
+  const {executeRepair} = require('../self-healing.js');
+  const originalFetch = global.fetch;
+  let posts = 0;
+  global.fetch = async (_url, options) => {
+    if (options.method === 'POST') posts++;
+    return new Response('{}',{status:200,headers:{'content-type':'application/json'}});
+  };
+  try {
+    await assert.rejects(
+      executeRepair('test/kings','test-only-token',SAFE_REPAIRS[1],50,10),
+      /Invalid GitHub run history/
+    );
+    assert.equal(posts,0);
+  } finally {global.fetch = originalFetch;}
+});
