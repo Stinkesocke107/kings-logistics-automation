@@ -120,13 +120,13 @@ test('Kings Git/state conflict hardening matrix', () => {
       safePush(f.a);
       const failed = run(f.b, 'bash', [helper, 'main'], { expectSuccess: false });
       assert.notEqual(failed.status, 0);
-      assert.match(failed.stdout + failed.stderr, /Rebase conflict detected/);
+      assert.match(failed.stdout + failed.stderr, /blocked overlapping data state path/);
       assert.equal(localHead(f.b), localBefore);
       assert.equal(remoteFile(f.b, 'data/base.json'), '{"owner":"remote"}\n');
       assert.equal(fs.readFileSync(path.join(f.b, 'data/base.json'), 'utf8'), '{"owner":"local"}\n');
       assert.equal(fs.existsSync(path.join(f.b, '.git/rebase-merge')), false);
       assert.equal(fs.existsSync(path.join(f.b, '.git/rebase-apply')), false);
-      scenarios.push({ scenario: 'same-file conflict aborts without overwriting either side', passed: true });
+      scenarios.push({ scenario: 'same-file overlap aborts before rebase without overwriting either side', passed: true });
     }
 
     {
