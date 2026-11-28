@@ -357,3 +357,54 @@ test('Self-Healing rejects malformed GitHub run histories instead of treating th
     assert.equal(posts,0);
   } finally {global.fetch = originalFetch;}
 });
+
+test('Self-Healing counts only the exact already-active run ID as recovery evidence', async () => {
+  const {waitForResult} = require('../self-healing.js');
+  const now = Date.now();
+  const original = global.fetch;
+  global.fetch = async () => new Response(JSON.stringify({workflow_runs:[
+    {id:100, event:'schedule', status:'completed',conclusion:'success',head_branch:'main',
+      created_at:new Date(now).toISOString()},
+    {id:101, event:'schedule', status:'completed',conclusion:'failure',head_branch:'main',
+      created_at:new Date(now).toISOString()}
+  ]}), {status:200});
+  try {
+    const result = await waitForResult('test/kings','test-token','driver-updates.yml',
+      now, 60, 10, 101);
+    assert.equal(result.status, 'failed');
+    assert.equal(result.run.id, 101);
+  } finally {global.fetch = original;}
+});
+
+test('Self-Healing refuses unrelated scheduled success as evidence of its own dispatch', async () => {
+  const {waitForResult} = require('../self-healing.js');
+  const now = Date.now();
+  const original = global.fetch;
+  global.fetch = async () => new Response(JSON.stringify({workflow_runs:[
+    {id:100, event:'schedule', status:'completed', conclusion:'success',head_branch:'main',
+      created_at:new Date(now).toISOString()},
+    {id:101, event:'push', status:'completed', conclusion:'success',head_branch:'main',
+      created_at:new Date(now).toISOString()}
+  ]}),{status:200});
+  try {
+    const result = await waitForResult('test/kings','test-token','driver-updates.yml',
+      now, 65, 10);
+    assert.equal(result.status,'pending-timeout');
+  } finally {global.fetch=original;}
+});
+
+test('Self-Healing recognizes a real recent main workflow_dispatch as candidate evidence', async () => {
+  const {waitForResult} = require('../self-healing.js');
+  const now=Date.now();
+  const original=global.fetch;
+  global.fetch=async()=>new Response(JSON.stringify({workflow_runs:[
+    {id:102,event:'workflow_dispatch',status:'completed',conclusion:'success',
+      head_branch:'main',created_at:new Date(now).toISOString()}
+  ]}),{status:200});
+  try {
+    const result=await waitForResult('test/kings','test-token','driver-updates.yml',
+      now, 60, 10);
+    assert.equal(result.status,'recovered');
+    assert.equal(result.run.id,102);
+  } finally {global.fetch=original;}
+});

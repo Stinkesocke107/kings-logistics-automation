@@ -371,13 +371,19 @@ async function dispatchWorkflow(repo, token, config) {
   await githubJson(repo, token, `/actions/workflows/${encoded}/dispatches`, { method: 'POST', body });
 }
 
-async function waitForResult(repo, token, workflow, notBeforeMs, waitMs, pollMs) {
+async function waitForResult(repo, token, workflow, notBeforeMs, waitMs, pollMs, expectedRunId = null) {
   const deadline = Date.now() + waitMs;
   while (Date.now() < deadline) {
     const runs = await getRuns(repo, token, workflow);
     const relevant = runs.filter((run) => {
+      // With an existing active run, only its exact immutable GitHub ID
+      // counts. Never borrow success from a concurrent or newer unrelated job.
+      if (expectedRunId !== null) return String(run.id || '') === String(expectedRunId);
+      // A workflow_dispatch recovery has no returned run ID from GitHub's API.
+      // At minimum, reject unrelated scheduled/push success and other branches.
       const created = Date.parse(run.created_at || run.run_started_at || '');
-      return Number.isFinite(created) && created >= notBeforeMs - 10_000;
+      return run.event === 'workflow_dispatch' && run.head_branch === 'main' &&
+        Number.isFinite(created) && created >= notBeforeMs - 10_000;
     });
 
     const success = relevant.find((run) => run.status === 'completed' && run.conclusion === 'success');
@@ -400,7 +406,8 @@ async function executeRepair(repo, token, config, waitMs, pollMs) {
   if (active) {
     const timestamp = active.created_at || active.run_started_at;
     const created = Date.parse(timestamp || '');
-    if (!isRecentActiveRun(active) || !Number.isFinite(created)) {
+    if (!isRecentActiveRun(active) || !Number.isFinite(created) ||
+        !Number.isSafeInteger(Number(active.id)) || Number(active.id) <= 0) {
       // Never create a second run while any first run remains active.
       // GitHub may be delayed, or its clock/run metadata may be unreliable.
       console.warn(`[SELF-HEAL] ${config.label}: existing ${active.status} run is stale or has uncertain timestamps; manual operator review required. No duplicate dispatch.`);
@@ -419,7 +426,8 @@ async function executeRepair(repo, token, config, waitMs, pollMs) {
     console.log(`[SELF-HEAL] ${config.label}: dispatched safe repair workflow ${config.workflow}.`);
   }
 
-  const waited = await waitForResult(repo, token, config.workflow, notBeforeMs, waitMs, pollMs);
+  const waited = await waitForResult(repo, token, config.workflow, notBeforeMs, waitMs, pollMs,
+    active ? active.id : null);
   if (waited.status === 'recovered' && config.id === 'live-tracker') {
     const latest = await githubJson(repo, token, '/commits?path=data/live-tracker-snapshot.json&per_page=1');
     const changed = Date.parse(latest?.[0]?.commit?.committer?.date || '');
@@ -597,6 +605,7 @@ module.exports = {
   isRecentActiveRun,
   isManagedActiveRun,
   executeRepair,
+  waitForResult,
   parsePositiveInt,
   emptyState,
   normalizeState,
