@@ -211,6 +211,69 @@ async function main() {
     return { plans: plan.plans.length };
   });
 
+
+  await scenario('combined recoverable and unsafe failures escalate without forbidden dispatch', async (logs) => {
+    const now = Date.now();
+    const backup = SAFE_REPAIRS.find((item) => item.id === 'core-backup');
+    let state = emptyState();
+    for (const minutesAgo of [100, 30]) {
+      state = recordAttempt(state, backup,
+        { status: 'failed', action: 'dispatched', runId: null },
+        ['workflow-failed:core-backup.yml'], now - minutesAgo * 60_000);
+    }
+
+    const executed = [];
+    const result = await runHealingCycle({
+      health: health('UNHEALTHY', [
+        { id: 'workflow-failed:live-tracker.yml', severity: 'critical', system: 'Live Tracker' },
+        { id: 'workflow-failed:driver-updates.yml', severity: 'critical', system: 'Driver Updates' },
+        { id: 'workflow-failed:core-backup.yml', severity: 'critical', system: 'Core Backup' },
+        { id: 'workflow-failed:hr-leadership.yml', severity: 'critical', system: 'HR Leadership' },
+        { id: 'workflow-failed:convoy-checker.yml', severity: 'critical', system: 'Convoy' }
+      ]),
+      state,
+      nowMs: now,
+      execute: async (config) => {
+        executed.push(config.id);
+        return {
+          id: config.id,
+          label: config.label,
+          workflow: config.workflow,
+          action: 'dispatched',
+          status: config.id === 'driver-updates' ? 'failed' : 'recovered'
+        };
+      }
+    });
+
+    assert.deepEqual(executed.sort(), ['driver-updates', 'live-tracker']);
+    assert.equal(result.plan.suppressed.length, 1);
+    assert.equal(result.plan.suppressed[0].id, 'core-backup');
+    assert.equal(result.plan.unresolvedUnsafe.length, 2);
+    assert.equal(result.results.length, 2);
+    assert.equal(result.status, 'escalation-required');
+    logs.push('simultaneous critical faults: only two allowlisted workflow attempts executed');
+    logs.push('exhausted backup retry budget stopped dispatch; HR and Convoy remained manual-only');
+    logs.push('partial repair failure and unresolved critical faults explicitly escalated');
+    return { executed, suppressed: 1, manualOnly: 2, status: result.status };
+  });
+
+  await scenario('unknown repair state fails closed rather than enabling forbidden action', async (logs) => {
+    const now = Date.now();
+    const state = emptyState();
+    state.repairs['unauthorized-personnel-repair'] = {
+      lastAttemptAt: null,
+      attempts: []
+    };
+    const recovered = recoverStateText(JSON.stringify(state), now);
+    assert.equal(recovered.recovered, true);
+    assert.equal(recovered.reason, 'unknown-repair-ids');
+    assert.equal(verifyRecoveryLock(recovered.state, now), true);
+    assert.deepEqual(Object.keys(recovered.state.repairs).sort(),
+      SAFE_REPAIRS.map((item) => item.id).sort());
+    logs.push('unknown repair ID rejected; only allowlisted entries restored with lockout');
+    return { reason: recovered.reason, failClosed: true };
+  });
+
   const failed = scenarios.filter((x) => x.status !== 'PASS');
   const report = {
     version: 1,
