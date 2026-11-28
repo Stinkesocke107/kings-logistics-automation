@@ -134,11 +134,14 @@ jobs:
             active="$(active_managed_run "$snapshot")"
             if [ -n "$active" ]; then
               IFS='|' read -r active_id active_status active_created <<< "$active"
-              active_age=0
-              if [ -n "$active_created" ]; then
-                active_epoch="$(date -u -d "$active_created" +%s)"
-                active_age=$(( now - active_epoch ))
+              # An active GitHub run is never safe to duplicate, regardless of age.
+              # Missing metadata is also uncertain, not permission to dispatch.
+              if [ -z "$active_created" ]; then
+                echo "::warning::${workflow}: active managed run ${active_id} has no creation timestamp; operator review required. No duplicate dispatch."
+                return 0
               fi
+              active_epoch="$(date -u -d "$active_created" +%s)"
+              active_age=$(( now - active_epoch ))
 
               # Do not silently interpret future-dated GitHub metadata as healthy.
               # Defer uncertain recovery rather than duplicating an active job.
@@ -152,7 +155,11 @@ jobs:
                 return 0
               fi
 
-              echo "::warning::${workflow}: managed run ${active_id} is still ${active_status} after ${active_age}s; treating it as stuck and allowing one recovery dispatch."
+              # Only a human may investigate/cancel a stuck run. An API
+              # dispatch while it is still queued/running risks concurrent state
+              # writes, duplicate notifications and unrecoverable snapshots.
+              echo "::warning::${workflow}: managed run ${active_id} is still ${active_status} after ${active_age}s; operator review required. No duplicate dispatch."
+              return 0
             fi
 
             latest_success="$(latest_successful_run "$snapshot")"
