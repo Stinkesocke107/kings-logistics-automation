@@ -285,7 +285,7 @@ async function main() {
   // Optional immutable message ID is the most reliable long-lived path:
   // it can be read directly even after >100 unrelated channel messages.
   const pinnedId = String(process.env.SYSTEM_MONITOR_MESSAGE_ID || '').trim();
-  if (pinnedId && !/^\\d{17,20}$/.test(pinnedId)) {
+  if (pinnedId && !/^\d{17,20}$/.test(pinnedId)) {
     throw new Error('Configured System Monitor message ID is invalid; no Discord write performed.');
   }
 
