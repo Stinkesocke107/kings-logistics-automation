@@ -55,3 +55,13 @@ test('Core Backup workflow confirms newly uploaded artifact using bounded same-r
   assert.match(workflow,/for attempt in 1 2 3 4 5; do/);
   assert.match(workflow,/actions\/runs\/\$\{GITHUB_RUN_ID\}\/artifacts/);
 });
+
+test('Core Backup summary cannot claim a healthy durable backup after upload proof fails',()=>{
+  const flow=fs.readFileSync(path.join(__dirname,'../.github/workflows/core-backup.yml'),'utf8');
+  assert.match(flow,/id: artifact_verify/);
+  assert.match(flow,/ARTIFACT_STATUS: \$\{\{ steps\.artifact_verify\.outcome \}\}/);
+  assert.match(flow,/if \[ "\$HEALTHY" = "true" \] && \[ "\$ARTIFACT_STATUS" = "success" \]/);
+  assert.match(flow,/Backup archive availability NOT VERIFIED/);
+  assert.match(flow,/Status: NOT VERIFIED/);
+  assert.doesNotMatch(flow,/The complete backup is available as a GitHub Actions artifact/);
+});
