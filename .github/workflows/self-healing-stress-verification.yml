@@ -2,6 +2,12 @@ name: Kings Self-Healing Stress Verification
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'self-healing-stress.js'
+      - 'self-healing-stress-verifier.js'
+      - 'self-healing-state-guard.js'
+      - '.github/workflows/self-healing-stress-verification.yml'
   push:
     branches: [main]
     paths:
@@ -20,7 +26,7 @@ concurrency:
 
 jobs:
   stress:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
     name: Point 22 Controlled Failure Stress Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -47,7 +53,22 @@ jobs:
       - name: Execute isolated controlled failure matrix
         run: node self-healing-stress.js
 
+      - name: Verify isolated stress report without production sources
+        run: |
+          node - <<'NODE'
+          const r = require('./output/self-healing-stress.json');
+          if (r.status !== 'STRESS-TEST-PASSED' ||
+              r.safety?.productionFailureInjection !== false ||
+              r.safety?.productionPersonnelActions !== false ||
+              r.safety?.productionConvoyLiveActions !== false ||
+              r.summary?.failed !== 0 || r.summary?.scenarios < 11) {
+            throw new Error('Isolated Self-Healing stress test did not pass required safety gates.');
+          }
+          console.log('Isolated Self-Healing failure matrix passed: ' + r.summary.scenarios + ' scenarios.');
+          NODE
+
       - name: Build fresh read-only production health after stress
+        if: github.ref == 'refs/heads/main'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -64,6 +85,7 @@ jobs:
           node discord-permission-audit.js
 
       - name: Verify Point 22 acceptance gates
+        if: github.ref == 'refs/heads/main'
         run: node self-healing-stress-verifier.js
 
       - name: Upload Point 22 evidence
