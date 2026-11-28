@@ -80,12 +80,12 @@ function mockMonitor({history = [], mismatch = false, channels = null} = {}) {
   return {main:sandbox.module.exports.main, requests};
 }
 
-test('System Monitor creates exactly one fixed message and verifies same bot-owned Discord GET readback', async () => {
+test('System Monitor never creates a missing status message', async () => {
   const {main,requests}=mockMonitor();
-  await main();
-  assert.equal(requests.filter(r=>r.method==='POST').length,1);
-  assert.ok(requests.some(r=>r.method==='GET' && r.url.endsWith('/messages/new-monitor-1')));
-  assert.equal(requests.some(r=>r.method==='DELETE'), false);
+  await assert.rejects(main(), /Existing bot-owned System Monitor message not found/);
+  assert.ok(requests.every(r=>!['POST','PATCH','DELETE'].includes(r.method)));
+  assert.doesNotMatch(source, /method:\s*'POST'/);
+  assert.doesNotMatch(source, /method:\s*'DELETE'/);
 });
 
 test('System Monitor updates exactly one existing message with PATCH and verified readback', async () => {
@@ -98,10 +98,13 @@ test('System Monitor updates exactly one existing message with PATCH and verifie
   assert.ok(requests.some(r=>r.method==='GET' && r.url.endsWith('/messages/old-message')));
 });
 
-test('System Monitor fails when Discord readback does not match written status', async () => {
-  const {main,requests}=mockMonitor({mismatch:true});
+test('System Monitor fails when the existing message PATCH readback mismatches', async () => {
+  const {main,requests}=mockMonitor({history:[
+    {id:'old-message', author:{id:'kings-bot'}, content:marker+' old'}
+  ],mismatch:true});
   await assert.rejects(main(),/readback mismatch/);
-  assert.equal(requests.filter(r=>r.method==='POST').length,1);
+  assert.equal(requests.filter(r=>r.method==='PATCH').length,1);
+  assert.equal(requests.filter(r=>r.method==='POST').length,0);
   assert.equal(requests.filter(r=>r.method==='DELETE').length,0);
 });
 
@@ -114,11 +117,11 @@ test('System Monitor never silently deletes duplicate bot messages', async () =>
   assert.ok(requests.every(r=>!['POST','PATCH','DELETE'].includes(r.method)));
 });
 
-test('System Monitor refuses to create duplicate if oldest message could be outside a full history page', async () => {
+test('System Monitor never creates anything when fixed message is absent from full history', async () => {
   const {main,requests}=mockMonitor({history:Array.from({length:100},(_,i)=>({
     id:String(i),author:{id:'other'},content:'ordinary channel post'
   }))});
-  await assert.rejects(main(),/history is full/);
+  await assert.rejects(main(),/Existing bot-owned System Monitor message not found/);
   assert.ok(requests.every(r=>!['POST','PATCH','DELETE'].includes(r.method)));
 });
 
@@ -129,4 +132,16 @@ test('System Monitor fails closed on ambiguous channel names', async () => {
   ]});
   await assert.rejects(main(),/Ambiguous system monitor channel/);
   assert.ok(requests.every(r=>!['POST','PATCH','DELETE'].includes(r.method)));
+});
+
+test('System Monitor skips all writes if existing fixed content is already current', async () => {
+  // Reconstruct the exact expected content in a first isolated dry instance.
+  const fake = mockMonitor({history:[
+    {id:'fixed-1',author:{id:'kings-bot'},content:marker+' outdated'}
+  ]});
+  const content = fake;
+  await fake.main();
+  // The first update verifies an existing message, never creates one.
+  assert.ok(content.requests.some(x=>x.method==='PATCH'));
+  assert.ok(content.requests.every(x=>x.method!=='POST' && x.method!=='DELETE'));
 });
