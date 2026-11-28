@@ -87,14 +87,17 @@
         "runId": 46041824790
       },
       "firstAlertedAt": "2026-11-27T18:05:42.214Z"
+    },
+    "workflow-failed:staff-leadership-live-overview.yml": {
+      "severity": "warning",
+      "system": "Staff Leadership Live Overview",
+      "message": "Staff Leadership Live Overview latest completed run ended with failure.",
+      "details": {
+        "runId": 46101627471,
+        "completedAt": "2026-11-28T03:11:47Z"
+      },
+      "firstAlertedAt": "2026-11-28T03:14:00.077Z"
     }
   },
-  "pending": {
-    "workflow-failed:staff-leadership-live-overview.yml": {
-      "count": 1,
-      "firstSeenAt": "2026-11-28T03:12:57.450Z",
-      "system": "Staff Leadership Live Overview",
-      "message": "Staff Leadership Live Overview latest completed run ended with failure."
-    }
-  }
+  "pending": {}
 }
