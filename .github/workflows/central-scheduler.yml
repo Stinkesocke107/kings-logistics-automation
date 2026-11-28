@@ -83,7 +83,9 @@ jobs:
             jq -r '
                   [
                     .workflow_runs[]
-                    | select(.event == "schedule" or .event == "workflow_dispatch")
+                    | select(.event == "schedule" or .event == "workflow_dispatch" or .event == "push")
+                    # A real in-progress main push can write the same production
+                    # data as a scheduled run. It must also block recovery.
                     | select(
                         .status == "queued" or
                         .status == "in_progress" or
