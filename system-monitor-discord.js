@@ -261,11 +261,16 @@ async function resolveMonitorChannel() {
   const channels = await discord(`/guilds/${GUILD_ID}/channels`);
   const target = simplifyChannelName(CHANNEL_NAME);
 
-  return (channels || []).find((channel) => {
-    if (![0, 5].includes(channel.type)) return false;
-    const name = simplifyChannelName(channel.name || '');
-    return name === target || name.endsWith(target) || name.includes(target);
-  }) || null;
+  if (!Array.isArray(channels)) throw new Error('Monitor channel inventory is invalid.');
+  const compatible = channels.filter((channel) =>
+    [0, 5].includes(channel.type) &&
+    simplifyChannelName(channel.name || '').endsWith(target)
+  );
+  const exact = compatible.filter((channel) => simplifyChannelName(channel.name || '') === target);
+  const choices = exact.length ? exact : compatible;
+  // Never publish into a guessed channel when two similar names are present.
+  if (choices.length > 1) throw new Error('Ambiguous system monitor channel; no write performed.');
+  return choices[0] || null;
 }
 
 async function main() {
@@ -274,41 +279,54 @@ async function main() {
   const channel = await resolveMonitorChannel();
 
   if (!channel) {
-    console.log(`Kings System Monitor channel not found. Create a text channel containing "${CHANNEL_NAME}"; no Discord write performed.`);
-    return;
+    throw new Error(`Kings System Monitor channel "${CHANNEL_NAME}" not found; no Discord write performed.`);
   }
 
   const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
-  const matches = (messages || [])
-    .filter((message) =>
-      message.author?.id === bot.id &&
-      String(message.content || '').includes(MESSAGE_TEXT)
-    )
-    .sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+  if (!Array.isArray(messages)) throw new Error('System Monitor message history is invalid.');
+  const matches = messages.filter((message) =>
+    message.author?.id === bot.id &&
+    String(message.content || '').startsWith(MARKER)
+  );
+  // A full Discord page cannot prove that an older fixed message does not
+  // exist. Creating another would silently duplicate the status monitor.
+  if (messages.length === 100 && matches.length === 0) {
+    throw new Error('System Monitor history is full; manual message ownership check required.');
+  }
+  // Do not delete bot messages automatically or change unrelated posts.
+  if (matches.length > 1) {
+    throw new Error('Multiple bot-owned System Monitor messages found; manual cleanup required.');
+  }
 
   let existing = matches[0] || null;
 
   const content = buildMessage(health);
   const body = { content, allowed_mentions: { parse: [] } };
 
+  let wrote = false;
   if (!existing) {
     existing = await discord(`/channels/${channel.id}/messages`, { method: 'POST', body });
-    console.log(`Kings System Monitor created in #${channel.name} (${channel.id}); message ${existing?.id || 'unknown'}.`);
+    if (!existing?.id) {
+      throw new Error('System Monitor POST returned no message identity; manual check required.');
+    }
+    wrote = true;
   } else if (String(existing.content || '').trim() === content.trim()) {
     console.log(`Kings System Monitor unchanged in #${channel.name} (${channel.id}).`);
   } else {
     await discord(`/channels/${channel.id}/messages/${existing.id}`, { method: 'PATCH', body });
-    console.log(`Kings System Monitor updated in #${channel.name} (${channel.id}); message ${existing.id}.`);
+    wrote = true;
   }
 
-  let duplicatesRemoved = 0;
-  for (const duplicate of matches.slice(1)) {
-    await discord(`/channels/${channel.id}/messages/${duplicate.id}`, { method: 'DELETE' });
-    duplicatesRemoved += 1;
-  }
-
-  if (duplicatesRemoved) {
-    console.log(`Kings System Monitor duplicate cleanup: removed ${duplicatesRemoved} duplicate message(s).`);
+  if (wrote) {
+    // A successful POST/PATCH HTTP response is not a Discord delivery proof.
+    // Re-read the exact same bot-owned message before claiming success.
+    const verified = await discord(`/channels/${channel.id}/messages/${existing.id}`);
+    if (String(verified?.id || '') !== String(existing.id) ||
+        verified?.author?.id !== bot.id ||
+        String(verified?.content || '') !== content) {
+      throw new Error('System Monitor Discord message readback mismatch; delivery not verified.');
+    }
+    console.log(`Kings System Monitor delivery verified in #${channel.name} (${channel.id}); message ${existing.id}.`);
   }
 }
 
