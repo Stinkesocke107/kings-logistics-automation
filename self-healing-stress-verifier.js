@@ -17,7 +17,9 @@ const requiredScenarios = [
   'corrupt state safe recovery',
   'unsafe error is alert-only / no automatic action',
   'repair loop prevention',
-  'duplicate repair planning suppression'
+  'duplicate repair planning suppression',
+  'combined recoverable and unsafe failures escalate without forbidden dispatch',
+  'unknown repair state fails closed rather than enabling forbidden action'
 ];
 
 function read(file) {
