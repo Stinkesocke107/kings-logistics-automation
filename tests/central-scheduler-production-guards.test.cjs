@@ -64,3 +64,11 @@ test('Central Scheduler never dispatches a second job while an overdue run is st
     fs.rmSync(temp, {recursive:true, force:true});
   }
 });
+
+test('Central Scheduler blocks recovery during a production main push as well as a schedule', () => {
+  const activeFunction = source.slice(source.indexOf('active_managed_run()'), source.indexOf('latest_successful_run()'));
+  assert.match(activeFunction, /\.event == "push"/,
+    'Main branch code push may still be writing protected Driver, Staff or Tracker data.');
+  assert.match(activeFunction, /\.status == "in_progress"/);
+  assert.match(activeFunction, /\.status == "queued"/);
+});
