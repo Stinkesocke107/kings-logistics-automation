@@ -282,29 +282,37 @@ async function main() {
     throw new Error(`Kings System Monitor channel "${CHANNEL_NAME}" not found; no Discord write performed.`);
   }
 
-  const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
-  if (!Array.isArray(messages)) throw new Error('System Monitor message history is invalid.');
-  const matches = messages.filter((message) =>
-    message.author?.id === bot.id &&
-    String(message.content || '').startsWith(MARKER)
-  );
-  // Kings policy: the monitor updates an existing, bot-owned message only.
-  // If no monitor is visible, do NOT create another message (even with a
-  // partial/full channel history). The operator must recover the original ID.
-  if (matches.length === 0) {
-    throw new Error('Existing bot-owned System Monitor message not found; no new message will be sent. Check channel and message ownership manually.');
-  }
-  // Do not delete bot messages automatically or change unrelated posts.
-  if (matches.length > 1) {
-    throw new Error('Multiple bot-owned System Monitor messages found; manual cleanup required.');
+  // Optional immutable message ID is the most reliable long-lived path:
+  // it can be read directly even after >100 unrelated channel messages.
+  const pinnedId = String(process.env.SYSTEM_MONITOR_MESSAGE_ID || '').trim();
+  if (pinnedId && !/^\d{17,20}$/.test(pinnedId)) {
+    throw new Error('Configured System Monitor message ID is invalid; no Discord write performed.');
   }
 
-  const existing = matches[0];
-  // A configured immutable message ID prevents accidental adoption of an
-  // unrelated bot-owned status message after a channel move.
-  const pinnedId = String(process.env.SYSTEM_MONITOR_MESSAGE_ID || '').trim();
-  if (pinnedId && String(existing.id) !== pinnedId) {
-    throw new Error('System Monitor message ID differs from configured fixed ID; no Discord write performed.');
+  let existing;
+  if (pinnedId) {
+    existing = await discord(`/channels/${channel.id}/messages/${pinnedId}`);
+    if (String(existing?.id || '') !== pinnedId ||
+        existing?.author?.id !== bot.id ||
+        !String(existing?.content || '').startsWith(MARKER)) {
+      throw new Error('Pinned System Monitor message is missing or not bot-owned; no Discord write performed.');
+    }
+  } else {
+    const messages = await discord(`/channels/${channel.id}/messages?limit=100`);
+    if (!Array.isArray(messages)) throw new Error('System Monitor message history is invalid.');
+    const matches = messages.filter((message) =>
+      message.author?.id === bot.id &&
+      String(message.content || '').startsWith(MARKER)
+    );
+    // Never create or delete a monitor status message. Operators can pin the
+    // original ID if it no longer occurs in the latest 100 channel messages.
+    if (matches.length === 0) {
+      throw new Error('Existing bot-owned System Monitor message not found; no new message will be sent. Check channel and message ownership manually.');
+    }
+    if (matches.length > 1) {
+      throw new Error('Multiple bot-owned System Monitor messages found; manual cleanup required.');
+    }
+    existing = matches[0];
   }
 
   const content = buildMessage(health);

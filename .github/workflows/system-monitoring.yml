@@ -171,6 +171,9 @@ jobs:
       - name: Update Kings Systems Live Monitor
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          # Optional: original existing bot-owned message ID. Allows reliable
+          # in-place PATCH even after its message falls out of the last 100.
+          SYSTEM_MONITOR_MESSAGE_ID: ${{ secrets.SYSTEM_MONITOR_MESSAGE_ID }}
           DISCORD_GUILD_ID: '1114967437788577792'
           SYSTEM_MONITOR_CHANNEL_NAME: 'system-monitor'
         run: node system-monitor-discord.js

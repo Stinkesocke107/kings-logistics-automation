@@ -10,9 +10,9 @@ const source = fs.readFileSync(path.join(root, 'system-monitor-discord.js'), 'ut
 const marker = '👑 **Kings Systems — Live Monitor**';
 const channelId = '123456789012345678';
 
-function mockMonitor({history = [], mismatch = false, channels = null} = {}) {
+function mockMonitor({history = [], mismatch = false, channels = null, fixedMessage = null, pinnedId = ''} = {}) {
   const requests = [];
-  const saved = new Map(history.map(item => [String(item.id), {...item}]));
+  const saved = new Map([...history, ...(fixedMessage ? [fixedMessage] : [])].map(item => [String(item.id), {...item}]));
   const health = {
     status: 'DEGRADED', checkedAt: '2026-11-28T03:00:00.000Z',
     workflowRegistry: {registered: 46, onDemand: 13},
@@ -71,7 +71,7 @@ function mockMonitor({history = [], mismatch = false, channels = null} = {}) {
       if (name === 'path') return path;
       throw Error('Unexpected module: '+name);
     },
-    process:{env:{DISCORD_BOT_TOKEN:'isolated-only', SYSTEM_MONITOR_CHANNEL_NAME:'system-monitor'},
+    process:{env:{DISCORD_BOT_TOKEN:'isolated-only', SYSTEM_MONITOR_CHANNEL_NAME:'system-monitor', SYSTEM_MONITOR_MESSAGE_ID:pinnedId},
       exit(){throw Error('Unexpected process.exit');}},
     console:{log(){},warn(){},error(){}},
     AbortSignal, setTimeout, fetch:fetchMock
@@ -144,4 +144,43 @@ test('System Monitor skips all writes if existing fixed content is already curre
   // The first update verifies an existing message, never creates one.
   assert.ok(content.requests.some(x=>x.method==='PATCH'));
   assert.ok(content.requests.every(x=>x.method!=='POST' && x.method!=='DELETE'));
+});
+
+
+test('System Monitor updates the original pinned bot message even when older than the 100-message history', async () => {
+  const id='123456789012345678';
+  const history=Array.from({length:100},(_,i)=>({
+    id:String(i),author:{id:'other'},content:'other message'
+  }));
+  const {main,requests}=mockMonitor({
+    history, pinnedId:id,
+    fixedMessage:{id,author:{id:'kings-bot'},content:marker+' old'}
+  });
+  await main();
+  assert.equal(requests.filter(x=>x.method==='PATCH').length,1);
+  assert.ok(requests.some(x=>x.method==='GET' && x.url.endsWith('/messages/'+id)));
+  assert.ok(!requests.some(x=>x.url.includes('/messages?limit=100')));
+  assert.ok(requests.every(x=>x.method!=='POST' && x.method!=='DELETE'));
+});
+
+test('System Monitor refuses a pinned message not owned by the Kings bot', async () => {
+  const id='123456789012345678';
+  const {main,requests}=mockMonitor({
+    pinnedId:id,fixedMessage:{id,author:{id:'another-bot'},content:marker+' old'}
+  });
+  await assert.rejects(main(),/not bot-owned/);
+  assert.ok(requests.every(x=>!['POST','PATCH','DELETE'].includes(x.method)));
+});
+
+test('System Monitor rejects malformed fixed message ID before reading or editing messages', async () => {
+  const {main,requests}=mockMonitor({pinnedId:'not-a-snowflake'});
+  await assert.rejects(main(),/message ID is invalid/);
+  assert.ok(requests.every(x=>!['POST','PATCH','DELETE'].includes(x.method)));
+});
+
+test('System Monitor workflow supports pinned fixed message ID without enabling new-message publication',()=>{
+  const workflow=fs.readFileSync(path.join(root,'.github/workflows/system-monitoring.yml'),'utf8');
+  assert.match(workflow,/SYSTEM_MONITOR_MESSAGE_ID: \$\{\{ secrets\.SYSTEM_MONITOR_MESSAGE_ID \}\}/);
+  assert.doesNotMatch(source,/method:\s*'POST'/);
+  assert.doesNotMatch(source,/method:\s*'DELETE'/);
 });
