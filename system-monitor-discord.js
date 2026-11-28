@@ -288,31 +288,33 @@ async function main() {
     message.author?.id === bot.id &&
     String(message.content || '').startsWith(MARKER)
   );
-  // A full Discord page cannot prove that an older fixed message does not
-  // exist. Creating another would silently duplicate the status monitor.
-  if (messages.length === 100 && matches.length === 0) {
-    throw new Error('System Monitor history is full; manual message ownership check required.');
+  // Kings policy: the monitor updates an existing, bot-owned message only.
+  // If no monitor is visible, do NOT create another message (even with a
+  // partial/full channel history). The operator must recover the original ID.
+  if (matches.length === 0) {
+    throw new Error('Existing bot-owned System Monitor message not found; no new message will be sent. Check channel and message ownership manually.');
   }
   // Do not delete bot messages automatically or change unrelated posts.
   if (matches.length > 1) {
     throw new Error('Multiple bot-owned System Monitor messages found; manual cleanup required.');
   }
 
-  let existing = matches[0] || null;
+  const existing = matches[0];
+  // A configured immutable message ID prevents accidental adoption of an
+  // unrelated bot-owned status message after a channel move.
+  const pinnedId = String(process.env.SYSTEM_MONITOR_MESSAGE_ID || '').trim();
+  if (pinnedId && String(existing.id) !== pinnedId) {
+    throw new Error('System Monitor message ID differs from configured fixed ID; no Discord write performed.');
+  }
 
   const content = buildMessage(health);
   const body = { content, allowed_mentions: { parse: [] } };
 
   let wrote = false;
-  if (!existing) {
-    existing = await discord(`/channels/${channel.id}/messages`, { method: 'POST', body });
-    if (!existing?.id) {
-      throw new Error('System Monitor POST returned no message identity; manual check required.');
-    }
-    wrote = true;
-  } else if (String(existing.content || '').trim() === content.trim()) {
+  if (String(existing.content || '').trim() === content.trim()) {
     console.log(`Kings System Monitor unchanged in #${channel.name} (${channel.id}).`);
   } else {
+    // Exactly one PATCH to the existing bot-owned monitor. Never POST/DELETE.
     await discord(`/channels/${channel.id}/messages/${existing.id}`, { method: 'PATCH', body });
     wrote = true;
   }
