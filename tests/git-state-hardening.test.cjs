@@ -243,13 +243,13 @@ test('Kings Git/state conflict hardening matrix', () => {
       const original = Object.fromEntries(
         Array.from({ length: 16 }, (_, i) => [`field${String(i + 1).padStart(2, '0')}`, 0])
       );
-      commit(f.a, 'data/shared-state.json', `${JSON.stringify(original, null, 2)}\\n`);
+      commit(f.a, 'data/shared-state.json', `${JSON.stringify(original, null, 2)}\n`);
       safePush(f.a);
       run(f.b, 'git', ['pull', '--ff-only', 'origin', 'main']);
       const remoteState = { ...original, field02: 2 };
       const localState = { ...original, field15: 15 };
-      commit(f.a, 'data/shared-state.json', `${JSON.stringify(remoteState, null, 2)}\\n`);
-      commit(f.b, 'data/shared-state.json', `${JSON.stringify(localState, null, 2)}\\n`);
+      commit(f.a, 'data/shared-state.json', `${JSON.stringify(remoteState, null, 2)}\n`);
+      commit(f.b, 'data/shared-state.json', `${JSON.stringify(localState, null, 2)}\n`);
       const localBefore = localHead(f.b);
       safePush(f.a);
 
@@ -258,18 +258,18 @@ test('Kings Git/state conflict hardening matrix', () => {
       assert.match(rejected.stdout + rejected.stderr, /blocked overlapping data state path/);
       assert.equal(localHead(f.b), localBefore);
       run(f.b, 'git', ['fetch', 'origin', 'main']);
-      assert.equal(remoteFile(f.b, 'data/shared-state.json'), `${JSON.stringify(remoteState, null, 2)}\\n`);
+      assert.equal(remoteFile(f.b, 'data/shared-state.json'), `${JSON.stringify(remoteState, null, 2)}\n`);
       assert.equal(fs.readFileSync(path.join(f.b, 'data/shared-state.json'), 'utf8'),
-        `${JSON.stringify(localState, null, 2)}\\n`);
+        `${JSON.stringify(localState, null, 2)}\n`);
       scenarios.push({ scenario: 'disjoint-line concurrent writes to one JSON state file never auto-merge', passed: true });
     }
 
     {
       const f = fixture(); cleanups.push(f.root);
       const expectedRemote = localHead(f.a);
-      commit(f.a, 'data/pinned-restore.json', '{"apply":"local"}\\n');
+      commit(f.a, 'data/pinned-restore.json', '{"apply":"local"}\n');
       const localBefore = localHead(f.a);
-      commit(f.b, 'data/concurrent-writer.json', '{"source":"remote"}\\n');
+      commit(f.b, 'data/concurrent-writer.json', '{"source":"remote"}\n');
       safePush(f.b);
 
       const rejected = run(f.a, 'bash', [helper, 'main'], {
@@ -280,7 +280,7 @@ test('Kings Git/state conflict hardening matrix', () => {
       assert.match(rejected.stdout + rejected.stderr, /strict-remote guard blocked branch drift/);
       assert.equal(localHead(f.a), localBefore);
       run(f.a, 'git', ['fetch', 'origin', 'main']);
-      assert.equal(remoteFile(f.a, 'data/concurrent-writer.json'), '{"source":"remote"}\\n');
+      assert.equal(remoteFile(f.a, 'data/concurrent-writer.json'), '{"source":"remote"}\n');
       const noRemoteApply = run(f.a, 'git', ['cat-file', '-e', 'origin/main:data/pinned-restore.json'], {
         expectSuccess: false
       });
