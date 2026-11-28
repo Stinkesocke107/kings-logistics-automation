@@ -266,36 +266,28 @@ async function resilientFetch(url, options = {}) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
 
+      // Keep the timeout active until both headers AND the response body
+      // (including JSON/schema validation) have been consumed. Clearing it
+      // immediately after fetch() allowed a stalled body to hang forever.
       let response;
       try {
         response = await fetch(url, {
           ...fetchOptions,
           signal: controller.signal
         });
-      } finally {
-        clearTimeout(timer);
-      }
 
-      if (!response.ok) {
-        const error = new Error(`${label}: HTTP ${response.status}`);
-        error.status = response.status;
-        error.retryAfterMs = parseRetryAfter(response.headers.get('retry-after'));
-
-        if (!canRetryRequest(method, error, retryUnsafeMethods) || attempt >= totalAttempts) {
+        if (!response.ok) {
+          const error = new Error(`${label}: HTTP ${response.status}`);
+          error.status = response.status;
+          error.retryAfterMs = parseRetryAfter(response.headers.get('retry-after'));
           throw error;
         }
 
-        lastError = error;
-        const delay = retryDelay(attempt, error.retryAfterMs, baseDelayMs);
-        console.warn(
-          `${label}: HTTP ${response.status}; retry ${attempt}/${totalAttempts - 1} in ${delay}ms.`
-        );
-        await sleep(delay);
-        continue;
-      }
-
-      if (typeof validateResponse === 'function') {
-        await validateResponse(response);
+        if (typeof validateResponse === 'function') {
+          await validateResponse(response);
+        }
+      } finally {
+        clearTimeout(timer);
       }
 
       if (!deferSuccess) recordSuccess(label);

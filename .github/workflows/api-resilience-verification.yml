@@ -2,6 +2,12 @@ name: Kings API Resilience Verification
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'api-resilience.js'
+      - 'api-resilience-verifier.js'
+      - 'tests/api-resilience.test.cjs'
+      - '.github/workflows/api-resilience-verification.yml'
   push:
     branches:
       - main
@@ -23,7 +29,6 @@ concurrency:
 
 jobs:
   verify-api-resilience:
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -49,6 +54,7 @@ jobs:
         run: node --test tests/api-resilience.test.cjs
 
       - name: Verify production API health and integrations
+        if: github.ref == 'refs/heads/main'
         run: node api-resilience-verifier.js
 
       - name: Upload Point 13 proof
