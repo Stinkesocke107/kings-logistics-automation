@@ -87,7 +87,24 @@
         "runId": 46041824790
       },
       "firstAlertedAt": "2026-11-27T18:05:42.214Z"
+    },
+    "convoy-completeness-stale": {
+      "severity": "critical",
+      "system": "Convoy Completeness",
+      "message": "No healthy convoy snapshot in the last 45 minutes.",
+      "details": {
+        "ageMinutes": 109,
+        "latestCount": 40
+      },
+      "firstAlertedAt": "2026-11-28T01:37:33.968Z"
     }
   },
-  "pending": {}
+  "pending": {
+    "workflow-overdue:event-operations-discord-review.yml": {
+      "count": 1,
+      "firstSeenAt": "2026-11-28T01:37:33.968Z",
+      "system": "Event Operations Discord Staff Review",
+      "message": "Event Operations Discord Staff Review has not run within the expected time window."
+    }
+  }
 }
