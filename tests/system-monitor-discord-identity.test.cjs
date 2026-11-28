@@ -64,6 +64,7 @@ function mockMonitor({history = [], mismatch = false, channels = null} = {}) {
   assert.ok(patched.includes('module.exports = {main, buildMessage};'));
   const sandbox = {
     module:{exports:{}},
+    __dirname: root,
     require(name) {
       if (name === './kings-branding') return {installDiscordBranding(){}};
       if (name === 'fs') return {existsSync:()=>true,readFileSync:()=>JSON.stringify(health)};
