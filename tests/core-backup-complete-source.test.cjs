@@ -51,3 +51,15 @@ test('real isolated backup verification enforces presence and SHA256 of new sour
  assert.match(verification,/crypto\.createHash\('sha256'\)/);
  assert.match(verification,/Verify disposable restore sandbox was removed/);
 });
+
+test('isolated Backup Recovery Verification runs on PR without secrets or live restore',()=>{
+  const wf=verification;
+  assert.match(wf,/pull_request:\s*\n\s*paths:/);
+  assert.match(wf,/github\.event_name == 'pull_request'/);
+  assert.match(wf,/run: node core-backup\.js/);
+  assert.match(wf,/run: node backup-final-check\.js/);
+  assert.match(wf,/Verify disposable restore sandbox was removed/);
+  assert.doesNotMatch(wf,/run: node core-recovery\.js/);
+  assert.doesNotMatch(wf,/secrets\./);
+  assert.doesNotMatch(wf,/contents: write/);
+});
