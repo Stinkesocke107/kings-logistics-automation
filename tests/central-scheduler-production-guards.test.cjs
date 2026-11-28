@@ -38,28 +38,28 @@ test('Central Scheduler never dispatches a second job while an overdue run is st
   try {
     const contents = source;
     const start = contents.indexOf('      - name: Run one resilient scheduler pass');
-    const begin = contents.indexOf('        run: |\\n', start);
-    const end = contents.indexOf('\\n      - name: Scheduler summary', begin);
+    const begin = contents.indexOf('        run: |\n', start);
+    const end = contents.indexOf('\n      - name: Scheduler summary', begin);
     assert.ok(begin > start && end > begin);
-    const script = contents.slice(begin + '        run: |\\n'.length, end)
-      .split('\\n').map((line) => line.startsWith('          ') ? line.slice(10) : line).join('\\n');
+    const script = contents.slice(begin + '        run: |\n'.length, end)
+      .split('\n').map((line) => line.startsWith('          ') ? line.slice(10) : line).join('\n');
     const oldTime = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
     const snapshot = {workflow_runs:[{id:456, event:'schedule', status:'in_progress', created_at:oldTime}]};
     const fixture = path.join(temp, 'snapshot.json');
     const dispatched = path.join(temp, 'dispatch.txt');
     fs.writeFileSync(fixture, JSON.stringify(snapshot));
     const fakeGh = path.join(temp, 'gh');
-    fs.writeFileSync(fakeGh, '#!/bin/sh\\ncase " $* " in\\n  *" --method POST "*) echo POST >> "$KINGS_TEST_DISPATCH";;\\n  *" --method GET "*) cat "$KINGS_TEST_SNAPSHOT";;\\n  *) printf active;;\\nesac\\n');
+    fs.writeFileSync(fakeGh, '#!/bin/sh\ncase " $* " in\n  *" --method POST "*) echo POST >> "$KINGS_TEST_DISPATCH";;\n  *" --method GET "*) cat "$KINGS_TEST_SNAPSHOT";;\n  *) printf active;;\nesac\n');
     fs.chmodSync(fakeGh, 0o755);
-    const result = spawnSync('bash', ['-c', 'set -euo pipefail\\n' + script], {
+    const result = spawnSync('bash', ['-c', 'set -euo pipefail\n' + script], {
       cwd: path.resolve(__dirname, '..'), encoding: 'utf8', timeout: 15000,
       env: {...process.env, PATH: temp + path.delimiter + process.env.PATH,
         GITHUB_EVENT_NAME:'schedule', GITHUB_REPOSITORY:'test/kings',
         KINGS_TEST_SNAPSHOT:fixture, KINGS_TEST_DISPATCH:dispatched}
     });
-    assert.equal(result.status, 0, result.stderr + '\\n' + result.stdout);
+    assert.equal(result.status, 0, result.stderr + '\n' + result.stdout);
     assert.equal(fs.existsSync(dispatched), false, 'An overdue active GitHub run must NEVER be dispatched again');
-    assert.match(result.stdout, /operator review required\\. No duplicate dispatch/);
+    assert.match(result.stdout, /operator review required\. No duplicate dispatch/);
   } finally {
     fs.rmSync(temp, {recursive:true, force:true});
   }
