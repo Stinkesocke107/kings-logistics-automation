@@ -227,6 +227,7 @@ jobs:
           compression-level: 9
 
       - name: Verify uploaded backup artifact exists in this GitHub run
+        id: artifact_verify
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -258,14 +259,15 @@ jobs:
           BACKUP_NAME: ${{ steps.backup_mode.outputs.name }}
           RETENTION: ${{ steps.backup_mode.outputs.retention }}
           HEALTHY: ${{ steps.backup_health.outputs.healthy }}
+          ARTIFACT_STATUS: ${{ steps.artifact_verify.outcome }}
         run: |
           echo "## 👑 Kings Automation Backup" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
-          if [ "$HEALTHY" = "true" ]; then
-            echo "✅ **Status: HEALTHY**" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$HEALTHY" = "true" ] && [ "$ARTIFACT_STATUS" = "success" ]; then
+            echo "✅ **Status: HEALTHY — backup and uploaded archive verified**" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "⚠️ **Status: UNHEALTHY**" >> "$GITHUB_STEP_SUMMARY"
+            echo "⚠️ **Status: NOT VERIFIED — backup health or uploaded archive evidence failed**" >> "$GITHUB_STEP_SUMMARY"
           fi
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
@@ -285,7 +287,11 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "**Commit:** \`$GITHUB_SHA\`" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "The complete backup is available as a GitHub Actions artifact." >> "$GITHUB_STEP_SUMMARY"
+          if [ "$ARTIFACT_STATUS" = "success" ]; then
+            echo "GitHub confirmed the backup archive belongs to this run." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Backup archive availability NOT VERIFIED. Check upload and GitHub artifact evidence before relying on this backup." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
           if [ -f "backup-staging/backup-health.json" ] && [ -f "backup-staging/backup-final-health.json" ]; then
             echo "" >> "$GITHUB_STEP_SUMMARY"
