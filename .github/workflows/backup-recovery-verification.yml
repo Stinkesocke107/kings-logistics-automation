@@ -2,6 +2,19 @@ name: Kings Backup Recovery Verification
 
 on:
   workflow_dispatch:
+  # Disposable backup+SHA256 restore on proposed code before main merge.
+  # No real restore, production secrets, state commits or Discord writes.
+  pull_request:
+    paths:
+      - 'core-backup.js'
+      - 'backup-final-check.js'
+      - 'backup-restore-verify.js'
+      - 'backup-artifact-verifier.js'
+      - 'recovery-path-guard.js'
+      - '.github/workflows/core-backup.yml'
+      - '.github/workflows/core-recovery.yml'
+      - '.github/workflows/backup-recovery-verification.yml'
+      - 'tests/recovery-path-guard.test.cjs'
   push:
     branches: [main]
     paths:
@@ -25,7 +38,7 @@ concurrency:
 
 jobs:
   verify-roundtrip:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
