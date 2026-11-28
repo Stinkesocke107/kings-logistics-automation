@@ -1,7 +1,7 @@
 {
   "version": 3,
   "mode": "advisory-only",
-  "updatedAt": "2026-11-28T12:15:42.575Z",
+  "updatedAt": "2026-11-28T14:06:46.484Z",
   "currentDrivers": 111,
   "onlineNow": null,
   "onlineObservationStatus": "unavailable",
@@ -13,8 +13,8 @@
     "grace": 2,
     "active": 0,
     "approvedLeave": 0,
-    "info7Days": 12,
-    "attention14Days": 15,
+    "info7Days": 11,
+    "attention14Days": 16,
     "hrReview30Days": 82,
     "unknown": 0
   },
