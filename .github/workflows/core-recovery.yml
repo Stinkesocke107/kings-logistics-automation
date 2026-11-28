@@ -207,6 +207,31 @@ jobs:
           retention-days: 90
           compression-level: 9
 
+      - name: Confirm durable emergency backup artifact before any APPLY
+        if: inputs.recovery_mode == 'apply'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KINGS_BACKUP_ARTIFACT_NAME: kings-emergency-pre-recovery-${{ github.run_number }}
+          KINGS_BACKUP_SOURCE_RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          node --check backup-artifact-verifier.js
+          # Never apply a restore until the independent emergency rollback
+          # archive is confirmed in this exact GitHub Actions run.
+          for attempt in 1 2 3 4 5; do
+            gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" > /tmp/kings-emergency-backup-artifacts.json
+            if node backup-artifact-verifier.js /tmp/kings-emergency-backup-artifacts.json; then
+              echo "Emergency pre-recovery backup is durably registered in GitHub."
+              break
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              echo "::error::Emergency backup artifact missing or invalid. APPLY is blocked."
+              exit 1
+            fi
+            sleep 3
+          done
+
       - name: Enforce Emergency Backup Health
         if: inputs.recovery_mode == 'apply'
         shell: bash
@@ -385,7 +410,7 @@ jobs:
           if [ "$MODE" = "apply" ]; then
             echo "🚨 **Mode: APPLY**" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "A fully validated 90-day emergency backup was created before recovery." >> "$GITHUB_STEP_SUMMARY"
+            echo "APPLY requires a validated 90-day emergency backup, confirmed GitHub artifact, protected environment and branch-drift checks. Check individual step results before assuming success." >> "$GITHUB_STEP_SUMMARY"
             echo "Branch drift protection was enforced before APPLY and before push." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "🔍 **Mode: PREVIEW**" >> "$GITHUB_STEP_SUMMARY"

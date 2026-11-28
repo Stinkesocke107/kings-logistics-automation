@@ -5,7 +5,7 @@
 const fs = require('node:fs');
 
 function assertUploadedBackupArtifact(payload, { name, runId }) {
-  if (typeof name !== 'string' || !/^kings-(?:automation-backup|restore-point)-[a-zA-Z0-9._-]+$/.test(name)) {
+  if (typeof name !== 'string' || !/^kings-(?:automation-backup|restore-point|emergency-pre-recovery)-[a-zA-Z0-9._-]+$/.test(name)) {
     throw new Error('Expected backup artifact identity is invalid.');
   }
   if (!/^[1-9]\d*$/.test(String(runId || ''))) {
