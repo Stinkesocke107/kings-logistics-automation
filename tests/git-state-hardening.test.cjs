@@ -120,13 +120,13 @@ test('Kings Git/state conflict hardening matrix', () => {
       safePush(f.a);
       const failed = run(f.b, 'bash', [helper, 'main'], { expectSuccess: false });
       assert.notEqual(failed.status, 0);
-      assert.match(failed.stdout + failed.stderr, /Rebase conflict detected/);
+      assert.match(failed.stdout + failed.stderr, /blocked overlapping data state path/);
       assert.equal(localHead(f.b), localBefore);
       assert.equal(remoteFile(f.b, 'data/base.json'), '{"owner":"remote"}\n');
       assert.equal(fs.readFileSync(path.join(f.b, 'data/base.json'), 'utf8'), '{"owner":"local"}\n');
       assert.equal(fs.existsSync(path.join(f.b, '.git/rebase-merge')), false);
       assert.equal(fs.existsSync(path.join(f.b, '.git/rebase-apply')), false);
-      scenarios.push({ scenario: 'same-file conflict aborts without overwriting either side', passed: true });
+      scenarios.push({ scenario: 'same-file overlap aborts before rebase without overwriting either side', passed: true });
     }
 
     {
@@ -238,8 +238,58 @@ test('Kings Git/state conflict hardening matrix', () => {
       scenarios.push({ scenario: 'bounded retry exhaustion fails safely and preserves local commit', passed: true });
     }
 
+    {
+      const f = fixture(); cleanups.push(f.root);
+      const original = Object.fromEntries(
+        Array.from({ length: 16 }, (_, i) => [`field${String(i + 1).padStart(2, '0')}`, 0])
+      );
+      commit(f.a, 'data/shared-state.json', `${JSON.stringify(original, null, 2)}\n`);
+      safePush(f.a);
+      run(f.b, 'git', ['pull', '--ff-only', 'origin', 'main']);
+      const remoteState = { ...original, field02: 2 };
+      const localState = { ...original, field15: 15 };
+      commit(f.a, 'data/shared-state.json', `${JSON.stringify(remoteState, null, 2)}\n`);
+      commit(f.b, 'data/shared-state.json', `${JSON.stringify(localState, null, 2)}\n`);
+      const localBefore = localHead(f.b);
+      safePush(f.a);
+
+      const rejected = run(f.b, 'bash', [helper, 'main'], { expectSuccess: false });
+      assert.notEqual(rejected.status, 0);
+      assert.match(rejected.stdout + rejected.stderr, /blocked overlapping data state path/);
+      assert.equal(localHead(f.b), localBefore);
+      run(f.b, 'git', ['fetch', 'origin', 'main']);
+      assert.equal(remoteFile(f.b, 'data/shared-state.json'), `${JSON.stringify(remoteState, null, 2)}\n`);
+      assert.equal(fs.readFileSync(path.join(f.b, 'data/shared-state.json'), 'utf8'),
+        `${JSON.stringify(localState, null, 2)}\n`);
+      scenarios.push({ scenario: 'disjoint-line concurrent writes to one JSON state file never auto-merge', passed: true });
+    }
+
+    {
+      const f = fixture(); cleanups.push(f.root);
+      const expectedRemote = localHead(f.a);
+      commit(f.a, 'data/pinned-restore.json', '{"apply":"local"}\n');
+      const localBefore = localHead(f.a);
+      commit(f.b, 'data/concurrent-writer.json', '{"source":"remote"}\n');
+      safePush(f.b);
+
+      const rejected = run(f.a, 'bash', [helper, 'main'], {
+        expectSuccess: false,
+        env: { GIT_SAFE_PUSH_EXPECT_REMOTE: expectedRemote }
+      });
+      assert.notEqual(rejected.status, 0);
+      assert.match(rejected.stdout + rejected.stderr, /strict-remote guard blocked branch drift/);
+      assert.equal(localHead(f.a), localBefore);
+      run(f.a, 'git', ['fetch', 'origin', 'main']);
+      assert.equal(remoteFile(f.a, 'data/concurrent-writer.json'), '{"source":"remote"}\n');
+      const noRemoteApply = run(f.a, 'git', ['cat-file', '-e', 'origin/main:data/pinned-restore.json'], {
+        expectSuccess: false
+      });
+      assert.notEqual(noRemoteApply.status, 0);
+      scenarios.push({ scenario: 'strict expected-remote pin refuses any intervening branch update', passed: true });
+    }
+
     writeReport(scenarios);
-    assert.equal(scenarios.length, 8);
+    assert.equal(scenarios.length, 10);
   } finally {
     for (const root of cleanups) fs.rmSync(root, { recursive: true, force: true });
   }

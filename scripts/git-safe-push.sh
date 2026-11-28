@@ -115,6 +115,41 @@ validate_rebased_json() {
   fi
 }
 
+# A textual Git rebase can auto-merge two simultaneous writes to different
+# lines of the SAME JSON state file. That is not a safe semantic merge for
+# workflow-owned snapshots/counters. Refuse such overlap even if Git reports
+# no text conflict, preserving both local and remote histories for review.
+reject_overlapping_data_paths() {
+  local remote_ref="$1"
+  local common_base file
+  local -a local_paths=()
+  local -a remote_paths=()
+  local -A remote_modified=()
+
+  if ! common_base="$(git merge-base HEAD "$remote_ref")"; then
+    echo "Safe push could not prove a common Git base; refusing an unsafe rebase."
+    return 1
+  fi
+
+  mapfile -d '' -t local_paths < <(
+    git diff --name-only -z --diff-filter=ACMRD "$common_base" HEAD -- data/
+  )
+  mapfile -d '' -t remote_paths < <(
+    git diff --name-only -z --diff-filter=ACMRD "$common_base" "$remote_ref" -- data/
+  )
+
+  for file in "${remote_paths[@]}"; do
+    remote_modified["$file"]=1
+  done
+
+  for file in "${local_paths[@]}"; do
+    if [ -n "${remote_modified[$file]:-}" ]; then
+      echo "Safe push blocked overlapping data state path: $file"
+      return 1
+    fi
+  done
+}
+
 for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
   echo "Safe push attempt ${attempt}/${MAX_ATTEMPTS}..."
 
@@ -143,6 +178,13 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
       echo "Current origin/$BRANCH:  $REMOTE_HEAD"
       exit 1
     fi
+  fi
+
+  # Check state-file overlap BEFORE rebase; a clean textual merge does not
+  # prove that two independently produced JSON snapshots remain consistent.
+  if ! reject_overlapping_data_paths "origin/$BRANCH"; then
+    echo "Safe push stopped to protect concurrently edited data state."
+    exit 1
   fi
 
   # Never auto-resolve same-file state conflicts. Abort and leave the original
