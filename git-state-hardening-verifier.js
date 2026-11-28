@@ -25,8 +25,8 @@ function main() {
   if (matrix) {
     if (matrix.healthy !== true) issues.push('Git/state conflict matrix is not healthy.');
     if (Number(matrix.failed || 0) !== 0) issues.push(`Git/state matrix has ${matrix.failed} failed scenario(s).`);
-    if (!Array.isArray(matrix.scenarios) || matrix.scenarios.length < 8) {
-      issues.push(`Git/state matrix is incomplete: ${matrix.scenarios?.length || 0}/8 scenarios.`);
+    if (!Array.isArray(matrix.scenarios) || matrix.scenarios.length < 10) {
+      issues.push(`Git/state matrix is incomplete: ${matrix.scenarios?.length || 0}/10 scenarios.`);
     }
     if (matrix.externalRepositoryWrites !== false) {
       issues.push('Git/state conflict injection was not isolated from the production repository.');
@@ -47,7 +47,10 @@ function main() {
     abortOnConflict: safePush.includes('git rebase --abort'),
     jsonValidationAfterRebase: safePush.includes('validate_rebased_json'),
     strictRemoteGuard: safePush.includes('GIT_SAFE_PUSH_EXPECT_REMOTE') && safePush.includes('strict-remote guard'),
-    explicitHeadPush: safePush.includes('git push origin "HEAD:$BRANCH"')
+    explicitHeadPush: safePush.includes('git push origin "HEAD:$BRANCH"'),
+    semanticStateOverlapGuard:
+      safePush.includes('reject_overlapping_data_paths') &&
+      safePush.includes('git merge-base HEAD "$remote_ref"')
   };
 
   for (const [name, ok] of Object.entries(helperCapabilities)) {
