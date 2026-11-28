@@ -109,7 +109,7 @@ test('Driver, HR and Staff encrypted-state writes fail closed on real Git race i
     fs.writeFileSync(path.join(b,file),'{"snapshot":"stale"}\n','utf8');
     const result=command(b,'bash',['-e','-o','pipefail','-c',script],false);
     assert.notEqual(result.status,0,workflow+' must not report a successful unpersisted journal');
-    assert.match(result.stdout+result.stderr,/Rebase conflict detected/,workflow);
+    assert.match(result.stdout+result.stderr,/blocked overlapping data state path|Rebase conflict detected/,workflow);
     command(b,'git',['fetch','origin','main']);
     assert.equal(command(b,'git',['show','origin/main:'+file]).stdout,
       '{"snapshot":"newer"}\n',workflow+' must preserve the newer remote file');
