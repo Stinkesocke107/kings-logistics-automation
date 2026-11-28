@@ -82,6 +82,18 @@ test('Kings API resilience failure matrix', async () => {
       return writeJson(res, 200, { ok: true });
     }
 
+    if (key === '/stalled-json-body') {
+      if (n === 1) {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.write('{"ok":');
+        setTimeout(() => {
+          if (!res.destroyed && !res.writableEnded) res.end('true}');
+        }, 150);
+        return;
+      }
+      return writeJson(res, 200, { ok: true });
+    }
+
     if (key === '/bad-json') {
       if (n === 1) return writeText(res, 200, '{broken json');
       return writeJson(res, 200, { ok: true });
@@ -175,6 +187,15 @@ test('Kings API resilience failure matrix', async () => {
     assert.equal(timeoutRecovered.ok, true);
     assert.equal(counts.get('/timeout'), 2);
     results.push({ scenario: 'timeout retry then recovery', passed: true, attempts: 2 });
+
+    const bodyRecovered = await resilientFetchJson(`${base}/stalled-json-body`, {
+      label: 'Stalled JSON body mock', retries: 2, timeoutMs: 30, baseDelayMs: 1,
+      validateJson: (data) => data?.ok === true
+    });
+    assert.equal(bodyRecovered.ok, true);
+    assert.equal(counts.get('/stalled-json-body'), 2);
+    assert.equal(readHealth('Stalled JSON body mock').status, 'healthy');
+    results.push({ scenario: 'response-body timeout retries and recovers', passed: true, attempts: 2 });
 
     const jsonRecovered = await resilientFetchJson(`${base}/bad-json`, {
       label: 'Malformed JSON mock', retries: 2, timeoutMs: 500, baseDelayMs: 1,
