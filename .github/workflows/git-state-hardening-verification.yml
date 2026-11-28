@@ -2,6 +2,12 @@ name: Kings Git State Hardening Verification
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/git-safe-push.sh'
+      - 'tests/git-state-hardening.test.cjs'
+      - 'git-state-hardening-verifier.js'
+      - '.github/workflows/git-state-hardening-verification.yml'
   push:
     branches: [main]
     paths:
@@ -63,6 +69,7 @@ jobs:
           echo '- Conflict/race injection: **temporary local bare repositories only**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Production repository mutation by stress test: **none**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Same-file conflicts: **abort, never auto-overwrite**' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Disjoint-line same-state edits: **fail closed before auto-merge**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Independent concurrent commits: **rebase and preserve both**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Forgotten data state: **blocked before push**' >> "$GITHUB_STEP_SUMMARY"
           echo '- Rebased JSON state: **parsed before push**' >> "$GITHUB_STEP_SUMMARY"
